@@ -4,4 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-add_subdirectory(pal)
+zephyr_library()
+
+zephyr_library_sources(
+  src/log.c
+)
+
+zephyr_include_directories(include)
