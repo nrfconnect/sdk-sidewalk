@@ -1,0 +1,22 @@
+# The west manifest file (west.yml) for Sidewalk in nRF Connect SDK (NCS).
+
+manifest:
+  defaults:
+    remote: ncs
+
+  remotes:
+    # nRF Connect SDK base URL.
+    - name: ncs
+      url-base: https://github.com/nrfconnect
+
+  projects:
+    - name: nrf
+      repo-path: sdk-nrf
+      path: nrf
+      revision: main
+      import: true
+
+  # West-related configuration for the sidewalk repository.
+  self:
+    # This repository should be cloned to ncs/sidewalk.
+    path: sidewalk
