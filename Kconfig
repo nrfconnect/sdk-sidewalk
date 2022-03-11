@@ -3,3 +3,20 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
+
+module = SIDEWALK
+module-str = Amazon Sidewalk
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+config SIDEWALK_LOG_MSG_LENGTH_MAX
+	int "Log message max length"
+	default 128
+	help
+	  Maxium message length for Sidewalk PAL log in bytes.
+
+config SIDEWALK_ASSERT
+	bool "Enable SID_PAL_ASSERT() macro"
+	default ASSERT
+	help
+	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
+	  If an assertion fails, program will trigger a fatal error.
