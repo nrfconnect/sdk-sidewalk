@@ -1,0 +1,5 @@
+tests:
+  unity.example_test:
+    tags: example
+    integration_platforms:
+      - native_posix
