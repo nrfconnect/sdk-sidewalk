@@ -1,0 +1,14 @@
+# Config options for logger sample app
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+
+mainmenu "Sidewalk unity test"
+
+menu "Unit under test configuration"
+
+endmenu
+
+source "Kconfig.zephyr"

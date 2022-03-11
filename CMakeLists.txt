@@ -1,7 +1,7 @@
 #
-# Copyright (c) 2018 Nordic Semiconductor
+# Copyright (c) 2022 Nordic Semiconductor
 #
-# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
 zephyr_include_directories(

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
 #include <zephyr.h>
@@ -11,8 +11,7 @@
 void main(void)
 {
 	printk("Hello Sidewalk World! %s\n", CONFIG_BOARD);
-	if(SID_ERROR_NONE == sid_pal_storage_kv_init())
-	{
+	if (SID_ERROR_NONE == sid_pal_storage_kv_init()) {
 		printk("NVM memory is ready!\n");
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
 /** @file sid_storage.c
@@ -51,7 +51,7 @@ sid_error_t sid_pal_storage_kv_init()
 sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_data, uint32_t len)
 {
 	ssize_t rc;
-	uint8_t *buff = (uint8_t *)p_data;
+	uint8_t *buff;
 
 	if (SID_GROUP_ID_COUNT <= group) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
@@ -74,7 +74,7 @@ sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_
 
 sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint32_t *p_len)
 {
-	uint8_t dev_null;
+	uint8_t dummy_arg;
 	ssize_t ret_len = 0;
 
 	if (SID_GROUP_ID_COUNT <= group) {
@@ -85,7 +85,7 @@ sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint
 		return SID_ERROR_NULL_POINTER;
 	}
 
-	ret_len = nvs_read(&fs[group], key, &dev_null, sizeof(dev_null));
+	ret_len = nvs_read(&fs[group], key, &dummy_arg, sizeof(dummy_arg));
 	if (0 < ret_len) {
 		*p_len = ret_len;
 		return SID_ERROR_NONE;
@@ -104,8 +104,12 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
-	if ((0U == len) || (len > (NVS_SECTOR_SIZE - NVS_RES_SPACE))) {
+	if (0U == len) {
 		return SID_ERROR_INVALID_ARGS;
+	}
+
+	if (len > (NVS_SECTOR_SIZE - NVS_RES_SPACE)) {
+		return SID_ERROR_OUT_OF_RESOURCES;
 	}
 
 	if (!p_data) {
@@ -146,6 +150,10 @@ sid_error_t sid_pal_storage_kv_group_delete(uint16_t group)
 	if (0 != nvs_clear(&fs[group])) {
 		return SID_ERROR_STORAGE_ERASE_FAIL;
 	}
-	nvs_init(&fs[group], DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL);
+
+	/* The nvs needs to be reinitialized after clearing */
+	if (0 > nvs_init(&fs[group], DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL)) {
+		return SID_ERROR_GENERIC;
+	}
 	return SID_ERROR_NONE;
 }
