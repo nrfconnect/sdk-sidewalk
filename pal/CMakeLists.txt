@@ -9,4 +9,5 @@ zephyr_library()
 zephyr_library_sources(
   src/log.c
   src/sid_storage.c
+  src/assert.c
 )
