@@ -2,6 +2,7 @@
 #define SID_PAL_STORAGE_KV_IFC_H
 
 #include <sid_error.h>
+#include <stdint.h>
 
 sid_error_t sid_pal_storage_kv_init(void);
 sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_data, uint32_t len);
