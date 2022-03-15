@@ -10,7 +10,7 @@
 #include <sys/printk.h>
 #include <logging/log.h>
 #include <logging/log_ctrl.h>
-LOG_MODULE_DECLARE(sid_log, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sid_log, LOG_LEVEL_DBG);
 
 #define MSG_LENGTH_MAX (CONFIG_SIDEWALK_LOG_MSG_LENGTH_MAX)
 #define LOG_FLUSH_SLEEP_PERIOD K_MSEC(5)
