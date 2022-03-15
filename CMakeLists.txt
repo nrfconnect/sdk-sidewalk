@@ -14,6 +14,8 @@ else()
 	zephyr_compile_definitions(SID_PAL_LOG_LEVEL=${CONFIG_SIDEWALK_LOG_LEVEL}-1)
 endif() # CONFIG_SIDEWALK_LOG_LEVEL_OFF
 
+zephyr_compile_definitions_ifndef(CONFIG_SIDEWALK_ASSERT SID_PAL_ASSERT_DISABLED)
+
 zephyr_include_directories(
   include
   common
