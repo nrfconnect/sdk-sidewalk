@@ -8,7 +8,7 @@
 #include <sid_pal_log_ifc.h>
 
 #include <logging/log.h>
-LOG_MODULE_DECLARE(app, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 
 void main(void)
 {
