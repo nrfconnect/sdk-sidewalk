@@ -6,6 +6,7 @@
 
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_log_ifc.h>
+#include <sid_pal_assert_ifc.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
@@ -20,4 +21,6 @@ void main(void)
 
 	
 	SID_PAL_LOG_INFO("Hello Sidewalk Log! %d", 2022);
+
+	SID_PAL_ASSERT(true);
 }
