@@ -10,6 +10,7 @@ source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
+	default LOG_STRDUP_MAX_STRING if LOG_MODE_DEFERRED
 	default 128
 	help
 	  Maxium message length for Sidewalk PAL log in bytes.
