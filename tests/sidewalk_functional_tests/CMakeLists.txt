@@ -6,14 +6,11 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
+# Enable HALO_ENABLE_DIAGNOSTICS
 add_definitions(-DHALO_ENABLE_DIAGNOSTICS=1)
-add_definitions(-DDEV_ID_REG=0x33AABB99)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(sidewalk_test)
-
-cmock_handle(${ZEPHYR_BASE}/include/fs/nvs.h)
-cmock_handle(${ZEPHYR_BASE}/include/drivers/flash.h)
+project(sidewalk_functional_test)
 
 # add test file
 FILE(GLOB app_sources src/*.c)
