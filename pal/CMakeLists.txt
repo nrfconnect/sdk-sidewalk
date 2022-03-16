@@ -10,4 +10,5 @@ zephyr_library_sources(
   src/log.c
   src/sid_storage.c
   src/assert.c
+  src/sid_mfg_storage.c
 )
