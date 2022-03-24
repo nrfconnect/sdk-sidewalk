@@ -8,6 +8,7 @@
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_pal_timer_ifc.h>
 #include <sid_pal_assert_ifc.h>
+#include <sid_pal_uptime_ifc.h>
 #include <mock_nvs.h>
 #include <mock_flash.h>
 #include <string.h>
@@ -349,6 +350,25 @@ void test_sid_pal_timer_is_armed_deinit(void)
 	timer_deinit();
 
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+}
+
+/******************************************************************
+* sid_pal_uptime_ifc
+* ****************************************************************/
+void test_sid_pal_uptime_get_now(void)
+{
+	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_uptime_now(NULL));
+	struct sid_timespec sid_time;
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
+}
+
+void test_sid_pal_uptime_accuracy(void)
+{
+	/* Note: This is a oversimplified test fo dummy implementation.*/
+	int16_t ppm;
+	ppm = sid_pal_uptime_get_xtal_ppm();
+	sid_pal_uptime_set_xtal_ppm(ppm);
+	TEST_ASSERT_EQUAL(ppm, sid_pal_uptime_get_xtal_ppm());
 }
 
 /* It is required to be added to each test. That is because unity is using
