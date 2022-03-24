@@ -11,6 +11,7 @@
 #include <sid_pal_assert_ifc.h>
 #include <sid_pal_timer_ifc.h>
 
+#include <sid_pal_uptime_ifc.h>
 #include <logging/log.h>
 #include <zephyr.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
@@ -73,6 +74,15 @@ void main(void)
 		}
 	}else{
 		SID_PAL_LOG_WARNING("Timer initialization error=%d.", erc);
+	}
+
+	k_sleep(K_SECONDS(3));
+	struct sid_timespec sid_time;
+	sid_error_t rc = sid_pal_uptime_now(&sid_time);
+	if (SID_ERROR_NONE == rc) {
+		SID_PAL_LOG_INFO("Uptime sec: %u nsec:%u", sid_time.tv_sec, sid_time.tv_nsec);
+	} else {
+		SID_PAL_LOG_ERROR("Uptime fail, error code: %d", rc);
 	}
 
 	SID_PAL_ASSERT(true);

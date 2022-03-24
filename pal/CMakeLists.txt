@@ -12,4 +12,5 @@ zephyr_library_sources(
   src/assert.c
   src/sid_mfg_storage.c
   src/sid_timer.c
+  src/sid_uptime.c
 )

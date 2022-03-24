@@ -12,6 +12,8 @@
 #include <string.h>
 #include <sys/byteorder.h>
 #include <sid_pal_timer_ifc.h>
+#include <sid_pal_uptime_ifc.h>
+#include <kernel.h>
 
 /* number of nanoseconds per microseconds */
 #define NSEC_PER_MSEC ((NSEC_PER_USEC) *(USEC_PER_MSEC))
@@ -667,6 +669,24 @@ void test_sid_pal_timer_one_shot_few_times(void)
 	}
 
 	timer_deinit();
+}
+
+/******************************************************************
+* sid_pal_uptime_ifc
+* ****************************************************************/
+void test_sid_pal_uptime_get(void)
+{
+	struct sid_timespec sid_time = { 0 };
+	int64_t uptime_msec = k_uptime_get();
+	uint32_t uptime_sec = (uint32_t)(uptime_msec / MSEC_PER_SEC);
+	uint32_t uptime_nsec = (uint32_t)(uptime_msec * NSEC_PER_MSEC);
+
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, uptime_msec, "Test data preparation failed.");
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
+
+	TEST_ASSERT_GREATER_OR_EQUAL_UINT32(uptime_sec, sid_time.tv_sec);
+	TEST_ASSERT_GREATER_OR_EQUAL_UINT32(uptime_nsec, sid_time.tv_nsec);
 }
 
 /* It is required to be added to each test. That is because unity is using
