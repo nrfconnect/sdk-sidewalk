@@ -34,11 +34,34 @@ static struct nvs_fs fs[SID_GROUP_ID_COUNT] = {
 	},
 };
 
+/**
+ * @brief Initialize NVM in flash.
+ *
+ * @param fs pointer to file system.
+ * @return SID_ERROR_NONE when success, SID_ERROR_GENERIC otherwise.
+ */
+static sid_error_t kv_storage_init(struct nvs_fs *fs)
+{
+	sid_error_t erc = SID_ERROR_NONE;
+
+	fs->flash_device = device_get_binding(DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL);
+	if (fs->flash_device == NULL) {
+		erc = SID_ERROR_GENERIC;
+	}
+
+	if (SID_ERROR_NONE == erc) {
+		if (0 > nvs_mount(fs)) {
+			erc = SID_ERROR_GENERIC;
+		}
+	}
+	return erc;
+}
+
 sid_error_t sid_pal_storage_kv_init()
 {
 #if defined(CONFIG_NVS)
 	for (int cnt = 0; cnt < SID_GROUP_ID_COUNT; cnt++) {
-		if (0 > nvs_init(&fs[cnt], DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL)) {
+		if (SID_ERROR_NONE != kv_storage_init(&fs[cnt])) {
 			return SID_ERROR_GENERIC;
 		}
 	}
@@ -152,8 +175,5 @@ sid_error_t sid_pal_storage_kv_group_delete(uint16_t group)
 	}
 
 	/* The nvs needs to be reinitialized after clearing */
-	if (0 > nvs_init(&fs[group], DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL)) {
-		return SID_ERROR_GENERIC;
-	}
-	return SID_ERROR_NONE;
+	return kv_storage_init(&fs[group]);
 }
