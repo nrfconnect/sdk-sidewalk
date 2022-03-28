@@ -6,13 +6,8 @@
 
 zephyr_library()
 
-add_subdirectory(utils)
+zephyr_include_directories(.)
 
 zephyr_library_sources(
-  src/log.c
-  src/sid_storage.c
-  src/assert.c
-  src/sid_mfg_storage.c
-  src/sid_timer.c
-  src/sid_uptime.c
+	zephyr_time.c
 )
