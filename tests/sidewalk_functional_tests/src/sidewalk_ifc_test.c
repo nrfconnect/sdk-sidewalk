@@ -679,7 +679,7 @@ void test_sid_pal_uptime_get(void)
 	struct sid_timespec sid_time = { 0 };
 	int64_t uptime_msec = k_uptime_get();
 	uint32_t uptime_sec = (uint32_t)(uptime_msec / MSEC_PER_SEC);
-	uint32_t uptime_nsec = (uint32_t)(uptime_msec * NSEC_PER_MSEC);
+	uint32_t uptime_nsec = (uint32_t)((uptime_msec * NSEC_PER_MSEC) % NSEC_PER_SEC);
 
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, uptime_msec, "Test data preparation failed.");
 

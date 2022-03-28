@@ -14,6 +14,7 @@ project(sidewalk_test)
 
 cmock_handle(${ZEPHYR_BASE}/include/fs/nvs.h)
 cmock_handle(${ZEPHYR_BASE}/include/drivers/flash.h)
+cmock_handle(${ZEPHYR_BASE}/../sidewalk/pal/utils/zephyr_time.h)
 
 # add test file
 FILE(GLOB app_sources src/*.c)
