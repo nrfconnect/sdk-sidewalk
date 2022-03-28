@@ -11,7 +11,9 @@
 #include <sid_pal_uptime_ifc.h>
 #include <mock_nvs.h>
 #include <mock_flash.h>
+#include <mock_zephyr_time.h>
 #include <string.h>
+#include <limits.h>
 
 #define GROUP_ID_TEST_OK        0
 #define GROUP_ID_TEST_NOK       9
@@ -355,17 +357,38 @@ void test_sid_pal_timer_is_armed_deinit(void)
 /******************************************************************
 * sid_pal_uptime_ifc
 * ****************************************************************/
+static void uptime_test_time(uint64_t uptime_nanoseconds)
+{
+	uint32_t seconds, nanoseconds;
+	struct sid_timespec sid_time;
+
+	seconds = (uint32_t)(uptime_nanoseconds / NSEC_PER_SEC);
+	nanoseconds = (uint32_t)(uptime_nanoseconds % NSEC_PER_SEC);
+
+	__wrap_zephyr_uptime_ns_ExpectAndReturn(uptime_nanoseconds);
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
+
+	TEST_ASSERT_EQUAL(seconds, sid_time.tv_sec);
+	TEST_ASSERT_EQUAL(nanoseconds, sid_time.tv_nsec);
+}
+
 void test_sid_pal_uptime_get_now(void)
 {
 	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_uptime_now(NULL));
-	struct sid_timespec sid_time;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
+
+	uptime_test_time(0ull);
+	uptime_test_time(1ull * NSEC_PER_SEC + 10ull);
+	uptime_test_time(10ull * NSEC_PER_SEC + 100ull);
+	uptime_test_time(LONG_MAX);
+	uptime_test_time(LLONG_MAX);
+	uptime_test_time(ULLONG_MAX);
 }
 
 void test_sid_pal_uptime_accuracy(void)
 {
 	/* Note: This is a oversimplified test fo dummy implementation.*/
 	int16_t ppm;
+
 	ppm = sid_pal_uptime_get_xtal_ppm();
 	sid_pal_uptime_set_xtal_ppm(ppm);
 	TEST_ASSERT_EQUAL(ppm, sid_pal_uptime_get_xtal_ppm());
