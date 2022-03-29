@@ -10,7 +10,7 @@
 #include <sys/printk.h>
 #include <logging/log.h>
 #include <logging/log_ctrl.h>
-LOG_MODULE_REGISTER(sid_log, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sidewalk, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define LOG_FLUSH_SLEEP_PERIOD K_MSEC(5)
 
