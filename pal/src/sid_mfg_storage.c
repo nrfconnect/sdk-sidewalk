@@ -28,8 +28,18 @@
 #define FLASH_MEM_CHUNK   (128)
 
 #ifndef DEV_ID_REG
+#if defined (NRF52840_XXAA) || defined (NRF52833_XXAA) || defined (NRF52832_XXAA)
 #define DEV_ID_REG  (uint32_t)(NRF_FICR->DEVICEID[0])
+#elif defined (NRF5340_XXAA)
+#if defined(NRF_APPLICATION)
+#define DEV_ID_REG  (uint32_t)(NRF_FICR_S->DEVICEID[0])
+#elif defined (NRF_NETWORK)
+#define DEV_ID_REG  (uint32_t)(NRF_FICR_NS->DEVICEID[0])
+#endif /* NRF5340_XXAA */
+#else
+#error "Unknow Device ID register."
 #endif
+#endif /* DEV_ID_REG */
 
 // DEV_ID masks
 #define ENCODED_DEV_ID_SIZE_5_BYTES_MASK    0xA0
