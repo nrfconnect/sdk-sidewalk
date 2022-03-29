@@ -1,5 +1,6 @@
 tests:
-  unity.sidewalk_test:
+  unity.sidewalk.integration_test:
     tags: Sidewalk
+    platform_allow: nrf52840dk_nrf52840
     integration_platforms:
       - nrf52840dk_nrf52840
