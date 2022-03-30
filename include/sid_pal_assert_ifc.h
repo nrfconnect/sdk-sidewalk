@@ -5,11 +5,11 @@
 #   define SID_PAL_ASSERT(expression) (void)(expression)
 #else
 #   define SID_PAL_ASSERT(expression) \
-    ((expression) ? \
-        ((void)0) : \
-        sid_pal_assert(__LINE__, __FILE__))
+	((expression) ?		      \
+	 ((void)0) :		      \
+	 sid_pal_assert(__LINE__, __FILE__))
 
-void sid_pal_assert(int line, const char * file) __attribute__((__noreturn__));
+void sid_pal_assert(int line, const char *file) __attribute__((__noreturn__));
 
 #endif
 

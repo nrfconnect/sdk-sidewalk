@@ -22,12 +22,12 @@ extern "C" {
 typedef uint32_t sid_time_t;
 
 struct sid_timespec {
-    sid_time_t tv_sec; // seconds
-    uint32_t tv_nsec; // nanoseconds
+	sid_time_t tv_sec;      // seconds
+	uint32_t tv_nsec;       // nanoseconds
 };
 
 static const struct sid_timespec SID_TIME_INFINITY = { .tv_sec = UINT32_MAX, .tv_nsec = UINT32_MAX};
-static const struct sid_timespec SID_TIME_ZERO     = {};
+static const struct sid_timespec SID_TIME_ZERO = {};
 
 #ifdef __cplusplus
 }

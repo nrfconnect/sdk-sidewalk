@@ -72,7 +72,7 @@ void main(void)
 		} else {
 			SID_PAL_LOG_WARNING("Timer cannot be armed [erc=%d].", erc);
 		}
-	}else{
+	} else  {
 		SID_PAL_LOG_WARNING("Timer initialization error=%d.", erc);
 	}
 
