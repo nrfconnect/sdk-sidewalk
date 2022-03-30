@@ -1,5 +1,5 @@
 sample:
-  name: Sidewalk log integration test
+  name: Sidewalk log test
   description: Test printing different sidewalk logs
 tests:
   sample.test.log:
