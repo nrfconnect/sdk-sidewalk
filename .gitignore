@@ -24,6 +24,7 @@ tags
 .vscode
 sanity-out*
 twister-out*
+map.yml
 
 doc/_build
 doc/nrf/_doxygen/
