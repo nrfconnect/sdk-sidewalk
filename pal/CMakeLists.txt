@@ -15,4 +15,5 @@ zephyr_library_sources(
   src/sid_storage.c
   src/sid_timer.c
   src/sid_uptime.c
+  src/sid_crypto.c
 )
