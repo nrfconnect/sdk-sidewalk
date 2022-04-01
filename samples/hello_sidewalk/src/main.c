@@ -10,6 +10,7 @@
 #include <storage/flash_map.h>
 #include <sid_pal_assert_ifc.h>
 #include <sid_pal_timer_ifc.h>
+#include <sid_pal_crypto_ifc.h>
 
 #include <sid_pal_uptime_ifc.h>
 #include <logging/log.h>
@@ -41,7 +42,20 @@ void sidewalk_timer_cb(void *arg, sid_pal_timer_t *originator)
 void main(void)
 {
 	uint32_t mfg_ver;
+	uint8_t rand_buff[16];
+	struct sid_timespec sid_time;
 	sid_error_t erc;
+
+	// We don't trust SW without crypto ;)
+	SID_PAL_ASSERT(SID_ERROR_NONE == sid_pal_crypto_init());
+
+	erc = sid_pal_crypto_rand(rand_buff, sizeof(rand_buff));
+	if (SID_ERROR_NONE == erc) {
+		SID_PAL_LOG_INFO("Random value:");
+		SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_INFO, rand_buff, sizeof(rand_buff));
+	} else {
+		SID_PAL_LOG_WARNING("Cannot generate random value! [erc=%d]", erc);
+	}
 
 	LOG_INF("Hello Sidewalk World! %s\n", CONFIG_BOARD);
 
@@ -72,17 +86,16 @@ void main(void)
 		} else {
 			SID_PAL_LOG_WARNING("Timer cannot be armed [erc=%d].", erc);
 		}
-	}else{
+	} else {
 		SID_PAL_LOG_WARNING("Timer initialization error=%d.", erc);
 	}
 
 	k_sleep(K_SECONDS(3));
-	struct sid_timespec sid_time;
-	sid_error_t rc = sid_pal_uptime_now(&sid_time);
-	if (SID_ERROR_NONE == rc) {
+	erc = sid_pal_uptime_now(&sid_time);
+	if (SID_ERROR_NONE == erc) {
 		SID_PAL_LOG_INFO("Uptime sec: %u nsec:%u", sid_time.tv_sec, sid_time.tv_nsec);
 	} else {
-		SID_PAL_LOG_ERROR("Uptime fail, error code: %d", rc);
+		SID_PAL_LOG_ERROR("Uptime fail, error code: %d", erc);
 	}
 
 	SID_PAL_ASSERT(true);
