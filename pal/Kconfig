@@ -1,0 +1,9 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+
+config SIDEWALK_PAL_CRYPTO_PSA_ENABLED
+	bool "Use PSA API in Sidewalk crypto pal."
+	default y

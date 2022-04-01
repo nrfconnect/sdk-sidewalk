@@ -8,6 +8,8 @@ module = SIDEWALK
 module-str = Amazon Sidewalk
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
+rsource "pal/Kconfig"
+
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
 	default 64
