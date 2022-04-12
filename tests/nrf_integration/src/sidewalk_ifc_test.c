@@ -1481,18 +1481,20 @@ void test_sid_pal_crypto_aes_crypt(void)
 	}
 }
 
-void test_sid_pal_crypto_aead_crypt(void)
+/**********************************************
+* AEAD
+* ********************************************/
+void test_sid_pal_crypto_aead_gcm_invalid_args(void)
 {
 	sid_pal_aead_params_t params;
 
 	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
-	uint8_t fake_additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Fake data..." };
 	uint8_t iv[AES_IV_SIZE];
 	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t mac[AES_MAX_BLOCK_SIZE];
-	uint8_t fake_mac[AES_MAX_BLOCK_SIZE];
+
 
 	// Prepare test
 	memset(&params, 0x00, sizeof(params));
@@ -1501,162 +1503,138 @@ void test_sid_pal_crypto_aead_crypt(void)
 	// Initialize crypto module
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
 
-	// NULL pointer
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = NULL;
-	params.in = data_copy;
-	params.out = encrypted_data;
-	params.aad = additional_data;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	params.in = NULL;
-	params.out = encrypted_data;
-	params.aad = additional_data;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	params.in = data_copy;
-	params.out = NULL;
-	params.aad = additional_data;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	params.in = data_copy;
-	params.out = encrypted_data;
-	params.aad = NULL;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	params.in = data_copy;
-	params.out = encrypted_data;
-	params.aad = additional_data;
-	params.mac = NULL;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	params.in = NULL;
-	params.out = encrypted_data;
-	params.aad = NULL;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = aes_128_test_key;
-	params.in = data_copy;
-	params.out = NULL;
-	params.aad = additional_data;
-	params.mac = NULL;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = NULL;
-	params.in = NULL;
-	params.out = NULL;
-	params.aad = additional_data;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	params.key = NULL;
-	params.in = NULL;
-	params.out = encrypted_data;
-	params.aad = NULL;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aead_crypt(&params));
-
-	// Invalid arguments
-	params.key = aes_128_test_key;
-	params.in = data_copy;
-	params.out = encrypted_data;
-	params.aad = additional_data;
-	params.mac = mac;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.aad_size = sizeof(additional_data);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.aad_size = 0;
-	params.in_size = sizeof(data_copy);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
+	// GCM_128 Encrypt
 	params.algo = SID_PAL_AEAD_GCM_128;
-	params.aad_size = sizeof(data_copy);
-	params.in_size = sizeof(data_copy);
-	params.key_size = (AES_MAX_BLOCK_SIZE - 1) * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.key_size = (AES_MAX_BLOCK_SIZE + 1) * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.mode = 0;
-	params.key_size = AES_MAX_BLOCK_SIZE * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.mode = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
-	params.key_size = AES_MAX_BLOCK_SIZE * 8;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
 	params.iv = iv;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+
+	// Incorrect buffer length.
+	params.mac_size = sizeof(mac) / 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
+
+	params.mac_size = sizeof(mac);
+
+	// IV too small
+	params.iv_size = AES_GCM_IV_SIZE / 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+
+	// IV too big
 	params.iv_size = AES_GCM_IV_SIZE + 2;
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
-	params.iv_size = 0;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.out_size = sizeof(encrypted_data) / 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
+
+	// GCM_128 Decrypt
+	params.algo = SID_PAL_AEAD_GCM_128;
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	params.out = decrypted_data;
+	params.out_size = sizeof(decrypted_data);
+
+	// Incorrect buffer length, IV too small.
+	params.iv_size = AES_GCM_IV_SIZE / 2;
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
-	params.iv_size = AES_GCM_IV_SIZE - 2;
+	// IV too big
+	params.iv_size = AES_GCM_IV_SIZE + 2;
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
+	// We can provide to small output buffer
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.out_size = sizeof(decrypted_data) / 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
+}
+
+void test_sid_pal_crypto_aead_ccm_invalid_args(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// CCM_128 Encrypt
 	params.algo = SID_PAL_AEAD_CCM_128;
-	params.aad_size = sizeof(data_copy);
-	params.in_size = sizeof(data_copy);
-	params.key_size = (AES_MAX_BLOCK_SIZE - 1) * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.key_size = (AES_MAX_BLOCK_SIZE + 1) * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.mode = 0;
-	params.key_size = AES_MAX_BLOCK_SIZE * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.mode = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
-	params.key_size = AES_MAX_BLOCK_SIZE * 8;
-	params.iv = iv;
-	params.iv_size = AES_CCM_IV_SIZE + 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.iv_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	params.iv_size = AES_CCM_IV_SIZE + 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
-
-	// Incorrect algorithm
-	params.algo = 0;
-	params.aad_size = sizeof(data_copy);
-	params.in_size = sizeof(data_copy);
+	params.key = aes_128_test_key;
 	params.key_size = sizeof(aes_128_test_key) * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_aead_crypt(&params));
+	params.iv = iv;
+	params.iv_size = AES_CCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
 
-	params.algo = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_aead_crypt(&params));
+	// IV too small
+	params.iv_size = AES_CCM_IV_SIZE / 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
-	// Set common IV
-	memset(iv, 0xB1, AES_GCM_IV_SIZE);
-	// Reset buffers
+	// IV too big
+	params.iv_size = AES_CCM_IV_SIZE + 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+
+	// CCM_128 Decrypt
+	params.algo = SID_PAL_AEAD_CCM_128;
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	params.out = decrypted_data;
+	params.out_size = sizeof(decrypted_data);
+
+	// Incorrect buffer length.
+	params.iv_size = AES_CCM_IV_SIZE / 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+
+	params.iv_size = AES_CCM_IV_SIZE + 2;
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+
+	params.iv_size = AES_CCM_IV_SIZE;
+	params.out_size = sizeof(decrypted_data) / 2;
+	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+}
+
+void test_sid_pal_crypto_aead_gcm_self_test(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_GCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+	memset(iv, 0xCC, AES_GCM_IV_SIZE);
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -1685,50 +1663,346 @@ void test_sid_pal_crypto_aead_crypt(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, data_copy, sizeof(data_copy));
+	TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, sizeof(data_copy));
+}
 
-	// Bad key
-	params.key = aes_128_test_fake_key;
-	params.key_size = sizeof(aes_128_test_fake_key) * 8;
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
+{
+	sid_pal_aead_params_t params;
+	// https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
+	uint8_t openssl_test_mac_vector[][AES_MAX_BLOCK_SIZE] = {
+		{ 0x84, 0x20, 0x8d, 0xb1, 0x43, 0xe0, 0x50, 0xf6,
+		  0x3a, 0xf7, 0x53, 0xea, 0x97, 0xa1, 0x93, 0xe1 },
+		{ 0xd7, 0x76, 0xe7, 0x6e, 0x8a, 0x6c, 0x02, 0x34,
+		  0x8a, 0x19, 0xfc, 0xb4, 0xf5, 0x78, 0xed, 0x35 },
+		{ 0x06, 0x8a, 0xd5, 0xea, 0xbd, 0x21, 0xea, 0xca,
+		  0x39, 0xad, 0x09, 0x30, 0xb2, 0xa2, 0xb9, 0x5c },
+		{ 0xb4, 0x82, 0x0b, 0xd4, 0x91, 0x4b, 0xd3, 0x79,
+		  0xb6, 0xbb, 0xd8, 0x57, 0x66, 0x80, 0x47, 0x79 },
+		{ 0xcb, 0xe4, 0x50, 0x47, 0x05, 0xf0, 0x3a, 0x38,
+		  0x50, 0xda, 0x3e, 0x8c, 0xe3, 0x63, 0x6c, 0x8b },
+		{ 0x2f, 0x38, 0x19, 0x51, 0x2a, 0x11, 0x30, 0x7b,
+		  0xa0, 0xc5, 0x02, 0xe1, 0x27, 0x9e, 0xd0, 0x09 },
+	};
 
-	// Incorrect IV
+	uint8_t openssl_test_enc_data_vector[][AES_TEST_DATA_BLOCK_SIZE] = {
+		{ 0x31, 0x44, 0xe7, 0x40, 0x1d, 0x60, 0x92, 0x59 },
+
+		{ 0x31, 0x44, 0xe7, 0x40, 0x1d, 0x60, 0x92, 0x59,
+		  0x05, 0x0e, 0xe2, 0x90, 0x42, 0x89, 0x49, 0xd0 },
+
+		{ 0x31, 0x44, 0xe7, 0x40, 0x1d, 0x60, 0x92, 0x59,
+		  0x05, 0x0e, 0xe2, 0x90, 0x42, 0x89, 0x49, 0xd0,
+		  0xc9, 0xcd, 0xae, 0x5a, 0x68, 0x04, 0x7b, 0xe1 },
+
+		{ 0x31, 0x44, 0xe7, 0x40, 0x1d, 0x60, 0x92, 0x59,
+		  0x05, 0x0e, 0xe2, 0x90, 0x42, 0x89, 0x49, 0xd0,
+		  0xc9, 0xcd, 0xae, 0x5a, 0x68, 0x04, 0x7b, 0xe1,
+		  0xf6, 0x93, 0xf2, 0xc2, 0xbc, 0x3a, 0x41, 0xa0,
+		  0x9c, 0xe8, 0xd8, 0x28, 0x60, 0x29, 0x06, 0x80,
+		  0x92, 0xf2, 0x2f, 0x43, 0x67, 0x21, 0x3b, 0x57,
+		  0x37, 0xd2, 0x59, 0x13, 0x9e, 0x70, 0xb4 },
+
+		{ 0x31, 0x44, 0xe7, 0x40, 0x1d, 0x60, 0x92, 0x59,
+		  0x05, 0x0e, 0xe2, 0x90, 0x42, 0x89, 0x49, 0xd0,
+		  0xc9, 0xcd, 0xae, 0x5a, 0x68, 0x04, 0x7b, 0xe1,
+		  0xf6, 0x93, 0xf2, 0xc2, 0xbc, 0x3a, 0x41, 0xa0,
+		  0x9c, 0xe8, 0xd8, 0x28, 0x60, 0x29, 0x06, 0x80,
+		  0x92, 0xf2, 0x2f, 0x43, 0x67, 0x21, 0x3b, 0x57,
+		  0x37, 0xd2, 0x59, 0x13, 0x9e, 0x70, 0xb4, 0xb7,
+		  0xf7, 0x1c, 0x7c, 0x66, 0x8d, 0x73, 0x71, 0x8b },
+
+		{ 0x31, 0x44, 0xe7, 0x40, 0x1d, 0x60, 0x92, 0x59,
+		  0x05, 0x0e, 0xe2, 0x90, 0x42, 0x89, 0x49, 0xd0,
+		  0xc9, 0xcd, 0xae, 0x5a, 0x68, 0x04, 0x7b, 0xe1,
+		  0xf6, 0x93, 0xf2, 0xc2, 0xbc, 0x3a, 0x41, 0xa0,
+		  0x9c, 0xe8, 0xd8, 0x28, 0x60, 0x29, 0x06, 0x80,
+		  0x92, 0xf2, 0x2f, 0x43, 0x67, 0x21, 0x3b, 0x57,
+		  0x37, 0xd2, 0x59, 0x13, 0x9e, 0x70, 0xb4, 0xb7,
+		  0xf7, 0x1c, 0x7c, 0x66, 0x8d, 0x73, 0x71, 0x8b,
+		  0x97, 0x9a, 0x76, 0x0d, 0xd0, 0x52, 0x7b, 0x12,
+		  0x36, 0x7a, 0x55, 0x95, 0x27, 0x7b, 0x05, 0x58,
+		  0xb3, 0x25, 0x95, 0xa6, 0x9d, 0x5d, 0x7b, 0x11,
+		  0x5e, 0xce, 0x74, 0x68, 0xee, 0x02, 0xe8, 0xa3,
+		  0xbe, 0x49, 0x55, 0x6c, 0xf7, 0xe1, 0x43, 0x1a,
+		  0xe8, 0x13, 0xfd, 0x84, 0xdc, 0xfe, 0xf7, 0x1f,
+		  0x2c, 0x76, 0x86, 0x15, 0x23, 0xe7, 0x40, 0x6c,
+		  0x98, 0x9a, 0xa9, 0xa8, 0xe0, 0x85, 0x56, 0x0c },
+	};
+
+	size_t test_vector_data_in_len[] = { 8, 16, 24, 55, 64, AES_TEST_DATA_BLOCK_SIZE };
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_MAX_BLOCK_SIZE] = { "0x1234567890_xYz" };
+	uint8_t iv[AES_GCM_IV_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memset(iv, 0xF3, AES_GCM_IV_SIZE);
+	memcpy(data_copy, test_string, sizeof(data_copy));
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// GCM_128
+	params.algo = SID_PAL_AEAD_GCM_128;
 	params.key = aes_128_test_key;
 	params.key_size = sizeof(aes_128_test_key) * 8;
-	memset(iv, 0xCC, AES_GCM_IV_SIZE);
+	params.iv = iv;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.mac_size = AES_MAX_BLOCK_SIZE;
+
+	// Verify test conditions
+	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_mac_vector), ARRAY_SIZE(test_vector_data_in_len));
+	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_enc_data_vector), ARRAY_SIZE(test_vector_data_in_len));
+
+	// Verify data decryption.
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	params.out = decrypted_data;
+	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
+		memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+		params.mac = openssl_test_mac_vector[test_it];
+		params.out_size = test_vector_data_in_len[test_it];
+		params.in = openssl_test_enc_data_vector[test_it];
+		params.in_size = test_vector_data_in_len[test_it];
+
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, test_vector_data_in_len[test_it]);
+	}
+
+	// Verify data encryption.
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.mac = mac;
+	params.out = encrypted_data;
+	params.in = data_copy;
+	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
+		memset(encrypted_data, 0x00, sizeof(encrypted_data));
+		memset(mac, 0x00, sizeof(mac));
+
+		params.out_size = test_vector_data_in_len[test_it];
+		params.in_size = test_vector_data_in_len[test_it];
+
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		// Encrypted data and mac shall be the same like from external tool
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_mac_vector[test_it], mac, AES_MAX_BLOCK_SIZE);
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data, test_vector_data_in_len[test_it]);
+	}
+
+}
+
+void test_sid_pal_crypto_aead_gcm_bad_key(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_GCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+	memset(iv, 0xCC, AES_GCM_IV_SIZE);
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// GCM_128
+	params.algo = SID_PAL_AEAD_GCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Bad key
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	params.key = aes_128_test_fake_key;
+	params.key_size = sizeof(aes_128_test_fake_key) * 8;
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
+
+void test_sid_pal_crypto_aead_gcm_bad_iv(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_GCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
+	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+	memset(iv, 0xB1, AES_GCM_IV_SIZE);
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// GCM_128
+	params.algo = SID_PAL_AEAD_GCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Incorrect IV
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	memset(iv, 0xCC, AES_GCM_IV_SIZE);
+	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
+
+void test_sid_pal_crypto_aead_gcm_bad_mac(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_GCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+	uint8_t fake_mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
+	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+	memset(iv, 0xB1, AES_GCM_IV_SIZE);
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// GCM_128
+	params.algo = SID_PAL_AEAD_GCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Broken MAC
-	memset(iv, 0xB1, AES_GCM_IV_SIZE);
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	memcpy(fake_mac, mac, sizeof(fake_mac));
 	memset(&fake_mac[2], 0x4C, 0x02);
 	params.mac = fake_mac;
 	params.mac_size = sizeof(fake_mac);
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 	// Verification fail
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	// But data should be correct
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, data_copy, sizeof(data_copy));
+	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
 
-	// Incorrect additional data
+void test_sid_pal_crypto_aead_gcm_bad_aad(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t fake_additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Fake data..." };
+	uint8_t iv[AES_GCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
+	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+	memset(iv, 0xB1, AES_GCM_IV_SIZE);
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// GCM_128
+	params.algo = SID_PAL_AEAD_GCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_GCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Incorrect additional data
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	params.aad = fake_additional_data;
 	params.aad_size = sizeof(fake_additional_data);
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 	// Verification fail
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	// But data should be correct
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, data_copy, sizeof(data_copy));
+	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
 
+void test_sid_pal_crypto_aead_ccm_self_test(void)
+{
+	sid_pal_aead_params_t params;
 
-	// Set common IV
-	memset(iv, 0xB1, AES_GCM_IV_SIZE);
-	// Reset buffers
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_CCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(iv, 0xB1, AES_CCM_IV_SIZE);
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 
@@ -1759,46 +2033,332 @@ void test_sid_pal_crypto_aead_crypt(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, data_copy, sizeof(data_copy));
+	TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, sizeof(data_copy));
+}
 
-	// Bad key
-	params.key = aes_128_test_fake_key;
-	params.key_size = sizeof(aes_128_test_fake_key) * 8;
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
+{
+	TEST_IGNORE_MESSAGE("Multi-part AEAD is not supported yet. Waiting for support in nRF Crypto.");
 
-	// Incorrect IV
+	sid_pal_aead_params_t params;
+	// https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
+	uint8_t openssl_test_mac_vector[][AES_MAX_BLOCK_SIZE] = {
+		{ 0xf5, 0xb5, 0x89, 0x42, 0xa5, 0xe4, 0xb2, 0x3f,
+		  0x51, 0xa7, 0x5a, 0x33, 0x02, 0x2b, 0x28, 0xc8 },
+
+		{ 0x05, 0x2d, 0xba, 0x96, 0xe5, 0x59, 0x5e, 0x78,
+		  0xd3, 0xb7, 0x49, 0xed, 0x52, 0x1a, 0xc9, 0xd0 },
+
+		{ 0x97, 0x15, 0xa3, 0x9a, 0x62, 0x23, 0x46, 0xce,
+		  0x00, 0xa4, 0x81, 0x8c, 0xbe, 0x00, 0xb4, 0x8e },
+
+		{ 0x12, 0x5d, 0xfe, 0xd8, 0x16, 0xc8, 0x3f, 0x93,
+		  0xf9, 0x25, 0x1d, 0xc4, 0x4c, 0x40, 0x8c, 0xc3 },
+
+		{ 0x4b, 0xa3, 0x48, 0xfe, 0xd3, 0x49, 0x6e, 0x8d,
+		  0xe4, 0x5b, 0x5a, 0xa7, 0x3a, 0x04, 0x44, 0x96 },
+
+		{ 0xa8, 0xb8, 0x99, 0x0a, 0x7b, 0x6a, 0xb5, 0xf2,
+		  0x8c, 0x9b, 0x34, 0x41, 0xa3, 0x14, 0x5d, 0xc0 },
+	};
+
+	uint8_t openssl_test_enc_data_vector[][AES_TEST_DATA_BLOCK_SIZE] = {
+		{ 0xbf, 0x8d, 0xe2, 0x6b, 0xe3, 0x09, 0xe7, 0xd3 },
+
+		{ 0xbf, 0x8d, 0xe2, 0x6b, 0xe3, 0x09, 0xe7, 0xd3,
+		  0x82, 0x4c, 0xf5, 0xf6, 0x57, 0x65, 0xe6, 0x12 },
+
+		{ 0xbf, 0x8d, 0xe2, 0x6b, 0xe3, 0x09, 0xe7, 0xd3,
+		  0x82, 0x4c, 0xf5, 0xf6, 0x57, 0x65, 0xe6, 0x12,
+		  0xf9, 0x05, 0xa8, 0x7a, 0xb8, 0xd9, 0xf7, 0xda },
+
+		{ 0xbf, 0x8d, 0xe2, 0x6b, 0xe3, 0x09, 0xe7, 0xd3,
+		  0x82, 0x4c, 0xf5, 0xf6, 0x57, 0x65, 0xe6, 0x12,
+		  0xf9, 0x05, 0xa8, 0x7a, 0xb8, 0xd9, 0xf7, 0xda,
+		  0x6b, 0x47, 0xbf, 0x0f, 0x6c, 0xd5, 0x36, 0xc7,
+		  0x71, 0xaa, 0x52, 0x6a, 0xfd, 0x51, 0x71, 0xc7,
+		  0xa9, 0xda, 0x9f, 0x71, 0xe4, 0x23, 0xdb, 0x11,
+		  0xe6, 0xd2, 0xe0, 0xd9, 0xa1, 0x76, 0x3b },
+
+		{ 0xbf, 0x8d, 0xe2, 0x6b, 0xe3, 0x09, 0xe7, 0xd3,
+		  0x82, 0x4c, 0xf5, 0xf6, 0x57, 0x65, 0xe6, 0x12,
+		  0xf9, 0x05, 0xa8, 0x7a, 0xb8, 0xd9, 0xf7, 0xda,
+		  0x6b, 0x47, 0xbf, 0x0f, 0x6c, 0xd5, 0x36, 0xc7,
+		  0x71, 0xaa, 0x52, 0x6a, 0xfd, 0x51, 0x71, 0xc7,
+		  0xa9, 0xda, 0x9f, 0x71, 0xe4, 0x23, 0xdb, 0x11,
+		  0xe6, 0xd2, 0xe0, 0xd9, 0xa1, 0x76, 0x3b, 0x64,
+		  0xd8, 0xfb, 0xe8, 0x89, 0x7f, 0x97, 0x62, 0x3f },
+
+		{ 0xbf, 0x8d, 0xe2, 0x6b, 0xe3, 0x09, 0xe7, 0xd3,
+		  0x82, 0x4c, 0xf5, 0xf6, 0x57, 0x65, 0xe6, 0x12,
+		  0xf9, 0x05, 0xa8, 0x7a, 0xb8, 0xd9, 0xf7, 0xda,
+		  0x6b, 0x47, 0xbf, 0x0f, 0x6c, 0xd5, 0x36, 0xc7,
+		  0x71, 0xaa, 0x52, 0x6a, 0xfd, 0x51, 0x71, 0xc7,
+		  0xa9, 0xda, 0x9f, 0x71, 0xe4, 0x23, 0xdb, 0x11,
+		  0xe6, 0xd2, 0xe0, 0xd9, 0xa1, 0x76, 0x3b, 0x64,
+		  0xd8, 0xfb, 0xe8, 0x89, 0x7f, 0x97, 0x62, 0x3f,
+		  0x3c, 0x27, 0xa6, 0xfc, 0x7e, 0xb1, 0x8a, 0x4b,
+		  0x3b, 0xf3, 0xe9, 0x0a, 0xae, 0x1c, 0xa4, 0x08,
+		  0x4a, 0x9d, 0x04, 0x36, 0xc8, 0x69, 0x22, 0xeb,
+		  0x2d, 0x76, 0x27, 0xb8, 0xee, 0xe0, 0x02, 0x00,
+		  0x51, 0x62, 0x5a, 0xe0, 0xc2, 0xad, 0x94, 0x41,
+		  0x31, 0x9f, 0x1d, 0x89, 0x8a, 0x2f, 0x3a, 0xdb,
+		  0xf1, 0x05, 0x81, 0x09, 0x99, 0xf8, 0xeb, 0x00,
+		  0x6f, 0xb0, 0x30, 0x2e, 0x96, 0xcf, 0x67, 0x69 },
+	};
+
+	size_t test_vector_data_in_len[] = { 8, 16, 24, 55, 64, AES_TEST_DATA_BLOCK_SIZE };
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[8] = "SIDEWALK";
+	uint8_t nonce[AES_CCM_IV_SIZE] = { "SIDEWALKNONCE" };
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+
+	// Initialize crypto module
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+
+	// CCM_128
+	params.algo = SID_PAL_AEAD_CCM_128;
 	params.key = aes_128_test_key;
 	params.key_size = sizeof(aes_128_test_key) * 8;
-	memset(iv, 0xCC, AES_CCM_IV_SIZE);
+	params.iv = nonce;
+	params.iv_size = sizeof(nonce);
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.mac_size = AES_MAX_BLOCK_SIZE;
+
+	// Verify test conditions
+	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_mac_vector), ARRAY_SIZE(test_vector_data_in_len));
+	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_enc_data_vector), ARRAY_SIZE(test_vector_data_in_len));
+
+	// Verify data decryption.
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	params.out = decrypted_data;
+	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
+		memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+		params.mac = openssl_test_mac_vector[test_it];
+		params.out_size = test_vector_data_in_len[test_it];
+		params.in = openssl_test_enc_data_vector[test_it];
+		params.in_size = test_vector_data_in_len[test_it];
+
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, test_vector_data_in_len[test_it]);
+	}
+
+	// Verify data encryption.
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.mac = mac;
+	params.out = encrypted_data;
+	params.in = data_copy;
+	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
+		memset(encrypted_data, 0x00, sizeof(encrypted_data));
+		memset(mac, 0x00, sizeof(mac));
+
+		params.out_size = test_vector_data_in_len[test_it];
+		params.in_size = test_vector_data_in_len[test_it];
+
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		// Encrypted data and mac shall be the same like from external tool
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_mac_vector[test_it], mac, AES_MAX_BLOCK_SIZE);
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data, test_vector_data_in_len[test_it]);
+	}
+}
+
+void test_sid_pal_crypto_aead_ccm_bad_key(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_CCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(iv, 0xB1, AES_CCM_IV_SIZE);
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+	// CCM_128
+	params.algo = SID_PAL_AEAD_CCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_CCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Bad key
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	params.key = aes_128_test_fake_key;
+	params.key_size = sizeof(aes_128_test_fake_key) * 8;
+	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
+
+void test_sid_pal_crypto_aead_ccm_bad_iv(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_CCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(iv, 0xB1, AES_CCM_IV_SIZE);
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
+	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+	// CCM_128
+	params.algo = SID_PAL_AEAD_CCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_CCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Incorrect IV
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	memset(iv, 0xCC, AES_CCM_IV_SIZE);
+	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
+
+void test_sid_pal_crypto_aead_ccm_bad_mac(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t iv[AES_CCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+	uint8_t fake_mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(iv, 0xB1, AES_CCM_IV_SIZE);
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
+	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+	// CCM_128
+	params.algo = SID_PAL_AEAD_CCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_CCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
+	params.mac = mac;
+	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Incorrect IV
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
+	memset(iv, 0xCC, AES_CCM_IV_SIZE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 
 	// Broken MAC
-	memset(iv, 0xB1, AES_CCM_IV_SIZE);
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	memcpy(fake_mac, mac, sizeof(fake_mac));
 	memset(&fake_mac[2], 0x4C, 0x02);
 	params.mac = fake_mac;
 	params.mac_size = sizeof(fake_mac);
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 	// Verification fail
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+}
 
-	// Incorrect additional data
+void test_sid_pal_crypto_aead_ccm_bad_aad(void)
+{
+	sid_pal_aead_params_t params;
+
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t fake_additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Fake data..." };
+	uint8_t iv[AES_CCM_IV_SIZE];
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+
+	// Prepare test
+	memset(&params, 0x00, sizeof(params));
+	memcpy(data_copy, test_string, sizeof(data_copy));
+	memset(iv, 0xB1, AES_CCM_IV_SIZE);
+	memset(encrypted_data, 0x00, sizeof(encrypted_data));
+	memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+	// CCM_128
+	params.algo = SID_PAL_AEAD_CCM_128;
+	params.mode = SID_PAL_CRYPTO_ENCRYPT;
+	params.key = aes_128_test_key;
+	params.key_size = sizeof(aes_128_test_key) * 8;
+	params.iv = iv;
+	params.iv_size = AES_CCM_IV_SIZE;
+	params.aad = additional_data;
+	params.aad_size = sizeof(additional_data);
+	params.in = data_copy;
+	params.in_size = sizeof(data_copy);
+	params.out = encrypted_data;
+	params.out_size = sizeof(encrypted_data);
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+
+	// Incorrect additional data
+	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	params.aad = fake_additional_data;
 	params.aad_size = sizeof(fake_additional_data);
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 	// Verification fail
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
-
-	// TODO: data encrypted in openssl
 }
+/**********************************************
+* END AEAD
+* ********************************************/
 
 void test_sid_pal_crypto_ecc_dsa(void)
 {
