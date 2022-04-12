@@ -4,6 +4,39 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
+menuconfig SIDEWALK
+	bool "Enable Amazon Sidewalk [EXPERIMENTAL]"
+	imply LOG
+	imply ASSERT
+	imply FLASH
+	imply FLASH_PAGE_LAYOUT
+	imply NVS
+	imply MPU_ALLOW_FLASH_WRITE
+	imply SIDEWALK_CRYPTO 
+
+config SIDEWALK_CRYPTO
+	bool
+	imply NRF_SECURITY
+	imply MBEDTLS_PSA_CRYPTO_C
+	imply PSA_CRYPTO_DRIVER_CC3XX
+	imply PSA_CRYPTO_DRIVER_OBERON
+	imply PSA_WANT_ALG_HMAC
+	imply PSA_WANT_ALG_CTR
+	imply PSA_WANT_ALG_CCM
+	imply PSA_WANT_ALG_GCM
+	imply PSA_WANT_ALG_CMAC
+	imply PSA_WANT_ALG_HMAC
+	imply PSA_WANT_ALG_SHA_256
+	imply PSA_WANT_ALG_SHA_512
+	imply PSA_WANT_ALG_ECDH
+	imply PSA_WANT_ALG_ECDSA
+	imply PSA_WANT_ALG_DETERMINISTIC_ECDSA
+	imply PSA_WANT_ALG_STREAM_CIPHER
+	imply PSA_WANT_ECC_SECP_R1_256
+	imply PSA_WANT_ECC_MONTGOMERY_255
+
+if SIDEWALK
+
 module = SIDEWALK
 module-str = Amazon Sidewalk
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
@@ -22,3 +55,5 @@ config SIDEWALK_ASSERT
 	help
 	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
 	  If an assertion fails, program will trigger a fatal error.
+
+endif # SIDEWALK
