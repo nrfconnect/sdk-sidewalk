@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.unit_tests:
+  unity.sidewalk.unit_tests.mfg_storage:
     tags: Sidewalk
     integration_platforms:
       - native_posix
