@@ -6,14 +6,11 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-add_definitions(-DHALO_ENABLE_DIAGNOSTICS=1)
 add_definitions(-DDEV_ID_REG=0x33AABB99)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(sidewalk_test)
+project(sidewalk_test_uptime)
 
-cmock_handle(${ZEPHYR_BASE}/include/fs/nvs.h)
-cmock_handle(${ZEPHYR_BASE}/include/drivers/flash.h)
 cmock_handle(${ZEPHYR_BASE}/../sidewalk/pal/utils/zephyr_time.h)
 
 # add test file
