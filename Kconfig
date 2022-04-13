@@ -6,26 +6,31 @@
 
 menuconfig SIDEWALK
 	bool "Enable Amazon Sidewalk [EXPERIMENTAL]"
-	imply LOG
-	imply ASSERT
-	imply FLASH
-	imply FLASH_PAGE_LAYOUT
-	imply NVS
-	imply MPU_ALLOW_FLASH_WRITE
+	imply SIDEWALK_ASSERT
 	imply SIDEWALK_CRYPTO 
+	imply SIDEWALK_LOG
+	imply SIDEWALK_MFG_STORAGE
+	imply SIDEWALK_STORAGE
+	imply SIDEWALK_TIMER
+	imply SIDEWALK_UPTIME
+
+config SIDEWALK_ASSERT
+	bool "Enable Sidewalk assert module."
+	imply ASSERT
+	help
+	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
+	  If an assertion fails, program will trigger a fatal error.
 
 config SIDEWALK_CRYPTO
-	bool
+	bool "Enable Sidewalk security module."
 	imply NRF_SECURITY
 	imply MBEDTLS_PSA_CRYPTO_C
 	imply PSA_CRYPTO_DRIVER_CC3XX
-	imply PSA_CRYPTO_DRIVER_OBERON
 	imply PSA_WANT_ALG_HMAC
 	imply PSA_WANT_ALG_CTR
 	imply PSA_WANT_ALG_CCM
 	imply PSA_WANT_ALG_GCM
 	imply PSA_WANT_ALG_CMAC
-	imply PSA_WANT_ALG_HMAC
 	imply PSA_WANT_ALG_SHA_256
 	imply PSA_WANT_ALG_SHA_512
 	imply PSA_WANT_ALG_ECDH
@@ -35,25 +40,34 @@ config SIDEWALK_CRYPTO
 	imply PSA_WANT_ECC_SECP_R1_256
 	imply PSA_WANT_ECC_MONTGOMERY_255
 
-if SIDEWALK
+config SIDEWALK_LOG
+	bool "Enable Sidewalk log module."
+	imply LOG
 
+if SIDEWALK_LOG
 module = SIDEWALK
 module-str = Amazon Sidewalk
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
-
-rsource "pal/Kconfig"
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
 	default 64
 	help
 	  Maxium message length for Sidewalk PAL log in bytes.
+endif # SIDEWALK_LOG
 
-config SIDEWALK_ASSERT
-	bool "Enable SID_PAL_ASSERT() macro"
-	default ASSERT
-	help
-	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
-	  If an assertion fails, program will trigger a fatal error.
+config SIDEWALK_MFG_STORAGE
+	bool "Enable Sidewalk manufacturing storage module."
+	imply FLASH
 
-endif # SIDEWALK
+config SIDEWALK_STORAGE
+	bool "Enable Sidewalk storage module."
+	imply NVS
+	imply FLASH
+
+config SIDEWALK_TIMER
+	bool "Enable Sidewalk timer module."
+
+config SIDEWALK_UPTIME
+	bool "Enable Sidewalk uptime module."
+
