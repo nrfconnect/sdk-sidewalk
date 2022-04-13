@@ -4,12 +4,17 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
-#include "sid_pal_log_ifc.h"
+/** @file sid_log.c
+ *  @brief Log interface implementation.
+ */
+
+#include <sid_pal_log_ifc.h>
 #include <stddef.h>
 
 #include <sys/printk.h>
 #include <logging/log.h>
 #include <logging/log_ctrl.h>
+
 LOG_MODULE_REGISTER(sidewalk, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define LOG_FLUSH_SLEEP_PERIOD K_MSEC(5)

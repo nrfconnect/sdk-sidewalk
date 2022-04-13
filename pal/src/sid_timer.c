@@ -8,9 +8,9 @@
  *  @brief Timer interface implementation.
  */
 
+#include <sid_pal_timer_ifc.h>
 #include <stdint.h>
 #include <zephyr.h>
-#include <sid_pal_timer_ifc.h>
 
 #define TIMER_ARMED     0x01
 
