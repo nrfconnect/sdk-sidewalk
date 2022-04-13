@@ -6,8 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-add_definitions(-DDEV_ID_REG=0x33AABB99)
-
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_log)
 
