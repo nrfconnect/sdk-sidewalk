@@ -8,11 +8,12 @@
  *  @brief Sidewalk cryptography interface implementation.
  */
 
+#include <sid_pal_crypto_ifc.h>
+
 #include <device.h>
 #include <zephyr.h>
 #include <psa/crypto.h>
 #include <psa/crypto_extra.h>
-#include <sid_pal_crypto_ifc.h>
 #include <logging/log.h>
 #include <logging/log_ctrl.h>
 

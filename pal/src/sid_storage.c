@@ -8,11 +8,12 @@
  *  @brief Sidewalk nvm storage.
  */
 
+#include <sid_pal_storage_kv_ifc.h>
 #include <stdint.h>
+
 #include <zephyr.h>
 #include <fs/nvs.h>
 #include <storage/flash_map.h>
-#include <sid_pal_storage_kv_ifc.h>
 
 /* Reserved space in the NVM memory. */
 #define NVS_RES_SPACE   (32U)

@@ -8,18 +8,23 @@
  *  @brief Sidewalk MFG storage.
  */
 
+#include <sid_pal_mfg_store_ifc.h>
+#include <sid_error.h>
+
 #include <stdint.h>
-#include <zephyr.h>
-#include <drivers/flash.h>
-#include <storage/flash_map.h>
-#include <device.h>
 #include <stdio.h>
 #include <string.h>
-#include <sid_error.h>
+
+#include <zephyr.h>
+#include <device.h>
+#include <drivers/flash.h>
+#include <storage/flash_map.h>
 #include <mfg_store_offsets.h>
-#include <sid_pal_mfg_store_ifc.h>
-#include <sid_pal_log_ifc.h>
 #include <sys/byteorder.h>
+#include <sys/types.h>
+#include <logging/log.h>
+
+LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 
 // Manufacturing version define
 #define MFG_VERSION_1_VAL   0x01000000
@@ -147,7 +152,7 @@ static void ntoh_buff(uint8_t *buffer, size_t buff_len)
 static uint32_t default_app_value_to_offset(int value)
 {
 	ARG_UNUSED(value);
-	SID_PAL_LOG_WARNING("No support for app_value_to_offset.");
+	LOG_WRN("No support for app_value_to_offset.");
 	return SID_PAL_MFG_STORE_INVALID_OFFSET;
 }
 
@@ -163,7 +168,7 @@ static uint32_t default_app_value_to_offset(int value)
 static off_t checked_addr_return(off_t offset, uintptr_t start_address, uintptr_t end_address)
 {
 	if (start_address + offset >= end_address) {
-		SID_PAL_LOG_ERROR("Offset past manufacturing store end: %d.", offset);
+		LOG_ERR("Offset past manufacturing store end: %d.", (int)offset);
 		return SID_PAL_MFG_STORE_INVALID_OFFSET;
 	}
 	return (off_t)(start_address + offset);
@@ -197,7 +202,7 @@ static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_ad
 		}
 	}
 
-	SID_PAL_LOG_ERROR("No Nordic manufacturing store offset for: %d.", value);
+	LOG_ERR("No Nordic manufacturing store offset for: %d.", value);
 	return SID_PAL_MFG_STORE_INVALID_OFFSET;
 }
 
@@ -211,7 +216,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 
 	flash_dev = device_get_binding(DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL);
 	if (!flash_dev) {
-		SID_PAL_LOG_ERROR("Flash device is not found.");
+		LOG_ERR("Flash device is not found.");
 	}
 }
 
@@ -229,7 +234,7 @@ int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length
 	}
 
 	if (length % sizeof(uint32_t)) {
-		SID_PAL_LOG_WARNING("Length is not word-aligned.");
+		LOG_WRN("Length is not word-aligned.");
 		return (int32_t)SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
 
@@ -261,7 +266,7 @@ void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
 		value, nrf_mfg_store_region.addr_start, nrf_mfg_store_region.addr_end);
 
 	if (!buffer) {
-		SID_PAL_LOG_ERROR("Null pointer provided.");
+		LOG_ERR("Null pointer provided.");
 		return;
 	}
 
@@ -269,10 +274,10 @@ void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
 		if (flash_dev) {
 			int rc = flash_read(flash_dev, value_offset, buffer, length);
 			if (0 != rc) {
-				SID_PAL_LOG_ERROR("Flash read fail %d", rc);
+				LOG_ERR("Flash read fail %d", rc);
 			}
 		} else {
-			SID_PAL_LOG_ERROR("MFG store is not initialized.");
+			LOG_ERR("MFG store is not initialized.");
 		}
 	}
 }
@@ -284,7 +289,7 @@ int32_t sid_pal_mfg_store_erase(void)
 	if (flash_dev) {
 		return (int32_t)flash_erase(flash_dev, nrf_mfg_store_region.addr_start, mfg_size);
 	}
-	SID_PAL_LOG_ERROR("MFG store is not initialized");
+	LOG_ERR("MFG store is not initialized");
 	return (int32_t)SID_ERROR_UNINITIALIZED;
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
@@ -312,7 +317,7 @@ bool sid_pal_mfg_store_is_empty(void)
 
 			rc = flash_read(flash_dev, offset, tmp_buff, length);
 			if (0 != rc) {
-				SID_PAL_LOG_ERROR("Read flash memory error: %d.", rc);
+				LOG_ERR("Read flash memory error: %d.", rc);
 				return false;
 			}
 
@@ -322,10 +327,10 @@ bool sid_pal_mfg_store_is_empty(void)
 		}
 		return true;
 	} else {
-		SID_PAL_LOG_ERROR("MFG store is not initialized.");
+		LOG_ERR("MFG store is not initialized.");
 	}
 #else
-	SID_PAL_LOG_WARNING("The sid_pal_mfg_store_is_empty function is not enabled.");
+	LOG_WRN("The sid_pal_mfg_store_is_empty function is not enabled.");
 #endif
 	return false;
 }

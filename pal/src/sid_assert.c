@@ -4,8 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
-#include "sid_pal_assert_ifc.h"
-#include "sys/__assert.h"
+/** @file sid_assert.c
+ *  @brief Assert implementation.
+ */
+
+#include <sid_pal_assert_ifc.h>
+#include <sys/__assert.h>
 
 void sid_pal_assert(int line, const char *file)
 {
