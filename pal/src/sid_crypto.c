@@ -17,7 +17,7 @@
 #include <logging/log.h>
 #include <logging/log_ctrl.h>
 
-LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_LOG_LEVEL);
+LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 
 #define BYTE_TO_BITS(_byte)    (_byte << 3)
 #define BITS_TO_BYTE(_bits)    (_bits >> 3)

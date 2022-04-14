@@ -45,15 +45,23 @@ config SIDEWALK_LOG
 	imply LOG
 
 if SIDEWALK_LOG
-module = SIDEWALK
-module-str = Amazon Sidewalk
-source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
 	default 64
 	help
 	  Maxium message length for Sidewalk PAL log in bytes.
+
+module = SIDEWALK
+module-str = Amazon Sidewalk
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+if SIDEWALK_CRYPTO
+module = SIDEWALK_CRYPTO
+module-str = Amazon Sidewalk Crypto
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+endif # SIDEWALK_CRYPTO
+
 endif # SIDEWALK_LOG
 
 config SIDEWALK_MFG_STORAGE
