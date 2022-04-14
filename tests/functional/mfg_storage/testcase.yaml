@@ -1,0 +1,6 @@
+tests:
+  unity.sidewalk.functional.mfg_storage:
+    tags: Sidewalk
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840
