@@ -19,11 +19,11 @@ $TWISTER_BIN --verbose --platform nrf52840dk_nrf52840 --build-only --show-footpr
 echo "> Run unit tests"
 $TWISTER_BIN --verbose --platform native_posix --coverage  --testcase-root $SIDEWALK_BASE/tests/unit_tests
 
-echo "> Run nRF plaftorm integration tests"
+echo "> Run nRF plaftorm functional tests"
 if [ -f "$HARDWARE_MAP_FILE" ]; then
-	$TWISTER_BIN --verbose --platform nrf52840dk_nrf52840 --testcase-root $SIDEWALK_BASE/tests/nrf_integration --device-testing --hardware-map $HARDWARE_MAP_FILE
+	$TWISTER_BIN --verbose --platform nrf52840dk_nrf52840 --testcase-root $SIDEWALK_BASE/tests/functional --device-testing --hardware-map $HARDWARE_MAP_FILE
 else
-	echo "Can't run integration tests. File: $HARDWARE_MAP_FILE does not exist."
+	echo "Can't run functional tests. File: $HARDWARE_MAP_FILE does not exist."
 	echo "Follow the https://projecttools.nordicsemi.no/confluence/display/KRKNWK/SID2%3A+How+to+run+tests+with+Twister instruction"
 	echo "to prepare required map.yml file."
 	exit 1
