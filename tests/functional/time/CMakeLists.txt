@@ -6,9 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-# Enable HALO_ENABLE_DIAGNOSTICS
-add_definitions(-DHALO_ENABLE_DIAGNOSTICS=1)
-
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_functional_test)
 
