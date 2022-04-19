@@ -10,6 +10,12 @@
 
 #include <sid_pal_ble_adapter_ifc.h>
 
+#include <bluetooth/bluetooth.h>
+#include <settings/settings.h>
+#include <logging/log.h>
+
+LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_LOG_LEVEL);
+
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg);
 static sid_error_t ble_adapter_start_service(void);
 static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length);
@@ -32,10 +38,40 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
+typedef struct {
+	const sid_ble_config_t *cfg;
+} sid_pal_ble_adapter_ctx_t;
+
+static sid_pal_ble_adapter_ctx_t ctx;
+
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
-	return SID_ERROR_NOSUPPORT;
+	LOG_DBG("Enable BT");
+
+	if (!cfg) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+
+	ctx.cfg = cfg;
+
+	int err_code;
+	err_code = bt_enable(NULL);
+	if (err_code) {
+		LOG_ERR("BT init failed (err %d)", err_code);
+		return SID_ERROR_GENERIC;
+	}
+
+	if (IS_ENABLED(CONFIG_SETTINGS)) {
+		err_code = settings_load();
+		if (err_code) {
+			LOG_ERR("settings load failed (err %d)", err_code);
+			return SID_ERROR_GENERIC;
+		}
+	}
+
+	return SID_ERROR_NONE;
 }
+
 static sid_error_t ble_adapter_start_service(void)
 {
 	return SID_ERROR_NOSUPPORT;
@@ -66,7 +102,8 @@ static sid_error_t ble_adapter_disconnect(void)
 }
 static sid_error_t ble_adapter_deinit(void)
 {
-	return SID_ERROR_NOSUPPORT;
+	memset(&ctx, 0x00, sizeof(ctx));
+	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_ble_adapter_create(sid_pal_ble_adapter_interface_t *handle)

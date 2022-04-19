@@ -23,6 +23,8 @@ config SIDEWALK_ASSERT
 	  If an assertion fails, program will trigger a fatal error.
 
 config SIDEWALK_BLE
+	imply BT
+	imply SETTINGS
 	bool "Enable Sidewalk Bluettoth Low Energy module."
 
 config SIDEWALK_CRYPTO
