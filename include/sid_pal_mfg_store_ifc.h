@@ -1,5 +1,33 @@
+/*
+ * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ *
+ * AMAZON PROPRIETARY/CONFIDENTIAL
+ *
+ * You may not use this file except in compliance with the terms and
+ * conditions set forth in the accompanying LICENSE.txt file.
+ *
+ * THESE MATERIALS ARE PROVIDED ON AN "AS IS" BASIS. AMAZON SPECIFICALLY
+ * DISCLAIMS, WITH RESPECT TO THESE MATERIALS, ALL WARRANTIES, EXPRESS,
+ * IMPLIED, OR STATUTORY, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+ */
+
+
 #ifndef SID_PAL_MFG_STORE_IFC_H
 #define SID_PAL_MFG_STORE_IFC_H
+
+/** @file
+ *
+ * @defgroup sid_pal_lib_mfg_store sid Manufacturing Store interface
+ * @{
+ * @ingroup sid_pal_ifc
+ *
+ * @details     Provides manufacturing store interface to be implemented by platform
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -103,6 +131,7 @@ typedef enum {
 
 #define SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN 64
 
+/* Basic I/O and setup */
 
 typedef uint32_t (*sid_pal_mfg_store_app_value_to_offset_t)(int value);
 
@@ -127,14 +156,96 @@ typedef struct {
     sid_pal_mfg_store_app_value_to_offset_t app_value_to_offset;
 } sid_pal_mfg_store_region_t;
 
-
+/** Prepare the manufacturing store for use. Must be called before
+ *  any of the other sid_pal_mfg_store functions.
+ *
+ * @param[in]  mfg_store_region Structure containing start and end addresses
+ *                              of the manufacturing store.
+ */
 void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region);
+
+
+/** Erase the manufacturing store.
+ *  Because the manufacturing store is backed by flash memory, and flash memory
+ *  can only be erased in large chunks (pages), this interface only supports
+ *  erasing the entire manufacturing store.
+ *
+ *  NOTE: This function is only supported for diagnostic builds.
+ *
+ *  @return  0 on success, negative value on failure.
+ */
 int32_t sid_pal_mfg_store_erase(void);
+
+/** Check if the manufacturing store is empty.
+ *
+ *  NOTE: This function is only supported for diagnostic builds.
+ *
+ * @return  true if the entire manufacturing store is empty,
+ *          such as just after an erase.
+ */
 bool sid_pal_mfg_store_is_empty(void);
+
+/** Write to mfg store.
+ *
+ *  @param[in]  value  Enum constant for the desired value. Use values from
+ *                     sid_pal_mfg_store_value_t or application defined values
+ *                     here.
+ *  @param[in]  buffer Buffer containing the value to be stored.
+ *  @param[in]  length Length of the value in bytes. Use values from
+ *                     sid_pal_mfg_store_value_size_t here.
+ *
+ *  @return  0 on success, negative value on failure.
+ */
 int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length);
+
+
+/** Read from mfg store.
+ *
+ *  @param[in]  value  Enum constant for the desired value. Use values from
+ *                     sid_pal_mfg_store_value_t or application defined values
+ *                     here.
+ *  @param[out] buffer Buffer to which the value will be copied.
+ *  @param[in]  length Length of the value in bytes. Use values from
+ *                     sid_pal_mfg_store_value_size_t here.
+ *
+ *
+ */
 void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length);
+
+
+/* Functions specific to Sidewalk with special handling */
+
+/** Get version of values stored in mfg store.
+ *  The version of the mfg values is stored along with all the values
+ *  in mfg store. This API retrieves the value by reading the
+ *  address at which the version is stored.
+ *
+ *  @return   version of mfg store.
+ */
 uint32_t sid_pal_mfg_store_get_version(void);
+
+
+/** Get the device ID from the mfg store.
+ *
+ *  @param[out] dev_id The device ID
+ *
+ *  @return true if the device ID could be found
+ */
 bool sid_pal_mfg_store_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE]);
+
+
+/** Get the device serial number from the mfg store.
+ *
+ *  @param[out] serial_num The device serial number
+ *
+ *  @return true if the device serial number could be found
+ */
 bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE]);
+
+#ifdef __cplusplus
+}
+#endif
+
+/** @} */
 
 #endif
