@@ -7,6 +7,7 @@
 menuconfig SIDEWALK
 	bool "Enable Amazon Sidewalk [EXPERIMENTAL]"
 	imply SIDEWALK_ASSERT
+	imply SIDEWALK_BLE
 	imply SIDEWALK_CRYPTO 
 	imply SIDEWALK_LOG
 	imply SIDEWALK_MFG_STORAGE
@@ -20,6 +21,9 @@ config SIDEWALK_ASSERT
 	help
 	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
 	  If an assertion fails, program will trigger a fatal error.
+
+config SIDEWALK_BLE
+	bool "Enable Sidewalk Bluettoth Low Energy module."
 
 config SIDEWALK_CRYPTO
 	bool "Enable Sidewalk security module."
@@ -78,4 +82,3 @@ config SIDEWALK_TIMER
 
 config SIDEWALK_UPTIME
 	bool "Enable Sidewalk uptime module."
-
