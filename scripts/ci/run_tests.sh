@@ -13,6 +13,9 @@ HARDWARE_MAP_FILE=${SIDEWALK_BASE}/scripts/ci/map.yml
 set -o nounset -o errexit
 source ${ZEPHYR_BASE}/../zephyr/zephyr-env.sh
 
+echo "> Test commit"
+git -C $SIDEWALK_BASE log --oneline -1
+
 echo "> Build samples"
 $TWISTER_BIN --verbose --platform nrf52840dk_nrf52840 --build-only --show-footprint --testcase-root $SIDEWALK_BASE
 
