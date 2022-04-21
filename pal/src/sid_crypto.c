@@ -707,7 +707,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 	}
 
 	key_size = MIN(sizeof(key), key_size);
-	memcpy(&key[key_offset], params->key, key_size);
+	memcpy(&key[key_offset], params->key, key_size - key_offset);
 
 	// NOTE: key_size is in bytes.
 	status = prepare_key(key, key_size,
@@ -799,7 +799,7 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		LOG_DBG("Key import success.");
 
 		pub_key_size = MIN(sizeof(pub_key), pub_key_size);
-		memcpy(&pub_key[pub_key_offset], params->puk, pub_key_size);
+		memcpy(&pub_key[pub_key_offset], params->puk, pub_key_size - pub_key_offset);
 
 		status = psa_raw_key_agreement(PSA_ALG_ECDH, priv_key_handle,
 					       pub_key, pub_key_size,
