@@ -12,6 +12,7 @@
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
+#include <bluetooth/gatt.h>
 #include <settings/settings.h>
 #include <logging/log.h>
 
@@ -29,6 +30,39 @@ static sid_error_t ble_adapter_deinit(void);
 
 static void ble_ev_connected(struct bt_conn *conn, uint8_t err);
 static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
+
+#define BT_UUID_AMA_VAL 0x03FE
+
+struct sid_manuf_data{
+	uint16_t vendor_id;
+	uint8_t sidewalk_app_id;
+	uint8_t device_state;
+	uint8_t frame_indicator;
+	uint8_t tx_uuid[5];
+};
+
+/* Advertising parameters. */
+#define SIDEWALK_BT_LE_ADV_PARAM		\
+	BT_LE_ADV_PARAM(			\
+		BT_LE_ADV_OPT_CONNECTABLE |	\
+		BT_LE_ADV_OPT_USE_NAME |	\
+		BT_LE_ADV_OPT_FORCE_NAME_IN_AD,	\
+		BT_GAP_ADV_FAST_INT_MIN_2,	\
+		BT_GAP_ADV_FAST_INT_MAX_2, NULL	\
+		)
+
+static const struct sid_manuf_data manufacturing_data = {
+	.vendor_id = 0x0171,
+	.sidewalk_app_id = 0x21,
+	.device_state = 0x13,
+	.frame_indicator = 0x80,
+	.tx_uuid = {0xA0, 0x01, 0x02, 0x03, 0x04}
+};
+static const struct bt_data ad[] = {
+	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+	BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_AMA_VAL)),
+	BT_DATA(BT_DATA_MANUFACTURER_DATA, (uint8_t*)&manufacturing_data, sizeof(manufacturing_data))
+};
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
 	.start_service = ble_adapter_start_service,
@@ -118,9 +152,17 @@ static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length)
 {
 	return SID_ERROR_NOSUPPORT;
 }
+
 static sid_error_t ble_adapter_start_advertisement(void)
 {
-	return SID_ERROR_NOSUPPORT;
+	int err = bt_le_adv_start(SIDEWALK_BT_LE_ADV_PARAM, ad, ARRAY_SIZE(ad), NULL, 0);
+
+	if (err) {
+		LOG_ERR("Advertising failed to start (err %d)\n", err);
+		return SID_ERROR_GENERIC;
+	}
+
+	return SID_ERROR_NONE;
 }
 static sid_error_t ble_adapter_stop_advertisement(void)
 {
