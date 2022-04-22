@@ -11,6 +11,7 @@
 #include <sid_pal_ble_adapter_ifc.h>
 
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/conn.h>
 #include <settings/settings.h>
 #include <logging/log.h>
 
@@ -26,6 +27,8 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 static sid_error_t ble_adapter_disconnect(void);
 static sid_error_t ble_adapter_deinit(void);
 
+static void ble_ev_connected(struct bt_conn *conn, uint8_t err);
+static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
 	.start_service = ble_adapter_start_service,
@@ -43,6 +46,39 @@ typedef struct {
 } sid_pal_ble_adapter_ctx_t;
 
 static sid_pal_ble_adapter_ctx_t ctx;
+
+/* BLE connection callbacks. */
+static struct bt_conn_cb conn_callbacks = {
+	.connected = ble_ev_connected,
+	.disconnected = ble_ev_disconnected,
+};
+
+/**
+ * @brief The function is called when a new connection is established.
+ *
+ * @param conn new connection object.
+ * @param err HCI error, zero for success, non-zero otherwise.
+ */
+static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
+{
+	if (0 == err) {
+		LOG_DBG("BLE connected.");
+	} else {
+		LOG_ERR("Connection failed (err %u).", err);
+	}
+}
+
+/**
+ * @brief The function is called when a connection has been disconnected.
+ *
+ * @param conn connection object.
+ * @param err HCI disconnection reason.
+ */
+static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	LOG_DBG("BLE disconnected, reason=%d.", reason);
+}
+
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
@@ -68,6 +104,8 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 			return SID_ERROR_GENERIC;
 		}
 	}
+
+	bt_conn_cb_register(&conn_callbacks);
 
 	return SID_ERROR_NONE;
 }
