@@ -9,6 +9,7 @@
 #include <sid_pal_ble_adapter_ifc.h>
 
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/conn.h>
 #include <mock_settings.h>
 #include <errno.h>
 
@@ -16,7 +17,7 @@ DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
 FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t, const struct bt_data *, size_t);
-FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
+FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb*);
 
 static sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 static sid_ble_config_t test_ble_cfg;
@@ -30,6 +31,8 @@ void tearDown(void)
 {
 	p_test_ble_ifc = NULL;
 	RESET_FAKE(bt_enable);
+	RESET_FAKE(bt_le_adv_start);
+	RESET_FAKE(bt_conn_cb_register);
 }
 
 void test_sid_pal_ble_adapter_create_negative(void)
@@ -81,6 +84,16 @@ void test_sid_pal_ble_adapter_deinit(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->deinit());
+}
+
+void test_ble_adapter_start_advertisement(void)
+{
+	bt_le_adv_start_fake.return_val = 0;
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->start_adv());
+	TEST_ASSERT_EQUAL(1, bt_le_adv_start_fake.call_count);
+
+	bt_le_adv_start_fake.return_val = -1;
+	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->start_adv());
 }
 
 extern int unity_main(void);

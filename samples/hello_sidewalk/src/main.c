@@ -11,6 +11,7 @@
 #include <sid_pal_assert_ifc.h>
 #include <sid_pal_timer_ifc.h>
 #include <sid_pal_crypto_ifc.h>
+#include <sid_pal_ble_adapter_ifc.h>
 
 #include <sid_pal_uptime_ifc.h>
 #include <logging/log.h>
@@ -33,6 +34,26 @@ char *sidewalk_timer_str = "Hello Sidewalk timer!";
 
 struct sid_timespec sidewalk_timer_duration = { .tv_sec = 5 };
 struct sid_timespec sidewalk_timer_period = { .tv_sec = 10 };
+
+static const sid_ble_cfg_adv_param_t adv_param = {
+	.type = AMA_SERVICE,
+	.fast_enabled = true,
+	.slow_enabled = true,
+	.fast_interval = 256,
+	.fast_timeout = 3000,
+	.slow_interval = 1600,
+	.slow_timeout = 0,
+};
+
+static const sid_ble_config_t ble_cfg = {
+	.is_adv_available = true,
+	.mac_addr_type = SID_BLE_CFG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE,
+	.adv_param = adv_param,
+	.num_profile = 0,
+	.profile = NULL,
+};
+
+static sid_pal_ble_adapter_interface_t p_ble_ifc;
 
 void sidewalk_timer_cb(void *arg, sid_pal_timer_t *originator)
 {
@@ -97,6 +118,11 @@ void main(void)
 	} else {
 		SID_PAL_LOG_ERROR("Uptime fail, error code: %d", erc);
 	}
+
+	sid_pal_ble_adapter_create(&p_ble_ifc);
+
+	p_ble_ifc->init(&ble_cfg);
+	p_ble_ifc->start_adv();
 
 	SID_PAL_ASSERT(true);
 }
