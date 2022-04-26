@@ -10,12 +10,13 @@
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
+#include <bluetooth/gatt.h>
 #include <mock_settings.h>
+#include <mock_sid_ble_advert.h>
 #include <errno.h>
 
-#include <bluetooth/gatt.h>
-
 #define AMA_WRITE_ATTR (ama_service.attrs[2])
+#define ESUCCESS (0)
 
 DEFINE_FFF_GLOBALS;
 
@@ -43,6 +44,7 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *,
 FAKE_VALUE_FUNC(struct bt_gatt_attr *, bt_gatt_find_by_uuid, const struct bt_gatt_attr *,
 		uint16_t,
 		const struct bt_uuid *);
+
 
 #define FFF_FAKES_LIST(FAKE)		\
 	FAKE(bt_enable)			\
@@ -122,7 +124,9 @@ static void set_callbacks(sid_pal_ble_adapter_callbacks_t *cb)
 
 static void reset_callbacks(sid_pal_ble_adapter_callbacks_t *cb)
 {
-	memset(&cb, 0x00, sizeof(sid_pal_ble_adapter_callbacks_t));
+	memset(cb, 0x00, sizeof(sid_pal_ble_adapter_callbacks_t));
+	RESET_FAKE(bt_enable);
+	RESET_FAKE(bt_conn_cb_register);
 }
 
 void test_sid_pal_ble_adapter_create_negative(void)
@@ -132,7 +136,7 @@ void test_sid_pal_ble_adapter_create_negative(void)
 
 void test_sid_pal_ble_adapter_init(void)
 {
-	bt_enable_fake.return_val = 0;
+	bt_enable_fake.return_val = ESUCCESS;
 	__wrap_settings_load_ExpectAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
@@ -141,14 +145,14 @@ void test_sid_pal_ble_adapter_init(void)
 	bt_enable_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
 
-	bt_enable_fake.return_val = 0;
+	bt_enable_fake.return_val = ESUCCESS;
 	__wrap_settings_load_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
 }
 
 void test_sid_pal_ble_adapter_init_conn_callbacks(void)
 {
-	bt_enable_fake.return_val = 0;
+	bt_enable_fake.return_val = ESUCCESS;
 	__wrap_settings_load_ExpectAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 	TEST_ASSERT_EQUAL(1, bt_conn_cb_register_fake.call_count);
@@ -159,9 +163,9 @@ void test_sid_pal_ble_adapter_init_conn_callbacks(void)
 	TEST_ASSERT_NOT_NULL(p_test_conn_cb->disconnected);
 
 	struct bt_conn *p_test_conn = NULL;
-	uint8_t test_err = 0, test_reason = 0;
+	uint8_t test_err = ESUCCESS, test_reason = 0;
 	p_test_conn_cb->connected(p_test_conn, test_err);
-	test_err = -1;
+	test_err = -ENOENT;
 	p_test_conn_cb->connected(p_test_conn, test_err);
 	p_test_conn_cb->disconnected(p_test_conn, test_reason);
 	TEST_PASS_MESSAGE("Run connection callbacks.");
@@ -169,8 +173,7 @@ void test_sid_pal_ble_adapter_init_conn_callbacks(void)
 
 void test_sid_pal_ble_adapter_deinit(void)
 {
-	bt_enable_fake.return_val = 0;
-	__wrap_settings_load_ExpectAndReturn(0);
+	__wrap_settings_load_ExpectAndReturn(ESUCCESS);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->deinit());
@@ -178,11 +181,10 @@ void test_sid_pal_ble_adapter_deinit(void)
 
 void test_ble_adapter_start_advertisement(void)
 {
-	bt_le_adv_start_fake.return_val = 0;
+	__wrap_sid_ble_advert_start_ExpectAndReturn(ESUCCESS);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->start_adv());
-	TEST_ASSERT_EQUAL(1, bt_le_adv_start_fake.call_count);
 
-	bt_le_adv_start_fake.return_val = -1;
+	__wrap_sid_ble_advert_start_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->start_adv());
 }
 
@@ -361,6 +363,30 @@ void test_ble_adapter_data_receive_pass(void)
 	TEST_ASSERT_EQUAL(1, data_cb_test.num_calls);
 	TEST_ASSERT_EQUAL(sizeof(buffer), data_cb_test.data_len);
 	TEST_ASSERT_EQUAL_MEMORY(buffer, data_cb_test.ptr_data, sizeof(buffer));
+}
+
+void test_ble_adapter_stop_advertisement(void)
+{
+	__wrap_sid_ble_advert_stop_ExpectAndReturn(ESUCCESS);
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->stop_adv());
+
+	__wrap_sid_ble_advert_stop_ExpectAndReturn(-ENOENT);
+	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->stop_adv());
+}
+
+void test_ble_adapter_set_adv_data(void)
+{
+	uint8_t test_data[] = "Lorem ipsum.";
+
+	__wrap_sid_ble_advert_update_IgnoreAndReturn(ESUCCESS);
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
+
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(NULL, 0));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(test_data, 0));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(NULL, sizeof(test_data)));
+
+	__wrap_sid_ble_advert_update_IgnoreAndReturn(-ENOENT);
+	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
 }
 
 extern int unity_main(void);
