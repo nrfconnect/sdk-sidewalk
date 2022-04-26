@@ -57,6 +57,23 @@ static const sid_ble_config_t ble_cfg = {
 	.profile = NULL,
 };
 
+typedef struct {
+	uint16_t vendor_id;
+	uint8_t sidewalk_app_id;
+	uint8_t device_state;
+	uint8_t frame_indicator;
+	uint8_t tx_uuid[5];
+} __attribute__ ((packed)) sid_manuf_data_t;
+
+static const sid_manuf_data_t sid_manuf_data = {
+	.vendor_id = 0x0171,
+	.sidewalk_app_id = 0x21,
+	.device_state = 0x13,
+	.frame_indicator = 0x80,
+	.tx_uuid = { 0xA0, 0x01, 0x02, 0x03, 0x04 }
+};
+
+
 static sid_pal_ble_adapter_interface_t p_ble_ifc;
 
 void sidewalk_timer_cb(void *arg, sid_pal_timer_t *originator)
@@ -136,6 +153,7 @@ void main(void)
 	sid_pal_ble_adapter_create(&p_ble_ifc);
 
 	p_ble_ifc->init(&ble_cfg);
+	p_ble_ifc->set_adv_data((uint8_t *)&sid_manuf_data, sizeof(sid_manuf_data));
 	p_ble_ifc->start_adv();
 
 	erc = dk_buttons_init(button_handler);
