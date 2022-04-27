@@ -14,11 +14,15 @@
 #include <sid_pal_ble_adapter_ifc.h>
 
 #include <sid_pal_uptime_ifc.h>
+#include <dk_buttons_and_leds.h>
 #include <logging/log.h>
 #include <zephyr.h>
+
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 
 #define MFG_EMPTY_VERSION       0xFFFFFFFFUL
+
+#define KEY_BLE_NOTIFY DK_BTN1_MSK
 
 #if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
@@ -58,6 +62,16 @@ static sid_pal_ble_adapter_interface_t p_ble_ifc;
 void sidewalk_timer_cb(void *arg, sid_pal_timer_t *originator)
 {
 	LOG_INF("sidewalk_timer_cb says \"%s\"\n", (char *)arg);
+}
+
+void button_handler(uint32_t button_state, uint32_t has_changed)
+{
+	static uint8_t buff[] = { 0x11, 0x22 };
+	uint32_t button = button_state & has_changed;
+
+	if (button & KEY_BLE_NOTIFY) {
+		p_ble_ifc->send(AMA_SERVICE, buff, sizeof(buff));
+	}
 }
 
 void main(void)
@@ -123,6 +137,12 @@ void main(void)
 
 	p_ble_ifc->init(&ble_cfg);
 	p_ble_ifc->start_adv();
+
+	erc = dk_buttons_init(button_handler);
+	if (erc) {
+		SID_PAL_LOG_WARNING("Failed to initialize buttons (err %d)\n", erc);
+		return;
+	}
 
 	SID_PAL_ASSERT(true);
 }

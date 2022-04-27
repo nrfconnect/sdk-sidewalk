@@ -5,7 +5,7 @@
 #
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_ASSERT sid_assert.c)
-zephyr_library_sources_ifdef(CONFIG_SIDEWALK_BLE sid_ble_adapter.c)
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_BLE sid_ble_adapter.c sid_ble_service.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_CRYPTO sid_crypto.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_LOG sid_log.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_MFG_STORAGE sid_mfg_storage.c)
