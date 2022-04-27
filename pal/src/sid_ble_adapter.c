@@ -9,10 +9,12 @@
  */
 
 #include <sid_pal_ble_adapter_ifc.h>
+#include <sid_ble_service.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <bluetooth/gatt.h>
+#include <bluetooth/uuid.h>
 #include <settings/settings.h>
 #include <logging/log.h>
 
@@ -33,7 +35,7 @@ static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
 
 #define BT_UUID_AMA_VAL 0x03FE
 
-struct sid_manuf_data{
+struct sid_manuf_data {
 	uint16_t vendor_id;
 	uint8_t sidewalk_app_id;
 	uint8_t device_state;
@@ -56,12 +58,12 @@ static const struct sid_manuf_data manufacturing_data = {
 	.sidewalk_app_id = 0x21,
 	.device_state = 0x13,
 	.frame_indicator = 0x80,
-	.tx_uuid = {0xA0, 0x01, 0x02, 0x03, 0x04}
+	.tx_uuid = { 0xA0, 0x01, 0x02, 0x03, 0x04 }
 };
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
 	BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_AMA_VAL)),
-	BT_DATA(BT_DATA_MANUFACTURER_DATA, (uint8_t*)&manufacturing_data, sizeof(manufacturing_data))
+	BT_DATA(BT_DATA_MANUFACTURER_DATA, (uint8_t *)&manufacturing_data, sizeof(manufacturing_data))
 };
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
@@ -74,6 +76,8 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.disconnect = ble_adapter_disconnect,
 	.deinit = ble_adapter_deinit,
 };
+
+static struct bt_conn *current_connection;
 
 typedef struct {
 	const sid_ble_config_t *cfg;
@@ -97,6 +101,7 @@ static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
 {
 	if (0 == err) {
 		LOG_DBG("BLE connected.");
+		current_connection = bt_conn_ref(conn);
 	} else {
 		LOG_ERR("Connection failed (err %u).", err);
 	}
@@ -146,8 +151,9 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 
 static sid_error_t ble_adapter_start_service(void)
 {
-	return SID_ERROR_NOSUPPORT;
+	return SID_ERROR_NONE;
 }
+
 static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length)
 {
 	return SID_ERROR_NOSUPPORT;
@@ -170,12 +176,56 @@ static sid_error_t ble_adapter_stop_advertisement(void)
 }
 static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
 {
-	return SID_ERROR_NOSUPPORT;
+	const struct bt_gatt_service_static *srv = NULL;
+	struct bt_uuid *uuid;
+
+	switch (id) {
+	case AMA_SERVICE:
+	{
+		uuid = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
+		srv = get_ama_service();
+		break;
+	}
+	case VENDOR_SERVICE:
+	case LOGGING_SERVICE:
+	default:
+		return SID_ERROR_NOSUPPORT;
+	}
+	return sid_ble_send_data(current_connection, uuid, srv, data, length);
 }
+
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
 {
-	return SID_ERROR_NOSUPPORT;
+	sid_error_t erc;
+
+	if (!cb) {
+		return SID_ERROR_NULL_POINTER;
+	}
+
+	if (!cb->conn_callback   ||
+	    !cb->mtu_callback    ||
+	    !cb->adv_start_callback) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+
+	erc = sid_ble_set_notification_cb(cb->ind_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
+
+	erc = sid_ble_set_data_cb(cb->data_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
+
+	erc = sid_ble_set_notification_changed_cb(cb->notify_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
+
+	return SID_ERROR_NONE;
 }
+
 static sid_error_t ble_adapter_disconnect(void)
 {
 	return SID_ERROR_NOSUPPORT;
