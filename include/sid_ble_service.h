@@ -11,7 +11,7 @@
 #ifndef SID_PAL_BLE_SERVICE_H
 #define SID_PAL_BLE_SERVICE_H
 
-
+#include <sid_ble_uuid.h>
 #include <sid_error.h>
 #include <sid_ble_config_ifc.h>
 #include <sid_pal_ble_adapter_ifc.h>
@@ -19,14 +19,6 @@
 #include <bluetooth/uuid.h>
 
 /* AMA_SERVICE */
-#define AMA_SERVICE_UUID_VAL        0xFE03
-
-#define AMA_CHARACTERISTIC_UUID_VAL_WRITE  0x3C, 0xC5, 0x61, 0xAB, 0x27, 0x04, 0x32, 0x92, \
-	0x58, 0x4D, 0x6C, 0x7D, 0xC9, 0x96, 0xF9, 0x74
-
-#define AMA_CHARACTERISTIC_UUID_VAL_NOTIFY  0xFE, 0xD2, 0xF0, 0xE7, 0xB7, 0x53, 0x15, 0x90, \
-	0xC1, 0x47, 0xCE, 0xFE, 0xC0, 0x83, 0x2E, 0xB3
-
 #define AMA_SID_BT_UUID_SERVICE             BT_UUID_DECLARE_16(AMA_SERVICE_UUID_VAL)
 #define AMA_SID_BT_CHARACTERISTIC_WRITE     BT_UUID_DECLARE_128(AMA_CHARACTERISTIC_UUID_VAL_WRITE)
 #define AMA_SID_BT_CHARACTERISTIC_NOTIFY    BT_UUID_DECLARE_128(AMA_CHARACTERISTIC_UUID_VAL_NOTIFY)
