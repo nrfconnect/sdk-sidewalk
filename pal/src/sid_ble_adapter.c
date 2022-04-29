@@ -46,10 +46,12 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
-static struct bt_conn *current_connection;
+static sid_pal_ble_connection_callback_t connection_callback;
 
 typedef struct {
 	const sid_ble_config_t *cfg;
+	struct bt_conn *curr_conn;
+	uint8_t curr_conn_addr[BLE_ADDR_MAX_LEN];
 } sid_pal_ble_adapter_ctx_t;
 
 static sid_pal_ble_adapter_ctx_t ctx;
@@ -68,11 +70,20 @@ static struct bt_conn_cb conn_callbacks = {
  */
 static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
 {
-	if (0 == err) {
-		LOG_DBG("BLE connected.");
-		current_connection = bt_conn_ref(conn);
-	} else {
-		LOG_ERR("Connection failed (err %u).", err);
+	if (err) {
+		LOG_ERR("Connection failed (err %u)\n", err);
+		return;
+	}
+
+	memcpy(ctx.curr_conn_addr, bt_conn_get_dst(conn)->a.val, BLE_ADDR_MAX_LEN);
+	LOG_DBG("Connected: %02X:%02X:%02X:%02X:%02X:%02X",
+		ctx.curr_conn_addr[5], ctx.curr_conn_addr[4], ctx.curr_conn_addr[3],
+		ctx.curr_conn_addr[2], ctx.curr_conn_addr[1], ctx.curr_conn_addr[0]);
+
+	ctx.curr_conn = bt_conn_ref(conn);
+
+	if (connection_callback) {
+		connection_callback(true, ctx.curr_conn_addr);
 	}
 }
 
@@ -84,7 +95,20 @@ static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
  */
 static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	LOG_DBG("BLE disconnected, reason=%d.", reason);
+	char addr[BT_ADDR_LE_STR_LEN];
+
+	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
+
+	LOG_DBG("Disconnected: %s (reason %u)\n", addr, reason);
+
+	if (ctx.curr_conn_addr) {
+		bt_conn_unref(ctx.curr_conn);
+		ctx.curr_conn = NULL;
+	}
+
+	if (connection_callback) {
+		connection_callback(false, ctx.curr_conn_addr);
+	}
 }
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
@@ -179,7 +203,8 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 	default:
 		return SID_ERROR_NOSUPPORT;
 	}
-	return sid_ble_send_data(current_connection, uuid, srv, data, length);
+
+	return sid_ble_send_data(ctx.curr_conn, uuid, srv, data, length);
 }
 
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
