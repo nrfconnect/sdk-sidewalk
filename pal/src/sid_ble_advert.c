@@ -7,6 +7,8 @@
 #include <sid_ble_advert.h>
 #include <sid_ble_uuid.h>
 
+#include <sid_ble_uuid.h>
+
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/uuid.h>
 
@@ -52,7 +54,7 @@ enum adv_data_items {
 
 static struct bt_data adv_data[] = {
 	[ADV_DATA_FLAGS] = BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	[ADV_DATA_SERVICES] = BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(BT_UUID_AMA_VAL)),
+	[ADV_DATA_SERVICES] = BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(AMA_SERVICE_UUID_VAL)),
 	[ADV_DATA_MANUF_DATA] = BT_DATA(BT_DATA_MANUFACTURER_DATA, &bt_adv_manuf_data, AD_MANUF_DATA_LEN_MAX)
 };
 
