@@ -7,15 +7,16 @@
 #include <fff.h>
 
 #include <sid_pal_ble_adapter_ifc.h>
+#include <sid_ble_service.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
 #include <bluetooth/gatt.h>
+#include <bluetooth/addr.h>
 #include <mock_settings.h>
 #include <mock_sid_ble_advert.h>
 #include <errno.h>
 
-#define AMA_WRITE_ATTR (ama_service.attrs[2])
 #define ESUCCESS (0)
 
 DEFINE_FFF_GLOBALS;
@@ -70,7 +71,7 @@ static sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 static sid_ble_config_t test_ble_cfg;
 static data_callback_test_t data_cb_test;
 
-extern struct bt_gatt_service_static ama_service;
+
 
 void setUp(void)
 {
@@ -188,13 +189,36 @@ void test_ble_adapter_start_advertisement(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->start_adv());
 }
 
+const struct bt_gatt_attr *ama_svrc_attr_get_by_uuid_128(const struct bt_uuid *uuid)
+{
+	const struct bt_gatt_service_static *p_ama_svrc = sid_ble_get_ama_service();
+
+	if (p_ama_svrc) {
+		for (int i = 0; i < p_ama_svrc->attr_count; i++) {
+			if (BT_UUID_TYPE_128 == p_ama_svrc->attrs[i].uuid->type) {
+				struct bt_uuid_128 *p_ama_uuid = (struct bt_uuid_128 *)p_ama_svrc->attrs[i].uuid;
+				struct bt_uuid_128 *p_searched_uuid = (struct bt_uuid_128 *)uuid;
+
+				if (0 == memcmp(p_ama_uuid->val, p_searched_uuid->val, BT_UUID_SIZE_128)) {
+					return &p_ama_svrc->attrs[i];
+				}
+			}
+		}
+	}
+
+	return NULL;
+}
+
 void test_ble_adapter_data_receive_wo_callback(void)
 {
 	uint8_t buffer[128];
 	uint16_t offset = 0;
 	uint8_t flags = 0;
 
-	AMA_WRITE_ATTR.write(NULL, NULL, buffer, sizeof(buffer), offset, flags);
+	const struct bt_gatt_attr *p_ama_write_attr = ama_svrc_attr_get_by_uuid_128(AMA_SID_BT_CHARACTERISTIC_WRITE);
+	TEST_ASSERT_NOT_NULL_MESSAGE(p_ama_write_attr, "Can't find Sidewalk service with write attribute");
+
+	p_ama_write_attr->write(NULL, NULL, buffer, sizeof(buffer), offset, flags);
 	TEST_ASSERT_EQUAL(0, data_cb_test.num_calls);
 	TEST_ASSERT_EQUAL(0, data_cb_test.data_len);
 	TEST_ASSERT_NULL(data_cb_test.ptr_data);
@@ -359,7 +383,10 @@ void test_ble_adapter_data_receive_pass(void)
 	set_callbacks(&cb);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
-	AMA_WRITE_ATTR.write(NULL, NULL, buffer, sizeof(buffer), offset, flags);
+	const struct bt_gatt_attr *p_ama_write_attr = ama_svrc_attr_get_by_uuid_128(AMA_SID_BT_CHARACTERISTIC_WRITE);
+	TEST_ASSERT_NOT_NULL_MESSAGE(p_ama_write_attr, "Can't find Sidewalk service with write attribute");
+
+	p_ama_write_attr->write(NULL, NULL, buffer, sizeof(buffer), offset, flags);
 	TEST_ASSERT_EQUAL(1, data_cb_test.num_calls);
 	TEST_ASSERT_EQUAL(sizeof(buffer), data_cb_test.data_len);
 	TEST_ASSERT_EQUAL_MEMORY(buffer, data_cb_test.ptr_data, sizeof(buffer));
