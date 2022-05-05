@@ -101,14 +101,25 @@ static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
 
 	LOG_DBG("Disconnected: %s (reason %u)\n", addr, reason);
 
-	if (ctx.curr_conn_addr) {
+	if (ctx.curr_conn) {
 		bt_conn_unref(ctx.curr_conn);
 		ctx.curr_conn = NULL;
+		memset(ctx.curr_conn_addr, 0x00, BLE_ADDR_MAX_LEN);
 	}
 
 	if (connection_callback) {
 		connection_callback(false, ctx.curr_conn_addr);
 	}
+}
+
+sid_error_t sid_ble_set_connection_cb(sid_pal_ble_connection_callback_t cb)
+{
+	if (NULL == cb) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+
+	connection_callback = cb;
+	return SID_ERROR_NONE;
 }
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
@@ -232,6 +243,11 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 	}
 
 	erc = sid_ble_set_notification_changed_cb(cb->notify_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
+
+	erc = sid_ble_set_connection_cb(cb->conn_callback);
 	if (SID_ERROR_NONE != erc) {
 		return erc;
 	}
