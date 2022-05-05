@@ -15,13 +15,12 @@
 #include <bluetooth/addr.h>
 #include <mock_settings.h>
 #include <mock_sid_ble_advert.h>
+#include <mock_sid_ble_connection.h>
 #include <errno.h>
 
 #include <stdbool.h>
 
 #define ESUCCESS (0)
-#define CONNECTED (true)
-#define DISCONNECTED (false)
 
 DEFINE_FFF_GLOBALS;
 
@@ -74,19 +73,9 @@ typedef struct {
 	uint8_t data_len;
 } data_callback_test_t;
 
-typedef struct {
-	size_t num_calls;
-	uint8_t *addr;
-	bool state;
-} connection_callback_test_t;
-
 static sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 static sid_ble_config_t test_ble_cfg;
 static data_callback_test_t data_cb_test;
-
-
-static data_callback_test_t data_cb_test;
-static connection_callback_test_t conn_cb_test;
 
 void setUp(void)
 {
@@ -94,7 +83,6 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 	memset(&data_cb_test, 0x00, sizeof(data_cb_test));
-	memset(&conn_cb_test, 0x00, sizeof(conn_cb_test));
 }
 
 void tearDown(void)
@@ -113,11 +101,8 @@ static void ble_notify_callback(sid_ble_cfg_service_identifier_t id, bool state)
 {
 }
 
-static void ble_connection_callback(bool state, uint8_t *addr)
+static void connection_callback(bool state, uint8_t *addr)
 {
-	conn_cb_test.num_calls++;
-	conn_cb_test.state = state;
-	conn_cb_test.addr = addr;
 }
 
 static void ble_indication_callback(bool status)
@@ -134,7 +119,7 @@ static void ble_adv_start_callback(void)
 
 static void set_callbacks(sid_pal_ble_adapter_callbacks_t *cb)
 {
-	cb->conn_callback = ble_connection_callback;
+	cb->conn_callback = connection_callback;
 	cb->mtu_callback = ble_mtu_callback;
 	cb->adv_start_callback = ble_adv_start_callback;
 	cb->ind_callback = ble_indication_callback;
@@ -158,6 +143,7 @@ void test_sid_pal_ble_adapter_init(void)
 {
 	bt_enable_fake.return_val = ESUCCESS;
 	__wrap_settings_load_ExpectAndReturn(0);
+	__wrap_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->init(NULL));
@@ -173,14 +159,17 @@ void test_sid_pal_ble_adapter_init(void)
 void test_sid_pal_ble_adapter_deinit(void)
 {
 	__wrap_settings_load_ExpectAndReturn(ESUCCESS);
+	__wrap_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
+	__wrap_sid_ble_conn_deinit_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->deinit());
 }
 
 void test_ble_adapter_start_advertisement(void)
 {
 	__wrap_sid_ble_advert_start_ExpectAndReturn(ESUCCESS);
+	__wrap_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->start_adv());
 
 	__wrap_sid_ble_advert_start_ExpectAndReturn(-ENOENT);
@@ -214,6 +203,7 @@ void test_ble_adapter_data_receive_wo_callback(void)
 	uint8_t flags = 0;
 
 	const struct bt_gatt_attr *p_ama_write_attr = ama_svrc_attr_get_by_uuid_128(AMA_SID_BT_CHARACTERISTIC_WRITE);
+
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_ama_write_attr, "Can't find Sidewalk service with write attribute");
 
 	p_ama_write_attr->write(NULL, NULL, buffer, sizeof(buffer), offset, flags);
@@ -262,7 +252,7 @@ void test_ble_adapter_set_callback_null(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_callback(&cb));
 
 	reset_callbacks(&cb);
-	cb.conn_callback = ble_connection_callback;
+	cb.conn_callback = connection_callback;
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_callback(&cb));
 	cb.mtu_callback = ble_mtu_callback;
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_callback(&cb));
@@ -279,56 +269,19 @@ void test_ble_adapter_set_callback_pass(void)
 	sid_pal_ble_adapter_callbacks_t cb;
 
 	set_callbacks(&cb);
-
+	__wrap_sid_ble_conn_cb_set_Ignore();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 }
 
 void test_sid_pal_ble_set_conn_callbacks(void)
 {
-	/* Initialize ble interface. Check bluetooth callbacks. */
-	bt_enable_fake.return_val = ESUCCESS;
-	__wrap_settings_load_ExpectAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
-	TEST_ASSERT_EQUAL(1, bt_conn_cb_register_fake.call_count);
-
-	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
-	TEST_ASSERT_NOT_NULL(p_test_conn_cb);
-	TEST_ASSERT_NOT_NULL(p_test_conn_cb->connected);
-	TEST_ASSERT_NOT_NULL(p_test_conn_cb->disconnected);
-
-	/* Register connection callback */
 	sid_pal_ble_adapter_callbacks_t cb;
+
 	set_callbacks(&cb);
+
+	__wrap_sid_ble_conn_cb_set_Expect(connection_callback);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
-	size_t conn_cb_cnt_expected = 0;
 
-	/* Prepare dummy connection paramters */
-	struct bt_conn *p_test_conn = NULL;
-	const bt_addr_le_t test_addr = {
-		.type = BT_ADDR_LE_RANDOM,
-		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
-	};
-	bt_conn_get_dst_fake.return_val = &test_addr;
-
-	/* Callback connected successfully */
-	uint8_t test_err = ESUCCESS, test_reason = 0;
-	p_test_conn_cb->connected(p_test_conn, test_err);
-	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
-	TEST_ASSERT_EQUAL(CONNECTED, conn_cb_test.state);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
-
-	/* Callback disconnected */
-	p_test_conn_cb->disconnected(p_test_conn, test_reason);
-	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
-	TEST_ASSERT_EQUAL(DISCONNECTED, conn_cb_test.state);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
-
-	/* Callback connected with error */
-	test_err = -ENOENT;
-	p_test_conn_cb->connected(p_test_conn, test_err);
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 }
 
 void test_ble_adapter_start_service(void)
@@ -343,6 +296,7 @@ void test_ble_adapter_send_data_unsuppored_id(void)
 
 	set_callbacks(&cb);
 
+	__wrap_sid_ble_conn_cb_set_Ignore();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, p_test_ble_ifc->send(VENDOR_SERVICE, data, sizeof(data)));
 	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, p_test_ble_ifc->send(LOGGING_SERVICE, data, sizeof(data)));
@@ -354,10 +308,13 @@ void test_ble_adapter_send_data_invalid_args(void)
 	sid_pal_ble_adapter_callbacks_t cb;
 	struct bt_gatt_attr attr;
 	uint8_t data[128];
+	const sid_ble_conn_params_t test_conn_params;
 
 	set_callbacks(&cb);
 	bt_gatt_find_by_uuid_fake.return_val = &attr;
 
+	__wrap_sid_ble_conn_cb_set_Ignore();
+	__wrap_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->send(AMA_SERVICE, NULL, 0));
 
@@ -378,6 +335,7 @@ void test_ble_adapter_send_data_invalid_fail(void)
 
 	set_callbacks(&cb);
 
+	__wrap_sid_ble_conn_cb_set_Ignore();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 	bt_gatt_find_by_uuid_fake.return_val = &attr;
 	bt_gatt_get_mtu_fake.return_val = sizeof(data);
@@ -393,6 +351,7 @@ void test_ble_adapter_send_data_invalid_uuid(void)
 
 	set_callbacks(&cb);
 
+	__wrap_sid_ble_conn_cb_set_Ignore();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 	bt_gatt_find_by_uuid_fake.return_val = NULL;
 	bt_gatt_get_mtu_fake.return_val = sizeof(data);
@@ -409,6 +368,7 @@ void test_ble_adapter_send_data_pass(void)
 
 	set_callbacks(&cb);
 
+	__wrap_sid_ble_conn_cb_set_Ignore();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 	bt_gatt_find_by_uuid_fake.return_val = &attr;
 	bt_gatt_get_mtu_fake.return_val = sizeof(data);
@@ -427,6 +387,7 @@ void test_ble_adapter_data_receive_pass(void)
 	memset(buffer, 0xCC, sizeof(buffer));
 
 	set_callbacks(&cb);
+	__wrap_sid_ble_conn_cb_set_Ignore();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
 	const struct bt_gatt_attr *p_ama_write_attr = ama_svrc_attr_get_by_uuid_128(AMA_SID_BT_CHARACTERISTIC_WRITE);
