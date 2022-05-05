@@ -94,7 +94,7 @@ static void notification_sent(struct bt_conn *conn, void *user_data)
 	}
 }
 
-const struct bt_gatt_service_static *get_ama_service(void)
+const struct bt_gatt_service_static *sid_ble_get_ama_service(void)
 {
 	return &ama_service;
 }

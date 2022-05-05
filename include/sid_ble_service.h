@@ -28,7 +28,7 @@
  * 
  * @return struct bt_gatt_service_static* 
  */
-const struct bt_gatt_service_static *get_ama_service(void);
+const struct bt_gatt_service_static *sid_ble_get_ama_service(void);
 
 /**
  * @brief Send data over BLE.

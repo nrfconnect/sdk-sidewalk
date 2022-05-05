@@ -206,7 +206,7 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 	case AMA_SERVICE:
 	{
 		uuid = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv = get_ama_service();
+		srv = sid_ble_get_ama_service();
 		break;
 	}
 	case VENDOR_SERVICE:
