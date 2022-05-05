@@ -33,6 +33,7 @@ static sid_error_t ble_adapter_deinit(void);
 
 static void ble_ev_connected(struct bt_conn *conn, uint8_t err);
 static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
+static void sid_pal_ble_connection_callback(bool state, uint8_t *addr);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
@@ -46,7 +47,7 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
-static sid_pal_ble_connection_callback_t connection_callback;
+static sid_pal_ble_connection_callback_t connection_callback = sid_pal_ble_connection_callback;
 
 typedef struct {
 	const sid_ble_config_t *cfg;
@@ -107,9 +108,14 @@ static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
 		memset(ctx.curr_conn_addr, 0x00, BLE_ADDR_MAX_LEN);
 	}
 
-	if (connection_callback) {
-		connection_callback(false, ctx.curr_conn_addr);
-	}
+	connection_callback(false, ctx.curr_conn_addr);
+}
+
+static void sid_pal_ble_connection_callback(bool state, uint8_t *addr){
+	ARG_UNUSED(state);
+	ARG_UNUSED(addr);
+
+	LOG_DBG("called default callback %s", __func__);
 }
 
 sid_error_t sid_ble_set_connection_cb(sid_pal_ble_connection_callback_t cb)
