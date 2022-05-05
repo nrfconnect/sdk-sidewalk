@@ -40,11 +40,6 @@ char *sidewalk_timer_str = "Hello Sidewalk timer!";
 struct sid_timespec sidewalk_timer_duration = { .tv_sec = 5 };
 struct sid_timespec sidewalk_timer_period = { .tv_sec = 10 };
 
-static const sid_ble_config_t ble_cfg = {
-	.is_adv_available = true,
-	.mac_addr_type = SID_BLE_CFG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE,
-};
-
 typedef struct {
 	uint16_t vendor_id;
 	uint8_t sidewalk_app_id;
@@ -60,7 +55,6 @@ static const sid_manuf_data_t sid_manuf_data = {
 	.frame_indicator = 0x80,
 	.tx_uuid = { 0xA0, 0x01, 0x02, 0x03, 0x04 }
 };
-
 
 static sid_pal_ble_adapter_interface_t p_ble_ifc;
 
@@ -176,7 +170,7 @@ void main(void)
 
 	sid_pal_ble_adapter_create(&p_ble_ifc);
 
-	p_ble_ifc->init(&ble_cfg);
+	p_ble_ifc->init(NULL);
 	p_ble_ifc->set_adv_data((uint8_t *)&sid_manuf_data, sizeof(sid_manuf_data));
 	p_ble_ifc->start_adv();
 
