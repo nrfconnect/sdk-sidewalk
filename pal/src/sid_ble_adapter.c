@@ -11,6 +11,7 @@
 #include <sid_pal_ble_adapter_ifc.h>
 #include <sid_ble_service.h>
 #include <sid_ble_advert.h>
+#include <sid_ble_connection.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
@@ -31,10 +32,6 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 static sid_error_t ble_adapter_disconnect(void);
 static sid_error_t ble_adapter_deinit(void);
 
-static void ble_ev_connected(struct bt_conn *conn, uint8_t err);
-static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
-static void sid_pal_ble_connection_callback(bool state, uint8_t *addr);
-
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
 	.start_service = ble_adapter_start_service,
@@ -47,86 +44,12 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
-static sid_pal_ble_connection_callback_t connection_callback = sid_pal_ble_connection_callback;
-
 typedef struct {
 	const sid_ble_config_t *cfg;
-	struct bt_conn *curr_conn;
-	uint8_t curr_conn_addr[BLE_ADDR_MAX_LEN];
 } sid_pal_ble_adapter_ctx_t;
 
 static sid_pal_ble_adapter_ctx_t ctx;
 
-/* BLE connection callbacks. */
-static struct bt_conn_cb conn_callbacks = {
-	.connected = ble_ev_connected,
-	.disconnected = ble_ev_disconnected,
-};
-
-/**
- * @brief The function is called when a new connection is established.
- *
- * @param conn new connection object.
- * @param err HCI error, zero for success, non-zero otherwise.
- */
-static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
-{
-	if (err) {
-		LOG_ERR("Connection failed (err %u)\n", err);
-		return;
-	}
-
-	memcpy(ctx.curr_conn_addr, bt_conn_get_dst(conn)->a.val, BLE_ADDR_MAX_LEN);
-	LOG_DBG("Connected: %02X:%02X:%02X:%02X:%02X:%02X",
-		ctx.curr_conn_addr[5], ctx.curr_conn_addr[4], ctx.curr_conn_addr[3],
-		ctx.curr_conn_addr[2], ctx.curr_conn_addr[1], ctx.curr_conn_addr[0]);
-
-	ctx.curr_conn = bt_conn_ref(conn);
-
-	if (connection_callback) {
-		connection_callback(true, ctx.curr_conn_addr);
-	}
-}
-
-/**
- * @brief The function is called when a connection has been disconnected.
- *
- * @param conn connection object.
- * @param err HCI disconnection reason.
- */
-static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
-{
-	char addr[BT_ADDR_LE_STR_LEN];
-
-	bt_addr_le_to_str(bt_conn_get_dst(conn), addr, sizeof(addr));
-
-	LOG_DBG("Disconnected: %s (reason %u)\n", addr, reason);
-
-	if (ctx.curr_conn) {
-		bt_conn_unref(ctx.curr_conn);
-		ctx.curr_conn = NULL;
-		memset(ctx.curr_conn_addr, 0x00, BLE_ADDR_MAX_LEN);
-	}
-
-	connection_callback(false, ctx.curr_conn_addr);
-}
-
-static void sid_pal_ble_connection_callback(bool state, uint8_t *addr){
-	ARG_UNUSED(state);
-	ARG_UNUSED(addr);
-
-	LOG_DBG("called default callback %s", __func__);
-}
-
-sid_error_t sid_ble_set_connection_cb(sid_pal_ble_connection_callback_t cb)
-{
-	if (NULL == cb) {
-		return SID_ERROR_INVALID_ARGS;
-	}
-
-	connection_callback = cb;
-	return SID_ERROR_NONE;
-}
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
@@ -153,7 +76,7 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 		}
 	}
 
-	bt_conn_cb_register(&conn_callbacks);
+	sid_ble_conn_init();
 
 	return SID_ERROR_NONE;
 }
@@ -206,7 +129,7 @@ static sid_error_t ble_adapter_stop_advertisement(void)
 static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
 {
 	const struct bt_gatt_service_static *srv = NULL;
-	struct bt_uuid *uuid;
+	struct bt_uuid *uuid = NULL;
 
 	switch (id) {
 	case AMA_SERVICE:
@@ -221,7 +144,8 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 		return SID_ERROR_NOSUPPORT;
 	}
 
-	return sid_ble_send_data(ctx.curr_conn, uuid, srv, data, length);
+	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	return sid_ble_send_data(params->conn, uuid, srv, data, length);
 }
 
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
@@ -253,10 +177,7 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 		return erc;
 	}
 
-	erc = sid_ble_set_connection_cb(cb->conn_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
-	}
+	sid_ble_conn_cb_set(cb->conn_callback);
 
 	return SID_ERROR_NONE;
 }
@@ -269,6 +190,7 @@ static sid_error_t ble_adapter_disconnect(void)
 static sid_error_t ble_adapter_deinit(void)
 {
 	memset(&ctx, 0x00, sizeof(ctx));
+	sid_ble_conn_deinit();
 	return SID_ERROR_NONE;
 }
 

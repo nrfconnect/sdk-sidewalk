@@ -81,6 +81,38 @@ void sidewalk_timer_cb(void *arg, sid_pal_timer_t *originator)
 	LOG_INF("sidewalk_timer_cb says \"%s\"\n", (char *)arg);
 }
 
+static void sidewalk_ble_connection_callback(bool state, uint8_t *addr)
+{
+	LOG_DBG("%s: %02X:%02X:%02X:%02X:%02X:%02X",
+		state ? "Connected" : "Disconnected",
+		addr[5], addr[4], addr[3], addr[2], addr[1], addr[0]);
+}
+
+static void sidewalk_ble_data_callback(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
+{
+	LOG_DBG("In callback %s", __func__);
+}
+
+static void sidewalk_ble_notify_callback(sid_ble_cfg_service_identifier_t id, bool state)
+{
+	LOG_DBG("In callback %s", __func__);
+}
+
+static void sidewalk_ble_indication_callback(bool status)
+{
+	LOG_DBG("In callback %s", __func__);
+}
+
+static void sidewalk_ble_mtu_callback(uint16_t size)
+{
+	LOG_DBG("In callback %s", __func__);
+}
+
+static void sidewalk_ble_adv_start_callback(void)
+{
+	LOG_DBG("In callback %s", __func__);
+}
+
 void button_handler(uint32_t button_state, uint32_t has_changed)
 {
 	static uint8_t buff[] = { 0x11, 0x22 };
@@ -155,6 +187,16 @@ void main(void)
 	p_ble_ifc->init(&ble_cfg);
 	p_ble_ifc->set_adv_data((uint8_t *)&sid_manuf_data, sizeof(sid_manuf_data));
 	p_ble_ifc->start_adv();
+
+	sid_pal_ble_adapter_callbacks_t sid_cb = {
+		.adv_start_callback = sidewalk_ble_adv_start_callback,
+		.conn_callback = sidewalk_ble_connection_callback,
+		.data_callback = sidewalk_ble_data_callback,
+		.ind_callback = sidewalk_ble_indication_callback,
+		.mtu_callback = sidewalk_ble_mtu_callback,
+		.notify_callback = sidewalk_ble_notify_callback,
+	};
+	p_ble_ifc->set_callback(&sid_cb);
 
 	erc = dk_buttons_init(button_handler);
 	if (erc) {
