@@ -12,21 +12,27 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/uuid.h>
 
-typedef enum {
-	BLE_ADV_DISABLE,
-	BLE_ADV_ENABLE
-} sid_ble_adv_state_t;
+#ifdef CONFIG_BLE_ADV_SLOW_INT_1000_1200_MS
+#define ADV_INT_MIN     BT_GAP_ADV_SLOW_INT_MIN
+#define ADV_INT_MAX     BT_GAP_ADV_SLOW_INT_MAX
+#elif CONFIG_BLE_ADV_FAST_INT_30_60_MS
+#define ADV_INT_MIN     BT_GAP_ADV_FAST_INT_MIN_1
+#define ADV_INT_MAX     BT_GAP_ADV_FAST_INT_MAX_1
+#else
+#define ADV_INT_MIN     BT_GAP_ADV_FAST_INT_MIN_2
+#define ADV_INT_MAX     BT_GAP_ADV_FAST_INT_MAX_2
+#endif
 
-static sid_ble_adv_state_t adv_state;
+#define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_CONNECTABLE | \
+			     BT_LE_ADV_OPT_USE_NAME |	 \
+			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
 
 /* Advertising parameters. */
-#define AMA_ADV_PARAM				\
-	BT_LE_ADV_PARAM(			\
-		BT_LE_ADV_OPT_CONNECTABLE |	\
-		BT_LE_ADV_OPT_USE_NAME |	\
-		BT_LE_ADV_OPT_FORCE_NAME_IN_AD,	\
-		BT_GAP_ADV_FAST_INT_MIN_2,	\
-		BT_GAP_ADV_FAST_INT_MAX_2, NULL	\
+#define AMA_ADV_PARAM		  \
+	BT_LE_ADV_PARAM(	  \
+		AMA_ADV_OPTIONS,  \
+		ADV_INT_MIN,	  \
+		ADV_INT_MAX, NULL \
 		)
 
 /**
@@ -38,19 +44,26 @@ static sid_ble_adv_state_t adv_state;
 #define AD_NAME_SHORT_LEN 2
 #define AD_TLV_TYPE_AND_LENGTH 2
 #define AD_TLV_LEN(x) (x + AD_TLV_TYPE_AND_LENGTH)
-#define AD_MANUF_DATA_LEN_MAX (BT_GAP_ADV_MAX_ADV_DATA_LEN   \
-			       - AD_TLV_TYPE_AND_LENGTH	     \
-			       - AD_TLV_LEN(AD_FLAGS_LEN)    \
-			       - AD_TLV_LEN(AD_SERVICES_LEN) \
-			       - AD_TLV_LEN(AD_NAME_SHORT_LEN))
-
-static uint8_t bt_adv_manuf_data[AD_MANUF_DATA_LEN_MAX];
+#define AD_MANUF_DATA_LEN_MAX (BT_GAP_ADV_MAX_ADV_DATA_LEN - \
+			       AD_TLV_TYPE_AND_LENGTH  -     \
+			       AD_TLV_LEN(AD_FLAGS_LEN) -    \
+			       AD_TLV_LEN(AD_SERVICES_LEN) - \
+			       AD_TLV_LEN(AD_NAME_SHORT_LEN))
 
 enum adv_data_items {
 	ADV_DATA_FLAGS,
 	ADV_DATA_SERVICES,
 	ADV_DATA_MANUF_DATA
 };
+
+typedef enum {
+	BLE_ADV_DISABLE,
+	BLE_ADV_ENABLE
+} sid_ble_adv_state_t;
+
+static sid_ble_adv_state_t adv_state;
+
+static uint8_t bt_adv_manuf_data[AD_MANUF_DATA_LEN_MAX];
 
 static struct bt_data adv_data[] = {
 	[ADV_DATA_FLAGS] = BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -59,17 +72,14 @@ static struct bt_data adv_data[] = {
 };
 
 /**
- * @brief Function to set manufacturing data in ble advertisment.
+ * @brief The function copy manufacturing data to static buffer used in BLE avertising.
  *
- * @note It just updates advertising data structure.
- * It is required to run bluetooth advertising data update function separately.
- *
- * @param data
- * @param data_len
+ * @param data buffer with data to copy.
+ * @param data_len number of bytes to copy.
  *
  * @return number of bytes written to manufacuring data in avertising.
  */
-static uint8_t sid_ble_advert_manuf_data_update(uint8_t *data, uint8_t data_len)
+static uint8_t advert_manuf_data_copy(uint8_t *data, uint8_t data_len)
 {
 	uint8_t new_data_len = MIN(data_len, AD_MANUF_DATA_LEN_MAX);
 
@@ -106,7 +116,7 @@ int sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 		return -EINVAL;
 	}
 
-	adv_data[ADV_DATA_MANUF_DATA].data_len = sid_ble_advert_manuf_data_update(data, data_len);
+	adv_data[ADV_DATA_MANUF_DATA].data_len = advert_manuf_data_copy(data, data_len);
 
 	int err = 0;
 	if (BLE_ADV_ENABLE == adv_state) {

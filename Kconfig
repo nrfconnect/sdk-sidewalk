@@ -27,10 +27,40 @@ config SIDEWALK_BLE
 	imply BT_SETTINGS
 	imply BT_PERIPHERAL
 	imply BT_GATT_CLIENT
-	bool "Enable Sidewalk Bluettoth Low Energy module."
+	bool "Enable Sidewalk Bluettoth Low Energy module"
+
+if SIDEWALK_BLE
+
+choice SIDEWALK_BLE_ADV_INT
+	prompt "BLE advertising interval timers"
+	default BLE_ADV_FAST_INT_100_150_MS
+
+config BLE_ADV_FAST_INT_30_60_MS
+	bool "MIN/MAX: 30/60 ms"
+
+config BLE_ADV_FAST_INT_100_150_MS
+	bool "MIN/MAX: 100/150 ms"
+
+config BLE_ADV_SLOW_INT_1000_1200_MS
+	bool "MIN/MAX: 1/1.2 s"
+endchoice
+
+config SIDEWALK_VENDOR_SERVICE
+	bool "Enable vendor service"
+	default n
+	help
+	   "Enables the vendor service for Sidewalk."
+
+config SIDEWALK_LOGGING_SERVICE
+	bool "Enable logging service"
+	default n
+	help
+	   "Enables the logging service for Sidewalk."
+
+endif # SIDEWALK_BLE
 
 config SIDEWALK_CRYPTO
-	bool "Enable Sidewalk security module."
+	bool "Enable Sidewalk security module"
 	imply NRF_SECURITY
 	imply MBEDTLS_PSA_CRYPTO_C
 	imply PSA_CRYPTO_DRIVER_CC3XX
@@ -49,7 +79,7 @@ config SIDEWALK_CRYPTO
 	imply PSA_WANT_ECC_MONTGOMERY_255
 
 config SIDEWALK_LOG
-	bool "Enable Sidewalk log module."
+	bool "Enable Sidewalk log module"
 	imply LOG
 
 if SIDEWALK_LOG
@@ -73,16 +103,16 @@ endif # SIDEWALK_CRYPTO
 endif # SIDEWALK_LOG
 
 config SIDEWALK_MFG_STORAGE
-	bool "Enable Sidewalk manufacturing storage module."
+	bool "Enable Sidewalk manufacturing storage module"
 	imply FLASH
 
 config SIDEWALK_STORAGE
-	bool "Enable Sidewalk storage module."
+	bool "Enable Sidewalk storage module"
 	imply NVS
 	imply FLASH
 
 config SIDEWALK_TIMER
-	bool "Enable Sidewalk timer module."
+	bool "Enable Sidewalk timer module"
 
 config SIDEWALK_UPTIME
-	bool "Enable Sidewalk uptime module."
+	bool "Enable Sidewalk uptime module"

@@ -44,22 +44,14 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
-typedef struct {
-	const sid_ble_config_t *cfg;
-} sid_pal_ble_adapter_ctx_t;
 
-static sid_pal_ble_adapter_ctx_t ctx;
 
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
+	ARG_UNUSED(cfg);
+
 	LOG_DBG("Enable BT");
-
-	if (!cfg) {
-		return SID_ERROR_INVALID_ARGS;
-	}
-
-	ctx.cfg = cfg;
 
 	int err_code;
 	err_code = bt_enable(NULL);
