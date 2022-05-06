@@ -5,6 +5,7 @@
  */
 
 #include <sid_ble_connection.h>
+#include <sid_ble_adapter_callbacks.h>
 
 #include <bluetooth/bluetooth.h>
 #include <logging/log.h>
@@ -13,8 +14,6 @@ LOG_MODULE_REGISTER(sid_ble_conn, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static void ble_ev_connected(struct bt_conn *conn, uint8_t err);
 static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
-
-static sid_pal_ble_connection_callback_t sid_conn_cb;
 
 static sid_ble_conn_params_t conn_params;
 static sid_ble_conn_params_t *p_conn_params_out;
@@ -46,10 +45,7 @@ static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
 	}
 
 	conn_params.conn = bt_conn_ref(conn);
-
-	if (sid_conn_cb) {
-		sid_conn_cb(true, conn_params.addr);
-	}
+	sid_ble_adapter_conn_connected((const uint8_t *)conn_params.addr);
 }
 
 /**
@@ -64,20 +60,13 @@ static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
 		bt_conn_unref(conn_params.conn);
 		conn_params.conn = NULL;
 
-		if (sid_conn_cb) {
-			sid_conn_cb(false, conn_params.addr);
-		}
+		sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
 	}
 }
 
 const sid_ble_conn_params_t *sid_ble_conn_params_get(void)
 {
 	return (const sid_ble_conn_params_t *)p_conn_params_out;
-}
-
-void sid_ble_conn_cb_set(sid_pal_ble_connection_callback_t cb)
-{
-	sid_conn_cb = cb;
 }
 
 void sid_ble_conn_init(void)
@@ -95,5 +84,4 @@ int sid_ble_conn_disconnect(void)
 void sid_ble_conn_deinit(void)
 {
 	p_conn_params_out = NULL;
-	sid_conn_cb = NULL;
 }
