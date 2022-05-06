@@ -10,6 +10,14 @@
 
 #include <sid_pal_ble_adapter_ifc.h>
 #include <sid_ble_service.h>
+#include <sid_ble_ama_service.h>
+#if (CONFIG_SIDEWALK_VENDOR_SERVICE)
+#include <sid_ble_vnd_service.h>
+#endif
+#if (CONFIG_SIDEWALK_LOGGING_SERVICE)
+#include <sid_ble_log_service.h>
+#endif
+#include <sid_ble_adapter_callbacks.h>
 #include <sid_ble_advert.h>
 #include <sid_ble_connection.h>
 
@@ -44,9 +52,6 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
-
-
-
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
 	ARG_UNUSED(cfg);
@@ -66,6 +71,8 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 			LOG_ERR("settings load failed (err %d)", err_code);
 			return SID_ERROR_GENERIC;
 		}
+	} else {
+		return SID_ERROR_INVALID_ARGS;
 	}
 
 	sid_ble_conn_init();
@@ -122,6 +129,7 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 {
 	const struct bt_gatt_service_static *srv = NULL;
 	struct bt_uuid *uuid = NULL;
+	sid_ble_srv_params_t srv_params;
 
 	switch (id) {
 	case AMA_SERVICE:
@@ -130,14 +138,39 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 		srv = sid_ble_get_ama_service();
 		break;
 	}
+	#if (CONFIG_SIDEWALK_VENDOR_SERVICE)
 	case VENDOR_SERVICE:
+	{
+		uuid = VND_SID_BT_CHARACTERISTIC_NOTIFY;
+		srv = sid_ble_get_vnd_service();
+		break;
+	}
+	#endif
+	#if (CONFIG_SIDEWALK_LOGGING_SERVICE)
 	case LOGGING_SERVICE:
+	{
+		uuid = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
+		srv = sid_ble_get_log_service();
+		break;
+	}
+	#endif
 	default:
 		return SID_ERROR_NOSUPPORT;
 	}
 
 	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
-	return sid_ble_send_data(params->conn, uuid, srv, data, length);
+
+	srv_params.uuid = uuid;
+	srv_params.service = (struct bt_gatt_service_static *)srv;
+	srv_params.conn = params->conn;
+
+	int erc = sid_ble_send_data(&srv_params, data, length);
+	if (-EINVAL == erc) {
+		return SID_ERROR_INVALID_ARGS;
+	} else if (0 > erc) {
+		return SID_ERROR_GENERIC;
+	}
+	return SID_ERROR_NONE;
 }
 
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
@@ -148,28 +181,30 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 		return SID_ERROR_NULL_POINTER;
 	}
 
-	if (!cb->conn_callback   ||
-	    !cb->mtu_callback    ||
+	if (!cb->mtu_callback    ||
 	    !cb->adv_start_callback) {
 		return SID_ERROR_INVALID_ARGS;
 	}
 
-	erc = sid_ble_set_notification_cb(cb->ind_callback);
+	erc = sid_ble_adapter_notification_cb_set(cb->ind_callback);
 	if (SID_ERROR_NONE != erc) {
 		return erc;
 	}
 
-	erc = sid_ble_set_data_cb(cb->data_callback);
+	erc = sid_ble_adapter_data_cb_set(cb->data_callback);
 	if (SID_ERROR_NONE != erc) {
 		return erc;
 	}
 
-	erc = sid_ble_set_notification_changed_cb(cb->notify_callback);
+	erc = sid_ble_adapter_notification_changed_cb_set(cb->notify_callback);
 	if (SID_ERROR_NONE != erc) {
 		return erc;
 	}
 
-	sid_ble_conn_cb_set(cb->conn_callback);
+	erc = sid_ble_adapter_conn_cb_set(cb->conn_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
 
 	return SID_ERROR_NONE;
 }
@@ -188,7 +223,6 @@ static sid_error_t ble_adapter_disconnect(void)
 
 static sid_error_t ble_adapter_deinit(void)
 {
-	memset(&ctx, 0x00, sizeof(ctx));
 	sid_ble_conn_deinit();
 	return SID_ERROR_NONE;
 }

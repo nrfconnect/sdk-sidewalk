@@ -1,0 +1,85 @@
+/*
+ * Copyright (c) 2022 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+ */
+
+/** @file sid_ble_adapter_callbacks.c
+ *  @brief Common callbacks implementation for Sidewalk.
+ */
+
+#include <sid_ble_adapter_callbacks.h>
+
+#include <zephyr/types.h>
+
+#define CALLBACK_SET(__target_cb)		       \
+	do {					       \
+		if (NULL == cb) {		       \
+			return SID_ERROR_INVALID_ARGS; \
+		}				       \
+		__target_cb = cb;		       \
+	} while (0)
+
+static sid_pal_ble_data_callback_t data_cb;
+static sid_pal_ble_notify_callback_t notify_changed_cb;
+static sid_pal_ble_indication_callback_t notify_sent_cb;
+static sid_pal_ble_connection_callback_t connection_cb;
+
+sid_error_t sid_ble_adapter_notification_cb_set(sid_pal_ble_indication_callback_t cb)
+{
+	CALLBACK_SET(notify_sent_cb);
+	return SID_ERROR_NONE;
+}
+
+void sid_ble_adapter_notification_sent(void)
+{
+	if (notify_sent_cb) {
+		notify_sent_cb(true);
+	}
+}
+
+sid_error_t sid_ble_adapter_data_cb_set(sid_pal_ble_data_callback_t cb)
+{
+	CALLBACK_SET(data_cb);
+	return SID_ERROR_NONE;
+}
+
+void sid_ble_adapter_data_write(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
+{
+	if (data_cb) {
+		data_cb(id, data, length);
+	}
+}
+
+sid_error_t sid_ble_adapter_notification_changed_cb_set(sid_pal_ble_notify_callback_t cb)
+{
+	CALLBACK_SET(notify_changed_cb);
+	return SID_ERROR_NONE;
+}
+
+void sid_ble_adapter_notification_changed(sid_ble_cfg_service_identifier_t id, bool state)
+{
+	if (notify_changed_cb) {
+		notify_changed_cb(id, state);
+	}
+}
+
+sid_error_t sid_ble_adapter_conn_cb_set(sid_pal_ble_connection_callback_t cb)
+{
+	CALLBACK_SET(connection_cb);
+	return SID_ERROR_NONE;
+}
+
+void sid_ble_adapter_conn_connected(const uint8_t *ble_addr)
+{
+	if (connection_cb) {
+		connection_cb(true, (uint8_t *)ble_addr);
+	}
+}
+
+void sid_ble_adapter_conn_disconnected(const uint8_t *ble_addr)
+{
+	if (connection_cb) {
+		connection_cb(false, (uint8_t *)ble_addr);
+	}
+}
