@@ -24,6 +24,13 @@ typedef struct {
 void sid_ble_conn_init(void);
 
 /**
+ * @brief Disconnect from a remote device or cancel pending connection.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_conn_disconnect(void);
+
+/**
  * @brief Deinitialize ble connection module.
  */
 void sid_ble_conn_deinit(void);

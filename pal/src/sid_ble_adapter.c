@@ -184,7 +184,14 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 
 static sid_error_t ble_adapter_disconnect(void)
 {
-	return SID_ERROR_NOSUPPORT;
+	int err = sid_ble_conn_disconnect();
+
+	if (err) {
+		LOG_ERR("Disconnection failed (err %d)", err);
+		return SID_ERROR_GENERIC;
+	}
+
+	return SID_ERROR_NONE;
 }
 
 static sid_error_t ble_adapter_deinit(void)
