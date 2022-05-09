@@ -1,0 +1,5 @@
+tests:
+  unity.sidewalk.unit_tests.ble_adapter_callbacks:
+    tags: Sidewalk
+    integration_platforms:
+      - native_posix
