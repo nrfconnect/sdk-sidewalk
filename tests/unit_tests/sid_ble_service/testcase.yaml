@@ -1,0 +1,5 @@
+tests:
+  unity.sidewalk.unit_tests.sid_ble_service:
+    tags: Sidewalk
+    integration_platforms:
+      - native_posix

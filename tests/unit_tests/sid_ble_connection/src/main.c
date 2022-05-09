@@ -51,10 +51,9 @@ void setUp(void)
 	memset(&conn_cb_test, 0x00, sizeof(conn_cb_test));
 }
 
-static void connection_callback(const uint8_t *ble_addr, bool is_connected, int cmock_num_calls)
+static void connection_callback(const uint8_t *ble_addr, int cmock_num_calls)
 {
 	conn_cb_test.num_calls++;
-	conn_cb_test.state = is_connected;
 	conn_cb_test.addr = (uint8_t *)ble_addr;
 }
 
@@ -106,14 +105,14 @@ void test_sid_ble_conn_positive(void)
 	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
-	__wrap_sid_ble_connection_changed_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE, CONNECTED);
+	__wrap_sid_ble_adapter_conn_connected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
 	p_test_conn_cb->connected(p_test_conn, test_no_error);
 
 	params = sid_ble_conn_params_get();
 	TEST_ASSERT_EQUAL_PTR(p_test_conn, params->conn);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
-	__wrap_sid_ble_connection_changed_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE, DISCONNECTED);
+	__wrap_sid_ble_adapter_conn_disconnected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
 	p_test_conn_cb->disconnected(p_test_conn, test_reason);
 }
 
@@ -132,21 +131,21 @@ void test_sid_ble_set_conn_cb_positive(void)
 	bt_conn_ref_fake.return_val = p_test_conn;
 
 	sid_ble_conn_init();
-	__wrap_sid_ble_connection_changed_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
 
 	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	p_test_conn_cb->connected(p_test_conn, test_no_error);
-	TEST_ASSERT_EQUAL(CONNECTED, conn_cb_test.state);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
 
 	params = sid_ble_conn_params_get();
 	TEST_ASSERT_EQUAL_PTR(p_test_conn, params->conn);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	p_test_conn_cb->disconnected(p_test_conn, test_reason);
 	TEST_ASSERT_EQUAL(DISCONNECTED, conn_cb_test.state);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
@@ -165,22 +164,23 @@ void test_sid_ble_conn_cb_set_call_count(void)
 	bt_conn_ref_fake.return_val = p_test_conn;
 
 	sid_ble_conn_init();
-	__wrap_sid_ble_connection_changed_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
 
 	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	p_test_conn_cb->connected(p_test_conn, test_no_error);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	p_test_conn_cb->disconnected(p_test_conn, test_reason);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	p_test_conn_cb->connected(p_test_conn, test_error_timeout);
 
 	bt_conn_get_dst_fake.return_val = NULL;
@@ -202,12 +202,13 @@ void test_sid_ble_disconnected_wrong_conn(void)
 	bt_conn_ref_fake.return_val = &test_conn;
 
 	sid_ble_conn_init();
-	__wrap_sid_ble_connection_changed_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
 
 	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	p_test_conn_cb->connected(&test_conn, test_no_error);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
@@ -215,7 +216,7 @@ void test_sid_ble_disconnected_wrong_conn(void)
 	p_test_conn_cb->disconnected(&test_wrong_conn, test_no_error);
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	p_test_conn_cb->disconnected(&test_conn, test_reason);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
@@ -229,18 +230,19 @@ void test_sid_ble_cb_set_before_init(void)
 	bt_conn_ref_fake.return_val = p_test_conn;
 
 	sid_ble_conn_deinit();
-	__wrap_sid_ble_connection_changed_StubWithCallback(connection_callback);
 	sid_ble_conn_init();
+	__wrap_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
+	__wrap_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
 
 	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	p_test_conn_cb->connected(p_test_conn, 0);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
-	__wrap_sid_ble_connection_changed_ExpectAnyArgs();
+	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	p_test_conn_cb->disconnected(p_test_conn, 19);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
