@@ -23,6 +23,7 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 #define MFG_EMPTY_VERSION       0xFFFFFFFFUL
 
 #define KEY_BLE_NOTIFY DK_BTN1_MSK
+#define KEY_BLE_DISCONNECT DK_BTN2_MSK
 
 #if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
@@ -39,22 +40,9 @@ char *sidewalk_timer_str = "Hello Sidewalk timer!";
 struct sid_timespec sidewalk_timer_duration = { .tv_sec = 5 };
 struct sid_timespec sidewalk_timer_period = { .tv_sec = 10 };
 
-static const sid_ble_cfg_adv_param_t adv_param = {
-	.type = AMA_SERVICE,
-	.fast_enabled = true,
-	.slow_enabled = true,
-	.fast_interval = 256,
-	.fast_timeout = 3000,
-	.slow_interval = 1600,
-	.slow_timeout = 0,
-};
-
 static const sid_ble_config_t ble_cfg = {
 	.is_adv_available = true,
 	.mac_addr_type = SID_BLE_CFG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE,
-	.adv_param = adv_param,
-	.num_profile = 0,
-	.profile = NULL,
 };
 
 typedef struct {
@@ -115,11 +103,15 @@ static void sidewalk_ble_adv_start_callback(void)
 
 void button_handler(uint32_t button_state, uint32_t has_changed)
 {
-	static uint8_t buff[] = { 0x11, 0x22 };
 	uint32_t button = button_state & has_changed;
 
 	if (button & KEY_BLE_NOTIFY) {
+		static uint8_t buff[] = { 0x11, 0x22 };
 		p_ble_ifc->send(AMA_SERVICE, buff, sizeof(buff));
+	}
+
+	if (button & KEY_BLE_DISCONNECT) {
+		p_ble_ifc->disconnect();
 	}
 }
 

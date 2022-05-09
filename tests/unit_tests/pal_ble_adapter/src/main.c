@@ -423,6 +423,15 @@ void test_ble_adapter_set_adv_data(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
 }
 
+void test_ble_adapter_disconnect(void)
+{
+	__wrap_sid_ble_conn_disconnect_ExpectAndReturn(ESUCCESS);
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->disconnect());
+
+	__wrap_sid_ble_conn_disconnect_ExpectAndReturn(-ENOENT);
+	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->disconnect());
+}
+
 extern int unity_main(void);
 
 void main(void)

@@ -87,6 +87,11 @@ void sid_ble_conn_init(void)
 	bt_conn_cb_register(&conn_callbacks);
 }
 
+int sid_ble_conn_disconnect(void)
+{
+	return bt_conn_disconnect(conn_params.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+}
+
 void sid_ble_conn_deinit(void)
 {
 	p_conn_params_out = NULL;
