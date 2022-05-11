@@ -12,19 +12,24 @@
 #include <bluetooth/conn.h>
 #include <errno.h>
 
-#define ESUCCESS 0
-
 DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t, const struct bt_data *, size_t);
 FAKE_VALUE_FUNC(int, bt_le_adv_stop);
 FAKE_VALUE_FUNC(int, bt_le_adv_update_data, const struct bt_data *, size_t, const struct bt_data *, size_t);
 
+#define FFF_FAKES_LIST(FAKE)  \
+	FAKE(bt_le_adv_start) \
+	FAKE(bt_le_adv_stop)  \
+	FAKE(bt_le_adv_update_data)
+
+#define ESUCCESS (0)
+#define TEST_BUFFER_LEN (100)
+
 void setUp(void)
 {
-	RESET_FAKE(bt_le_adv_start);
-	RESET_FAKE(bt_le_adv_stop);
-	RESET_FAKE(bt_le_adv_update_data);
+	FFF_FAKES_LIST(RESET_FAKE);
+	FFF_RESET_HISTORY();
 }
 
 void test_sid_ble_advert_start(void)
@@ -109,7 +114,7 @@ bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t
 
 void test_sid_ble_advert_update_before_start(void)
 {
-	uint8_t test_result[100] = { 0 };
+	uint8_t test_result[TEST_BUFFER_LEN] = { 0 };
 	uint8_t test_result_size;
 	uint8_t test_data[] = "Lorem ipsum.";
 	const struct bt_data *advert_data;
@@ -138,7 +143,7 @@ void test_sid_ble_advert_update_before_start(void)
 
 void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 {
-	uint8_t test_result[100] = { 0 };
+	uint8_t test_result[TEST_BUFFER_LEN] = { 0 };
 	uint8_t test_result_size;
 	const struct bt_data *advert_data;
 	size_t advert_data_size;

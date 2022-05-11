@@ -21,10 +21,6 @@
 
 #include <stdbool.h>
 
-#define ESUCCESS (0)
-#define FAKE_SERVICE (9)
-#define TEST_DATA_CHUNK (128)
-
 DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
@@ -56,6 +52,10 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *,
 	FAKE(bt_gatt_attr_read_chrc)	\
 	FAKE(bt_gatt_attr_read_ccc)	\
 	FAKE(bt_gatt_attr_write_ccc)
+
+#define ESUCCESS (0)
+#define FAKE_SERVICE (9)
+#define TEST_DATA_CHUNK (128)
 
 struct bt_conn {
 	uint8_t dummy;

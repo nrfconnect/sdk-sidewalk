@@ -10,9 +10,6 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(sidewalk_test_crypto)
 
-# fff.h
-include_directories(${ZEPHYR_BASE}/subsys/testsuite/include)
-
 # add test file
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})

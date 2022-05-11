@@ -214,7 +214,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		nrf_mfg_store_region.app_value_to_offset = default_app_value_to_offset;
 	}
 
-	flash_dev = device_get_binding(DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL);
+	flash_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_flash_controller));
 	if (!flash_dev) {
 		LOG_ERR("Flash device is not found.");
 	}

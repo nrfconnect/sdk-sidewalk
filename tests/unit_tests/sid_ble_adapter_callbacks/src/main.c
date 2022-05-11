@@ -4,14 +4,13 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 #include <unity.h>
-#include <fff.h>
 
 #include <sid_ble_adapter_callbacks.h>
 
 #include <bluetooth/conn.h>
 #include <stdbool.h>
 
-#define TEST_DATA_CHUNK  16
+#define TEST_DATA_CHUNK  (16)
 
 typedef struct {
 	int call_cnt;
