@@ -12,12 +12,12 @@
 
 #include <zephyr/types.h>
 
-#define CALLBACK_SET(__target_cb)		       \
+#define CALLBACK_SET(__target_cb, __source_cb)		       \
 	do {					       \
-		if (NULL == cb) {		       \
+		if (NULL == __source_cb) {		       \
 			return SID_ERROR_INVALID_ARGS; \
 		}				       \
-		__target_cb = cb;		       \
+		__target_cb = __source_cb;		       \
 	} while (0)
 
 static sid_pal_ble_data_callback_t data_cb;
@@ -29,7 +29,7 @@ static sid_pal_ble_adv_start_callback_t adv_start_cb;
 
 sid_error_t sid_ble_adapter_notification_cb_set(sid_pal_ble_indication_callback_t cb)
 {
-	CALLBACK_SET(notify_sent_cb);
+	CALLBACK_SET(notify_sent_cb, cb);
 	return SID_ERROR_NONE;
 }
 
@@ -42,7 +42,7 @@ void sid_ble_adapter_notification_sent(void)
 
 sid_error_t sid_ble_adapter_data_cb_set(sid_pal_ble_data_callback_t cb)
 {
-	CALLBACK_SET(data_cb);
+	CALLBACK_SET(data_cb, cb);
 	return SID_ERROR_NONE;
 }
 
@@ -55,7 +55,7 @@ void sid_ble_adapter_data_write(sid_ble_cfg_service_identifier_t id, uint8_t *da
 
 sid_error_t sid_ble_adapter_notification_changed_cb_set(sid_pal_ble_notify_callback_t cb)
 {
-	CALLBACK_SET(notify_changed_cb);
+	CALLBACK_SET(notify_changed_cb, cb);
 	return SID_ERROR_NONE;
 }
 
@@ -68,7 +68,7 @@ void sid_ble_adapter_notification_changed(sid_ble_cfg_service_identifier_t id, b
 
 sid_error_t sid_ble_adapter_conn_cb_set(sid_pal_ble_connection_callback_t cb)
 {
-	CALLBACK_SET(connection_cb);
+	CALLBACK_SET(connection_cb, cb);
 	return SID_ERROR_NONE;
 }
 
@@ -88,7 +88,7 @@ void sid_ble_adapter_conn_disconnected(const uint8_t *ble_addr)
 
 sid_error_t sid_ble_adapter_mtu_cb_set(sid_pal_ble_mtu_callback_t cb)
 {
-	CALLBACK_SET(mtu_changed_cb);
+	CALLBACK_SET(mtu_changed_cb, cb);
 	return SID_ERROR_NONE;
 }
 
@@ -101,7 +101,7 @@ void sid_ble_adapter_mtu_changed(uint16_t mtu_size)
 
 sid_error_t sid_ble_adapter_adv_start_cb_set(sid_pal_ble_adv_start_callback_t cb)
 {
-	CALLBACK_SET(adv_start_cb);
+	CALLBACK_SET(adv_start_cb, cb);
 	return SID_ERROR_NONE;
 }
 
