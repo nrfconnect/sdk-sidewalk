@@ -44,7 +44,7 @@ void test_sid_pal_uptime_get_now(void)
 
 void test_sid_pal_uptime_accuracy(void)
 {
-	/* Note: This is a oversimplified test fo dummy implementation.*/
+	/* Note: This is a oversimplified test for dummy implementation.*/
 	int16_t ppm;
 
 	ppm = sid_pal_uptime_get_xtal_ppm();

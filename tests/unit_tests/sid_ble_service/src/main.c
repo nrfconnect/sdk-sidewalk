@@ -33,6 +33,8 @@ FAKE_VALUE_FUNC(struct bt_gatt_attr *, bt_gatt_find_by_uuid, const struct bt_gat
 	FAKE(bt_gatt_notify_cb)	    \
 	FAKE(bt_gatt_find_by_uuid)
 
+#define TEST_DATA_CHUNK (128)
+
 struct bt_conn {
 	uint8_t dummy;
 };
@@ -45,7 +47,7 @@ void setUp(void)
 
 void test_sid_ble_send_data_null_ptr(void)
 {
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_send_data(NULL, data, sizeof(data)));
 }
@@ -57,7 +59,7 @@ void test_sid_ble_send_data_pass(void)
 	struct bt_conn conn;
 	sid_ble_srv_params_t params;
 	struct bt_gatt_attr attr;
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	__wrap_sid_ble_adapter_notification_sent_Expect();
 
@@ -83,7 +85,7 @@ void test_sid_ble_send_data_attr_fail(void)
 	struct bt_gatt_service_static srv;
 	struct bt_conn conn;
 	sid_ble_srv_params_t params;
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	params.conn = &conn;
 	params.service = &srv;
@@ -102,7 +104,7 @@ void test_sid_ble_send_data_wo_subscription(void)
 	struct bt_conn conn;
 	sid_ble_srv_params_t params;
 	struct bt_gatt_attr attr;
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	params.conn = &conn;
 	params.service = &srv;
@@ -121,7 +123,7 @@ void test_sid_ble_send_data_incorrect_data_len(void)
 	struct bt_conn conn;
 	sid_ble_srv_params_t params;
 	struct bt_gatt_attr attr;
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	params.conn = &conn;
 	params.service = &srv;
@@ -144,7 +146,7 @@ void test_sid_ble_send_data_fail(void)
 	sid_ble_srv_params_t params;
 	struct bt_gatt_attr attr;
 	int test_error_code = -ENOENT;
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	params.conn = &conn;
 	params.service = &srv;
@@ -163,7 +165,7 @@ void test_sid_ble_send_data_incorrect_arguments(void)
 	struct bt_conn conn;
 	sid_ble_srv_params_t params;
 	struct bt_gatt_attr attr;
-	uint8_t data[128];
+	uint8_t data[TEST_DATA_CHUNK];
 
 	params.conn = &conn;
 	params.service = &srv;

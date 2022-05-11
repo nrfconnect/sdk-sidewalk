@@ -18,6 +18,8 @@
 /* Reserved space in the NVM memory. */
 #define NVS_RES_SPACE   (32U)
 
+/* Flash partition for NVS */
+#define NVS_FLASH_DEVICE FLASH_AREA_DEVICE(storage)
 /* Flash block size in bytes */
 #define NVS_SECTOR_SIZE  (DT_PROP(DT_CHOSEN(zephyr_flash), erase_block_size))
 /* Numbers of sectors */
@@ -45,7 +47,7 @@ static sid_error_t kv_storage_init(struct nvs_fs *fs)
 {
 	sid_error_t erc = SID_ERROR_NONE;
 
-	fs->flash_device = device_get_binding(DT_CHOSEN_ZEPHYR_FLASH_CONTROLLER_LABEL);
+	fs->flash_device = NVS_FLASH_DEVICE;
 	if (fs->flash_device == NULL) {
 		erc = SID_ERROR_GENERIC;
 	}

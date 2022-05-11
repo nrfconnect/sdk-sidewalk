@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_ble_adapter)
 
-cmock_handle(${ZEPHYR_BASE}/include/settings/settings.h)
+cmock_handle(${ZEPHYR_BASE}/include/zephyr/settings/settings.h)
 cmock_handle(${ZEPHYR_BASE}/../sidewalk/include/sid_ble_advert.h)
 cmock_handle(${ZEPHYR_BASE}/../sidewalk/include/sid_ble_connection.h)
 cmock_handle(${ZEPHYR_BASE}/../sidewalk/include/sid_ble_adapter_callbacks.h)

@@ -16,10 +16,6 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#define CONNECTED (true)
-#define DISCONNECTED (false)
-#define ESUCCESS (0)
-
 DEFINE_FFF_GLOBALS;
 
 FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
@@ -27,6 +23,17 @@ FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
 FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
 FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
+
+#define FFF_FAKES_LIST(FAKE)	  \
+	FAKE(bt_conn_cb_register) \
+	FAKE(bt_conn_ref)	  \
+	FAKE(bt_conn_unref)	  \
+	FAKE(bt_conn_get_dst)	  \
+	FAKE(bt_conn_disconnect)
+
+#define CONNECTED (true)
+#define DISCONNECTED (false)
+#define ESUCCESS (0)
 
 struct bt_conn {
 	uint8_t dummy;
@@ -42,11 +49,7 @@ static connection_callback_test_t conn_cb_test;
 
 void setUp(void)
 {
-	RESET_FAKE(bt_conn_cb_register);
-	RESET_FAKE(bt_conn_ref);
-	RESET_FAKE(bt_conn_unref);
-	RESET_FAKE(bt_conn_get_dst);
-	RESET_FAKE(bt_conn_disconnect);
+	FFF_FAKES_LIST(RESET_FAKE);
 	FFF_RESET_HISTORY();
 	memset(&conn_cb_test, 0x00, sizeof(conn_cb_test));
 }
