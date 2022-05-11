@@ -24,6 +24,8 @@ static sid_pal_ble_data_callback_t data_cb;
 static sid_pal_ble_notify_callback_t notify_changed_cb;
 static sid_pal_ble_indication_callback_t notify_sent_cb;
 static sid_pal_ble_connection_callback_t connection_cb;
+static sid_pal_ble_mtu_callback_t mtu_changed_cb;
+static sid_pal_ble_adv_start_callback_t adv_start_cb;
 
 sid_error_t sid_ble_adapter_notification_cb_set(sid_pal_ble_indication_callback_t cb)
 {
@@ -83,3 +85,30 @@ void sid_ble_adapter_conn_disconnected(const uint8_t *ble_addr)
 		connection_cb(false, (uint8_t *)ble_addr);
 	}
 }
+
+sid_error_t sid_ble_adapter_mtu_cb_set(sid_pal_ble_mtu_callback_t cb)
+{
+	CALLBACK_SET(mtu_changed_cb);
+	return SID_ERROR_NONE;
+}
+
+void sid_ble_adapter_mtu_changed(uint16_t mtu_size)
+{
+	if (mtu_changed_cb) {
+		mtu_changed_cb(mtu_size);
+	}
+}
+
+sid_error_t sid_ble_adapter_adv_start_cb_set(sid_pal_ble_adv_start_callback_t cb)
+{
+	CALLBACK_SET(adv_start_cb);
+	return SID_ERROR_NONE;
+}
+
+void sid_ble_adapter_adv_started(void)
+{
+	if (adv_start_cb) {
+		adv_start_cb();
+	}
+}
+

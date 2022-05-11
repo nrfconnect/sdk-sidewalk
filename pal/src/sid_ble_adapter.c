@@ -181,11 +181,6 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 		return SID_ERROR_NULL_POINTER;
 	}
 
-	if (!cb->mtu_callback    ||
-	    !cb->adv_start_callback) {
-		return SID_ERROR_INVALID_ARGS;
-	}
-
 	erc = sid_ble_adapter_notification_cb_set(cb->ind_callback);
 	if (SID_ERROR_NONE != erc) {
 		return erc;
@@ -202,6 +197,16 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 	}
 
 	erc = sid_ble_adapter_conn_cb_set(cb->conn_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
+
+	erc = sid_ble_adapter_mtu_cb_set(cb->mtu_callback);
+	if (SID_ERROR_NONE != erc) {
+		return erc;
+	}
+
+	erc = sid_ble_adapter_adv_start_cb_set(cb->adv_start_callback);
 	if (SID_ERROR_NONE != erc) {
 		return erc;
 	}

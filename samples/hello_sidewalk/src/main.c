@@ -88,6 +88,7 @@ static void sidewalk_ble_indication_callback(bool status)
 static void sidewalk_ble_mtu_callback(uint16_t size)
 {
 	LOG_DBG("In callback %s", __func__);
+	LOG_DBG("Updated mtu size %d", size);
 }
 
 static void sidewalk_ble_adv_start_callback(void)
