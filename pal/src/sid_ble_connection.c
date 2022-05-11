@@ -8,19 +8,25 @@
 #include <sid_ble_adapter_callbacks.h>
 
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/gatt.h>
 #include <logging/log.h>
 
 LOG_MODULE_REGISTER(sid_ble_conn, CONFIG_SIDEWALK_LOG_LEVEL);
 
-static void ble_ev_connected(struct bt_conn *conn, uint8_t err);
-static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason);
+static void ble_connect_cb(struct bt_conn *conn, uint8_t err);
+static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason);
+static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu);
 
 static sid_ble_conn_params_t conn_params;
 static sid_ble_conn_params_t *p_conn_params_out;
 
 static struct bt_conn_cb conn_callbacks = {
-	.connected = ble_ev_connected,
-	.disconnected = ble_ev_disconnected,
+	.connected = ble_connect_cb,
+	.disconnected = ble_disconnect_cb,
+};
+
+static struct bt_gatt_cb gatt_callbacks = {
+	.att_mtu_updated = ble_mtu_cb
 };
 
 /**
@@ -29,7 +35,7 @@ static struct bt_conn_cb conn_callbacks = {
  * @param conn new connection object.
  * @param err HCI error, zero for success, non-zero otherwise.
  */
-static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
+static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 {
 	if (err) {
 		LOG_ERR("Connection failed (err %u)\n", err);
@@ -54,13 +60,22 @@ static void ble_ev_connected(struct bt_conn *conn, uint8_t err)
  * @param conn connection object.
  * @param err HCI disconnection reason.
  */
-static void ble_ev_disconnected(struct bt_conn *conn, uint8_t reason)
+static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 {
 	if (conn_params.conn == conn) {
 		bt_conn_unref(conn_params.conn);
 		conn_params.conn = NULL;
 
 		sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
+	}
+}
+
+static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu)
+{
+	ARG_UNUSED(rx_mtu);
+
+	if (!conn_params.conn || conn_params.conn == conn) {
+		sid_ble_adapter_mtu_changed(tx_mtu);
 	}
 }
 
@@ -74,6 +89,7 @@ void sid_ble_conn_init(void)
 	p_conn_params_out = &conn_params;
 
 	bt_conn_cb_register(&conn_callbacks);
+	bt_gatt_cb_register(&gatt_callbacks);
 }
 
 int sid_ble_conn_disconnect(void)

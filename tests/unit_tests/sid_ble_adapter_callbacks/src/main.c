@@ -21,6 +21,8 @@ static int ble_indication_callback_call_cnt = 0;
 static test_conn_t ble_connection_callback_test = { 0, false };
 static int ble_notify_callback_call_cnt = 0;
 static int ble_write_data_callback_call_cnt = 0;
+static int ble_mtu_callback_call_cnt = 0;
+static int ble_adv_start_callback_call_cnt = 0;
 
 void setUp(void)
 {
@@ -42,6 +44,16 @@ static void ble_write_data_callback(sid_ble_cfg_service_identifier_t id, uint8_t
 static void ble_notify_callback(sid_ble_cfg_service_identifier_t id, bool state)
 {
 	++ble_notify_callback_call_cnt;
+}
+
+static void ble_mtu_callback(uint16_t mtu_size)
+{
+	++ble_mtu_callback_call_cnt;
+}
+
+static void ble_adv_start_callback(void)
+{
+	++ble_adv_start_callback_call_cnt;
 }
 
 static void ble_connection_callback(bool state, uint8_t *addr)
@@ -149,6 +161,45 @@ void test_sid_ble_connection_changed_pass(void)
 	sid_ble_adapter_conn_disconnected(ble_addr);
 	TEST_ASSERT_EQUAL(2, ble_connection_callback_test.call_cnt);
 	TEST_ASSERT_FALSE(ble_connection_callback_test.state);
+}
+
+void test_sid_ble_adapter_mtu_changed_wo_callback(void)
+{
+	sid_ble_adapter_mtu_changed(0);
+	TEST_ASSERT_EQUAL(0, ble_mtu_callback_call_cnt);
+}
+
+void test_sid_ble_adapter_mtu_changed_cb_set(void)
+{
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_ble_adapter_mtu_cb_set(NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_mtu_cb_set(ble_mtu_callback));
+}
+
+void test_sid_ble_adapter_mtu_changed_pass(void)
+{
+	sid_ble_adapter_mtu_changed(0);
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_mtu_cb_set(ble_mtu_callback));
+	TEST_ASSERT_EQUAL(1, ble_mtu_callback_call_cnt);
+}
+
+
+void test_sid_ble_adapter_adv_started_wo_callback(void)
+{
+	sid_ble_adapter_adv_started();
+	TEST_ASSERT_EQUAL(0, ble_adv_start_callback_call_cnt);
+}
+
+void test_sid_ble_adapter_adv_start_changed_cb_set(void)
+{
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_ble_adapter_adv_start_cb_set(NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_adv_start_cb_set(ble_adv_start_callback));
+}
+
+void test_sid_ble_adapter_adv_started_pass(void)
+{
+	sid_ble_adapter_adv_started();
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_adv_start_cb_set(ble_adv_start_callback));
+	TEST_ASSERT_EQUAL(1, ble_adv_start_callback_call_cnt);
 }
 
 extern int unity_main(void);

@@ -83,4 +83,33 @@ void sid_ble_adapter_conn_connected(const uint8_t *ble_addr);
  */
 void sid_ble_adapter_conn_disconnected(const uint8_t *ble_addr);
 
+/**
+ * @brief Set a callback for mtu change.
+ *
+ * @param cb a callback to function which should be call.
+ * @return SID_ERROR_NONE when success, error code otherwise.
+ */
+sid_error_t sid_ble_adapter_mtu_cb_set(sid_pal_ble_mtu_callback_t cb);
+
+/**
+ * @brief Execute callback after mtu changed.
+ * 
+ * @param mtu_size new mtu size.
+ */
+void sid_ble_adapter_mtu_changed(uint16_t mtu_size);
+
+/**
+ * @brief Set a callback for advertising start.
+ *
+ * @param cb a callback to function which should be call.
+ * @return SID_ERROR_NONE when success, error code otherwise.
+ */
+sid_error_t sid_ble_adapter_adv_start_cb_set(sid_pal_ble_adv_start_callback_t cb);
+
+/**
+ * @brief Execute callback after advertising started.
+ * 
+ */
+void sid_ble_adapter_adv_started(void);
+
 #endif /* SID_PAL_BLE_ADAPTER_CALLBACKS_H */
