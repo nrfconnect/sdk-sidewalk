@@ -23,6 +23,8 @@
 #define ADV_INT_MAX     BT_GAP_ADV_FAST_INT_MAX_2
 #endif
 
+#define AMA_ID_LEN 2
+
 #define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_CONNECTABLE | \
 			     BT_LE_ADV_OPT_USE_NAME |	 \
 			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
@@ -63,6 +65,7 @@ typedef enum {
 
 static sid_ble_adv_state_t adv_state;
 
+static uint8_t bt_ama_id[AMA_ID_LEN] = {0x71, 0x01};
 static uint8_t bt_adv_manuf_data[AD_MANUF_DATA_LEN_MAX];
 
 static struct bt_data adv_data[] = {
@@ -81,11 +84,12 @@ static struct bt_data adv_data[] = {
  */
 static uint8_t advert_manuf_data_copy(uint8_t *data, uint8_t data_len)
 {
-	uint8_t new_data_len = MIN(data_len, AD_MANUF_DATA_LEN_MAX);
+	uint8_t new_data_len = MIN(data_len, AD_MANUF_DATA_LEN_MAX - AMA_ID_LEN);
 
-	memcpy(bt_adv_manuf_data, data, new_data_len);
+	memcpy(bt_adv_manuf_data, bt_ama_id, AMA_ID_LEN);
+	memcpy(&bt_adv_manuf_data[AMA_ID_LEN], data, new_data_len);
 
-	return new_data_len;
+	return new_data_len + AMA_ID_LEN;
 }
 
 int sid_ble_advert_start(void)
