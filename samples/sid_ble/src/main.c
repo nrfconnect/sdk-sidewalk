@@ -13,6 +13,7 @@
 #include <sid_pal_mfg_store_ifc.h>
 #include <storage/flash_map.h>
 #include <zephyr.h>
+#include <sys/reboot.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
@@ -20,6 +21,8 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 #if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
+
+#define MSG_LOG_BLOCK_SIZE 80
 
 static volatile uint32_t event_cnt;
 
@@ -44,14 +47,25 @@ static void on_sidewalk_event(bool in_isr, void *context)
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
 	LOG_INF("In func: %s", __func__);
+	LOG_INF("received message(type: %d, id: %u size %u)", (int)msg_desc->type, msg_desc->id, msg->size);
+
+	for (size_t i = 0; i < msg->size; i += MSG_LOG_BLOCK_SIZE) {
+		if (i + MSG_LOG_BLOCK_SIZE > msg->size) {
+			LOG_HEXDUMP_INF((uint8_t*)msg->data + i, msg->size - i, "");
+		} else {
+			LOG_HEXDUMP_INF((uint8_t*)msg->data + i, MSG_LOG_BLOCK_SIZE, "");
+		}
+	}
 }
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
 	LOG_INF("In func: %s", __func__);
+	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 }
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
 {
 	LOG_INF("In func: %s", __func__);
+	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type, msg_desc->id, (int)error);
 }
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
@@ -64,6 +78,8 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 static void on_sidewalk_factory_reset(void *context)
 {
 	LOG_INF("In func: %s", __func__);
+	LOG_INF("factory reset notification received from sid api");
+	sys_reboot(SYS_REBOOT_WARM);
 }
 
 void main(void)
