@@ -72,7 +72,7 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 	}
 
 	if (timer_storage->is_initialized) {
-		return SID_ERROR_ALREADY_INITIALIZED;
+		return SID_ERROR_NONE;
 	}
 
 	timer_storage->callback = event_callback;
