@@ -29,8 +29,8 @@ static const sid_pal_mfg_store_region_t mfg_store_region = {
 static const struct sid_ble_config ble_config;
 
 static const sid_ble_link_config_t ble_link_config = {
-    .create_ble_adapter = sid_pal_ble_adapter_create,
-    .config = &ble_config,
+	.create_ble_adapter = sid_pal_ble_adapter_create,
+	.config = &ble_config,
 };
 
 static void on_sidewalk_event(bool in_isr, void *context)
@@ -100,5 +100,10 @@ void main(void)
 	ret = sid_start(sid_handle, SID_LINK_TYPE_1);
 	if (ret != SID_ERROR_NONE) {
 		LOG_ERR("failed to start sidewalk, err:%d", (int)ret);
+	}
+
+	for (;;) {
+		k_sleep(K_MSEC(10));
+		sid_process(sid_handle);
 	}
 }
