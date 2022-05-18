@@ -36,6 +36,7 @@ static const sid_ble_link_config_t ble_link_config = {
 static void on_sidewalk_event(bool in_isr, void *context)
 {
 	LOG_INF("In func: %s", __func__);
+	LOG_INF("From %s, context %p", in_isr?"ISR":"App", context);
 }
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
