@@ -7,6 +7,7 @@
 #include <fff.h>
 
 #include <sid_ble_advert.h>
+#include <sid_ble_uuid.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
@@ -25,6 +26,7 @@ FAKE_VALUE_FUNC(int, bt_le_adv_update_data, const struct bt_data *, size_t, cons
 
 #define ESUCCESS (0)
 #define TEST_BUFFER_LEN (100)
+#define BT_COMP_ID_LEN 2
 
 void setUp(void)
 {
@@ -104,8 +106,12 @@ bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t
 {
 	for (size_t i = 0; i < ad_len; i++) {
 		if (ad[i].type == BT_DATA_MANUFACTURER_DATA) {
-			*result_len = ad[i].data_len;
-			memcpy(result, ad[i].data, ad[i].data_len);
+			TEST_ASSERT_GREATER_OR_EQUAL_UINT8(BT_COMP_ID_LEN, ad[i].data_len);
+			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA) & 0xff), ad[i].data[0]);
+			TEST_ASSERT_EQUAL_UINT8((((BT_COMP_ID_AMA) >> 8) & 0xff), ad[i].data[1]);
+
+			*result_len = ad[i].data_len - BT_COMP_ID_LEN;
+			memcpy(result, &ad[i].data[BT_COMP_ID_LEN], *result_len);
 			return true;
 		}
 	}
