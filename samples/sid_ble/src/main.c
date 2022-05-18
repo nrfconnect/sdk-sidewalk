@@ -7,6 +7,8 @@
 #include <sid_api.h>
 #include <sid_error.h>
 #include <sid_pal_crypto_ifc.h>
+#include <sid_pal_ble_adapter_ifc.h>
+#include <sid_ble_link_config_ifc.h>
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
 #include <storage/flash_map.h>
@@ -22,6 +24,13 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 static const sid_pal_mfg_store_region_t mfg_store_region = {
 	.addr_start = (uintptr_t)(FLASH_AREA_OFFSET(mfg_storage)),
 	.addr_end = (uintptr_t)(FLASH_AREA_OFFSET(mfg_storage) + FLASH_AREA_SIZE(mfg_storage)),
+};
+
+static const struct sid_ble_config ble_config;
+
+static const sid_ble_link_config_t ble_link_config = {
+    .create_ble_adapter = sid_pal_ble_adapter_create,
+    .config = &ble_config,
 };
 
 static void on_sidewalk_event(bool in_isr, void *context)
@@ -66,7 +75,7 @@ void main(void)
 	struct sid_config config = {
 		.link_mask = SID_LINK_TYPE_1,
 		.callbacks = &event_callbacks,
-		.link_config = NULL,
+		.link_config = &ble_link_config,
 	};
 
 	sid_error_t ret_code = sid_pal_storage_kv_init();
