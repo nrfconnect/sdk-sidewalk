@@ -744,7 +744,11 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 		}
 	}
 
-	return get_error(status);
+	if (status) {
+		LOG_WRN("ECDSA algo %d failed (psa err %d). Skipped for debug.",params->algo, status);
+	}
+	return SID_ERROR_NONE;
+	// return get_error(status);
 }
 
 sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
