@@ -10,6 +10,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk)
 
 target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE src/sid_ble_network_ifc.c)
 
 target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_api.a)
 target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_rng.a)
@@ -21,9 +22,7 @@ target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_security
 target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_parser_utils.a)
 target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_memory_pool.a)
 target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_clock.a)
-# in ncs pal ?
 # target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_ble_network_impl.a)
-# ble adapter in ncs pal ?
 # target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_ama_adapter_impl.a)
 # uses VFP register arguments
 # target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libace_ama.a)
