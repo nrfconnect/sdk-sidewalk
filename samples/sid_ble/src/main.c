@@ -14,6 +14,7 @@
 #include <storage/flash_map.h>
 #include <zephyr.h>
 #include <sys/reboot.h>
+#include <dk_buttons_and_leds.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
@@ -23,6 +24,8 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 #endif
 
 #define MSG_LOG_BLOCK_SIZE 80
+
+static struct sid_handle *sid_handle;
 
 static volatile uint32_t event_cnt;
 
@@ -51,9 +54,9 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 
 	for (size_t i = 0; i < msg->size; i += MSG_LOG_BLOCK_SIZE) {
 		if (i + MSG_LOG_BLOCK_SIZE > msg->size) {
-			LOG_HEXDUMP_INF((uint8_t*)msg->data + i, msg->size - i, "");
+			LOG_HEXDUMP_INF((uint8_t *)msg->data + i, msg->size - i, "");
 		} else {
-			LOG_HEXDUMP_INF((uint8_t*)msg->data + i, MSG_LOG_BLOCK_SIZE, "");
+			LOG_HEXDUMP_INF((uint8_t *)msg->data + i, MSG_LOG_BLOCK_SIZE, "");
 		}
 	}
 }
@@ -80,6 +83,41 @@ static void on_sidewalk_factory_reset(void *context)
 	LOG_INF("In func: %s", __func__);
 	LOG_INF("factory reset notification received from sid api");
 	sys_reboot(SYS_REBOOT_WARM);
+}
+
+static void button_handler(uint32_t button_state, uint32_t has_changed)
+{
+	uint32_t button = button_state & has_changed;
+	sid_error_t ret;
+
+	if (button & DK_BTN1_MSK) {
+		ret = sid_set_factory_reset(sid_handle);
+		LOG_INF("factory reset status: %d", ret);
+	}
+
+	if (button & DK_BTN2_MSK) {
+		static bool next = true;
+		ret = sid_ble_bcn_connection_request(sid_handle, next);
+		LOG_INF("connection request status: %d", ret);
+		next = !next;
+	}
+
+	if (button & DK_BTN3_MSK) {
+		static uint8_t msg_value = 0xAB;
+		struct sid_msg msg = { .data = (uint8_t *)&msg_value, .size = sizeof(uint8_t) };
+		struct sid_msg_desc desc = {
+			.type = SID_MSG_TYPE_NOTIFY,
+			.link_type = SID_LINK_TYPE_ANY,
+		};
+		ret = sid_put_msg(sid_handle, &msg, &desc);
+		LOG_INF("send hello msg status: %d", ret);
+	}
+
+	if (button & DK_BTN4_MSK) {
+		static uint8_t fake_bat_lev = 70;
+		ret = sid_option(sid_handle, SID_OPTION_BLE_BATTERY_LEVEL, &fake_bat_lev, sizeof(fake_bat_lev));
+		LOG_INF("battery level update status: %d", ret);
+	}
 }
 
 void main(void)
@@ -114,7 +152,6 @@ void main(void)
 
 	sid_pal_mfg_store_init(mfg_store_region);
 
-	struct sid_handle *sid_handle = NULL;
 	sid_error_t ret = sid_init(&config, &sid_handle);
 
 	if (ret != SID_ERROR_NONE) {
@@ -124,6 +161,11 @@ void main(void)
 	ret = sid_start(sid_handle, SID_LINK_TYPE_1);
 	if (ret != SID_ERROR_NONE) {
 		LOG_ERR("failed to start sidewalk, err:%d", (int)ret);
+	}
+
+	int err = dk_buttons_init(button_handler);
+	if (err) {
+		LOG_WRN("Failed to initialize buttons (err %d)\n", err);
 	}
 
 	for (;;) {
