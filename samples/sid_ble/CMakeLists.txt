@@ -10,6 +10,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk)
 
 target_sources(app PRIVATE src/main.c)
+target_sources(app PRIVATE src/assert_action.c)
 target_sources(app PRIVATE src/sid_ble_network_ifc.c)
 
 target_link_libraries(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/lib/libsid_api.a)
