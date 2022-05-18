@@ -11,6 +11,7 @@
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/uuid.h>
+#include <sys/byteorder.h>
 
 #ifdef CONFIG_BLE_ADV_SLOW_INT_1000_1200_MS
 #define ADV_INT_MIN     BT_GAP_ADV_SLOW_INT_MIN
@@ -81,11 +82,14 @@ static struct bt_data adv_data[] = {
  */
 static uint8_t advert_manuf_data_copy(uint8_t *data, uint8_t data_len)
 {
-	uint8_t new_data_len = MIN(data_len, AD_MANUF_DATA_LEN_MAX);
+	uint16_t ama_id = sys_cpu_to_le16(BT_COMP_ID_AMA);
+	uint8_t ama_id_len = sizeof(ama_id);
+	uint8_t new_data_len = MIN(data_len, AD_MANUF_DATA_LEN_MAX - ama_id_len);
 
-	memcpy(bt_adv_manuf_data, data, new_data_len);
+	memcpy(bt_adv_manuf_data, &ama_id, ama_id_len);
+	memcpy(&bt_adv_manuf_data[ama_id_len], data, new_data_len);
 
-	return new_data_len;
+	return new_data_len + ama_id_len;
 }
 
 int sid_ble_advert_start(void)
