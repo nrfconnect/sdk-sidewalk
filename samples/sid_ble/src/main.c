@@ -52,6 +52,10 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	LOG_INF("In func: %s", __func__);
+	LOG_INF("status changed: %d", (int)status->state);
+	LOG_INF("Registration Status = %d, Time Sync Status = %d and Link Status Mask = %x",
+		     status->detail.registration_status, status->detail.time_sync_status,
+		     status->detail.link_status_mask);
 }
 static void on_sidewalk_factory_reset(void *context)
 {
