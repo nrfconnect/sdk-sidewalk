@@ -11,7 +11,8 @@ typedef int aceAlloc_bufferType_t;
 void *aceAlloc_alloc(aceModules_moduleId_t module_id,
 		     aceAlloc_bufferType_t buf_type, size_t size)
 {
-	void * p = malloc(size);
+	void *p = malloc(size);
+
 	LOG_INF("Alloc: %p %d", p, size);
 	return p;
 }

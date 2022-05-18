@@ -47,6 +47,7 @@ static void on_sidewalk_event(bool in_isr, void *context)
 	LOG_INF("From %s, context %p", in_isr ? "ISR" : "App", context);
 	event_cnt++;
 }
+
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
 	LOG_INF("In func: %s", __func__);
@@ -60,16 +61,19 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 		}
 	}
 }
+
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
 	LOG_INF("In func: %s", __func__);
 	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 }
+
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
 {
 	LOG_INF("In func: %s", __func__);
 	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type, msg_desc->id, (int)error);
 }
+
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	LOG_INF("In func: %s", __func__);
@@ -78,6 +82,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		status->detail.registration_status, status->detail.time_sync_status,
 		status->detail.link_status_mask);
 }
+
 static void on_sidewalk_factory_reset(void *context)
 {
 	LOG_INF("In func: %s", __func__);
@@ -131,7 +136,7 @@ void main(void)
 		.on_msg_sent = on_sidewalk_msg_sent,                    /* Called from sid_process() */
 		.on_send_error = on_sidewalk_send_error,                /* Called from sid_process() */
 		.on_status_changed = on_sidewalk_status_changed,        /* Called from sid_process() */
-		.on_factory_reset = on_sidewalk_factory_reset,          /* Called from sid_process */
+		.on_factory_reset = on_sidewalk_factory_reset,          /* Called from sid_process() */
 	};
 
 	struct sid_config config = {
@@ -142,12 +147,12 @@ void main(void)
 
 	sid_error_t ret_code = sid_pal_storage_kv_init();
 	if (ret_code != SID_ERROR_NONE) {
-		LOG_ERR("Sidewalk KV store init failed err: %d", ret_code);
+		LOG_ERR("Sidewalk KV store init failed, err: %d", ret_code);
 	}
 
 	ret_code = sid_pal_crypto_init();
 	if (ret_code != SID_ERROR_NONE) {
-		LOG_ERR("Sidewalk Init Crypto HAL err: %d", ret_code);
+		LOG_ERR("Sidewalk Init Crypto HAL, err: %d", ret_code);
 	}
 
 	sid_pal_mfg_store_init(mfg_store_region);
@@ -155,24 +160,24 @@ void main(void)
 	sid_error_t ret = sid_init(&config, &sid_handle);
 
 	if (ret != SID_ERROR_NONE) {
-		LOG_ERR("failed to initialize sidewalk, err:%d", (int)ret);
+		LOG_ERR("failed to initialize sidewalk, err: %d", (int)ret);
 	}
 
 	ret = sid_start(sid_handle, SID_LINK_TYPE_1);
 	if (ret != SID_ERROR_NONE) {
-		LOG_ERR("failed to start sidewalk, err:%d", (int)ret);
+		LOG_ERR("failed to start sidewalk, err: %d", (int)ret);
 	}
 
 	int err = dk_buttons_init(button_handler);
 	if (err) {
-		LOG_WRN("Failed to initialize buttons (err %d)\n", err);
+		LOG_WRN("Failed to initialize buttons, err: %d\n", err);
 	}
 
 	for (;;) {
 		while (event_cnt) {
 			event_cnt--;
 			ret = sid_process(sid_handle);
-			LOG_INF("Sidewalk proc (status %d)", ret);
+			LOG_INF("Sidewalk proc, status: %d", ret);
 		}
 
 		k_sleep(K_MSEC(10));
