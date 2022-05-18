@@ -14,6 +14,7 @@ menuconfig SIDEWALK
 	imply SIDEWALK_STORAGE
 	imply SIDEWALK_TIMER
 	imply SIDEWALK_UPTIME
+	imply SIDEWALK_CRITICAL_REGION
 
 config SIDEWALK_ASSERT
 	bool "Enable Sidewalk assert module."
@@ -117,3 +118,6 @@ config SIDEWALK_TIMER
 
 config SIDEWALK_UPTIME
 	bool "Enable Sidewalk uptime module"
+
+config SIDEWALK_CRITICAL_REGION
+	bool "Enable Sidewalk critical region module"
