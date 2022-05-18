@@ -21,6 +21,8 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
 
+static volatile uint32_t event_cnt;
+
 static const sid_pal_mfg_store_region_t mfg_store_region = {
 	.addr_start = (uintptr_t)(FLASH_AREA_OFFSET(mfg_storage)),
 	.addr_end = (uintptr_t)(FLASH_AREA_OFFSET(mfg_storage) + FLASH_AREA_SIZE(mfg_storage)),
@@ -36,7 +38,8 @@ static const sid_ble_link_config_t ble_link_config = {
 static void on_sidewalk_event(bool in_isr, void *context)
 {
 	LOG_INF("In func: %s", __func__);
-	LOG_INF("From %s, context %p", in_isr?"ISR":"App", context);
+	LOG_INF("From %s, context %p", in_isr ? "ISR" : "App", context);
+	event_cnt++;
 }
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
@@ -55,8 +58,8 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	LOG_INF("In func: %s", __func__);
 	LOG_INF("status changed: %d", (int)status->state);
 	LOG_INF("Registration Status = %d, Time Sync Status = %d and Link Status Mask = %x",
-		     status->detail.registration_status, status->detail.time_sync_status,
-		     status->detail.link_status_mask);
+		status->detail.registration_status, status->detail.time_sync_status,
+		status->detail.link_status_mask);
 }
 static void on_sidewalk_factory_reset(void *context)
 {
@@ -108,7 +111,12 @@ void main(void)
 	}
 
 	for (;;) {
+		while (event_cnt) {
+			event_cnt--;
+			ret = sid_process(sid_handle);
+			LOG_INF("Sidewalk proc (status %d)", ret);
+		}
+
 		k_sleep(K_MSEC(10));
-		sid_process(sid_handle);
 	}
 }
