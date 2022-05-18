@@ -6,9 +6,23 @@
 
 #include <sid_api.h>
 #include <sid_error.h>
+#include <sid_pal_crypto_ifc.h>
+#include <sid_pal_storage_kv_ifc.h>
+#include <sid_pal_mfg_store_ifc.h>
+#include <storage/flash_map.h>
+#include <zephyr.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(app, LOG_LEVEL_DBG);
+
+#if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
+	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
+#endif
+
+static const sid_pal_mfg_store_region_t mfg_store_region = {
+	.addr_start = (uintptr_t)(FLASH_AREA_OFFSET(mfg_storage)),
+	.addr_end = (uintptr_t)(FLASH_AREA_OFFSET(mfg_storage) + FLASH_AREA_SIZE(mfg_storage)),
+};
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
@@ -54,6 +68,18 @@ void main(void)
 		.callbacks = &event_callbacks,
 		.link_config = NULL,
 	};
+
+	sid_error_t ret_code = sid_pal_storage_kv_init();
+	if (ret_code != SID_ERROR_NONE) {
+		LOG_ERR("Sidewalk KV store init failed err: %d", ret_code);
+	}
+
+	ret_code = sid_pal_crypto_init();
+	if (ret_code != SID_ERROR_NONE) {
+		LOG_ERR("Sidewalk Init Crypto HAL err: %d", ret_code);
+	}
+
+	sid_pal_mfg_store_init(mfg_store_region);
 
 	struct sid_handle *sid_handle = NULL;
 	sid_error_t ret = sid_init(&config, &sid_handle);
