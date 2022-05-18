@@ -12,7 +12,12 @@
 #include <stdint.h>
 #include <zephyr.h>
 
+#include <logging/log.h>
+LOG_MODULE_REGISTER(sid_timer, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
+
 #define TIMER_ARMED     0x01
+
+static struct k_timer static_timer[16];
 
 /**
  * @brief Timer handler is executed each time the timer expires.
@@ -22,6 +27,8 @@
 static void timer_handler(struct k_timer *timer_data)
 {
 	sid_pal_timer_t *timer = NULL;
+
+	LOG_DBG("In func: %s", __func__);
 
 	if (!timer_data) {
 		return;
@@ -53,6 +60,8 @@ static k_timeout_t convert_time(const struct sid_timespec *sid_time, sid_pal_tim
 {
 	k_timeout_t time;
 
+	LOG_DBG("In func: %s", __func__);
+
 	if (SID_PAL_TIMER_PRIO_CLASS_LOWPOWER == type) {
 		// TODO
 		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX(sid_time->tv_nsec, 0));
@@ -67,6 +76,8 @@ static k_timeout_t convert_time(const struct sid_timespec *sid_time, sid_pal_tim
 sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 			       sid_pal_timer_cb_t event_callback, void *event_callback_arg)
 {
+	LOG_DBG("In func: %s %p", __func__, (void *)timer_storage);
+
 	if (!timer_storage || !event_callback) {
 		return SID_ERROR_NULL_POINTER;
 	}
@@ -81,8 +92,10 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 	timer_storage->is_periodic = false;
 	timer_storage->is_initialized = true;
 
-	k_timer_init(&timer_storage->timer, timer_handler, NULL);
-	k_timer_user_data_set(&timer_storage->timer, (void *)timer_storage);
+	k_timer_init(&static_timer[timer_storage->timer_id], timer_handler, NULL);
+	k_timer_user_data_set(&static_timer[timer_storage->timer_id], (void *)timer_storage);
+
+	timer_storage->timer_id++;
 
 	return SID_ERROR_NONE;
 }
@@ -90,6 +103,8 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 sid_error_t sid_pal_timer_deinit(sid_pal_timer_t *timer_storage)
 {
 	sid_error_t erc = SID_ERROR_NONE;
+
+	LOG_DBG("In func: %s", __func__);
 
 	if (!timer_storage) {
 		return SID_ERROR_NULL_POINTER;
@@ -111,6 +126,9 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 	k_timeout_t zero_time = K_NSEC(0);
 	k_timeout_t timer_duration;
 	k_timeout_t timer_period;
+
+	LOG_DBG("In func: %s %p", __func__, (void *)timer_storage);
+	LOG_DBG("%d %d", when->tv_nsec, when->tv_sec);
 
 	if (!timer_storage || !when) {
 		return SID_ERROR_NULL_POINTER;
@@ -140,13 +158,15 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 
 	timer_duration = convert_time(when, type);
 	atomic_set(&timer_storage->is_armed, TIMER_ARMED);
-	k_timer_start(&timer_storage->timer, timer_duration, timer_period);
+	k_timer_start(&static_timer[timer_storage->timer_id], timer_duration, timer_period);
 
 	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_timer_cancel(sid_pal_timer_t *timer_storage)
 {
+	LOG_DBG("In func: %s %p", __func__, (void *)timer_storage);
+
 	if (!timer_storage) {
 		return SID_ERROR_NULL_POINTER;
 	}
@@ -155,7 +175,7 @@ sid_error_t sid_pal_timer_cancel(sid_pal_timer_t *timer_storage)
 		return SID_ERROR_UNINITIALIZED;
 	}
 
-	k_timer_stop(&timer_storage->timer);
+	k_timer_stop(&static_timer[timer_storage->timer_id]);
 	atomic_clear(&timer_storage->is_armed);
 	timer_storage->is_periodic = false;
 
@@ -164,6 +184,8 @@ sid_error_t sid_pal_timer_cancel(sid_pal_timer_t *timer_storage)
 
 bool sid_pal_timer_is_armed(const sid_pal_timer_t *timer_storage)
 {
+	LOG_DBG("In func: %s %p", __func__, (void *)timer_storage);
+
 	if (!timer_storage || !timer_storage->is_initialized) {
 		return false;
 	}
