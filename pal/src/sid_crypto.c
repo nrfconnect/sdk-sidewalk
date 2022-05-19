@@ -295,16 +295,16 @@ static psa_status_t aead_execute(psa_aead_operation_t *op,
 						status = psa_aead_finish(op,
 									 params->out + out_len, params->out_size - out_len, &out_len,
 									 params->mac, params->mac_size, &mac_len);
-						LOG_DBG("psa_aead_finish %s (out_len=%d, mac_len=%d)",
+						LOG_DBG("psa_aead_finish %s (out_len=%d, mac_len=%d) ERC: %d",
 							(PSA_SUCCESS == status) ? "success." : "failed!",
-							out_len, mac_len);
+							out_len, mac_len, status);
 					} else {
 						status = psa_aead_verify(op,
 									 params->out + out_len, params->out_size - out_len, &out_len,
 									 params->mac, params->mac_size);
-						LOG_DBG("psa_aead_verify %s (out_len=%d)",
+						LOG_DBG("psa_aead_verify %s (out_len=%d) ERC: %d",
 							(PSA_SUCCESS == status) ? "success." : "failed!",
-							out_len);
+							out_len, status);
 					}
 				}
 			}
@@ -611,11 +611,11 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 
 	switch (params->algo) {
 	case SID_PAL_AEAD_GCM_128:
-		alg = PSA_ALG_GCM;
+		alg = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, params->mac_size);
 		key_len = BYTE_TO_BITS(AES_128_KEY_LENGTH);
 		break;
 	case SID_PAL_AEAD_CCM_128:
-		alg = PSA_ALG_CCM;
+		alg = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, params->mac_size);
 		key_len = BYTE_TO_BITS(AES_128_KEY_LENGTH);
 		break;
 	case SID_PAL_AEAD_CCM_STAR_128:
@@ -749,11 +749,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 		}
 	}
 
-	if (status) {
-		LOG_WRN("ECDSA algo %d failed (psa err %d). Skipped for debug.",params->algo, status);
-	}
-	return SID_ERROR_NONE;
-	// return get_error(status);
+	return get_error(status);
 }
 
 sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
