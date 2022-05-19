@@ -627,6 +627,11 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 		return SID_ERROR_INVALID_ARGS;
 	}
 
+	if ((NULL != params->iv) &&
+	    (params->iv_size != PSA_AEAD_NONCE_LENGTH(PSA_KEY_TYPE_AES, alg))) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+
 	// NOTE: key_size is in bits.
 	status = prepare_key(params->key, BITS_TO_BYTE(params->key_size), params->key_size,
 			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES,

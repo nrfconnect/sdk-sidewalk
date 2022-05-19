@@ -1906,7 +1906,7 @@ void test_sid_pal_crypto_aead_ccm_128_encrypt_pass(void)
 	params.key = aes_128_test_key;
 	params.key_size = sizeof(aes_128_test_key) * 8;
 	params.iv = iv;
-	params.iv_size = AES_GCM_IV_SIZE;
+	params.iv_size = AES_CCM_IV_SIZE;
 	params.aad = additional_data;
 	params.aad_size = sizeof(additional_data);
 	params.in = data;
@@ -1947,7 +1947,7 @@ void test_sid_pal_crypto_aead_ccm_128_decrypt_pass(void)
 	params.key = aes_128_test_key;
 	params.key_size = sizeof(aes_128_test_key) * 8;
 	params.iv = iv;
-	params.iv_size = AES_GCM_IV_SIZE;
+	params.iv_size = AES_CCM_IV_SIZE;
 	params.aad = additional_data;
 	params.aad_size = sizeof(additional_data);
 	params.in = data;
