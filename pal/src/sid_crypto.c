@@ -675,7 +675,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 		return SID_ERROR_NULL_POINTER;
 	}
 
-	if (!params->in_size) {
+	if (!params->in_size || !params->key_size) {
 		return SID_ERROR_INVALID_ARGS;
 	}
 
