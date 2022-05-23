@@ -12,7 +12,7 @@
 
 #include <kernel.h>
 
-int key;
+static unsigned int key;
 
 void sid_pal_enter_critical_region()
 {
