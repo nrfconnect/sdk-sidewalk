@@ -12,14 +12,14 @@
 
 #include <kernel.h>
 
-K_MUTEX_DEFINE(sid_mutex);
+int key;
 
 void sid_pal_enter_critical_region()
 {
-	k_mutex_lock(&sid_mutex, K_FOREVER);
+	key = irq_lock();
 }
 
 void sid_pal_exit_critical_region()
 {
-	k_mutex_unlock(&sid_mutex);
+	irq_unlock(key);
 }
