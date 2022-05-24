@@ -59,6 +59,47 @@ uint8_t hmac_test_fake_key[HMAC_MAX_BLOCK_SIZE] = { 0xAC, 0x1D, 0x05, 0x22, 0xbb
 						    0xaa, 0x3C, 0xEE, 0xA4, 0x82, 0x0D, 0xAA, 0x50,
 						    0xAC, 0xFE, 0xBB, 0x34, 0x1D, 0x05, 0x22, 0xAC };
 
+static void sid_pal_crypto_aead_test_execute(sid_pal_aead_params_t *params)
+{
+	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
+	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
+	uint8_t mac[AES_MAX_BLOCK_SIZE];
+	size_t mac_len_test_vector[] = { 4, 5, 8, 11, sizeof(mac) };
+
+	memcpy(data_copy, test_string, sizeof(data_copy));
+
+	params->key = aes_128_test_key;
+	params->key_size = sizeof(aes_128_test_key) * 8;
+	params->aad = additional_data;
+	params->aad_size = sizeof(additional_data);
+	params->mac = mac;
+
+	for (int test_it = 0; test_it < ARRAY_SIZE(mac_len_test_vector); test_it++) {
+		memset(encrypted_data, 0x00, sizeof(encrypted_data));
+		memset(decrypted_data, 0x00, sizeof(decrypted_data));
+
+		params->mode = SID_PAL_CRYPTO_ENCRYPT;
+		params->in = data_copy;
+		params->in_size = sizeof(data_copy);
+		params->out = encrypted_data;
+		params->out_size = sizeof(encrypted_data);
+		params->mac_size = mac_len_test_vector[test_it];
+
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(params));
+
+		// Key and IV are the same
+		params->mode = SID_PAL_CRYPTO_DECRYPT;
+		params->in = encrypted_data;
+		params->in_size = sizeof(encrypted_data);
+		params->out = decrypted_data;
+		params->out_size = sizeof(decrypted_data);
+
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(params));
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, sizeof(data_copy));
+	}
+}
 
 void test_sid_pal_crypto_no_init(void)
 {
@@ -828,11 +869,6 @@ void test_sid_pal_crypto_aead_gcm_invalid_args(void)
 	params.out = encrypted_data;
 	params.out_size = sizeof(encrypted_data);
 	params.mac = mac;
-
-	// Incorrect buffer length.
-	params.mac_size = sizeof(mac) / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
-
 	params.mac_size = sizeof(mac);
 
 	// IV too small
@@ -929,52 +965,19 @@ void test_sid_pal_crypto_aead_ccm_invalid_args(void)
 void test_sid_pal_crypto_aead_gcm_self_test(void)
 {
 	sid_pal_aead_params_t params;
-
-	uint8_t data_copy[AES_TEST_DATA_BLOCK_SIZE];
-	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
 	uint8_t iv[AES_GCM_IV_SIZE];
-	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
-	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
-	uint8_t mac[AES_MAX_BLOCK_SIZE];
 
 	// Prepare test
 	memset(&params, 0x00, sizeof(params));
-	memcpy(data_copy, test_string, sizeof(data_copy));
-	memset(encrypted_data, 0x00, sizeof(encrypted_data));
-	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 	memset(iv, 0xCC, AES_GCM_IV_SIZE);
 
 	// Initialize crypto module
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
 
-	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
-	params.mode = SID_PAL_CRYPTO_ENCRYPT;
-	params.key = aes_128_test_key;
-	params.key_size = sizeof(aes_128_test_key) * 8;
 	params.iv = iv;
 	params.iv_size = AES_GCM_IV_SIZE;
-	params.aad = additional_data;
-	params.aad_size = sizeof(additional_data);
-	params.in = data_copy;
-	params.in_size = sizeof(data_copy);
-	params.out = encrypted_data;
-	params.out_size = sizeof(encrypted_data);
-	params.mac = mac;
-	params.mac_size = sizeof(mac);
-
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-
-	// Key and IV are the same
-	params.mode = SID_PAL_CRYPTO_DECRYPT;
-	params.in = encrypted_data;
-	params.in_size = sizeof(encrypted_data);
-	params.out = decrypted_data;
-	params.out_size = sizeof(decrypted_data);
-	params.mac = mac;
-	params.mac_size = sizeof(mac);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, sizeof(data_copy));
+	sid_pal_crypto_aead_test_execute(&params);
 }
 
 void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
