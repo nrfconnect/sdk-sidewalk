@@ -611,11 +611,11 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 
 	switch (params->algo) {
 	case SID_PAL_AEAD_GCM_128:
-		alg = PSA_ALG_GCM;
+		alg = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, params->mac_size);
 		key_len = BYTE_TO_BITS(AES_128_KEY_LENGTH);
 		break;
 	case SID_PAL_AEAD_CCM_128:
-		alg = PSA_ALG_CCM;
+		alg = PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, params->mac_size);
 		key_len = BYTE_TO_BITS(AES_128_KEY_LENGTH);
 		break;
 	case SID_PAL_AEAD_CCM_STAR_128:
