@@ -12,7 +12,28 @@
 #include <stdint.h>
 #include <zephyr.h>
 
-#define TIMER_ARMED     0x01
+#define TIMER_ARMED               (0x01)
+#define STATIC_TIMERS             (16)
+#define STATIC_TIMER_IS_FULL      (0xFFFFFFFFU)
+
+typedef int timer_id;
+
+static struct k_timer static_timer[STATIC_TIMERS];
+
+static timer_id get_static_timer(void)
+{
+	for (int it = 0; it < ARRAY_SIZE(static_timer); it++) {
+		if (NULL == static_timer[it].expiry_fn) {
+			return it;
+		}
+	}
+	return STATIC_TIMER_IS_FULL;
+}
+
+static void release_static_timer(timer_id t_id)
+{
+	static_timer[t_id].expiry_fn = NULL;
+}
 
 /**
  * @brief Timer handler is executed each time the timer expires.
@@ -72,7 +93,12 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 	}
 
 	if (timer_storage->is_initialized) {
-		return SID_ERROR_ALREADY_INITIALIZED;
+		return SID_ERROR_NONE;
+	}
+
+	timer_id t_id = get_static_timer();
+	if (STATIC_TIMER_IS_FULL == t_id) {
+		return SID_ERROR_OUT_OF_RESOURCES;
 	}
 
 	timer_storage->callback = event_callback;
@@ -81,8 +107,8 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 	timer_storage->is_periodic = false;
 	timer_storage->is_initialized = true;
 
-	k_timer_init(&timer_storage->timer, timer_handler, NULL);
-	k_timer_user_data_set(&timer_storage->timer, (void *)timer_storage);
+	k_timer_init(&static_timer[timer_storage->timer_id], timer_handler, NULL);
+	k_timer_user_data_set(&static_timer[timer_storage->timer_id], (void *)timer_storage);
 
 	return SID_ERROR_NONE;
 }
@@ -99,6 +125,7 @@ sid_error_t sid_pal_timer_deinit(sid_pal_timer_t *timer_storage)
 	timer_storage->is_initialized = false;
 	timer_storage->callback = NULL;
 	timer_storage->callback_arg = NULL;
+	release_static_timer(timer_storage->timer_id);
 
 	return erc;
 }
@@ -140,7 +167,7 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 
 	timer_duration = convert_time(when, type);
 	atomic_set(&timer_storage->is_armed, TIMER_ARMED);
-	k_timer_start(&timer_storage->timer, timer_duration, timer_period);
+	k_timer_start(&static_timer[timer_storage->timer_id], timer_duration, timer_period);
 
 	return SID_ERROR_NONE;
 }
@@ -155,7 +182,7 @@ sid_error_t sid_pal_timer_cancel(sid_pal_timer_t *timer_storage)
 		return SID_ERROR_UNINITIALIZED;
 	}
 
-	k_timer_stop(&timer_storage->timer);
+	k_timer_stop(&static_timer[timer_storage->timer_id]);
 	atomic_clear(&timer_storage->is_armed);
 	timer_storage->is_periodic = false;
 

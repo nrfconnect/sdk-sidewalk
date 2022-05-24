@@ -63,7 +63,7 @@ void test_sid_pal_timer_init_deinit(void)
 	TEST_ASSERT_FALSE(test_timer.is_periodic);
 	TEST_ASSERT_EQUAL(0, test_timer.is_armed);
 	TEST_ASSERT_EQUAL(timer_callback, test_timer.callback);
-	TEST_ASSERT_EQUAL(SID_ERROR_ALREADY_INITIALIZED, sid_pal_timer_init(&test_timer, timer_callback, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
 	TEST_ASSERT_FALSE(test_timer.is_initialized);
