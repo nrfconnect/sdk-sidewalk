@@ -1,4 +1,4 @@
-.. _sid_template:
+.. _template:
 
 Sidewalk
 ########
