@@ -1,0 +1,10 @@
+sample:
+  name: Sidewalk template
+  description: Sample implementing Amazon Sidewalk End Device
+tests:
+  sample.basic.sid_template:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
