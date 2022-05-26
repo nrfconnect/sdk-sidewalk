@@ -31,6 +31,46 @@ config SIDEWALK_BLE
 	imply BT_GATT_CLIENT
 	bool "Enable Sidewalk Bluettoth Low Energy module"
 
+choice SIDEWALK_LINK_MASK
+	prompt "Physical link type"
+	default SID_BLE_LM
+	help
+	  Select the physical link type for Sidewalk connection.
+
+config SID_BLE_LM
+	bool "Bluetooth Low Energy link"
+
+config SID_FSK_LM
+	bool "900 MHz link for FSK"
+
+config SID_LORA_LM
+	bool "900 MHz link for LORA"
+
+endchoice # SIDEWALK_LINK_MASK
+
+config SIDEWALK_THREAD_STACK_SIZE
+	int "Stack size for the Sidewalk thread"
+	range 8192 131072 if SID_BLE_LM
+	range 512 131072
+	default 8192 if SID_BLE_LM
+	default 512
+	help
+	  Set the internal stack size for Sidewalk thread.
+
+config SIDEWALK_THREAD_QUEUE_SIZE
+	int "Message queue size for the Sidewalk thread"
+	range 4 256
+	default 10
+	help
+	  Set the message queue size for the Sidewalk thread.
+
+config SIDEWALK_THREAD_PRIORITY
+	int "Priority of the Sidewalk thread"
+	default 14
+	range -16 14
+	help
+	  Priority at which the Sidewalk thread runs.
+
 if SIDEWALK_BLE
 
 choice SIDEWALK_BLE_ADV_INT
