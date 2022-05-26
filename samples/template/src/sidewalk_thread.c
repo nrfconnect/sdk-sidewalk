@@ -28,12 +28,18 @@ LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 #define SID_LED_INDICATE_CONNECTED   (DK_LED1)
 #define SID_LED_INDICATE_INIT_ERROR  (DK_ALL_LEDS_MSK)
 
-/* Kconfig in future */
-#define SIDEWALK_THREAD_STACK_SIZE      (8 * 1024)
-#define SIDEWALK_THREAD_PRIORITY        (K_LOWEST_APPLICATION_THREAD_PRIO)
-#define SIDEWALK_MSGQ_SIZE              (10)
-
-#define MSG_LOG_BLOCK_SIZE (80)
+#ifdef CONFIG_SID_BLE_LM
+#define LINK_MASK       (SID_LINK_TYPE_1)
+#define LINK_MASK_START (LINK_MASK)
+#elif CONFIG_SID_FSK_LM
+#define LINK_MASK       (SID_LINK_TYPE_2)
+#define LINK_MASK_START (SID_LINK_TYPE_ANY)
+#elif CONFIG_SID_LORA_LM
+#define LINK_MASK       (SID_LINK_TYPE_3)
+#define LINK_MASK_START (SID_LINK_TYPE_ANY)
+#else
+#error "Not defined Sidewalk link mask!!"
+#endif
 
 enum app_state {
 	STATE_INIT,
@@ -49,8 +55,8 @@ typedef struct app_context {
 	bool connection_request;
 } app_context_t;
 
-K_MSGQ_DEFINE(sid_msgq, sizeof(enum event_type), SIDEWALK_MSGQ_SIZE, 4);
-K_THREAD_STACK_DEFINE(sid_stack_area, SIDEWALK_THREAD_STACK_SIZE);
+K_MSGQ_DEFINE(sid_msgq, sizeof(enum event_type), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
+K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
 static k_tid_t sid_tid;
 
@@ -63,14 +69,7 @@ static void on_sidewalk_event(bool in_isr, void *context)
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
 	LOG_INF("received message(type: %d, id: %u size %u)", (int)msg_desc->type, msg_desc->id, msg->size);
-
-	for (size_t i = 0; i < msg->size; i += MSG_LOG_BLOCK_SIZE) {
-		if (i + MSG_LOG_BLOCK_SIZE > msg->size) {
-			LOG_HEXDUMP_INF((uint8_t *)msg->data + i, msg->size - i, "");
-		} else {
-			LOG_HEXDUMP_INF((uint8_t *)msg->data + i, MSG_LOG_BLOCK_SIZE, "");
-		}
-	}
+    LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
@@ -229,7 +228,7 @@ static sid_error_t sid_lib_run(app_context_t *app_context)
 	};
 
 	struct sid_config config = {
-		.link_mask = SID_LINK_TYPE_1,
+		.link_mask = LINK_MASK,
 		.callbacks = &event_callbacks,
 		.link_config = &ble_link_config,
 	};
@@ -242,7 +241,7 @@ static sid_error_t sid_lib_run(app_context_t *app_context)
 		return ret_code;
 	}
 
-	ret_code = sid_start(app_context->sidewalk_handle, SID_LINK_TYPE_1);
+	ret_code = sid_start(app_context->sidewalk_handle, LINK_MASK_START);
 	if (SID_ERROR_NONE != ret_code) {
 		LOG_ERR("failed to start sidewalk, err: %d", (int)ret_code);
 		dk_set_leds(SID_LED_INDICATE_INIT_ERROR);
@@ -325,6 +324,6 @@ void sidewalk_thread_enable(void)
 	sid_tid = k_thread_create(&sid_thread, sid_stack_area,
 				  K_THREAD_STACK_SIZEOF(sid_stack_area),
 				  sidewalk_thread, &sid_app_ctx, NULL, NULL,
-				  SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
+				  CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
 	k_thread_name_set(&sid_thread, "sidewalk");
 }
