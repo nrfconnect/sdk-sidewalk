@@ -97,7 +97,7 @@ void sidewalk_thread_message_q_write(enum event_type event)
 
 void sidewalk_thread_enable(void)
 {
-    if (SID_ERROR_NONE != sid_pal_init()) {
+	if (SID_ERROR_NONE != sid_pal_init()) {
 		return;
 	}
 
