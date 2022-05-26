@@ -10,9 +10,6 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#define SID_LED_INDICATE_CONNECTED  (DK_LED1)
-#define SID_LED_INDICATE_ERROR      (DK_LED2)
-
 #define IS_RESET_BTN_PRESSED(_btn)      (_btn & DK_BTN1_MSK)
 #define IS_CONN_REQ_BTN_PRESSED(_btn)   (_btn & DK_BTN2_MSK)
 #define IS_SEND_MSG_BTN_PRESSED(_btn)   (_btn & DK_BTN3_MSK)
