@@ -101,6 +101,7 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 		return SID_ERROR_OUT_OF_RESOURCES;
 	}
 
+	timer_storage->timer_id = t_id;
 	timer_storage->callback = event_callback;
 	timer_storage->callback_arg = event_callback_arg;
 	timer_storage->is_armed = ATOMIC_INIT(0);
