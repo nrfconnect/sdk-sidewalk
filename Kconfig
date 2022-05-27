@@ -26,7 +26,6 @@ config SIDEWALK_ASSERT
 config SIDEWALK_BLE
 	imply BT
 	imply SETTINGS
-	imply BT_SETTINGS
 	imply BT_PERIPHERAL
 	imply BT_GATT_CLIENT
 	bool "Enable Sidewalk Bluettoth Low Energy module"
