@@ -12,6 +12,7 @@
 #include <sid_pal_timer_ifc.h>
 #include <sid_pal_crypto_ifc.h>
 #include <sid_pal_ble_adapter_ifc.h>
+#include <sid_time_ops.h>
 
 #include <sid_pal_uptime_ifc.h>
 #include <dk_buttons_and_leds.h>
@@ -148,6 +149,15 @@ void main(void)
 		SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_INFO, dev_id, sizeof(dev_id));
 	}
 
+	erc = sid_pal_uptime_now(&sid_time);
+	if (SID_ERROR_NONE == erc) {
+		SID_PAL_LOG_INFO("Uptime sec: %u nsec:%u", sid_time.tv_sec, sid_time.tv_nsec);
+	} else {
+		SID_PAL_LOG_ERROR("Uptime fail, error code: %d", erc);
+	}
+
+	sid_time_add(&sidewalk_timer_duration, &sid_time);
+
 	erc = sid_pal_timer_init(&sidewalk_timer, sidewalk_timer_cb, sidewalk_timer_str);
 	if (SID_ERROR_NONE == erc) {
 		erc = sid_pal_timer_arm(&sidewalk_timer, SID_PAL_TIMER_PRIO_CLASS_LOWPOWER,
@@ -162,12 +172,6 @@ void main(void)
 	}
 
 	k_sleep(K_SECONDS(3));
-	erc = sid_pal_uptime_now(&sid_time);
-	if (SID_ERROR_NONE == erc) {
-		SID_PAL_LOG_INFO("Uptime sec: %u nsec:%u", sid_time.tv_sec, sid_time.tv_nsec);
-	} else {
-		SID_PAL_LOG_ERROR("Uptime fail, error code: %d", erc);
-	}
 
 	sid_pal_ble_adapter_create(&p_ble_ifc);
 

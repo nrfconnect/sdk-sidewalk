@@ -168,7 +168,7 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 
 	timer_duration = convert_time(when, type);
 	atomic_set(&timer_storage->is_armed, TIMER_ARMED);
-	k_timer_start(&static_timer[timer_storage->timer_id], timer_duration, timer_period);
+	k_timer_start(&static_timer[timer_storage->timer_id], Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration.ticks)), timer_period);
 
 	return SID_ERROR_NONE;
 }
