@@ -15,6 +15,7 @@ menuconfig SIDEWALK
 	imply SIDEWALK_TIMER
 	imply SIDEWALK_UPTIME
 	imply SIDEWALK_CRITICAL_REGION
+	imply SIDEWALK_ACE_OSAL_ZEPHYR
 
 config SIDEWALK_ASSERT
 	bool "Enable Sidewalk assert module."
@@ -69,6 +70,13 @@ config SIDEWALK_THREAD_PRIORITY
 	range -16 14
 	help
 	  Priority at which the Sidewalk thread runs.
+
+config SIDEWALK_HEAP_SIZE
+	int "Heap size for Sidewalk utils"
+	default 1024 if SIDEWALK_ACE_OSAL_ZEPHYR
+	default 0
+	help
+	  Set the heap size for dynamic memory alocation in Sidewalk.
 
 if SIDEWALK_BLE
 
@@ -162,3 +170,6 @@ config SIDEWALK_UPTIME
 
 config SIDEWALK_CRITICAL_REGION
 	bool "Enable Sidewalk critical region module"
+
+config SIDEWALK_ACE_OSAL_ZEPHYR
+	bool "Enable Zephyr RTOS abstraction layer for Sidewalk"
