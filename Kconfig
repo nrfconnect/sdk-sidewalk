@@ -17,8 +17,6 @@ menuconfig SIDEWALK
 	imply SIDEWALK_CRITICAL_REGION
 	imply SIDEWALK_ACE_OSAL_ZEPHYR
 
-if SIDEWALK
-
 config SIDEWALK_ASSERT
 	bool "Enable Sidewalk assert module."
 	imply ASSERT
@@ -176,5 +174,3 @@ config SIDEWALK_CRITICAL_REGION
 
 config SIDEWALK_ACE_OSAL_ZEPHYR
 	bool "Enable Zephyr RTOS abstraction layer for Sidewalk"
-
-endif # SIDEWALK
