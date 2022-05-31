@@ -60,21 +60,25 @@ K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
 static k_tid_t sid_tid;
 
+static uint8_t *status_name[] = {
+	"init", "is ready", "not ready", "secure conn"
+};
+
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	LOG_INF("From %s, context %p", in_isr ? "ISR" : "App", context);
+	LOG_DBG("on event, from %s, context %p", in_isr ? "ISR" : "App", context);
 	sidewalk_thread_message_q_write(EVENT_TYPE_SIDEWALK);
 }
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
-	LOG_INF("received message(type: %d, id: %u size %u)", (int)msg_desc->type, msg_desc->id, msg->size);
-    LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
+	LOG_DBG("received message(type: %d, id: %u size %u)", (int)msg_desc->type, msg_desc->id, msg->size);
+	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
-	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
+	LOG_DBG("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
@@ -84,7 +88,7 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
-	LOG_INF("status changed: %d", (int)status->state);
+	LOG_INF("status changed: %s", status_name[status->state]);
 
 	app_context_t *app_context = (app_context_t *)context;
 
@@ -106,14 +110,15 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		break;
 	}
 
-	LOG_INF("Registration Status = %d, Time Sync Status = %d and Link Status Mask = %x",
-		status->detail.registration_status, status->detail.time_sync_status,
-		status->detail.link_status_mask);
+	LOG_DBG("Device %sregistred, Time Sync %s, Link status %s",
+		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
+		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
+		status->detail.link_status_mask ? "Up" : "Down");
 }
 
 static void on_sidewalk_factory_reset(void *context)
 {
-	LOG_INF("factory reset notification received from sid api");
+	LOG_DBG("factory reset notification received from sid api");
 	sys_reboot(SYS_REBOOT_WARM);
 }
 
@@ -140,7 +145,7 @@ static void factory_reset(app_context_t *app_context)
 	if (SID_ERROR_NONE != ret) {
 		LOG_ERR("Notification of factory reset to sid api failed!");
 	} else {
-		LOG_INF("Wait for Sid api to notify to proceed with factory reset!");
+		LOG_DBG("Wait for Sid api to notify to proceed with factory reset!");
 	}
 }
 
@@ -158,7 +163,7 @@ static void send_message(app_context_t *app_context)
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed queueing data, err:%d", (int) ret);
 		} else {
-			LOG_INF("queued data message id:%u", desc.id);
+			LOG_DBG("queued data message id:%u", desc.id);
 			app_context->counter++;
 		}
 	} else {
@@ -179,7 +184,7 @@ static void set_battery_level(app_context_t *app_context)
 	if (SID_ERROR_NONE != ret) {
 		LOG_ERR("failed setting sidewalk option!");
 	} else {
-		LOG_INF("set battery level to %d", fake_bat_lev);
+		LOG_DBG("set battery level to %d", fake_bat_lev);
 	}
 }
 
@@ -278,7 +283,9 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			case EVENT_TYPE_SIDEWALK:
 			{
 				sid_error_t ret = sid_process(sid_app_ctx->sidewalk_handle);
-				LOG_INF("Sidewalk proc, status: %d", ret);
+				if (ret) {
+					LOG_WRN("Process error (code %d)", ret);
+				}
 				break;
 			}
 			case EVENT_TYPE_SEND_HELLO:
