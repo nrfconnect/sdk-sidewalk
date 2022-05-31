@@ -17,19 +17,51 @@ menuconfig SIDEWALK
 	imply SIDEWALK_CRITICAL_REGION
 	imply SIDEWALK_ACE_OSAL_ZEPHYR
 
+if SIDEWALK
+
 config SIDEWALK_ASSERT
 	bool "Enable Sidewalk assert module."
 	imply ASSERT
 	help
 	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
-	  If an assertion fails, program will trigger a fatal error.
+	  If the assertion fails, program will trigger a fatal error.
 
 config SIDEWALK_BLE
 	imply BT
 	imply SETTINGS
 	imply BT_PERIPHERAL
 	imply BT_GATT_CLIENT
-	bool "Enable Sidewalk Bluettoth Low Energy module"
+	bool "Enable Sidewalk Bluetooth Low Energy (BLE) module"
+
+if SIDEWALK_BLE
+
+choice SIDEWALK_BLE_ADV_INT
+	prompt "BLE advertising interval timers"
+	default BLE_ADV_FAST_INT_100_150_MS
+
+config BLE_ADV_FAST_INT_30_60_MS
+	bool "MIN/MAX: 30/60 ms"
+
+config BLE_ADV_FAST_INT_100_150_MS
+	bool "MIN/MAX: 100/150 ms"
+
+config BLE_ADV_SLOW_INT_1000_1200_MS
+	bool "MIN/MAX: 1/1.2 s"
+endchoice # SIDEWALK_BLE_ADV_INT
+
+config SIDEWALK_VENDOR_SERVICE
+	bool "Enable vendor service"
+	default n
+	help
+	   "Enables the vendor service for Sidewalk."
+
+config SIDEWALK_LOGGING_SERVICE
+	bool "Enable logging service"
+	default n
+	help
+	   "Enables the logging service for Sidewalk."
+
+endif # SIDEWALK_BLE
 
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type"
@@ -39,6 +71,7 @@ choice SIDEWALK_LINK_MASK
 
 config SID_BLE_LM
 	bool "Bluetooth Low Energy link"
+	depends on SIDEWALK_BLE
 
 config SID_FSK_LM
 	bool "900 MHz link for FSK"
@@ -77,36 +110,6 @@ config SIDEWALK_HEAP_SIZE
 	default 0
 	help
 	  Set the heap size for dynamic memory alocation in Sidewalk.
-
-if SIDEWALK_BLE
-
-choice SIDEWALK_BLE_ADV_INT
-	prompt "BLE advertising interval timers"
-	default BLE_ADV_FAST_INT_100_150_MS
-
-config BLE_ADV_FAST_INT_30_60_MS
-	bool "MIN/MAX: 30/60 ms"
-
-config BLE_ADV_FAST_INT_100_150_MS
-	bool "MIN/MAX: 100/150 ms"
-
-config BLE_ADV_SLOW_INT_1000_1200_MS
-	bool "MIN/MAX: 1/1.2 s"
-endchoice
-
-config SIDEWALK_VENDOR_SERVICE
-	bool "Enable vendor service"
-	default n
-	help
-	   "Enables the vendor service for Sidewalk."
-
-config SIDEWALK_LOGGING_SERVICE
-	bool "Enable logging service"
-	default n
-	help
-	   "Enables the logging service for Sidewalk."
-
-endif # SIDEWALK_BLE
 
 config SIDEWALK_CRYPTO
 	bool "Enable Sidewalk security module"
@@ -173,3 +176,5 @@ config SIDEWALK_CRITICAL_REGION
 
 config SIDEWALK_ACE_OSAL_ZEPHYR
 	bool "Enable Zephyr RTOS abstraction layer for Sidewalk"
+
+endif # SIDEWALK
