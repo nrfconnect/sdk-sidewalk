@@ -11,15 +11,19 @@
 #include <sid_pal_ble_adapter_ifc.h>
 #include <sid_ble_service.h>
 #include <sid_ble_ama_service.h>
-#if (CONFIG_SIDEWALK_VENDOR_SERVICE)
+#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
 #include <sid_ble_vnd_service.h>
-#endif
-#if (CONFIG_SIDEWALK_LOGGING_SERVICE)
+#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
+#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
 #include <sid_ble_log_service.h>
-#endif
+#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
 #include <sid_ble_adapter_callbacks.h>
 #include <sid_ble_advert.h>
 #include <sid_ble_connection.h>
+
+#if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
+#include <bluetooth/controller.h>
+#endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/conn.h>
@@ -57,6 +61,12 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 	ARG_UNUSED(cfg);
 
 	LOG_DBG("Enable BT");
+
+#if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
+	bt_addr_t pub_addr;
+	bt_addr_from_str(CONFIG_SID_BT_PUB_ADDR, &pub_addr);
+	bt_ctlr_set_public_addr(pub_addr.val);
+#endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
 	int err_code;
 	err_code = bt_enable(NULL);
@@ -138,22 +148,22 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 		srv = sid_ble_get_ama_service();
 		break;
 	}
-	#if (CONFIG_SIDEWALK_VENDOR_SERVICE)
+	#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
 	case VENDOR_SERVICE:
 	{
 		uuid = VND_SID_BT_CHARACTERISTIC_NOTIFY;
 		srv = sid_ble_get_vnd_service();
 		break;
 	}
-	#endif
-	#if (CONFIG_SIDEWALK_LOGGING_SERVICE)
+	#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
+	#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
 	case LOGGING_SERVICE:
 	{
 		uuid = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
 		srv = sid_ble_get_log_service();
 		break;
 	}
-	#endif
+	#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
 	default:
 		return SID_ERROR_NOSUPPORT;
 	}
