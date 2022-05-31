@@ -33,6 +33,48 @@ config SIDEWALK_BLE
 
 if SIDEWALK_BLE
 
+choice SIDEWALK_BLE_MAC_ADDR_TYPE
+	prompt "BLE MAC address type"
+	default MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
+
+config MAC_ADDRESS_TYPE_PUBLIC
+	bool "Public Address"
+	help
+	   Address obtained from IEEE registration authority, no privacy
+
+config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE
+	bool "Random Private Non-Resolvable Address"
+	imply BT_SMP
+	help
+	   Random generated address non resolvable by remote
+	   changes on every advertisement or connection
+
+config MAC_ADDRESS_TYPE_STATIC_RANDOM
+	bool "Random Static Address"
+	help
+	   Random generated address changes on each device boot up or
+	   stay fixed for lifetime of device
+
+config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
+	bool "Random Private Resolvable Address"
+	imply BT_SMP
+	imply BT_PRIVACY
+	help
+	   Random generated address with IRK(Identity Resolving Key)
+	   resolvable by remote. Used when bonding is enabled
+
+endchoice # SIDEWALK_BLE_MAC_ADDR_TYPE
+
+if MAC_ADDRESS_TYPE_PUBLIC
+	config SID_BT_PUB_ADDR
+	string "Public MAC address for controller"
+	default "AA:FF:BB:EE:CC:DD"
+	help
+	  Specify a MAC address for the BLE interface in the form of
+	  six hex 8-bit chars separated by colons (e.g.:
+	  AA:BB:CC:DD:EE:FF).
+endif # MAC_ADDRESS_TYPE_PUBLIC
+
 choice SIDEWALK_BLE_ADV_INT
 	prompt "BLE advertising interval timers"
 	default BLE_ADV_FAST_INT_100_150_MS

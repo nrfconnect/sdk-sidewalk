@@ -24,9 +24,14 @@
 #define ADV_INT_MAX     BT_GAP_ADV_FAST_INT_MAX_2
 #endif
 
+#if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
+#define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_USE_NAME | \
+			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
+#else
 #define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_CONNECTABLE | \
 			     BT_LE_ADV_OPT_USE_NAME |	 \
 			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
+#endif
 
 /* Advertising parameters. */
 #define AMA_ADV_PARAM		  \
@@ -96,9 +101,14 @@ int sid_ble_advert_start(void)
 {
 	int err = bt_le_adv_start(AMA_ADV_PARAM, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 
-	if (0 == err) {
+	if (!err) {
 		adv_state = BLE_ADV_ENABLE;
 	}
+
+#if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
+	static struct bt_le_oob oob;
+	(void)bt_le_oob_get_local(BT_ID_DEFAULT, &oob);
+#endif
 
 	return err;
 }
