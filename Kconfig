@@ -137,7 +137,7 @@ if SIDEWALK_LOG
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
-	default 64
+	default 80
 	help
 	  Maxium message length for Sidewalk PAL log in bytes.
 
