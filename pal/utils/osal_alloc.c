@@ -23,16 +23,16 @@ static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
 
 	sys_heap_runtime_stats_get(p_heap, &stat);
 	if (mem_to_alloc > stat.free_bytes) {
-		LOG_ERR("Not heap left. Alloc size: %d, free: %d", mem_to_alloc, stat.free_bytes);
+		LOG_ERR("Not heap left. Alloc size: %u, free: %u", mem_to_alloc, stat.free_bytes);
 	}
 
 	if (stat.max_allocated_bytes > HEAP_USAGE_WARNING_THRESHOLD) {
-		LOG_WRN("Max heap usage %d", stat.max_allocated_bytes);
+		LOG_WRN("Max heap usage %u", stat.max_allocated_bytes);
 	}
 
 	if (CONFIG_SIDEWALK_HEAP_SIZE > 0) {
 		size_t usage = stat.allocated_bytes + mem_to_alloc;
-		LOG_DBG("heap usage %4d [%2d%%]", usage, (100 * usage / CONFIG_SIDEWALK_HEAP_SIZE));
+		LOG_DBG("heap usage %4u [%2d%%]", usage, (100 * usage / CONFIG_SIDEWALK_HEAP_SIZE));
 	}
 }
 #endif  /* CONFIG_SYS_HEAP_RUNTIME_STATS */
