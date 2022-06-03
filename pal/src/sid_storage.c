@@ -9,6 +9,7 @@
  */
 
 #include <sid_pal_storage_kv_ifc.h>
+#include <sid_pal_storage_kv_internal_group_ids.h>
 #include <stdint.h>
 
 #include <zephyr.h>
@@ -26,16 +27,26 @@
 #define NVS_SECTOR_COUNT 2
 /* Start address of the filesystem in flash */
 #define NVS_STORAGE_OFFSET FLASH_AREA_OFFSET(storage)
-/* Number of group IDs */
-#define SID_GROUP_ID_COUNT      1
+/* Number of file system IDs */
+#define SID_FS_ID_COUNT      1
 
-static struct nvs_fs fs[SID_GROUP_ID_COUNT] = {
+static struct nvs_fs fs[SID_FS_ID_COUNT] = {
 	{
 		.sector_size = NVS_SECTOR_SIZE,
 		.sector_count = NVS_SECTOR_COUNT,
 		.offset = NVS_STORAGE_OFFSET,
 	},
 };
+
+static uint16_t sid_group_to_fs_id(uint16_t group)
+{
+	switch (group) {
+	case SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID:
+		return 0;
+	default:
+		return __UINT16_MAX__;
+	}
+}
 
 /**
  * @brief Initialize NVM in flash.
@@ -63,7 +74,7 @@ static sid_error_t kv_storage_init(struct nvs_fs *fs)
 sid_error_t sid_pal_storage_kv_init()
 {
 #if defined(CONFIG_NVS)
-	for (int cnt = 0; cnt < SID_GROUP_ID_COUNT; cnt++) {
+	for (int cnt = 0; cnt < SID_FS_ID_COUNT; cnt++) {
 		if (SID_ERROR_NONE != kv_storage_init(&fs[cnt])) {
 			return SID_ERROR_GENERIC;
 		}
@@ -79,7 +90,9 @@ sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_
 	ssize_t rc;
 	uint8_t *buff;
 
-	if (SID_GROUP_ID_COUNT <= group) {
+	uint16_t fs_id = sid_group_to_fs_id(group);
+
+	if (SID_FS_ID_COUNT <= fs_id) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
@@ -88,7 +101,7 @@ sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_
 	}
 	buff = (uint8_t *)p_data;
 
-	rc = nvs_read(&fs[group], key, buff, len);
+	rc = nvs_read(&fs[fs_id], key, buff, len);
 	if (0 > rc) {
 		if (-ENOENT == rc) {
 			return SID_ERROR_NOT_FOUND;
@@ -103,7 +116,9 @@ sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint
 	uint8_t dummy_arg;
 	ssize_t ret_len = 0;
 
-	if (SID_GROUP_ID_COUNT <= group) {
+	uint16_t fs_id = sid_group_to_fs_id(group);
+
+	if (SID_FS_ID_COUNT <= fs_id) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
@@ -111,7 +126,7 @@ sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint
 		return SID_ERROR_NULL_POINTER;
 	}
 
-	ret_len = nvs_read(&fs[group], key, &dummy_arg, sizeof(dummy_arg));
+	ret_len = nvs_read(&fs[fs_id], key, &dummy_arg, sizeof(dummy_arg));
 	if (0 < ret_len) {
 		*p_len = ret_len;
 		return SID_ERROR_NONE;
@@ -126,7 +141,9 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
 	ssize_t rc;
 	uint8_t *buff;
 
-	if (SID_GROUP_ID_COUNT <= group) {
+	uint16_t fs_id = sid_group_to_fs_id(group);
+
+	if (SID_FS_ID_COUNT <= fs_id) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
@@ -144,7 +161,7 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
 
 	buff = (uint8_t *)p_data;
 
-	rc = nvs_write(&fs[group], key, buff, len);
+	rc = nvs_write(&fs[fs_id], key, buff, len);
 	if (0 > rc) {
 		if (-ENOSPC == rc) {
 			return SID_ERROR_STORAGE_FULL;
@@ -157,11 +174,13 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
 
 sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key)
 {
-	if (SID_GROUP_ID_COUNT <= group) {
+	uint16_t fs_id = sid_group_to_fs_id(group);
+
+	if (SID_FS_ID_COUNT <= fs_id) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
-	if (0 != nvs_delete(&fs[group], key)) {
+	if (0 != nvs_delete(&fs[fs_id], key)) {
 		return SID_ERROR_STORAGE_ERASE_FAIL;
 	}
 	return SID_ERROR_NONE;
@@ -169,14 +188,16 @@ sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key)
 
 sid_error_t sid_pal_storage_kv_group_delete(uint16_t group)
 {
-	if (SID_GROUP_ID_COUNT <= group) {
+	uint16_t fs_id = sid_group_to_fs_id(group);
+
+	if (SID_FS_ID_COUNT <= fs_id) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
-	if (0 != nvs_clear(&fs[group])) {
+	if (0 != nvs_clear(&fs[fs_id])) {
 		return SID_ERROR_STORAGE_ERASE_FAIL;
 	}
 
 	/* The nvs needs to be reinitialized after clearing */
-	return kv_storage_init(&fs[group]);
+	return kv_storage_init(&fs[fs_id]);
 }

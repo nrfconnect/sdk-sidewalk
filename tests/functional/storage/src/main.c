@@ -5,6 +5,7 @@
  */
 #include <unity.h>
 #include <sid_pal_storage_kv_ifc.h>
+#include <sid_pal_storage_kv_internal_group_ids.h>
 
 #include <storage/flash_map.h>
 #include <device.h>
@@ -14,8 +15,8 @@
 
 #include <sid_pal_assert_ifc.h>
 
-#define GROUP_ID_TEST_OK        0
-#define GROUP_ID_TEST_NOK       9
+#define GROUP_ID_TEST_OK        (SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID)
+#define GROUP_ID_TEST_NOK       (0xffff)
 
 typedef enum {
 	TEST_KEY_1,
