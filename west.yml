@@ -15,12 +15,12 @@ manifest:
     - name: nrf
       repo-path: sdk-nrf
       path: nrf
-      revision: main
+      revision: v2.0.0
       import: true
     - name: sidewalklib
       repo-path: nrf5-for-sidewalk
       path: sidewalklib
-      revision: ncs-libs
+      revision: ship/sidewalk/v1.12
       remote: nordic-internal
 
   # West-related configuration for the sidewalk repository.
