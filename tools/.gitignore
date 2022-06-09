@@ -1,0 +1,5 @@
+**/__pycache__/
+app-server-*.pem
+app-server-*.der
+app-server-*.txt
+*.pub.bin
