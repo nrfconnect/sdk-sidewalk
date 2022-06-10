@@ -3,7 +3,8 @@ nRF Connect SDK: sdk-sidewalk
 
 This repository contains an Amazon Sidewalk platform abstraction layer fot the Nordic nRF Connect SDK which is based on Zephyr RTOS.
 
-The code is in development state, it's for early evaluation and testing purposes. It shouldn't be used in production. 
+The code is in development state, meaning it is for early evaluation and testing purposes.
+It is not used in production.
 
 The following repositories must be combined with sdk-sidewalk:
 
@@ -13,29 +14,28 @@ Requirements
 ************
 
 Git LFS is required to pull Sidewalk libraries correctly.
-
-Check version of Git LFS installed in your os, if any:
+Check the version of Git LFS installed in your OS, if there is any:
 
 .. parsed-literal::
    :class: highlight
 
    git lfs version
 
-Expected result is similar to the one (version numbers might be different):
+Expected result is as follows (version number might be different):
 
 .. parsed-literal::
    :class: highlight
 
    git-lfs/2.9.2 (GitHub; linux amd64; go 1.13.5)
 
-When Git LFS is not installed the result is:
+When Git LFS is not installed, the result is as follows:
 
 .. parsed-literal::
    :class: highlight
 
    git: 'lfs' is not a git command. See 'git --help'.
 
-To install Git LFS visit: https://git-lfs.github.com
+To install Git LFS, go to: https://git-lfs.github.com.
 
 When Git LFS in not installed, the following build error appears:
 
@@ -48,11 +48,11 @@ When Git LFS in not installed, the following build error appears:
    ld.bfd: sidewalk/lib/libsid_api.a: file format not recognized; treating as linker script
    ld.bfd: sidewalk/lib/libsid_api.a:1: syntax error
 
-
 Getting Started
 ***************
 
-You can initialize this repository with west just like you use the `sdk-nrf`_  repository. You just need to replace ``sdk-nrf`` and with the ``sdk-sidewalk``, as shown in the following code:
+You can initialize this repository with west, similarly to the `sdk-nrf`_ repository.
+To do this, you need to replace ``sdk-nrf`` with ``sdk-sidewalk``, as shown below:
 
 .. parsed-literal::
    :class: highlight
@@ -66,22 +66,24 @@ See :ref:`zephyr:west-basics` for more details.
 Documentation
 *************
 
-Documentation for this project is placed in ``doc`` directory. To build HTML version, execute:
+Documentation for this project is placed in the ``doc`` directory.
 
-.. parsed-literal::
+* To preview documents in reStructuredText format, see: https://github.com/nrfconnect/sdk-sidewalk/blob/main/doc/index.rst.
+
+* To build the HTML version, run:
+
+  .. parsed-literal::
    :class: highlight
 
    cd doc
    make html
    xdg-open build/html/index.html
 
-The documentation will be placed in ``doc/build/html``. 
-To see the documentation open ``doc/build/html/index.html`` in web browser.
+  The documentation will be generated in ``doc/build/html``.
+  To view the documentation, open ``doc/build/html/index.html`` in a web browser.
 
-Sidewalk overview:
+For more information about Sidewalk and nRF Connect SDK, refer to the links below:
 
-* https://www.amazon.com/Amazon-Sidewalk/b/?node=21328123011
+* Sidewalk overview: https://www.amazon.com/Amazon-Sidewalk/b/?node=21328123011
 
-Official nRF Connect SDK documentation:
-
-* http://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest
+* Official nRF Connect SDK documentation: http://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest
