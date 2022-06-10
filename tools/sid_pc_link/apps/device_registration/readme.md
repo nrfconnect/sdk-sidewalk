@@ -17,7 +17,7 @@ perform Sidewalk registration with cloud.
 # Description of the app_config.json file entries
 | Entry                    | Description                                                                                                                                                      | Default value | Possible value        | Comments                                                             |
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------|----------------------------------------------------------------------|
-| REGISTRATION_ENVIRONMENT | Cloud environment. Defines endpoint to register the device                                                                                                       | beta          | beta<br>gamma<br>prod |                                                                      |
+| REGISTRATION_ENVIRONMENT | Cloud environment. Defines endpoint to register the device                                                                                                       | prod          | beta<br>gamma<br>prod |                                                                      |
 | BLUETOOTH_ADAPTER        | Name of the Bluetooth adapter to use in the registration process                                                                                                 | hci0          | hci0<br>hci1          | Run hcitool devices to get the adapter information                   |
 | COMMAND_TIMEOUT          | Time in seconds to wait for a response from selected edge device                                                                                                 | 2             | Any value             |                                                                      |
 | DEVICE_IDENTIFIER        | BLE MAC address of the selected edge device to register                                                                                                          | -             | -                     | Run sudo hcitool lescan to get Nordic-DK BLE mac address             |
@@ -51,28 +51,17 @@ perform Sidewalk registration with cloud.
 
 ## Link Ring account to amazon account
 
-- QA and PROD environment
-    * Linking Ring account to amazon account can be done using Ring Beta mobile
-      application (https://confluence.atl.ring.com/pages/viewpage.action?spaceKey=AD&title=Release+Management+for+Halo+2.0+Beta .
-      Use link in Section "Internal Beta debug version")
-    * After installation of Ring mobile application
-        + Long press on Ring icon on Login page to select environment
-        + Create account in QA / PROD if not already existing. Login to
-          the account
-        + Under Account setting page, select 'Link your Amazon account'
-            - Enter Ring account password
-            - Enter Amazon account username and password. Verify OTP and
-              accounts should get linked
-- DEV environment
-    * Manual account linking is required. Contact Cloud team for manual
-      linking of Ring DEV account to Amazon PROD account (Chintan Desai)
-        + To link account, below are the credentials required from cloud team:
-            - Amazon user name : <Email address>
-            - Amazon Cutomer ID : https://developer.amazon.com/mycid.html
-            - Ring User name : <Email address>
-            - Ring Customer ID : Can be retrieved from
-              https://admin.dev.ring.com/  → Click Customers
-              (Provide Email Id, First and Last name associated with account)
+- Linking Ring account to amazon account can be done using Ring Beta mobile
+	application (https://confluence.atl.ring.com/pages/viewpage.action?spaceKey=AD&title=Release+Management+for+Halo+2.0+Beta .
+	Use link in Section "Internal Beta debug version")
+- After installation of Ring mobile application
+	* Long press on Ring icon on Login page to select environment
+	* Create account in QA / PROD if not already existing. Login to
+		the account
+	* Under Account setting page, select 'Link your Amazon account'
+		+ Enter Ring account password
+		+ Enter Amazon account username and password. Verify OTP and
+			accounts should get linked
 
 # Script Execution Steps
 
@@ -111,7 +100,7 @@ perform Sidewalk registration with cloud.
 ```
 Example of app_config.json with SMSN:
 {
-  "REGISTRATION_ENVIRONMENT": "beta",
+  "REGISTRATION_ENVIRONMENT": "prod",
   "BLUETOOTH_ADAPTER": "hci1",
   "COMMAND_TIMEOUT": 2,
   "GATEWAY_ID": null,
@@ -148,7 +137,7 @@ LWA_TOKEN : LWA token from Step 3
 ```
 app_config.json example with SMSN:
 {
-  "REGISTRATION_ENVIRONMENT": "beta",
+  "REGISTRATION_ENVIRONMENT": "prod",
   "BLUETOOTH_ADAPTER": "hci1",
   "COMMAND_TIMEOUT": 2,
   "GATEWAY_ID": "A0002C5CC0",
