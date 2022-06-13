@@ -17,12 +17,25 @@ menuconfig SIDEWALK
 	imply SIDEWALK_CRITICAL_REGION
 	imply SIDEWALK_ACE_OSAL_ZEPHYR
 
-config SIDEWALK_ASSERT
-	bool "Enable Sidewalk assert module."
-	imply ASSERT
+choice SIDEWALK_LINK_MASK
+	prompt "Physical link type"
+	default SID_BLE_LM
 	help
-	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
-	  If the assertion fails, program will trigger a fatal error.
+	  Select the physical link type for Sidewalk connection.
+
+config SID_BLE_LM
+	bool "Bluetooth Low Energy link"
+	depends on SIDEWALK_BLE
+
+config SID_FSK_LM
+	bool "900 MHz link for FSK"
+	imply SIDEWALK_GPIO
+
+config SID_LORA_LM
+	bool "900 MHz link for LORA"
+	imply SIDEWALK_GPIO
+
+endchoice # SIDEWALK_LINK_MASK
 
 config SIDEWALK_BLE
 	imply BT
@@ -103,24 +116,6 @@ config SIDEWALK_LOGGING_SERVICE
 
 endif # SIDEWALK_BLE
 
-choice SIDEWALK_LINK_MASK
-	prompt "Physical link type"
-	default SID_BLE_LM
-	help
-	  Select the physical link type for Sidewalk connection.
-
-config SID_BLE_LM
-	bool "Bluetooth Low Energy link"
-	depends on SIDEWALK_BLE
-
-config SID_FSK_LM
-	bool "900 MHz link for FSK"
-
-config SID_LORA_LM
-	bool "900 MHz link for LORA"
-
-endchoice # SIDEWALK_LINK_MASK
-
 config SIDEWALK_THREAD_STACK_SIZE
 	int "Stack size for the Sidewalk thread"
 	range 8192 131072 if SID_BLE_LM
@@ -150,6 +145,13 @@ config SIDEWALK_HEAP_SIZE
 	default 0
 	help
 	  Set the heap size for dynamic memory alocation in Sidewalk.
+
+config SIDEWALK_ASSERT
+	bool "Enable Sidewalk assert module."
+	imply ASSERT
+	help
+	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
+	  If the assertion fails, program will trigger a fatal error.
 
 config SIDEWALK_CRYPTO
 	bool "Enable Sidewalk security module"
@@ -213,6 +215,9 @@ config SIDEWALK_UPTIME
 
 config SIDEWALK_CRITICAL_REGION
 	bool "Enable Sidewalk critical region module"
+
+config SIDEWALK_GPIO
+	bool "Enable Sidewalk GPIO module."
 
 config SIDEWALK_ACE_OSAL_ZEPHYR
 	bool "Enable Zephyr RTOS abstraction layer for Sidewalk"
