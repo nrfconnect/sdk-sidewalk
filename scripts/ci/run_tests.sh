@@ -17,7 +17,7 @@ echo "> Test commit"
 git -C $SIDEWALK_BASE log --oneline -1
 
 echo "> Build samples"
-$TWISTER_BIN --verbose --platform nrf52840dk_nrf52840 --build-only --show-footprint --testcase-root $SIDEWALK_BASE
+$TWISTER_BIN --verbose --platform nrf52840dk_nrf52840 --build-only --show-footprint --testcase-root $SIDEWALK_BASE/samples
 
 echo "> Run unit tests"
 $TWISTER_BIN --verbose --platform native_posix --coverage  --testcase-root $SIDEWALK_BASE/tests/unit_tests
