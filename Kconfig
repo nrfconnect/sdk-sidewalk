@@ -221,3 +221,13 @@ config SIDEWALK_GPIO
 
 config SIDEWALK_ACE_OSAL_ZEPHYR
 	bool "Enable Zephyr RTOS abstraction layer for Sidewalk"
+
+config SIDEWALK_TEMPERATURE
+	bool "Enable Sidewalk temperature module"
+	imply SENSOR
+	imply TEMP_NRF5
+
+config SIDEWALK_TEMPERATURE_SENSOR_NAME
+	string "name of temperature sensor used for sidewalk temperature PAL"
+	default "TEMP_0"
+	depends on SIDEWALK_TEMPERATURE

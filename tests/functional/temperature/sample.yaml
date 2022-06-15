@@ -1,0 +1,9 @@
+sample:
+  name: Sidewalk temperature test
+  description: Test reading internal die temperature
+tests:
+  sample.test.temperature:
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
