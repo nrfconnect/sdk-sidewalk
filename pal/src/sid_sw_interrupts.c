@@ -21,7 +21,7 @@ static sid_pal_swi_cb_t swi_cb;
 
 void sid_pal_swi_isr(void)
 {
-	if(swi_cb){
+	if (swi_cb) {
 		swi_cb();
 	}
 }
