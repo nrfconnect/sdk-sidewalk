@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# git prepare-commit-msg hook for automatically prepending an issue key
+# from the start of the current branch name to commit messages.
+ 
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+SHA1=$3
+ 
+# check if commit is merge commit or a commit ammend
+if [ $COMMIT_SOURCE = "merge" ] || [ $COMMIT_SOURCE = "commit" ]; then
+    exit
+fi
+ISSUE_KEY=$(git rev-parse --abbrev-ref HEAD | grep -o "KRKNWK-[0-9]*")
+if [ $? -eq 0 ]; then
+    sed -i -e "2a\\$ISSUE_KEY\\" $COMMIT_MSG_FILE
+fi
