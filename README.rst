@@ -26,6 +26,18 @@ See :ref:`zephyr:west-basics` for more details.
 Documentation
 *************
 
+Documentation for this project is placed in ``doc`` directory. To build HTML version, execute:
+
+.. parsed-literal::
+   :class: highlight
+
+   cd doc
+   make html
+   xdg-open build/html/index.html
+
+The documentation will be placed in ``doc/build/html``. 
+To see the documentation open ``doc/build/html/index.html`` in web browser.
+
 Sidewalk overview:
 
 * https://www.amazon.com/Amazon-Sidewalk/b/?node=21328123011
