@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.unit_tests.ble_advertising:
+  sidewalk.unit_tests.ble_advertising:
     tags: Sidewalk
     integration_platforms:
       - native_posix

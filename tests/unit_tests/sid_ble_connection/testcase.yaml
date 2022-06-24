@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.unit_tests.ble_connection:
+  sidewalk.unit_tests.ble_connection:
     tags: Sidewalk
     integration_platforms:
       - native_posix
