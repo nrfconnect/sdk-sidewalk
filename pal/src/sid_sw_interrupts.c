@@ -9,43 +9,54 @@
  */
 
 #include <sid_pal_swi_ifc.h>
-#include <irq.h>
-#if defined(CONFIG_CPU_CORTEX_M)
-#include <arch/arm/aarch32/cortex_m/cmsis.h>
-#endif
+#include <kernel.h>
 
-#define TEST_IRQ_LINE   (24)
-#define TEST_IRQ_PRIO   (2)
+#define SIDEWALK_SWI_STACK_SIZE 512
+#define SIDEWALK_SWI_PRIORITY K_PRIO_COOP(CONFIG_NUM_COOP_PRIORITIES - 1)
 
+K_THREAD_STACK_DEFINE(swi_stack_area, SIDEWALK_SWI_STACK_SIZE);
+
+static struct k_work_q swi_work_q;
+static struct k_work swi_work;
 static sid_pal_swi_cb_t swi_cb;
 
-void sid_pal_swi_isr(void)
+static void sid_work_handler(struct k_work *work)
 {
 	if (swi_cb) {
 		swi_cb();
 	}
-}
+};
 
 sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback)
 {
 	if (!event_callback) {
 		return SID_ERROR_NULL_POINTER;
 	}
-
 	swi_cb = event_callback;
 
-	IRQ_CONNECT(TEST_IRQ_LINE, TEST_IRQ_PRIO, sid_pal_swi_isr, NULL, 0);
-	irq_enable(TEST_IRQ_LINE);
+	k_work_init(&swi_work, sid_work_handler);
+	k_work_queue_init(&swi_work_q);
+
+	k_work_queue_start(&swi_work_q, swi_stack_area,
+			   K_THREAD_STACK_SIZEOF(swi_stack_area), SIDEWALK_SWI_PRIORITY,
+			   NULL);
 
 	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_swi_trigger(void)
 {
-#if defined(CONFIG_CPU_CORTEX_M)
-	NVIC_SetPendingIRQ(TEST_IRQ_LINE);
-	return SID_ERROR_NONE;
-#endif
+	int ret;
 
-	return SID_ERROR_NOSUPPORT;
+	ret = k_work_submit_to_queue(&swi_work_q, &swi_work);
+	if (ret < 0) {
+		return SID_ERROR_GENERIC;
+	}
+
+	ret = k_work_queue_drain(&swi_work_q, false);
+	if (ret < 0) {
+		return SID_ERROR_GENERIC;
+	}
+
+	return SID_ERROR_NONE;
 }
