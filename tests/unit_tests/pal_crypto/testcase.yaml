@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.unit_tests.crypto:
+  sidewalk.unit_tests.crypto:
     tags: Sidewalk
     platform_allow: native_posix
     integration_platforms:

@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.unit_tests.uptime:
+  sidewalk.unit_tests.uptime:
     tags: Sidewalk
     integration_platforms:
       - native_posix
