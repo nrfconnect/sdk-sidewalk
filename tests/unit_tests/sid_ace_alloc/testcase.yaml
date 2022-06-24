@@ -1,5 +1,6 @@
 tests:
   sidewalk.unit_tests.ace.alloc:
+    platform_allow: nrf52840dk_nrf52840 native_posix
     tags: Sidewalk
     integration_platforms:
       - native_posix
