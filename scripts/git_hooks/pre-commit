@@ -4,9 +4,9 @@ UNCRUST_CONFIG="$ZEPHYR_BASE/../sidewalk/.uncrustify.cfg"
 staged_files=$(git diff --name-only --staged | grep -E '\.(c|h|cpp|hpp)$')
 if [ -n "$staged_files" ]; then
     echo "## Executing uncrustify"
-    uncrustify -c $UNCRUST_CONFIG $staged_files --check --no-backup
+    uncrustify -c $UNCRUST_CONFIG --check $staged_files 
     if [ $? -ne 0 ]; then
-        uncrustify -c $UNCRUST_CONFIG $staged_files --replace --no-backup
+        uncrustify -c $UNCRUST_CONFIG --replace --no-backup $staged_files 
         echo "suggested changes were made on the tracked files, please review them and stage for commit"
         exit 1
     fi
