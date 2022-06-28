@@ -1,0 +1,6 @@
+tests:
+  sidewalk.unit_tests.gpio_irq_handler:
+    platform_allow: native_posix
+    tags: Sidewalk
+    integration_platforms:
+      - native_posix
