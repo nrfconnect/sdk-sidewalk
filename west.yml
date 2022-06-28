@@ -8,8 +8,6 @@ manifest:
     # nRF Connect SDK base URL.
     - name: ncs
       url-base: https://github.com/nrfconnect
-    - name: nordic-internal
-      url-base: ssh://git@bitbucket.nordicsemi.no:7999/ec
 
   projects:
     - name: nrf
@@ -17,11 +15,6 @@ manifest:
       path: nrf
       revision: v2.0.0
       import: true
-    - name: sidewalklib
-      repo-path: nrf5-for-sidewalk
-      path: sidewalklib
-      revision: 27bae45bfe9672b95e09ec4dfe91f83abbd9b77b
-      remote: nordic-internal
 
   # West-related configuration for the sidewalk repository.
   self:
