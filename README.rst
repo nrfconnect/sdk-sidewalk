@@ -9,6 +9,46 @@ The following repositories must be combined with sdk-sidewalk:
 
 * sdk-nrf
 
+Requirements
+************
+
+Git LFS is required to pull Sidewalk libraries correctly.
+
+Check version of Git LFS installed in your os, if any:
+
+.. parsed-literal::
+   :class: highlight
+
+   git lfs version
+
+Expected result is similar to the one (version numbers might be different):
+
+.. parsed-literal::
+   :class: highlight
+
+   git-lfs/2.9.2 (GitHub; linux amd64; go 1.13.5)
+
+When Git LFS is not installed the result is:
+
+.. parsed-literal::
+   :class: highlight
+
+   git: 'lfs' is not a git command. See 'git --help'.
+
+To install Git LFS visit: https://git-lfs.github.com
+
+When Git LFS in not installed, the following build error appears:
+
+.. parsed-literal::
+   :class: highlight
+
+   west build
+   ...
+   [ 95%] Linking C executable zephyr_pre0.elf
+   ld.bfd: sidewalk/lib/libsid_api.a: file format not recognized; treating as linker script
+   ld.bfd: sidewalk/lib/libsid_api.a:1: syntax error
+
+
 Getting Started
 ***************
 
