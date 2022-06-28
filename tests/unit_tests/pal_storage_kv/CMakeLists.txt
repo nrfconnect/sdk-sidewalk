@@ -14,7 +14,6 @@ cmock_handle(${ZEPHYR_BASE}/include/zephyr/fs/nvs.h)
 # add test file
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
-target_include_directories(app PRIVATE .)
 
 # generate runner for the test
 test_runner_generate(${app_sources})

@@ -13,7 +13,6 @@ project(sidewalk_test_crypto)
 # add test file
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
-target_include_directories(app PRIVATE .)
 zephyr_include_directories(${ZEPHYR_BASE}/../mbedtls/include)
 
 # generate runner for the test
