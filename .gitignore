@@ -26,6 +26,7 @@ tags
 sanity-out*
 twister-out*
 map.yml
+coverage.info
 
 doc/_build
 doc/nrf/_doxygen/
