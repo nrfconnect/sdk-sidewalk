@@ -12,8 +12,11 @@ project(sidewalk_test_crypto)
 
 # add test file
 FILE(GLOB app_sources src/*.c)
-target_sources(app PRIVATE ${app_sources})
+target_sources(app PRIVATE ${app_sources} $ENV{ZEPHYR_BASE}/../sidewalk/pal/src/sid_crypto.c)
+target_include_directories(app PRIVATE .)
 zephyr_include_directories(${ZEPHYR_BASE}/../mbedtls/include)
+set_property(SOURCE $ENV{ZEPHYR_BASE}/../sidewalk/pal/src/sid_crypto.c PROPERTY COMPILE_FLAGS
+	"-include src/kconfig_mock.h")
 
 # generate runner for the test
 test_runner_generate(${app_sources})

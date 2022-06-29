@@ -100,6 +100,18 @@ void test_sid_pal_temperature_get_failed_get_errno_max()
 	TEST_ASSERT_EQUAL(INT16_MIN, pal_temp);
 }
 
+void test_sid_pal_temperature_get_uninitialized()
+{
+	sprintf(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE, "TEST_1_PROBE_DEVICE");
+	__wrap_device_get_binding_ExpectAndReturn(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE,
+						  NULL);
+
+	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_temperature_init());
+
+	int16_t pal_temp = sid_pal_temperature_get();
+	TEST_ASSERT_EQUAL(INT16_MIN, pal_temp);
+}
+
 /* It is required to be added to each test. That is because unity is using
  * different main signature (returns int) and zephyr expects main which does
  * not return value.

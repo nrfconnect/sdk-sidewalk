@@ -26,8 +26,8 @@ static const struct device *gpio_port[] = {
 
 static uint32_t sid_gpio_utils_mask_to_pin_number(uint32_t pin_mask)
 {
-	for (int pin = 0; pin < (1 << GPIO_PIN_MASK); pin++) {
-		if (0 != (pin_mask & (1 << pin))) {
+	for (int pin = 0; pin < (1U << GPIO_PIN_MASK); pin++) {
+		if (0 != (pin_mask & (1U << pin))) {
 			return pin;
 		}
 	}
