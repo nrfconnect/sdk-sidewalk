@@ -1,7 +1,7 @@
 #!/bin/sh
 UNCRUST_CONFIG="$ZEPHYR_BASE/../sidewalk/.uncrustify.cfg"
 # get list of staged files
-staged_files=$(git diff --name-only --staged --diff-filter=M | grep -E '\.(c|h|cpp|hpp)$')
+staged_files=$(git diff --name-only --staged --diff-filter=AMR | grep -E '\.(c|h|cpp|hpp)$')
 if [ -n "$staged_files" ]; then
     echo "## Executing uncrustify"
     uncrustify -c $UNCRUST_CONFIG --check $staged_files 

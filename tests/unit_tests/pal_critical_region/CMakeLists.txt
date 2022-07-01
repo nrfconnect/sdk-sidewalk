@@ -14,7 +14,6 @@ target_sources(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/pal/src/sid_critical_regio
 
 # add test file
 target_sources(app PRIVATE src/main.c)
-target_include_directories(app PRIVATE src)
 
 # generate runner for the test
 test_runner_generate(src/main.c)
