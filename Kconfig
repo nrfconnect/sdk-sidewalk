@@ -231,3 +231,6 @@ config SIDEWALK_TEMPERATURE_SENSOR_NAME
 	string "name of temperature sensor used for sidewalk temperature PAL"
 	default "TEMP_0"
 	depends on SIDEWALK_TEMPERATURE
+
+config SIDEWALK_SW_INTERRUPTS
+	bool "Enable Sidewalk software interrupts module"
