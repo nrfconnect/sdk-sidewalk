@@ -110,7 +110,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		break;
 	}
 
-	LOG_DBG("Device %sregistred, Time Sync %s, Link status %s",
+	LOG_DBG("Device %sregistered, Time Sync %s, Link status %s",
 		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
 		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
 		status->detail.link_status_mask ? "Up" : "Down");
