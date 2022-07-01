@@ -8,7 +8,7 @@
 #include <sid_pal_critical_region_ifc.h>
 
 #include <irq.h>
-#include "interrupt_util.h"
+#include <irq_ctrl.h>
 
 #define TEST_IRQ        (24)
 #define TEST_IRQ_PRIO   (2)
@@ -16,6 +16,11 @@
 #define UNCHANGED       (0U)
 
 static volatile uint32_t resource;
+
+static void trigger_irq(int irq)
+{
+	hw_irq_ctrl_raise_im_from_sw(irq);
+}
 
 void irq_cb(const void *arg)
 {
