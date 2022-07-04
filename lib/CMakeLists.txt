@@ -4,31 +4,72 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-if(CONFIG_SIDEWALK)
+if (CONFIG_SIDEWALK)
 	set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib)
 
+if (NOT CONFIG_SIDEWALK_LINK_MASK_FSK AND NOT CONFIG_SIDEWALK_LINK_MASK_LORA)
+	set(SID_LIB_DIR ${SID_LIB_DIR}/lib_ble)
 	set(SID_LIBS
-		${SID_LIB_DIR}/libsid_api.a
-		${SID_LIB_DIR}/libsid_ble_network_impl.a
-		${SID_LIB_DIR}/libsid_rng.a
-		${SID_LIB_DIR}/libsid_network_address.a
-		${SID_LIB_DIR}/libsid_time_ops.a
-		${SID_LIB_DIR}/libsid_event_queue.a
-		${SID_LIB_DIR}/libsall_mgm_core.a
-		${SID_LIB_DIR}/libsid_parser_utils.a
-		${SID_LIB_DIR}/libsid_memory_pool.a
-		${SID_LIB_DIR}/libsid_clock.a
-		${SID_LIB_DIR}/libsid_ama_adapter_impl.a
-		${SID_LIB_DIR}/libace_ama.a
-		${SID_LIB_DIR}/libext_nanopb.a
-		${SID_LIB_DIR}/libsall_security.a
-		${SID_LIB_DIR}/libsid_security.a
-		${SID_LIB_DIR}/libsall.a
-		${SID_LIB_DIR}/libsid_asl_parser.a
-		${SID_LIB_DIR}/libsid_flex_parser.a
-		${SID_LIB_DIR}/libsid_parser_utils.a
-		${SID_LIB_DIR}/libsid_time_ops.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_api.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_ble_network_impl.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_rng.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_network_address.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_event_queue.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall_mgm_core.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_parser_utils.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_memory_pool.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_clock.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_ama_adapter_impl.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ace_ama.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ext_nanopb.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall_security.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_security.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_asl_parser.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_flex_parser.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_parser_utils.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_time_ops.a
 	)
 
+else(NOT CONFIG_SIDEWALK_LINK_MASK_FSK AND NOT CONFIG_SIDEWALK_LINK_MASK_LORA)
+	set(SID_LIB_DIR ${SID_LIB_DIR}/lib_sid900)
+	set(GCC_LIB_DIR ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/lib/gcc/arm-zephyr-eabi)
+
+	find_library(LIB_GCC NAMES gcc ${CMAKE_STATIC_LIBRARY_PREFIX}gcc.a HINTS ${GCC_LIB_DIR}/* REQUIRED)
+
+	set(SID_LIBS
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_api.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_900_network_impl.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_ble_network_impl.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_protocol_mac.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_protocol_utils.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_protocol_dcr.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_protocol_phy.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_protocol_metrics.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_pal_radio_sx126x_impl.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_protocol_regulatory.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall_link_metrics.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_rng.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_network_address.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_event_queue.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall_mgm.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall_mgm_core.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_parser_utils.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_memory_pool.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_clock.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_ama_adapter_impl.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ace_ama.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}ext_nanopb.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall_security.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_security.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sall.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_asl_parser.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_flex_parser.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_parser_utils.a
+		${SID_LIB_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}sid_time_ops.a
+		${LIB_GCC}
+	)
+endif(NOT CONFIG_SIDEWALK_LINK_MASK_FSK AND NOT CONFIG_SIDEWALK_LINK_MASK_LORA)
+
 	zephyr_link_libraries(${SID_LIBS})
-endif()
+endif(CONFIG_SIDEWALK)
