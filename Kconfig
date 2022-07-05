@@ -234,3 +234,6 @@ config SIDEWALK_TEMPERATURE_SENSOR_NAME
 
 config SIDEWALK_SW_INTERRUPTS
 	bool "Enable Sidewalk software interrupts module"
+
+config SIDEWALK_DELAY
+	bool "Enable Sidewalk delay module"

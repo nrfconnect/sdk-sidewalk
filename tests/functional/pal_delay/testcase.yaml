@@ -1,0 +1,6 @@
+tests:
+  sidewalk.unit_tests.delay:
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk

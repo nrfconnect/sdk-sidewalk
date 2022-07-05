@@ -25,3 +25,4 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_CRITICAL_REGION sid_critical_region
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_GPIO sid_gpio.c sid_gpio_utils.c sid_gpio_irq.c sid_gpio_irq_handler.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SW_INTERRUPTS sid_sw_interrupts.c)
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DELAY sid_delay.c)
