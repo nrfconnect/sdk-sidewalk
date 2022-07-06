@@ -48,9 +48,15 @@ enum app_state {
 	STATE_SIDEWALK_SECURE_CONNECTION,
 };
 
+struct link_status {
+	enum sid_registration_status link_mask;
+	enum sid_link_idx_in_link_modes supported_link_mode[SID_LINK_TYPE_MAX_IDX];
+};
+
 typedef struct app_context {
 	struct sid_handle *sidewalk_handle;
 	enum app_state state;
+	struct link_status link_status;
 	uint8_t counter;
 	bool connection_request;
 } app_context_t;
@@ -60,8 +66,16 @@ K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
 static k_tid_t sid_tid;
 
-static uint8_t *status_name[] = {
+static const uint8_t *status_name[] = {
 	"init", "is ready", "not ready", "secure conn"
+};
+
+static const uint8_t *link_mode_name[] = {
+	"none", [SID_LINK_MODE_CLOUD] = "cloud", [SID_LINK_MODE_MOBILE] = "mobile"
+};
+
+static const uint8_t *link_mode_idx_name[] = {
+	"ble", "lora", "fsk"
 };
 
 static void on_sidewalk_event(bool in_isr, void *context)
@@ -72,7 +86,7 @@ static void on_sidewalk_event(bool in_isr, void *context)
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
-	LOG_DBG("received message(type: %d, id: %u size %u)", (int)msg_desc->type, msg_desc->id, msg->size);
+	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type, (int)msg_desc->link_mode, msg_desc->id, msg->size);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 }
 
@@ -114,6 +128,16 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
 		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
 		status->detail.link_status_mask ? "Up" : "Down");
+
+	app_context->link_status.link_mask = status->detail.link_status_mask;
+	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
+		enum sid_link_mode mode = status->detail.supported_link_modes[i];
+		app_context->link_status.supported_link_mode[i] = mode;
+
+		if (mode) {
+			LOG_DBG("Link mode %s, on %s", link_mode_name[mode],  link_mode_idx_name[i]);
+		}
+	}
 }
 
 static void on_sidewalk_factory_reset(void *context)
@@ -158,7 +182,13 @@ static void send_message(app_context_t *app_context)
 		struct sid_msg_desc desc = {
 			.type = SID_MSG_TYPE_NOTIFY,
 			.link_type = SID_LINK_TYPE_ANY,
+			.link_mode = SID_LINK_MODE_CLOUD,
 		};
+		if ((app_context->link_status.link_mask & SID_LINK_TYPE_1) &&
+		    (app_context->link_status.supported_link_mode[SID_LINK_TYPE_1_IDX] & SID_LINK_MODE_MOBILE)) {
+			desc.link_mode = SID_LINK_MODE_MOBILE;
+		}
+
 		sid_error_t ret = sid_put_msg(app_context->sidewalk_handle, &msg, &desc);
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed queueing data, err:%d", (int) ret);
