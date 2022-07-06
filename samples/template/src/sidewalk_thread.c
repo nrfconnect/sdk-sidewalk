@@ -13,9 +13,13 @@
 #include <sid_ble_link_config_ifc.h>
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
+#include <sid_hal_reset_ifc.h>
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+#include <sid_900_cfg.h>
+#include <sx126x_config.h>
+#endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 #include <zephyr/kernel.h>
-#include <sys/reboot.h>
 #include <storage/flash_map.h>
 #include <dk_buttons_and_leds.h>
 #include <logging/log.h>
@@ -58,7 +62,9 @@ typedef struct app_context {
 	enum app_state state;
 	struct link_status link_status;
 	uint8_t counter;
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 	bool connection_request;
+#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 } app_context_t;
 
 K_MSGQ_DEFINE(sid_msgq, sizeof(enum event_type), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
@@ -77,6 +83,14 @@ static const uint8_t *link_mode_name[] = {
 static const uint8_t *link_mode_idx_name[] = {
 	"ble", "lora", "fsk"
 };
+
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+static struct sid_device_profile set_dp_cfg = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_2,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+};
+#endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
@@ -110,7 +124,9 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	case SID_STATE_READY:
 		dk_set_led_on(SID_LED_INDICATE_CONNECTED);
 		app_context->state = STATE_SIDEWALK_READY;
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 		app_context->connection_request = false;
+#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 		break;
 	case SID_STATE_NOT_READY:
 		dk_set_led_off(SID_LED_INDICATE_CONNECTED);
@@ -143,9 +159,12 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 static void on_sidewalk_factory_reset(void *context)
 {
 	LOG_DBG("factory reset notification received from sid api");
-	sys_reboot(SYS_REBOOT_WARM);
+	if (sid_hal_reset(SID_HAL_RESET_NORMAL)) {
+		LOG_WRN("Reboot type not supported");
+	}
 }
 
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static void connection_request(app_context_t *app_context)
 {
 	if (STATE_SIDEWALK_READY == app_context->state) {
@@ -161,6 +180,30 @@ static void connection_request(app_context_t *app_context)
 		}
 	}
 }
+
+#else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+static void set_device_profile(app_context_t *app_context, struct sid_device_profile *set_dp_cfg)
+{
+	struct sid_device_profile dev_cfg = {};
+	sid_error_t ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
+				     &dev_cfg, sizeof(dev_cfg));
+
+	if (set_dp_cfg->unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
+	    || set_dp_cfg->unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
+	    || (set_dp_cfg->unicast_params.device_profile_id < SID_LINK3_PROFILE_A
+		&& set_dp_cfg->unicast_params.unicast_window_interval.sync_rx_interval_ms
+		!= dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms)
+	    || (set_dp_cfg->unicast_params.device_profile_id >= SID_LINK3_PROFILE_A
+		&& set_dp_cfg->unicast_params.unicast_window_interval.async_rx_interval_ms
+		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
+		ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+				 set_dp_cfg, sizeof(dev_cfg));
+	} else {
+		LOG_INF("Device profile is already set to the desired value");
+	}
+}
+
+#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 static void factory_reset(app_context_t *app_context)
 {
@@ -240,6 +283,10 @@ static sid_error_t sid_pal_init(void)
 	};
 	sid_pal_mfg_store_init(mfg_store_region);
 
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	set_radio_sx126x_device_config(NULL);
+#endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+
 	return SID_ERROR_NONE;
 }
 
@@ -284,7 +331,9 @@ static sid_error_t sid_lib_run(app_context_t *app_context)
 	}
 
 	app_context->state = STATE_SIDEWALK_NOT_READY;
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 	app_context->connection_request = false;
+#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 	return SID_ERROR_NONE;
 }
 
@@ -328,14 +377,22 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 				set_battery_level(sid_app_ctx);
 				break;
 			}
-			case EVENT_TYPE_FACTORY_RESET:
-			{
-				factory_reset(sid_app_ctx);
-				break;
-			}
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 			case EVENT_TYPE_CONNECTION_REQUEST:
 			{
 				connection_request(sid_app_ctx);
+				break;
+			}
+#else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+			case EVENT_TYPE_SET_DEVICE_PROFILE:
+			{
+				set_device_profile(sid_app_ctx, &set_dp_cfg);
+				break;
+			}
+#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+			case EVENT_TYPE_FACTORY_RESET:
+			{
+				factory_reset(sid_app_ctx);
 				break;
 			}
 			default: break;
