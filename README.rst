@@ -76,8 +76,19 @@ Documentation for this project is placed in the ``doc`` directory.
    :class: highlight
 
    cd doc
+   pip install -r requirements-doc.txt
    make html
-   xdg-open build/html/index.html
+
+
+  or run script which builds documentation in docker container (nothing except docker engine is required):
+
+
+  .. parsed-literal::
+   :class: highlight
+
+   cd doc
+   ./build_doc_in_docker.sh
+
 
   The documentation will be generated in ``doc/build/html``.
   To view the documentation, open ``doc/build/html/index.html`` in a web browser.
