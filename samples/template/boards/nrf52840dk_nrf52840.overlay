@@ -24,11 +24,7 @@
 	};
 };
 
-sid_spi: &spi3 {
-	status = "okay";
+sid_spi: &arduino_spi {
 	cs-gpios = <&arduino_header 13 GPIO_ACTIVE_LOW>; /* D7 */
-	pinctrl-0 = <&spi3_default>;
-	pinctrl-1 = <&spi3_sleep>;
-	pinctrl-names = "default", "sleep";
-	clock-frequency = <16000000>;
+	clock-frequency = <8000000>;
 };
