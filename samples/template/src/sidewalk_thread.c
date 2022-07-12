@@ -54,7 +54,7 @@ enum app_state {
 
 struct link_status {
 	enum sid_registration_status link_mask;
-	enum sid_link_idx_in_link_modes supported_link_mode[SID_LINK_TYPE_MAX_IDX];
+	enum sid_link_mode supported_link_mode[SID_LINK_TYPE_MAX_IDX];
 };
 
 typedef struct app_context {
@@ -73,7 +73,7 @@ static struct k_thread sid_thread;
 static k_tid_t sid_tid;
 
 static const uint8_t *status_name[] = {
-	"init", "is ready", "not ready", "secure conn"
+	"ready", "not ready", "Error", "secure channel ready"
 };
 
 static const uint8_t *link_mode_name[] = {
@@ -81,7 +81,7 @@ static const uint8_t *link_mode_name[] = {
 };
 
 static const uint8_t *link_mode_idx_name[] = {
-	"ble", "lora", "fsk"
+	"ble", "fsk", "lora"
 };
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
