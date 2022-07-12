@@ -48,6 +48,13 @@ static void button_handler(uint32_t button_state, uint32_t has_changed)
 	}
 }
 
+void assert_post_action(const char *file, unsigned int line)
+{
+	LOG_ERR("Assert in %s:%d", file, line);
+
+	for (;;);
+}
+
 static int board_init(void)
 {
 	int err = dk_buttons_init(button_handler);
