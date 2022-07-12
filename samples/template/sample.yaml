@@ -16,11 +16,3 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
-
-  sample.sidewalk.template.fsk:
-    build_only: true
-    platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=fsk.conf
-    integration_platforms:
-      - nrf52840dk_nrf52840
-    tags: Sidewalk
