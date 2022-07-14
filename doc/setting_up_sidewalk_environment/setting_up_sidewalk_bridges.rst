@@ -24,7 +24,7 @@ If you are setting up a new Echo device, go through the Out Of Box Experience (O
 #. Follow the instructions in your mobile app to set up your device.
 #. Click :guilabel:`Enable` in the landing page.
 
-   .. figure:: images/sidewalk_alexa_image1.png
+   .. figure:: /images/sidewalk_alexa_image1.png
 
 .. _setting_up_sidewalk_bridge_new_device:
 
@@ -37,7 +37,7 @@ If you already have an existing Echo device, check your device settings to deter
 #. Click :guilabel:`Account Settings`.
 #. Select :guilabel:`Amazon Sidewalk` and enable it.
 
-   .. figure:: images/sidewalk_alexa_image2.png
+   .. figure:: /images/sidewalk_alexa_image2.png
 
 .. _setting_up_sidewalk_bridge_linking_ring_amazon_account:
 
@@ -57,7 +57,7 @@ The section outlines how to download the Ring app and link your Ring account to 
    #. Follow the instructions provided in the application.
    #. Click :guilabel:`Enable` in the landing page.
 
-   .. figure:: images/sidewalk_ring_image1.png
+   .. figure:: /images/sidewalk_ring_image1.png
 
 #. Click the menu button.
 #. Go to :guilabel:`Account Settings`.
@@ -71,7 +71,7 @@ The section outlines how to download the Ring app and link your Ring account to 
        Your accounts are now linked.
        Ensure you can view your Echo device in the :guilabel:`Device` page of your Ring account.
 
-   .. figure:: images/sidewalk_ring_image2.png
+   .. figure:: /images/sidewalk_ring_image2.png
 
 .. _Echo: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id94401162

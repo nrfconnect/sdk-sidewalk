@@ -20,20 +20,20 @@ Provisioning Sidewalk Endpoints
 
 #. Go to a list of products in `My Products`_ section in the Sidewalk console, and select previously created product.
 
-   .. figure:: images/Step5-ProductList.jpg
+   .. figure:: /images/Step5-ProductList.jpg
 
 #. Click :guilabel:`Configure Your Cloud`.
 
-   .. figure:: images/Step5-ConfigureCloud.jpg
+   .. figure:: /images/Step5-ConfigureCloud.jpg
 
 #. Click :guilabel:`Provision Device`.
 
-   .. figure:: images/Step5-ProvisionButton.jpg
+   .. figure:: /images/Step5-ProvisionButton.jpg
 
 #. Choose :guilabel:`Generate New Certificate`.
    This will provision new Sidewalk Endpoints and generate their public and private certificates.
 
-   .. figure:: images/Step5-GenNewCertButton.jpg
+   .. figure:: /images/Step5-GenNewCertButton.jpg
 
 #. Note down the Sidewalk ID of this Sidewalk Endpoint.
 
@@ -41,12 +41,12 @@ Provisioning Sidewalk Endpoints
     Sidewalk ID needs to be used for flashing the manufacturing page (contains the certificates) to the hardware.
     It is also required in order to send data to your Sidewalk Endpoint.
 
-   .. figure:: images/Step5-SidewalkID.jpg
+   .. figure:: /images/Step5-SidewalkID.jpg
 
 #. Download the device key bundle by clicking :guilabel:`Download Certificate`.
    The key bundle will be flashed onto the Sidewalk Endpoint.
 
-   .. figure:: images/Step5-DownloadCerts.jpg
+   .. figure:: /images/Step5-DownloadCerts.jpg
 
 .. _endpoints_config_hdk:
 

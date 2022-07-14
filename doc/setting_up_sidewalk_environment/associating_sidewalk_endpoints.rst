@@ -15,28 +15,28 @@ Creating Login with Amazon (LwA) security profile
 
 #. Go to the :guilabel:`Login with Amazon` tab.
 
-   .. figure:: images/Step6-LoginWithAmazon.jpg
+   .. figure:: /images/Step6-LoginWithAmazon.jpg
 
 #. Click :guilabel:`Create a New Security Profile`.
 
-   .. figure:: images/Step6-CreateSecurityProfile.jpg
+   .. figure:: /images/Step6-CreateSecurityProfile.jpg
 
 #. Populate the required fields and once completed click :guilabel:`Save`.
    Ensure to use the link to your own Data Privacy policy.
 
-   .. figure:: images/Step6-CreateSecutityProfile-Fill.jpg
+   .. figure:: /images/Step6-CreateSecutityProfile-Fill.jpg
 
 #. Save the changes.
    Your new security profile will appear on the list.
 
-   .. figure:: images/Step6-SecurityProfilesList.jpg
+   .. figure:: /images/Step6-SecurityProfilesList.jpg
 
 #. Click the sprocket wheel icon to go to Web Settings configuration.
 
 #. Copy-paste your :guilabel:`Client ID` from the Web Settings tab to a text editor for easy access.
    These values are required to complete Sidewalk Endpoint registration.
 
-   .. figure:: images/Step6-ClientID.jpg
+   .. figure:: /images/Step6-ClientID.jpg
 
 #. Click :guilabel:`Edit`.
 
@@ -44,7 +44,7 @@ Creating Login with Amazon (LwA) security profile
 
 #. Click :guilabel:`Save`.
 
-   .. figure:: images/Step6-Localhost.jpg
+   .. figure:: /images/Step6-Localhost.jpg
 
 .. _reg_associating_reg_script:
 

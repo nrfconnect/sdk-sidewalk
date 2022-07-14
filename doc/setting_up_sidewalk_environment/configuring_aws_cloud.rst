@@ -9,7 +9,7 @@ Rules can be triggered with specific actions (for example, Lambda function), to 
 
 The data flow between your Sidewalk Endpoint and cloud service is as follows:
 
-   .. figure:: images/sidewalk_cloud_image.jpg
+   .. figure:: /images/sidewalk_cloud_image.jpg
 
 * Device-to-Cloud flow:
 
@@ -48,7 +48,7 @@ To add your Sidewalk account credentials via console, follow the steps below.
 
 #. Copy your Amazon ID.
 
-   .. figure:: images/SidewalkProductConfiguration-AmazonID.jpg
+   .. figure:: /images/SidewalkProductConfiguration-AmazonID.jpg
 
 #. Navigate to :guilabel:`Profiles` in the AWS IoT console and select :guilabel:`Sidewalk` tab.
 
@@ -56,29 +56,29 @@ To add your Sidewalk account credentials via console, follow the steps below.
       Ensure you are using :guilabel:`us-east-1` region.
       If you are using a different region, this tab will not appear.
 
-   .. figure:: images/AWSIoT-selectsidewalk.jpg
+   .. figure:: /images/AWSIoT-selectsidewalk.jpg
 
 #. Click :guilabel:`Add credential`.
 
-   .. figure:: images/AWSIoT-AddCredential.jpg
+   .. figure:: /images/AWSIoT-AddCredential.jpg
 
 #. Enter your Sidewalk Amazon ID.
 
-   .. figure:: images/AWSIoT-EnterAmazonID.jpg
+   .. figure:: /images/AWSIoT-EnterAmazonID.jpg
 
 #. Upload AppServerPrivateKey, which is the server key provided by your vendor.
 
    AppServerPrivateKey is the ED25519 private key (the :file:`app-server-ed25519-private.txt` file), which is a 64-digit hexadecimal value that you generate by using the Sidewalk certificate generation tool when designing your Sidewalk product.
 
-   .. figure:: images/AWSIoT-UploadAppServerPrivateKey.jpg
+   .. figure:: /images/AWSIoT-UploadAppServerPrivateKey.jpg
 
 #. To add your sidewalk credentials, click :guilabel:`Add credential`.
 
-   .. figure:: images/AWSIoT-AddCredential2.jpg
+   .. figure:: /images/AWSIoT-AddCredential2.jpg
 
    A new item will appear on the :guilabel:`Sidewalk account credentials` list.
 
-   .. figure:: images/AWSIoT-SidewalkAccountCredentialList.jpg
+   .. figure:: /images/AWSIoT-SidewalkAccountCredentialList.jpg
 
    .. note::
       To add credentials via API refer to `Add your Sidewalk account credentials`_.
@@ -92,18 +92,18 @@ Creating function using AWS Lambda
 
 #. Click :guilabel:`Create function`.
 
-   .. figure:: images/LambdaFunctions-CreateFunction.jpg
+   .. figure:: /images/LambdaFunctions-CreateFunction.jpg
 
 #. Choose :guilabel:`Author from scratch`.
 
-   .. figure:: images/LambdaFunctions-AuthorFromScratch.jpg
+   .. figure:: /images/LambdaFunctions-AuthorFromScratch.jpg
 
 #. In :guilabel:`Function name` enter a name (for example, ``Sidewalk_Handler_Demo``).
 
 #. In :guilabel:`Runtime` choose :guilabel:`Python 3.8`.
 #. Click :guilabel:`Create function`.
 
-   .. figure:: images/LambdaFunctions-CreateFunction2.jpg
+   .. figure:: /images/LambdaFunctions-CreateFunction2.jpg
 
 #. Delete any code inside the function body, and add a print statement for your Lambda function.
    You can also base64 decode the :file:`PayloadData` to receive the application data that your device sends to AWS IoT.
@@ -124,13 +124,13 @@ Creating function using AWS Lambda
          print(payload_data)
          print(int(payload_data,16))
 
-   .. figure:: images/LambdaFunctions-DeployNewCode.jpg
+   .. figure:: /images/LambdaFunctions-DeployNewCode.jpg
 
 #. To deploy your function code, choose :guilabel:`deploy`.
 
 #. Go back to `Functions`_ and check if the function appears on the list.
 
-   .. figure:: images/LambdaFunctions-FunctionsList.jpg
+   .. figure:: /images/LambdaFunctions-FunctionsList.jpg
 
 .. _configuring_destination_rule:
 
@@ -144,7 +144,7 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
 #. Click :guilabel:`Create a rule` to create a new rule for the destination.
 
-   .. figure:: images/AWSIoT-Rule-CreateNew.jpg
+   .. figure:: /images/AWSIoT-Rule-CreateNew.jpg
 
    .. note::
       The AWS IoT rule is configured to process the device's data.
@@ -154,47 +154,47 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
 #. In optional :guilabel:`Description` field specify the rule, for example, ``Sidewalk rule for lamba action to republish a topic``.
 
-   .. figure:: images/AWSIoT-Rule-NameAndDescription.jpg
+   .. figure:: /images/AWSIoT-Rule-NameAndDescription.jpg
 
 #. Change the default query statement to :guilabel:`SELECT *` so that any actions associated with the rule can be performed.
 
 #. Keep the :guilabel:`2016-03-23` SQL version.
 
-   .. figure:: images/AWSIoT-Rule-QueryStatement.jpg
+   .. figure:: /images/AWSIoT-Rule-QueryStatement.jpg
 
 #. Under :guilabel:`Set one or more actions` choose :guilabel:`Add action`.
 
-   .. figure:: images/AWSIoT-Rule-AddAction.jpg
+   .. figure:: /images/AWSIoT-Rule-AddAction.jpg
 
 #. For the rule action choose :guilabel:`Send a message to a Lambda function`, and click :guilabel:`Configure action`.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-LambdaFunction.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-LambdaFunction.jpg
 
 #. Either choose an existing Lambda function by clicking :guilabel:`Select`, or create a new one.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-SelectLambdaFunction.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-SelectLambdaFunction.jpg
 
    The added action will appear in :guilabel:`Set one or more actions`.
 
 #. Click :guilabel:`Add action` button to add the next action.
 
-   .. figure:: images/AWSIoT-Rule-AddNextAction.jpg
+   .. figure:: /images/AWSIoT-Rule-AddNextAction.jpg
 
 #. Choose :guilabel:`Republish a message to an AWS IoT topic`, and click :guilabel:`Configure action`.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-Republish.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish.jpg
 
 #. In the :guilabel:`Topic` field enter ``project/sensor/observed``, and ensure the :guilabel:`Quality of Service` is set to ``0 - The message is delivered zero or more times``.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-Republish-Configure.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-Configure.jpg
 
 #. Click :guilabel:`Create role` button.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-Republish-CreateRole.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-CreateRole.jpg
 
 #. Enter role name, and click :guilabel:`Create role`.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-Republish-CreateRolePopup.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-CreateRolePopup.jpg
 
    .. note::
 
@@ -204,16 +204,16 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
 #. Click :guilabel:`Add action`.
 
-   .. figure:: images/AWSIoT-Rule-SelectAnAction-Republish-AddAction.jpg
+   .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-AddAction.jpg
 
    The added action will appear in :guilabel:`Set one or more actions`.
 
-   .. figure:: images/AWSIoT-Rule-SetActionCategory.jpg
+   .. figure:: /images/AWSIoT-Rule-SetActionCategory.jpg
 
 #. Go to the bottom of :guilabel:`Create a rule` page, and click :guilabel:`Create rule`.
    New rule will appear on the :guilabel:`Rules` list.
 
-   .. figure:: images/AWSIoT-Rule-RuleCreated.jpg
+   .. figure:: /images/AWSIoT-Rule-RuleCreated.jpg
 
    .. note::
       For more details on creating rules, refer to `Create rules to process Sidewalk device messages`_.
@@ -225,7 +225,7 @@ You can add your Sidewalk destination from the `Destinations`_ page of the AWS I
 
 #. Click :guilabel:`Add destination`.
 
-   .. figure:: images/AWSIoT-Destination-DestList-AddDest.jpg
+   .. figure:: /images/AWSIoT-Destination-DestList-AddDest.jpg
 
 #. Enter a destination name and an optional description for your destination.
 
@@ -237,7 +237,7 @@ You can add your Sidewalk destination from the `Destinations`_ page of the AWS I
       The AWS IoT rule is configured to process the device's data.
       Your destination needs a rule to process the messages it receives.
 
-   .. figure:: images/AWSIoT-Destination-NewDestConfiguration.jpg
+   .. figure:: /images/AWSIoT-Destination-NewDestConfiguration.jpg
 
    .. note::
       For more information on AWS IoT rules for destinations, see `Create rules to process LoRaWAN device messages`_.
@@ -245,7 +245,7 @@ You can add your Sidewalk destination from the `Destinations`_ page of the AWS I
 #. On the bottom of :guilabel:`Add destination` page click :guilabel:`Add destination` .
    New destination will appear on the destinations list.
 
-   .. figure:: images/AWSIoT-Destination-DestList.jpg
+   .. figure:: /images/AWSIoT-Destination-DestList.jpg
 
    .. note::
       To add destination via API, refer to `Add a destination for your Sidewalk device`_.
