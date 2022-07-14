@@ -62,6 +62,7 @@ static uint32_t default_app_value_to_offset(int value);
 static off_t checked_addr_return(off_t offset, uintptr_t start_address, uintptr_t end_address);
 static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_address, uintptr_t end_address);
 
+// *INDENT-OFF*
 struct sid_pal_mfg_store_value_to_address_offset sid_pal_mfg_store_app_value_to_offset_table[] = {
 	{ SID_PAL_MFG_STORE_VERSION,                      SID_PAL_MFG_STORE_OFFSET_VERSION },
 	{ SID_PAL_MFG_STORE_DEVID,                        SID_PAL_MFG_STORE_OFFSET_DEVID },
@@ -102,6 +103,7 @@ struct sid_pal_mfg_store_value_to_address_offset sid_pal_mfg_store_app_value_to_
 	{ SID_PAL_MFG_STORE_AMZN_PUB_ED25519,             SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_ED25519 },
 	{ SID_PAL_MFG_STORE_AMZN_PUB_P256R1,              SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_P256R1 },
 };
+// *INDENT-ON*
 
 static sid_pal_mfg_store_region_t nrf_mfg_store_region = {
 	.app_value_to_offset = default_app_value_to_offset,
@@ -263,7 +265,7 @@ int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length
 void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
 {
 	const off_t value_offset = value_to_offset(
-		value, nrf_mfg_store_region.addr_start, nrf_mfg_store_region.addr_end);
+		(sid_pal_mfg_store_value_t)value, nrf_mfg_store_region.addr_start, nrf_mfg_store_region.addr_end);
 
 	if (!buffer) {
 		LOG_ERR("Null pointer provided.");
@@ -337,7 +339,7 @@ bool sid_pal_mfg_store_is_empty(void)
 
 uint32_t sid_pal_mfg_store_get_version(void)
 {
-	uint32_t version;
+	uint32_t version = 0;
 
 	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_VERSION,
 			       (uint8_t *)&version, SID_PAL_MFG_STORE_VERSION_SIZE);
@@ -371,11 +373,12 @@ bool sid_pal_mfg_store_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE])
 				 * To read the device Id two words at SID_PAL_MFG_STORE_DEVID has to be
 				 * read and each word needs to be changed to host endian format.
 				 */
-				uint8_t dev_id_buffer[MFG_WORD_SIZE_VER_1];
+				uint8_t dev_id_buffer[MFG_WORD_SIZE_VER_1] = { 0 };
 				sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, dev_id_buffer, sizeof(dev_id_buffer));
 				ntoh_buff(dev_id_buffer, sizeof(dev_id_buffer));
 				// Encode the size in the first 3 bits in MSB of the devId
-				dev_id_buffer[0] = (dev_id_buffer[0] & DEV_ID_MSB_MASK) | ENCODED_DEV_ID_SIZE_5_BYTES_MASK;
+				dev_id_buffer[0] = (dev_id_buffer[0] & DEV_ID_MSB_MASK) |
+						   ENCODED_DEV_ID_SIZE_5_BYTES_MASK;
 				memcpy(dev_id, dev_id_buffer, SID_PAL_MFG_STORE_DEVID_SIZE);
 			}
 			dev_id_found = true;

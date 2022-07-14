@@ -14,6 +14,7 @@
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_hal_reset_ifc.h>
+#include <sid_pal_assert_ifc.h>
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 #include <sid_900_cfg.h>
 #include <sx126x_config.h>
@@ -120,8 +121,6 @@ static struct sid_device_profile set_dp_cfg = {
 #define RADIO_MAX_CAD_SYMBOL                                       SID_PAL_RADIO_LORA_CAD_04_SYMBOL
 #define RADIO_ANT_GAIN(X)                                          ((X) * 100)
 
-
-
 static const halo_serial_bus_factory_t radio_spi_factory =
 {
 	.create = bus_serial_ncs_spi_create,
@@ -220,7 +219,8 @@ static void on_sidewalk_event(bool in_isr, void *context)
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
-	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type, (int)msg_desc->link_mode, msg_desc->id, msg->size);
+	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
+		(int)msg_desc->link_mode, msg_desc->id, msg->size);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 }
 
@@ -265,13 +265,13 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
 		status->detail.link_status_mask ? "Up" : "Down");
 
-	app_context->link_status.link_mask = status->detail.link_status_mask;
+	app_context->link_status.link_mask = (enum sid_registration_status)status->detail.link_status_mask;
 	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
-		enum sid_link_mode mode = status->detail.supported_link_modes[i];
+		enum sid_link_mode mode = (enum sid_link_mode)status->detail.supported_link_modes[i];
 		app_context->link_status.supported_link_mode[i] = mode;
 
 		if (mode) {
-			LOG_DBG("Link mode %s, on %s", link_mode_name[mode],  link_mode_idx_name[i]);
+			LOG_INF("Link mode %s, on %s", link_mode_name[mode], link_mode_idx_name[i]);
 		}
 	}
 }
@@ -302,22 +302,25 @@ static void connection_request(app_context_t *app_context)
 }
 
 #else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
-static void set_device_profile(app_context_t *app_context, struct sid_device_profile *set_dp_cfg)
+static void set_device_profile(app_context_t *app_context, struct sid_device_profile *device_profile)
 {
 	struct sid_device_profile dev_cfg = {};
 	sid_error_t ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 				     &dev_cfg, sizeof(dev_cfg));
 
-	if (set_dp_cfg->unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
-	    || set_dp_cfg->unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
-	    || (set_dp_cfg->unicast_params.device_profile_id < SID_LINK3_PROFILE_A
-		&& set_dp_cfg->unicast_params.unicast_window_interval.sync_rx_interval_ms
+	SID_PAL_ASSERT(SID_ERROR_NONE == ret);
+
+	if (device_profile->unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
+	    || device_profile->unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
+	    || (device_profile->unicast_params.device_profile_id < SID_LINK3_PROFILE_A
+		&& device_profile->unicast_params.unicast_window_interval.sync_rx_interval_ms
 		!= dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms)
-	    || (set_dp_cfg->unicast_params.device_profile_id >= SID_LINK3_PROFILE_A
-		&& set_dp_cfg->unicast_params.unicast_window_interval.async_rx_interval_ms
+	    || (device_profile->unicast_params.device_profile_id >= SID_LINK3_PROFILE_A
+		&& device_profile->unicast_params.unicast_window_interval.async_rx_interval_ms
 		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
 		ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-				 set_dp_cfg, sizeof(dev_cfg));
+				 device_profile, sizeof(dev_cfg));
+		SID_PAL_ASSERT(SID_ERROR_NONE == ret);
 	} else {
 		LOG_INF("Device profile is already set to the desired value");
 	}
@@ -412,11 +415,9 @@ static sid_error_t sid_pal_init(void)
 
 static sid_error_t sid_lib_run(app_context_t *app_context)
 {
-	static const struct sid_ble_config ble_config;
-
 	static const sid_ble_link_config_t ble_link_config = {
 		.create_ble_adapter = sid_pal_ble_adapter_create,
-		.config = &ble_config,
+		.config = NULL,
 	};
 
 	struct sid_event_callbacks event_callbacks = {
@@ -540,5 +541,6 @@ void sidewalk_thread_enable(void)
 				  K_THREAD_STACK_SIZEOF(sid_stack_area),
 				  sidewalk_thread, &sid_app_ctx, NULL, NULL,
 				  CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
+	ARG_UNUSED(sid_tid);
 	k_thread_name_set(&sid_thread, "sidewalk");
 }
