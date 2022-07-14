@@ -28,38 +28,38 @@ At the end of this section you need to have the following:
 
 #. Click :guilabel:`Configure product`.
 
-   .. figure:: images/DesignSidewalkProduct.jpg
+   .. figure:: /images/DesignSidewalkProduct.jpg
 
 #. Expand :guilabel:`Hardware Development Kit section`, and select your hardware development.
 #. Save the new Sidewalk product configuration by clicking :guilabel:`Save Configuration`.
 
-   .. figure:: images/DesignSidewalkProduct-HDKselection.jpg
+   .. figure:: /images/DesignSidewalkProduct-HDKselection.jpg
 
    .. note::
        Your Amazon ID is automatically generated for the Sidewalk product.
        Sidewalk Developer Services may take a few minutes to create and to save your new Sidewalk product configuration.
 
-   .. figure:: images/SidewalkProductConfiguration.jpg
+   .. figure:: /images/SidewalkProductConfiguration.jpg
 
 #. Make note of your Amazon ID.
 
-   .. figure:: images/AmazonID.jpg
+   .. figure:: /images/AmazonID.jpg
 
 #. Go to :guilabel:`Sidewalk Product Configuration` page, and click :guilabel:`Configure Your Cloud`.
 
-   .. figure:: images/SidewalkProductConfiguration-ConfigureYourCloud.jpg
+   .. figure:: /images/SidewalkProductConfiguration-ConfigureYourCloud.jpg
 
 #. Go to `AWS Management Console`_, and copy your Amazon ID.
 
-   .. figure:: images/AWSAccountID.jpg
+   .. figure:: /images/AWSAccountID.jpg
 
 #. Enter your AWS account ID.
 
-   .. figure:: images/EnterAWSAccountID.jpg
+   .. figure:: /images/EnterAWSAccountID.jpg
 
 #. Click :guilabel:`Link your Cloud Account`.
 
-   .. figure:: images/LinkCloudAccount.jpg
+   .. figure:: /images/LinkCloudAccount.jpg
 
 #. Sign in with your AWS account to setup and associate your AWS cloud account.
 

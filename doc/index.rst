@@ -11,8 +11,8 @@ Browse the documentation by referring to sections below.
    :caption: Subpages:
 
    about_sidewalk.rst
-   setting_up_environment.rst
-   sidewalk_release_notes.rst
+   setting_up_sidewalk_environment/setting_up_environment.rst
    samples/sidewalk_samples.rst
+   sidewalk_release_notes.rst
    sidewalk_known_issues.rst
 

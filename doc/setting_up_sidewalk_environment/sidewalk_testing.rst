@@ -106,7 +106,7 @@ To check if the application sends data over Sidewalk, use the created earlier :g
 
    Data is republished into the subscribed MQTT topic.
 
-   .. figure:: images/Step7-MQTT-Subscribe.png
+   .. figure:: /images/Step7-MQTT-Subscribe.png
 
 Sending data to Sidewalk Endpoint using AWS CLI
 ***********************************************
@@ -115,7 +115,7 @@ Sending data to Sidewalk Endpoint using AWS CLI
 
 #. Ensure your AWS user account or IAM role has the corresponding AWSIoTWireless permission policy.
 
-   .. figure:: images/sidewalk_iam_iotwireless_policy.png
+   .. figure:: /images/sidewalk_iam_iotwireless_policy.png
 
    For more information on how to change permissions for am IAM user, see `ID users change permissions`_.
 
