@@ -52,7 +52,7 @@ void assert_post_action(const char *file, unsigned int line)
 {
 	LOG_ERR("Assert in %s:%d", file, line);
 
-	for (;;);
+	k_panic();
 }
 
 static int board_init(void)

@@ -76,11 +76,11 @@ static k_timeout_t convert_time(const struct sid_timespec *sid_time, sid_pal_tim
 
 	if (SID_PAL_TIMER_PRIO_CLASS_LOWPOWER == type) {
 		// TODO
-		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX(sid_time->tv_nsec, 0));
-		time.ticks += (k_ticks_t)k_ms_to_ticks_ceil64(MAX(sid_time->tv_sec * MSEC_PER_SEC, 0));
+		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_nsec, 0));
+		time.ticks += (k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
 	} else {
-		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX(sid_time->tv_nsec, 0));
-		time.ticks += (k_ticks_t)k_ms_to_ticks_ceil64(MAX(sid_time->tv_sec * MSEC_PER_SEC, 0));
+		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_nsec, 0));
+		time.ticks += (k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
 	}
 	return time;
 }
@@ -168,7 +168,9 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 
 	timer_duration = convert_time(when, type);
 	atomic_set(&timer_storage->is_armed, TIMER_ARMED);
-	k_timer_start(&static_timer[timer_storage->timer_id], Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration.ticks)), timer_period);
+	k_timer_start(&static_timer[timer_storage->timer_id],
+		      Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration.ticks)),
+		      timer_period);
 
 	return SID_ERROR_NONE;
 }
