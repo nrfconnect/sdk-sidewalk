@@ -98,3 +98,5 @@ For more information about Sidewalk and nRF Connect SDK, refer to the links belo
 * Sidewalk overview: https://www.amazon.com/Amazon-Sidewalk/b/?node=21328123011
 
 * Official nRF Connect SDK documentation: http://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest
+
+TEST
