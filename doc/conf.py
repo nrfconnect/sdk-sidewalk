@@ -21,7 +21,6 @@ project = 'Sidewalk'
 copyright = '2022, Nordic Semiconductor'
 author = 'Nordic Semiconductor'
 
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be

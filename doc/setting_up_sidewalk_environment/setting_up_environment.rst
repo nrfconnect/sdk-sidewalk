@@ -16,5 +16,6 @@ For the exact instructions on setting up Sidewalk correctly, see the documentati
    configuring_aws_cloud.rst
    setting_up_sidewalk_bridges.rst
    provisioning_and_configuring_endpoints.rst
+   building_and_flashing.rst
    associating_sidewalk_endpoints.rst
    sidewalk_testing.rst
