@@ -148,8 +148,9 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 		return SID_ERROR_UNINITIALIZED;
 	}
 
-	if ((SID_PAL_TIMER_PRIO_CLASS_LOWPOWER < type) ||
-	    (SID_PAL_TIMER_PRIO_CLASS_PRECISE > type)) {
+	if (!IN_RANGE(type,
+		      SID_PAL_TIMER_PRIO_CLASS_PRECISE,
+		      SID_PAL_TIMER_PRIO_CLASS_LOWPOWER)) {
 		return SID_ERROR_PARAM_OUT_OF_RANGE;
 	}
 
