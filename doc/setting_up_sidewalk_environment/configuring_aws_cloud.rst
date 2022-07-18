@@ -105,7 +105,7 @@ Creating function using AWS Lambda
 
    .. figure:: /images/LambdaFunctions-CreateFunction2.jpg
 
-#. Delete any code inside the function body, and add a print statement for your Lambda function.
+#. Delete any code inside the function body and add a print statement for your Lambda function.
    You can also base64 decode the :file:`PayloadData` to receive the application data that your device sends to AWS IoT.
    See an example of Lambda function:
 
@@ -166,7 +166,7 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
    .. figure:: /images/AWSIoT-Rule-AddAction.jpg
 
-#. For the rule action choose :guilabel:`Send a message to a Lambda function`, and click :guilabel:`Configure action`.
+#. For the rule action choose :guilabel:`Send a message to a Lambda function` and click :guilabel:`Configure action`.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-LambdaFunction.jpg
 
@@ -180,11 +180,11 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
    .. figure:: /images/AWSIoT-Rule-AddNextAction.jpg
 
-#. Choose :guilabel:`Republish a message to an AWS IoT topic`, and click :guilabel:`Configure action`.
+#. Choose :guilabel:`Republish a message to an AWS IoT topic` and click :guilabel:`Configure action`.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish.jpg
 
-#. In the :guilabel:`Topic` field enter ``project/sensor/observed``, and ensure the :guilabel:`Quality of Service` is set to ``0 - The message is delivered zero or more times``.
+#. In the :guilabel:`Topic` field enter ``project/sensor/observed`` and ensure the :guilabel:`Quality of Service` is set to ``0 - The message is delivered zero or more times``.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-Configure.jpg
 
@@ -192,7 +192,7 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-CreateRole.jpg
 
-#. Enter role name, and click :guilabel:`Create role`.
+#. Enter role name and click :guilabel:`Create role`.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-CreateRolePopup.jpg
 
@@ -210,7 +210,7 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
    .. figure:: /images/AWSIoT-Rule-SetActionCategory.jpg
 
-#. Go to the bottom of :guilabel:`Create a rule` page, and click :guilabel:`Create rule`.
+#. Go to the bottom of :guilabel:`Create a rule` page and click :guilabel:`Create rule`.
    New rule will appear on the :guilabel:`Rules` list.
 
    .. figure:: /images/AWSIoT-Rule-RuleCreated.jpg
