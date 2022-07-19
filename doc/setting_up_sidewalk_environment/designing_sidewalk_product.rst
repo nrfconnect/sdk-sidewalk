@@ -61,7 +61,7 @@ At the end of this section you need to have the following:
 
    .. figure:: /images/LinkCloudAccount.jpg
 
-#. Sign in with your AWS account to setup and associate your AWS cloud account.
+#. Sign in with your AWS account to set up and associate your AWS cloud account.
 
 .. _Sidewalk console: https://developer.amazon.com/acs-devices/console/sidewalk/products
 .. _AWS Management Console: https://console.aws.amazon.com/console/home?region=us-east-1

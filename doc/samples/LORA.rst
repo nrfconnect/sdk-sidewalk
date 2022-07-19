@@ -9,6 +9,8 @@ LoRa: Sidewalk
 
 The sample demonstrates LoRa transport for Sidewalk protocol.
 
+.. _LoRa_requirements:
+
 Requirements
 ************
 
@@ -20,7 +22,8 @@ The sample supports the following development kit:
 | nRF52840 DK        | PCA10056 | nrf52840dk_nrf52840  | ``nrf52840dk_nrf52840`` |
 +--------------------+----------+----------------------+-------------------------+
 
-For this sample beside development board, LoRa radio module is also needed. Supported modules:
+Besides the development kit, LoRa radio module is also needed for this sample.
+The supported modules are as follows:
 
 +------------+---------------+------------+
 | Radio chip | Board name    | Interface  |
@@ -28,71 +31,77 @@ For this sample beside development board, LoRa radio module is also needed. Supp
 | `SX1262`_  | SX126xMB2xAS  | SPI @ 8Mhz |
 +------------+---------------+------------+
 
-
+.. _LoRa_overview:
 
 Overview
 ********
 
 You can use this sample as a starting point to implement a Sidewalk device.
+The sample shows implementation of Sidewalk API that uses Bluetooth LE for registration and LoRa as a transport protocol.
 
-The sample shows implementation of Sidewalk API that uses BLE for registration and LoRa as a transport protocol.
-
+.. _LoRa_wiring:
 
 Wiring
 *******
 
-The LoRa radio module shield must be connected to Arduino header of the development board (connectors: P13, P14, P15, P16)
-and antenna has to be connected to the radio module.
+The LoRa radio module shield must be connected to Arduino header of the development kit (connectors: P13, P14, P15, P16), and the antenna has to be connected to the radio module.
+
+.. _LoRa_ui:
 
 User interface
 ***************
 
-Button 1:
-   Factory reset
+Refer to the descriptions below:
 
-Button 2:
-   Set device profile - set unicast attributes of the device
+* Button 1:
+   Factory reset.
 
-Button 3:
-   Action button - send message to AWS cloud
+* Button 2:
+   Set device profile - set unicast attributes of the device.
 
-LED 1:
+* Button 3:
+   Action button - send message to AWS cloud.
+
+* LED 1:
    ``ON`` when connected.
 
+.. _LoRa_setup:
 
 Setup
 ======
 
-Before building sample please follow section :ref:`setting_up_the_environment` to set up your environment.
+Before building a sample, follow :ref:`setting_up_the_environment` to set up your environment.
+
+.. _LoRa_building_and_running:
 
 Building and running
 ********************
 
-#. Find Sidewalk sample folder.
+#. Find the Sidewalk sample folder.
 
    .. code-block:: console
 
        $ cd ${NCS_FOR_SIDEWALK_SDK_PATH}/samples/template
 
 #. Build the example.
-   For more details about building with west see `West building flashing and debugging`_.
+   For more details on building with west, see `West building flashing and debugging`_.
 
    .. code-block:: console
 
        $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="LoRa.conf"
 
+   Alternatively, you can use VS Code to add the build configuration:
 
-Or use VScode:
-    .. figure:: /images/vscode_build_LoRa.png
+       .. figure:: /images/vscode_build_LoRa.png
 
-#. Flashing sample and manufacturing data
-   When the build has been completed successfully, proceed with the flashing the device as instructed in :ref:`Flashing binaries<endpoints_config_flashing_binaries>`
+#. Once the build has been completed successfully, proceed with flashing the device as per :ref:`endpoints_config_flashing_binaries`.
+
+.. _LoRa_testing:
 
 Testing
 =======
 
-After successful build, flashing manufacturing data and registering the device,
-the device can be tested by following the instruction in :ref:`sidewalk_testing`
+After successfully building the sample, flashing manufacturing data and registering the device, the device can be tested by following the instruction in :ref:`sidewalk_testing`.
 
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/

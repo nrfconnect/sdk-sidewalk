@@ -128,7 +128,7 @@ Creating function using AWS Lambda
 
 #. To deploy your function code, choose :guilabel:`deploy`.
 
-#. Go back to `Functions`_ and check if the function appears on the list.
+#. Go back to `Functions`_, and check if the function appears on the list.
 
    .. figure:: /images/LambdaFunctions-FunctionsList.jpg
 
@@ -180,11 +180,11 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
    .. figure:: /images/AWSIoT-Rule-AddNextAction.jpg
 
-#. Choose :guilabel:`Republish a message to an AWS IoT topic` and click :guilabel:`Configure action`.
+#. Choose :guilabel:`Republish a message to an AWS IoT topic`, and click :guilabel:`Configure action`.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish.jpg
 
-#. In the :guilabel:`Topic` field enter ``project/sensor/observed`` and ensure the :guilabel:`Quality of Service` is set to ``0 - The message is delivered zero or more times``.
+#. In the :guilabel:`Topic` field enter ``project/sensor/observed``, and ensure the :guilabel:`Quality of Service` is set to ``0 - The message is delivered zero or more times``.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-Configure.jpg
 
@@ -192,7 +192,7 @@ AWS IoT Core for LoRaWAN destinations associate a Sidewalk device with the rule 
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-CreateRole.jpg
 
-#. Enter role name and click :guilabel:`Create role`.
+#. Enter role name, and click :guilabel:`Create role`.
 
    .. figure:: /images/AWSIoT-Rule-SelectAnAction-Republish-CreateRolePopup.jpg
 

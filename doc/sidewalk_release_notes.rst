@@ -8,8 +8,9 @@ See the release notes for the information about specific Sidewalk support releas
 [Unreleased] - xxxx-xx-xx
 -------------------------
 
-* Implemented BLE sample
+* Implemented BLE sample.
 * Implemented PAL interfaces:
+
     * Assert
     * BLE
     * Crypto
@@ -23,6 +24,6 @@ See the release notes for the information about specific Sidewalk support releas
     * Timer
     * Uptime
     * SPI
-* Created configuration for LORA
-* Integrated tools into sidewalk repository
-* Created documentation
+* Created configuration for LORA.
+* Integrated tools into sidewalk repository.
+* Created documentation.
