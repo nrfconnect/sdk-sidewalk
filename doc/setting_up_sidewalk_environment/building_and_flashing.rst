@@ -6,14 +6,14 @@ Building and flashing sample
 Building
 ********
 
-#. Find Sidewalk sample folder.
+#. Find the Sidewalk sample folder.
 
    .. code-block:: console
 
        $ cd ${NCS_FOR_SIDEWALK_SDK_PATH}/samples/template
 
 #. Build the example.
-   For more details about building with west see `West building flashing and debugging`_.
+   For more details on building with west, see `West building flashing and debugging`_.
 
    .. code-block:: console
 
