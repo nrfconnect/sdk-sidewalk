@@ -15,13 +15,15 @@
 
 "sid-tools":
   - "tools/**/*"
+  - "tools/*"
 
 "sid-libs":
   - "lib/**/*"
+  - "lib/*"
 
 "manifest":
   - "west.yml"
 
 # Add 'source' label to any change in repo EXCEPT the ones defined with ! at the beginning
 "source":
-  - any: ['**/*', '!docs/**/*', '!**/*.rst', '!tools/**/*', '!lib/**/*', '!west.yml']
+  - any: ['**/*', '!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml']
