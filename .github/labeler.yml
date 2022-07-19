@@ -10,6 +10,7 @@
 
 "doc-required":
   - "doc/**/*"
+  - "doc/*"
   - "**/*.rst"
 
 "sid-tools":
