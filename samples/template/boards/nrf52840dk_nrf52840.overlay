@@ -25,6 +25,5 @@
 };
 
 sid_spi: &arduino_spi {
-	cs-gpios = <&arduino_header 13 GPIO_ACTIVE_LOW>; /* D7 */
 	clock-frequency = <8000000>;
 };
