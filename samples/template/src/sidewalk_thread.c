@@ -386,6 +386,7 @@ static void set_battery_level(app_context_t *app_context)
 	}
 }
 
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static void initialize_radio_busy_gpio(void)
 {
 	LOG_DBG("Init Semtech busy pin");
@@ -393,6 +394,8 @@ static void initialize_radio_busy_gpio(void)
 	sid_pal_gpio_input_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_INPUT_CONNECT);
 	sid_pal_gpio_pull_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_PULL_NONE);
 }
+
+#endif
 
 static sid_error_t sid_pal_init(void)
 {

@@ -10,7 +10,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_functional_test)
 
 # add test file
-FILE(GLOB app_sources src/*.c $ENV{ZEPHYR_BASE}/../sidewalk/pal/utils/spi_bus.c)
+FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
 target_include_directories(app PRIVATE .)
 
