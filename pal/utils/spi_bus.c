@@ -8,6 +8,7 @@
 #include <drivers/spi.h>
 
 #include <spi_bus.h>
+#include <sid_pal_gpio_ifc.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
@@ -35,6 +36,13 @@ static const halo_serial_bus_iface_t bus_ops = {
 	.xfer = bus_serial_spi_xfer,
 	.destroy = bus_serial_spi_destroy,
 };
+
+static void init_nss_gpio(uint32_t nss_gpio)
+{
+	sid_pal_gpio_set_direction(nss_gpio, SID_PAL_GPIO_DIRECTION_OUTPUT);
+	sid_pal_gpio_output_mode(nss_gpio, SID_PAL_GPIO_OUTPUT_PUSH_PULL);
+	sid_pal_gpio_pull_mode(nss_gpio, SID_PAL_GPIO_PULL_NONE);
+}
 
 static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, const halo_serial_bus_client_t *client,
 					uint8_t *tx, uint8_t *rx, size_t xfer_size)
@@ -68,7 +76,10 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 		.buffers =  rx_buff,
 		.count = 1
 	};
+	uint32_t nss_gpio = client->client_selector;
+	init_nss_gpio(nss_gpio);
 
+	sid_pal_gpio_write(nss_gpio, 0);
 	int r =
 		spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
 			       ((rx) ? &rx_set : NULL));
@@ -76,11 +87,7 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 		LOG_ERR("spi_transceive failed with error %d", r);
 		return HALO_ERROR_GENERIC;
 	}
-	r = spi_release(bus_serial_ctx.device, &bus_serial_ctx.cfg);
-	if (r < 0) {
-		LOG_ERR("spi_release failed with error %d", r);
-		return HALO_ERROR_GENERIC;
-	}
+	sid_pal_gpio_write(nss_gpio, 1);
 	return HALO_ERROR_NONE;
 }
 
@@ -88,9 +95,6 @@ static halo_error_t bus_serial_spi_destroy(const halo_serial_bus_iface_t *iface)
 {
 	LOG_DBG("%s(%p)", __func__, iface);
 	ARG_UNUSED(iface);
-	if (0 > spi_release(bus_serial_ctx.device, &bus_serial_ctx.cfg)) {
-		return HALO_ERROR_GENERIC;
-	}
 	return HALO_ERROR_NONE;
 }
 
@@ -114,13 +118,7 @@ halo_error_t bus_serial_ncs_spi_create(const halo_serial_bus_iface_t **iface, co
 			.operation = SPI_OPTIONS,
 			.cs = &bus_serial_ctx.cs_cfg
 		},
-		.iface = *iface,
-		.cs_cfg = (struct spi_cs_control) {
-			{
-				.gpio = GPIO_DT_SPEC_GET(DT_NODELABEL(sid_spi), cs_gpios)
-			},
-			.delay = SPI_CS_DELAY_US,
-		}
+		.iface = *iface
 	};
 
 	LOG_DBG("SPI device configuration:\r\n"	\

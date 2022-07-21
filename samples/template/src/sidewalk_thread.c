@@ -24,6 +24,8 @@
 #include <zephyr/kernel.h>
 #include <storage/flash_map.h>
 #include <dk_buttons_and_leds.h>
+#include <sid_pal_gpio_ifc.h>
+
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -184,7 +186,7 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.gpio_radio_busy = 36,          // sx1262_BUSY
 	.gpio_rf_sw_ena = 42,           // sx1262 ANT_SW
 	.gpio_tx_bypass = 128,
-
+	.bus_selector = (halo_serial_bus_client_t){ .client_selector = 40 },
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
@@ -384,6 +386,14 @@ static void set_battery_level(app_context_t *app_context)
 	}
 }
 
+static void initialize_radio_busy_gpio(void)
+{
+	LOG_DBG("Init Semtech busy pin");
+	sid_pal_gpio_set_direction(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_DIRECTION_INPUT);
+	sid_pal_gpio_input_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_INPUT_CONNECT);
+	sid_pal_gpio_pull_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_PULL_NONE);
+}
+
 static sid_error_t sid_pal_init(void)
 {
 	sid_error_t ret_code;
@@ -407,6 +417,7 @@ static sid_error_t sid_pal_init(void)
 	sid_pal_mfg_store_init(mfg_store_region);
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	initialize_radio_busy_gpio();
 	set_radio_sx126x_device_config(&radio_sx1262_cfg);
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
