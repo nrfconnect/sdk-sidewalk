@@ -13,6 +13,11 @@
 
 #include <spi_bus.h>
 
+// Real pin number for sx1262 NSS for nrf52840
+#define NSS_PIN_NUMBER 40
+
+static halo_serial_bus_client_t client = (halo_serial_bus_client_t){ .client_selector = NSS_PIN_NUMBER };
+
 void test_init_spi()
 {
 	const halo_serial_bus_iface_t *interface;
@@ -77,7 +82,7 @@ void test_send_spi()
 	TEST_ASSERT(interface->xfer);
 	uint8_t tx[] = { 0x1d, 0x08, 0xac, 0, 0 };
 	uint8_t rx[5] = { 0 };
-	halo_error_t e = interface->xfer(interface, NULL, tx, rx, sizeof(rx));
+	halo_error_t e = interface->xfer(interface, &client, tx, rx, sizeof(rx));
 	TEST_ASSERT_EQUAL(HALO_ERROR_NONE, e);
 	for (int i = 0; i < ARRAY_SIZE(rx); i++) {
 		// if shield is connected, rx will have valid response, and there should be no zeros
@@ -95,7 +100,7 @@ void test_only_tx_spi()
 	TEST_ASSERT(interface);
 	TEST_ASSERT(interface->xfer);
 	uint8_t tx[] = { 0x1d, 0x08, 0xac };
-	halo_error_t e = interface->xfer(interface, NULL, tx, NULL, sizeof(tx));
+	halo_error_t e = interface->xfer(interface, &client, tx, NULL, sizeof(tx));
 	TEST_ASSERT_EQUAL(HALO_ERROR_NONE, e);
 }
 
