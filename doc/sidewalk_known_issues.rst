@@ -5,8 +5,8 @@ Known issues
 
 See the list of known issues that are valid for the current state of development.
 
-[Unreleased] - xxxx-xx-xx
--------------------------
+[Alpha release] - 07/21/2022
+----------------------------
 
 * KRKNWK-14583: Bus fault after flash, before manufacturer data flash.
     For LoRa sample, when there is no manufacturer hex, the device throws a hard fault after being powered up.

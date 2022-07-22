@@ -5,9 +5,10 @@ Release notes
 
 See the release notes for the information about specific Sidewalk support releases for nRF Connect SDK.
 
-[Unreleased] - xxxx-xx-xx
--------------------------
+[Alpha release] - 07/21/2022
+----------------------------
 
+* Used Sidewalk libraries 1.12 RC11.
 * Implemented BLE sample.
 * Implemented PAL interfaces:
 
