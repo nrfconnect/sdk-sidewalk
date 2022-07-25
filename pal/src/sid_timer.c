@@ -11,6 +11,9 @@
 #include <sid_pal_timer_ifc.h>
 #include <stdint.h>
 #include <zephyr.h>
+#include <logging/log.h>
+
+LOG_MODULE_REGISTER(sid_timer, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define TIMER_ARMED               (0x01)
 #define STATIC_TIMERS             (16)
@@ -18,12 +21,21 @@
 
 typedef int timer_id;
 
-static struct k_timer static_timer[STATIC_TIMERS];
+typedef struct {
+	struct k_timer timer;
+	struct k_work executor;
+} sid_timer;
+
+static sid_timer static_timer[STATIC_TIMERS];
+
+K_THREAD_STACK_DEFINE(timer_worker_stack, 1024);
+
+struct k_work_q timer_worker_queue;
 
 static timer_id get_static_timer(void)
 {
 	for (int it = 0; it < ARRAY_SIZE(static_timer); it++) {
-		if (NULL == static_timer[it].expiry_fn) {
+		if (NULL == static_timer[it].timer.expiry_fn) {
 			return it;
 		}
 	}
@@ -32,7 +44,7 @@ static timer_id get_static_timer(void)
 
 static void release_static_timer(timer_id t_id)
 {
-	static_timer[t_id].expiry_fn = NULL;
+	static_timer[t_id].timer.expiry_fn = NULL;
 }
 
 /**
@@ -42,24 +54,35 @@ static void release_static_timer(timer_id t_id)
  */
 static void timer_handler(struct k_timer *timer_data)
 {
-	sid_pal_timer_t *timer = NULL;
-
 	if (!timer_data) {
 		return;
 	}
 
-	timer = (sid_pal_timer_t *)k_timer_user_data_get(timer_data);
+	sid_timer *time_work_obj = CONTAINER_OF(timer_data, sid_timer, timer);
+	sid_pal_timer_t *timer_user_data = (sid_pal_timer_t *)k_timer_user_data_get(&time_work_obj->timer);
 
-	if (!timer) {
+	if (!timer_user_data) {
 		return;
 	}
 
-	if (!timer->is_periodic) {
-		atomic_clear(&timer->is_armed);
+	k_work_submit_to_queue(&timer_worker_queue, &time_work_obj->executor);
+}
+
+static void timer_work_callback(struct k_work *work)
+{
+	sid_timer *time_work_obj = CONTAINER_OF(work, sid_timer, executor);
+	sid_pal_timer_t *timer_user_data = (sid_pal_timer_t *)k_timer_user_data_get(&time_work_obj->timer);
+
+	if (!timer_user_data) {
+		return;
 	}
 
-	if (timer->callback) {
-		timer->callback(timer->callback_arg, (sid_pal_timer_t *)timer);
+	if (!timer_user_data->is_periodic) {
+		atomic_clear(&timer_user_data->is_armed);
+	}
+
+	if (timer_user_data->callback) {
+		timer_user_data->callback(timer_user_data->callback_arg, (sid_pal_timer_t *)timer_user_data);
 	}
 }
 
@@ -88,6 +111,15 @@ static k_timeout_t convert_time(const struct sid_timespec *sid_time, sid_pal_tim
 sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 			       sid_pal_timer_cb_t event_callback, void *event_callback_arg)
 {
+
+	static bool initailized = false;
+
+	if (!initailized) {
+		initailized = true;
+		k_work_queue_start(&timer_worker_queue, timer_worker_stack,
+				   K_THREAD_STACK_SIZEOF(timer_worker_stack), 5,
+				   NULL);
+	}
 	if (!timer_storage || !event_callback) {
 		return SID_ERROR_NULL_POINTER;
 	}
@@ -108,8 +140,9 @@ sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
 	timer_storage->is_periodic = false;
 	timer_storage->is_initialized = true;
 
-	k_timer_init(&static_timer[timer_storage->timer_id], timer_handler, NULL);
-	k_timer_user_data_set(&static_timer[timer_storage->timer_id], (void *)timer_storage);
+	k_timer_init(&static_timer[timer_storage->timer_id].timer, timer_handler, NULL);
+	k_timer_user_data_set(&static_timer[timer_storage->timer_id].timer, (void *)timer_storage);
+	k_work_init(&static_timer[timer_storage->timer_id].executor, timer_work_callback);
 
 	return SID_ERROR_NONE;
 }
@@ -126,6 +159,7 @@ sid_error_t sid_pal_timer_deinit(sid_pal_timer_t *timer_storage)
 	timer_storage->is_initialized = false;
 	timer_storage->callback = NULL;
 	timer_storage->callback_arg = NULL;
+	atomic_clear(&timer_storage->is_armed);
 	release_static_timer(timer_storage->timer_id);
 
 	return erc;
@@ -169,7 +203,7 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 
 	timer_duration = convert_time(when, type);
 	atomic_set(&timer_storage->is_armed, TIMER_ARMED);
-	k_timer_start(&static_timer[timer_storage->timer_id],
+	k_timer_start(&static_timer[timer_storage->timer_id].timer,
 		      Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration.ticks)),
 		      timer_period);
 
@@ -186,7 +220,7 @@ sid_error_t sid_pal_timer_cancel(sid_pal_timer_t *timer_storage)
 		return SID_ERROR_UNINITIALIZED;
 	}
 
-	k_timer_stop(&static_timer[timer_storage->timer_id]);
+	k_timer_stop(&static_timer[timer_storage->timer_id].timer);
 	atomic_clear(&timer_storage->is_armed);
 	timer_storage->is_periodic = false;
 
@@ -199,5 +233,5 @@ bool sid_pal_timer_is_armed(const sid_pal_timer_t *timer_storage)
 		return false;
 	}
 
-	return (TIMER_ARMED == atomic_get(&timer_storage->is_armed));
+	return atomic_get(&timer_storage->is_armed);
 }
