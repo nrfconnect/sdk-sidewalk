@@ -122,10 +122,8 @@ endif # SIDEWALK_BLE
 
 config SIDEWALK_THREAD_STACK_SIZE
 	int "Stack size for the Sidewalk thread"
-	range 8192 131072 if SIDEWALK_LINK_MASK_BLE
-	range 512 131072
-	default 8192 if SIDEWALK_LINK_MASK_BLE
-	default 512
+	range 8192 131072
+	default 8192
 	help
 	  Set the internal stack size for Sidewalk thread.
 
