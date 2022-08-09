@@ -88,7 +88,7 @@ Building and running
 
    .. code-block:: console
 
-       $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="LoRa.conf"
+       $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="lora.conf"
 
    Alternatively, you can use VS Code to add the build configuration:
 
