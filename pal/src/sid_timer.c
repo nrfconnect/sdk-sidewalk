@@ -9,126 +9,157 @@
  */
 
 #include <sid_pal_timer_ifc.h>
+#include <sid_pal_uptime_ifc.h>
+#include <sid_pal_assert_ifc.h>
+#include <sid_time_ops.h>
 #include <stdint.h>
 #include <zephyr.h>
 
-#define TIMER_ARMED               (0x01)
-#define STATIC_TIMERS             (16)
-#define STATIC_TIMER_IS_FULL      (0xFFFFFFFFU)
+K_MUTEX_DEFINE(sid_timer_mutex);
 
-typedef int timer_id;
+struct sid_pal_timer_ctx {
+	sys_dlist_t list;
+};
 
-static struct k_timer static_timer[STATIC_TIMERS];
+static const struct sid_timespec tolerance_lowpower = { .tv_sec = 1, .tv_nsec = 0 };
+static const struct sid_timespec tolerance_precise = { .tv_sec = 0, .tv_nsec = 0 };
 
-static timer_id get_static_timer(void)
+static struct sid_pal_timer_ctx sid_pal_timer_ctx = { .list = SYS_DLIST_STATIC_INIT(&sid_pal_timer_ctx.list), };
+
+static void sid_timer_start(const struct sid_timespec *sid_time);
+
+static const struct sid_timespec *sid_pal_timer_get_tolerance(sid_pal_timer_prio_class_t type)
 {
-	for (int it = 0; it < ARRAY_SIZE(static_timer); it++) {
-		if (NULL == static_timer[it].expiry_fn) {
-			return it;
+	const struct sid_timespec *tolerance = NULL;
+
+	switch (type) {
+	case SID_PAL_TIMER_PRIO_CLASS_PRECISE:
+		tolerance = &tolerance_precise;
+		break;
+
+	case SID_PAL_TIMER_PRIO_CLASS_LOWPOWER:
+		tolerance = &tolerance_lowpower;
+		break;
+	}
+
+	SID_PAL_ASSERT(tolerance);
+
+	return tolerance;
+}
+
+static bool sid_pal_timer_list_in_list(sid_pal_timer_t *timer)
+{
+	SID_PAL_ASSERT(timer);
+	bool result = true;
+
+	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	if ((0 == timer->node.next) && (0 == timer->node.prev)) {
+		result = false;
+	}
+	k_mutex_unlock(&sid_timer_mutex);
+
+	return result;
+}
+
+static void sid_pal_timer_list_delete(sid_pal_timer_t *timer)
+{
+	SID_PAL_ASSERT(timer);
+
+	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	if (!((0 == timer->node.next) && (0 == timer->node.prev))) {
+		sys_dlist_remove(&timer->node);
+	}
+	k_mutex_unlock(&sid_timer_mutex);
+}
+
+static void sid_pal_timer_list_insert(struct sid_pal_timer_ctx *ctx, sid_pal_timer_t *timer)
+{
+	SID_PAL_ASSERT(ctx && timer);
+	bool reschedule_required = true;
+
+	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sys_dnode_t *node = sys_dlist_peek_head(&ctx->list);
+	while (node) {
+		sid_pal_timer_t *element = CONTAINER_OF(node, __typeof__(*element), node);
+		if (sid_time_gt(&element->alarm, &timer->alarm)) {
+			struct sid_timespec diff = element->alarm;
+			sid_time_sub(&diff, &timer->alarm);
+			if (!sid_time_gt(&diff, timer->tolerance)) {
+				reschedule_required = false;
+				timer->alarm = element->alarm;
+			}
+			sys_dlist_append(&element->node, &timer->node);
+			break;
 		}
+		reschedule_required = false;
+		node = sys_dlist_peek_next_no_check(&ctx->list, node);
 	}
-	return STATIC_TIMER_IS_FULL;
+
+	if (!node) {
+		sys_dlist_append(&ctx->list, &timer->node);
+	}
+	if (reschedule_required) {
+		sid_timer_start(&timer->alarm);
+	}
+	k_mutex_unlock(&sid_timer_mutex);
 }
 
-static void release_static_timer(timer_id t_id)
+static void sid_pal_timer_list_fetch(struct sid_pal_timer_ctx *ctx,
+				     const struct sid_timespec *non_gt_than,
+				     sid_pal_timer_t **timer)
 {
-	static_timer[t_id].expiry_fn = NULL;
+	SID_PAL_ASSERT(ctx && non_gt_than && timer);
+	*timer = NULL;
+
+	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_timer_t *result = SYS_DLIST_PEEK_HEAD_CONTAINER(&ctx->list, result, node);
+
+	if (result && !sid_time_gt(&result->alarm, non_gt_than)) {
+		*timer = result;
+		sys_dlist_remove(&result->node);
+	}
+	k_mutex_unlock(&sid_timer_mutex);
 }
 
-/**
- * @brief Timer handler is executed each time the timer expires.
- *
- * @param timer_data timer object address.
- */
-static void timer_handler(struct k_timer *timer_data)
+static void sid_pal_timer_list_get_next_schedule(struct sid_pal_timer_ctx *ctx, struct sid_timespec *schedule)
 {
-	sid_pal_timer_t *timer = NULL;
+	SID_PAL_ASSERT(ctx && schedule);
+	*schedule = SID_TIME_INFINITY;
 
-	if (!timer_data) {
-		return;
+	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_timer_t *result = SYS_DLIST_PEEK_HEAD_CONTAINER(&ctx->list, result, node);
+	if (result) {
+		*schedule = result->alarm;
 	}
-
-	timer = (sid_pal_timer_t *)k_timer_user_data_get(timer_data);
-
-	if (!timer) {
-		return;
-	}
-
-	if (!timer->is_periodic) {
-		atomic_clear(&timer->is_armed);
-	}
-
-	if (timer->callback) {
-		timer->callback(timer->callback_arg, (sid_pal_timer_t *)timer);
-	}
+	k_mutex_unlock(&sid_timer_mutex);
 }
 
-/**
- * @brief Convert the sidewalk time to the kernel time format.
- *
- * @param sid_time pointer to sidewalk time format.
- * @param type Priority class specifier for the timer to be armed
- * @return k_timeout_t kernel time format.
- */
-static k_timeout_t convert_time(const struct sid_timespec *sid_time, sid_pal_timer_prio_class_t type)
-{
-	k_timeout_t time;
-
-	if (SID_PAL_TIMER_PRIO_CLASS_LOWPOWER == type) {
-		// TODO
-		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_nsec, 0));
-		time.ticks += (k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
-	} else {
-		time.ticks = (k_ticks_t)k_ns_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_nsec, 0));
-		time.ticks += (k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
-	}
-	return time;
-}
-
-sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage,
-			       sid_pal_timer_cb_t event_callback, void *event_callback_arg)
+sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage, sid_pal_timer_cb_t event_callback,
+			       void *event_callback_arg)
 {
 	if (!timer_storage || !event_callback) {
-		return SID_ERROR_NULL_POINTER;
+		return SID_ERROR_INVALID_ARGS;
 	}
 
-	if (timer_storage->is_initialized) {
-		return SID_ERROR_NONE;
-	}
-
-	timer_id t_id = get_static_timer();
-	if (STATIC_TIMER_IS_FULL == t_id) {
-		return SID_ERROR_OUT_OF_RESOURCES;
-	}
-
-	timer_storage->timer_id = t_id;
 	timer_storage->callback = event_callback;
 	timer_storage->callback_arg = event_callback_arg;
-	timer_storage->is_armed = ATOMIC_INIT(0);
-	timer_storage->is_periodic = false;
-	timer_storage->is_initialized = true;
-
-	k_timer_init(&static_timer[timer_storage->timer_id], timer_handler, NULL);
-	k_timer_user_data_set(&static_timer[timer_storage->timer_id], (void *)timer_storage);
+	timer_storage->alarm = SID_TIME_INFINITY;
+	timer_storage->period = SID_TIME_INFINITY;
+	sys_dnode_init(&timer_storage->node);
 
 	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_timer_deinit(sid_pal_timer_t *timer_storage)
 {
-	sid_error_t erc = SID_ERROR_NONE;
-
 	if (!timer_storage) {
-		return SID_ERROR_NULL_POINTER;
+		return SID_ERROR_INVALID_ARGS;
 	}
 
-	erc = sid_pal_timer_cancel(timer_storage);
-	timer_storage->is_initialized = false;
+	sid_pal_timer_list_delete(timer_storage);
 	timer_storage->callback = NULL;
 	timer_storage->callback_arg = NULL;
-	release_static_timer(timer_storage->timer_id);
-
-	return erc;
+	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
@@ -136,68 +167,94 @@ sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
 			      const struct sid_timespec *when,
 			      const struct sid_timespec *period)
 {
-	k_timeout_t zero_time = K_NSEC(0);
-	k_timeout_t timer_duration;
-	k_timeout_t timer_period;
-
 	if (!timer_storage || !when) {
-		return SID_ERROR_NULL_POINTER;
-	}
-
-	if (!timer_storage->is_initialized) {
-		return SID_ERROR_UNINITIALIZED;
-	}
-
-	if (!IN_RANGE(type,
-		      SID_PAL_TIMER_PRIO_CLASS_PRECISE,
-		      SID_PAL_TIMER_PRIO_CLASS_LOWPOWER)) {
-		return SID_ERROR_PARAM_OUT_OF_RANGE;
+		return SID_ERROR_INVALID_ARGS;
 	}
 
 	if (sid_pal_timer_is_armed(timer_storage)) {
 		return SID_ERROR_INVALID_ARGS;
 	}
-
 	if (!period) {
-		timer_period = K_FOREVER;
-	} else {
-		timer_period = convert_time(period, type);
-		if (!K_TIMEOUT_EQ(timer_period, zero_time)) {
-			timer_storage->is_periodic = true;
-		}
+		period = &SID_TIME_INFINITY;
 	}
 
-	timer_duration = convert_time(when, type);
-	atomic_set(&timer_storage->is_armed, TIMER_ARMED);
-	k_timer_start(&static_timer[timer_storage->timer_id],
-		      Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration.ticks)),
-		      timer_period);
-
+	timer_storage->alarm = *when;
+	timer_storage->period = *period;
+	timer_storage->tolerance = sid_pal_timer_get_tolerance(type);
+	sid_pal_timer_list_insert(&sid_pal_timer_ctx, timer_storage);
 	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_timer_cancel(sid_pal_timer_t *timer_storage)
 {
 	if (!timer_storage) {
-		return SID_ERROR_NULL_POINTER;
+		return SID_ERROR_INVALID_ARGS;
 	}
 
-	if (!timer_storage->is_initialized) {
-		return SID_ERROR_UNINITIALIZED;
-	}
-
-	k_timer_stop(&static_timer[timer_storage->timer_id]);
-	atomic_clear(&timer_storage->is_armed);
-	timer_storage->is_periodic = false;
-
+	sid_pal_timer_list_delete(timer_storage);
 	return SID_ERROR_NONE;
 }
 
 bool sid_pal_timer_is_armed(const sid_pal_timer_t *timer_storage)
 {
-	if (!timer_storage || !timer_storage->is_initialized) {
+	if (!timer_storage) {
 		return false;
 	}
+	sid_pal_timer_t *timer = (sid_pal_timer_t *)timer_storage;
+	return sid_pal_timer_list_in_list(timer);
+}
 
-	return (TIMER_ARMED == atomic_get(&timer_storage->is_armed));
+void sid_pal_timer_event_callback(void *arg, const struct sid_timespec *now)
+{
+	ARG_UNUSED(arg);
+	sid_pal_timer_t *timer = NULL;
+
+	do {
+		sid_pal_timer_list_fetch(&sid_pal_timer_ctx, now, &timer);
+		if (!timer) {
+			break;
+		}
+		if (!sid_time_is_infinity(&timer->period)) {
+			sid_time_add(&timer->alarm, &timer->period);
+
+			sid_pal_timer_list_insert(&sid_pal_timer_ctx, timer);
+		}
+		if (timer->callback) {
+			timer->callback(timer->callback_arg, (sid_pal_timer_t *)timer);
+		}
+	} while (1);
+
+	struct sid_timespec next_schedule;
+	sid_pal_timer_list_get_next_schedule(&sid_pal_timer_ctx, &next_schedule);
+	sid_timer_start(&next_schedule);
+}
+
+static void sid_timer_worker(struct k_work *work)
+{
+	ARG_UNUSED(work);
+	struct sid_timespec result;
+
+	sid_pal_uptime_now(&result);
+	sid_pal_timer_event_callback(NULL, &result);
+}
+
+K_WORK_DEFINE(sid_timer_work, sid_timer_worker);
+
+static void sid_timer_handler(struct k_timer *timer_data)
+{
+	ARG_UNUSED(timer_data);
+	k_work_submit(&sid_timer_work);
+}
+
+K_TIMER_DEFINE(sid_timer, sid_timer_handler, NULL);
+
+static void sid_timer_start(const struct sid_timespec *sid_time)
+{
+	k_ticks_t timer_duration;
+
+	timer_duration = (k_ticks_t)k_ns_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_nsec, 0));
+	timer_duration += (k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
+	k_timer_start(&sid_timer,
+		      Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration)),
+		      K_NO_WAIT);
 }

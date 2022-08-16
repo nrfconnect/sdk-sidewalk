@@ -16,6 +16,8 @@
 #define SID_PAL_TIMER_TYPES_H
 
 #include <zephyr.h>
+#include <sys/dlist.h>
+#include <sid_time_types.h>
 
 typedef struct sid_pal_timer_impl_t sid_pal_timer_t;
 
@@ -25,7 +27,7 @@ typedef struct sid_pal_timer_impl_t sid_pal_timer_t;
  * @note The callback is allowed to execute absolute minimum amount of work and return as soon as possible
  * @note Implementer of the callback should consider the callback is executed from ISR context
  */
-typedef void(*sid_pal_timer_cb_t)(void * arg, sid_pal_timer_t * originator);
+typedef void (*sid_pal_timer_cb_t)(void *arg, sid_pal_timer_t *originator);
 
 /**
  * @brief Timer storage type
@@ -33,12 +35,12 @@ typedef void(*sid_pal_timer_cb_t)(void * arg, sid_pal_timer_t * originator);
  * @note This is the implementor defined storage type for timers.
  */
 struct sid_pal_timer_impl_t {
+	struct sid_timespec alarm;
+	struct sid_timespec period;
+	sys_dnode_t node;
 	sid_pal_timer_cb_t callback;
 	void *callback_arg;
-	atomic_t is_armed;
-	bool is_periodic;
-	bool is_initialized;
-	size_t timer_id;
+	const struct sid_timespec *tolerance;
 };
 
 #endif

@@ -11,10 +11,6 @@
 /* number of nanoseconds per microseconds */
 #define NSEC_PER_MSEC ((NSEC_PER_USEC) *(USEC_PER_MSEC))
 
-#define SID_PAL_TIMER_PRIO_CLASS_TOO_BIG        (9)
-#define SID_PAL_TIMER_PRIO_CLASS_TOO_SMALL      (-9)
-
-
 static sid_pal_timer_t *p_null_timer = NULL;
 static sid_pal_timer_t test_timer;
 static int test_timer_arg;
@@ -42,9 +38,7 @@ static void relative_time_calculate(struct sid_timespec *when)
 static void timer_init(void)
 {
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, &test_timer_arg));
-	TEST_ASSERT_TRUE(test_timer.is_initialized);
-	TEST_ASSERT_FALSE(test_timer.is_periodic);
-	TEST_ASSERT_EQUAL(0, test_timer.is_armed);
+	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	TEST_ASSERT_EQUAL(&test_timer_arg, test_timer.callback_arg);
 	TEST_ASSERT_EQUAL(timer_callback, test_timer.callback);
 }
@@ -52,35 +46,27 @@ static void timer_init(void)
 static void timer_deinit(void)
 {
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
-	TEST_ASSERT_FALSE(test_timer.is_initialized);
 	TEST_ASSERT_NULL(test_timer.callback_arg);
 	TEST_ASSERT_NULL(test_timer.callback);
-	TEST_ASSERT_FALSE(test_timer.is_periodic);
-	TEST_ASSERT_EQUAL(0, test_timer.is_armed);
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 }
 
 void test_sid_pal_timer_init_deinit(void)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_init(NULL, NULL, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_init(&test_timer, NULL, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_init(p_null_timer, timer_callback, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_deinit(p_null_timer));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_init(NULL, NULL, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_init(&test_timer, NULL, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_deinit(NULL));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
-	TEST_ASSERT_TRUE(test_timer.is_initialized);
 	TEST_ASSERT_NULL(test_timer.callback_arg);
-	TEST_ASSERT_FALSE(test_timer.is_periodic);
-	TEST_ASSERT_EQUAL(0, test_timer.is_armed);
 	TEST_ASSERT_EQUAL(timer_callback, test_timer.callback);
+	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
-	TEST_ASSERT_FALSE(test_timer.is_initialized);
 	TEST_ASSERT_NULL(test_timer.callback_arg);
 	TEST_ASSERT_NULL(test_timer.callback);
-	TEST_ASSERT_FALSE(test_timer.is_periodic);
-	TEST_ASSERT_EQUAL(0, test_timer.is_armed);
+	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 
 	timer_init();
 	timer_deinit();
@@ -90,21 +76,20 @@ void test_sid_pal_timer_arm(void)
 {
 	struct sid_timespec when = { .tv_sec = 5 };
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL, NULL));
-
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL, NULL));
 
 	timer_init();
 
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_TOO_BIG, &when, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_TOO_SMALL, &when, NULL));
-
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
-	TEST_ASSERT_FALSE(test_timer.is_periodic);
-	TEST_ASSERT_NOT_EQUAL(0, test_timer.is_armed);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
 	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
@@ -121,7 +106,8 @@ void test_sid_pal_timer_is_armed(void)
 
 	timer_init();
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
 	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
@@ -134,20 +120,17 @@ void test_sid_pal_timer_cancel(void)
 	struct sid_timespec when = { .tv_sec = 5 };
 	struct sid_timespec period = { .tv_sec = 5 };
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_timer_cancel(p_null_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_timer_cancel(&test_timer));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_cancel(p_null_timer));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 
 	timer_init();
 
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
-	TEST_ASSERT_TRUE(test_timer.is_initialized);
-	TEST_ASSERT_TRUE(test_timer.is_periodic);
-	TEST_ASSERT_NOT_EQUAL(0, test_timer.is_armed);
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
+	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
-	TEST_ASSERT_TRUE(test_timer.is_initialized);
-	TEST_ASSERT_FALSE(test_timer.is_periodic);
-	TEST_ASSERT_EQUAL(0, test_timer.is_armed);
+	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
@@ -165,7 +148,8 @@ void test_sid_pal_timer_one_shot_50usec(void)
 
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
 	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 	// It should be enough time
 	k_sleep(K_MSEC(100));
@@ -182,7 +166,7 @@ void test_sid_pal_timer_periodically_execute_callback(void)
 	 * 	In this case, we expect that callback will be executed many times and still working.
 	 */
 	struct sid_timespec when = { .tv_nsec = 50 * NSEC_PER_USEC };
-	struct sid_timespec period = { .tv_nsec = 500 };
+	struct sid_timespec period = { .tv_nsec = 500 * NSEC_PER_USEC };
 
 	timer_callback_cnt = 0;
 
@@ -190,7 +174,8 @@ void test_sid_pal_timer_periodically_execute_callback(void)
 
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
 	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 	// It should be enough time
 	k_sleep(K_MSEC(100));
@@ -214,7 +199,8 @@ void test_sid_pal_timer_cancel_before_it_expire(void)
 
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
 	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 	k_sleep(K_MSEC(100));
 	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
@@ -228,7 +214,8 @@ void test_sid_pal_timer_cancel_before_it_expire(void)
 	when.tv_sec = 0;
 	when.tv_nsec = (150 * NSEC_PER_MSEC);
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
 	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 	k_sleep(K_MSEC(100));
 	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
@@ -255,7 +242,8 @@ void test_sid_pal_timer_cancel_after_it_expired(void)
 
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
 	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 	k_sleep(K_MSEC(15));
 	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
@@ -283,7 +271,8 @@ void test_sid_pal_timer_deinit_after_it_expired(void)
 
 	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, &period));
 	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 	k_sleep(K_MSEC(15));
 	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
@@ -314,7 +303,8 @@ void test_sid_pal_timer_one_shot_few_times(void)
 		when.tv_sec = 0;
 		when.tv_nsec = (10 * NSEC_PER_MSEC);
 		relative_time_calculate(&when);
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
+		TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+				  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when, NULL));
 		TEST_ASSERT_EQUAL(0, timer_callback_cnt);
 		TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
 		k_sleep(K_MSEC(50));
