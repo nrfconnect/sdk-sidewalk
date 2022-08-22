@@ -33,7 +33,7 @@ void sid_pal_log(sid_pal_log_severity_t severity, uint32_t num_args, const char 
 	print_len = vsnprintk(msg_buff, sizeof(msg_buff), fmt, args);
 	va_end(args);
 
-	const char *msg = log_strdup(msg_buff);
+	const char *msg = msg_buff;
 
 	switch (severity) {
 	case SID_PAL_LOG_SEVERITY_ERROR:
@@ -71,7 +71,7 @@ void sid_pal_log_flush(void)
 
 char const *sid_pal_log_push_str(char *string)
 {
-	return log_strdup(string);
+	return string;
 }
 
 bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer)
