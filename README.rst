@@ -77,7 +77,7 @@ Documentation for this project is placed in the ``doc`` directory.
 
    cd doc
    pip install -r requirements-doc.txt
-   make html
+   sphinx-build -M html . build
 
 
   or run script which builds documentation in docker container (nothing except docker engine is required):
