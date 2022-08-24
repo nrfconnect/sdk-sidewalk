@@ -5,6 +5,15 @@ Known issues
 
 See the list of known issues that are valid for the current state of development.
 
+08/24/2022
+----------
+
+* KRKNWK-14235: With No Optimization (-O0) Zephyr assertion fails in Sidewalk init.
+
+* KRKNWK-14890: Fatal error on button 2 in LoRa/FSK template sample due to assertion failure.
+    In BLE link mode pressing the button 2 (set connection request) is required to connect with Sidewalk.
+	In LoRa/FSK this is not required. Please don't use button 2 when in LoRa/FSK mode.
+
 [Alpha release] - 07/21/2022
 ----------------------------
 
