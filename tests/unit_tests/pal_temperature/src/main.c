@@ -10,7 +10,7 @@
 #include <drivers/mock_sensor.h>
 #include <unity.h>
 
-char CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE[50] = "TEST_PROBE";
+char DT_N_NODELABEL_temp_FULL_NAME[50] = "dummy_device_name";
 
 void setUp(void)
 {
@@ -26,16 +26,16 @@ void test_sid_pal_temperature_init()
 {
 	struct device device;
 
-	sprintf(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE, "TEST_1_PROBE_DEVICE");
-	__wrap_device_get_binding_ExpectAndReturn(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE,
+	sprintf(DT_N_NODELABEL_temp_FULL_NAME, "TEST_1_PROBE_DEVICE");
+	__wrap_device_get_binding_ExpectAndReturn(DT_N_NODELABEL_temp_FULL_NAME,
 						  &device);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_temperature_init());
 }
 
 void test_sid_pal_temperature_init_fail()
 {
-	sprintf(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE, "TEST_2_PROBE_DEVICE");
-	__wrap_device_get_binding_ExpectAndReturn(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE,
+	sprintf(DT_N_NODELABEL_temp_FULL_NAME, "TEST_2_PROBE_DEVICE");
+	__wrap_device_get_binding_ExpectAndReturn(DT_N_NODELABEL_temp_FULL_NAME,
 						  NULL);
 	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_temperature_init());
 }
@@ -102,8 +102,8 @@ void test_sid_pal_temperature_get_failed_get_errno_max()
 
 void test_sid_pal_temperature_get_uninitialized()
 {
-	sprintf(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE, "TEST_1_PROBE_DEVICE");
-	__wrap_device_get_binding_ExpectAndReturn(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME_VALUE,
+	sprintf(DT_N_NODELABEL_temp_FULL_NAME, "TEST_1_PROBE_DEVICE");
+	__wrap_device_get_binding_ExpectAndReturn(DT_N_NODELABEL_temp_FULL_NAME,
 						  NULL);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_temperature_init());
