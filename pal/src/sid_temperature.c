@@ -8,6 +8,7 @@
  *  @brief Temperature interface implementation
  */
 
+#include "devicetree.h"
 #include <sid_pal_temperature_ifc.h>
 #include <stdint.h>
 #include <device.h>
@@ -17,7 +18,7 @@ static const struct device *temp_dev;
 
 sid_error_t sid_pal_temperature_init(void)
 {
-	temp_dev = device_get_binding(CONFIG_SIDEWALK_TEMPERATURE_SENSOR_NAME);
+	temp_dev = device_get_binding(DT_NODE_FULL_NAME(DT_NODELABEL(temp)));
 
 	return NULL == temp_dev ? SID_ERROR_NOSUPPORT : SID_ERROR_NONE;
 }
