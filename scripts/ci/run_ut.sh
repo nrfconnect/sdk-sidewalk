@@ -149,7 +149,7 @@ function run_on_hw ()
       fi
     fi
     run_twister -v --generate-hardware-map hardware-map.yaml --persistent-hardware-map
-    python3 "$CURRENT_DIR/fill_hardware_map.py" hardware-map.yaml  "$USERDEV_CONF_FILE"
+    python3 "$CURRENT_DIR/fill_hardware_map.py" --hardware_map_path hardware-map.yaml  --userdev_conf_path "$USERDEV_CONF_FILE"
     run_twister --platform nrf52840dk_nrf52840 -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-on_HW"
     return $?
