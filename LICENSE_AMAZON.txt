@@ -1,10 +1,10 @@
-Copyright 2021 Amazon.com, Inc., Ring, LLC and/or their affiliates, referred to herein collectively as "Amazon". All
+Copyright 2020-2022 Amazon.com, Inc., Ring, LLC and/or their affiliates, referred to herein collectively as "Amazon". All
 Rights Reserved.
 
 These materials are licensed to you as "Program Materials" under the Program Materials License Agreement (the
 "Agreement") in connection with the Amazon Sidewalk Program and related services. The Agreement is available at
-developer.amazon.com. See the Agreement for the specific terms and conditions of the Agreement. Capitalized terms not
-defined in this file have the meanings given to them in the Agreement.
+https://developer.amazon.com/support/legal/pml. See the Agreement for the specific terms and conditions of the Agreement. 
+Capitalized terms not defined in this file have the meanings given to them in the Agreement.
 
 In addition to the terms and conditions of the Agreement, the following terms and conditions ("Additional Terms" and
 collectively with the Agreement, the "Terms") apply to these materials. In the event of a conflict between the terms and
@@ -25,7 +25,7 @@ together with the Program Materials. For the purpose of the Terms, such Program 
 made available to the device manufacturers from Amazon.
 
 WITH THE EXCEPTION OF FILES IDENTIFIED AS A "MODIFIABLE FILE" WITHIN THE FILE HEADER, YOU MAY NOT MODIFY ANY SOURCE CODE
-IN ANY FILE IN THIS PACKAGE. Your modifications to the Program Materials are “Modified Materials”. You may reproduce
+IN ANY FILE IN THIS PACKAGE. Your modifications to the Program Materials are "Modified Materials". You may reproduce
 and distribute copies of the Modified Materials thereof in any medium, with or without modifications, and in source or
 object form, provided that you meet the following conditions:
 
