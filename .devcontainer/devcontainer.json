@@ -1,0 +1,49 @@
+{
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"name": "sidewalk",
+	"mounts": [
+		"source=/dev,target=/dev,type=bind",
+		"source=/run/udev,target=/run/udev,type=bind,readonly"
+	],
+	"runArgs": [
+		"--privileged",
+		"--name", "nrf-sidewalk"
+	],
+	"remoteUser": "vscode",
+	"updateRemoteUserUID": true,
+	"settings": {
+		"github.gitAuthentication": true,
+		"git.terminalAuthentication": true,
+		"C_Cpp.intelliSenseEngine": "Disabled",
+		"nrf-connect.toolchain.path": "PATH",
+		"nrf-connect.welcome.showOnStartup": false
+	},
+	"containerEnv": {
+		"LC_ALL": "C.UTF-8",
+		"ZEPHYR_BASE": "/home/vscode/work/ncs/zephyr"
+	},
+	"workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/work/ncs/sidewalk,type=bind",
+	"workspaceFolder": "/home/vscode/work/ncs",
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"nordic-semiconductor.nrf-connect",
+				"eamodio.gitlens",
+				"llvm-vs-code-extensions.vscode-clangd",
+				"ms-vscode.cpptools",
+				"mhutchie.git-graph",
+				"twxs.cmake",
+				"ms-vscode.live-server",
+				"GitHub.vscode-pull-request-github"
+			]
+		}
+	},
+	"features": {
+		"git": "latest",
+		"git-lfs": "latest"
+	}
+}
