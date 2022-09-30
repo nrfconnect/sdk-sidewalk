@@ -175,10 +175,13 @@ void test_sid_pal_crypto_rng(void)
 
 	// Check for any length from 1 to RNG_BUFF_MAX_SIZE
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 1));
-	TEST_ASSERT_NOT_EQUAL(0, rng_buff[0]);
-
+	
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 3));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(rng_buff, tmp_buff, 3));
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, memcmp(rng_buff, tmp_buff, 3),
+	"Random value can not be 0");
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(tmp_buff, 3));
+	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, memcmp(rng_buff, tmp_buff, 3),
+	"two consequent random values can not be the same");
 
 	for (int cnt = 0; cnt < ARRAY_SIZE(rng_test_len); cnt++) {
 		memset(tmp_buff, 0x00, sizeof(tmp_buff));
