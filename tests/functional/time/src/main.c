@@ -135,13 +135,13 @@ void test_sid_pal_timer_cancel(void)
 	timer_deinit();
 }
 
-void test_sid_pal_timer_one_shot_50usec(void)
+void test_sid_pal_timer_one_shot_100usec(void)
 {
 	/**
 	 * Scenario 1:
 	 * 	In this case, we expect that callback will be executed just once after 50 usec.
 	 */
-	struct sid_timespec when = { .tv_nsec = 50 * NSEC_PER_USEC };
+	struct sid_timespec when = { .tv_nsec = 100 * NSEC_PER_USEC };
 
 	timer_callback_cnt = 0;
 	timer_init();
@@ -165,7 +165,7 @@ void test_sid_pal_timer_periodically_execute_callback(void)
 	 * Scenario 2:
 	 * 	In this case, we expect that callback will be executed many times and still working.
 	 */
-	struct sid_timespec when = { .tv_nsec = 50 * NSEC_PER_USEC };
+	struct sid_timespec when = { .tv_nsec = 100 * NSEC_PER_USEC };
 	struct sid_timespec period = { .tv_nsec = 500 * NSEC_PER_USEC };
 
 	timer_callback_cnt = 0;
