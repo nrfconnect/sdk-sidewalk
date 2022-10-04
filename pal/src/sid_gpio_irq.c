@@ -47,14 +47,15 @@ int sid_gpio_irq_configure(uint32_t gpio_number, gpio_flags_t irq_flags)
 	int erc = 0;
 	gpio_port_pin_t port_pin;
 	uint8_t port_number = GPIO_NUM_TO_GPIO_PORT(gpio_number);
-	struct gpio_callback *clbk = &gpio_cb[port_number];
-	bool is_initialized = ((0 != clbk->pin_mask) ? true : false);
 
 	erc = sid_gpio_utils_port_pin_get(gpio_number, &port_pin);
 	if (erc) {
 		LOG_ERR("Port pin get error %d", erc);
 		return erc;
 	}
+
+	struct gpio_callback *clbk = &gpio_cb[port_number];
+	bool is_initialized = ((0 != clbk->pin_mask) ? true : false);
 
 	WRITE_BIT(clbk->pin_mask, port_pin.pin, (GPIO_INT_DISABLE != (irq_flags & GPIO_INT_DISABLE)));
 

@@ -42,39 +42,48 @@ static int port_pin_get_cb(uint32_t gpio_number, gpio_port_pin_t *port_pin, int 
 	return E_OK;
 }
 
+static void sid_gpio_utils_port_pin_get_test_setup(gpio_port_pin_t *port_pin)
+{
+	__wrap_sid_gpio_utils_port_pin_get_ExpectAndReturn(port_pin->pin, 0, E_OK);
+	__wrap_sid_gpio_utils_port_pin_get_IgnoreArg_gpio_number();
+	__wrap_sid_gpio_utils_port_pin_get_IgnoreArg_port_pin();
+	__wrap_sid_gpio_utils_port_pin_get_ReturnThruPtr_port_pin(port_pin);
+}
+
 void test_sid_gpio_irq_configure_fail(void)
 {
-	TEST_IGNORE_MESSAGE("Address sanitizer detected an error in this module disable it temporarily");
 	gpio_flags_t test_flag = GPIO_INT_DISABLE;
+	gpio_port_pin_t port_pin = { .pin = GPIO_NUMBER_1 };
 
 	__wrap_sid_gpio_utils_port_pin_get_IgnoreAndReturn(-ENOTSUP);
 	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(INVALID_GPIO, 0));
 
-	__wrap_sid_gpio_utils_port_pin_get_IgnoreAndReturn(E_OK);
+	sid_gpio_utils_port_pin_get_test_setup(&port_pin);
 	__wrap_gpio_pin_interrupt_configure_IgnoreAndReturn(-ENOTSUP);
-	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(GPIO_NUMBER_1, test_flag));
+	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(port_pin.pin, test_flag));
 }
 
 void test_sid_gpio_irq_configure_add_cb_fail(void)
 {
-	TEST_IGNORE_MESSAGE("Address sanitizer detected an error in this module disable it temporarily");
+	gpio_port_pin_t port_pin = { .pin = GPIO_NUMBER_1 };
 	gpio_flags_t test_flag = GPIO_INT_ENABLE;
 
-	__wrap_sid_gpio_utils_port_pin_get_IgnoreAndReturn(E_OK);
+	sid_gpio_utils_port_pin_get_test_setup(&port_pin);
 	__wrap_gpio_pin_interrupt_configure_IgnoreAndReturn(-ENOTSUP);
 
 	__wrap_gpio_init_callback_ExpectAnyArgs();
 	__wrap_gpio_add_callback_IgnoreAndReturn(-ENOTSUP);
-	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(GPIO_NUMBER_1, test_flag));
+	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(port_pin.pin, test_flag));
 
+	port_pin.pin = GPIO_NUMBER_9;
+	sid_gpio_utils_port_pin_get_test_setup(&port_pin);
 	__wrap_gpio_init_callback_ExpectAnyArgs();
 	__wrap_gpio_add_callback_IgnoreAndReturn(-ENOTSUP);
-	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(GPIO_NUMBER_9, test_flag));
+	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_configure(port_pin.pin, test_flag));
 }
 
 void test_sid_gpio_irq_configure_remove_cb_fail(void)
 {
-	TEST_IGNORE_MESSAGE("Address sanitizer detected an error in this module disable it temporarily");
 	gpio_flags_t test_flag = GPIO_INT_ENABLE;
 
 	__wrap_gpio_pin_interrupt_configure_IgnoreAndReturn(E_OK);
@@ -140,7 +149,6 @@ void test_sid_gpio_irq_configure_add_remove_pass(void)
 
 void test_sid_gpio_irq_set_fail(void)
 {
-	TEST_IGNORE_MESSAGE("Address sanitizer detected an error in this module disable it temporarily");
 	__wrap_sid_gpio_utils_port_pin_get_IgnoreAndReturn(-ENOTSUP);
 	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_irq_set(test_pin, false));
 
