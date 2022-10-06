@@ -11,6 +11,11 @@
 #include <bluetooth/gatt.h>
 #include <logging/log.h>
 
+#include <errno.h>
+
+#include <kernel.h>
+K_MUTEX_DEFINE(bt_conn_mutex);
+
 LOG_MODULE_REGISTER(sid_ble_conn, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static void ble_connect_cb(struct bt_conn *conn, uint8_t err);
@@ -50,8 +55,13 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 		memset(conn_params.addr, 0x00, BT_ADDR_SIZE);
 	}
 
+	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
 	conn_params.conn = bt_conn_ref(conn);
 	sid_ble_adapter_conn_connected((const uint8_t *)conn_params.addr);
+	k_mutex_unlock(&bt_conn_mutex);
+
+	LOG_DBG("BLE Connected");
+	LOG_DBG("conn %p", (void *)conn_params.conn);
 }
 
 /**
@@ -62,12 +72,18 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
  */
 static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 {
-	if (conn_params.conn == conn) {
-		bt_conn_unref(conn_params.conn);
-		conn_params.conn = NULL;
-
-		sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
+	if (!conn || conn_params.conn != conn) {
+		LOG_WRN("Unknow connection");
+		return;
 	}
+
+	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
+	bt_conn_unref(conn_params.conn);
+	conn_params.conn = NULL;
+	k_mutex_unlock(&bt_conn_mutex);
+
+	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
+	LOG_DBG("BLE Disconnected");
 }
 
 static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu)
@@ -94,10 +110,20 @@ void sid_ble_conn_init(void)
 
 int sid_ble_conn_disconnect(void)
 {
-	return bt_conn_disconnect(conn_params.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+	if (!conn_params.conn) {
+		return -1;
+	}
+
+	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
+	int err = bt_conn_disconnect(conn_params.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+	k_mutex_unlock(&bt_conn_mutex);
+
+	LOG_DBG("BLE Disconnected");
+
+	return err;
 }
 
 void sid_ble_conn_deinit(void)
 {
-	p_conn_params_out = NULL;
+	// Do nothing
 }
