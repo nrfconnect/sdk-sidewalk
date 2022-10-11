@@ -103,17 +103,19 @@ void test_sid_ble_conn_params_get(void)
 
 void test_sid_ble_conn_positive(void)
 {
-	struct bt_conn *p_test_conn = NULL;
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const sid_ble_conn_params_t *params = NULL;
+	struct bt_conn test_conn = {
+		.dummy = 0xDC
+	};
 	const bt_addr_le_t test_addr = {
 		.type = BT_ADDR_LE_RANDOM,
 		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
 	};
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
-	bt_conn_ref_fake.return_val = p_test_conn;
+	bt_conn_ref_fake.return_val = &test_conn;
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
@@ -122,29 +124,31 @@ void test_sid_ble_conn_positive(void)
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
 	__wrap_sid_ble_adapter_conn_connected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
-	p_test_conn_cb->connected(p_test_conn, test_no_error);
+	p_test_conn_cb->connected(&test_conn, test_no_error);
 
 	params = sid_ble_conn_params_get();
-	TEST_ASSERT_EQUAL_PTR(p_test_conn, params->conn);
+	TEST_ASSERT_EQUAL_PTR(&test_conn, params->conn);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
 	__wrap_sid_ble_adapter_conn_disconnected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
-	p_test_conn_cb->disconnected(p_test_conn, test_reason);
+	p_test_conn_cb->disconnected(&test_conn, test_reason);
 }
 
 void test_sid_ble_set_conn_cb_positive(void)
 {
-	struct bt_conn *p_test_conn = NULL;
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const sid_ble_conn_params_t *params = NULL;
+	struct bt_conn test_conn = {
+		.dummy = 0xDC
+	};
 	const bt_addr_le_t test_addr = {
 		.type = BT_ADDR_LE_RANDOM,
 		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
 	};
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
-	bt_conn_ref_fake.return_val = p_test_conn;
+	bt_conn_ref_fake.return_val = &test_conn;
 
 	sid_ble_conn_init();
 	__wrap_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
@@ -154,15 +158,15 @@ void test_sid_ble_set_conn_cb_positive(void)
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
 	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
-	p_test_conn_cb->connected(p_test_conn, test_no_error);
+	p_test_conn_cb->connected(&test_conn, test_no_error);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
 
 	params = sid_ble_conn_params_get();
-	TEST_ASSERT_EQUAL_PTR(p_test_conn, params->conn);
+	TEST_ASSERT_EQUAL_PTR(&test_conn, params->conn);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
 	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
-	p_test_conn_cb->disconnected(p_test_conn, test_reason);
+	p_test_conn_cb->disconnected(&test_conn, test_reason);
 	TEST_ASSERT_EQUAL(DISCONNECTED, conn_cb_test.state);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
 }
@@ -170,14 +174,16 @@ void test_sid_ble_set_conn_cb_positive(void)
 void test_sid_ble_conn_cb_set_call_count(void)
 {
 	size_t conn_cb_cnt_expected = 0;
-	struct bt_conn *p_test_conn = NULL;
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_error_timeout = BT_HCI_ERR_CONN_TIMEOUT;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const bt_addr_le_t test_addr;
+	struct bt_conn test_conn = {
+		.dummy = 0xDC
+	};
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
-	bt_conn_ref_fake.return_val = p_test_conn;
+	bt_conn_ref_fake.return_val = &test_conn;
 
 	sid_ble_conn_init();
 	__wrap_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
@@ -187,20 +193,20 @@ void test_sid_ble_conn_cb_set_call_count(void)
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
 	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
-	p_test_conn_cb->connected(p_test_conn, test_no_error);
+	p_test_conn_cb->connected(&test_conn, test_no_error);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
 	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
-	p_test_conn_cb->disconnected(p_test_conn, test_reason);
+	p_test_conn_cb->disconnected(&test_conn, test_reason);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
 	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
-	p_test_conn_cb->connected(p_test_conn, test_error_timeout);
+	p_test_conn_cb->connected(&test_conn, test_error_timeout);
 
 	bt_conn_get_dst_fake.return_val = NULL;
-	p_test_conn_cb->connected(p_test_conn, test_no_error);
+	p_test_conn_cb->connected(&test_conn, test_no_error);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 }
@@ -208,11 +214,13 @@ void test_sid_ble_conn_cb_set_call_count(void)
 void test_sid_ble_disconnected_wrong_conn(void)
 {
 	size_t conn_cb_cnt_expected = 0;
-	struct bt_conn test_conn;
 	struct bt_conn test_wrong_conn;
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const bt_addr_le_t test_addr;
+	struct bt_conn test_conn = {
+		.dummy = 0xDC
+	};
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
@@ -241,9 +249,11 @@ void test_sid_ble_disconnected_wrong_conn(void)
 void test_sid_ble_cb_set_before_init(void)
 {
 	size_t conn_cb_cnt_expected = 0;
-	struct bt_conn *p_test_conn = NULL;
+	struct bt_conn test_conn = {
+		.dummy = 0xDC
+	};
 
-	bt_conn_ref_fake.return_val = p_test_conn;
+	bt_conn_ref_fake.return_val = &test_conn;
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
@@ -254,19 +264,21 @@ void test_sid_ble_cb_set_before_init(void)
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
 	__wrap_sid_ble_adapter_conn_connected_ExpectAnyArgs();
-	p_test_conn_cb->connected(p_test_conn, 0);
+	p_test_conn_cb->connected(&test_conn, 0);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 
 	__wrap_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
-	p_test_conn_cb->disconnected(p_test_conn, 19);
+	p_test_conn_cb->disconnected(&test_conn, 19);
 	conn_cb_cnt_expected++;
 	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
 }
 
 void test_sid_ble_conn_mtu_callback(void)
 {
-	struct bt_conn *p_test_conn = NULL;
+	struct bt_conn test_conn = {
+		.dummy = 0xDC
+	};
 
 	sid_ble_conn_init();
 	TEST_ASSERT_EQUAL(1, bt_gatt_cb_register_fake.call_count);
@@ -277,7 +289,7 @@ void test_sid_ble_conn_mtu_callback(void)
 
 	uint16_t tx_mtu = 32, rx_mtu = 44;
 	__wrap_sid_ble_adapter_mtu_changed_Expect(tx_mtu);
-	p_test_gatt_cb->att_mtu_updated(p_test_conn, tx_mtu, rx_mtu);
+	p_test_gatt_cb->att_mtu_updated(&test_conn, tx_mtu, rx_mtu);
 }
 
 void test_sid_ble_conn_mtu_callback_curent_connection(void)
@@ -300,7 +312,6 @@ void test_sid_ble_conn_mtu_callback_curent_connection(void)
 
 	p_test_gatt_cb->att_mtu_updated(&unknow_conn, tx_mtu, rx_mtu);
 }
-
 
 void test_sid_ble_conn_disconnect(void)
 {
