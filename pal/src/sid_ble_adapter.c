@@ -238,7 +238,14 @@ static sid_error_t ble_adapter_disconnect(void)
 
 static sid_error_t ble_adapter_deinit(void)
 {
+	int err = bt_disable();
+	if (err) {
+		LOG_ERR("BT disable failed (err %d)", err);
+		return SID_ERROR_GENERIC;
+	}
+
 	sid_ble_conn_deinit();
+
 	return SID_ERROR_NONE;
 }
 
