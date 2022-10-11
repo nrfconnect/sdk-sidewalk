@@ -60,8 +60,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 	sid_ble_adapter_conn_connected((const uint8_t *)conn_params.addr);
 	k_mutex_unlock(&bt_conn_mutex);
 
-	LOG_DBG("BLE Connected");
-	LOG_DBG("conn %p", (void *)conn_params.conn);
+	LOG_DBG("BT Connected");
 }
 
 /**
@@ -83,7 +82,7 @@ static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 	k_mutex_unlock(&bt_conn_mutex);
 
 	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
-	LOG_DBG("BLE Disconnected");
+	LOG_DBG("BT Disconnected");
 }
 
 static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu)
@@ -111,19 +110,17 @@ void sid_ble_conn_init(void)
 int sid_ble_conn_disconnect(void)
 {
 	if (!conn_params.conn) {
-		return -1;
+		return -ENOENT;
 	}
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
 	int err = bt_conn_disconnect(conn_params.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
 	k_mutex_unlock(&bt_conn_mutex);
 
-	LOG_DBG("BLE Disconnected");
-
 	return err;
 }
 
 void sid_ble_conn_deinit(void)
 {
-	// Do nothing
+	p_conn_params_out = NULL;
 }
