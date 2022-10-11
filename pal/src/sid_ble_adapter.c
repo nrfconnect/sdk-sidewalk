@@ -174,10 +174,10 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 	srv_params.service = (struct bt_gatt_service_static *)srv;
 	srv_params.conn = params->conn;
 
-	int erc = sid_ble_send_data(&srv_params, data, length);
-	if (-EINVAL == erc) {
+	int err_code = sid_ble_send_data(&srv_params, data, length);
+	if (-EINVAL == err_code) {
 		return SID_ERROR_INVALID_ARGS;
-	} else if (0 > erc) {
+	} else if (0 > err_code) {
 		return SID_ERROR_GENERIC;
 	}
 	return SID_ERROR_NONE;
@@ -185,40 +185,40 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
 {
-	sid_error_t erc;
+	sid_error_t err_code;
 
 	if (!cb) {
 		return SID_ERROR_NULL_POINTER;
 	}
 
-	erc = sid_ble_adapter_notification_cb_set(cb->ind_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
+	err_code = sid_ble_adapter_notification_cb_set(cb->ind_callback);
+	if (SID_ERROR_NONE != err_code) {
+		return err_code;
 	}
 
-	erc = sid_ble_adapter_data_cb_set(cb->data_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
+	err_code = sid_ble_adapter_data_cb_set(cb->data_callback);
+	if (SID_ERROR_NONE != err_code) {
+		return err_code;
 	}
 
-	erc = sid_ble_adapter_notification_changed_cb_set(cb->notify_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
+	err_code = sid_ble_adapter_notification_changed_cb_set(cb->notify_callback);
+	if (SID_ERROR_NONE != err_code) {
+		return err_code;
 	}
 
-	erc = sid_ble_adapter_conn_cb_set(cb->conn_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
+	err_code = sid_ble_adapter_conn_cb_set(cb->conn_callback);
+	if (SID_ERROR_NONE != err_code) {
+		return err_code;
 	}
 
-	erc = sid_ble_adapter_mtu_cb_set(cb->mtu_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
+	err_code = sid_ble_adapter_mtu_cb_set(cb->mtu_callback);
+	if (SID_ERROR_NONE != err_code) {
+		return err_code;
 	}
 
-	erc = sid_ble_adapter_adv_start_cb_set(cb->adv_start_callback);
-	if (SID_ERROR_NONE != erc) {
-		return erc;
+	err_code = sid_ble_adapter_adv_start_cb_set(cb->adv_start_callback);
+	if (SID_ERROR_NONE != err_code) {
+		return err_code;
 	}
 
 	return SID_ERROR_NONE;
