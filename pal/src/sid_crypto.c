@@ -93,7 +93,7 @@ static sid_error_t get_error(psa_status_t psa_erc)
 	sid_error_t sid_erc = SID_ERROR_NONE;
 
 	if (PSA_SUCCESS != psa_erc) {
-		LOG_DBG("PSA Error code: %d", psa_erc);
+		LOG_ERR("PSA Error code: %d", psa_erc);
 	}
 
 	switch (psa_erc) {
