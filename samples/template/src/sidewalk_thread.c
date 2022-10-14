@@ -310,7 +310,10 @@ static void set_device_profile(app_context_t *app_context, struct sid_device_pro
 	sid_error_t ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 				     &dev_cfg, sizeof(dev_cfg));
 
-	SID_PAL_ASSERT(SID_ERROR_NONE == ret);
+	if (ret) {
+		LOG_ERR("Option failed (err %d)", ret);
+		return;
+	}
 
 	if (device_profile->unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
 	    || device_profile->unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
@@ -322,7 +325,9 @@ static void set_device_profile(app_context_t *app_context, struct sid_device_pro
 		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
 		ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
 				 device_profile, sizeof(dev_cfg));
-		SID_PAL_ASSERT(SID_ERROR_NONE == ret);
+		if (ret) {
+			LOG_ERR("Option failed (err %d)", ret);
+		}
 	} else {
 		LOG_INF("Device profile is already set to the desired value");
 	}
