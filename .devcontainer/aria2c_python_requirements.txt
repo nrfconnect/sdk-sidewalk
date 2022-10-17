@@ -1,0 +1,26 @@
+https://raw.githubusercontent.com/nrfconnect/sdk-nrf/main/scripts/requirements-base.txt 
+    dir=pip-nrf
+https://raw.githubusercontent.com/nrfconnect/sdk-nrf/main/scripts/requirements-build.txt 
+    dir=pip-nrf
+https://raw.githubusercontent.com/nrfconnect/sdk-nrf/main/scripts/requirements-doc.txt 
+    dir=pip-nrf
+https://raw.githubusercontent.com/nrfconnect/sdk-nrf/main/scripts/requirements.txt 
+    dir=pip-nrf
+
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements-base.txt 
+    dir=pip-zephyr 
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements-build-test.txt 
+    dir=pip-zephyr 
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements-doc.txt 
+    dir=pip-zephyr 
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements-run-test.txt 
+    dir=pip-zephyr 
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements-extras.txt 
+    dir=pip-zephyr 
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements-compliance.txt 
+    dir=pip-zephyr 
+https://raw.githubusercontent.com/nrfconnect/sdk-zephyr/main/scripts/requirements.txt 
+    dir=pip-zephyr
+
+https://raw.githubusercontent.com/nrfconnect/sdk-mcuboot/main/scripts/requirements.txt  
+    dir=pip-mcuboot
