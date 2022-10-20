@@ -6,6 +6,7 @@
 
 #ifndef SIDEWALK_THREAD_H
 #define SIDEWALK_THREAD_H
+#include <sid_api.h>
 
 enum event_type {
 	EVENT_TYPE_SIDEWALK,
@@ -18,6 +19,29 @@ enum event_type {
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 	EVENT_TYPE_FACTORY_RESET,
 };
+enum app_state {
+	STATE_INIT,
+	STATE_SIDEWALK_READY,
+	STATE_SIDEWALK_NOT_READY,
+	STATE_SIDEWALK_SECURE_CONNECTION,
+	STATE_PAL_INIT_ERROR,
+	STATE_LIB_INIT_ERROR,
+};
+
+struct link_status {
+	enum sid_registration_status link_mask;
+	enum sid_link_mode supported_link_mode[SID_LINK_TYPE_MAX_IDX];
+};
+
+typedef struct app_context {
+	struct sid_handle *sidewalk_handle;
+	enum app_state state;
+	struct link_status link_status;
+	uint8_t counter;
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	bool connection_request;
+#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+} app_context_t;
 
 /**
  * @brief Function for starting sidewalk thread.

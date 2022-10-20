@@ -182,6 +182,10 @@ config SIDEWALK_LOG
 	bool "Enable Sidewalk log module"
 	imply LOG
 
+config SIDEWALK_CLI
+	bool "Enable sidewalk CLI"
+	imply SHELL
+
 if SIDEWALK_LOG
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX
