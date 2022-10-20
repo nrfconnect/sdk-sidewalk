@@ -8,3 +8,10 @@ zephyr_library_sources(
     memory.c
     reset.c
 )
+
+if (CONFIG_SIDEWALK_CLI)
+    zephyr_library()
+    zephyr_library_sources(shell.c)
+    zephyr_include_directories(${ZEPHYR_BASE}/../sidewalk/lib/include/)
+    zephyr_include_directories(${ZEPHYR_BASE}/../sidewalk/samples/template/include)
+endif()
