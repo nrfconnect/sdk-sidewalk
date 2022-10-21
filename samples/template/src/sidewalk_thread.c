@@ -71,6 +71,13 @@ typedef struct app_context {
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 } app_context_t;
 
+static struct sid_msg sidewalk_msg;
+static struct sid_msg_desc sidewalk_msg_desc = {
+	.type = SID_MSG_TYPE_NOTIFY,
+	.link_type = SID_LINK_TYPE_ANY,
+	.link_mode = SID_LINK_MODE_CLOUD,
+};
+
 K_MSGQ_DEFINE(sid_msgq, sizeof(enum event_type), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
 K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
@@ -95,6 +102,7 @@ static struct sid_device_profile set_dp_cfg = {
 	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
 };
 
+static struct sid_device_profile dev_cfg;
 #define REGION_US915
 
 /* This product has no external PA and SX1262 can support max of 22dBm*/
@@ -306,7 +314,6 @@ static void connection_request(app_context_t *app_context)
 #else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 static void set_device_profile(app_context_t *app_context, struct sid_device_profile *device_profile)
 {
-	struct sid_device_profile dev_cfg = {};
 	sid_error_t ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 				     &dev_cfg, sizeof(dev_cfg));
 
@@ -351,22 +358,24 @@ static void send_message(app_context_t *app_context)
 	if (STATE_SIDEWALK_READY == app_context->state ||
 	    STATE_SIDEWALK_SECURE_CONNECTION == app_context->state) {
 		LOG_INF("sending counter update: %d", app_context->counter);
-		struct sid_msg msg = { .data = (uint8_t *)&app_context->counter, .size = sizeof(uint8_t) };
-		struct sid_msg_desc desc = {
-			.type = SID_MSG_TYPE_NOTIFY,
-			.link_type = SID_LINK_TYPE_ANY,
-			.link_mode = SID_LINK_MODE_CLOUD,
-		};
+
+		sidewalk_msg.data = (uint8_t *)&app_context->counter;
+		sidewalk_msg.size = sizeof(uint8_t);
+
+		sidewalk_msg_desc.type = SID_MSG_TYPE_NOTIFY;
+		sidewalk_msg_desc.link_type = SID_LINK_TYPE_ANY;
+		sidewalk_msg_desc.link_mode = SID_LINK_MODE_CLOUD;
+
 		if ((app_context->link_status.link_mask & SID_LINK_TYPE_1) &&
 		    (app_context->link_status.supported_link_mode[SID_LINK_TYPE_1_IDX] & SID_LINK_MODE_MOBILE)) {
-			desc.link_mode = SID_LINK_MODE_MOBILE;
+			sidewalk_msg_desc.link_mode = SID_LINK_MODE_MOBILE;
 		}
 
-		sid_error_t ret = sid_put_msg(app_context->sidewalk_handle, &msg, &desc);
+		sid_error_t ret = sid_put_msg(app_context->sidewalk_handle, &sidewalk_msg, &sidewalk_msg_desc);
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed queueing data, err:%d", (int) ret);
 		} else {
-			LOG_DBG("queued data message id:%u", desc.id);
+			LOG_DBG("queued data message id:%u", sidewalk_msg_desc.id);
 			app_context->counter++;
 		}
 	} else {
