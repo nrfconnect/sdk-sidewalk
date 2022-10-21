@@ -16,10 +16,7 @@ menuconfig SIDEWALK
 	imply SIDEWALK_UPTIME
 	imply SIDEWALK_CRITICAL_REGION
 	imply SIDEWALK_ACE_OSAL_ZEPHYR
-	imply SIDEWALK_GPIO
-	imply SIDEWALK_SPI_BUS
 	imply SIDEWALK_SW_INTERRUPTS
-	imply SIDEWALK_TEMPERATURE
 	imply SIDEWALK_DELAY
 
 choice SIDEWALK_LINK_MASK
@@ -34,20 +31,20 @@ config SIDEWALK_LINK_MASK_BLE
 
 config SIDEWALK_LINK_MASK_FSK
 	bool "900 MHz link for FSK"
-	depends on SIDEWALK_GPIO
+	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
 
 config SIDEWALK_LINK_MASK_LORA
 	bool "900 MHz link for LORA"
-	depends on SIDEWALK_GPIO
+	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
 
 endchoice # SIDEWALK_LINK_MASK
 
 config SIDEWALK_BLE
+	bool "Enable Sidewalk Bluetooth Low Energy (BLE) module"
 	imply BT
 	imply SETTINGS
 	imply BT_PERIPHERAL
 	imply BT_GATT_CLIENT
-	bool "Enable Sidewalk Bluetooth Low Energy (BLE) module"
 
 if SIDEWALK_BLE
 
