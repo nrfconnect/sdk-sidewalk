@@ -190,7 +190,46 @@ Sending data to Sidewalk Endpoint using AWS CLI
          WirelessDevice/[Wireless Device ID]"
       }
 
+Sidwalk command-line interface (CLI)
+************************************
 
+Sidewalk application can be build with the CLI support to help with testing and debugging.
+To enable CLI, add the ``CONFIG_SIDEWALK_CLI=y`` option to one of the following places:
+
+* Menuconfig
+* Build command
+* :file:`prj.conf` file
+
+To verify Sidewalk CLI, open UART shell of the device on the default speed 115200.
+Once you see a prompt ``uart:~$``, type the ``sidewalk help`` command to see the avaliable commands.
+
+Currently there are 3 commands avaliable:
+
+- ``sidewalk press_button {1,2,3,4}`` - Simulates button press.
+  It can be useful for remote development or for test automation.
+- ``sidewalk send <hex payload>`` - Sends message to AWS. The payload have to be hex string without any prefix, and number of characters have to be even.
+- ``sidewalk report [--oneline] get state of the application`` - Presents a report in JSON format with the internal state of the application.
+
+See the example report output:
+
+.. code-block:: console
+
+   uart:~$ sidewalk report
+   "SIDEWALK_CLI": {
+         "state": "invalid", 
+         "registered": 1, 
+         "time_synced": 1, 
+         "link_up": 0, 
+         "link_modes": {
+                  "ble": 0, 
+                  "fsk": 0, 
+                  "lora": 0
+         }, 
+         "tx_successfull": 4, 
+         "tx_failed": 0, 
+         "rx_successfull": 0
+   }
+   
 .. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
 .. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
