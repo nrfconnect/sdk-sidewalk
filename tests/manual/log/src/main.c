@@ -39,18 +39,18 @@ void main(void)
 	LOG_INF("Test end.\n");
 
 	LOG_INF("> Test Sidewalk log long messages.");
-	SID_PAL_LOG_INFO("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+	SID_PAL_LOG_INFO(
+		"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
 	LOG_INF("Test end.\n");
 
 	LOG_INF("> Test Sidewalk log flush.");
 	SID_PAL_LOG_FLUSH();
 	LOG_INF("Test end.\n");
 
-
 	LOG_INF("> Test Sidewalk log hexdump.");
-	uint8_t data[] = {1,2,3,4,5,6,7,8}; 
+	uint8_t data[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 	SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_INFO, data, sizeof(data));
 	LOG_INF("Test end.\n");
 
-	LOG_INF("Sidewalk log level value: %d\n", SID_PAL_LOG_LEVEL);
+	LOG_INF("Sidewalk log %s, level %d\n", SID_PAL_LOG_ENABLED ? "Enabled" : "Disabled", SID_PAL_LOG_LEVEL);
 }
