@@ -51,6 +51,7 @@ The container can be closed, and all the data inside the container persists, the
 
 - The older Docker version may have problem with running Ubuntu 22.04, sse [docker/hub-feedback#2235](https://github.com/docker/hub-feedback/issues/2235)
 
+- Sidewalk registration script does not work from the container. As a temporary solution all actions that need device_registration app should be preformed on host.
 
 ## Contributing
 Pull requests are welcome.
