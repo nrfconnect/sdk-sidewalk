@@ -5,6 +5,7 @@
  */
 #include <unity.h>
 #include <sid_pal_timer_ifc.h>
+#include <mock_sid_pal_critical_region_ifc.h>
 
 static sid_pal_timer_t *p_null_timer = NULL;
 static sid_pal_timer_t test_timer;
@@ -16,6 +17,8 @@ static int timer_callback_cnt = 0;
 void setUp(void)
 {
 	timer_callback_cnt = 0;
+	__wrap_sid_pal_enter_critical_region_Ignore();
+	__wrap_sid_pal_exit_critical_region_Ignore();
 }
 
 /******************************************************************
