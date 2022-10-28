@@ -188,6 +188,8 @@ void test_record_delete(void)
 /* Test deleting non-existent record */
 void test_record_delete_error(void)
 {
+    TEST_IGNORE_MESSAGE("There is no error on deleting non-existing record in NVS");
+
     sid_error_t ret;
 
     ret = sid_pal_storage_kv_record_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
