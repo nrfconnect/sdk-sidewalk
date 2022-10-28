@@ -1,0 +1,6 @@
+tests:
+  sidewalk.sid_validation.pal_storage_kv:
+    platform_allow: nrf52840dk_nrf52840
+    tags: Sidewalk
+    integration_platforms:
+      - nrf52840dk
