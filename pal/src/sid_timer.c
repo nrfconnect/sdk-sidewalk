@@ -11,11 +11,10 @@
 #include <sid_pal_timer_ifc.h>
 #include <sid_pal_uptime_ifc.h>
 #include <sid_pal_assert_ifc.h>
+#include <sid_pal_critical_region_ifc.h>
 #include <sid_time_ops.h>
 #include <stdint.h>
 #include <zephyr.h>
-
-K_MUTEX_DEFINE(sid_timer_mutex);
 
 struct sid_pal_timer_ctx {
 	sys_dlist_t list;
@@ -52,11 +51,11 @@ static bool sid_pal_timer_list_in_list(sid_pal_timer_t *timer)
 	SID_PAL_ASSERT(timer);
 	bool result = true;
 
-	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_enter_critical_region();
 	if ((0 == timer->node.next) && (0 == timer->node.prev)) {
 		result = false;
 	}
-	k_mutex_unlock(&sid_timer_mutex);
+	sid_pal_exit_critical_region();
 
 	return result;
 }
@@ -65,11 +64,11 @@ static void sid_pal_timer_list_delete(sid_pal_timer_t *timer)
 {
 	SID_PAL_ASSERT(timer);
 
-	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_enter_critical_region();
 	if (!((0 == timer->node.next) && (0 == timer->node.prev))) {
 		sys_dlist_remove(&timer->node);
 	}
-	k_mutex_unlock(&sid_timer_mutex);
+	sid_pal_exit_critical_region();
 }
 
 static void sid_pal_timer_list_insert(struct sid_pal_timer_ctx *ctx, sid_pal_timer_t *timer)
@@ -77,7 +76,7 @@ static void sid_pal_timer_list_insert(struct sid_pal_timer_ctx *ctx, sid_pal_tim
 	SID_PAL_ASSERT(ctx && timer);
 	bool reschedule_required = true;
 
-	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_enter_critical_region();
 	sys_dnode_t *node = sys_dlist_peek_head(&ctx->list);
 	while (node) {
 		sid_pal_timer_t *element = CONTAINER_OF(node, __typeof__(*element), node);
@@ -101,7 +100,7 @@ static void sid_pal_timer_list_insert(struct sid_pal_timer_ctx *ctx, sid_pal_tim
 	if (reschedule_required) {
 		sid_timer_start(&timer->alarm);
 	}
-	k_mutex_unlock(&sid_timer_mutex);
+	sid_pal_exit_critical_region();
 }
 
 static void sid_pal_timer_list_fetch(struct sid_pal_timer_ctx *ctx,
@@ -111,14 +110,14 @@ static void sid_pal_timer_list_fetch(struct sid_pal_timer_ctx *ctx,
 	SID_PAL_ASSERT(ctx && non_gt_than && timer);
 	*timer = NULL;
 
-	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_enter_critical_region();
 	sid_pal_timer_t *result = SYS_DLIST_PEEK_HEAD_CONTAINER(&ctx->list, result, node);
 
 	if (result && !sid_time_gt(&result->alarm, non_gt_than)) {
 		*timer = result;
 		sys_dlist_remove(&result->node);
 	}
-	k_mutex_unlock(&sid_timer_mutex);
+	sid_pal_exit_critical_region();
 }
 
 static void sid_pal_timer_list_get_next_schedule(struct sid_pal_timer_ctx *ctx, struct sid_timespec *schedule)
@@ -126,12 +125,12 @@ static void sid_pal_timer_list_get_next_schedule(struct sid_pal_timer_ctx *ctx, 
 	SID_PAL_ASSERT(ctx && schedule);
 	*schedule = SID_TIME_INFINITY;
 
-	k_mutex_lock(&sid_timer_mutex, K_FOREVER);
+	sid_pal_enter_critical_region();
 	sid_pal_timer_t *result = SYS_DLIST_PEEK_HEAD_CONTAINER(&ctx->list, result, node);
 	if (result) {
 		*schedule = result->alarm;
 	}
-	k_mutex_unlock(&sid_timer_mutex);
+	sid_pal_exit_critical_region();
 }
 
 sid_error_t sid_pal_timer_init(sid_pal_timer_t *timer_storage, sid_pal_timer_cb_t event_callback,
@@ -229,21 +228,12 @@ void sid_pal_timer_event_callback(void *arg, const struct sid_timespec *now)
 	sid_timer_start(&next_schedule);
 }
 
-static void sid_timer_worker(struct k_work *work)
-{
-	ARG_UNUSED(work);
-	struct sid_timespec result;
-
-	sid_pal_uptime_now(&result);
-	sid_pal_timer_event_callback(NULL, &result);
-}
-
-K_WORK_DEFINE(sid_timer_work, sid_timer_worker);
-
 static void sid_timer_handler(struct k_timer *timer_data)
 {
 	ARG_UNUSED(timer_data);
-	k_work_submit(&sid_timer_work);
+	struct sid_timespec handle_time;
+	sid_pal_uptime_now(&handle_time);
+	sid_pal_timer_event_callback(NULL, &handle_time);
 }
 
 K_TIMER_DEFINE(sid_timer, sid_timer_handler, NULL);
