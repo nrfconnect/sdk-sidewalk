@@ -563,31 +563,6 @@ static app_context_t sid_app_ctx = {
 	.state = STATE_INIT,
 };
 
-#ifdef CONFIG_SIDEWALK_CLI
-void sidewalk_send_message(struct sid_msg msg)
-{
-	if (STATE_SIDEWALK_READY == sid_app_ctx.state ||
-	    STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx.state) {
-		LOG_INF("sending counter update: %d", sid_app_ctx.counter);
-
-		sidewalk_msg_desc.type = SID_MSG_TYPE_NOTIFY;
-		sidewalk_msg_desc.link_type = SID_LINK_TYPE_ANY;
-		sidewalk_msg_desc.link_mode = SID_LINK_MODE_CLOUD;
-
-		sid_error_t ret = sid_put_msg(sid_app_ctx.sidewalk_handle, &msg, &sidewalk_msg_desc);
-		if (SID_ERROR_NONE != ret) {
-			LOG_ERR("failed queueing data, err:%d", (int) ret);
-		} else {
-			LOG_DBG("queued data message id:%u", sidewalk_msg_desc.id);
-			sid_app_ctx.counter++;
-		}
-	} else {
-		LOG_ERR("sidewalk is not ready yet!");
-	}
-}
-
-#endif
-
 void sidewalk_thread_enable(void)
 {
 
