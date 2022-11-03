@@ -15,6 +15,8 @@
 #include <json_printer.h>
 #include <sid_shell.h>
 
+LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
+
 #define CMD_RETURN_OK 0
 #define CMD_RETURN_HELP 1
 #define CMD_RETURN_ARGUMENT_INVALID -EINVAL
@@ -140,6 +142,7 @@ static int cmd_press_button(const struct shell *shell, size_t argc,
 typedef struct send_message_work {
 	struct k_work work;
 	struct sid_msg msg;
+	uint16_t id;
 	struct k_sem sem;
 } send_message_work_t;
 
@@ -148,7 +151,25 @@ void sidewalk_send_message_work(struct k_work *work)
 
 	send_message_work_t *message = CONTAINER_OF(work, send_message_work_t, work);
 
-	sidewalk_send_message(message->msg);
+	if (STATE_SIDEWALK_READY == sid_app_ctx->state ||
+	    STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx->state) {
+		LOG_HEXDUMP_DBG(message->msg.data, message->msg.size, "sending message");
+
+		struct sid_msg_desc desc;
+		desc.type = SID_MSG_TYPE_NOTIFY;
+		desc.link_type = SID_LINK_TYPE_ANY;
+		desc.link_mode = SID_LINK_MODE_CLOUD;
+		desc.id = message->id;
+
+		sid_error_t ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &(message->msg), &desc);
+		if (SID_ERROR_NONE != ret) {
+			LOG_ERR("failed sending message err:%d", (int) ret);
+		} else {
+			LOG_DBG("queued data message id:%u", desc.id);
+		}
+	} else {
+		LOG_ERR("sidewalk is not ready yet!");
+	}
 	k_sem_give(&message->sem);
 }
 
@@ -162,6 +183,10 @@ typedef Result(size_t, str_to_hex_err) StrToHexRet;
 static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char *in)
 {
 	uint8_t *working_ptr = in;
+
+	if (strlen(in) < 2) {
+		return (StrToHexRet) Result_Err(ARG_EMPTY);
+	}
 
 	if (in[0] == '0' && in[1] == 'x') {
 		if (strlen(in) == 2) {
@@ -192,17 +217,26 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 
 static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 {
-	if (argc != 2) {
-		shell_error(shell, "Add payload to send in hex form\nexample: $ sidewalk send deadbeefCAFE");
+	if (argc != 3) {
+		shell_error(shell, "Add payload to send in hex form\nexample: $ sidewalk send deadbeefCAFE 123");
 		return CMD_RETURN_HELP;
 	}
 	send_message_work_t message;
 
 	if (strlen(argv[1]) % 2) {
 		shell_error(shell,
-			    "Payload have to have even number of hex characters\nexample: $ sidewalk send adeadbeefCAFE");
+			    "Payload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
 		return CMD_RETURN_HELP;
 	}
+
+	int32_t id_raw = atoi(argv[2]);
+
+	if (id_raw == 0 && argv[2][0] != '0') {
+		shell_error(shell,
+			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk send deadbeefCAFE 123");
+		return CMD_RETURN_HELP;
+	}
+	message.id = id_raw % 0x3FFF;
 
 	k_work_init(&message.work, sidewalk_send_message_work);
 	k_sem_init(&message.sem, 0, 1);
@@ -217,11 +251,11 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 			return CMD_RETURN_HELP;
 		case ARG_NOT_HEX:
 			shell_error(shell,
-				    "Payload is not hex string\nPayload have to have even number of hex characters\nexample: $ sidewalk send adeadbeefCAFE");
+				    "Payload is not hex string\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
 			return CMD_RETURN_HELP;
 		case ARG_EMPTY:
 			shell_error(shell,
-				    "Payload is empty\nPayload have to have even number of hex characters\nexample: $ sidewalk send adeadbeefCAFE");
+				    "Payload is empty\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
 			return CMD_RETURN_HELP;
 		default:
 			shell_error(shell,
@@ -233,7 +267,7 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 
 	if (payload_size == 0) {
 		shell_error(shell,
-			    "Payload have to consist only from hex characters\nexample: $ sidewalk send deadbeefCAFE");
+			    "Payload have to consist only from hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
 		return CMD_RETURN_HELP;
 	}
 
@@ -303,7 +337,9 @@ static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
 	SHELL_CMD_ARG(press_button, NULL, "{1,2,3,4}", cmd_press_button, 2, 0),
-	SHELL_CMD_ARG(send, NULL, "<hex payload> without prefix and with even number of digits", cmd_send, 2, 0),
+	SHELL_CMD_ARG(send, NULL,
+		      "<hex payload> <sequence id>\n\thex payload have to have even number of hex characters, sequence id is represented in decimal",
+		      cmd_send, 3, 0),
 	SHELL_CMD_ARG(report, NULL, "[--oneline] get state of the application", cmd_report, 1, 1),
 	SHELL_SUBCMD_SET_END);
 
