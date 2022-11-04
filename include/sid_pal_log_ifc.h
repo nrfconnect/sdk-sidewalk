@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -53,8 +53,13 @@ typedef enum
  * @param[in]   num_args        Number of arguments to be logged
  * @param[in]   fmt             Format string to print with variables
  */
-
 void sid_pal_log(sid_pal_log_severity_t severity, uint32_t num_args, const char* fmt, ...);
+
+/**
+ * The function returns current logging level. Implemented in sid_log_control
+ *
+ */
+sid_pal_log_severity_t sid_log_control_get_current_log_level();
 
 /**
  * Flush log function
@@ -128,11 +133,11 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
 #define SID_PAL_LOG_FLUSH()  sid_pal_log_flush()
 #define SID_PAL_LOG_PUSH_STR(x)  sid_pal_log_push_str(x)
 
-#define SID_PAL_LOG(level, fmt_, ...)                                                   \
-    do {                                                                                \
-        if (level <= SID_PAL_LOG_LEVEL)  {                                              \
-            sid_pal_log(level, SID_PAL_VA_NARG(__VA_ARGS__), fmt_, ##__VA_ARGS__);      \
-        }                                                                               \
+#define SID_PAL_LOG(level, fmt_, ...)                                                           \
+    do {                                                                                        \
+        if (level <= SID_PAL_LOG_LEVEL && level <= sid_log_control_get_current_log_level())  {  \
+            sid_pal_log(level, SID_PAL_VA_NARG(__VA_ARGS__), fmt_, ##__VA_ARGS__);              \
+        }                                                                                       \
     } while(0)
 
 #define SID_PAL_HEXDUMP_MAX           (8)
@@ -141,11 +146,10 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
         if (level <= SID_PAL_LOG_LEVEL) {                                     \
             char const digit[16] = "0123456789ABCDEF";                        \
             uint8_t idx=0;                                                    \
-	    char hex_buf[SID_PAL_HEXDUMP_MAX*3 + 1] = {0};                    \
+            char hex_buf[SID_PAL_HEXDUMP_MAX*3 + 1] = {0};                    \
             for (int i=0; i<len; i++) {                                       \
                 if (idx && ((i % SID_PAL_HEXDUMP_MAX) == 0)) {                \
                     SID_PAL_LOG(level, "%s", SID_PAL_LOG_PUSH_STR(hex_buf));  \
-                    SID_PAL_LOG_FLUSH();                                      \
                     idx = 0;                                                  \
                 }                                                             \
                 hex_buf[idx++] = digit[(data[i] >> 4) & 0x0f];                \
@@ -155,7 +159,6 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
             }                                                                 \
             if (idx) {                                                        \
                 SID_PAL_LOG(level, "%s", SID_PAL_LOG_PUSH_STR(hex_buf));      \
-                SID_PAL_LOG_FLUSH();                                          \
             }                                                                 \
         }                                                                     \
     } while(0)
@@ -164,7 +167,7 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
 #define SID_PAL_LOG(level_, fmt_, ...)
 #define SID_PAL_HEXDUMP(level_, data_, len_)
 #define SID_PAL_LOG_FLUSH()
-#define SID_PAL_LOG_PUSH_STR(x)
+#define SID_PAL_LOG_PUSH_STR(x) (x)
 #endif
 
 /* Logging helpers to simplify logging APIs */

@@ -34,7 +34,18 @@ extern "C" {
 #elif defined(SID_PAL_ASSERT_USE_C_ASSERT)
 #   include <assert.h>
 #   define SID_PAL_ASSERT(expression) assert(expression)
-#else // !defined(SID_PAL_ASSERT_DISABLED) && !defined(SID_PAL_ASSERT_USE_C_ASSERT)
+#elif defined(SID_PAL_ASSERT_USE_TEST_FIXTURE) && SID_PAL_ASSERT_USE_TEST_FIXTURE
+#   define SID_PAL_ASSERT(x)                    \
+        do {                                    \
+            if (!(x)) {                         \
+                sid_assert_test_throw_assert(); \
+            }                                   \
+        } while (0)
+
+void sid_assert_test_throw_assert(void);
+
+#else   // !defined(SID_PAL_ASSERT_DISABLED) && !defined(SID_PAL_ASSERT_USE_C_ASSERT) &&
+        // !defined(SID_PAL_ASSERT_USE_TEXT_FIXTURE)
 #   define SID_PAL_ASSERT(expression) \
     ((expression) ? \
         ((void)0) : \

@@ -81,3 +81,7 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer)
 
 	return false;
 }
+
+sid_pal_log_severity_t sid_log_control_get_current_log_level(void){
+	return SID_PAL_LOG_LEVEL;
+}
