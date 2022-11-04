@@ -42,23 +42,14 @@ LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
 #define LINK_MASK       (SID_LINK_TYPE_1)
-#define LINK_MASK_START (LINK_MASK)
 #elif  CONFIG_SIDEWALK_LINK_MASK_FSK
 #define LINK_MASK       (SID_LINK_TYPE_2)
-#define LINK_MASK_START (SID_LINK_TYPE_ANY)
 #elif CONFIG_SIDEWALK_LINK_MASK_LORA
 #define LINK_MASK       (SID_LINK_TYPE_3)
-#define LINK_MASK_START (SID_LINK_TYPE_ANY)
 #else
 #error "Not defined Sidewalk link mask!!"
 #endif
 
-static struct sid_msg sidewalk_msg;
-static struct sid_msg_desc sidewalk_msg_desc = {
-	.type = SID_MSG_TYPE_NOTIFY,
-	.link_type = SID_LINK_TYPE_ANY,
-	.link_mode = SID_LINK_MODE_CLOUD,
-};
 K_MSGQ_DEFINE(sid_msgq, sizeof(enum event_type), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
 K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
@@ -76,13 +67,17 @@ static const uint8_t *link_mode_idx_name[] = {
 	"ble", "fsk", "lora"
 };
 
+static app_context_t app_ctx = {
+	.sidewalk_handle = NULL,
+	.state = STATE_INIT,
+};
+
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static struct sid_device_profile set_dp_cfg = {
 	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A,
 	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_2,
 	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
 };
-
 static struct sid_device_profile dev_cfg;
 #define REGION_US915
 
@@ -237,11 +232,71 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 #ifdef CONFIG_SIDEWALK_CLI
 extern const struct sid_status *CLI_status;
 #endif
+
+static void sidewalk_abort(app_context_t *app_ctx)
+{
+	sid_error_t ret = SID_ERROR_NONE;
+
+	LOG_INF("Deinitialize Sidewalk, link_mask:%x", app_ctx->sidewalk_config.link_mask);
+
+	ret = sid_stop(app_ctx->sidewalk_handle, app_ctx->sidewalk_config.link_mask);
+	if (ret) {
+		LOG_ERR("Sidewalk stop error (code %d)", ret);
+	}
+	ret = sid_deinit(app_ctx->sidewalk_handle);
+	if (ret) {
+		LOG_ERR("Sidewalk deinit error (code %d)", ret);
+	}
+	memset(app_ctx, 0x00, sizeof(app_context_t));
+
+	dk_set_leds(SID_LED_INDICATE_INIT_ERROR);
+}
+
+static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mask)
+{
+	if (app_ctx->sidewalk_config.link_mask != link_mask) {
+		LOG_INF("Start Sidewalk link_mask:%x", link_mask);
+
+		sid_error_t ret = SID_ERROR_NONE;
+		if (app_ctx->sidewalk_handle != NULL) {
+			ret = sid_deinit(app_ctx->sidewalk_handle);
+			if (ret != SID_ERROR_NONE) {
+				LOG_ERR("failed to deinitialize sidewalk, link_mask:%x, err:%d", link_mask, (int)ret);
+				sidewalk_abort(app_ctx);
+				return SID_ERROR_GENERIC;
+			}
+		}
+
+		struct sid_handle *sid_handle = NULL;
+		app_ctx->sidewalk_config.link_mask = link_mask;
+		// Initialise sidewalk
+		ret = sid_init(&app_ctx->sidewalk_config, &sid_handle);
+		if (SID_ERROR_NONE != ret) {
+			LOG_ERR("failed to initialize sidewalk link_mask:%x, err:%d", link_mask, (int)ret);
+			sidewalk_abort(app_ctx);
+			return SID_ERROR_GENERIC;
+		}
+
+		// Register sidewalk handler to the application app_ctx
+		app_ctx->sidewalk_handle = sid_handle;
+
+		// Start the sidewalk stack
+		ret = sid_start(sid_handle, link_mask);
+		if (SID_ERROR_NONE != ret) {
+			LOG_ERR("failed to start sidewalk, link_mask:%x, err:%d", link_mask, (int)ret);
+			sidewalk_abort(app_ctx);
+			return SID_ERROR_GENERIC;
+		}
+	}
+
+	return SID_ERROR_NONE;
+}
+
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	LOG_INF("status changed: %s", status_name[status->state]);
 
-	app_context_t *app_context = (app_context_t *)context;
+	app_context_t *app_ctx = (app_context_t *)context;
 
 #ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_sid_status(status);
@@ -249,20 +304,20 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	switch (status->state) {
 	case SID_STATE_READY:
 		dk_set_led_on(SID_LED_INDICATE_CONNECTED);
-		app_context->state = STATE_SIDEWALK_READY;
+		app_ctx->state = STATE_SIDEWALK_READY;
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-		app_context->connection_request = false;
+		app_ctx->connection_request = false;
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 		break;
 	case SID_STATE_NOT_READY:
 		dk_set_led_off(SID_LED_INDICATE_CONNECTED);
-		app_context->state = STATE_SIDEWALK_NOT_READY;
+		app_ctx->state = STATE_SIDEWALK_NOT_READY;
 		break;
 	case SID_STATE_ERROR:
-		LOG_ERR("sidewalk error: %d", (int)sid_get_error(app_context->sidewalk_handle));
+		LOG_ERR("Sidewalk error: %d", (int)sid_get_error(app_ctx->sidewalk_handle));
 		break;
 	case SID_STATE_SECURE_CHANNEL_READY:
-		app_context->state = STATE_SIDEWALK_SECURE_CONNECTION;
+		app_ctx->state = STATE_SIDEWALK_SECURE_CONNECTION;
 		break;
 	}
 
@@ -271,10 +326,10 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
 		status->detail.link_status_mask ? "Up" : "Down");
 
-	app_context->link_status.link_mask = (enum sid_registration_status)status->detail.link_status_mask;
+	app_ctx->link_status.link_mask = (enum sid_registration_status)status->detail.link_status_mask;
 	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
 		enum sid_link_mode mode = (enum sid_link_mode)status->detail.supported_link_modes[i];
-		app_context->link_status.supported_link_mode[i] = mode;
+		app_ctx->link_status.supported_link_mode[i] = mode;
 
 		if (mode) {
 			LOG_INF("Link mode %s, on %s", link_mode_name[mode], link_mode_idx_name[i]);
@@ -284,6 +339,8 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 static void on_sidewalk_factory_reset(void *context)
 {
+	ARG_UNUSED(context);
+
 	LOG_DBG("factory reset notification received from sid api");
 	if (sid_hal_reset(SID_HAL_RESET_NORMAL)) {
 		LOG_WRN("Reboot type not supported");
@@ -291,16 +348,16 @@ static void on_sidewalk_factory_reset(void *context)
 }
 
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-static void connection_request(app_context_t *app_context)
+static void connection_request(app_context_t *app_ctx)
 {
-	if (STATE_SIDEWALK_READY == app_context->state) {
+	if (STATE_SIDEWALK_READY == app_ctx->state) {
 		LOG_WRN("Sidewalk ready, operation not valid");
 	} else {
-		bool next = !app_context->connection_request;
+		bool next = !app_ctx->connection_request;
 		LOG_INF("%s connection request", next ? "Set" : "Clear");
-		sid_error_t ret = sid_ble_bcn_connection_request(app_context->sidewalk_handle, next);
+		sid_error_t ret = sid_ble_bcn_connection_request(app_ctx->sidewalk_handle, next);
 		if (SID_ERROR_NONE == ret) {
-			app_context->connection_request = next;
+			app_ctx->connection_request = next;
 		} else {
 			LOG_ERR("Connection request failed %d", ret);
 		}
@@ -308,9 +365,9 @@ static void connection_request(app_context_t *app_context)
 }
 
 #else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
-static void set_device_profile(app_context_t *app_context, struct sid_device_profile *device_profile)
+static void set_device_profile(app_context_t *app_ctx)
 {
-	sid_error_t ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
+	sid_error_t ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 				     &dev_cfg, sizeof(dev_cfg));
 
 	if (ret) {
@@ -318,16 +375,16 @@ static void set_device_profile(app_context_t *app_context, struct sid_device_pro
 		return;
 	}
 
-	if (device_profile->unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
-	    || device_profile->unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
-	    || (device_profile->unicast_params.device_profile_id < SID_LINK3_PROFILE_A
-		&& device_profile->unicast_params.unicast_window_interval.sync_rx_interval_ms
+	if (set_dp_cfg.unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
+	    || set_dp_cfg.unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
+	    || (set_dp_cfg.unicast_params.device_profile_id < SID_LINK3_PROFILE_A
+		&& set_dp_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms
 		!= dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms)
-	    || (device_profile->unicast_params.device_profile_id >= SID_LINK3_PROFILE_A
-		&& device_profile->unicast_params.unicast_window_interval.async_rx_interval_ms
+	    || (set_dp_cfg.unicast_params.device_profile_id >= SID_LINK3_PROFILE_A
+		&& set_dp_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms
 		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
-		ret = sid_option(app_context->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-				 device_profile, sizeof(dev_cfg));
+		ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+				 &set_dp_cfg, sizeof(dev_cfg)); 
 		if (ret) {
 			LOG_ERR("Option failed (err %d)", ret);
 		}
@@ -338,9 +395,9 @@ static void set_device_profile(app_context_t *app_context, struct sid_device_pro
 
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
-static void factory_reset(app_context_t *app_context)
+static void factory_reset(app_context_t *app_ctx)
 {
-	sid_error_t ret = sid_set_factory_reset(app_context->sidewalk_handle);
+	sid_error_t ret = sid_set_factory_reset(app_ctx->sidewalk_handle);
 
 	if (SID_ERROR_NONE != ret) {
 		LOG_ERR("Notification of factory reset to sid api failed!");
@@ -349,37 +406,37 @@ static void factory_reset(app_context_t *app_context)
 	}
 }
 
-static void send_message(app_context_t *app_context)
+static void send_message(app_context_t *app_ctx)
 {
-	if (STATE_SIDEWALK_READY == app_context->state ||
-	    STATE_SIDEWALK_SECURE_CONNECTION == app_context->state) {
-		LOG_INF("sending counter update: %d", app_context->counter);
+	sid_error_t ret = SID_ERROR_NONE;
 
-		sidewalk_msg.data = (uint8_t *)&app_context->counter;
-		sidewalk_msg.size = sizeof(uint8_t);
-
-		sidewalk_msg_desc.type = SID_MSG_TYPE_NOTIFY;
-		sidewalk_msg_desc.link_type = SID_LINK_TYPE_ANY;
-		sidewalk_msg_desc.link_mode = SID_LINK_MODE_CLOUD;
-
-		if ((app_context->link_status.link_mask & SID_LINK_TYPE_1) &&
-		    (app_context->link_status.supported_link_mode[SID_LINK_TYPE_1_IDX] & SID_LINK_MODE_MOBILE)) {
-			sidewalk_msg_desc.link_mode = SID_LINK_MODE_MOBILE;
+	if (STATE_SIDEWALK_READY == app_ctx->state ||
+	    STATE_SIDEWALK_SECURE_CONNECTION == app_ctx->state) {
+		LOG_INF("sending counter update: %d", app_ctx->counter);
+		struct sid_msg msg = { .data = (uint8_t *)&app_ctx->counter, .size = sizeof(uint8_t) };
+		struct sid_msg_desc desc = {
+			.type = SID_MSG_TYPE_NOTIFY,
+			.link_type = SID_LINK_TYPE_ANY,
+			.link_mode = SID_LINK_MODE_CLOUD,
+		};
+		if ((app_ctx->link_status.link_mask & SID_LINK_TYPE_1) &&
+		    (app_ctx->link_status.supported_link_mode[SID_LINK_TYPE_1_IDX] & SID_LINK_MODE_MOBILE)) {
+			desc.link_mode = SID_LINK_MODE_MOBILE;
 		}
 
-		sid_error_t ret = sid_put_msg(app_context->sidewalk_handle, &sidewalk_msg, &sidewalk_msg_desc);
+		ret = sid_put_msg(app_ctx->sidewalk_handle, &msg, &desc);
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed queueing data, err:%d", (int) ret);
 		} else {
-			LOG_DBG("queued data message id:%u", sidewalk_msg_desc.id);
-			app_context->counter++;
+			LOG_DBG("queued data message id:%u", desc.id);
+			app_ctx->counter++;
 		}
 	} else {
-		LOG_ERR("sidewalk is not ready yet!");
+		LOG_ERR("Sidewalk is not ready yet!");
 	}
 }
 
-static void set_battery_level(app_context_t *app_context)
+static void set_battery_level(app_context_t *app_ctx)
 {
 	static uint8_t fake_bat_lev = 70;
 
@@ -387,11 +444,11 @@ static void set_battery_level(app_context_t *app_context)
 	if (fake_bat_lev > 100) {
 		fake_bat_lev = 0;
 	}
-	sid_error_t ret = sid_option(app_context->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL,
+	sid_error_t ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL,
 				     &fake_bat_lev, sizeof(fake_bat_lev));
 
 	if (SID_ERROR_NONE != ret) {
-		LOG_ERR("failed setting sidewalk option!");
+		LOG_ERR("failed setting Sidewalk option!");
 	} else {
 		LOG_DBG("set battery level to %d", fake_bat_lev);
 	}
@@ -439,7 +496,7 @@ static sid_error_t sid_pal_init(void)
 	return SID_ERROR_NONE;
 }
 
-static sid_error_t sid_lib_run(app_context_t *app_context)
+static sid_error_t sid_lib_run(app_context_t *app_ctx)
 {
 	static const sid_ble_link_config_t ble_link_config = {
 		.create_ble_adapter = sid_pal_ble_adapter_create,
@@ -447,40 +504,30 @@ static sid_error_t sid_lib_run(app_context_t *app_context)
 	};
 
 	struct sid_event_callbacks event_callbacks = {
-		.context = app_context,
-		.on_event = on_sidewalk_event,                          /* Called from ISR context */
-		.on_msg_received = on_sidewalk_msg_received,            /* Called from sid_process() */
-		.on_msg_sent = on_sidewalk_msg_sent,                    /* Called from sid_process() */
-		.on_send_error = on_sidewalk_send_error,                /* Called from sid_process() */
-		.on_status_changed = on_sidewalk_status_changed,        /* Called from sid_process() */
-		.on_factory_reset = on_sidewalk_factory_reset,          /* Called from sid_process() */
+		.context = app_ctx,
+		.on_event = on_sidewalk_event,                                  /* Called from ISR context */
+		.on_msg_received = on_sidewalk_msg_received,                    /* Called from sid_process() */
+		.on_msg_sent = on_sidewalk_msg_sent,                            /* Called from sid_process() */
+		.on_send_error = on_sidewalk_send_error,                        /* Called from sid_process() */
+		.on_status_changed = on_sidewalk_status_changed,                /* Called from sid_process() */
+		.on_factory_reset = on_sidewalk_factory_reset,                  /* Called from sid_process() */
 	};
 
-	struct sid_config config = {
-		.link_mask = LINK_MASK,
-		.callbacks = &event_callbacks,
-		.link_config = &ble_link_config,
-	};
+	app_ctx->sidewalk_config.link_mask = 0;
+	app_ctx->sidewalk_config.callbacks = &event_callbacks;
+	app_ctx->sidewalk_config.link_config = &ble_link_config;
 
-	sid_error_t ret_code = sid_init(&config, &app_context->sidewalk_handle);
+	sid_error_t ret_code = init_and_start_link(app_ctx, SID_LINK_TYPE_1);
 
 	if (SID_ERROR_NONE != ret_code) {
-		LOG_ERR("failed to initialize sidewalk, err: %d", (int)ret_code);
-		dk_set_leds(SID_LED_INDICATE_INIT_ERROR);
-		sid_deinit(app_context->sidewalk_handle);
+		LOG_ERR("failed to initialize Sidewalk, err: %d", (int)ret_code);
+		sidewalk_abort(app_ctx);
 		return ret_code;
 	}
 
-	ret_code = sid_start(app_context->sidewalk_handle, LINK_MASK_START);
-	if (SID_ERROR_NONE != ret_code) {
-		LOG_ERR("failed to start sidewalk, err: %d", (int)ret_code);
-		dk_set_leds(SID_LED_INDICATE_INIT_ERROR);
-		return ret_code;
-	}
-
-	app_context->state = STATE_SIDEWALK_NOT_READY;
+	app_ctx->state = STATE_SIDEWALK_NOT_READY;
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-	app_context->connection_request = false;
+	app_ctx->connection_request = false;
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 	return SID_ERROR_NONE;
 }
@@ -490,19 +537,18 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 	ARG_UNUSED(u2);
 	ARG_UNUSED(u3);
 
-	app_context_t *sid_app_ctx = (app_context_t *)context;
+	app_context_t *app_ctx = (app_context_t *)context;
 
 	if (SID_ERROR_NONE != sid_pal_init()) {
-		sid_app_ctx->state = STATE_PAL_INIT_ERROR;
+		app_ctx->state = STATE_PAL_INIT_ERROR;
 		return;
 	}
 
-	if (SID_ERROR_NONE != sid_lib_run(sid_app_ctx)) {
-		sid_app_ctx->state = STATE_LIB_INIT_ERROR;
+	if (SID_ERROR_NONE != sid_lib_run(app_ctx)) {
 		return;
 	}
 
-	LOG_INF("Starting sidewalk thread ...");
+	LOG_INF("Starting Sidewalk thread ...");
 
 	while (1) {
 		enum event_type event;
@@ -511,7 +557,7 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			switch (event) {
 			case EVENT_TYPE_SIDEWALK:
 			{
-				sid_error_t ret = sid_process(sid_app_ctx->sidewalk_handle);
+				sid_error_t ret = sid_process(app_ctx->sidewalk_handle);
 				if (ret) {
 					LOG_WRN("Process error (code %d)", ret);
 				}
@@ -519,30 +565,40 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			}
 			case EVENT_TYPE_SEND_HELLO:
 			{
-				send_message(sid_app_ctx);
+				if (app_ctx->sidewalk_config.link_mask != LINK_MASK) {
+					if (SID_ERROR_NONE != init_and_start_link(app_ctx, LINK_MASK)) {
+						return;
+					}
+				}
+				send_message(app_ctx);
 				break;
 			}
 			case EVENT_TYPE_SET_BATTERY_LEVEL:
 			{
-				set_battery_level(sid_app_ctx);
+				set_battery_level(app_ctx);
 				break;
 			}
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 			case EVENT_TYPE_CONNECTION_REQUEST:
 			{
-				connection_request(sid_app_ctx);
+				connection_request(app_ctx);
 				break;
 			}
 #else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 			case EVENT_TYPE_SET_DEVICE_PROFILE:
 			{
-				set_device_profile(sid_app_ctx, &set_dp_cfg);
+				if (app_ctx->sidewalk_config.link_mask != LINK_MASK) {
+					if (SID_ERROR_NONE != init_and_start_link(app_ctx, LINK_MASK)) {
+						return;
+					}
+				}
+				set_device_profile(app_ctx);
 				break;
 			}
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 			case EVENT_TYPE_FACTORY_RESET:
 			{
-				factory_reset(sid_app_ctx);
+				factory_reset(app_ctx);
 				break;
 			}
 			default: break;
@@ -558,21 +614,15 @@ void sidewalk_thread_message_q_write(enum event_type event)
 	}
 }
 
-static app_context_t sid_app_ctx = {
-	.sidewalk_handle = NULL,
-	.state = STATE_INIT,
-};
-
 void sidewalk_thread_enable(void)
 {
-
 	sid_tid = k_thread_create(&sid_thread, sid_stack_area,
 				  K_THREAD_STACK_SIZEOF(sid_stack_area),
-				  sidewalk_thread, &sid_app_ctx, NULL, NULL,
+				  sidewalk_thread, &app_ctx, NULL, NULL,
 				  CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
 	ARG_UNUSED(sid_tid);
 	k_thread_name_set(&sid_thread, "sidewalk");
 #ifdef CONFIG_SIDEWALK_CLI
-	CLI_init(&sid_app_ctx);
+	CLI_init(&app_ctx);
 #endif
 }

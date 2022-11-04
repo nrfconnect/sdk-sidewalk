@@ -35,6 +35,7 @@ struct link_status {
 
 typedef struct app_context {
 	struct sid_handle *sidewalk_handle;
+	struct sid_config sidewalk_config;
 	enum app_state state;
 	struct link_status link_status;
 	uint8_t counter;
