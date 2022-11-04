@@ -33,19 +33,39 @@ def write(device, data):
     ama_encoded = AmaPktEncoder(ama_headers, data)
     device.write(ama_encoded.encoded)
 
+def reaseemble_ama_get_data(device):
+    aggregate_data = bytearray()
+    total_len = None
+    while True:
+        data = device.read()
+        if data is None:
+            return None
+        logger.info("Raw data {}".format(data.hex()))
+
+        try:
+            ama_decoded = AmaPktDecoder(data)
+        except TypeError as err:
+            logger.warning("Not an AMA packet: {}. Error: {}".format(data, err))
+            return None
+
+        if total_len is None:
+            total_len = ama_decoded.total_trxn_len
+
+        assert(ama_decoded.data)
+        aggregate_data += ama_decoded.data
+
+        if len(aggregate_data) == total_len:
+            break
+
+    return aggregate_data
 
 def read(device):
-    data = device.read()
+    data = reaseemble_ama_get_data(device)
     if data is None:
         return data
-    logger.info("Raw data {}".format(data.hex()))
+
     try:
-        ama_decoded = AmaPktDecoder(data)
-    except TypeError as err:
-        logger.warning("Not an AMA packet: {}. Error: {}".format(data, err))
-        return None
-    try:
-        packet_decoded = FlexPktDecoder(bytearray(ama_decoded.data))()
+        packet_decoded = FlexPktDecoder(bytearray(data))()
     except ValueError as err:
         logger.warning("Not a flex packet: {}. Error: {}".format(data.hex(), err))
         return None

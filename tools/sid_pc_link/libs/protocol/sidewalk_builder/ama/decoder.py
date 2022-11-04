@@ -53,7 +53,7 @@ class AmaPktDecoder(object):
 
     @property
     def total_trxn_len(self):
-        return int.from_bytes(self._pkt[3:5], byteorder='big') if self._is_initial_pkt() else None
+        return int.from_bytes(self._pkt[3:5], byteorder='big') if self._is_initial_pkt() else 0
 
     @property
     def pkt_len(self):
@@ -73,5 +73,5 @@ class AmaPktDecoder(object):
             "ext": self.ext,
             "total_trxn_len": self.total_trxn_len,
             "pkt_len": self.pkt_len,
-            "data": None
+            "data": self.data
         })
