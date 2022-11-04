@@ -34,6 +34,7 @@ set(SID_LIBS
 	${SID_LIB_DIR}/libext_nanopb.a
 	${SID_LIB_DIR}/libsall_security.a
 	${SID_LIB_DIR}/libsid_security.a
+	${SID_LIB_DIR}/libsid_msg_info_utils.a
 	${SID_LIB_DIR}/libsall.a
 	${SID_LIB_DIR}/libsid_asl_parser.a
 	${SID_LIB_DIR}/libsid_flex_parser.a

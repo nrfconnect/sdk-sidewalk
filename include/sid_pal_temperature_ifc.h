@@ -13,7 +13,7 @@
  */
 
 #ifndef SID_PAL_TEMPERATURE_IFC_H
-#define SID_PAL_TEMPERATUER_IFC_H
+#define SID_PAL_TEMPERATURE_IFC_H
 
 /** @file
  *
