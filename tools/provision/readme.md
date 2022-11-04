@@ -46,7 +46,8 @@ SIDEWALK_ID=0123456789
 
 ## For Silabs devices (xG21 or xG24)
 
-In order to provision a Silabs device (EFR32xG21 or EFR32xG24), a shell script that wraps the original provisioning script (provision.py) must be executed. For the script to run properly, Simplicity Commander utility (that comes in the same bundle with [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)), that performs some intermediary steps (specific to Silabs devices) for the manufacturing page generation, must be installed locally and its path must be exported as below.
+In order to provision a Silabs device (EFR32xG21 or EFR32xG24), a shell script that wraps the original provisioning script (provision.py) must be executed.
+For the script to run properly, Simplicity Commander utility (that comes in the same bundle with [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)), that performs some intermediary steps (specific to Silabs devices) for the manufacturing page generation, must be installed locally and its path must be exported as below.
 
 The script is meant to run from the root.
 
@@ -56,6 +57,33 @@ export COMMANDER_BIN_PATH=/path/to/simplicity/commander
 chmod +x provision_silabs.sh
 
 ./script/provision_silabs.sh <xg21 or xg24> certificate_${SIDEWALK_ID}.json app-server-ed25519.public.bin
+```
+
+# Create manufacturing page by AWS cli
+
+Information Required
+- JSON response of `aws iotwireless get-device-profile .... > device_profile.json` response saved to device_profile.json
+- JSON response of `aws iotwireless get-wireless-device .... > wiresless_device.json` response saved to wireless_device.json
+
+## For Nordic and TI devices
+
+```
+./provision.py aws --wireless_device_json wireless_device.json \
+  --device_profile_json device_profile.json \
+  --config ${MFG_PAGE_CONFIG} --output_bin mfg.bin
+```
+
+## For Silabs devices (xG21 or xG24)
+
+In order to provision a Silabs device (EFR32xG21 or EFR32xG24), a shell script that wraps the original provisioning script (provision.py) must be executed. For the script to run properly, Simplicity Commander utility (that comes in the same bundle with [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio)), that performs some intermediary steps (specific to Silabs devices) for the manufacturing page generation, must be installed locally and its path must be exported as below.
+
+The script is meant to run from the root.
+
+```sh
+export COMMANDER_BIN_PATH=/path/to/simplicity/commander
+chmod +x provision_silabs.sh
+
+./script/provision_silabs_aws.sh <xg21 or xg24> device_profile.json wireless_device.json
 ```
 
 # Create manufacturing page by Black Box JSON

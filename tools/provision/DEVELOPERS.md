@@ -46,3 +46,15 @@ poetry run black .
 ```
 poetry run flake8 .
 ```
+
+# Run Static Typing check
+
+```
+poetry run mypy sid_provision
+```
+
+# Generate requirements from poetry
+
+```
+poetry export --without-hashes --format=requirements.txt > requirements.txt
+```

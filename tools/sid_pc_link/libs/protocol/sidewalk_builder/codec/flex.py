@@ -21,7 +21,6 @@ from ..utils import (
     get_presentation_from_app_layer,
 )
 
-
 flex_header_key_name_to_code = {
     'dst': 0x1,
     'dst_frmt': 0x2,
@@ -292,7 +291,14 @@ class FlexPktDecoder(PktDecoder):
             nw_blob_id = b >> 4
             idx += 1
             if nw_blob_id == 0:
-                nw_data_blob_size = (b & 0xF) * 2
+                if b & 0xF == 0xF:
+                    nw_data_blob_size = pkt_b[idx] << 0x8 | pkt_b[idx+1]
+                    idx += 2
+                else:
+                    if pkt_b[idx] == 0xFE:
+                        nw_data_blob_size = (b & 0xF) * 2 - 1
+                    else:
+                        nw_data_blob_size = (b & 0xF) * 2
             else:
                 return
             idx += nw_data_blob_size
