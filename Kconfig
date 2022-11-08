@@ -37,6 +37,9 @@ config SIDEWALK_LINK_MASK_LORA
 	bool "900 MHz link for LORA"
 	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
 
+config SIDEWALK_LINK_MASK_NONE
+	bool "Dummy link mask for testing purposes"
+
 endchoice # SIDEWALK_LINK_MASK
 
 config SIDEWALK_BLE

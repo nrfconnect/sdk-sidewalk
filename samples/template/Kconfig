@@ -8,4 +8,7 @@ config SYSTEM_WORKQUEUE_STACK_SIZE
     int
     default 4096 if SIDEWALK_LINK_MASK_LORA || SIDEWALK_LINK_MASK_FSK
 
+config APP_TEST_SIDEWALK
+	bool "Enable Siedwalk validation tests in template"
+
 source "Kconfig.zephyr"

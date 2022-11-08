@@ -7,6 +7,11 @@
 
 #include <zephyr.h>
 #include <dk_buttons_and_leds.h>
+
+#ifdef CONFIG_APP_TEST_SIDEWALK
+#include <test/sid_tests_runner.h>
+#endif
+
 #include <logging/log.h>
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -84,4 +89,12 @@ void main(void)
 	LOG_INF("Sidewalk example started!");
 
 	sidewalk_thread_enable();
+
+#ifdef CONFIG_APP_TEST_SIDEWALK
+	sid_tests_runner();
+#endif
+
+	for (;;) {
+		k_sleep(K_MSEC(500));
+	}
 }

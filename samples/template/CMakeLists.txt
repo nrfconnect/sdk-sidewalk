@@ -10,10 +10,17 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template)
 
 zephyr_include_directories(
-  include
+	include
 )
 
 target_sources(app PRIVATE
-    src/main.c
-    src/sidewalk_thread.c
+	src/main.c
+	src/sidewalk_thread.c
 )
+
+if(CONFIG_APP_TEST_SIDEWALK)
+	# unity fixtures
+	add_compile_definitions(UNITY_FIXTURE_NO_EXTRAS)
+	target_include_directories(app PRIVATE $ENV{ZEPHYR_BASE}/../test/cmock/vendor/unity/extras/fixture/src)
+	target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../test/cmock/vendor/unity/extras/fixture/src/unity_fixture.c)
+endif()

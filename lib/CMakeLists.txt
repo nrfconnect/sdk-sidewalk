@@ -4,10 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-if (CONFIG_SIDEWALK)
-	if (CONFIG_SIDEWALK_LINK_MASK_FSK OR CONFIG_SIDEWALK_LINK_MASK_LORA)
-		add_subdirectory(lora_fsk)
-	else()
-		add_subdirectory(ble_only)
-	endif()
-endif(CONFIG_SIDEWALK)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_LINK_MASK_FSK lora_fsk)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_LINK_MASK_LORA lora_fsk)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_LINK_MASK_BLE ble_only)
+add_subdirectory_ifdef(CONFIG_APP_TEST_SIDEWALK validation)
