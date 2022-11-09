@@ -26,13 +26,14 @@ RUN_BUILD=false
 RUN_UT=false
 RUN_ON_HW=false
 USERDEV_CONF_FILE="$CURRENT_DIR/../TargetTestsDevConf/user_devconf.yml"
+TWISTER_TAGS=""
 
 LCOV_EXCLUDE=('/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr/*')
 
 usage () {
   echo ""
   echo "Twister test case runner"
-	echo "Usage: [-s SIDEWALK_SDK_DIR] [-t TESTCASE_ROOT] [-b] [-u] [-f USERDEV_CONF_FILE]"
+	echo "Usage: [-s SIDEWALK_SDK_DIR] [-t TESTCASE_ROOT] [-b] [-u] [-f USERDEV_CONF_FILE] [-a TAG]"
 	echo ""
 }
 
@@ -43,11 +44,12 @@ descr () {
 	echo "    -b build without running any test. Use testcase-root SIDEWALK_SDK_DIR/samples"
 	echo "    -u run unit tests on native_posix. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
 	echo "    -f run unit tests functional on nRF HW. Use testcase-root SIDEWALK_SDK_DIR/tests/functional"
+    echo "    -a run build or tests only for entries with selected tag. It can be passed multiple times, ones per tag. e.g. -a Sidewalk -a Sidewalk_cli"
 	echo ""
 }
 
 # Parse opts
-while getopts "s::t::f::ubh" opt
+while getopts "s::t::f::a::ubh" opt
 do
 	case $opt in
 		s)
@@ -64,6 +66,9 @@ do
 			  USERDEV_CONF_FILE=$(realpath "$OPTARG")
 			fi
 			;;
+        a)
+            TWISTER_TAGS="${TWISTER_TAGS}--tag ${OPTARG} "
+            ;;            
 		u)
 			RUN_UT=true
 			;;
@@ -85,7 +90,7 @@ done
 
 function run_twister ()
 {
-    local cmd="$TWISTER_BIN --verbose -O ${CURRENT_DIR}/twister-out $*"
+    local cmd="$TWISTER_BIN -vvv -O ${CURRENT_DIR}/twister-out $TWISTER_TAGS $*"
     echo "${cmd}"
     ${cmd} || { return $?; }
     return 0
