@@ -9,6 +9,14 @@ tests:
       - nrf52840dk_nrf52840
     tags: Sidewalk
 
+  sample.sidewalk.template.ble.cli:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: CONFIG_SIDEWALK_CLI=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk_cli
+
   sample.sidewalk.template.lora:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
@@ -16,3 +24,11 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
+
+  sample.sidewalk.template.lora.cli:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: OVERLAY_CONFIG=lora.conf CONFIG_SIDEWALK_CLI=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk_cli
