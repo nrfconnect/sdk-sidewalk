@@ -39,7 +39,8 @@
 				"twxs.cmake",
 				"ms-vscode.live-server",
 				"GitHub.vscode-pull-request-github",
-				"zachflower.uncrustify"
+				"zachflower.uncrustify",
+				"ms-python.python"
 			]
 		}
 	},

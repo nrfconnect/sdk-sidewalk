@@ -2,6 +2,7 @@
 #include "sys/atomic.h"
 #include "sys/atomic_builtin.h"
 #include <errno.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,8 @@
 
 #include <json_printer.h>
 #include <sid_shell.h>
+
+#include <sidewalk_version.h>
 
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -334,6 +337,23 @@ static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 	return CMD_RETURN_OK;
 }
 
+void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
+{
+	bool in_line = (argc == 2 && strcmp("--oneline", argv[1]) == 0);
+
+	JSON_DICT("COMPONENTS_VERSION", in_line, {
+		JSON_VAL_STR("sidewalk_fork_point", sidewalk_version_common_commit, JSON_NEXT);
+		JSON_VAL_STR("build_time", build_time_stamp, JSON_NEXT);
+		JSON_VAL_DICT(
+			"modules",
+		{
+			JSON_VAL_STR_ENUMERATE(sidewalk_version_component_name, sidewalk_version_component,
+					       sidewalk_version_component_count, JSON_LAST);
+		},
+			JSON_LAST);
+	});
+}
+
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
 	SHELL_CMD_ARG(press_button, NULL, "{1,2,3,4}", cmd_press_button, 2, 0),
@@ -341,6 +361,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      "<hex payload> <sequence id>\n\thex payload have to have even number of hex characters, sequence id is represented in decimal",
 		      cmd_send, 3, 0),
 	SHELL_CMD_ARG(report, NULL, "[--oneline] get state of the application", cmd_report, 1, 1),
+	SHELL_CMD_ARG(version, NULL, "[--oneline] print version of sidewalk and its components", cmd_print_version, 1,
+		      1),
 	SHELL_SUBCMD_SET_END);
 
 // command, subcommands, help, handler

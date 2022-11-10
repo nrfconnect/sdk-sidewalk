@@ -183,6 +183,13 @@ config SIDEWALK_CLI
 	bool "Enable sidewalk CLI"
 	imply SHELL
 
+config SIDEWALK_GENERATE_VERSION_MINIMAL
+	bool
+	default y
+	help
+	  Generate minimal information of application version (sidewalk, zephyr, nrf). 
+	  In order to generate full version report from all modules set this config to `N`.
+
 if SIDEWALK_LOG
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX

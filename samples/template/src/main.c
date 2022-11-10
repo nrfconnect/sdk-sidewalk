@@ -8,6 +8,9 @@
 #include <zephyr.h>
 #include <dk_buttons_and_leds.h>
 #include <logging/log.h>
+
+#include <sidewalk_version.h>
+
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define IS_RESET_BTN_PRESSED(_btn)      (_btn & DK_BTN1_MSK)
@@ -82,6 +85,8 @@ void main(void)
 	}
 
 	LOG_INF("Sidewalk example started!");
+
+	PRINT_SIDEWALK_VERSION(printk);
 
 	sidewalk_thread_enable();
 }

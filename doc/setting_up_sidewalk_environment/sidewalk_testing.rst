@@ -209,6 +209,7 @@ Currently there are 3 commands avaliable:
   It can be useful for remote development or for test automation.
 - ``sidewalk send <hex payload>`` - Sends message to AWS. The payload have to be hex string without any prefix, and number of characters have to be even.
 - ``sidewalk report [--oneline] get state of the application`` - Presents a report in JSON format with the internal state of the application.
+- ``sidewalk version [--oneline] print version of sidewalk and its components`` - Presents a report in JSON format with versions of components that build the Sidewalk application.
 
 See the example report output:
 
@@ -229,6 +230,24 @@ See the example report output:
          "tx_failed": 0, 
          "rx_successfull": 0
    }
+
+See the example version output:
+
+.. code-block:: console
+
+   uart:~$ sidewalk version
+   "COMPONENTS_VERSION": {
+        "sidewalk_fork_point": "ab13e49adea9edd4456fa7d8271c8840949fde70", 
+        "modules": {
+                "sidewalk": "v1.12.1-57-gab13e49-dirty", 
+                "nrf": "v2.0.0-734-g3904875f6", 
+                "zephyr": "v3.0.99-ncs1-4913-gf7b0616202"
+        }
+   }
+
+.. note::
+    By default, only core components are printed.
+    To show versions of all components, set ``CONFIG_SIDEWALK_GENERATE_VERSION_MINIMAL`` to ``n`` in file:`prj.conf` file or in the menuconfig.
    
 .. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
