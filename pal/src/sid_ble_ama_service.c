@@ -17,6 +17,10 @@
 
 LOG_MODULE_REGISTER(sid_ble_ama_srv, CONFIG_SIDEWALK_LOG_LEVEL);
 
+struct bt_uuid_16 AMA_SID_BT_UUID_SERVICE_val = BT_UUID_INIT_16(AMA_SERVICE_UUID_VAL);
+struct bt_uuid_128 AMA_SID_BT_CHARACTERISTIC_WRITE_val = BT_UUID_INIT_128(AMA_CHARACTERISTIC_UUID_VAL_WRITE);
+struct bt_uuid_128 AMA_SID_BT_CHARACTERISTIC_NOTIFY_val = BT_UUID_INIT_128(AMA_CHARACTERISTIC_UUID_VAL_NOTIFY);
+
 static void ama_srv_notif_changed(const struct bt_gatt_attr *attr,
 				  uint16_t value);
 static ssize_t ama_srv_on_write(struct bt_conn *conn,

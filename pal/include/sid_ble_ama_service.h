@@ -14,14 +14,18 @@
 #include <sid_ble_uuid.h>
 
 /* AMA_SERVICE */
-#define AMA_SID_BT_UUID_SERVICE             BT_UUID_DECLARE_16(AMA_SERVICE_UUID_VAL)
-#define AMA_SID_BT_CHARACTERISTIC_WRITE     BT_UUID_DECLARE_128(AMA_CHARACTERISTIC_UUID_VAL_WRITE)
-#define AMA_SID_BT_CHARACTERISTIC_NOTIFY    BT_UUID_DECLARE_128(AMA_CHARACTERISTIC_UUID_VAL_NOTIFY)
+extern struct bt_uuid_16 AMA_SID_BT_UUID_SERVICE_val;
+extern struct bt_uuid_128 AMA_SID_BT_CHARACTERISTIC_WRITE_val;
+extern struct bt_uuid_128 AMA_SID_BT_CHARACTERISTIC_NOTIFY_val;
+
+#define AMA_SID_BT_UUID_SERVICE             (struct bt_uuid *)&AMA_SID_BT_UUID_SERVICE_val
+#define AMA_SID_BT_CHARACTERISTIC_WRITE     (struct bt_uuid *)&AMA_SID_BT_CHARACTERISTIC_WRITE_val
+#define AMA_SID_BT_CHARACTERISTIC_NOTIFY    (struct bt_uuid *)&AMA_SID_BT_CHARACTERISTIC_NOTIFY_val
 
 /**
  * @brief Get the Amazon service object.
- * 
- * @return struct bt_gatt_service_static* 
+ *
+ * @return struct bt_gatt_service_static*
  */
 const struct bt_gatt_service_static *sid_ble_get_ama_service(void);
 
