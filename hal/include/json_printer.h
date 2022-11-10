@@ -26,6 +26,13 @@
 		JSON_VAL_DICT(name, content, JSON_END);	\
 	}
 
+#define JSON_VAL_STR_ENUMERATE(key_array, val_array, array_size, comma_or_empty)		    \
+	{											    \
+		for (int i = 0; i < array_size - 1; i++)					    \
+		{ JSON_VAL_STR(key_array[i], val_array[i], JSON_NEXT); }			    \
+		JSON_VAL_STR(key_array[array_size - 1], val_array[array_size - 1], comma_or_empty); \
+	}
+
 #define JSON_VAL(key, val, comma_or_empty) \
 	{ JSON_PRINT(indent, "\"%s\": %d" comma_or_empty, (char *)key, val); }
 #define JSON_VAL_STR(key, str, comma_or_empty) \
