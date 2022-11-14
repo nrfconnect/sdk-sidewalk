@@ -48,6 +48,32 @@ Flashing binaries
        $ nrfjprog --sectorerase --family NRF52 \
        --program ${NCS_FOR_SIDEWALK_SDK_PATH}/tools/provision/mfg.hex
 
+#. Clear Settings partition
+
+   For new mfg.hex to take effect, application settings have to be cleared, to remove any information about previous confiuration.
+
+   .. tabs::
+
+      .. tab:: nrfjprog
+         
+         .. code-block:: console
+
+            $ nrfjprog  --erasepage 0xf8000-0xFF000
+
+         .. note::
+
+            By default settings partition is located between 0xf8000-0xFF000, if You choose different location for Settings, change this command accordingly.
+
+
+      .. tab:: Factory reset
+
+         By default, in all samples :guilabel:`Button 1` is responsible for performing factory reset.
+
+         .. note:: 
+            
+            If CLI has been enabled (:ref:`Sidewalk CLI <sidewalk_cli>`), it can be used to trigger :guilabel:`Button 1` or to call factory reset directly. 
+
+
 #. Restart the device.
 
    .. code-block:: console
@@ -104,12 +130,20 @@ Flashing binaries
 
       .. code-block:: console
 
-         *** Booting Zephyr OS build v3.0.99-ncs1  ***
-         [00:00:00.004,211] <inf> sid_template: Sidewalk example started!
-         [00:00:00.017,517] <inf> fs_nvs: 2 Sectors of 4096 bytes
-         [00:00:00.017,547] <inf> fs_nvs: alloc wra: 0, fe8
-         [00:00:00.017,578] <inf> fs_nvs: data wra: 0, 0
-         [00:00:00.018,310] <err> sidewalk: Sall mgm core create failed: -8
-         [00:00:00.018,310] <err> sid_thread: failed to initialize sidewalk, err: -8
+         *** Booting Zephyr OS build v3.0.99-ncs1-4913-gf7b06162027d  ***
+         ----------------------------------------------------------------
+         sidewalk             v1.12.1-59-g956ab46-dirty
+         nrf                  v2.0.0-734-g3904875f6
+         zephyr               v3.0.99-ncs1-4913-gf7b0616202
+         ----------------------------------------------------------------
+         sidewalk_fork_point = afc57d56a02de561db057b40d07dc2fa9f40adf9 
+         build time          = 2022-11-14 14:14:23.714266+00:00
+         ----------------------------------------------------------------
+
+         [00:00:00.006,195] <inf> sid_template: Sidewalk example started!
+         [00:00:00.019,622] <inf> sid_thread: Initializing sidewalk - Link mask BLE
+         [00:00:00.020,965] <err> sid_thread: failed to initialize sidewalk, err: -8
+         [00:00:00.020,996] <err> sid_thread: resource not found - check if mfg.hex has been flashed
+
 
 .. _West building flashing and debugging: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/develop/west/build-flash-debug.html

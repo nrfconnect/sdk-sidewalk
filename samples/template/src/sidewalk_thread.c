@@ -517,6 +517,10 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 	app_ctx->sidewalk_config.callbacks = &event_callbacks;
 	app_ctx->sidewalk_config.link_config = &ble_link_config;
 
+	LOG_INF("Initializing sidewalk - Build with Link mask %s%s%s%s", LINK_MASK > (SID_LINK_TYPE_3 << 1)?"INVALID ":"",
+		LINK_MASK == SID_LINK_TYPE_1?"BLE ":"", LINK_MASK == SID_LINK_TYPE_2?"FSK ":"",
+		LINK_MASK == SID_LINK_TYPE_3?"LoRa ":"");
+
 	sid_error_t ret_code = init_and_start_link(app_ctx, SID_LINK_TYPE_1);
 
 	if (SID_ERROR_NONE != ret_code) {

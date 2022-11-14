@@ -10,6 +10,42 @@ The following devices are used throughout this guide in order to create a Sidewa
 
 Go to `Getting started`_ guide for instructions on setting up the device and familiarizing yourself with the Nordic's development environment and tools.
 
+
+.. tabs::
+
+   .. tab:: Toolchain manager
+
+      - `Toolchain Manager`_ instalation guide
+
+   .. tab:: Manual Instalation
+
+      To build and flash NCS application You will need following tools:
+
+      - `Jlink tools`_ to interract with debugger embedded on Development board,
+      - `nrf tools`_ to flash image on board,
+      - `Zephyr toolchain`_ to build application for development board.
+
+   .. tab:: VSCode Dev Container (experimental; Linux only)
+
+      .. note:: 
+         Before enrolling with Dev Environment check :file:`sidewalk/.devcontainer/README.md` for known issues and limitations.
+
+      #. install VSCode extension ``ms-vscode-remote.remote-containers``,
+
+      #. install Docker (https://docs.docker.com/engine/install/ubuntu/),
+      
+      #. Download Sidewalk repository,
+      
+      #. Open repository in devcontainer (VScode ctrl+ shift+ p >Dev Container: Open Folder in Container...),
+      
+      .. note::
+         The first lunch will take few minutes to download and setup the docker container, any subsequent lunches will be almost instant.
+      
+      #. run bootstrap script :file:`sidewalk/.devcontainer/bootstrap.sh` in VSCode terminal,
+
+      .. note::
+         The bootstrap script will update all west modules, this may take few minutes.
+
 .. _dk_building_sample_app:
 
 Building sample application and flash certificates
@@ -33,6 +69,12 @@ Building sample application and flash certificates
 
          $ cd $ZEPHYR_BASE/../
          $ git clone https://github.com/nrfconnect/sdk-sidewalk.git sidewalk
+
+   * Install Python requirements for sidewalk
+
+       .. code-block:: console
+
+         $ pip install -r sidewalk/requirements.txt
 
    * Use application manifest and update.
 
@@ -128,6 +170,11 @@ Extracting SDK and generating certificate
        * :file:`app-server-ed25519.public.bin` - an input to :file:`provision.py` script as the application server public key.
 
 
+
+.. _Jlink tools: https://www.segger.com/downloads/jlink/
+.. _nrf tools: https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
+.. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_installing.html#install-a-toolchain
+.. _Toolchain Manager: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html#id5
 .. _nRF_command_line_tools: https://infocenter.nordicsemi.com/topic/ug_nrf_cltools/UG/cltools/nrf_installation.html
 .. _nRF Sidewalk Repository: https://github.com/nrfconnect/sdk-sidewalk
 .. _Git LFS: https://git-lfs.github.com/

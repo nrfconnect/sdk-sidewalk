@@ -354,15 +354,37 @@ void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
 	});
 }
 
+static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv)
+{
+	sid_error_t ret = sid_set_factory_reset(sid_app_ctx->sidewalk_handle);
+
+	if (SID_ERROR_NONE != ret) {
+		switch (ret) {
+		case SID_ERROR_INVALID_ARGS:
+			shell_error(shell, "Sidewalk not initialized, can not perform factory reset");
+			break;
+		default:
+			shell_error(shell, "Notification of factory reset to sid api failed with unhandled error %d",
+				    ret);
+			break;
+		}
+		return CMD_RETURN_NOT_EXECUTED;
+	} else {
+		shell_info(shell, "sidewalk cli: factory reset request registered");
+	}
+	return CMD_RETURN_OK;
+}
+
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
 	SHELL_CMD_ARG(press_button, NULL, "{1,2,3,4}", cmd_press_button, 2, 0),
-	SHELL_CMD_ARG(send, NULL,
-		      "<hex payload> <sequence id>\n\thex payload have to have even number of hex characters, sequence id is represented in decimal",
+	SHELL_CMD_ARG(send, NULL, "<hex payload> <sequence id>\n" \
+		      "\thex payload have to have even number of hex characters, sequence id is represented in decimal",
 		      cmd_send, 3, 0),
 	SHELL_CMD_ARG(report, NULL, "[--oneline] get state of the application", cmd_report, 1, 1),
 	SHELL_CMD_ARG(version, NULL, "[--oneline] print version of sidewalk and its components", cmd_print_version, 1,
 		      1),
+	SHELL_CMD(factory_reset, NULL, "perform factory reset of Sidewalk application", cmd_factory_reset),
 	SHELL_SUBCMD_SET_END);
 
 // command, subcommands, help, handler

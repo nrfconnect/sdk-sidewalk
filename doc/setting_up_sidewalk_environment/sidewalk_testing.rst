@@ -190,6 +190,9 @@ Sending data to Sidewalk Endpoint using AWS CLI
          WirelessDevice/[Wireless Device ID]"
       }
 
+
+.. _sidewalk_cli:
+
 Sidwalk command-line interface (CLI)
 ************************************
 
@@ -210,6 +213,7 @@ Currently there are 3 commands avaliable:
 - ``sidewalk send <hex payload>`` - Sends message to AWS. The payload have to be hex string without any prefix, and number of characters have to be even.
 - ``sidewalk report [--oneline] get state of the application`` - Presents a report in JSON format with the internal state of the application.
 - ``sidewalk version [--oneline] print version of sidewalk and its components`` - Presents a report in JSON format with versions of components that build the Sidewalk application.
+- ``sidewalk factory_reset perform factory reset of Sidewalk application`` - Performs factory reset.
 
 See the example report output:
 
