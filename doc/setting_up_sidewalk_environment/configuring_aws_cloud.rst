@@ -31,7 +31,7 @@ Requirements
 Associating Sidewalk product with AWS IoT Core
 **********************************************
 
-You can connect Sidewalk devices to AWS IoT by using the AWS Management Console or the AWS IoT Wireless API.
+You can connect Sidewalk devices to AWS IoT by using the `AWS Management Console`_ or the AWS IoT Wireless API.
 
 #. To onboard your device, create a wireless connectivity profile for your Sidewalk device.
 #. Follow instructions below to add destination and AWS IoT rule for the profile and Sidewalk endpoints.
@@ -270,6 +270,7 @@ At the end of this step you need to have the following:
 
 
 .. _Sidewalk developer Service (SDS) console: http://developer.amazon.com/acs-devices/console/Sidewalk
+.. _AWS Management Console: https://us-east-1.console.aws.amazon.com/iot/home?region=us-east-1#/home
 .. _Add your Sidewalk account credentials: https://docs.aws.amazon.com/iot/latest/developerguide/iot-sidewalk-add-credentials.html
 .. _Functions: https://console.aws.amazon.com/lambda/home?region=us-east-1#/functions
 .. _Rules: https://console.aws.amazon.com/iot/home?region=us-east-1#/rulehub
