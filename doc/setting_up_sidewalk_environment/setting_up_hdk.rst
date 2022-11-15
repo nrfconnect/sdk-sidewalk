@@ -8,43 +8,49 @@ The following devices are used throughout this guide in order to create a Sidewa
 * `Nordic nRF52840-DK`_ - for both Bluetooth LE and LoRa/FSK applications.
 * `Semtech SX1262 mbed shield eval board`_ - only for LoRa/FSK applications.
 
-Go to `Getting started`_ guide for instructions on setting up the device and familiarizing yourself with the Nordic's development environment and tools.
-
+You can set up your device by following one of the installation methods below:
 
 .. tabs::
 
-   .. tab:: Toolchain manager
+   .. tab:: Automatic installation (Toolchain Manager)
 
-      - `Toolchain Manager`_ instalation guide
+      Complete the automatic installation by following the `Toolchain Manager`_ installation guide.
 
-   .. tab:: Manual Instalation
+   .. tab:: Manual Installation
 
-      To build and flash NCS application You will need following tools:
+      Manually install the listed tools to build and flash the nRF Connect SDK applications:
 
-      - `Jlink tools`_ to interract with debugger embedded on Development board,
-      - `nrf tools`_ to flash image on board,
-      - `Zephyr toolchain`_ to build application for development board.
+      * `Jlink tools`_ to interract with debugger embedded on Development board
+      * `nrf tools`_ to flash an image on a board
+      * `Zephyr toolchain`_ to build application for development board
 
-   .. tab:: VSCode Dev Container (experimental; Linux only)
+   .. tab:: VSCode Dev Container (experimental, Linux only)
 
-      .. note:: 
-         Before enrolling with Dev Environment check :file:`sidewalk/.devcontainer/README.md` for known issues and limitations.
+         .. note::
+            Before enrolling with development environment, check :file:`sidewalk/.devcontainer/README.md` for known issues and limitations.
 
-      #. install VSCode extension ``ms-vscode-remote.remote-containers``,
+      #. Install the ``ms-vscode-remote.remote-containers`` VS Code extension.
 
-      #. install Docker (https://docs.docker.com/engine/install/ubuntu/),
-      
-      #. Download Sidewalk repository,
-      
-      #. Open repository in devcontainer (VScode ctrl+ shift+ p >Dev Container: Open Folder in Container...),
-      
-      .. note::
-         The first lunch will take few minutes to download and setup the docker container, any subsequent lunches will be almost instant.
-      
-      #. run bootstrap script :file:`sidewalk/.devcontainer/bootstrap.sh` in VSCode terminal,
+      #. Install `Docker`_.
 
-      .. note::
-         The bootstrap script will update all west modules, this may take few minutes.
+      #. Download the `nRF Sidewalk Repository`_.
+
+      #. Open the repository in devcontainer.
+
+         a. In VS Code, open the Command Pallete by using the F1 key or the Ctrl-Shift-P key combination.
+         #. Type ``Dev Containers: Open Folder in Container...`` command.
+
+         .. note::
+            The first launch will take a few minutes to download and set up the docker container.
+            Subsequent launches will be almost instant.
+
+      #. In VS Code terminal, run the bootstrap script :file:`sidewalk/.devcontainer/bootstrap.sh`.
+
+         .. note::
+            The bootstrap script will update all west modules.
+            This action may take a few minutes.
+
+For additional information regarding setting up the device and familiarizing yourself with the Nordic's development environment and tools, see the `Getting started`_ guide.
 
 .. _dk_building_sample_app:
 
@@ -70,7 +76,7 @@ Building sample application and flash certificates
          $ cd $ZEPHYR_BASE/../
          $ git clone https://github.com/nrfconnect/sdk-sidewalk.git sidewalk
 
-   * Install Python requirements for sidewalk
+   * Install Python requirements for Sidewalk.
 
        .. code-block:: console
 
@@ -86,7 +92,7 @@ Building sample application and flash certificates
 Extracting nRF Command Line Tools
 *********************************
 
-#. To download nRF Command Line Tools follow the Documentation `nRF command line tools`_.
+To download nRF Command Line, go to `nRF command line tools`_ page.
 
 Extracting SDK and generating certificate
 *****************************************
@@ -175,6 +181,7 @@ Extracting SDK and generating certificate
 .. _nrf tools: https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
 .. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_installing.html#install-a-toolchain
 .. _Toolchain Manager: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html#id5
+.. _Docker: https://docs.docker.com/engine/install/ubuntu/
 .. _nRF_command_line_tools: https://infocenter.nordicsemi.com/topic/ug_nrf_cltools/UG/cltools/nrf_installation.html
 .. _nRF Sidewalk Repository: https://github.com/nrfconnect/sdk-sidewalk
 .. _Git LFS: https://git-lfs.github.com/

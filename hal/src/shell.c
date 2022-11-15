@@ -168,7 +168,7 @@ void sidewalk_send_message_work(struct k_work *work)
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed sending message err:%d", (int) ret);
 		} else {
-			LOG_DBG("queued data message id:%u", desc.id);
+			LOG_INF("queued data message id:%u", desc.id);
 		}
 	} else {
 		LOG_ERR("sidewalk is not ready yet!");
