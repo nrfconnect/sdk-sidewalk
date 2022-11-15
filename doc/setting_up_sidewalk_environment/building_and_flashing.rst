@@ -48,31 +48,30 @@ Flashing binaries
        $ nrfjprog --sectorerase --family NRF52 \
        --program ${NCS_FOR_SIDEWALK_SDK_PATH}/tools/provision/mfg.hex
 
-#. Clear Settings partition
-
-   For new mfg.hex to take effect, application settings have to be cleared, to remove any information about previous confiuration.
+#. Clear settings partition.
+   For a new :file:`mfg.hex` file to take effect, you have to clear application settings and remove any information about the previous configuration.
+   You can do this by either running nrfjprog command or performing factory reset:
 
    .. tabs::
 
       .. tab:: nrfjprog
-         
+
          .. code-block:: console
 
             $ nrfjprog  --erasepage 0xf8000-0xFF000
 
          .. note::
 
-            By default settings partition is located between 0xf8000-0xFF000, if You choose different location for Settings, change this command accordingly.
-
+            By default, settings partition is located between 0xf8000-0xFF000.
+            If your settings have a different location, adjust the command accordingly.
 
       .. tab:: Factory reset
 
-         By default, in all samples :guilabel:`Button 1` is responsible for performing factory reset.
+         In all samples by default :guilabel:`Button 1` is responsible for performing factory reset.
 
-         .. note:: 
-            
-            If CLI has been enabled (:ref:`Sidewalk CLI <sidewalk_cli>`), it can be used to trigger :guilabel:`Button 1` or to call factory reset directly. 
+         .. note::
 
+            If CLI is enabled (:ref:`Sidewalk CLI <sidewalk_cli>`), it can be used to trigger :guilabel:`Button 1` or to call factory reset directly.
 
 #. Restart the device.
 
@@ -136,7 +135,7 @@ Flashing binaries
          nrf                  v2.0.0-734-g3904875f6
          zephyr               v3.0.99-ncs1-4913-gf7b0616202
          ----------------------------------------------------------------
-         sidewalk_fork_point = afc57d56a02de561db057b40d07dc2fa9f40adf9 
+         sidewalk_fork_point = afc57d56a02de561db057b40d07dc2fa9f40adf9
          build time          = 2022-11-14 14:14:23.714266+00:00
          ----------------------------------------------------------------
 

@@ -229,10 +229,6 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type, msg_desc->id, (int)error);
 }
 
-#ifdef CONFIG_SIDEWALK_CLI
-extern const struct sid_status *CLI_status;
-#endif
-
 static void sidewalk_abort(app_context_t *app_ctx)
 {
 	sid_error_t ret = SID_ERROR_NONE;
@@ -273,6 +269,15 @@ static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mas
 		ret = sid_init(&app_ctx->sidewalk_config, &sid_handle);
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed to initialize sidewalk link_mask:%x, err:%d", link_mask, (int)ret);
+			switch (ret) {
+			case SID_ERROR_GENERIC: LOG_ERR(
+					"Generic error - check if LoRa/FSK shield is connected correctly");
+				break;
+			case SID_ERROR_NOT_FOUND: LOG_ERR("resource not found - check if mfg.hex has been flashed");
+				break;
+			default: LOG_ERR("Unknown error during initalization"); break;
+			}
+
 			sidewalk_abort(app_ctx);
 			return SID_ERROR_GENERIC;
 		}
@@ -384,7 +389,7 @@ static void set_device_profile(app_context_t *app_ctx)
 		&& set_dp_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms
 		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
 		ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-				 &set_dp_cfg, sizeof(dev_cfg)); 
+				 &set_dp_cfg, sizeof(dev_cfg));
 		if (ret) {
 			LOG_ERR("Option failed (err %d)", ret);
 		}
@@ -428,7 +433,7 @@ static void send_message(app_context_t *app_ctx)
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed queueing data, err:%d", (int) ret);
 		} else {
-			LOG_DBG("queued data message id:%u", desc.id);
+			LOG_INF("queued data message id:%u", desc.id);
 			app_ctx->counter++;
 		}
 	} else {
@@ -517,7 +522,8 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 	app_ctx->sidewalk_config.callbacks = &event_callbacks;
 	app_ctx->sidewalk_config.link_config = &ble_link_config;
 
-	LOG_INF("Initializing sidewalk - Build with Link mask %s%s%s%s", LINK_MASK > (SID_LINK_TYPE_3 << 1)?"INVALID ":"",
+	LOG_INF("Initializing sidewalk - Build with Link mask %s%s%s%s",
+		LINK_MASK > (SID_LINK_TYPE_3 << 1)?"INVALID ":"",
 		LINK_MASK == SID_LINK_TYPE_1?"BLE ":"", LINK_MASK == SID_LINK_TYPE_2?"FSK ":"",
 		LINK_MASK == SID_LINK_TYPE_3?"LoRa ":"");
 
