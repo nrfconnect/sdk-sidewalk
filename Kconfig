@@ -254,3 +254,12 @@ config SIDEWALK_SPI_BUS
 module = SPI_BUS
 module-str = Sidewalk spi bus interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+# Hidden configuration (experimental)
+config SIDEWALK_SWI_PRIORITY
+	int
+	default 0
+
+config SIDEWALK_SWI_STACK_SIZE
+	int
+	default 4096

@@ -11,17 +11,17 @@
 #include <sid_pal_swi_ifc.h>
 #include <kernel.h>
 
-static struct k_work swi_work;
+#ifndef CONFIG_SIDEWALK_SWI_PRIORITY
+	#error "CONFIG_SIDEWALK_SWI_PRIORITY must be defined"
+#endif
+
+#ifndef CONFIG_SIDEWALK_SWI_STACK_SIZE
+	#error "CONFIG_SIDEWALK_SWI_STACK_SIZE must be defined"
+#endif
+
+static K_SEM_DEFINE(swi_trigger_sem, 0, 1);
+
 static sid_pal_swi_cb_t swi_cb;
-
-static void swi_work_fn(struct k_work *item)
-{
-	ARG_UNUSED(item);
-
-	if (swi_cb) {
-		swi_cb();
-	}
-}
 
 sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback)
 {
@@ -30,14 +30,29 @@ sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback)
 	}
 	swi_cb = event_callback;
 
-	k_work_init(&swi_work, swi_work_fn);
-
 	return SID_ERROR_NONE;
 }
 
 sid_error_t sid_pal_swi_trigger(void)
 {
-	k_work_submit(&swi_work);
+	k_sem_give(&swi_trigger_sem);
 
 	return SID_ERROR_NONE;
 }
+
+static void swi_task(void *arg1, void *arg2, void *arg3)
+{
+	ARG_UNUSED(arg1);
+	ARG_UNUSED(arg2);
+	ARG_UNUSED(arg3);
+
+	while (1) {
+		k_sem_take(&swi_trigger_sem, K_FOREVER);
+		if (swi_cb) {
+			swi_cb();
+		}
+	}
+}
+
+K_THREAD_DEFINE(swi_thread, CONFIG_SIDEWALK_SWI_STACK_SIZE, swi_task, NULL, NULL, NULL,
+		K_PRIO_COOP(CONFIG_SIDEWALK_SWI_PRIORITY), 0, 0);
