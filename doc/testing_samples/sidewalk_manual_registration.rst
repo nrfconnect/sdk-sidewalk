@@ -1,7 +1,7 @@
 .. _reg_associating_sidewalk_endpoints:
 
-Registering and associating your Sidewalk Endpoints
-###################################################
+Manual registration using local Ubuntu machine and Registration Script
+######################################################################
 
 This section outlines how to register your Sidewalk Endpoint and associate it with your Amazon account before it can be connected to Sidewalk.
 
@@ -11,7 +11,7 @@ Creating Login with Amazon (LwA) security profile
 *************************************************
 
 #. Connect to `Dashboard`_ and log in with your Amazon credentials.
-   Credentials are the same as the ones you used to provision your Sidewalk device certificates within the Sidewalk console in :ref:`endpoints_config_and_provisioning`.
+   Credentials are the same as the ones you used to provision your Sidewalk device certificates within the Sidewalk console in :ref:`endpoints_config_provisioning`.
 
 #. Go to the :guilabel:`Login with Amazon` tab.
 
@@ -31,18 +31,16 @@ Creating Login with Amazon (LwA) security profile
 
    .. figure:: /images/Step6-SecurityProfilesList.jpg
 
-#. Click the sprocket wheel icon to go to Web Settings configuration.
+#. Click the sprocket wheel icon to go to :guilabel:`Web Settings` configuration.
 
-#. Copy-paste your :guilabel:`Client ID` from the Web Settings tab to a text editor for easy access.
+#. Copy-paste your :guilabel:`Client ID` from the :guilabel:`Web Settings` tab to a text editor for easy access.
    These values are required to complete Sidewalk Endpoint registration.
 
    .. figure:: /images/Step6-ClientID.jpg
 
 #. Click :guilabel:`Edit`.
 
-#. In :guilabel:`Allowed Origins` box enter ``http://localhost:8000/``.
-
-#. Click :guilabel:`Save`.
+#. In :guilabel:`Allowed Origins` box enter ``http://localhost:8000/``, and click :guilabel:`Save`.
 
    .. figure:: /images/Step6-Localhost.jpg
 
@@ -64,7 +62,7 @@ Configuring your client information
 
    .. code-block:: console
 
-       $ cd ${NCS_FOR_SIDEWALK_SDK_PATH}/tools/sid_pc_link/apps/device_registration
+       $ cd ${ZEPHYR_BASE}/../sidewalk/tools/sid_pc_link/apps/device_registration
 
 #. Install the requirements.
 
@@ -163,11 +161,11 @@ Configuring the registration script
     Before going to next steps, ensure you have the following:
 
        * A Sidewalk Endpoint registered using the :file:`sid_pc_link` script.
-         The script emulates the device registration process performed by the Sidewalk Mobile SDK. I
-         t sends commands to the device as it communicates with the Sidewalk Cloud and your application server.
+         The script emulates the device registration process performed by the Sidewalk Mobile SDK.
+         It sends commands to the device as it communicates with the Sidewalk Cloud and your application server.
 
        * A Login With Amazon (LwA) security profile created.
-         The LwA security profile and :file:`sid_pc_link` LwA help files emulate the registration flow, in which the end-user needs to log in with their Amazon account and grant Sidewalk permissions to complete Sidewalk registration for the device.
+         The LwA security profile and :file:`sid_pc_link` LwA help files emulate the registration flow, in which the end user needs to log in with their Amazon account and grant Sidewalk permissions to complete Sidewalk registration for the device.
 
 .. _Dashboard: https://developer.amazon.com/dashboard
 .. _Kinivo USB Bluetooth Adapter: https://www.amazon.com/Kinivo-USB-Bluetooth-4-0-Compatible/dp/B007Q45EF4

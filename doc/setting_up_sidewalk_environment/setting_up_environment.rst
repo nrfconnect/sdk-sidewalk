@@ -3,7 +3,11 @@
 Setting up the Sidewalk environment
 ***********************************
 
-For the exact instructions on setting up Sidewalk correctly, see the documentation below:
+The below diagram present simplified Sidewalk setup process:
+
+   .. figure:: /images/SidewalkSetup.svg
+
+For the step-by-step instructions on setting up Sidewalk, follow the documentation below:
 
 .. toctree::
    :maxdepth: 1
@@ -11,11 +15,9 @@ For the exact instructions on setting up Sidewalk correctly, see the documentati
    :caption: Subpages:
 
    requirements.rst
-   setting_up_hdk.rst
+   setting_up_sdk.rst
+   generating_app_server_keys.rst
    designing_sidewalk_product.rst
+   generating_provisioning.rst
    configuring_aws_cloud.rst
    setting_up_sidewalk_bridges.rst
-   provisioning_and_configuring_endpoints.rst
-   building_and_flashing.rst
-   associating_sidewalk_endpoints.rst
-   sidewalk_testing.rst

@@ -1,7 +1,7 @@
 .. _setting_up_dk:
 
-Setting up hardware development kit
-###################################
+Setting up SDK
+##############
 
 The following devices are used throughout this guide in order to create a Sidewalk prototype.
 
@@ -16,7 +16,7 @@ You can set up your device by following one of the installation methods below:
 
       Complete the automatic installation by following the `Toolchain Manager`_ installation guide.
 
-   .. tab:: Manual Installation
+   .. tab:: Manual installation
 
       Manually install the listed tools to build and flash the nRF Connect SDK applications:
 
@@ -93,89 +93,6 @@ Extracting nRF Command Line Tools
 *********************************
 
 To download nRF Command Line, go to `nRF command line tools`_ page.
-
-Extracting SDK and generating certificate
-*****************************************
-
-#. Place the nRF Connect for Sidewalk package in any directory.
-#. Open a terminal in the selected directory and issue the following commands:
-
-   .. code-block:: console
-
-      # NCS_FOR_SIDEWALK_SDK_PATH should point to the directory SDK package is placed (see above)
-      $ export NCS_FOR_SIDEWALK_SDK_PATH=${ZEPHYR_BASE}/../sidewalk
-
-#. Use the Sidewalk certificate generation tool provided within the SDK tools folder to generate your application server certificates.
-
-   .. note::
-       For instructions on cloud configuration, see :ref:`configuring_aws_cloud`.
-
-   a. Navigate to the script within the Sidewalk tools folder of the SDK.
-
-      .. code-block:: console
-
-         $ cd ${NCS_FOR_SIDEWALK_SDK_PATH}/tools/application_server_cert
-
-   #. Install the requirements.
-
-      .. code-block:: console
-
-         $ pip3 install --user -r requirements.txt
-
-   #. Run the application key generation script to generate your application server certificates.
-
-      .. code-block:: console
-
-         $ python3 generate_application_server.py --app_srv_serial <ApplicationServerSerialNumber> \
-         --apid <APID>
-
-      .. note::
-
-          * ApplicationServerSerialNumber is a 4-byte, base10 integer (0 to 4294967295) that you define.
-          * APID consists of 4-digit alphanumeric value.
-            For now you can assign any value.
-
-      .. code-block:: console
-
-         # Sample command:
-         $ python3 generate_application_server.py --app_srv_serial 1234567890 --apid cafe
-         $ ls app-server*
-
-         #  Sample output:
-         app-server-ed25519-csr.bin
-         app-server-ed25519.private.bin
-         app-server-p256r1-signature.bin
-         app-server-ed25519-private.pem
-         app-server-ed25519.public.bin
-         app-server-p256r1-signature.der
-         app-server-ed25519-private.txt
-         app-server-p256r1-csr.bin
-         app-server-p256r1.c
-         app-server-ed25519-public.pem
-         app-server-p256r1-private.pem
-         app-server-p256r1.private.bin
-         app-server-ed25519-public.txt
-         app-server-p256r1-private.txt
-         app-server-p256r1.public.bin
-         app-server-ed25519-signature.bin
-         app-server-p256r1-public.pem
-         app-server-ed25519.c
-         app-server-p256r1-public.txt
-
-#. Copy the application server public key to the provisioning tool folder, which will be used for your specific hardware during provisioning and configuring your Sidewalk Endpoints.
-
-   .. code-block:: console
-
-      $ cp app-server-ed25519.public.bin ../provision/
-
-   .. note::
-       The script will output several keys.
-       Two of them are required.
-
-       * :file:`app-server-ed25519-private.txt` - an input to configure your AWS cloud in :ref:`configuring_aws_cloud`.
-       * :file:`app-server-ed25519.public.bin` - an input to :file:`provision.py` script as the application server public key.
-
-
 
 .. _Jlink tools: https://www.segger.com/downloads/jlink/
 .. _nrf tools: https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
