@@ -12,7 +12,6 @@ Browse the documentation by referring to sections below.
 
    about_sidewalk.rst
    setting_up_sidewalk_environment/setting_up_environment.rst
-   samples/sidewalk_samples.rst
+   testing_samples/testing_samples_overview.rst
    sidewalk_release_notes.rst
    sidewalk_known_issues.rst
-

@@ -36,52 +36,6 @@ You can connect Sidewalk devices to AWS IoT by using the `AWS Management Console
 #. To onboard your device, create a wireless connectivity profile for your Sidewalk device.
 #. Follow instructions below to add destination and AWS IoT rule for the profile and Sidewalk endpoints.
 
-.. _configuring_aws_cloud_credentials:
-
-Adding your sidewalk credentials via console
-********************************************
-
-You can add your credentials by using the AWS Management Console or the AWS IoT Wireless API.
-To add your Sidewalk account credentials via console, follow the steps below.
-
-#. Go to `Sidewalk Developer Service (SDS) console`_.
-
-#. Copy your Amazon ID.
-
-   .. figure:: /images/SidewalkProductConfiguration-AmazonID.jpg
-
-#. Navigate to :guilabel:`Profiles` in the AWS IoT console and select :guilabel:`Sidewalk` tab.
-
-   .. note::
-      Ensure you are using :guilabel:`us-east-1` region.
-      If you are using a different region, this tab will not appear.
-
-   .. figure:: /images/AWSIoT-selectsidewalk.jpg
-
-#. Click :guilabel:`Add credential`.
-
-   .. figure:: /images/AWSIoT-AddCredential.jpg
-
-#. Enter your Sidewalk Amazon ID.
-
-   .. figure:: /images/AWSIoT-EnterAmazonID.jpg
-
-#. Upload AppServerPrivateKey, which is the server key provided by your vendor.
-
-   AppServerPrivateKey is the ED25519 private key (the :file:`app-server-ed25519-private.txt` file), which is a 64-digit hexadecimal value that you generate by using the Sidewalk certificate generation tool when designing your Sidewalk product.
-
-   .. figure:: /images/AWSIoT-UploadAppServerPrivateKey.jpg
-
-#. To add your sidewalk credentials, click :guilabel:`Add credential`.
-
-   .. figure:: /images/AWSIoT-AddCredential2.jpg
-
-   A new item will appear on the :guilabel:`Sidewalk account credentials` list.
-
-   .. figure:: /images/AWSIoT-SidewalkAccountCredentialList.jpg
-
-   .. note::
-      To add credentials via API refer to `Add your Sidewalk account credentials`_.
 
 .. _configuring_aws_Lambda_function:
 
