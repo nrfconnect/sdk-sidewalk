@@ -42,6 +42,13 @@ RUN cd zephyr-sdk; tar -xvf zephyr-sdk-${SDK_VERSION}_linux-x86_64.tar.gz && mv 
 RUN rm -rf zephyr-sdk
 RUN /opt/zephyr-sdk-${SDK_VERSION}/setup.sh -h -c
 
+RUN aria2c  -V -d go_download https://go.dev/dl/go1.19.3.linux-amd64.tar.gz
+RUN cd go_download; tar -C /usr/local -xzf go1.19.3.linux-amd64.tar.gz
+RUN rm -rf go_download
+RUN echo 'export GOPATH=/home/'"$UNAME" >> /home/$UNAME/.profile
+RUN echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> /home/$UNAME/.profile
+RUN source /home/$UNAME/.profile; go install github.com/apache/mynewt-mcumgr-cli/mcumgr@latest
+
 RUN echo 'export PATH=$PATH:/home/'"$UNAME"'/.local/bin' >> /home/$UNAME/.bashrc
 
 RUN echo "$UNAME:$UNAME_PASSWORD" | chpasswd 
