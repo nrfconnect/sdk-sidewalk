@@ -9,7 +9,15 @@
 #include <dk_buttons_and_leds.h>
 #include <logging/log.h>
 
+#if CONFIG_BOOTLOADER_MCUBOOT
+#include <zephyr/dfu/mcuboot.h>
+#endif
+
 #include <sidewalk_version.h>
+
+#if CONFIG_USB_DFU_ENABLE_UPLOAD
+#include <zephyr/usb/usb_device.h>
+#endif
 
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -75,6 +83,15 @@ static int board_init(void)
 		LOG_ERR("Failed to initialize LEDs (err: %d)", err);
 		return err;
 	}
+
+#if CONFIG_USB_DFU_ENABLE_UPLOAD
+	err = usb_enable(NULL);
+	if (err != 0) {
+		LOG_ERR("Failed to enable USB");
+		return err;
+	}
+#endif
+
 	return 0;
 }
 
@@ -86,7 +103,19 @@ void main(void)
 
 	LOG_INF("Sidewalk example started!");
 
-	PRINT_SIDEWALK_VERSION(printk);
+	PRINT_SIDEWALK_VERSION(Z_LOG_PRINTK);
 
 	sidewalk_thread_enable();
+
+	#if CONFIG_BOOTLOADER_MCUBOOT
+	if (!boot_is_img_confirmed()) {
+		int ret = boot_write_img_confirmed();
+
+		if (ret) {
+			LOG_ERR("Couldn't confirm image: %d", ret);
+		} else {
+			LOG_INF("Marked image as OK");
+		}
+	}
+	#endif
 }

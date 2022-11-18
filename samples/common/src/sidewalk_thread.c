@@ -467,9 +467,19 @@ static void set_battery_level(app_context_t *app_ctx)
 static void initialize_radio_busy_gpio(void)
 {
 	LOG_DBG("Init Semtech busy pin");
-	sid_pal_gpio_set_direction(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_DIRECTION_INPUT);
-	sid_pal_gpio_input_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_INPUT_CONNECT);
-	sid_pal_gpio_pull_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_PULL_NONE);
+	if (SID_ERROR_NONE !=
+	    sid_pal_gpio_set_direction(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_DIRECTION_INPUT)) {
+		LOG_ERR("sid_pal_gpio_set_direction failed");
+		return;
+	}
+	if (SID_ERROR_NONE != sid_pal_gpio_input_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_INPUT_CONNECT)) {
+		LOG_ERR("sid_pal_gpio_input_mode failed");
+		return;
+	}
+	if (SID_ERROR_NONE != sid_pal_gpio_pull_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_PULL_NONE)) {
+		LOG_ERR("sid_pal_gpio_pull_mode failed");
+		return;
+	}
 }
 
 #endif

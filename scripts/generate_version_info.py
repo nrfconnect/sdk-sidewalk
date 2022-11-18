@@ -17,8 +17,12 @@ def west_module_list():
 
 def get_last_common_commit_with_upstream(ncs_dir):
     f = git.repo.Repo(os.path.join(ncs_dir, "sidewalk"))
-    return f.git.merge_base("--fork-point", "origin/main", "HEAD")
-
+    fork_point = "0000000"
+    try:
+        fork_point=f.git.merge_base("--fork-point", "origin/main", "HEAD")
+    except:
+        pass
+    return fork_point
 
 def print_warning_header():
     return """
