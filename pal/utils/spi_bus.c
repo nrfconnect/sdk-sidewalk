@@ -37,13 +37,6 @@ static const halo_serial_bus_iface_t bus_ops = {
 	.destroy = bus_serial_spi_destroy,
 };
 
-static void init_nss_gpio(uint32_t nss_gpio)
-{
-	sid_pal_gpio_set_direction(nss_gpio, SID_PAL_GPIO_DIRECTION_OUTPUT);
-	sid_pal_gpio_output_mode(nss_gpio, SID_PAL_GPIO_OUTPUT_PUSH_PULL);
-	sid_pal_gpio_pull_mode(nss_gpio, SID_PAL_GPIO_PULL_NONE);
-}
-
 static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, const halo_serial_bus_client_t *client,
 					uint8_t *tx, uint8_t *rx, size_t xfer_size)
 {
@@ -76,18 +69,19 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 		.buffers =  rx_buff,
 		.count = 1
 	};
-	uint32_t nss_gpio = client->client_selector;
-	init_nss_gpio(nss_gpio);
 
-	sid_pal_gpio_write(nss_gpio, 0);
+	sid_pal_gpio_write(client->client_selector, 0);
 	int r =
 		spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
 			       ((rx) ? &rx_set : NULL));
+
+	sid_pal_gpio_write(client->client_selector, 1);
+
 	if (r < 0) {
 		LOG_ERR("spi_transceive failed with error %d", r);
 		return HALO_ERROR_GENERIC;
 	}
-	sid_pal_gpio_write(nss_gpio, 1);
+
 	return HALO_ERROR_NONE;
 }
 
@@ -116,7 +110,6 @@ halo_error_t bus_serial_ncs_spi_create(const halo_serial_bus_iface_t **iface, co
 		.cfg = {
 			.frequency = DT_PROP(DT_NODELABEL(sid_spi), clock_frequency),
 			.operation = SPI_OPTIONS,
-			.cs = &bus_serial_ctx.cs_cfg
 		},
 		.iface = *iface
 	};
