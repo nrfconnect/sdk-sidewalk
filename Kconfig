@@ -262,3 +262,11 @@ config SIDEWALK_SWI_PRIORITY
 config SIDEWALK_SWI_STACK_SIZE
 	int
 	default 4096
+
+config SIDEWALK_GPIO_IRQ_PRIORITY
+	int
+	default 1
+
+config SIDEWALK_GPIO_IRQ_STACK_SIZE
+	int
+	default 2048
