@@ -13,9 +13,5 @@
 
 void sid_pal_delay_us(uint32_t delay)
 {
-#ifdef CONFIG_MULTITHREADING
-	(void)k_usleep(delay);
-#else
 	(void)k_busy_wait(delay);
-#endif
 }
