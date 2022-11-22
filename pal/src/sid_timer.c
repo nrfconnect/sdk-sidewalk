@@ -16,6 +16,18 @@
 #include <stdint.h>
 #include <zephyr.h>
 
+#ifdef CONFIG_SIDEWALK_THREAD_TIMER
+	#ifndef CONFIG_SIDEWALK_TIMER_PRIORITY
+		#error "CONFIG_SIDEWALK_TIMER_PRIORITY must be defined"
+	#endif
+
+	#ifndef CONFIG_SIDEWALK_TIMER_STACK_SIZE
+		#error "CONFIG_SIDEWALK_SWI_STACK_SIZE must be defined"
+	#endif
+
+static K_SEM_DEFINE(timer_trigger_sem, 0, 1);
+#endif /* CONFIG_SIDEWALK_THREAD_TIMER */
+
 struct sid_pal_timer_ctx {
 	sys_dlist_t list;
 };
@@ -231,9 +243,13 @@ void sid_pal_timer_event_callback(void *arg, const struct sid_timespec *now)
 static void sid_timer_handler(struct k_timer *timer_data)
 {
 	ARG_UNUSED(timer_data);
+#ifndef CONFIG_SIDEWALK_THREAD_TIMER
 	struct sid_timespec handle_time;
 	sid_pal_uptime_now(&handle_time);
 	sid_pal_timer_event_callback(NULL, &handle_time);
+#else
+	k_sem_give(&timer_trigger_sem);
+#endif /* CONFIG_SIDEWALK_THREAD_TIMER */
 }
 
 K_TIMER_DEFINE(sid_timer, sid_timer_handler, NULL);
@@ -248,3 +264,22 @@ static void sid_timer_start(const struct sid_timespec *sid_time)
 		      Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration)),
 		      K_NO_WAIT);
 }
+
+#ifdef CONFIG_SIDEWALK_THREAD_TIMER
+static void timer_task(void *arg1, void *arg2, void *arg3)
+{
+	ARG_UNUSED(arg1);
+	ARG_UNUSED(arg2);
+	ARG_UNUSED(arg3);
+
+	while (1) {
+		k_sem_take(&timer_trigger_sem, K_FOREVER);
+		struct sid_timespec handle_time;
+		sid_pal_uptime_now(&handle_time);
+		sid_pal_timer_event_callback(NULL, &handle_time);
+	}
+}
+
+K_THREAD_DEFINE(timer_thread, CONFIG_SIDEWALK_TIMER_STACK_SIZE, timer_task, NULL, NULL, NULL,
+		K_PRIO_COOP(CONFIG_SIDEWALK_TIMER_PRIORITY), 0, 0);
+#endif /* CONFIG_SIDEWALK_THREAD_TIMER */

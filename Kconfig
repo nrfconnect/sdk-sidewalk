@@ -270,3 +270,17 @@ config SIDEWALK_GPIO_IRQ_PRIORITY
 config SIDEWALK_GPIO_IRQ_STACK_SIZE
 	int
 	default 2048
+
+config SIDEWALK_THREAD_TIMER
+	bool
+	default n
+
+if SIDEWALK_THREAD_TIMER
+config SIDEWALK_TIMER_PRIORITY
+	int
+	default 2
+
+config SIDEWALK_TIMER_STACK_SIZE
+	int
+	default 2048
+endif
