@@ -50,6 +50,10 @@ LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 #error "Not defined Sidewalk link mask!!"
 #endif
 
+#define LM_2_STR(_lm)   (_lm == SID_LINK_TYPE_1 ? "BLE" :    \
+			 ((_lm == SID_LINK_TYPE_2) ? "FSK" : \
+			  ((_lm == SID_LINK_TYPE_3) ? "LoRa" : "INVALID")))
+
 K_MSGQ_DEFINE(sid_msgq, sizeof(enum event_type), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
 K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
@@ -522,10 +526,7 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 	app_ctx->sidewalk_config.callbacks = &event_callbacks;
 	app_ctx->sidewalk_config.link_config = &ble_link_config;
 
-	LOG_INF("Initializing sidewalk - Build with Link mask %s%s%s%s",
-		LINK_MASK > (SID_LINK_TYPE_3 << 1)?"INVALID ":"",
-		LINK_MASK == SID_LINK_TYPE_1?"BLE ":"", LINK_MASK == SID_LINK_TYPE_2?"FSK ":"",
-		LINK_MASK == SID_LINK_TYPE_3?"LoRa ":"");
+	LOG_INF("Initializing sidewalk, built-in %s link mask", LM_2_STR(LINK_MASK));
 
 	sid_error_t ret_code = init_and_start_link(app_ctx, SID_LINK_TYPE_1);
 
