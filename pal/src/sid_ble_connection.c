@@ -7,13 +7,13 @@
 #include <sid_ble_connection.h>
 #include <sid_ble_adapter_callbacks.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/gatt.h>
-#include <logging/log.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/logging/log.h>
 
 #include <errno.h>
 
-#include <kernel.h>
+#include <zephyr/kernel.h>
 K_MUTEX_DEFINE(bt_conn_mutex);
 
 LOG_MODULE_REGISTER(sid_ble_conn, CONFIG_SIDEWALK_LOG_LEVEL);

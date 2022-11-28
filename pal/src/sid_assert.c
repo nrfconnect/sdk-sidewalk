@@ -9,7 +9,7 @@
  */
 
 #include <sid_pal_assert_ifc.h>
-#include <sys/__assert.h>
+#include <zephyr/sys/__assert.h>
 
 void sid_pal_assert(int line, const char *file)
 {

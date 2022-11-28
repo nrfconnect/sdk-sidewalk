@@ -11,21 +11,21 @@
 #include <sid_pal_storage_kv_ifc.h>
 #include <stdint.h>
 
-#include <zephyr.h>
-#include <fs/nvs.h>
-#include <storage/flash_map.h>
+#include <zephyr/kernel.h>
+#include <zephyr/fs/nvs.h>
+#include <zephyr/storage/flash_map.h>
 
 /* Reserved space in the NVM memory. */
 #define NVS_RES_SPACE   (32U)
 
 /* Flash partition for NVS */
-#define NVS_FLASH_DEVICE FLASH_AREA_DEVICE(sidewalk_storage)
+#define NVS_FLASH_DEVICE FIXED_PARTITION_DEVICE(sidewalk_storage)
 /* Flash block size in bytes */
 #define NVS_SECTOR_SIZE  (DT_PROP(DT_CHOSEN(zephyr_flash), erase_block_size))
 /* Numbers of sectors */
 #define NVS_SECTOR_COUNT 2
 /* Start address of the filesystem in flash */
-#define NVS_STORAGE_OFFSET FLASH_AREA_OFFSET(sidewalk_storage)
+#define NVS_STORAGE_OFFSET FIXED_PARTITION_OFFSET(sidewalk_storage)
 /* Number of group IDs */
 #define SID_GROUP_ID_COUNT      1
 

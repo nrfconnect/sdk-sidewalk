@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
-#include "sys/util.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <zephyr/shell/shell.h>
+#include "zephyr/sys/util.h"
 #include <zephyr/kernel.h>
-#include <logging/log.h>
+#include <zephyr/shell/shell.h>
+#include <zephyr/logging/log.h>
 
 #include <sid_api.h>
 #include <sidewalk_thread.h>

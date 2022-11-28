@@ -10,7 +10,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_sid_ble_service)
 
 target_include_directories(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/pal/include)
-target_sources(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/pal/src/sid_ble_service.c)
+target_sources(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/pal/src/sid_ble_service.c ${ZEPHYR_BASE}/../sidewalk/pal/src/sid_ble_ama_service.c)
 
 cmock_handle(${ZEPHYR_BASE}/../sidewalk/pal/include/sid_ble_adapter_callbacks.h)
 

@@ -10,12 +10,12 @@
 
 #include <sid_pal_crypto_ifc.h>
 
-#include <device.h>
-#include <zephyr.h>
+#include <zephyr/device.h>
+#include <zephyr/kernel.h>
 #include <psa/crypto.h>
 #include <psa/crypto_extra.h>
-#include <logging/log.h>
-#include <logging/log_ctrl.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/logging/log_ctrl.h>
 
 LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 

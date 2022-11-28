@@ -7,7 +7,7 @@
 #ifndef NRF_BLE_CONNECTION_H
 #define NRF_BLE_CONNECTION_H
 
-#include <bluetooth/conn.h>
+#include <zephyr/bluetooth/conn.h>
 
 /**
  * @brief Struct with bluetooth connection paramters.

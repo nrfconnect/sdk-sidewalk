@@ -7,8 +7,8 @@
 #include <sid_pal_ble_adapter_ifc.h>
 
 #include <dk_buttons_and_leds.h>
-#include <zephyr.h>
-#include <logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(ble_test, LOG_LEVEL_DBG);
 

@@ -7,7 +7,7 @@
 #ifndef SID_GPIO_IRQ_H
 #define SID_GPIO_IRQ_H
 
-#include <drivers/gpio.h>
+#include <zephyr/drivers/gpio.h>
 
 /**
  * @brief Enable or disable interrupt for GPIO pin.

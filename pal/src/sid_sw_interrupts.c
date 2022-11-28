@@ -9,7 +9,7 @@
  */
 
 #include <sid_pal_swi_ifc.h>
-#include <kernel.h>
+#include <zephyr/kernel.h>
 
 #ifndef CONFIG_SIDEWALK_SWI_PRIORITY
 	#error "CONFIG_SIDEWALK_SWI_PRIORITY must be defined"

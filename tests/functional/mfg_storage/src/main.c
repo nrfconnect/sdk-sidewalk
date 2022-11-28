@@ -8,10 +8,10 @@
 #include <sid_error.h>
 
 #include <string.h>
-#include <device.h>
-#include <kernel.h>
-#include <storage/flash_map.h>
-#include <sys/byteorder.h>
+#include <zephyr/device.h>
+#include <zephyr/kernel.h>
+#include <zephyr/storage/flash_map.h>
+#include <zephyr/sys/byteorder.h>
 
 #define MFG_VERSION_1_VAL   0x01000000
 
@@ -22,7 +22,7 @@
  * MFG_START_OFFSET = 0x0FF000
  * MFG_END_OFFSET   = 0x100000
  */
-#define MFG_END_OFFSET (FLASH_AREA_OFFSET(storage) + FLASH_AREA_SIZE(storage))
+#define MFG_END_OFFSET (FIXED_PARTITION_OFFSET(sidewalk_storage) + FIXED_PARTITION_SIZE(sidewalk_storage))
 #define MFG_START_OFFSET (MFG_END_OFFSET - MFG_STORAGE_SIZE)
 
 static uint8_t test_data_buffer[512];
@@ -75,7 +75,7 @@ static void mfg_clr_memory(void)
 
 void test_sid_pal_mfg_storage_no_init(void)
 {
-	uint8_t read_buffer[SID_PAL_MFG_STORE_VERSION_SIZE];
+	uint8_t read_buffer[SID_PAL_MFG_STORE_VERSION_SIZE] = {0};
 
 	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, read_buffer, SID_PAL_MFG_STORE_VERSION_SIZE));
 	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_mfg_store_erase());
@@ -99,7 +99,7 @@ void test_sid_pal_mfg_storage_init(void)
 
 void test_sid_pal_mfg_storage_write(void)
 {
-	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN];
+	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN] = {0};
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 0));
 	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 128));

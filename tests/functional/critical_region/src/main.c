@@ -8,7 +8,7 @@
 #include <sid_error.h>
 
 #if defined(CONFIG_CPU_CORTEX_M)
-#include <arch/arm/aarch32/cortex_m/cmsis.h>
+#include <zephyr/arch/arm/aarch32/cortex_m/cmsis.h>
 #else
 #error "Architecture not supported"
 #endif

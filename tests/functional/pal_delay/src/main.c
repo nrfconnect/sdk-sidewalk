@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 #include <unity.h>
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <stdlib.h>
 #include <sid_pal_delay_ifc.h>
 

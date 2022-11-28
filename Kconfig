@@ -155,7 +155,6 @@ config SIDEWALK_ASSERT
 config SIDEWALK_CRYPTO
 	bool "Enable Sidewalk security module"
 	imply NRF_SECURITY
-	imply PSA_DEFAULT_OFF
 	imply PSA_CRYPTO_DRIVER_OBERON
 	imply PSA_WANT_ALG_HMAC
 	imply PSA_WANT_ALG_CTR

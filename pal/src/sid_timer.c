@@ -14,7 +14,7 @@
 #include <sid_pal_critical_region_ifc.h>
 #include <sid_time_ops.h>
 #include <stdint.h>
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 
 #ifdef CONFIG_SIDEWALK_THREAD_TIMER
 	#ifndef CONFIG_SIDEWALK_TIMER_PRIORITY

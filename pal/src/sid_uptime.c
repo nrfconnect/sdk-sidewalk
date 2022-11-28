@@ -11,8 +11,8 @@
 #include <sid_pal_uptime_ifc.h>
 #include <zephyr_time.h>
 
-#include <sys_clock.h>
-#include <logging/log.h>
+#include <zephyr/sys_clock.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(sid_uptime, CONFIG_SIDEWALK_LOG_LEVEL);
 

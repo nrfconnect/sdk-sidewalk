@@ -5,7 +5,7 @@
  */
 
 #include <sid_gpio_utils.h>
-#include <drivers/mock_gpio.h>
+#include <zephyr/drivers/cmock_gpio.h>
 #include <unity.h>
 
 #define E_OK (0)
@@ -92,7 +92,7 @@ void test_sid_gpio_utils_gpio_read_fail(void)
 
 	TEST_ASSERT_EQUAL(-ENOENT, sid_gpio_utils_gpio_read(GPIO_NUMBER_1, NULL));
 	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_utils_gpio_read(INVALID_GPIO, &gpio_state));
-	__wrap_gpio_pin_get_raw_IgnoreAndReturn(-EIO);
+	__cmock_gpio_pin_get_raw_IgnoreAndReturn(-EIO);
 	TEST_ASSERT_EQUAL(-EIO, sid_gpio_utils_gpio_read(GPIO_NUMBER_1, &gpio_state));
 }
 
@@ -100,10 +100,10 @@ void test_sid_gpio_utils_gpio_read_pass(void)
 {
 	uint8_t gpio_state = 0;
 
-	__wrap_gpio_pin_get_raw_IgnoreAndReturn(GPIO_LV_HI);
+	__cmock_gpio_pin_get_raw_IgnoreAndReturn(GPIO_LV_HI);
 	TEST_ASSERT_GREATER_OR_EQUAL(0, sid_gpio_utils_gpio_read(GPIO_NUMBER_1, &gpio_state));
 	TEST_ASSERT_EQUAL(GPIO_LV_HI, gpio_state);
-	__wrap_gpio_pin_get_raw_IgnoreAndReturn(GPIO_LV_LO);
+	__cmock_gpio_pin_get_raw_IgnoreAndReturn(GPIO_LV_LO);
 	TEST_ASSERT_GREATER_OR_EQUAL(0, sid_gpio_utils_gpio_read(GPIO_NUMBER_1, &gpio_state));
 	TEST_ASSERT_EQUAL(GPIO_LV_LO, gpio_state);
 }
@@ -112,14 +112,14 @@ void test_sid_gpio_utils_gpio_set_fail(void)
 {
 	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_utils_gpio_set(INVALID_GPIO, GPIO_LV_HI));
 
-	__wrap_gpio_pin_set_raw_IgnoreAndReturn(-EIO);
+	__cmock_gpio_pin_set_raw_IgnoreAndReturn(-EIO);
 	TEST_ASSERT_EQUAL(-EIO, sid_gpio_utils_gpio_set(GPIO_NUMBER_1, GPIO_LV_HI));
 	TEST_ASSERT_EQUAL(-EIO, sid_gpio_utils_gpio_set(GPIO_NUMBER_1, GPIO_LV_LO));
 }
 
 void test_sid_gpio_utils_gpio_set_pass(void)
 {
-	__wrap_gpio_pin_set_raw_IgnoreAndReturn(E_OK);
+	__cmock_gpio_pin_set_raw_IgnoreAndReturn(E_OK);
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_utils_gpio_set(GPIO_NUMBER_1, GPIO_LV_HI));
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_utils_gpio_set(GPIO_NUMBER_1, GPIO_LV_LO));
 }
@@ -128,13 +128,13 @@ void test_sid_gpio_utils_gpio_toggle_fail(void)
 {
 	TEST_ASSERT_EQUAL(-ENOTSUP, sid_gpio_utils_gpio_toggle(INVALID_GPIO));
 
-	__wrap_gpio_pin_toggle_IgnoreAndReturn(-EIO);
+	__cmock_gpio_pin_toggle_IgnoreAndReturn(-EIO);
 	TEST_ASSERT_EQUAL(-EIO, sid_gpio_utils_gpio_toggle(GPIO_NUMBER_1));
 }
 
 void test_sid_gpio_utils_gpio_toggle_pass(void)
 {
-	__wrap_gpio_pin_toggle_IgnoreAndReturn(-E_OK);
+	__cmock_gpio_pin_toggle_IgnoreAndReturn(-E_OK);
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_utils_gpio_toggle(GPIO_NUMBER_1));
 }
 

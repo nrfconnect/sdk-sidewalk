@@ -4,15 +4,15 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 #include <unity.h>
-#include <fff.h>
+#include <zephyr/fff.h>
 
 #include <sid_ble_service.h>
 #include <sid_ble_connection.h>
 #include <sid_ble_ama_service.h>
-#include <mock_sid_ble_adapter_callbacks.h>
+#include <cmock_sid_ble_adapter_callbacks.h>
 
-#include <bluetooth/conn.h>
-#include <bluetooth/hci_err.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/hci_err.h>
 
 #include <stdbool.h>
 
@@ -26,12 +26,33 @@ FAKE_VALUE_FUNC(int, bt_gatt_notify_cb, struct bt_conn *,
 FAKE_VALUE_FUNC(struct bt_gatt_attr *, bt_gatt_find_by_uuid, const struct bt_gatt_attr *,
 		uint16_t,
 		const struct bt_uuid *);
+	
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_service, struct bt_conn *,
+				  const struct bt_gatt_attr *,
+				  void *, uint16_t , uint16_t );
+			
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_chrc,struct bt_conn *,
+			       const struct bt_gatt_attr *, void *,
+			       uint16_t , uint16_t );
+
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *,
+			      const struct bt_gatt_attr *, void *,
+			      uint16_t , uint16_t );
+
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *,
+			       const struct bt_gatt_attr *, const void *,
+			       uint16_t , uint16_t , uint8_t );
 
 #define FFF_FAKES_LIST(FAKE)	    \
 	FAKE(bt_gatt_get_mtu)	    \
 	FAKE(bt_gatt_is_subscribed) \
 	FAKE(bt_gatt_notify_cb)	    \
-	FAKE(bt_gatt_find_by_uuid)
+	FAKE(bt_gatt_find_by_uuid) \
+	FAKE(bt_gatt_attr_read_service) \
+	FAKE(bt_gatt_attr_read_chrc) \
+	FAKE(bt_gatt_attr_read_ccc) \
+	FAKE(bt_gatt_attr_write_ccc)
+
 
 #define TEST_DATA_CHUNK (128)
 
@@ -61,7 +82,7 @@ void test_sid_ble_send_data_pass(void)
 	struct bt_gatt_attr attr;
 	uint8_t data[TEST_DATA_CHUNK];
 
-	__wrap_sid_ble_adapter_notification_sent_Expect();
+	__cmock_sid_ble_adapter_notification_sent_Expect();
 
 	params.conn = &conn;
 	params.service = &srv;

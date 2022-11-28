@@ -15,14 +15,14 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <zephyr.h>
-#include <device.h>
-#include <drivers/flash.h>
-#include <storage/flash_map.h>
+#include <zephyr/kernel.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/flash.h>
+#include <zephyr/storage/flash_map.h>
 #include <mfg_store_offsets.h>
-#include <sys/byteorder.h>
+#include <zephyr/sys/byteorder.h>
 #include <sys/types.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 

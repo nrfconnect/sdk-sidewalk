@@ -10,7 +10,7 @@
 
 #include <sid_pal_critical_region_ifc.h>
 
-#include <kernel.h>
+#include <zephyr/kernel.h>
 
 static unsigned int key;
 

@@ -7,8 +7,13 @@
 
 #include <sid_pal_critical_region_ifc.h>
 
-#include <irq.h>
-#include <irq_ctrl.h>
+#include <zephyr/irq.h>
+#include <zephyr/kernel.h>
+
+#include "fix_zassert_macro.h"
+
+#include <zephyr/interrupt_util.h>
+
 
 #define TEST_IRQ        (24)
 #define TEST_IRQ_PRIO   (2)
@@ -17,10 +22,6 @@
 
 static volatile uint32_t resource;
 
-static void trigger_irq(int irq)
-{
-	hw_irq_ctrl_raise_im_from_sw(irq);
-}
 
 void irq_cb(const void *arg)
 {

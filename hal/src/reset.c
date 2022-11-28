@@ -9,8 +9,8 @@
  */
 
 #include <sid_hal_reset_ifc.h>
-#include <sys/reboot.h>
-#include <zephyr.h>
+#include <zephyr/sys/reboot.h>
+#include <zephyr/kernel.h>
 
 sid_error_t sid_hal_reset(sid_hal_reset_type_t type)
 {

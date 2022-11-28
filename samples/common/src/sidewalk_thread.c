@@ -22,7 +22,7 @@
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 #include <zephyr/kernel.h>
-#include <storage/flash_map.h>
+#include <zephyr/storage/flash_map.h>
 #include <dk_buttons_and_leds.h>
 #include <sid_pal_gpio_ifc.h>
 #include "nordic_dfu.h"
@@ -31,7 +31,7 @@
 #include <sid_shell.h>
 #endif
 
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #if !FLASH_AREA_LABEL_EXISTS(mfg_storage)

@@ -12,7 +12,7 @@
 
 #include <sid_gpio_utils.h>
 #include <sid_gpio_irq_handler.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(sid_gpio_irq, CONFIG_SIDEWALK_LOG_LEVEL);
 

@@ -5,8 +5,8 @@
  */
 #include <unity.h>
 #include <sid_pal_uptime_ifc.h>
-#include <sys_clock.h>
-#include <mock_zephyr_time.h>
+#include <zephyr/sys_clock.h>
+#include <cmock_zephyr_time.h>
 
 void setUp(void)
 {
@@ -23,7 +23,7 @@ static void uptime_test_time(uint64_t uptime_nanoseconds)
 	seconds = (uint32_t)(uptime_nanoseconds / NSEC_PER_SEC);
 	nanoseconds = (uint32_t)(uptime_nanoseconds % NSEC_PER_SEC);
 
-	__wrap_zephyr_uptime_ns_ExpectAndReturn(uptime_nanoseconds);
+	__cmock_zephyr_uptime_ns_ExpectAndReturn(uptime_nanoseconds);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
 
 	TEST_ASSERT_EQUAL(seconds, sid_time.tv_sec);

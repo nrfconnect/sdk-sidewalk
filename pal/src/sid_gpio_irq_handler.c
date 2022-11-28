@@ -7,7 +7,7 @@
 /** @file sid_gpio_irq_handler.c
  *  @brief GPIO interrupts handler.
  */
-
+#include <zephyr/kernel.h>
 #include <sid_gpio_irq_handler.h>
 #include <sid_gpio_irq.h>
 #include <sid_gpio_utils.h>

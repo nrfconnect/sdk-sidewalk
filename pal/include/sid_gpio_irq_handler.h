@@ -8,7 +8,7 @@
 #define SID_GPIO_IRQ_HANDLER_H
 
 #include <sid_pal_gpio_ifc.h>
-#include <drivers/gpio.h>
+#include <zephyr/drivers/gpio.h>
 
 /**
  * @brief GPIO application callback.

@@ -5,7 +5,7 @@
  */
 
 #include <sid_gpio_irq_handler.h>
-#include <mock_sid_gpio_utils.h>
+#include <cmock_sid_gpio_utils.h>
 #include <unity.h>
 
 #define E_OK    (0)
@@ -27,12 +27,12 @@ void setUp(void)
 {
 	cb_func_call_cnt = 0;
 	cb_func_arg = NULL;
-	mock_sid_gpio_utils_Init();
+	cmock_sid_gpio_utils_Init();
 }
 
 void tearDown(void)
 {
-	mock_sid_gpio_utils_Destroy();
+	cmock_sid_gpio_utils_Destroy();
 }
 
 static void test_callback(uint32_t gpio_number, void *callback_arg)
@@ -43,7 +43,7 @@ static void test_callback(uint32_t gpio_number, void *callback_arg)
 
 void test_sid_gpio_irq_handler_set_fail(void)
 {
-	__wrap_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(GPIO_NUMBER_1);
+	__cmock_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(GPIO_NUMBER_1);
 	sid_gpio_irq_handler_set(GPIO_NUMBER_1, NULL, &test_arg);
 	sid_gpio_irq_callback(TEST_PORT, NULL, BIT(GPIO_NUMBER_1));
 	TEST_ASSERT_EQUAL(0, cb_func_call_cnt);
@@ -52,7 +52,7 @@ void test_sid_gpio_irq_handler_set_fail(void)
 
 void test_sid_gpio_irq_handler_set_pass(void)
 {
-	__wrap_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(GPIO_NUMBER_1);
+	__cmock_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(GPIO_NUMBER_1);
 	sid_gpio_irq_handler_set(GPIO_NUMBER_1, test_callback, &test_arg);
 
 	for (int it = 1; it <= TEST_LOOP; it++) {
@@ -66,7 +66,7 @@ void test_sid_gpio_irq_handler_set_pass(void)
 	sid_gpio_irq_handler_set(GPIO_NUMBER_9, test_callback, &test_arg);
 
 	for (int gpio = 0; gpio < P0_PIN_NUM; gpio++) {
-		__wrap_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(gpio);
+		__cmock_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(gpio);
 		sid_gpio_irq_callback(TEST_PORT, NULL, BIT(gpio));
 	}
 	TEST_ASSERT_EQUAL(GPIO_CALLBACK_NUM, cb_func_call_cnt);
@@ -85,7 +85,7 @@ void test_sid_gpio_irq_callback_fail(void)
 		TEST_ASSERT_NULL(cb_func_arg);
 	}
 
-	__wrap_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(__UINT32_MAX__);
+	__cmock_sid_gpio_utils_gpio_number_get_IgnoreAndReturn(__UINT32_MAX__);
 
 	for (int gpio = 0; gpio < P0_PIN_NUM; gpio++) {
 		sid_gpio_irq_callback(TEST_PORT, NULL, BIT(gpio));

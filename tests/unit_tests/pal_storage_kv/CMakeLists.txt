@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_storage_kv)
 
-cmock_handle(${ZEPHYR_BASE}/include/zephyr/fs/nvs.h fs)
+cmock_handle(${ZEPHYR_BASE}/include/zephyr/fs/nvs.h zephyr/fs)
 
 # add test file
 FILE(GLOB app_sources src/*.c)

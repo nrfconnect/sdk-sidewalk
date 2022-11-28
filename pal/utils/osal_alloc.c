@@ -7,9 +7,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <zephyr/kernel.h>
-#include <sys/math_extras.h>
+#include <zephyr/sys/math_extras.h>
 
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(ace, CONFIG_SIDEWALK_LOG_LEVEL);
 
 K_HEAP_DEFINE(sid_heap, CONFIG_SIDEWALK_HEAP_SIZE);
