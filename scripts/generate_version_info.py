@@ -39,7 +39,7 @@ def print_warning_header():
 
 def print_includes():
     return """
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <stdint.h>
 #include <stddef.h>
 """

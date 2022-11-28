@@ -11,9 +11,9 @@
 #include <sid_pal_log_ifc.h>
 #include <stddef.h>
 
-#include <sys/printk.h>
-#include <logging/log.h>
-#include <logging/log_ctrl.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/logging/log_ctrl.h>
 
 LOG_MODULE_REGISTER(sidewalk, CONFIG_SIDEWALK_LOG_LEVEL);
 

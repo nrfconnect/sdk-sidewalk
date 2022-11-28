@@ -7,8 +7,8 @@
 #ifndef SID_GPIO_UTILS_H
 #define SID_GPIO_UTILS_H
 
-#include <devicetree.h>
-#include <drivers/gpio.h>
+#include <zephyr/devicetree.h>
+#include <zephyr/drivers/gpio.h>
 #include <nrf_peripherals.h>
 
 #define GPIO_PORT0 (0)

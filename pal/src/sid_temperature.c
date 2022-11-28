@@ -8,11 +8,11 @@
  *  @brief Temperature interface implementation
  */
 
-#include "devicetree.h"
+#include "zephyr/devicetree.h"
 #include <sid_pal_temperature_ifc.h>
 #include <stdint.h>
-#include <device.h>
-#include <drivers/sensor.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/sensor.h>
 
 static const struct device *temp_dev;
 

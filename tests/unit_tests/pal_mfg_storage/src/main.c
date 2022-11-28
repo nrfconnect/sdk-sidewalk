@@ -6,7 +6,7 @@
 #include <unity.h>
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_error.h>
-#include <mock_flash.h>
+#include <zephyr/drivers/cmock_flash.h>
 #include <string.h>
 
 static uint8_t test_data_buffer[512];
@@ -20,7 +20,7 @@ void setUp(void)
 * ****************************************************************/
 void test_sid_pal_mfg_storage_no_init(void)
 {
-	uint8_t read_buffer[SID_PAL_MFG_STORE_VERSION_SIZE];
+	uint8_t read_buffer[SID_PAL_MFG_STORE_VERSION_SIZE] = {0};
 
 	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, read_buffer, SID_PAL_MFG_STORE_VERSION_SIZE));
 	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_mfg_store_erase());
@@ -44,7 +44,7 @@ void test_sid_pal_mfg_storage_init(void)
 
 void test_sid_pal_mfg_storage_write(void)
 {
-	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN];
+	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN] = {0};
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 0));
 	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 128));
@@ -52,13 +52,13 @@ void test_sid_pal_mfg_storage_write(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND, sid_pal_mfg_store_write(999, write_buff, SID_PAL_MFG_STORE_VERSION_SIZE));
 	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, NULL, SID_PAL_MFG_STORE_VERSION_SIZE));
 
-	__wrap_flash_write_ExpectAnyArgsAndReturn(0);
+	__cmock_flash_write_ExpectAnyArgsAndReturn(0);
 	TEST_ASSERT_EQUAL(0, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, SID_PAL_MFG_STORE_VERSION_SIZE));
 }
 
 void test_sid_pal_mfg_storage_dev_id_get(void)
 {
-	uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE];
+	uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE]={0};
 
 	memset(dev_id, 0x00, sizeof(dev_id));
 
@@ -73,7 +73,7 @@ void test_sid_pal_mfg_storage_dev_id_get(void)
 
 void test_sid_pal_mfg_storage_sn_get(void)
 {
-	uint8_t serial_num[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE];
+	uint8_t serial_num[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE] = {0};
 
 	// No serial number.
 	TEST_ASSERT_FALSE(sid_pal_mfg_store_serial_num_get(serial_num));

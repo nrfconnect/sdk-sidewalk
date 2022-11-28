@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
-#include <zephyr.h>
-#include <sys/printk.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/logging/log.h>
 
 #include "sid_pal_log_ifc.h"
 
-#include <logging/log.h>
 LOG_MODULE_REGISTER(log_test, LOG_LEVEL_DBG);
 
 void main(void)

@@ -7,10 +7,10 @@
 #include "buttons.h"
 #include "buttons_internal.h"
 #include <dk_buttons_and_leds.h>
-#include <kernel.h>
+#include <zephyr/kernel.h>
 #include <errno.h>
 
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(button, HAL_BUTTONS_LOG_LEVEL);
 

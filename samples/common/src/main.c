@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 #include <sidewalk_thread.h>
-
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <dk_buttons_and_leds.h>
 #include <buttons.h>
+#include <zephyr/logging/log.h>
 
 #if CONFIG_BOOTLOADER_MCUBOOT
 #include <zephyr/dfu/mcuboot.h>
@@ -19,7 +19,6 @@
 #include <zephyr/usb/usb_device.h>
 #endif
 
-#include <logging/log.h>
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
 void assert_post_action(const char *file, unsigned int line)

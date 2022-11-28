@@ -11,9 +11,9 @@
 #ifndef SID_PAL_BLE_SERVICE_H
 #define SID_PAL_BLE_SERVICE_H
 
-#include <bluetooth/conn.h>
-#include <bluetooth/uuid.h>
-#include <bluetooth/gatt.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
 
 typedef struct {
 	struct bt_conn *conn;

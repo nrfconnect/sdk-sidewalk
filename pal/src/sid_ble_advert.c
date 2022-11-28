@@ -9,9 +9,9 @@
 
 #include <sid_ble_uuid.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/uuid.h>
-#include <sys/byteorder.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/sys/byteorder.h>
 
 #ifdef CONFIG_BLE_ADV_SLOW_INT_1000_1200_MS
 #define ADV_INT_MIN     BT_GAP_ADV_SLOW_INT_MIN

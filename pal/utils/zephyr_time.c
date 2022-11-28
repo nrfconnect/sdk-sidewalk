@@ -5,7 +5,7 @@
  */
 
 #include "zephyr_time.h"
-#include <kernel.h>
+#include <zephyr/kernel.h>
 
 uint64_t zephyr_uptime_ns(void){
 	uint64_t uptime_ticks;

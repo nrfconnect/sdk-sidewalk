@@ -7,7 +7,7 @@
 #include <unity.h>
 #include <sid_pal_assert_ifc.h>
 #include <stdbool.h>
-#include <toolchain.h>
+#include <zephyr/toolchain.h>
 
 void setUp(void)
 {

@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 #include <unity.h>
-#include <fff.h>
+#include <zephyr/fff.h>
 
 #include <sid_ble_advert.h>
 #include <sid_ble_uuid.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
 #include <errno.h>
 
 DEFINE_FFF_GLOBALS;

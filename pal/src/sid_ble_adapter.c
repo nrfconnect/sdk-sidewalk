@@ -25,12 +25,12 @@
 #include <bluetooth/controller.h>
 #endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/uuid.h>
-#include <settings/settings.h>
-#include <logging/log.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/settings/settings.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -142,30 +142,28 @@ static sid_error_t ble_adapter_stop_advertisement(void)
 
 static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
 {
-	const struct bt_gatt_service_static *srv = NULL;
-	struct bt_uuid *uuid = NULL;
-	sid_ble_srv_params_t srv_params;
+	sid_ble_srv_params_t srv_params = {};
 
 	switch (id) {
 	case AMA_SERVICE:
 	{
-		uuid = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv = sid_ble_get_ama_service();
+		srv_params.uuid = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
+		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_ama_service();
 		break;
 	}
 	#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
 	case VENDOR_SERVICE:
 	{
-		uuid = VND_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv = sid_ble_get_vnd_service();
+		srv_params.uuid = VND_SID_BT_CHARACTERISTIC_NOTIFY;
+		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_vnd_service();
 		break;
 	}
 	#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
 	#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
 	case LOGGING_SERVICE:
 	{
-		uuid = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv = sid_ble_get_log_service();
+		srv_params.uuid = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
+		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_log_service();
 		break;
 	}
 	#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
@@ -173,11 +171,7 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 		return SID_ERROR_NOSUPPORT;
 	}
 
-	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
-
-	srv_params.uuid = uuid;
-	srv_params.service = (struct bt_gatt_service_static *)srv;
-	srv_params.conn = params->conn;
+	srv_params.conn = sid_ble_conn_params_get()->conn;
 
 	int err_code = sid_ble_send_data(&srv_params, data, length);
 	if (-EINVAL == err_code) {

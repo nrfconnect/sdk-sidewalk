@@ -6,11 +6,11 @@
 #include <unity.h>
 #include <sid_pal_storage_kv_ifc.h>
 
-#include <storage/flash_map.h>
-#include <device.h>
+#include <zephyr/storage/flash_map.h>
+#include <zephyr/device.h>
 #include <string.h>
-#include <sys/byteorder.h>
-#include <kernel.h>
+#include <zephyr/sys/byteorder.h>
+#include <zephyr/kernel.h>
 
 #include <sid_pal_assert_ifc.h>
 

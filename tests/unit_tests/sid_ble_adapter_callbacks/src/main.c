@@ -7,7 +7,7 @@
 
 #include <sid_ble_adapter_callbacks.h>
 
-#include <bluetooth/conn.h>
+#include <zephyr/bluetooth/conn.h>
 #include <stdbool.h>
 
 #define TEST_DATA_CHUNK  (16)
@@ -133,7 +133,7 @@ void test_sid_ble_adapter_notification_changed_pass(void)
 
 void test_sid_ble_adapter_connection_changed_wo_callback(void)
 {
-	uint8_t ble_addr[BT_ADDR_SIZE];
+	uint8_t ble_addr[BT_ADDR_SIZE] = {0};
 
 	sid_ble_adapter_conn_connected(ble_addr);
 	TEST_ASSERT_EQUAL(0, ble_connection_callback_test.call_cnt);
@@ -150,7 +150,7 @@ void test_sid_ble_adapter_conn_cb_set(void)
 
 void test_sid_ble_connection_changed_pass(void)
 {
-	uint8_t ble_addr[BT_ADDR_SIZE];
+	uint8_t ble_addr[BT_ADDR_SIZE] = {0};
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_conn_cb_set(ble_connection_callback));
 

@@ -8,9 +8,6 @@
 #include <sid_pal_uptime_ifc.h>
 #include <sid_time_ops.h>
 
-/* number of nanoseconds per microseconds */
-#define NSEC_PER_MSEC ((NSEC_PER_USEC) *(USEC_PER_MSEC))
-
 static sid_pal_timer_t *p_null_timer = NULL;
 static sid_pal_timer_t test_timer;
 static int test_timer_arg;

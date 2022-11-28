@@ -8,9 +8,9 @@
 #include <stdio.h>
 #include <math.h>
 #include <sid_pal_crypto_ifc.h>
-#include <sys/util.h>
+#include <zephyr/sys/util.h>
 
-#include <fff.h>
+#include <zephyr/fff.h>
 #include <psa/crypto.h>
 #include <psa/crypto_types.h>
 #include <psa/crypto_values.h>

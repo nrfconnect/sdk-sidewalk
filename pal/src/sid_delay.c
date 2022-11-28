@@ -9,7 +9,7 @@
  */
 
 #include <sid_pal_delay_ifc.h>
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 
 void sid_pal_delay_us(uint32_t delay)
 {

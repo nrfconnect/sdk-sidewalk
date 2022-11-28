@@ -4,19 +4,19 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 #include <unity.h>
-#include <fff.h>
+#include <zephyr/fff.h>
 
 #include <sid_pal_ble_adapter_ifc.h>
 
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/conn.h>
-#include <bluetooth/gatt.h>
-#include <bluetooth/addr.h>
-#include <mock_settings.h>
-#include <mock_sid_ble_advert.h>
-#include <mock_sid_ble_connection.h>
-#include <mock_sid_ble_adapter_callbacks.h>
-#include <mock_sid_ble_service.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/bluetooth/addr.h>
+#include <cmock_settings.h>
+#include <cmock_sid_ble_advert.h>
+#include <cmock_sid_ble_connection.h>
+#include <cmock_sid_ble_adapter_callbacks.h>
+#include <cmock_sid_ble_service.h>
 #include <errno.h>
 
 #include <stdbool.h>
@@ -76,12 +76,12 @@ void setUp(void)
 	FFF_FAKES_LIST(RESET_FAKE);
 	FFF_RESET_HISTORY();
 	memset(&data_cb_test, 0x00, sizeof(data_cb_test));
-	mock_sid_ble_adapter_callbacks_Init();
+	cmock_sid_ble_adapter_callbacks_Init();
 }
 
 void tearDown(void)
 {
-	mock_sid_ble_adapter_callbacks_Verify();
+	cmock_sid_ble_adapter_callbacks_Verify();
 }
 
 static void ble_data_callback(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
@@ -141,19 +141,19 @@ void test_sid_pal_ble_adapter_init(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__wrap_settings_load_ExpectAndReturn(0);
-	__wrap_sid_ble_conn_init_Expect();
+	__cmock_settings_load_ExpectAndReturn(0);
+	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
-	__wrap_settings_load_ExpectAndReturn(0);
-	__wrap_sid_ble_conn_init_Expect();
+	__cmock_settings_load_ExpectAndReturn(0);
+	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(NULL));
 
 	bt_enable_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
 
 	bt_enable_fake.return_val = ESUCCESS;
-	__wrap_settings_load_ExpectAndReturn(-ENOENT);
+	__cmock_settings_load_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
 }
 
@@ -162,11 +162,11 @@ void test_sid_pal_ble_adapter_deinit(void)
 	sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
-	__wrap_settings_load_ExpectAndReturn(ESUCCESS);
-	__wrap_sid_ble_conn_init_Expect();
+	__cmock_settings_load_ExpectAndReturn(ESUCCESS);
+	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
-	__wrap_sid_ble_conn_deinit_Expect();
+	__cmock_sid_ble_conn_deinit_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->deinit());
 }
 
@@ -185,14 +185,14 @@ void test_ble_adapter_set_adv_data(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__wrap_sid_ble_advert_update_IgnoreAndReturn(ESUCCESS);
+	__cmock_sid_ble_advert_update_IgnoreAndReturn(ESUCCESS);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(NULL, 0));
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(test_data, 0));
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(NULL, sizeof(test_data)));
 
-	__wrap_sid_ble_advert_update_IgnoreAndReturn(-ENOENT);
+	__cmock_sid_ble_advert_update_IgnoreAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
 }
 
@@ -202,11 +202,11 @@ void test_ble_adapter_start_advertisement(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__wrap_sid_ble_advert_start_ExpectAndReturn(ESUCCESS);
-	__wrap_sid_ble_conn_init_Expect();
+	__cmock_sid_ble_advert_start_ExpectAndReturn(ESUCCESS);
+	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->start_adv());
 
-	__wrap_sid_ble_advert_start_ExpectAndReturn(-ENOENT);
+	__cmock_sid_ble_advert_start_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->start_adv());
 }
 
@@ -215,10 +215,10 @@ void test_ble_adapter_stop_advertisement(void)
 	sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
-	__wrap_sid_ble_advert_stop_ExpectAndReturn(ESUCCESS);
+	__cmock_sid_ble_advert_stop_ExpectAndReturn(ESUCCESS);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->stop_adv());
 
-	__wrap_sid_ble_advert_stop_ExpectAndReturn(-ENOENT);
+	__cmock_sid_ble_advert_stop_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->stop_adv());
 }
 
@@ -230,12 +230,12 @@ void test_ble_adapter_adapter_callback_pass(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
 	set_callbacks(&cb);
-	__wrap_sid_ble_adapter_notification_cb_set_ExpectAndReturn(cb.ind_callback, SID_ERROR_NONE);
-	__wrap_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(cb.notify_callback, SID_ERROR_NONE);
-	__wrap_sid_ble_adapter_data_cb_set_ExpectAndReturn(cb.data_callback, SID_ERROR_NONE);
-	__wrap_sid_ble_adapter_conn_cb_set_ExpectAndReturn(cb.conn_callback, SID_ERROR_NONE);
-	__wrap_sid_ble_adapter_mtu_cb_set_ExpectAndReturn(cb.mtu_callback, SID_ERROR_NONE);
-	__wrap_sid_ble_adapter_adv_start_cb_set_ExpectAndReturn(cb.adv_start_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_notification_cb_set_ExpectAndReturn(cb.ind_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(cb.notify_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_data_cb_set_ExpectAndReturn(cb.data_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_conn_cb_set_ExpectAndReturn(cb.conn_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_mtu_cb_set_ExpectAndReturn(cb.mtu_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_adv_start_cb_set_ExpectAndReturn(cb.adv_start_callback, SID_ERROR_NONE);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 }
 
@@ -257,39 +257,39 @@ void test_ble_adapter_adapter_callback_fail(void)
 
 	set_callbacks(&cb);
 	cb.ind_callback = NULL;
-	__wrap_sid_ble_adapter_notification_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
-	__wrap_sid_ble_adapter_notification_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_notification_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_notification_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
 	set_callbacks(&cb);
 	cb.data_callback = NULL;
-	__wrap_sid_ble_adapter_data_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
-	__wrap_sid_ble_adapter_data_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_data_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_data_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
 	set_callbacks(&cb);
 	cb.notify_callback = NULL;
-	__wrap_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
-	__wrap_sid_ble_adapter_notification_changed_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_notification_changed_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
 	set_callbacks(&cb);
 	cb.conn_callback = NULL;
-	__wrap_sid_ble_adapter_conn_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
-	__wrap_sid_ble_adapter_conn_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_conn_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_conn_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
 	set_callbacks(&cb);
 	cb.mtu_callback = NULL;
-	__wrap_sid_ble_adapter_mtu_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
-	__wrap_sid_ble_adapter_mtu_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_mtu_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_mtu_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
 
 	set_callbacks(&cb);
 	cb.adv_start_callback = NULL;
-	__wrap_sid_ble_adapter_adv_start_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
-	__wrap_sid_ble_adapter_adv_start_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_adv_start_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_adv_start_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 }
 
@@ -301,8 +301,8 @@ void test_ble_adapter_send_data_pass(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__wrap_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
-	__wrap_sid_ble_send_data_IgnoreAndReturn(0);
+	__cmock_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
+	__cmock_sid_ble_send_data_IgnoreAndReturn(0);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->send(AMA_SERVICE, data, sizeof(data)));
 }
@@ -315,12 +315,12 @@ void test_ble_adapter_send_data_fail(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__wrap_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
-	__wrap_sid_ble_send_data_IgnoreAndReturn(-EINVAL);
+	__cmock_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
+	__cmock_sid_ble_send_data_IgnoreAndReturn(-EINVAL);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->send(AMA_SERVICE, data, sizeof(data)));
 
-	__wrap_sid_ble_send_data_IgnoreAndReturn(-ENOENT);
+	__cmock_sid_ble_send_data_IgnoreAndReturn(-ENOENT);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->send(AMA_SERVICE, data, sizeof(data)));
 }
@@ -340,10 +340,10 @@ void test_ble_adapter_disconnect(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__wrap_sid_ble_conn_disconnect_ExpectAndReturn(ESUCCESS);
+	__cmock_sid_ble_conn_disconnect_ExpectAndReturn(ESUCCESS);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->disconnect());
 
-	__wrap_sid_ble_conn_disconnect_ExpectAndReturn(-ENOENT);
+	__cmock_sid_ble_conn_disconnect_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->disconnect());
 }
 

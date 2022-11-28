@@ -11,7 +11,7 @@
 #include <sid_ble_service.h>
 #include <sid_ble_adapter_callbacks.h>
 
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(sid_ble_srv, CONFIG_SIDEWALK_LOG_LEVEL);
 

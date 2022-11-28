@@ -10,9 +10,6 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(sidewalk_test_temperature)
 
-cmock_handle($ENV{ZEPHYR_BASE}/../zephyr/include/zephyr/drivers/sensor.h drivers)
-cmock_handle($ENV{ZEPHYR_BASE}/../zephyr/include/zephyr/device.h)
-
 FILE(GLOB app_sources src/*.c $ENV{ZEPHYR_BASE}/../sidewalk/pal/src/sid_temperature.c)
 set(SOURCES ${app_sources})
 
