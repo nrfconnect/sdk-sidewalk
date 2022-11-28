@@ -265,7 +265,7 @@ config SIDEWALK_SWI_STACK_SIZE
 
 config SIDEWALK_GPIO_IRQ_PRIORITY
 	int
-	default 1
+	default 0
 
 config SIDEWALK_GPIO_IRQ_STACK_SIZE
 	int
@@ -273,7 +273,7 @@ config SIDEWALK_GPIO_IRQ_STACK_SIZE
 
 config SIDEWALK_THREAD_TIMER
 	bool
-	default n
+	default y
 
 if SIDEWALK_THREAD_TIMER
 config SIDEWALK_TIMER_PRIORITY

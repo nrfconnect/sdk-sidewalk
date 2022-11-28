@@ -440,6 +440,9 @@ void test_periodic_timer_is_precise(void)
 
 void test_casual_timer_snaps(void)
 {
+#ifdef CONFIG_SIDEWALK_THREAD_TIMER
+    TEST_IGNORE_MESSAGE("CONFIG_SIDEWALK_THREAD_TIMER is set. Test skipped.");
+#endif
 #ifdef SID_PAL_CASUAL_TIMER_TESTS
     struct sid_timespec offset, period;
     sid_error_t ret;
