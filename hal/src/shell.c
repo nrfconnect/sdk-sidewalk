@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2022 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+ */
+
 #include "kernel.h"
 #include "sys/atomic.h"
 #include "sys/atomic_builtin.h"
