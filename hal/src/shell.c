@@ -61,6 +61,7 @@ struct messages_stats {
 	uint32_t tx_successfull;
 	uint32_t tx_failed;
 	uint32_t rx_successfull;
+	uint16_t resp_id;
 };
 
 static const struct sid_status dummy = {
@@ -73,6 +74,7 @@ static const struct sid_status dummy = {
 
 static const struct sid_status *CLI_status = &dummy;
 struct messages_stats sidewalk_messages;
+
 static app_context_t *sid_app_ctx;
 
 void CLI_register_message_send()
@@ -85,9 +87,11 @@ void CLI_register_message_not_send()
 	sidewalk_messages.tx_failed++;
 }
 
-void CLI_register_message_received()
+void CLI_register_message_received(uint16_t resp_id)
 {
 	sidewalk_messages.rx_successfull++;
+	sidewalk_messages.resp_id = resp_id;
+
 }
 
 void CLI_init(app_context_t *ctx)
@@ -159,10 +163,25 @@ static int cmd_button_press_short(const struct shell *shell, size_t argc, char *
 
 typedef struct send_message_work {
 	struct k_work work;
+	const struct shell *shell;
 	struct sid_msg msg;
-	uint16_t id;
+	enum sid_msg_type type;
 	struct k_sem sem;
 } send_message_work_t;
+
+inline void sid_msg_desc_print(const struct shell *shell, const struct sid_msg_desc *obj)
+{
+	JSON_DICT("sid_msg_desc:", true, {
+		JSON_VAL("link_type:", obj->link_type, JSON_NEXT);
+		JSON_VAL("type:", obj->type, JSON_NEXT);
+		JSON_VAL("link_mode:", obj->link_mode, JSON_NEXT);
+		JSON_VAL_DICT("phy_stats:", {
+			JSON_VAL("rssi:", obj->phy_stats.rssi, JSON_NEXT);
+			JSON_VAL("snr:", obj->phy_stats.snr, JSON_LAST);
+		}, JSON_NEXT);
+		JSON_VAL("id:", obj->id, JSON_LAST);
+	});
+}
 
 void sidewalk_send_message_work(struct k_work *work)
 {
@@ -174,16 +193,20 @@ void sidewalk_send_message_work(struct k_work *work)
 		LOG_HEXDUMP_DBG(message->msg.data, message->msg.size, "sending message");
 
 		struct sid_msg_desc desc;
-		desc.type = SID_MSG_TYPE_NOTIFY;
+		desc.type = message->type;
 		desc.link_type = SID_LINK_TYPE_ANY;
 		desc.link_mode = SID_LINK_MODE_CLOUD;
-		desc.id = message->id;
+
+		if (desc.type == SID_MSG_TYPE_RESPONSE) {
+			desc.id = sidewalk_messages.resp_id;
+		}
 
 		sid_error_t ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &(message->msg), &desc);
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed sending message err:%d", (int) ret);
 		} else {
 			LOG_INF("queued data message id:%u", desc.id);
+			sid_msg_desc_print(message->shell, &desc);
 		}
 	} else {
 		LOG_ERR("sidewalk is not ready yet!");
@@ -233,28 +256,56 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 	return (StrToHexRet) Result_Ok(payload_size);
 }
 
-static int cmd_send(const struct shell *shell, size_t argc, char **argv)
+static int cmd_set_response_id(const struct shell *shell, size_t argc, char **argv)
 {
-	if (argc != 3) {
-		shell_error(shell, "Add payload to send in hex form\nexample: $ sidewalk send deadbeefCAFE 123");
-		return CMD_RETURN_HELP;
-	}
-	send_message_work_t message;
-
-	if (strlen(argv[1]) % 2) {
-		shell_error(shell,
-			    "Payload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
+	if (argc != 2) {
+		shell_error(shell, "invalid number of arguments\nexample: $ sidewalk set_response_id 123");
 		return CMD_RETURN_HELP;
 	}
 
-	int32_t id_raw = atoi(argv[2]);
+	int32_t id_raw = atoi(argv[1]);
 
-	if (id_raw == 0 && argv[2][0] != '0') {
+	if (id_raw == 0 && argv[1][0] != '0') {
 		shell_error(shell,
 			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk send deadbeefCAFE 123");
 		return CMD_RETURN_HELP;
 	}
-	message.id = id_raw % 0x3FFF;
+
+	sidewalk_messages.resp_id = id_raw;
+
+	return CMD_RETURN_OK;
+}
+
+static int cmd_send(const struct shell *shell, size_t argc, char **argv)
+{
+	if (argc != 3) {
+		shell_error(shell, "Add payload to send in hex form\nexample: $ sidewalk send deadbeefCAFE 2");
+		return CMD_RETURN_HELP;
+	}
+	send_message_work_t message;
+
+	message.shell = shell;
+
+	if (strlen(argv[1]) % 2) {
+		shell_error(shell,
+			    "Payload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
+		return CMD_RETURN_HELP;
+	}
+
+	if (strlen(argv[2]) != 1) {
+		shell_error(shell, "send type incorrect");
+		return CMD_RETURN_HELP;
+	}
+
+	switch (argv[2][0]) {
+	case '0': message.type = SID_MSG_TYPE_GET; break;
+	case '1': message.type = SID_MSG_TYPE_SET; break;
+	case '2': message.type = SID_MSG_TYPE_NOTIFY; break;
+	case '3': message.type = SID_MSG_TYPE_RESPONSE; break;
+	default:
+		shell_error(shell, "send type incorrect");
+		return CMD_RETURN_HELP;
+	}
 
 	k_work_init(&message.work, sidewalk_send_message_work);
 	k_sem_init(&message.sem, 0, 1);
@@ -269,11 +320,11 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 			return CMD_RETURN_HELP;
 		case ARG_NOT_HEX:
 			shell_error(shell,
-				    "Payload is not hex string\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
+				    "Payload is not hex string\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
 			return CMD_RETURN_HELP;
 		case ARG_EMPTY:
 			shell_error(shell,
-				    "Payload is empty\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
+				    "Payload is empty\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
 			return CMD_RETURN_HELP;
 		default:
 			shell_error(shell,
@@ -285,7 +336,7 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 
 	if (payload_size == 0) {
 		shell_error(shell,
-			    "Payload have to consist only from hex characters\nexample: $ sidewalk send deadbeefCAFE 123");
+			    "Payload have to consist only from hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
 		return CMD_RETURN_HELP;
 	}
 
@@ -347,7 +398,8 @@ static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 			JSON_NEXT);
 		JSON_VAL("tx_successfull", sidewalk_messages.tx_successfull, JSON_NEXT);
 		JSON_VAL("tx_failed", sidewalk_messages.tx_failed, JSON_NEXT);
-		JSON_VAL("rx_successfull", sidewalk_messages.rx_successfull, JSON_LAST);
+		JSON_VAL("rx_successfull", sidewalk_messages.rx_successfull, JSON_NEXT);
+		JSON_VAL("response_id", sidewalk_messages.resp_id, JSON_LAST);
 	});
 	return CMD_RETURN_OK;
 }
@@ -389,6 +441,7 @@ static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv
 	}
 	return CMD_RETURN_OK;
 }
+
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_button,
 	SHELL_CMD_ARG(short, NULL, "{1,2,3,4}", cmd_button_press_short, 2, 0),
@@ -398,8 +451,10 @@ SHELL_SUBCMD_SET_END);
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
 	SHELL_CMD_ARG(press_button, &sub_button, "{1,2,3,4}", cmd_button_press_short, 2, 0),
-	SHELL_CMD_ARG(send, NULL, "<hex payload> <sequence id>\n" \
-		      "\thex payload have to have even number of hex characters, sequence id is represented in decimal",
+	SHELL_CMD_ARG(set_response_id, NULL, "set ID of a next send message with type response", cmd_set_response_id, 2,
+		      0),
+	SHELL_CMD_ARG(send, NULL, "<hex payload> <type [0-3]>\n" \
+		      "\thex payload have to have even number of hex characters, type id: 0 - get, 1 - set, 2 - notify, 3 - response",
 		      cmd_send, 3, 0),
 	SHELL_CMD_ARG(report, NULL, "[--oneline] get state of the application", cmd_report, 1, 1),
 	SHELL_CMD_ARG(version, NULL, "[--oneline] print version of sidewalk and its components", cmd_print_version, 1,
