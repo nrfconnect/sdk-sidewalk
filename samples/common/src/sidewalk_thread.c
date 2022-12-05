@@ -211,8 +211,9 @@ static void on_sidewalk_event(bool in_isr, void *context)
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
 	#ifdef CONFIG_SIDEWALK_CLI
-	CLI_register_message_received();
+	CLI_register_message_received(msg_desc->id);
 	#endif
+
 	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
 		(int)msg_desc->link_mode, msg_desc->id, msg->size);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");

@@ -9,7 +9,7 @@
 
 void CLI_register_message_send();
 void CLI_register_message_not_send();
-void CLI_register_message_received();
+void CLI_register_message_received(uint16_t resp_id);
 void CLI_init(app_context_t *ctx);
 void CLI_register_sid_status(const struct sid_status *status);
 
