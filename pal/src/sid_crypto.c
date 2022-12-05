@@ -275,36 +275,28 @@ static psa_status_t aead_execute(psa_aead_operation_t *op,
 	psa_status_t status = psa_aead_set_lengths(op, params->aad_size, params->in_size);
 
 	if (PSA_SUCCESS == status) {
-		LOG_DBG("psa_aead_set_lengths success.");
 		if (NULL != params->iv) {
 			status = psa_aead_set_nonce(op, params->iv, params->iv_size);
 		}
 
 		if (PSA_SUCCESS == status) {
-			LOG_DBG("psa_aead_set_nonce success.");
 			status = psa_aead_update_ad(op, params->aad, params->aad_size);
 
 			if (PSA_SUCCESS == status) {
-				LOG_DBG("psa_aead_update_ad success.");
 				status = psa_aead_update(op, params->in, params->in_size,
 							 params->out, params->out_size, &out_len);
 
 				if (PSA_SUCCESS == status) {
-					LOG_DBG("psa_aead_update_ad success (out_len=%d).", out_len);
 					if (SID_PAL_CRYPTO_ENCRYPT == params->mode) {
 						status = psa_aead_finish(op,
-									 params->out + out_len, params->out_size - out_len, &out_len,
+									 params->out + out_len,
+									 params->out_size - out_len, &out_len,
 									 params->mac, params->mac_size, &mac_len);
-						LOG_DBG("psa_aead_finish %s (out_len=%d, mac_len=%d)",
-							(PSA_SUCCESS == status) ? "success." : "failed!",
-							out_len, mac_len);
 					} else {
 						status = psa_aead_verify(op,
-									 params->out + out_len, params->out_size - out_len, &out_len,
+									 params->out + out_len,
+									 params->out_size - out_len, &out_len,
 									 params->mac, params->mac_size);
-						LOG_DBG("psa_aead_verify %s (out_len=%d)",
-							(PSA_SUCCESS == status) ? "success." : "failed!",
-							out_len);
 					}
 				}
 			}
@@ -874,16 +866,16 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 
 	status = psa_generate_key(&key_attributes, &keys_handle);
 	if (PSA_SUCCESS == status) {
-		size_t key_len;
+		size_t out_len = 0;
 
 		LOG_DBG("Key pair generated.");
-		status = psa_export_key(keys_handle, params->prk, params->prk_size, &key_len);
+		status = psa_export_key(keys_handle, params->prk, params->prk_size, &out_len);
 		if (PSA_SUCCESS == status) {
-			uint8_t public_key[EC_MAX_PUBLIC_KEY_LENGTH];
+			uint8_t public_key[EC_MAX_PUBLIC_KEY_LENGTH] = { 0x00 };
 
 			LOG_DBG("Private key exported.");
 
-			status = psa_export_public_key(keys_handle, public_key, sizeof(public_key), &key_len);
+			status = psa_export_public_key(keys_handle, public_key, sizeof(public_key), &out_len);
 			memcpy(params->puk, &public_key[pub_key_offset], params->puk_size);
 
 			LOG_DBG("Public key export %s", (PSA_SUCCESS == status) ? "success." : "failed!");
