@@ -19,11 +19,12 @@ Enabling and verifying Sidewalk command-line interface (CLI)
 #. To verify Sidewalk CLI, open UART shell of the device on the default speed 115200.
 #. Once you see a prompt ``uart:~$``, type the ``sidewalk help`` command to see the avaliable commands.
 
-   Currently there are 3 commands avaliable:
+   Currently there are 6 commands avaliable:
 
    * ``sidewalk press_button {1,2,3,4}`` - Simulates button press.
+   * ``sidewalk set_response_id <id>`` - Set ID of a next send message with type response.
      It can be used for remote development or for test automation.
-   * ``sidewalk send <hex payload>`` - Sends message to AWS.
+   * ``sidewalk send <hex payload> <type [0-3]>`` - Sends message to AWS. Type id: 0 - get, 1 - set, 2 - notify, 3 - response.
      The payload has to be a hex string without any prefix and the number of characters has to be even.
    * ``sidewalk report [--oneline] get state of the application`` - Presents a report in JSON format with the internal state of the application.
    * ``sidewalk version [--oneline] print version of sidewalk and its components`` - Presents a report in JSON format with versions of components that build the Sidewalk application.

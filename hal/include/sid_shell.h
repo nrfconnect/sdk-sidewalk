@@ -7,11 +7,15 @@
 #include <sid_api.h>
 #include <sidewalk_thread.h>
 
+#define CMD_RETURN_OK 0
+#define CMD_RETURN_HELP 1
+#define CMD_RETURN_ARGUMENT_INVALID -EINVAL
+#define CMD_RETURN_NOT_EXECUTED -ENOEXEC
+
 void CLI_register_message_send();
 void CLI_register_message_not_send();
 void CLI_register_message_received(uint16_t resp_id);
 void CLI_init(app_context_t *ctx);
 void CLI_register_sid_status(const struct sid_status *status);
 
-// add handler to send message
-void sidewalk_send_message(struct sid_msg msg);
+void sidewalk_button_pressed(uint32_t button_bit);

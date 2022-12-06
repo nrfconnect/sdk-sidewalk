@@ -4,58 +4,39 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
-#include "kernel.h"
-#include "sys/atomic.h"
-#include "sys/atomic_builtin.h"
-#include <errno.h>
+#include "sys/util.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <zephyr/shell/shell.h>
+#include <zephyr/kernel.h>
 #include <logging/log.h>
 
 #include <sid_api.h>
 #include <sidewalk_thread.h>
 #include "buttons_internal.h"
 
-#include <json_printer.h>
+#include <sidewalk_version.h>
 #include <sid_shell.h>
 
-#include <sidewalk_version.h>
+#include <result.h>
+#include <json_printer.h>
 
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#define CMD_RETURN_OK 0
-#define CMD_RETURN_HELP 1
-#define CMD_RETURN_ARGUMENT_INVALID -EINVAL
-#define CMD_RETURN_NOT_EXECUTED -ENOEXEC
 
-#define BUTTON_ID_TO_BIT(button_id) ((button_id) - 1)
-#define BOOL_TO_STR(val) (val) ? "true" : "false"
+#define SID_API_STACK_SIZE 5120
+#define SID_API_WORKER_PRIO 5
 
-typedef enum { Ok, Err } result_t;
+K_THREAD_STACK_DEFINE(sid_api_work_q_stack, SID_API_STACK_SIZE);
 
-#define Result(value_t, error_e) struct {			\
-		result_t result;				\
-		union { value_t val; error_e err; } val_or_err;	\
-}
+struct k_work_q sid_api_work_q;
 
-#define Result_Ok(value) { .result = Ok, .val_or_err.val = value }
-#define Result_Err(error_code) { .result = Err, .val_or_err.err = error_code }
+DECLARE_RESULT(uint32_t, ButtonParserResult, EMPTY_ARG, INVALID_INPUT);
+DECLARE_RESULT(size_t, StrToHexRet, OUT_TOO_SMALL, ARG_NOT_HEX, ARG_EMPTY, ARG_NOT_ALIGNED);
+DECLARE_RESULT(uint8_t, HexToByteRet, NOT_HEX);
+DECLARE_RESULT(uint32_t, StrToDecRet, NOT_NUMBER);
 
-typedef enum str_to_hex_err {
-	OUT_TOO_SMALL, ARG_NOT_HEX, ARG_EMPTY
-} str_to_hex_err;
-
-// TODO: optimize the stack value 512 is to small to send a message.
-#define MY_STACK_SIZE 5120
-#define SHELL_WORK_PRIO 5
-
-K_THREAD_STACK_DEFINE(shell_work_stack, MY_STACK_SIZE);
-
-static struct k_work_q shell_work_queue;
+#define MAX_MESSAGE_SIZE_BYTES 512
 
 struct messages_stats {
 	uint32_t tx_successfull;
@@ -72,9 +53,18 @@ static const struct sid_status dummy = {
 
 };
 
+struct sid_send_work_t {
+	struct k_work work;
+	struct sid_msg msg;
+	enum sid_msg_type type;
+	uint16_t resp_id;
+	const struct shell *shell;
+};
+
+struct sid_send_work_t send_work;
+
 static const struct sid_status *CLI_status = &dummy;
 struct messages_stats sidewalk_messages;
-
 static app_context_t *sid_app_ctx;
 
 void CLI_register_message_send()
@@ -91,23 +81,17 @@ void CLI_register_message_received(uint16_t resp_id)
 {
 	sidewalk_messages.rx_successfull++;
 	sidewalk_messages.resp_id = resp_id;
-
 }
 
 void CLI_init(app_context_t *ctx)
 {
 	sid_app_ctx = ctx;
 
-	static atomic_t queue_init = ATOMIC_INIT(0);
+	k_work_queue_init(&sid_api_work_q);
 
-	if (atomic_and(&queue_init, 1) == 0) {
-		k_work_queue_init(&shell_work_queue);
-
-		k_work_queue_start(&shell_work_queue, shell_work_stack,
-				   K_THREAD_STACK_SIZEOF(shell_work_stack), SHELL_WORK_PRIO,
-				   NULL);
-		k_thread_name_set(k_work_queue_thread_get(&shell_work_queue), "CLI work queue");
-	}
+	k_work_queue_start(&sid_api_work_q, sid_api_work_q_stack,
+                   K_THREAD_STACK_SIZEOF(sid_api_work_q_stack), SID_API_WORKER_PRIO,
+                   NULL);
 }
 
 void CLI_register_sid_status(const struct sid_status *status)
@@ -115,38 +99,35 @@ void CLI_register_sid_status(const struct sid_status *status)
 	CLI_status = status;
 }
 
-static int parse_ul(const char *str, unsigned long *result)
+static ButtonParserResult button_id_from_arg(const char *arg)
 {
-	char *end;
-	unsigned long val;
-
-	val = strtoul(str, &end, 0);
-
-	if (*str == '\0' || *end != '\0') {
-		return -EINVAL;
+	if (NULL == arg) {
+		return (ButtonParserResult) Result_Err(EMPTY_ARG);
 	}
 
-	*result = val;
-	return 0;
+	if (strlen(arg) != 1) {
+		return (ButtonParserResult) Result_Err(INVALID_INPUT);
+	}
+
+	switch (*arg) {
+	case '1': return (ButtonParserResult) Result_Val(0);
+	case '2': return (ButtonParserResult) Result_Val(1);
+	case '3': return (ButtonParserResult) Result_Val(2);
+	case '4': return (ButtonParserResult) Result_Val(3);
+	default: return (ButtonParserResult) Result_Err(INVALID_INPUT);
+	}
 }
 
-// --------------------------------------------
-// start cmd handlers
-// --------------------------------------------
 static int press_button(button_action_t action, const struct shell *shell, size_t argc,
 			    char **argv)
 {
-	if (argc != 2) {
-		shell_error(shell, "select button to press:\nexample: sidewalk press_button 4");
-		return CMD_RETURN_HELP;
-	}
+	ButtonParserResult button_id = button_id_from_arg(argv[1]);
 
-	unsigned long button_id;
-
-	if (parse_ul(argv[1], &button_id) != 0) {
+	if (button_id.result == Err) {
+		shell_error(shell, "invalid button selectd to press:\nexample: sidewalk press_button 4");
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
-	button_pressed(BUTTON_ID_TO_BIT(button_id), action);
+	button_pressed(button_id.val_or_err.val, action);
 	shell_info(shell, "sidewalk cli: button pressed");
 	return CMD_RETURN_OK;
 }
@@ -161,65 +142,20 @@ static int cmd_button_press_short(const struct shell *shell, size_t argc, char *
 	return press_button(BUTTON_ACTION_SHORT_PRESS, shell, argc, argv);
 }
 
-typedef struct send_message_work {
-	struct k_work work;
-	const struct shell *shell;
-	struct sid_msg msg;
-	enum sid_msg_type type;
-	struct k_sem sem;
-} send_message_work_t;
-
-inline void sid_msg_desc_print(const struct shell *shell, const struct sid_msg_desc *obj)
+static HexToByteRet hex_nib_to_byte(char hex)
 {
-	JSON_DICT("sid_msg_desc:", true, {
-		JSON_VAL("link_type:", obj->link_type, JSON_NEXT);
-		JSON_VAL("type:", obj->type, JSON_NEXT);
-		JSON_VAL("link_mode:", obj->link_mode, JSON_NEXT);
-		JSON_VAL_DICT("phy_stats:", {
-			JSON_VAL("rssi:", obj->phy_stats.rssi, JSON_NEXT);
-			JSON_VAL("snr:", obj->phy_stats.snr, JSON_LAST);
-		}, JSON_NEXT);
-		JSON_VAL("id:", obj->id, JSON_LAST);
-	});
-}
-
-void sidewalk_send_message_work(struct k_work *work)
-{
-
-	send_message_work_t *message = CONTAINER_OF(work, send_message_work_t, work);
-
-	if (STATE_SIDEWALK_READY == sid_app_ctx->state ||
-	    STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx->state) {
-		LOG_HEXDUMP_DBG(message->msg.data, message->msg.size, "sending message");
-
-		struct sid_msg_desc desc;
-		desc.type = message->type;
-		desc.link_type = SID_LINK_TYPE_ANY;
-		desc.link_mode = SID_LINK_MODE_CLOUD;
-
-		if (desc.type == SID_MSG_TYPE_RESPONSE) {
-			desc.id = sidewalk_messages.resp_id;
-		}
-
-		sid_error_t ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &(message->msg), &desc);
-		if (SID_ERROR_NONE != ret) {
-			LOG_ERR("failed sending message err:%d", (int) ret);
-		} else {
-			LOG_INF("queued data message id:%u", desc.id);
-			sid_msg_desc_print(message->shell, &desc);
-		}
-	} else {
-		LOG_ERR("sidewalk is not ready yet!");
+	if (IN_RANGE(hex, '0', '9')) {
+		return (HexToByteRet) Result_Val(hex - '0');
 	}
-	k_sem_give(&message->sem);
-}
+	if (IN_RANGE(hex, 'A', 'F')) {
+		return (HexToByteRet) Result_Val(hex - 'A' + 10);
+	}
+	if (IN_RANGE(hex, 'a', 'f')) {
+		return (HexToByteRet) Result_Val(hex - 'a' + 10);
+	}
 
-static bool is_hex_digit(char hex)
-{
-	return (hex >= '0' && hex <= '9') || (hex >= 'a' && hex <= 'f') || (hex >= 'A' && hex <= 'F');
+	return (HexToByteRet) Result_Err(NOT_HEX);
 }
-
-typedef Result(size_t, str_to_hex_err) StrToHexRet;
 
 static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char *in)
 {
@@ -238,123 +174,164 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 
 	size_t in_size = strlen(working_ptr);
 
-	if (out_limit < in_size / 2) {
-		return (StrToHexRet) Result_Err(OUT_TOO_SMALL);
+	if (in_size % 2 != 0) {
+		return (StrToHexRet) Result_Err(ARG_NOT_ALIGNED);
 	}
 
 	uint8_t payload_size = 0;
 
-	for (; *working_ptr != '\0'; working_ptr = working_ptr + 2) {
-		if (is_hex_digit(*working_ptr) && is_hex_digit(*(working_ptr + 1))) {
-			char byte[2] = { *working_ptr, *(working_ptr + 1) };
-			out[payload_size] = strtol(byte, NULL, 16);
-			payload_size++;
-		} else {
+	for (; *working_ptr != '\0' && *(working_ptr + 1) != '\0'; working_ptr = working_ptr + 2) {
+		HexToByteRet hi = hex_nib_to_byte(*working_ptr);
+		HexToByteRet lo = hex_nib_to_byte(*(working_ptr + 1));
+
+		if (hi.result == Err || lo.result == Err) {
 			return (StrToHexRet) Result_Err(ARG_NOT_HEX);
 		}
+		out[payload_size] = (hi.val_or_err.val << 4) + lo.val_or_err.val;
+		payload_size++;
 	}
-	return (StrToHexRet) Result_Ok(payload_size);
+	return (StrToHexRet) Result_Val(payload_size);
+
+}
+
+static StrToDecRet string_to_dec(char *string)
+{
+	uint32_t value = 0;
+
+	while (*string != '\0') {
+		if (IN_RANGE(*string, '0', '9') == false) {
+			return (StrToDecRet) Result_Err(NOT_NUMBER);
+		}
+		value *= 10;
+		value += (uint8_t)((*string) - '0');
+		string++;
+	}
+	return (StrToDecRet) Result_Val(value);
 }
 
 static int cmd_set_response_id(const struct shell *shell, size_t argc, char **argv)
 {
-	if (argc != 2) {
-		shell_error(shell, "invalid number of arguments\nexample: $ sidewalk set_response_id 123");
-		return CMD_RETURN_HELP;
-	}
-
-	int32_t id_raw = atoi(argv[1]);
-
-	if (id_raw == 0 && argv[1][0] != '0') {
+	if (strlen(argv[1]) > 5) {
 		shell_error(shell,
-			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk send deadbeefCAFE 123");
-		return CMD_RETURN_HELP;
+			    "Value out of valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
+		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
-	sidewalk_messages.resp_id = id_raw;
+	StrToDecRet id_raw = string_to_dec(argv[1]);
 
+	if (id_raw.result == Err) {
+		shell_error(shell,
+			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
+		return CMD_RETURN_ARGUMENT_INVALID;
+	}
+
+	if (id_raw.val_or_err.val > 16383) {
+		shell_error(shell,
+			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
+		return CMD_RETURN_ARGUMENT_INVALID;
+	}
+
+	sidewalk_messages.resp_id = id_raw.val_or_err.val;
 	return CMD_RETURN_OK;
+}
+
+static void cmd_send_work(struct k_work *item){
+	struct sid_send_work_t *sid_send_work =
+        CONTAINER_OF(item, struct sid_send_work_t, work);
+
+	if (!(STATE_SIDEWALK_READY == sid_app_ctx->state) &&
+	    !(STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx->state)) {
+		LOG_ERR("sidewalk is not ready yet!");
+		return;
+	}
+
+	LOG_HEXDUMP_DBG(sid_send_work->msg.data, sid_send_work->msg.size, "sending message");
+
+	struct sid_msg_desc desc = {
+		.type = sid_send_work->type,
+		.link_type = SID_LINK_TYPE_ANY,
+		.link_mode = SID_LINK_MODE_CLOUD,
+	};
+
+	if (desc.type == SID_MSG_TYPE_RESPONSE) {
+		desc.id = sid_send_work->resp_id;
+	}
+
+	sid_error_t sid_ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &sid_send_work->msg, &desc);
+
+	if (SID_ERROR_NONE != sid_ret) {
+		LOG_ERR("failed sending message err:%d", (int) sid_ret);
+		return;
+	}
+	LOG_INF("queued data message id:%u", desc.id);
+	shell_info(sid_send_work->shell, "sidewalk cli: command send");
 }
 
 static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 {
-	if (argc != 3) {
-		shell_error(shell, "Add payload to send in hex form\nexample: $ sidewalk send deadbeefCAFE 2");
-		return CMD_RETURN_HELP;
-	}
-	send_message_work_t message;
-
-	message.shell = shell;
-
-	if (strlen(argv[1]) % 2) {
-		shell_error(shell,
-			    "Payload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
-		return CMD_RETURN_HELP;
-	}
+	enum sid_msg_type type;
+	uint8_t message_raw_data[MAX_MESSAGE_SIZE_BYTES];
 
 	if (strlen(argv[2]) != 1) {
 		shell_error(shell, "send type incorrect");
-		return CMD_RETURN_HELP;
+		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
 	switch (argv[2][0]) {
-	case '0': message.type = SID_MSG_TYPE_GET; break;
-	case '1': message.type = SID_MSG_TYPE_SET; break;
-	case '2': message.type = SID_MSG_TYPE_NOTIFY; break;
-	case '3': message.type = SID_MSG_TYPE_RESPONSE; break;
+	case '0': type = SID_MSG_TYPE_GET; break;
+	case '1': type = SID_MSG_TYPE_SET; break;
+	case '2': type = SID_MSG_TYPE_NOTIFY; break;
+	case '3': type = SID_MSG_TYPE_RESPONSE; break;
 	default:
 		shell_error(shell, "send type incorrect");
-		return CMD_RETURN_HELP;
+		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
-	k_work_init(&message.work, sidewalk_send_message_work);
-	k_sem_init(&message.sem, 0, 1);
-	uint8_t payload[512];
-	StrToHexRet ret = convert_hex_str_to_data(payload, sizeof(payload), argv[1]);
+	StrToHexRet ret = convert_hex_str_to_data(message_raw_data, sizeof(message_raw_data), argv[1]);
 
 	if (ret.result == Err) {
 		switch (ret.val_or_err.err) {
 		case OUT_TOO_SMALL:
 			shell_error(shell,
-				    "Payload too big to send! max size of payload is %d bytes", sizeof(payload));
-			return CMD_RETURN_HELP;
+				    "Payload too big to send! max size of payload is %d bytes",
+				    sizeof(message_raw_data));
+			return CMD_RETURN_ARGUMENT_INVALID;
 		case ARG_NOT_HEX:
 			shell_error(shell,
-				    "Payload is not hex string\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
-			return CMD_RETURN_HELP;
+				    "Payload is not hex string\nexample: $ sidewalk send deadbeefCAFE 2");
+			return CMD_RETURN_ARGUMENT_INVALID;
 		case ARG_EMPTY:
 			shell_error(shell,
-				    "Payload is empty\nPayload have to have even number of hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
-			return CMD_RETURN_HELP;
+				    "Payload is empty\nexample: $ sidewalk send deadbeefCAFE 2");
+			return CMD_RETURN_ARGUMENT_INVALID;
+		case ARG_NOT_ALIGNED:
+			shell_error(shell,
+				    "Payload is not aligned to full bytes\nexample: $ sidewalk send deadbeefCAFE 2");
+			return CMD_RETURN_ARGUMENT_INVALID;
 		default:
 			shell_error(shell,
 				    "Invalid payload");
 			return CMD_RETURN_HELP;
 		}
 	}
-	size_t payload_size = ret.val_or_err.val;
 
-	if (payload_size == 0) {
-		shell_error(shell,
-			    "Payload have to consist only from hex characters\nexample: $ sidewalk send deadbeefCAFE 2");
-		return CMD_RETURN_HELP;
+	if(k_work_busy_get(&send_work.work) != 0){
+		shell_error(shell, "Can not execute send command, previous send has not completed yet");
+		return CMD_RETURN_NOT_EXECUTED;
 	}
 
-	message.msg = (struct sid_msg){ .data = payload, .size = payload_size };
-	k_work_submit_to_queue(&shell_work_queue, &message.work);
-	k_sem_take(&message.sem, K_FOREVER);
-	shell_info(shell, "sidewalk cli: command send");
+	send_work.msg = (struct sid_msg){ .data = message_raw_data, .size = ret.val_or_err.val};
+	send_work.shell = shell;
+	send_work.type = type;
+	send_work.resp_id = sidewalk_messages.resp_id;
+	k_work_init(&send_work.work, cmd_send_work);
+	k_work_submit_to_queue(&sid_api_work_q, &send_work.work);
+	
 	return CMD_RETURN_OK;
 }
 
 static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 {
-	if (argc > 2) {
-		shell_error(shell,
-			    "This command do not support more than 1 argument\nexample: sidewalk report [--oneline]");
-		return CMD_RETURN_HELP;
-	}
-
 	const char *state_repo[] = {
 		"STATE_INIT",
 		"STATE_SIDEWALK_READY",
