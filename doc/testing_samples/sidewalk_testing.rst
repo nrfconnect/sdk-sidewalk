@@ -202,6 +202,21 @@ Receiving message from AWS MQTT
                                      48 65 6c 6c 6f 20 20 20  53 69 64 65 77 61 6c 6b |Hello    Sidewalk
                                      21                                               |!
 
+Testing Device Firmware Update (DFU)
+************************************
+
+#. To enter the DFU mode, long press **Button 4** on your development kit.
+   This action disables the Sidewalk stack and starts the `Zephyr SMP Server`_.
+
+#. To perform a firmware update, follow the Bluetooth testing steps from the `DevZone DFU guide`_.
+
+#. To exit the DFU mode, reset your device.
+   The device will restart in the Sidewalk mode.
+   If the update completes successfully, the device will start a new image.
+   However, if the update fails, you will still be able to see the old image.
+
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
 .. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 .. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
+.. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
+.. _Zephyr SMP Server: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/services/device_mgmt/ota.html#smp-server
