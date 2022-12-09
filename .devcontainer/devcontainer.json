@@ -20,7 +20,8 @@
 		"C_Cpp.intelliSenseEngine": "Disabled",
 		"nrf-connect.toolchain.path": "PATH",
 		"nrf-connect.welcome.showOnStartup": false,
-		"uncrustify.configPath.linux": "sidewalk/.uncrustify.cfg"
+		"uncrustify.configPath.linux": "sidewalk/.uncrustify.cfg",
+		"files.insertFinalNewline": true
 	},
 	"containerEnv": {
 		"LC_ALL": "C.UTF-8",

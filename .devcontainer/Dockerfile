@@ -4,8 +4,8 @@ ARG UNAME=vscode
 ARG UNAME_PASSWORD=pass
 ARG SDK_VERSION=0.15.1
 ARG TOOLS_VERSION=10
-ARG TOOLS_VERSION_MAJOR=17
-ARG TOOLS_VERSION_MINOR=3
+ARG TOOLS_VERSION_MAJOR=18
+ARG TOOLS_VERSION_MINOR=1
 
 RUN useradd -ms /bin/bash $UNAME 
 RUN usermod -aG sudo $UNAME
@@ -16,14 +16,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y wget python3-pip git cmake ninja-build gperf  \
   ccache dfu-util device-tree-compiler \
   python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file  \
-  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 udev clangd ssh nano bash-completion sudo gpg ruby lcov screen uncrustify libfftw3-dev
+  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 udev clangd ssh nano bash-completion sudo gpg ruby lcov screen uncrustify libfftw3-dev curl
 
 RUN apt-get install --no-install-recommends -y aria2
-RUN aria2c -V -d jlink https://www.nordicsemi.com/-/media/Software-and-other-downloads/Desktop-software/nRF-command-line-tools/sw/Versions-${TOOLS_VERSION}-x-x/${TOOLS_VERSION}-${TOOLS_VERSION_MAJOR}-${TOOLS_VERSION_MINOR}/nrf-command-line-tools-${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_Linux-amd64.tar.gz && sync
+RUN aria2c -V -d jlink https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-${TOOLS_VERSION}-x-x/${TOOLS_VERSION}-${TOOLS_VERSION_MAJOR}-${TOOLS_VERSION_MINOR}/nrf-command-line-tools-${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_linux-amd64.tar.gz && sync
 RUN cd jlink; tar -xvf nrf-command-line-tools-${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_linux-amd64.tar.gz && dpkg -i JLink_Linux_*.deb; apt-get --fix-broken install -y
 RUN rm -rf jlink
 
-RUN aria2c -V -d command-line https://www.nordicsemi.com/-/media/Software-and-other-downloads/Desktop-software/nRF-command-line-tools/sw/Versions-${TOOLS_VERSION}-x-x/${TOOLS_VERSION}-${TOOLS_VERSION_MAJOR}-${TOOLS_VERSION_MINOR}/nrf-command-line-tools_${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_amd64.deb && sync
+RUN aria2c -V -d command-line https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-${TOOLS_VERSION}-x-x/${TOOLS_VERSION}-${TOOLS_VERSION_MAJOR}-${TOOLS_VERSION_MINOR}/nrf-command-line-tools_${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_amd64.deb && sync
 
 RUN cd command-line; dpkg -i nrf-command-line-tools_${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_amd64.deb; apt-get --fix-broken install -y
 RUN rm -rf command-line
@@ -36,7 +36,7 @@ RUN pip3 install -r pip-zephyr/requirements.txt
 RUN pip3 install -r pip-mcuboot/requirements.txt
 
 RUN rm -rf pip-nrf* pip-zephyr* pip-mcuboot*
- 
+
 RUN aria2c -V -d zephyr-sdk https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${SDK_VERSION}/zephyr-sdk-${SDK_VERSION}_linux-x86_64.tar.gz && sync
 RUN cd zephyr-sdk; tar -xvf zephyr-sdk-${SDK_VERSION}_linux-x86_64.tar.gz && mv zephyr-sdk-${SDK_VERSION} /opt
 RUN rm -rf zephyr-sdk
