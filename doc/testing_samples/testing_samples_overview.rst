@@ -11,6 +11,7 @@ For the exact instructions on building and testing Sidewalk samples, see the doc
    :caption: Subpages:
 
    sidewalk_application_samples.rst
+   sidewalk_building_and_running.rst
    sidewalk_bootloader.rst
    sidewalk_registration.rst
    sidewalk_testing.rst
