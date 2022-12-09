@@ -47,7 +47,7 @@ RUN cd go_download; tar -C /usr/local -xzf go1.19.3.linux-amd64.tar.gz
 RUN rm -rf go_download
 RUN echo 'export GOPATH=/home/'"$UNAME" >> /home/$UNAME/.profile
 RUN echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> /home/$UNAME/.profile
-RUN source /home/$UNAME/.profile; go install github.com/apache/mynewt-mcumgr-cli/mcumgr@latest
+RUN . /home/$UNAME/.profile; go install github.com/apache/mynewt-mcumgr-cli/mcumgr@latest
 
 RUN echo 'export PATH=$PATH:/home/'"$UNAME"'/.local/bin' >> /home/$UNAME/.bashrc
 

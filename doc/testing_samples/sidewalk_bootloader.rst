@@ -20,6 +20,62 @@ The following configurations are available for Sidewalk:
   Partitions are set in the bootloader, and their adequate size is reservered.
   This way, you should be able to update any template configuration or buy any other configuration.
 
+
+Memory layout
+*************
+
+.. tabs::
+
+  .. group-tab:: BLE-only
+
+    .. code::
+    
+      flash_primary (0x100000 - 1024kB): 
+      +-------------------------------------------------+
+      | 0x0: mcuboot (0x7000 - 28kB)                    |
+      +---0x7000: mcuboot_primary (0x7b000 - 492kB)-----+
+      | 0x7000: mcuboot_pad (0x200 - 512B)              |
+      +---0x7200: mcuboot_primary_app (0x7ae00 - 491kB)-+
+      | 0x7200: app (0x7ae00 - 491kB)                   |
+      +-------------------------------------------------+
+      | 0x82000: mcuboot_secondary (0x7b000 - 492kB)    |
+      | 0xfd000: settings_storage (0x2000 - 8kB)        |
+      | 0xff000: mfg_storage (0x1000 - 4kB)             |
+      +-------------------------------------------------+
+
+        sram_primary (0x40000 - 256kB): 
+      +--------------------------------------------+
+      | 0x20000000: sram_primary (0x40000 - 256kB) |
+      +--------------------------------------------+
+
+  .. group-tab:: Template
+     
+    .. code::
+
+      external_flash (0x800000 - 8192kB): 
+      +---------------------------------------------+
+      | 0x0: mcuboot_secondary (0xf6000 - 984kB)    |
+      | 0xf6000: external_flash (0x70a000 - 7208kB) |
+      +---------------------------------------------+
+
+        flash_primary (0x100000 - 1024kB): 
+      +-------------------------------------------------+
+      | 0x0: mcuboot (0x7000 - 28kB)                    |
+      +---0x7000: mcuboot_primary (0xf6000 - 984kB)-----+
+      | 0x7000: mcuboot_pad (0x200 - 512B)              |
+      +---0x7200: mcuboot_primary_app (0xf5e00 - 983kB)-+
+      | 0x7200: app (0xf5e00 - 983kB)                   |
+      +-------------------------------------------------+
+      | 0xfd000: settings_storage (0x2000 - 8kB)        |
+      | 0xff000: mfg_storage (0x1000 - 4kB)             |
+      +-------------------------------------------------+
+
+        sram_primary (0x40000 - 256kB): 
+      +--------------------------------------------+
+      | 0x20000000: sram_primary (0x40000 - 256kB) |
+      +--------------------------------------------+
+
+
 DFU Services
 ************
 
