@@ -55,7 +55,7 @@ Overlays overview
   To enable this overlay you have to connect the Semtech sx1262 shield. This overlay changes the button assignment, check :ref:`samples_ui`.
 
 - :file:`usb_dfu` - This configuration adds a USB device to the application which acts as the target for the firmware update.
-  A new image is then taken through the USB and placed in the second partition for bootloader. For more details check `usb_dfu_sample`_.
+  A new image is then taken through the USB and placed in the second partition for bootloader. For more details, check the `USB DFU Sample Application`_ documentation.
 
 
 .. _samples_ui:
@@ -68,7 +68,7 @@ Refer to the descriptions below:
 .. tabs::
 
    .. group-tab:: Default
-   
+
       * Button 1:
          Factory reset.
 
@@ -114,4 +114,5 @@ To test the device follow the instruction in :ref:`sidewalk_testing`.
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 
-.. _usb_dfu_sample: https://docs.zephyrproject.org/2.6.0/samples/subsys/usb/dfu/README.html
+.. _USB DFU Sample Application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/samples/subsys/usb/dfu/README.html
+
