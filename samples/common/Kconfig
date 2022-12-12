@@ -1,0 +1,142 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+mainmenu "Sidewalk nRF Connect Application"
+
+# DFU
+menuconfig SIDEWALK_DFU
+	bool "DFU service in Sidewalk sample"
+	default y
+
+if SIDEWALK_DFU
+
+choice SIDEWALK_DFU_SERVICE
+	prompt "DFU image upload transport"
+	default SIDEWALK_DFU_SERVICE_BLE
+
+config SIDEWALK_DFU_SERVICE_BLE
+	bool "Upload image over BLE"
+
+config SIDEWALK_DFU_SERVICE_USB
+	bool "Upload image over USB. Test only!"
+endchoice
+
+if SIDEWALK_DFU_SERVICE_BLE
+config SIDEWALK_DFU_BLE_FAST
+	bool "Speed up DFU over BLE"
+	default n
+
+config MCUMGR
+	default y
+
+config MCUMGR_CMD_IMG_MGMT
+	default y
+
+config MCUMGR_CMD_OS_MGMT
+	default y
+
+config MCUMGR_SMP_BT
+	default y
+
+config MCUMGR_SMP_BT_AUTHEN
+	default n
+
+config MCUMGR_SMP_BT_CONN_PARAM_CONTROL
+	default y
+
+config MCUMGR_SMP_REASSEMBLY_BT
+	default y if SIDEWALK_DFU_BLE_FAST
+
+config MCUMGR_BUF_SIZE
+	default 2475 if SIDEWALK_DFU_BLE_FAST
+
+config OS_MGMT_MCUMGR_PARAMS
+	default y if SIDEWALK_DFU_BLE_FAST
+endif # SIDEWALK_DFU_SERVICE_BLE
+
+if SIDEWALK_DFU_SERVICE_USB
+config USB_DFU_CLASS
+	default y
+
+config USB_DEVICE_STACK
+	default y
+
+config USB_DFU_ENABLE_UPLOAD
+	default y
+
+config USB_DFU_REBOOT
+	default y
+
+config USB_DEVICE_PRODUCT
+	default "DFU for Sidewalk"
+
+config USB_DC_HAS_HS_SUPPORT
+	default y
+
+config USB_REQUEST_BUFFER_SIZE
+	default 8192
+endif # SIDEWALK_DFU_SERVICE_USB
+
+endif # SIDEWALK_DFU
+
+# Bootloader
+config IMG_MANAGER
+	default y
+
+config BOOTLOADER_MCUBOOT
+	default y
+
+config FLASH
+	default y
+
+config FLASH_PAGE_LAYOUT
+	default y
+
+config EXTRA_EXCEPTION_INFO
+	default y
+
+# Bluetooth
+config BT_REMOTE_VERSION
+	default y
+
+config BT_BUF_ACL_TX_SIZE
+	default 251
+	default 502 if SIDEWALK_DFU_BLE_FAST
+
+config BT_BUF_ACL_TX_COUNT
+	default 3
+
+config BT_BUF_ACL_RX_SIZE
+	default 251
+	default 502 if SIDEWALK_DFU_BLE_FAST
+
+config BT_BUF_ACL_RX_COUNT
+	default 6
+
+config BT_L2CAP_TX_MTU
+	default 247
+	default 498 if SIDEWALK_DFU_BLE_FAST
+
+config BT_CTLR_DATA_LENGTH_MAX
+	default 247
+	default 251 if SIDEWALK_DFU_BLE_FAST
+
+config BT_PERIPHERAL_PREF_MIN_INT
+	default 16
+
+config BT_PERIPHERAL_PREF_MAX_INT
+	default 60
+
+config BT_PERIPHERAL_PREF_LATENCY
+	default 0
+
+config BT_PERIPHERAL_PREF_TIMEOUT
+	default 400
+
+# Stack
+config SYSTEM_WORKQUEUE_STACK_SIZE
+    int
+    default 4096 if SIDEWALK_LINK_MASK_LORA || SIDEWALK_LINK_MASK_FSK
+	default 4096 if SIDEWALK_DFU_SERVICE_BLE
