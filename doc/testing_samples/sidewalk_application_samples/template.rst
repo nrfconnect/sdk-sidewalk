@@ -65,18 +65,29 @@ User interface
 
 Refer to the descriptions below:
 
+To learn more about actions details see: :ref:`sidewalk_samples_ui`
+
+A button action is triggered when you release the button.
+To use a long press action, hold a button for 2 seconds or longer, and release it.
+
 .. tabs::
 
    .. group-tab:: Default
 
-      * Button 1:
+      * Button 1 (long press):
          Factory reset.
 
       * Button 2:
-         Set connection request.
+         Toggle Connection Request.
 
       * Button 3:
-         Action button - send message to AWS cloud.
+         Send Hello.
+
+      * Button 4 (short press):
+         Set fake battery level.
+
+      * Button 4 (long press):
+         Enter DFU state.
 
       * LED 1:
          ``ON`` when connected.
@@ -91,10 +102,16 @@ Refer to the descriptions below:
          Factory reset.
 
       * Button 2:
-         Set device profile - set unicast attributes of the device.
+         Set Device Profile.
 
       * Button 3:
-         Action button - send message to AWS cloud.
+         Send Hello.
+
+      * Button 4 (short press):
+         Set fake battery level.
+
+      * Button 4 (long press):
+         Enter DFU state.
 
       * LED 1:
          ``ON`` when connected.
