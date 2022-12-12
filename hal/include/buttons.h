@@ -20,7 +20,6 @@ typedef void (*btn_handler_t)(uint32_t);
 /** @brief Set button short and long press with the same actions.
  *
  *  The long action press time is defined in @ref BUTTONS_LONG_PRESS_TIMEOUT_MS
- *  This function can be run either before and after @ref buttons_init 	
  *
  *  @param button_nr button number.
  *  @param handler handler for button action.
@@ -33,10 +32,9 @@ int button_set_action(uint8_t button_nr, btn_handler_t handler, uint32_t param);
 /** @brief Set button long press actions.
  *
  *  The long action press time is defined in @ref BUTTONS_LONG_PRESS_TIMEOUT_MS
- *  This function can be run either before and after @ref buttons_init 	
  *
  *  @param button_nr button number.
- *  @param handler handler for button action.
+ *  @param handler handler to function which will be executed after button long press.
  *  @param param parameter for handler.
  *
  *  @return 0 in case of success, -ENOENT when no such button nr.
@@ -45,10 +43,8 @@ int button_set_action_long_press(uint8_t button_nr, btn_handler_t handler, uint3
 
 /** @brief Set button short press actions.
  *
- *  This function can be run either before and after @ref buttons_init 	
- *
  *  @param button_nr button number.
- *  @param handler handler for button action.
+ *  @param handler handler to function which will be executed after button short press.
  *  @param param parameter for handler.
  *
  *  @return 0 in case of success, -ENOENT when no such button nr.
