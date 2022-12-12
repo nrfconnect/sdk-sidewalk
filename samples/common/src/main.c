@@ -7,7 +7,7 @@
 
 #include <zephyr.h>
 #include <dk_buttons_and_leds.h>
-#include <logging/log.h>
+#include <buttons.h>
 
 #if CONFIG_BOOTLOADER_MCUBOOT
 #include <zephyr/dfu/mcuboot.h>
@@ -15,52 +15,12 @@
 
 #include <sidewalk_version.h>
 
-#if CONFIG_USB_DFU_ENABLE_UPLOAD
+#if CONFIG_SIDEWALK_DFU_SERVICE_USB
 #include <zephyr/usb/usb_device.h>
 #endif
 
+#include <logging/log.h>
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
-
-#define IS_RESET_BTN_PRESSED(_btn)      (_btn & DK_BTN1_MSK)
-#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-#define IS_CONN_REQ_BTN_PRESSED(_btn)   (_btn & DK_BTN2_MSK)
-#else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
-#define IS_SET_DEV_PROFILE_BTN_PRESSED(_btn)   (_btn & DK_BTN2_MSK)
-#endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
-#define IS_SEND_MSG_BTN_PRESSED(_btn)   (_btn & DK_BTN3_MSK)
-#define IS_SET_BAT_LV_BTN_PRESSED(_btn) (_btn & DK_BTN4_MSK)
-
-#ifndef CONFIG_SIDEWALK_CLI
-static
-#endif
-void sidewalk_button_pressed(uint32_t button_bit)
-{
-	LOG_INF("Pressed button %d", button_bit + 1);
-	switch (button_bit) {
-	case DK_BTN1: sidewalk_thread_message_q_write(EVENT_TYPE_FACTORY_RESET); break;
-#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-	case DK_BTN2: sidewalk_thread_message_q_write(EVENT_TYPE_CONNECTION_REQUEST); break;
-#else
-	case DK_BTN2: sidewalk_thread_message_q_write(EVENT_TYPE_SET_DEVICE_PROFILE); break;
-#endif
-	case DK_BTN3: sidewalk_thread_message_q_write(EVENT_TYPE_SEND_HELLO); break;
-	case DK_BTN4: sidewalk_thread_message_q_write(EVENT_TYPE_SET_BATTERY_LEVEL); break;
-	default:
-		LOG_ERR("UNKNOWN BUTTON PRESSED");
-		return;
-	}
-}
-
-static void button_handler(uint32_t button_state, uint32_t has_changed)
-{
-	uint32_t button = button_state & has_changed;
-
-	for (int button_bit = DK_BTN1; button_bit <= DK_BTN4; button_bit++) {
-		if (button & BIT(button_bit)) {
-			sidewalk_button_pressed(button_bit);
-		}
-	}
-}
 
 void assert_post_action(const char *file, unsigned int line)
 {
@@ -69,9 +29,23 @@ void assert_post_action(const char *file, unsigned int line)
 	k_panic();
 }
 
+void sidewalk_event(uint32_t event_nr)
+{
+	sidewalk_thread_message_q_write((enum event_type)event_nr);
+}
+
 static int board_init(void)
 {
-	int err = dk_buttons_init(button_handler);
+	button_set_action_long_press(DK_BTN1, sidewalk_event, EVENT_TYPE_FACTORY_RESET);
+#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	button_set_action(DK_BTN2, sidewalk_event, EVENT_TYPE_CONNECTION_REQUEST);
+#else
+	button_set_action(DK_BTN2, sidewalk_event, EVENT_TYPE_SET_DEVICE_PROFILE);
+#endif
+	button_set_action(DK_BTN3, sidewalk_event, EVENT_TYPE_SEND_HELLO);
+	button_set_action_short_press(DK_BTN4, sidewalk_event, EVENT_TYPE_SET_BATTERY_LEVEL);
+	button_set_action_long_press(DK_BTN4, sidewalk_event, EVENT_TYPE_NORDIC_DFU);
+	int err = buttons_init();
 
 	if (err) {
 		LOG_ERR("Failed to initialize buttons (err: %d)", err);
@@ -84,7 +58,7 @@ static int board_init(void)
 		return err;
 	}
 
-#if CONFIG_USB_DFU_ENABLE_UPLOAD
+#if CONFIG_SIDEWALK_DFU_SERVICE_USB
 	err = usb_enable(NULL);
 	if (err != 0) {
 		LOG_ERR("Failed to enable USB");

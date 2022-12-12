@@ -25,6 +25,7 @@
 #include <storage/flash_map.h>
 #include <dk_buttons_and_leds.h>
 #include <sid_pal_gpio_ifc.h>
+#include "nordic_dfu.h"
 
 #ifdef CONFIG_SIDEWALK_CLI
 #include <sid_shell.h>
@@ -248,8 +249,6 @@ static void sidewalk_abort(app_context_t *app_ctx)
 		LOG_ERR("Sidewalk deinit error (code %d)", ret);
 	}
 	memset(app_ctx, 0x00, sizeof(app_context_t));
-
-	dk_set_leds(SID_LED_INDICATE_INIT_ERROR);
 }
 
 static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mask)
@@ -279,7 +278,8 @@ static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mas
 				break;
 			case SID_ERROR_NOT_FOUND: LOG_ERR("resource not found - check if mfg.hex has been flashed");
 				break;
-			default: LOG_ERR("Unknown error during initalization"); break;
+			default: LOG_ERR("Unknown error during Sidewalk init (err: %d)", ret);
+				break;
 			}
 
 			sidewalk_abort(app_ctx);
@@ -463,6 +463,7 @@ static void set_battery_level(app_context_t *app_ctx)
 	}
 }
 
+
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static void initialize_radio_busy_gpio(void)
 {
@@ -483,6 +484,22 @@ static void initialize_radio_busy_gpio(void)
 }
 
 #endif
+
+#if CONFIG_SIDEWALK_DFU_SERVICE_BLE
+static void sid_dfu_switch_state(app_context_t *app_ctx)
+{
+	if (STATE_NORDIC_DFU != app_ctx->state) {
+		sidewalk_abort(app_ctx);
+
+		int ret = nordic_dfu_ble_start();
+		if (ret) {
+			LOG_ERR("DFU SMP start error (code %d)", ret);
+		}
+
+		app_ctx->state = STATE_NORDIC_DFU;
+	}
+}
+#endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
 
 static sid_error_t sid_pal_init(void)
 {
@@ -597,6 +614,13 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			case EVENT_TYPE_SET_BATTERY_LEVEL:
 			{
 				set_battery_level(app_ctx);
+				break;
+			}
+			case EVENT_TYPE_NORDIC_DFU:
+			{
+				#if CONFIG_SIDEWALK_DFU_SERVICE_BLE
+				sid_dfu_switch_state(app_ctx);
+				#endif
 				break;
 			}
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
