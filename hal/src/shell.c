@@ -18,6 +18,7 @@
 
 #include <sid_api.h>
 #include <sidewalk_thread.h>
+#include "buttons_internal.h"
 
 #include <json_printer.h>
 #include <sid_shell.h>
@@ -125,12 +126,10 @@ static int parse_ul(const char *str, unsigned long *result)
 	return 0;
 }
 
-void sidewalk_button_pressed(uint32_t button_bit);
-
 // --------------------------------------------
 // start cmd handlers
 // --------------------------------------------
-static int cmd_press_button(const struct shell *shell, size_t argc,
+static int press_button(button_action_t action, const struct shell *shell, size_t argc,
 			    char **argv)
 {
 	if (argc != 2) {
@@ -143,9 +142,19 @@ static int cmd_press_button(const struct shell *shell, size_t argc,
 	if (parse_ul(argv[1], &button_id) != 0) {
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
-	sidewalk_button_pressed(BUTTON_ID_TO_BIT(button_id));
+	button_pressed(BUTTON_ID_TO_BIT(button_id), action);
 	shell_info(shell, "sidewalk cli: button pressed");
 	return CMD_RETURN_OK;
+}
+
+static int cmd_button_press_long(const struct shell *shell, size_t argc, char **argv)
+{
+	return press_button(BUTTON_ACTION_LONG_PRESS, shell, argc, argv);
+}
+
+static int cmd_button_press_short(const struct shell *shell, size_t argc, char **argv)
+{
+	return press_button(BUTTON_ACTION_SHORT_PRESS, shell, argc, argv);
 }
 
 typedef struct send_message_work {
@@ -380,10 +389,15 @@ static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv
 	}
 	return CMD_RETURN_OK;
 }
+SHELL_STATIC_SUBCMD_SET_CREATE(
+	sub_button,
+	SHELL_CMD_ARG(short, NULL, "{1,2,3,4}", cmd_button_press_short, 2, 0),
+	SHELL_CMD_ARG(long, NULL, "{1,2,3,4}", cmd_button_press_long, 2, 0),
+SHELL_SUBCMD_SET_END);
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
-	SHELL_CMD_ARG(press_button, NULL, "{1,2,3,4}", cmd_press_button, 2, 0),
+	SHELL_CMD_ARG(press_button, &sub_button, "{1,2,3,4}", cmd_button_press_short, 2, 0),
 	SHELL_CMD_ARG(send, NULL, "<hex payload> <sequence id>\n" \
 		      "\thex payload have to have even number of hex characters, sequence id is represented in decimal",
 		      cmd_send, 3, 0),
