@@ -284,3 +284,5 @@ config SIDEWALK_TIMER_STACK_SIZE
 	int
 	default 2048
 endif
+
+rsource "hal/Kconfig"

@@ -4,6 +4,5 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-zephyr_library()
-
-add_subdirectory(src)
+zephyr_include_directories_ifdef(CONFIG_SIDEWALK_HAL include)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_HAL src)
