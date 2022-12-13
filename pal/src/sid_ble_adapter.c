@@ -70,7 +70,12 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 
 	int err_code;
 	err_code = bt_enable(NULL);
-	if (err_code) {
+	switch (err_code) {
+	case -EALREADY:
+		LOG_INF("BT already initialized");
+	case 0:
+		break;
+	default:
 		LOG_ERR("BT init failed (err %d)", err_code);
 		return SID_ERROR_GENERIC;
 	}
