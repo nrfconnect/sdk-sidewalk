@@ -1,0 +1,11 @@
+/*
+* Flash partition for the Sidewalk MFG storage.
+*/
+&flash0 {
+	partitions {
+		sidewalk_storage: partition@f8000 {
+			label = "sidewalk_storage";
+			reg = <0x000f8000 0x00007000>;
+		};
+	};
+};

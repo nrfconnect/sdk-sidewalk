@@ -5,7 +5,7 @@
  */
 #include <unity.h>
 #include <sid_pal_crypto_ifc.h>
-#include <kernel.h>
+#include <zephyr/kernel.h>
 #include <string.h>
 
 #define RNG_BUFF_MAX_SIZE       (128)

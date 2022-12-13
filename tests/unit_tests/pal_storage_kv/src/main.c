@@ -5,7 +5,7 @@
  */
 #include <unity.h>
 #include <sid_pal_storage_kv_ifc.h>
-#include <mock_nvs.h>
+#include <fs/mock_nvs.h>
 
 #define GROUP_ID_TEST_OK        (0)
 #define GROUP_ID_TEST_NOK       (9)
