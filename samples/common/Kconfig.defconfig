@@ -18,62 +18,40 @@ choice SIDEWALK_DFU_SERVICE
 
 config SIDEWALK_DFU_SERVICE_BLE
 	bool "Upload image over BLE"
+	select MCUMGR
+	select MCUMGR_CMD_IMG_MGMT
+	select MCUMGR_CMD_OS_MGMT
+	select MCUMGR_SMP_BT
+	select MCUMGR_SMP_BT_CONN_PARAM_CONTROL
 
 config SIDEWALK_DFU_SERVICE_USB
 	bool "Upload image over USB. Test only!"
-endchoice
+	select USB_DFU_CLASS
+	select USB_DEVICE_STACK
+	select USB_DFU_ENABLE_UPLOAD
+	select USB_DFU_REBOOT
+	select USB_DC_HAS_HS_SUPPORT
+
+endchoice # SIDEWALK_DFU_SERVICE
 
 if SIDEWALK_DFU_SERVICE_BLE
-config SIDEWALK_DFU_BLE_FAST
-	bool "Speed up DFU over BLE"
-	default n
-
-config MCUMGR
-	default y
-
-config MCUMGR_CMD_IMG_MGMT
-	default y
-
-config MCUMGR_CMD_OS_MGMT
-	default y
-
-config MCUMGR_SMP_BT
-	default y
-
 config MCUMGR_SMP_BT_AUTHEN
 	default n
 
-config MCUMGR_SMP_BT_CONN_PARAM_CONTROL
-	default y
+config SIDEWALK_DFU_BLE_FAST
+	bool "Speed up DFU over BLE"
+	select MCUMGR_SMP_REASSEMBLY_BT
+	select OS_MGMT_MCUMGR_PARAMS
 
-config MCUMGR_SMP_REASSEMBLY_BT
-	default y if SIDEWALK_DFU_BLE_FAST
 
 config MCUMGR_BUF_SIZE
 	default 2475 if SIDEWALK_DFU_BLE_FAST
 
-config OS_MGMT_MCUMGR_PARAMS
-	default y if SIDEWALK_DFU_BLE_FAST
 endif # SIDEWALK_DFU_SERVICE_BLE
 
 if SIDEWALK_DFU_SERVICE_USB
-config USB_DFU_CLASS
-	default y
-
-config USB_DEVICE_STACK
-	default y
-
-config USB_DFU_ENABLE_UPLOAD
-	default y
-
-config USB_DFU_REBOOT
-	default y
-
 config USB_DEVICE_PRODUCT
 	default "DFU for Sidewalk"
-
-config USB_DC_HAS_HS_SUPPORT
-	default y
 
 config USB_REQUEST_BUFFER_SIZE
 	default 8192
@@ -82,20 +60,14 @@ endif # SIDEWALK_DFU_SERVICE_USB
 endif # SIDEWALK_DFU
 
 # Bootloader
-config IMG_MANAGER
-	default y
-
-config BOOTLOADER_MCUBOOT
-	default y
-
-config FLASH
-	default y
-
-config FLASH_PAGE_LAYOUT
-	default y
-
-config EXTRA_EXCEPTION_INFO
-	default y
+config SIDEWALK_DFU_BOOTLOADER
+	bool "Bootloder configuration for Sidewalk sample"
+	default SIDEWALK_DFU
+	select IMG_MANAGER
+	select BOOTLOADER_MCUBOOT
+	select FLASH
+	select FLASH_PAGE_LAYOUT
+	select EXTRA_EXCEPTION_INFO
 
 # Bluetooth
 config BT_REMOTE_VERSION

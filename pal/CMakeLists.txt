@@ -4,7 +4,5 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-zephyr_library()
-
 add_subdirectory(src)
 add_subdirectory(utils)
