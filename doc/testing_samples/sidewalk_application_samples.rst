@@ -26,11 +26,14 @@ The table below shows differences between their configurations:
 |                       | * Semtech sx1262 (only for the configurations with LoRa/FSK)  |                                            |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
 | Bootloader            | * MCUBoot - DFU partition in external flash                   | * MCUBoot - DFU partition in internal flash|
-|                       | * Application partition size = 984kB                          | * Application partition size = 492kB       |
+|                       | * Application partition size = 956kB                          | * Application partition size = 480kB       |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
 | Application overlays  | * :file:`lora.conf`                                           | * :file:`usb_dfu`                          |
 |                       | * :file:`fsk.conf`                                            |                                            |
 |                       | * :file:`usb_dfu`                                             |                                            |
++-----------------------+---------------------------------------------------------------+--------------------------------------------+
+| Persistant data size  | * 8kB Zephyr settings                                         | * 8kB Zephyr settings                      |
+|                       | * 28kB Sidewalk key-value storage                             | * 24kB Sidewalk key-value storage          |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
 
 .. _sidewalk_samples_ui:

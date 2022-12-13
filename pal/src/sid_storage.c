@@ -19,13 +19,13 @@
 #define NVS_RES_SPACE   (32U)
 
 /* Flash partition for NVS */
-#define NVS_FLASH_DEVICE FLASH_AREA_DEVICE(storage)
+#define NVS_FLASH_DEVICE FLASH_AREA_DEVICE(sidewalk_storage)
 /* Flash block size in bytes */
 #define NVS_SECTOR_SIZE  (DT_PROP(DT_CHOSEN(zephyr_flash), erase_block_size))
 /* Numbers of sectors */
 #define NVS_SECTOR_COUNT 2
 /* Start address of the filesystem in flash */
-#define NVS_STORAGE_OFFSET FLASH_AREA_OFFSET(storage)
+#define NVS_STORAGE_OFFSET FLASH_AREA_OFFSET(sidewalk_storage)
 /* Number of group IDs */
 #define SID_GROUP_ID_COUNT      1
 
