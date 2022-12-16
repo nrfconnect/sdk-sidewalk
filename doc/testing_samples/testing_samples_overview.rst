@@ -16,4 +16,3 @@ For the exact instructions on building and testing Sidewalk samples, see the doc
    sidewalk_registration.rst
    sidewalk_testing.rst
    sidewalk_testing_with_cli.rst
-   sidewalk_troubleshooting.rst
