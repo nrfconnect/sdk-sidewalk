@@ -77,7 +77,7 @@ void main(void)
 
 	LOG_INF("Sidewalk example started!");
 
-	PRINT_SIDEWALK_VERSION(Z_LOG_PRINTK);
+	PRINT_SIDEWALK_VERSION();
 
 	sidewalk_thread_enable();
 
