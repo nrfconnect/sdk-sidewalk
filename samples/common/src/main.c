@@ -68,6 +68,8 @@ static int board_init(void)
 	return 0;
 }
 
+// int nordic_dfu_ble_start(void);
+
 void main(void)
 {
 	if (0 != board_init()) {
@@ -79,6 +81,8 @@ void main(void)
 	PRINT_SIDEWALK_VERSION();
 
 	sidewalk_thread_enable();
+
+	// nordic_dfu_ble_start();
 
 	#if CONFIG_BOOTLOADER_MCUBOOT
 	if (!boot_is_img_confirmed()) {

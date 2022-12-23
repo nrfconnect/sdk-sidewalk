@@ -540,8 +540,8 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 		.config = NULL,
 	};
 
-	struct sid_event_callbacks event_callbacks = {
-		.context = app_ctx,
+	static struct sid_event_callbacks event_callbacks = {
+		.context = NULL,
 		.on_event = on_sidewalk_event,                                  /* Called from ISR context */
 		.on_msg_received = on_sidewalk_msg_received,                    /* Called from sid_process() */
 		.on_msg_sent = on_sidewalk_msg_sent,                            /* Called from sid_process() */
@@ -550,6 +550,7 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 		.on_factory_reset = on_sidewalk_factory_reset,                  /* Called from sid_process() */
 	};
 
+	event_callbacks.context = app_ctx;
 	app_ctx->sidewalk_config.link_mask = 0;
 	app_ctx->sidewalk_config.callbacks = &event_callbacks;
 	app_ctx->sidewalk_config.link_config = &ble_link_config;
