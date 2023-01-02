@@ -1,0 +1,12 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+
+
+# The purpose of this file is to create a wrapper Kconfig file that will be set as
+# mcuboot_KCONFIG_ROOT and processed before any other Kconfig for mcuboot child image.
+
+rsource "../../../common/Kconfig.mcuboot.defaults"
+source "${ZEPHYR_BASE}/../bootloader/mcuboot/boot/zephyr/Kconfig"

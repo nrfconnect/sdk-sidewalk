@@ -5,70 +5,6 @@
 #
 mainmenu "Sidewalk nRF Connect Application"
 
-# DFU
-menuconfig SIDEWALK_DFU
-	bool "DFU service in Sidewalk sample"
-	default y
-
-if SIDEWALK_DFU
-
-choice SIDEWALK_DFU_SERVICE
-	prompt "DFU image upload transport"
-	default SIDEWALK_DFU_SERVICE_BLE
-
-config SIDEWALK_DFU_SERVICE_BLE
-	bool "Upload image over BLE"
-	select MCUMGR
-	select MCUMGR_CMD_IMG_MGMT
-	select MCUMGR_CMD_OS_MGMT
-	select MCUMGR_SMP_BT
-	select MCUMGR_SMP_BT_CONN_PARAM_CONTROL
-
-config SIDEWALK_DFU_SERVICE_USB
-	bool "Upload image over USB. Test only!"
-	select USB_DFU_CLASS
-	select USB_DEVICE_STACK
-	select USB_DFU_ENABLE_UPLOAD
-	select USB_DFU_REBOOT
-	select USB_DC_HAS_HS_SUPPORT
-
-endchoice # SIDEWALK_DFU_SERVICE
-
-if SIDEWALK_DFU_SERVICE_BLE
-config MCUMGR_SMP_BT_AUTHEN
-	default n
-
-config SIDEWALK_DFU_BLE_FAST
-	bool "Speed up DFU over BLE"
-	select MCUMGR_SMP_REASSEMBLY_BT
-	select OS_MGMT_MCUMGR_PARAMS
-
-
-config MCUMGR_BUF_SIZE
-	default 2475 if SIDEWALK_DFU_BLE_FAST
-
-endif # SIDEWALK_DFU_SERVICE_BLE
-
-if SIDEWALK_DFU_SERVICE_USB
-config USB_DEVICE_PRODUCT
-	default "DFU for Sidewalk"
-
-config USB_REQUEST_BUFFER_SIZE
-	default 8192
-endif # SIDEWALK_DFU_SERVICE_USB
-
-endif # SIDEWALK_DFU
-
-# Bootloader
-config SIDEWALK_DFU_BOOTLOADER
-	bool "Bootloder configuration for Sidewalk sample"
-	default SIDEWALK_DFU
-	select IMG_MANAGER
-	select BOOTLOADER_MCUBOOT
-	select FLASH
-	select FLASH_PAGE_LAYOUT
-	select EXTRA_EXCEPTION_INFO
-
 # Bluetooth
 config BT_REMOTE_VERSION
 	default y
@@ -109,7 +45,6 @@ config BT_PERIPHERAL_PREF_TIMEOUT
 
 # Stack and Heap
 config SYSTEM_WORKQUEUE_STACK_SIZE
-    int
     default 4096 if SIDEWALK_LINK_MASK_LORA || SIDEWALK_LINK_MASK_FSK
 	default 4096 if SIDEWALK_DFU_SERVICE_BLE
 
