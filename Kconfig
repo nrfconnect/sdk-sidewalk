@@ -18,6 +18,7 @@ menuconfig SIDEWALK
 	imply SIDEWALK_ACE_OSAL_ZEPHYR
 	imply SIDEWALK_SW_INTERRUPTS
 	imply SIDEWALK_DELAY
+	imply SIDEWALK_DFU
 
 config SIDEWALK_DEFAULTS
 	bool
@@ -290,5 +291,68 @@ config SIDEWALK_TIMER_STACK_SIZE
 	int
 	default 2048
 endif
+
+# DFU
+menuconfig SIDEWALK_DFU
+	bool "DFU service in Sidewalk sample"
+
+if SIDEWALK_DFU
+
+choice SIDEWALK_DFU_SERVICE
+	prompt "DFU image upload transport"
+	default SIDEWALK_DFU_SERVICE_BLE
+
+config SIDEWALK_DFU_SERVICE_BLE
+	bool "Upload image over BLE"
+	imply MCUMGR
+	imply MCUMGR_CMD_IMG_MGMT
+	imply MCUMGR_CMD_OS_MGMT
+	imply MCUMGR_SMP_BT
+	imply MCUMGR_SMP_BT_CONN_PARAM_CONTROL
+
+config SIDEWALK_DFU_SERVICE_USB
+	bool "Upload image over USB. Test only!"
+	imply USB_DFU_CLASS
+	imply USB_DEVICE_STACK
+	imply USB_DFU_ENABLE_UPLOAD
+	imply USB_DFU_REBOOT
+	imply USB_DC_HAS_HS_SUPPORT
+
+endchoice # SIDEWALK_DFU_SERVICE
+
+if SIDEWALK_DFU_SERVICE_BLE
+config MCUMGR_SMP_BT_AUTHEN
+	default n
+
+config SIDEWALK_DFU_BLE_FAST
+	bool "Speed up DFU over BLE"
+	imply MCUMGR_SMP_REASSEMBLY_BT
+	imply OS_MGMT_MCUMGR_PARAMS
+
+
+config MCUMGR_BUF_SIZE
+	default 2475 if SIDEWALK_DFU_BLE_FAST
+
+endif # SIDEWALK_DFU_SERVICE_BLE
+
+if SIDEWALK_DFU_SERVICE_USB
+config USB_DEVICE_PRODUCT
+	default "DFU for Sidewalk"
+
+config USB_REQUEST_BUFFER_SIZE
+	default 8192
+endif # SIDEWALK_DFU_SERVICE_USB
+
+endif # SIDEWALK_DFU
+
+# Bootloader
+config SIDEWALK_DFU_BOOTLOADER
+	bool "Bootloder configuration for Sidewalk sample"
+	default SIDEWALK_DFU
+	imply IMG_MANAGER
+	imply BOOTLOADER_MCUBOOT
+	imply FLASH
+	imply FLASH_PAGE_LAYOUT
+	imply EXTRA_EXCEPTION_INFO
 
 rsource "hal/Kconfig"
