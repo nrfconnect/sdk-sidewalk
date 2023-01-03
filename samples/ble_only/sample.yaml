@@ -9,6 +9,14 @@ tests:
       - nrf52840dk_nrf52840
     tags: Sidewalk
 
+  sample.sidewalk.ble_only.release:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: CONF_FILE=prj_release.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
+
   sample.sidewalk.ble_only.cli:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
@@ -16,6 +24,3 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk_cli
-
-  
-
