@@ -54,6 +54,9 @@ Overlays overview
 - :file:`fsk.conf` - This configuration enables FSK transport in the Sidewalk application.
   To enable this overlay you have to connect the Semtech sx1262 shield. This overlay changes the button assignment, check :ref:`samples_ui`.
 
+* :file:`cli` - This configuration adds an nRF Connect Shell over with Sidewalk Command Line Interface.
+  For more details, see the :ref:`sidewalk_testing_with_cli` documentation.
+
 - :file:`usb_dfu` - This configuration adds a USB device to the application which acts as the target for the firmware update.
   A new image is then taken through the USB and placed in the second partition for bootloader. For more details, check the `USB DFU Sample Application`_ documentation.
 
