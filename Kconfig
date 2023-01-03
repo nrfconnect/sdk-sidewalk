@@ -19,6 +19,13 @@ menuconfig SIDEWALK
 	imply SIDEWALK_SW_INTERRUPTS
 	imply SIDEWALK_DELAY
 
+config SIDEWALK_DEFAULTS
+	bool
+	default SIDEWALK
+	imply REQUIRES_FULL_LIBC
+	imply FPU
+	imply REBOOT
+
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type"
 	default SIDEWALK_LINK_MASK_BLE
