@@ -13,12 +13,14 @@
 
 void sid_pal_assert(int line, const char *file)
 {
-#ifdef CONFIG_ASSERT_NO_FILE_INFO
+#if defined(CONFIG_ASSERT)
+#if defined(CONFIG_ASSERT_NO_FILE_INFO)
 	ARG_UNUSED(line);
 	ARG_UNUSED(file);
 	assert_post_action();
 #else
 	assert_post_action(file, line);
-#endif
+#endif /* CONFIG_ASSERT_NO_FILE_INFO */
+#endif /* CONFIG_ASSERT */
 	for (;;);
 }
