@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-if(CONFIG_SIDEWALK_LOG_LEVEL_OFF)
+if(NOT(CONFIG_LOG) OR CONFIG_SIDEWALK_LOG_LEVEL_OFF)
 	zephyr_compile_definitions(SID_PAL_LOG_ENABLED=0)
 else()
 	zephyr_compile_definitions(SID_PAL_LOG_ENABLED=1)
