@@ -34,6 +34,9 @@ Before building a sample, follow the :ref:`setting_up_the_environment` instructi
 
 Overlays overview
 
+* :file:`cli` - This configuration adds an nRF Connect Shell over with Sidewalk Command Line Interface.
+  For more details, see the :ref:`sidewalk_testing_with_cli` documentation.
+
 * :file:`usb_dfu` - This configuration adds a USB device to the application which acts as the target for the firmware update.
   A new image is then taken through the USB and placed in the second partition for bootloader.
   For more details, see the `USB DFU Sample Application`_ documentation.
