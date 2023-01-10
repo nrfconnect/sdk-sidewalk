@@ -1,0 +1,31 @@
+sample:
+  name: Sidewalk application based on templated for power tests
+  description: Sample that performs actions required for power measurements
+tests:
+  manual.power.ble:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: CONF_FILE=prj_release.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
+
+
+  manual.power.lora:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: CONF_FILE=prj_release.conf
+                OVERLAY_CONFIG=lora.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
+
+  manual.power.fsk:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: CONF_FILE=prj_release.conf
+                OVERLAY_CONFIG=fsk.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
+
