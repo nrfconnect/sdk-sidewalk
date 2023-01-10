@@ -1,0 +1,4 @@
+tests:
+   sidewalk.unit_tests.state_notifier:
+    tags: Sidewalk
+    type: unit
