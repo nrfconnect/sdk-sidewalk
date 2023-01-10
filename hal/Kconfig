@@ -11,3 +11,8 @@ config SIDEWALK_HAL
 config SIDEWALK_HAL_BUTTONS
 	bool
 	default y if SIDEWALK
+
+config NOTIFIER_HANDLER_MAX
+	int "Maximum number of the notifier listeners"
+	default 2 if LOG
+	default 1

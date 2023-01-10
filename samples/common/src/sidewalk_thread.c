@@ -31,6 +31,10 @@
 #include <sid_shell.h>
 #endif
 
+#include <state_notifier.h>
+#include <state_notifier_gpio_backend.h>
+#include <state_notifier_log_backend.h>
+
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -76,6 +80,8 @@ static app_context_t app_ctx = {
 	.sidewalk_handle = NULL,
 	.state = STATE_INIT,
 };
+
+struct notifier_ctx global_state_notifier;
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static struct sid_device_profile set_dp_cfg = {
@@ -313,15 +319,15 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 #endif
 	switch (status->state) {
 	case SID_STATE_READY:
-		dk_set_led_on(SID_LED_INDICATE_CONNECTED);
 		app_ctx->state = STATE_SIDEWALK_READY;
+		application_state_connected(&global_state_notifier, true);
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 		app_ctx->connection_request = false;
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 		break;
 	case SID_STATE_NOT_READY:
-		dk_set_led_off(SID_LED_INDICATE_CONNECTED);
 		app_ctx->state = STATE_SIDEWALK_NOT_READY;
+		application_state_connected(&global_state_notifier, false);
 		break;
 	case SID_STATE_ERROR:
 		LOG_ERR("Sidewalk error: %d", (int)sid_get_error(app_ctx->sidewalk_handle));
@@ -329,6 +335,23 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	case SID_STATE_SECURE_CHANNEL_READY:
 		app_ctx->state = STATE_SIDEWALK_SECURE_CONNECTION;
 		break;
+	}
+
+	if (status->detail.registration_status == SID_STATUS_REGISTERED) {
+		application_state_registered(&global_state_notifier, true);
+	} else {
+		application_state_registered(&global_state_notifier, false);
+	}
+	if (status->detail.time_sync_status == SID_STATUS_TIME_SYNCED) {
+		application_state_time_sync(&global_state_notifier, true);
+	} else {
+		application_state_time_sync(&global_state_notifier, false);
+	}
+
+	if (status->detail.link_status_mask) {
+		application_state_link(&global_state_notifier, true);
+	} else {
+		application_state_link(&global_state_notifier, false);
 	}
 
 	LOG_INF("Device %sregistered, Time Sync %s, Link status %s",
@@ -464,7 +487,6 @@ static void set_battery_level(app_context_t *app_ctx)
 	}
 }
 
-
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static void initialize_radio_busy_gpio(void)
 {
@@ -498,8 +520,10 @@ static void sid_dfu_switch_state(app_context_t *app_ctx)
 		}
 
 		app_ctx->state = STATE_NORDIC_DFU;
+		application_state_dfu(&global_state_notifier, true);
 	}
 }
+
 #endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
 
 static sid_error_t sid_pal_init(void)
@@ -566,6 +590,7 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 	}
 
 	app_ctx->state = STATE_SIDEWALK_NOT_READY;
+	application_state_connected(&global_state_notifier, false);
 #if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 	app_ctx->connection_request = false;
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
@@ -579,12 +604,19 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 
 	app_context_t *app_ctx = (app_context_t *)context;
 
+	state_watch_init_gpio(&global_state_notifier);
+	#if CONFIG_LOG
+	state_watch_init_log(&global_state_notifier);
+	#endif
+
 	if (SID_ERROR_NONE != sid_pal_init()) {
 		app_ctx->state = STATE_PAL_INIT_ERROR;
+		application_state_error(&global_state_notifier, true);
 		return;
 	}
 
 	if (SID_ERROR_NONE != sid_lib_run(app_ctx)) {
+		application_state_error(&global_state_notifier, true);
 		return;
 	}
 
