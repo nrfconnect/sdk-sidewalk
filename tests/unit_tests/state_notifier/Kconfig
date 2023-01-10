@@ -1,0 +1,3 @@
+rsource "../../../hal/Kconfig"
+
+source "Kconfig.zephyr"

@@ -130,7 +130,7 @@ function run_ut ()
         echo "[INFO]: Run unit tests not executed"
         return 0
     fi
-    run_twister --platform native_posix --coverage --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
+    run_twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
     echo "[INFO]: Remove files from coverage that are not under test and regenerate html report"
     lcov -q --remove "${CURRENT_DIR}/twister-out/coverage.info" "${LCOV_EXCLUDE[@]}" -o "${CURRENT_DIR}/twister-out/new_coverage.info"
     mv "${CURRENT_DIR}/twister-out/new_coverage.info" "${CURRENT_DIR}/twister-out/coverage.info"
