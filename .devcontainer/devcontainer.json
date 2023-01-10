@@ -21,7 +21,13 @@
 		"nrf-connect.toolchain.path": "PATH",
 		"nrf-connect.welcome.showOnStartup": false,
 		"uncrustify.configPath.linux": "sidewalk/.uncrustify.cfg",
-		"files.insertFinalNewline": true
+		"files.insertFinalNewline": true,
+		"coverage-gutters.coverageBaseDir": "sidewalk/scripts/ci/**",
+		"coverage-gutters.coverageFileNames": [
+			"coverage.info",
+			"lcov.info"
+		],
+		"editor.tabSize": 8
 	},
 	"containerEnv": {
 		"LC_ALL": "C.UTF-8",
@@ -43,7 +49,8 @@
 				"ms-vscode.live-server",
 				"GitHub.vscode-pull-request-github",
 				"zachflower.uncrustify",
-				"ms-python.python"
+				"ms-python.python",
+				"ryanluker.vscode-coverage-gutters"
 			]
 		}
 	},
