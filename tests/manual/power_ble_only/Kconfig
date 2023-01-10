@@ -1,0 +1,17 @@
+#
+# Copyright (c) 2023 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+
+rsource "../../../samples/common/Kconfig.defconfig"
+
+source "Kconfig.zephyr"
+
+config DELAY_BETWEN_MESSAGES
+    int "delay in ms between messages"
+    default 100
+
+config MESSAGES_TO_SEND
+    int "number of messages to send during test"
+    default 100

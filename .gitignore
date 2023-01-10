@@ -39,4 +39,4 @@ ext/lib/bin/supl
 ext/lib/bin/libsupl.zip
 ext/BSEC_*
 
-samples/*/version.conf
+**/version.conf
