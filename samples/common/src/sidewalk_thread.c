@@ -219,7 +219,8 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 	#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_received(msg_desc->id);
 	#endif
-
+	application_state_receiving(&global_state_notifier, true);
+	application_state_receiving(&global_state_notifier, false);
 	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
 		(int)msg_desc->link_mode, msg_desc->id, msg->size);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
@@ -227,6 +228,7 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
+	application_state_sending(&global_state_notifier, false);
 	#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_send();
 	#endif
@@ -235,6 +237,7 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
 {
+	application_state_sending(&global_state_notifier, false);
 	#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_not_send();
 	#endif
@@ -456,7 +459,7 @@ static void send_message(app_context_t *app_ctx)
 		    (app_ctx->link_status.supported_link_mode[SID_LINK_TYPE_1_IDX] & SID_LINK_MODE_MOBILE)) {
 			desc.link_mode = SID_LINK_MODE_MOBILE;
 		}
-
+		application_state_sending(&global_state_notifier, true);
 		ret = sid_put_msg(app_ctx->sidewalk_handle, &msg, &desc);
 		if (SID_ERROR_NONE != ret) {
 			LOG_ERR("failed queueing data, err:%d", (int) ret);
