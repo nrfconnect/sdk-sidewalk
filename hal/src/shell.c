@@ -21,6 +21,8 @@
 #include <result.h>
 #include <json_printer.h>
 
+#include <state_notifier.h>
+
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
 
@@ -256,7 +258,7 @@ static void cmd_send_work(struct k_work *item){
 	if (desc.type == SID_MSG_TYPE_RESPONSE) {
 		desc.id = sid_send_work->resp_id;
 	}
-
+	application_state_sending(&global_state_notifier, true);
 	sid_error_t sid_ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &sid_send_work->msg, &desc);
 
 	if (SID_ERROR_NONE != sid_ret) {

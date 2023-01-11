@@ -26,6 +26,7 @@
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
 volatile struct notifier_state current_app_state = {};
+extern struct notifier_ctx global_state_notifier;
 
 void assert_post_action(const char *file, unsigned int line)
 {
@@ -106,6 +107,26 @@ void wait_for_registered()
 	LOG_INF("Device registered after %d ms", time_waited);
 }
 
+void wait_for_not_sending()
+{
+	uint32_t time_waited = 0;
+
+	while (current_app_state.sending) {
+		k_sleep(K_MSEC(1));
+		time_waited++;
+	}
+}
+
+void wait_for_connected()
+{
+	uint32_t time_waited = 0;
+
+	while (!current_app_state.connected) {
+		k_sleep(K_MSEC(1));
+		time_waited++;
+	}
+}
+
 void wait_for_time_sync()
 {
 	uint32_t time_waited = 0;
@@ -125,6 +146,7 @@ static inline void perform_power_test(void)
 	#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 	sidewalk_thread_message_q_write(EVENT_TYPE_SEND_HELLO);
 	wait_for_time_sync();
+	wait_for_connected();
 	#endif
 
 	for (int i = 0; i < CONFIG_MESSAGES_TO_SEND; i++) {
@@ -132,8 +154,10 @@ static inline void perform_power_test(void)
 	#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 		if (!current_app_state.connected) {
 			sidewalk_thread_message_q_write(EVENT_TYPE_CONNECTION_REQUEST);
+			wait_for_connected();
 		}
 	#endif
+		wait_for_not_sending();
 		sidewalk_thread_message_q_write(EVENT_TYPE_SEND_HELLO);
 		k_sleep(K_MSEC(CONFIG_DELAY_BETWEN_MESSAGES));
 	}
@@ -144,8 +168,6 @@ void main(void)
 
 	LOG_INF("APPLICATION FOR POWER TESTS");
 	erase_sidewalk_settings();
-
-	extern struct notifier_ctx global_state_notifier;
 
 	subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test);
 

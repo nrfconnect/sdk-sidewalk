@@ -14,6 +14,8 @@
 	X(time_sync, gpio0, 15)	 \
 	X(link, gpio0, 16)	 \
 	X(connected, gpio0, 13)	 \
-	X(dfu, gpio1, 1)
+	X(dfu, gpio1, 1)	 \
+	X(sending, gpio1, 3)	 \
+	X(receiving, gpio1, 4)
 
 #endif /* APPLICATION_STATES_H */
