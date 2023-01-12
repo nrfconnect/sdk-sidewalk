@@ -5,6 +5,7 @@
  */
 
 #include <zephyr/device.h>
+#include <zephyr/pm/device.h>
 #include <zephyr/drivers/spi.h>
 
 #include <spi_bus.h>
@@ -70,19 +71,32 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 		.count = 1
 	};
 
-	sid_pal_gpio_write(client->client_selector, 0);
-	int r =
-		spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
-			       ((rx) ? &rx_set : NULL));
-
-	sid_pal_gpio_write(client->client_selector, 1);
-
-	if (r < 0) {
-		LOG_ERR("spi_transceive failed with error %d", r);
+	int err = pm_device_action_run(bus_serial_ctx.device, PM_DEVICE_ACTION_RESUME);
+	if ((err < 0) && (err != -EALREADY)) {
+		LOG_ERR("spi pm device resume failed with error %d", err);
 		return HALO_ERROR_GENERIC;
 	}
 
-	return HALO_ERROR_NONE;
+	sid_pal_gpio_write(client->client_selector, 0);
+
+	err = spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
+			     ((rx) ? &rx_set : NULL));
+
+	sid_pal_gpio_write(client->client_selector, 1);
+
+	halo_error_t ret = HALO_ERROR_NONE;
+	if (err < 0) {
+		LOG_ERR("spi_transceive failed with error %d", err);
+		ret = HALO_ERROR_GENERIC;
+	}
+
+	err = pm_device_action_run(bus_serial_ctx.device, PM_DEVICE_ACTION_SUSPEND);
+
+	if (err < 0 && (err != -EALREADY)) {
+		LOG_ERR("spi pm device suspend failed with error %d", err);
+	}
+
+	return ret;
 }
 
 static halo_error_t bus_serial_spi_destroy(const halo_serial_bus_iface_t *iface)
