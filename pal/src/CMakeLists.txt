@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Nordic Semiconductor ASA
+# Copyright (c) 2023 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
@@ -26,3 +26,4 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_GPIO sid_gpio.c sid_gpio_utils.c si
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SW_INTERRUPTS sid_sw_interrupts.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DELAY sid_delay.c)
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SPI_BUS sid_pal_serial_bus_spi.c)

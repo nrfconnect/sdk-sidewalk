@@ -8,43 +8,44 @@
 #include <zephyr/pm/device.h>
 #include <zephyr/drivers/spi.h>
 
-#include <spi_bus.h>
+#include <sid_pal_serial_bus_ifc.h>
 #include <sid_pal_gpio_ifc.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
 
-#define SPI_OPTIONS (uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX | SPI_LOCK_ON | \
-			       SPI_HOLD_ON_CS)
-
-#define SPI_CS_DELAY_US (0U)
+#define SPI_OPTIONS (uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX | SPI_LOCK_ON)
+#define SPI_FREQUENCY_DEFAULT (DT_FREQ_M(8))
 
 struct bus_serial_ctx_t {
-	const halo_serial_bus_iface_t *iface;
+	const struct sid_pal_serial_bus_iface *iface;
 	const struct device *device;
 	struct spi_config cfg;
-	struct spi_cs_control cs_cfg;
 };
 
-static halo_error_t bus_serial_spi_destroy(const halo_serial_bus_iface_t *iface);
-
-static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, const halo_serial_bus_client_t *client,
-					uint8_t *tx, uint8_t *rx, size_t xfer_size);
+static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
+				       const struct sid_pal_serial_bus_client *client,
+				       uint8_t *tx,
+				       uint8_t *rx,
+				       size_t xfer_size);
+static sid_error_t bus_serial_spi_destroy(const struct sid_pal_serial_bus_iface *iface);
 
 static struct bus_serial_ctx_t bus_serial_ctx;
 
-static const halo_serial_bus_iface_t bus_ops = {
+static const struct sid_pal_serial_bus_iface bus_ops = {
 	.xfer = bus_serial_spi_xfer,
 	.destroy = bus_serial_spi_destroy,
 };
 
-static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, const halo_serial_bus_client_t *client,
-					uint8_t *tx, uint8_t *rx, size_t xfer_size)
+static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
+				       const struct sid_pal_serial_bus_client *client,
+				       uint8_t *tx,
+				       uint8_t *rx,
+				       size_t xfer_size)
 {
-	ARG_UNUSED(client);
 	LOG_DBG("%s(%p, %p, %p, %p, %d)", __func__, iface, client, tx, rx, xfer_size);
-	if (iface != bus_serial_ctx.iface || (!tx && !rx) || !xfer_size) {
-		return HALO_ERROR_INVALID_ARGS;
+	if (iface != bus_serial_ctx.iface || (!tx && !rx) || !xfer_size || !client) {
+		return SID_ERROR_INVALID_ARGS;
 	}
 
 	struct spi_buf tx_buff[] = {
@@ -55,7 +56,7 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 	};
 
 	struct spi_buf_set tx_set = {
-		.buffers =  tx_buff,
+		.buffers = tx_buff,
 		.count = 1
 	};
 
@@ -71,11 +72,15 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 		.count = 1
 	};
 
+#if CONFIG_PM_DEVICE
 	int err = pm_device_action_run(bus_serial_ctx.device, PM_DEVICE_ACTION_RESUME);
 	if ((err < 0) && (err != -EALREADY)) {
 		LOG_ERR("spi pm device resume failed with error %d", err);
-		return HALO_ERROR_GENERIC;
+		return SID_ERROR_GENERIC;
 	}
+#else
+	int err = 0;
+#endif
 
 	sid_pal_gpio_write(client->client_selector, 0);
 
@@ -84,60 +89,62 @@ static halo_error_t bus_serial_spi_xfer(const halo_serial_bus_iface_t *iface, co
 
 	sid_pal_gpio_write(client->client_selector, 1);
 
-	halo_error_t ret = HALO_ERROR_NONE;
+	sid_error_t ret = SID_ERROR_NONE;
 	if (err < 0) {
 		LOG_ERR("spi_transceive failed with error %d", err);
-		ret = HALO_ERROR_GENERIC;
+		ret = SID_ERROR_GENERIC;
 	}
 
+#if CONFIG_PM_DEVICE
 	err = pm_device_action_run(bus_serial_ctx.device, PM_DEVICE_ACTION_SUSPEND);
 
 	if (err < 0 && (err != -EALREADY)) {
 		LOG_ERR("spi pm device suspend failed with error %d", err);
 	}
+#endif
 
 	return ret;
 }
 
-static halo_error_t bus_serial_spi_destroy(const halo_serial_bus_iface_t *iface)
+static sid_error_t bus_serial_spi_destroy(const struct sid_pal_serial_bus_iface *iface)
 {
 	LOG_DBG("%s(%p)", __func__, iface);
-	ARG_UNUSED(iface);
-	return HALO_ERROR_NONE;
+	if (!iface) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+	return SID_ERROR_NONE;
 }
 
-halo_error_t bus_serial_ncs_spi_create(const halo_serial_bus_iface_t **iface, const void *cfg)
+sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus_iface **iface, const void *cfg)
 {
-	LOG_DBG("%s(%p, %p)", __func__, iface, cfg);
-
 	ARG_UNUSED(cfg);
 	if (!iface) {
-		return HALO_ERROR_INCOMPATIBLE_PARAMS;
+		return SID_ERROR_INVALID_ARGS;
 	}
 
-	// if the device do not exist in DT, this will fail at linking process.
-	const struct device *device = DEVICE_DT_GET(DT_NODELABEL(sid_spi));
+	const struct device *spi_device = DEVICE_DT_GET(DT_NODELABEL(sid_900));
+
+	if (!device_is_ready(spi_device)) {
+		LOG_ERR("SPI device not ready");
+		return SID_ERROR_IO_ERROR;
+	}
 
 	*iface = &bus_ops;
 	bus_serial_ctx = (struct bus_serial_ctx_t){
-		.device = device,
+		.device = spi_device,
 		.cfg = {
-			.frequency = DT_PROP(DT_NODELABEL(sid_spi), clock_frequency),
+			.frequency = DT_PROP_OR(DT_NODELABEL(sid_900), clock_frequency, SPI_FREQUENCY_DEFAULT),
 			.operation = SPI_OPTIONS,
+			.cs = NULL,
 		},
-		.iface = *iface
+		.iface = *iface,
 	};
 
 	LOG_DBG("SPI device configuration:\r\n"	\
 		"frequency \t= %dHz\r\n"	\
-		"device flags \t= 0x%X\r\n"	\
-		"cs pin \t= %s.%d; GPIO flags = %d; CS delay = %d\r\n",
+		"device flags \t= 0x%X\r\n",
 		bus_serial_ctx.cfg.frequency,
-		bus_serial_ctx.cfg.operation,
-		bus_serial_ctx.cs_cfg.gpio.port->name,
-		bus_serial_ctx.cs_cfg.gpio.pin,
-		bus_serial_ctx.cs_cfg.gpio.dt_flags,
-		bus_serial_ctx.cs_cfg.delay);
+		bus_serial_ctx.cfg.operation);
 
-	return HALO_ERROR_NONE;
+	return SID_ERROR_NONE;
 }

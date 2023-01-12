@@ -67,6 +67,18 @@ uint64_t sid_timespec_to_ms_64(const struct sid_timespec * tm);
 /* Convert millseconds of size 8 bytes to timespec representation */
 void sid_ms_to_timespec_64(uint64_t msec, struct sid_timespec *tm);
 
+/* Convert microseconds of size 4 bytes to timespec representation*/
+void sid_us_to_timespec(uint32_t usec, struct sid_timespec *tm);
+
+/* Convert microseconds of size 8 bytes to timespec representation*/
+void sid_us_to_timespec_64(uint64_t usec, struct sid_timespec *tm);
+
+/* Convert timespec to microseconds representation of size 4 bytes*/
+uint32_t sid_timespec_to_us(const struct sid_timespec *tm);
+
+/* Convert timespec to microseconds representation of size 8 bytes*/
+uint64_t sid_timespec_to_us_64(const struct sid_timespec *tm);
+
 #ifdef __cplusplus
 }
 #endif

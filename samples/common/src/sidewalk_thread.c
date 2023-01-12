@@ -18,7 +18,8 @@
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 #include <sid_900_cfg.h>
 #include <sx126x_config.h>
-#include <spi_bus.h>
+#include <sid_pal_serial_bus_ifc.h>
+#include <sid_pal_serial_bus_spi_config.h>
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 #include <zephyr/kernel.h>
@@ -118,10 +119,8 @@ static struct sid_device_profile dev_cfg;
 #define RADIO_MAX_CAD_SYMBOL                                       SID_PAL_RADIO_LORA_CAD_04_SYMBOL
 #define RADIO_ANT_GAIN(X)                                          ((X) * 100)
 
-static const halo_serial_bus_factory_t radio_spi_factory =
-{
-	.create = bus_serial_ncs_spi_create,
-	.config = NULL,
+static const struct sid_pal_serial_bus_factory radio_spi_factory = {
+	.create = sid_pal_serial_bus_nordic_spi_create,
 };
 
 static uint8_t radio_sx1262_buffer[RADIO_SX1262_SPI_BUFFER_SIZE] = { 0 };
@@ -181,7 +180,10 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.gpio_radio_busy = 36,          // sx1262_BUSY
 	.gpio_rf_sw_ena = 42,           // sx1262 ANT_SW
 	.gpio_tx_bypass = 128,
-	.bus_selector = (halo_serial_bus_client_t){ .client_selector = 40 },
+	.bus_selector = {
+		.client_selector = 40, // sx1262_NSS
+		.bit_order = SID_PAL_SERIAL_BUS_BIT_ORDER_MSB_FIRST,
+	},
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
@@ -567,6 +569,16 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 		.config = NULL,
 	};
 
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	static const struct sid_sub_ghz_links_config sub_ghz_link_config = {
+		.enable_link_metrics = true,
+		.registration_config = {
+			.enable = true,
+			.periodicity_s = UINT32_MAX,
+		},
+	};
+#endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+
 	static struct sid_event_callbacks event_callbacks = {
 		.context = NULL,
 		.on_event = on_sidewalk_event,                                  /* Called from ISR context */
@@ -581,6 +593,12 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 	app_ctx->sidewalk_config.link_mask = 0;
 	app_ctx->sidewalk_config.callbacks = &event_callbacks;
 	app_ctx->sidewalk_config.link_config = &ble_link_config;
+	app_ctx->sidewalk_config.time_sync_periodicity_seconds = 7200;
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	app_ctx->sidewalk_config.sub_ghz_link_config = &sub_ghz_link_config;
+#else
+	app_ctx->sidewalk_config.sub_ghz_link_config = NULL;
+#endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 	LOG_INF("Initializing sidewalk, built-in %s link mask", LM_2_STR(LINK_MASK));
 

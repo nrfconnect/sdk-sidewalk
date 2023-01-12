@@ -11,9 +11,9 @@
 extern "C" {
 #endif
 
-#include <dev/bus/serial/serial.h>
 #include <semtech_radio_ifc.h>
 #include <sid_pal_radio_ifc.h>
+#include <sid_pal_serial_bus_ifc.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -90,6 +90,9 @@ typedef int32_t (*radio_sx126x_get_pa_cfg_t)(int8_t tx_power, radio_sx126x_pa_cf
 // Get Trim Capacitor value read from the mfg page
 typedef int32_t (*radio_sx126x_get_mfg_trim_val_t)(uint16_t *trim);
 
+// DIO3 out voltage to supply antenna switch power.
+typedef int32_t (*radio_sx126x_get_dio3_cfg_t)(void);
+
 typedef struct {
     uint8_t id;
     uint8_t regulator_mode;
@@ -97,7 +100,8 @@ typedef struct {
     int8_t  lna_gain;
     const radio_sx126x_get_pa_cfg_t pa_cfg_callback;
     const radio_sx126x_get_mfg_trim_val_t trim_cap_val_callback;
-    const halo_serial_bus_factory_t *bus_factory;
+    const radio_sx126x_get_dio3_cfg_t dio3_cfg_callback;
+    const struct sid_pal_serial_bus_factory *bus_factory;
 
     uint32_t gpio_power;
     uint32_t gpio_int1;
@@ -105,7 +109,7 @@ typedef struct {
     uint32_t gpio_rf_sw_ena;
     uint32_t gpio_tx_bypass;
 
-    halo_serial_bus_client_t bus_selector;
+    struct sid_pal_serial_bus_client bus_selector;
     radio_sx126x_tcxo_t tcxo;
     sid_pal_radio_state_transition_timings_t state_timings;
     struct {
