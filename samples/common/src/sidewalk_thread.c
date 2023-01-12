@@ -624,7 +624,7 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 	}
 
 	LOG_INF("Starting Sidewalk thread ...");
-
+	application_state_working(&global_state_notifier, true);
 	while (1) {
 		enum event_type event;
 
@@ -687,6 +687,7 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			}
 		}
 	}
+	application_state_working(&global_state_notifier, false);
 }
 
 void sidewalk_thread_message_q_write(enum event_type event)
@@ -696,7 +697,7 @@ void sidewalk_thread_message_q_write(enum event_type event)
 	}
 }
 
-void sidewalk_thread_enable(void)
+app_context_t *sidewalk_thread_enable(void)
 {
 	sid_tid = k_thread_create(&sid_thread, sid_stack_area,
 				  K_THREAD_STACK_SIZEOF(sid_stack_area),
@@ -707,4 +708,5 @@ void sidewalk_thread_enable(void)
 #ifdef CONFIG_SIDEWALK_CLI
 	CLI_init(&app_ctx);
 #endif
+	return &app_ctx;
 }

@@ -3,7 +3,8 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
-#include "sid_pal_storage_kv_ifc.h"
+#include "sid_api.h"
+#include "sid_error.h"
 #include <sidewalk_thread.h>
 #include <zephyr/kernel.h>
 #include <dk_buttons_and_leds.h>
@@ -14,7 +15,6 @@
 #include <zephyr/dfu/mcuboot.h>
 #endif
 
-#include <zephyr/storage/flash_map.h>
 #include <state_notifier.h>
 
 #include <sidewalk_version.h>
@@ -23,9 +23,53 @@
 #include <zephyr/usb/usb_device.h>
 #endif
 
+#include <zephyr/settings/settings.h>
+
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
+bool factory_reset_bypass = false;
+
+int alpha_handle_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg);
+int alpha_handle_export(int (*cb)(const char *name, const void *value, size_t val_len));
+
+struct settings_handler alph_handler = {
+	.name = "test",
+	.h_get = NULL,
+	.h_set = alpha_handle_set,
+	.h_commit = NULL,
+	.h_export = alpha_handle_export
+};
+
+K_SEM_DEFINE(registered_sem, 0, 1);
+K_SEM_DEFINE(not_sending_sem, 0, 1);
+K_SEM_DEFINE(working_sem, 0, 1);
+K_SEM_DEFINE(connected_sem, 0, 1);
+K_SEM_DEFINE(time_sync_sem, 0, 1);
+K_SEM_DEFINE(link_sem, 0, 1);
+
 volatile struct notifier_state current_app_state = {};
+
+int alpha_handle_set(const char *name, size_t len, settings_read_cb read_cb,
+		     void *cb_arg)
+{
+	const char *next;
+
+	if (settings_name_steq(name, "factory_reset_bypass", &next)) {
+		if (len != sizeof(factory_reset_bypass)) {
+			return -EINVAL;
+		}
+		read_cb(cb_arg, &factory_reset_bypass, sizeof(factory_reset_bypass));
+		return 0;
+	}
+	return -ENOENT;
+}
+
+int alpha_handle_export(int (*cb)(const char *name,
+				  const void *value, size_t val_len))
+{
+	(void)cb("test/factory_reset_bypass", &factory_reset_bypass, sizeof(factory_reset_bypass));
+	return 0;
+}
 
 void assert_post_action(const char *file, unsigned int line)
 {
@@ -74,72 +118,73 @@ static int board_init(void)
 	return 0;
 }
 
-static inline void erase_sidewalk_settings(void)
-{
-	LOG_INF("Clear sidewalk storage partition");
-	const struct flash_area *fa;
-	int rc = flash_area_open(FIXED_PARTITION_ID(sidewalk_storage), &fa);
-
-	if (rc < 0) {
-		LOG_ERR("failed to open flash area");
-	} else {
-		if (flash_area_get_device(fa) == NULL ||
-		    flash_area_erase(fa, 0, fa->fa_size) < 0) {
-			LOG_ERR("failed to erase flash area");
-		}
-		flash_area_close(fa);
-	}
-}
-
 static void state_change_handler_power_test(const struct notifier_state *state)
 {
 	current_app_state = *state;
+	if (current_app_state.registered) {
+		k_sem_give(&registered_sem);
+	}
+	if (current_app_state.sending == 0) {
+		k_sem_give(&not_sending_sem);
+	}
+	if (current_app_state.connected) {
+		k_sem_give(&connected_sem);
+	}
+	if (current_app_state.time_sync) {
+		k_sem_give(&time_sync_sem);
+	}
+	if (current_app_state.working) {
+		k_sem_give(&working_sem);
+	}
+	if (current_app_state.link) {
+		k_sem_give(&link_sem);
+	}
+
 }
 
 void wait_for_registered()
 {
-	uint32_t time_waited = 0;
-
-	while (!current_app_state.registered) {
-		k_sleep(K_MSEC(1));
-		time_waited++;
+	LOG_INF("%s", __func__);
+	if (!current_app_state.registered) {
+		k_sem_take(&registered_sem, K_FOREVER);
 	}
-	LOG_INF("Device registered after %d ms", time_waited);
 }
 
 void wait_for_not_sending()
 {
-	uint32_t time_waited = 0;
-
-	while (current_app_state.sending) {
-		k_sleep(K_MSEC(1));
-		time_waited++;
+	LOG_INF("%s", __func__);
+	if (current_app_state.sending) {
+		k_sem_take(&not_sending_sem, K_FOREVER);
 	}
 }
 
 void wait_for_connected()
 {
-	uint32_t time_waited = 0;
-
-	while (!current_app_state.connected) {
-		k_sleep(K_MSEC(1));
-		time_waited++;
+	LOG_INF("%s", __func__);
+	if (!current_app_state.connected) {
+		k_sem_take(&connected_sem, K_FOREVER);
 	}
 }
 
 void wait_for_time_sync()
 {
-	uint32_t time_waited = 0;
-
-	while (!current_app_state.time_sync) {
-		k_sleep(K_MSEC(1));
-		time_waited++;
+	LOG_INF("%s", __func__);
+	if (!current_app_state.time_sync) {
+		k_sem_take(&time_sync_sem, K_FOREVER);
 	}
-	LOG_INF("Device synced after %d ms", time_waited);
+}
+
+void wait_for_link()
+{
+	LOG_INF("%s", __func__);
+	if (!current_app_state.link) {
+		k_sem_take(&link_sem, K_FOREVER);
+	}
 }
 
 static inline void perform_power_test(void)
 {
+	LOG_INF("%s", __func__);
 	wait_for_registered();
 	wait_for_time_sync();
 
@@ -153,10 +198,13 @@ static inline void perform_power_test(void)
 
 	#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 		if (!current_app_state.connected) {
+			wait_for_registered();
+			wait_for_time_sync();
 			sidewalk_thread_message_q_write(EVENT_TYPE_CONNECTION_REQUEST);
 			wait_for_connected();
 		}
 	#endif
+		wait_for_connected();
 		wait_for_not_sending();
 		sidewalk_thread_message_q_write(EVENT_TYPE_SEND_HELLO);
 		k_sleep(K_MSEC(CONFIG_DELAY_BETWEN_MESSAGES));
@@ -165,10 +213,6 @@ static inline void perform_power_test(void)
 
 void main(void)
 {
-
-	LOG_INF("APPLICATION FOR POWER TESTS");
-	erase_sidewalk_settings();
-
 	extern struct notifier_ctx global_state_notifier;
 
 	subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test);
@@ -194,6 +238,27 @@ void main(void)
 		}
 	}
 	#endif
+	if (!current_app_state.working) {
+		k_sem_take(&working_sem, K_FOREVER);
+	}
+
+	settings_subsys_init();
+	settings_register(&alph_handler);
+	settings_load();
+
+	if (factory_reset_bypass == false) {
+		factory_reset_bypass = true;
+		settings_save();
+		settings_commit();
+
+		LOG_INF("Perform factory reset");
+		k_sleep(K_SECONDS(1));
+		sidewalk_thread_message_q_write(EVENT_TYPE_FACTORY_RESET);
+		k_sleep(K_FOREVER);
+	}
+	factory_reset_bypass = false;
+	settings_save();
+	settings_commit();
 
 	perform_power_test();
 }
