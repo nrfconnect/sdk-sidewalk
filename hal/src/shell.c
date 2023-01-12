@@ -25,13 +25,14 @@
 
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
-
 #define SID_API_STACK_SIZE 5120
 #define SID_API_WORKER_PRIO 5
 
 K_THREAD_STACK_DEFINE(sid_api_work_q_stack, SID_API_STACK_SIZE);
 
 struct k_work_q sid_api_work_q;
+
+extern struct notifier_ctx global_state_notifier;
 
 DECLARE_RESULT(uint32_t, ButtonParserResult, EMPTY_ARG, INVALID_INPUT);
 DECLARE_RESULT(size_t, StrToHexRet, OUT_TOO_SMALL, ARG_NOT_HEX, ARG_EMPTY, ARG_NOT_ALIGNED);
