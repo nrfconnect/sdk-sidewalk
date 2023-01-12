@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -22,14 +22,16 @@ enum sid_device_profile_id {
     /** Device Profile ID for Synchronous Network */
     SID_LINK2_PROFILE_1 = 0x01,
     SID_LINK2_PROFILE_2 = 0x02,
+    SID_LINK2_PROFILE_LAST,
 
     /** Device Profile ID for Asynchronous Network */
     SID_LINK3_PROFILE_A = 0x80,
     SID_LINK3_PROFILE_B = 0x81,
-    SID_LINK3_PROFILE_D = 0x83
+    SID_LINK3_PROFILE_D = 0x83,
+    SID_LINK3_PROFILE_LAST,
 };
-#define IS_LINK3_PROFILE_ID(X) (X>=SID_LINK3_PROFILE_A)
-#define IS_LINK2_PROFILE_ID(X) (X<=SID_LINK2_PROFILE_2)
+#define IS_LINK3_PROFILE_ID(X) ((X == SID_LINK3_PROFILE_A) || (X == SID_LINK3_PROFILE_B) || (X == SID_LINK3_PROFILE_D))
+#define IS_LINK2_PROFILE_ID(X) ((X == SID_LINK2_PROFILE_1) || (X == SID_LINK2_PROFILE_2))
 
 
 /**
@@ -117,6 +119,22 @@ struct sid_device_profile_unicast_params {
 struct sid_device_profile {
     /** Describes the unicast attributes of the device's synchronous configuration */
     struct sid_device_profile_unicast_params unicast_params;
+};
+
+/**
+ * Describes the configuration attributes of registration over link2
+ */
+struct sid_link_type_2_registration_config {
+    /** Used to enable registration over link2*/
+    bool enable;
+    /** Used to indicate the periodicity (in seconds) of registration process attempts */
+    uint32_t periodicity_s;
+};
+
+struct sid_sub_ghz_links_config {
+    /** Enable transmission of Sub-Ghz link metrics to Sidewalk cloud services */
+    bool enable_link_metrics;
+    struct sid_link_type_2_registration_config registration_config;
 };
 
 #endif /* SID_900_CFG_H */

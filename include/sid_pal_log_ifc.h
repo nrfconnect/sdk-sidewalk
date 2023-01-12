@@ -30,14 +30,6 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifndef SID_PAL_LOG_LEVEL
-#define SID_PAL_LOG_LEVEL  SID_PAL_LOG_SEVERITY_INFO
-#endif
-
-#ifndef SID_PAL_LOG_ENABLED
-#define SID_PAL_LOG_ENABLED 1
-#endif
-
 typedef enum
 {
     SID_PAL_LOG_SEVERITY_ERROR =    0,
@@ -45,6 +37,14 @@ typedef enum
     SID_PAL_LOG_SEVERITY_INFO =     2,
     SID_PAL_LOG_SEVERITY_DEBUG =    3
 } sid_pal_log_severity_t;
+
+#ifndef SID_PAL_LOG_LEVEL
+#define SID_PAL_LOG_LEVEL  SID_PAL_LOG_SEVERITY_INFO
+#endif
+
+#ifndef SID_PAL_LOG_ENABLED
+#define SID_PAL_LOG_ENABLED 1
+#endif
 
 /**
  * Printf style logging function
@@ -133,9 +133,12 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
 #define SID_PAL_LOG_FLUSH()  sid_pal_log_flush()
 #define SID_PAL_LOG_PUSH_STR(x)  sid_pal_log_push_str(x)
 
+#define SID_PAL_LOG_HIGHEST_SEVIRITY(level, fmt_, ...) \
+            sid_pal_log(level, SID_PAL_VA_NARG(__VA_ARGS__), fmt_, ##__VA_ARGS__);
+
 #define SID_PAL_LOG(level, fmt_, ...)                                                           \
     do {                                                                                        \
-        if (level <= SID_PAL_LOG_LEVEL && level <= sid_log_control_get_current_log_level())  {  \
+        if (level <= sid_log_control_get_current_log_level())  {  \
             sid_pal_log(level, SID_PAL_VA_NARG(__VA_ARGS__), fmt_, ##__VA_ARGS__);              \
         }                                                                                       \
     } while(0)
@@ -164,17 +167,25 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
     } while(0)
 
 #else
+#define SID_PAL_LOG_HIGHEST_SEVIRITY(level, fmt_, ...)
 #define SID_PAL_LOG(level_, fmt_, ...)
 #define SID_PAL_HEXDUMP(level_, data_, len_)
 #define SID_PAL_LOG_FLUSH()
 #define SID_PAL_LOG_PUSH_STR(x) (x)
 #endif
 
+
 /* Logging helpers to simplify logging APIs */
-#define SID_PAL_LOG_ERROR(fmt_, ...)           SID_PAL_LOG(SID_PAL_LOG_SEVERITY_ERROR,   fmt_, ##__VA_ARGS__)
+#define SID_PAL_LOG_ERROR(fmt_, ...)           SID_PAL_LOG_HIGHEST_SEVIRITY(SID_PAL_LOG_SEVERITY_ERROR, fmt_, ##__VA_ARGS__)
+#if SID_PAL_LOG_LEVEL >= SID_PAL_LOG_SEVERITY_WARNING
 #define SID_PAL_LOG_WARNING(fmt_, ...)         SID_PAL_LOG(SID_PAL_LOG_SEVERITY_WARNING, fmt_, ##__VA_ARGS__)
+#if SID_PAL_LOG_LEVEL >= SID_PAL_LOG_SEVERITY_INFO
 #define SID_PAL_LOG_INFO(fmt_, ...)            SID_PAL_LOG(SID_PAL_LOG_SEVERITY_INFO,    fmt_, ##__VA_ARGS__)
+#if SID_PAL_LOG_LEVEL >= SID_PAL_LOG_SEVERITY_DEBUG
 #define SID_PAL_LOG_DEBUG(fmt_, ...)           SID_PAL_LOG(SID_PAL_LOG_SEVERITY_DEBUG,   fmt_, ##__VA_ARGS__)
+#endif /* WARNING */
+#endif /* INFO */
+#endif /* DEBUG */
 
 #define SID_PAL_LOG_TRACE()                    SID_PAL_LOG_INFO("%s:%i %s() TRACE --", __FILENAME__, __LINE__, __FUNCTION__)
 
