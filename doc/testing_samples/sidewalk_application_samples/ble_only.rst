@@ -70,13 +70,32 @@ To use a long press action, hold a button for 2 seconds or longer, and release i
    * Button 4 (long press):
       Enter DFU state.
 
-
+Leds represent current state of the application:
    * LED 1:
-      ``ON`` when connected.
+      Application ``Connected`` succesfully.
 
-   * LED 1 - LED 4:
-      All LEDs will light continuously when manufacturing data is either missing or has not been flashed.
+   * LED 2:
+      Application ``Registered`` succesfully.
+   
+   * LED 3:
+      Application ``time sync`` succesfully.
 
+   * LED 4:
+      Application ``link`` is up.
+
+Other states are routed to generic GPIO pins, where **low** logic state means that the sate is active:
+
+   * P1.1:
+      ``DFU`` state.
+
+   * P1.2:
+      ``ERROR`` has occured.
+   
+   * P1.3:
+      ``Sending`` pin is active when the packet is being transmitted.
+
+   * P1.4:
+      ``Received`` This pins is being toggled ``on`` and immidiatelly ``off`` when the packet has been received.
 
 .. _ble_only_testing:
 
