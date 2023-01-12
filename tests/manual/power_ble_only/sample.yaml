@@ -2,10 +2,11 @@ sample:
   name: Sidewalk application based on bel_only for power tests
   description: Sample that performs actions required for power measurements
 tests:
-  manual.power.ble:
+  sidewalk.ble_only.test.power:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     extra_args: CONF_FILE=prj_release.conf
+                OVERLAY_CONFIG=usb_dfu.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk

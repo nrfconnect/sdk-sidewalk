@@ -2,7 +2,7 @@ sample:
   name: Sidewalk log test
   description: Test printing different sidewalk logs
 tests:
-  sample.test.log:
+  sidewalk.test.log:
     platform_allow: nrf52840dk_nrf52840
     integration_platforms:
       - nrf52840dk_nrf52840

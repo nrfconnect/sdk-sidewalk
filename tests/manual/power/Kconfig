@@ -14,4 +14,4 @@ config DELAY_BETWEN_MESSAGES
 
 config MESSAGES_TO_SEND
     int "number of messages to send during test"
-    default 100
+    default 20

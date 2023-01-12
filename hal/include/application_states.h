@@ -10,6 +10,7 @@
 /* X(state_name, gpio_port, gpio_pin) */
 #define X_APPLICAITON_STATES	 \
 	X(error, gpio1, 2)	 \
+	X(working, gpio1, 5)	 \
 	X(registered, gpio0, 14) \
 	X(time_sync, gpio0, 15)	 \
 	X(link, gpio0, 16)	 \

@@ -64,7 +64,13 @@ struct sid_send_work_t {
 	const struct shell *shell;
 };
 
+struct sid_factory_reset_t {
+	struct k_work work;
+	const struct shell *shell;
+};
+
 struct sid_send_work_t send_work;
+struct sid_factory_reset_t factory_reset_work;
 
 static const struct sid_status *CLI_status = &dummy;
 struct messages_stats sidewalk_messages;
@@ -93,8 +99,8 @@ void CLI_init(app_context_t *ctx)
 	k_work_queue_init(&sid_api_work_q);
 
 	k_work_queue_start(&sid_api_work_q, sid_api_work_q_stack,
-                   K_THREAD_STACK_SIZEOF(sid_api_work_q_stack), SID_API_WORKER_PRIO,
-                   NULL);
+			   K_THREAD_STACK_SIZEOF(sid_api_work_q_stack), SID_API_WORKER_PRIO,
+			   NULL);
 }
 
 void CLI_register_sid_status(const struct sid_status *status)
@@ -122,7 +128,7 @@ static ButtonParserResult button_id_from_arg(const char *arg)
 }
 
 static int press_button(button_action_t action, const struct shell *shell, size_t argc,
-			    char **argv)
+			char **argv)
 {
 	ButtonParserResult button_id = button_id_from_arg(argv[1]);
 
@@ -238,9 +244,10 @@ static int cmd_set_response_id(const struct shell *shell, size_t argc, char **ar
 	return CMD_RETURN_OK;
 }
 
-static void cmd_send_work(struct k_work *item){
+static void cmd_send_work(struct k_work *item)
+{
 	struct sid_send_work_t *sid_send_work =
-        CONTAINER_OF(item, struct sid_send_work_t, work);
+		CONTAINER_OF(item, struct sid_send_work_t, work);
 
 	if (!(STATE_SIDEWALK_READY == sid_app_ctx->state) &&
 	    !(STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx->state)) {
@@ -318,18 +325,18 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 		}
 	}
 
-	if(k_work_busy_get(&send_work.work) != 0){
+	if (k_work_busy_get(&send_work.work) != 0) {
 		shell_error(shell, "Can not execute send command, previous send has not completed yet");
 		return CMD_RETURN_NOT_EXECUTED;
 	}
 
-	send_work.msg = (struct sid_msg){ .data = message_raw_data, .size = ret.val_or_err.val};
+	send_work.msg = (struct sid_msg){ .data = message_raw_data, .size = ret.val_or_err.val };
 	send_work.shell = shell;
 	send_work.type = type;
 	send_work.resp_id = sidewalk_messages.resp_id;
 	k_work_init(&send_work.work, cmd_send_work);
 	k_work_submit_to_queue(&sid_api_work_q, &send_work.work);
-	
+
 	return CMD_RETURN_OK;
 }
 
@@ -401,24 +408,38 @@ void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
 	});
 }
 
-static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv)
+static void cmd_fatory_reset_work(struct k_work *item)
 {
+	struct sid_factory_reset_t *sid_factory_reset_work =
+		CONTAINER_OF(item, struct sid_factory_reset_t, work);
 	sid_error_t ret = sid_set_factory_reset(sid_app_ctx->sidewalk_handle);
 
 	if (SID_ERROR_NONE != ret) {
 		switch (ret) {
 		case SID_ERROR_INVALID_ARGS:
-			shell_error(shell, "Sidewalk not initialized, can not perform factory reset");
+			shell_error(sid_factory_reset_work->shell, "Sidewalk not initialized, can not perform factory reset");
 			break;
 		default:
-			shell_error(shell, "Notification of factory reset to sid api failed with unhandled error %d",
+			shell_error(sid_factory_reset_work->shell, "Notification of factory reset to sid api failed with unhandled error %d",
 				    ret);
 			break;
 		}
-		return CMD_RETURN_NOT_EXECUTED;
-	} else {
-		shell_info(shell, "sidewalk cli: factory reset request registered");
+		return;
 	}
+	shell_info(sid_factory_reset_work->shell, "sidewalk cli: factory reset request registered");
+}
+
+static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv)
+{
+
+	if (k_work_busy_get(&factory_reset_work.work) != 0) {
+		shell_error(shell, "Can not execute factory_reset command, previous command has not completed yet");
+		return CMD_RETURN_NOT_EXECUTED;
+	}
+
+	factory_reset_work.shell = shell;
+	k_work_init(&factory_reset_work.work, cmd_fatory_reset_work);
+	k_work_submit_to_queue(&sid_api_work_q, &factory_reset_work.work);
 	return CMD_RETURN_OK;
 }
 
@@ -426,7 +447,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_button,
 	SHELL_CMD_ARG(short, NULL, "{1,2,3,4}", cmd_button_press_short, 2, 0),
 	SHELL_CMD_ARG(long, NULL, "{1,2,3,4}", cmd_button_press_long, 2, 0),
-SHELL_SUBCMD_SET_END);
+	SHELL_SUBCMD_SET_END);
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
