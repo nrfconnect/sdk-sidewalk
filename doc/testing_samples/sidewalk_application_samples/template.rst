@@ -109,21 +109,22 @@ To use a long press action, hold a button for 2 seconds or longer, and release i
       * Button 4 (long press):
          Enter DFU state.
 
- 
-Leds represent current state of the application:
+LEDs represent the current state of the application:
+
    * LED 1:
-      Application ``Connected`` succesfully.
+      Application ``Connected`` successfully.
 
    * LED 2:
-      Application ``Registered`` succesfully.
+      Application ``Registered`` successfully.
    
    * LED 3:
-      Application ``time sync`` succesfully.
+      Application ``time sync`` successfully.
 
    * LED 4:
       Application ``link`` is up.
 
-Other states are routed to generic GPIO pins, where **low** logic state means that the sate is active:
+Other states are routed to generic GPIO pins. 
+When the voltage drops to 0, entering low logic state, it means that one of the following states is active:
 
    * P1.1:
       ``DFU`` state.
@@ -135,7 +136,7 @@ Other states are routed to generic GPIO pins, where **low** logic state means th
       ``Sending`` pin is active when the packet is being transmitted.
 
    * P1.4:
-      ``Received`` This pins is being toggled ``on`` and immidiatelly ``off`` when the packet has been received.
+      The ``Received`` pin is toggled ``on`` and immediately ``off`` when the packet has been received.
 
 
 .. _samples_testing:
