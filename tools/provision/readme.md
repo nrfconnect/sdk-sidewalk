@@ -59,6 +59,16 @@ chmod +x provision_silabs.sh
 ./script/provision_silabs.sh <xg21 or xg24> certificate_${SIDEWALK_ID}.json app-server-ed25519.public.bin
 ```
 
+## The app_srv_pub key can also be given as a 32 byte hex string
+
+```
+APP_SRV_PUB_HEX=0123456789012345678901234567890123456789012345678901234567890123
+SIDEWALK_ID=0123456789
+./provision.py acs --json certificate_${SIDEWALK_ID}.json \
+	--app_srv_pub ${APP_SRV_PUB_HEX} \
+	--config ${MFG_PAGE_CONFIG} --output_bin mfg.bin
+```
+
 # Create manufacturing page by AWS cli
 
 Information Required
