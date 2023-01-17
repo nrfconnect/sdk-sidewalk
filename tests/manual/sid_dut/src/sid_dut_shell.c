@@ -11,6 +11,8 @@
 #include <stdio.h>
 
 #include "zephyr/sys/util.h"
+#include <string.h>
+#include <sys/errno.h>
 #include <zephyr/kernel.h>
 #include <zephyr/shell/shell.h>
 #include <zephyr/logging/log.h>
@@ -20,6 +22,16 @@
 
 #include <sid_dut_shell.h>
 #include <sid_api_delegated.h>
+
+#define CLI_CMD_OPT_LINK_BLE        1
+#define CLI_CMD_OPT_LINK_FSK        2
+#define CLI_CMD_OPT_LINK_LORA       3
+#define CLI_CMD_OPT_LINK_LORA_BLE   4
+
+#define CLI_MAX_DATA_LEN            256
+#define CLI_MAX_HEX_STR_LEN         (CLI_MAX_DATA_LEN * 2)
+
+static uint8_t send_cmd_buf[CLI_MAX_DATA_LEN];
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
@@ -51,18 +63,7 @@ void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct app_context *a
 {
 	cli_cfg.app_cxt = app_cxt;
 	cli_cfg.sid_cfg = sid_cfg;
-
 }
-
-#define CLI_CMD_OPT_LINK_BLE        1
-#define CLI_CMD_OPT_LINK_FSK        2
-#define CLI_CMD_OPT_LINK_LORA       3
-#define CLI_CMD_OPT_LINK_LORA_BLE   4
-
-#define CLI_MAX_DATA_LEN            256
-#define CLI_MAX_HEX_STR_LEN         (CLI_MAX_DATA_LEN * 2)
-
-static uint8_t ul_buf[CLI_MAX_DATA_LEN];
 
 // utils
 
@@ -98,19 +99,19 @@ static int cli_parse_hexstr(const char *str_p, uint8_t *data_p, size_t buf_len)
 	}
 
 	if (strlen(str_p) > CLI_MAX_HEX_STR_LEN) {
-		return -1;
+		return -2;
 	}
 
 	size_t str_len = strlen(str_p);
 
 	if ((str_len % 2) != 0) {
-		return -1;
+		return -3;
 	}
 
 	size_t data_len = str_len / 2;
 
 	if (buf_len < data_len) {
-		return -1;
+		return -4;
 	}
 
 	memset(data_p, 0, buf_len);
@@ -127,7 +128,7 @@ static int cli_parse_hexstr(const char *str_p, uint8_t *data_p, size_t buf_len)
 		} else if (c >= 'a' && c <= 'f') {
 			value = (10 + (c - 'a'));
 		} else {
-			return -1;
+			return -5;
 		}
 		data_p[(idx / 2)] += value << (((idx + 1) % 2) * 4);
 		idx++;
@@ -180,7 +181,7 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 	}
 
 	sid_error_t ret = sid_start_delegated(*cli_cfg.app_cxt->sidewalk_handle,
-				    link_mask);
+					      link_mask);
 
 	shell_info(shell, "sid_start returned %d", ret);
 	return 0;
@@ -199,7 +200,7 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 	}
 
 	sid_error_t ret = sid_stop_delegated(*cli_cfg.app_cxt->sidewalk_handle,
-				   link_mask);
+					     link_mask);
 
 	shell_info(shell, "sid_stop returned %d", ret);
 	return 0;
@@ -207,55 +208,64 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 {
-	struct sid_msg msg = { .size = 0, .data = NULL };
+	struct sid_msg msg = { .size = strlen(argv[argc-1]), .data = (void*)argv[argc-1] };
 	struct sid_msg_desc desc = {
 		.type = SID_MSG_TYPE_NOTIFY,
 		.link_type = cli_cfg.send_link_type,
 		.link_mode = SID_LINK_MODE_CLOUD,
 	};
 
-	if (argc == 2) {
-		// only data
-		int res = cli_parse_hexstr(argv[2], ul_buf, CLI_MAX_DATA_LEN);
-		if (res < 0) {
-			return -ENOEXEC;
-		}
-		msg.size = (size_t)res;
-		msg.data = ul_buf;
-	} else {
-		// one argument is required, so if argc is not 2 it is greater than 2
-		int opt;
-
-		while ((opt = getopt(argc, (char *const *)argv, "t:d:r:"))) {
-			switch (opt) {
-			case 't':
-				switch (optarg[0]) {
-				case '0': desc.type = SID_MSG_TYPE_GET; break;
-				case '1': desc.type = SID_MSG_TYPE_SET; break;
-				case '2': desc.type = SID_MSG_TYPE_NOTIFY; break;
-				case '3': desc.type = SID_MSG_TYPE_RESPONSE; break;
-				default: return -ENOEXEC;
-				}
-				break;
-			case 'd':
-				switch (optarg[0]) {
-				case '1': desc.link_mode = SID_LINK_MODE_CLOUD; break;
-				case '2': desc.link_mode = SID_LINK_MODE_MOBILE; break;
-				default: return -ENOEXEC;
-				}
-				;
-				break;
-			case 'r': {
-				int res = cli_parse_hexstr(optarg, ul_buf, CLI_MAX_DATA_LEN);
-				if (res < 0) {
-					return -ENOEXEC;
-				}
-				msg.size = (size_t)res;
-				msg.data = ul_buf;
-			};
-				break;
+	for(int opt = 1; opt<argc; opt++){
+		if(strcmp("-t", argv[opt]) == 0)
+		{
+			opt++;
+			if (opt >= argc)
+			{
+				shell_error(shell, "-t need a value");
+				return -ENOEXEC;
 			}
+			switch (argv[opt][0]) {
+			case '0': desc.type = SID_MSG_TYPE_GET; break;
+			case '1': desc.type = SID_MSG_TYPE_SET; break;
+			case '2': desc.type = SID_MSG_TYPE_NOTIFY; break;
+			case '3': desc.type = SID_MSG_TYPE_RESPONSE; break;
+			default: {shell_error(shell, "invalid type");return -ENOEXEC;}
+			}
+			continue;	
 		}
+		if(strcmp("-d", argv[opt]) == 0)
+		{
+			opt++;
+			if (opt >= argc)
+			{
+				shell_error(shell, "-d need a value");
+				return -ENOEXEC;
+			}
+			switch (argv[opt][0]) {
+			case '1': desc.link_mode = SID_LINK_MODE_CLOUD; break;
+			case '2': desc.link_mode = SID_LINK_MODE_MOBILE; break;
+			default: {shell_error(shell, "invalid mode"); return -ENOEXEC;}
+			}
+			continue;	
+		}
+		if(strcmp("-r", argv[opt]) == 0)
+		{
+			opt++;
+			if (opt >= argc)
+			{
+				shell_error(shell, "-d need a value");
+				return -ENOEXEC;
+			}
+			int res = cli_parse_hexstr(argv[opt], send_cmd_buf, CLI_MAX_DATA_LEN);
+			if (res < 0) {
+				shell_error(shell, "failed to parse value as hexstring");
+				return -ENOEXEC;
+			}
+			msg.size = (size_t)res;
+			msg.data = send_cmd_buf;
+			continue;	
+		}
+
 	}
 
 	if (desc.type == SID_MSG_TYPE_RESPONSE) {
@@ -333,13 +343,14 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 	}
 
 	switch (opt) {
-	case SID_OPTION_BLE_BATTERY_LEVEL:{
-		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL, &arg1, sizeof(arg1));
+	case SID_OPTION_BLE_BATTERY_LEVEL: {
+		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL, &arg1,
+					   sizeof(arg1));
 		shell_info(shell, "sid_option returned %d", ret);
 	}
 	break;
-	case SID_OPTION_900MHZ_SET_DEVICE_PROFILE:{
-		if(argc >4){
+	case SID_OPTION_900MHZ_SET_DEVICE_PROFILE: {
+		if (argc > 4) {
 			return -ENOEXEC;
 		}
 
@@ -355,20 +366,22 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 			dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms =
 				(argc < 4) ? SID_LINK2_RX_WINDOW_SEPARATION_1 :
 				(enum
-				sid_link2_rx_window_separation_ms)atoi(argv[3]);
+				 sid_link2_rx_window_separation_ms)atoi(argv[3]);
 		} else {
 			return -ENOEXEC;
 		}
-		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE, &dev_cfg,
-				sizeof(dev_cfg));
+		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+					   &dev_cfg,
+					   sizeof(dev_cfg));
 		shell_info(shell, "sid_option returned %d", ret);
-		
+
 	}
 	break;
-	case SID_OPTION_900MHZ_GET_DEVICE_PROFILE:{
+	case SID_OPTION_900MHZ_GET_DEVICE_PROFILE: {
 		struct sid_device_profile dev_cfg = { .unicast_params = { .device_profile_id = arg1 } };
-		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE, &dev_cfg,
-				 sizeof(dev_cfg));
+		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
+					   &dev_cfg,
+					   sizeof(dev_cfg));
 		if (IS_LINK2_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)
 		    || IS_LINK3_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)) {
 			char rx_int_output[32] = {};
@@ -376,16 +389,16 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 				snprintf(rx_int_output, sizeof(rx_int_output), " Rx_Int = %d",
 					 dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms);
 			}
-			shell_info(shell, "sid_option returned %d; Link_profile ID: %d Wndw_cnt: %d%s",ret,
-						dev_cfg.unicast_params.device_profile_id,
-						dev_cfg.unicast_params.rx_window_count, rx_int_output);
+			shell_info(shell, "sid_option returned %d; Link_profile ID: %d Wndw_cnt: %d%s", ret,
+				   dev_cfg.unicast_params.device_profile_id,
+				   dev_cfg.unicast_params.rx_window_count, rx_int_output);
 		}
 	}
 	break;
 	default:
 		return -ENOEXEC;
 	}
-	
+
 	return 0;
 
 }

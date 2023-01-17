@@ -9,8 +9,10 @@
 
 #include <stdint.h>
 #include <zephyr/shell/shell.h>
+
 #include <sid_api.h>
 
+#include <sid_thread.h>
 
 #define CMD_SID_INIT_DESCRIPTION "<1,2,3,4>\n"																	    \
 	"initialize the sidewalk stack, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA) 4 is SID_LINK_TYPE_1 | SID_LINK_TYPE_3 (BLE + LORA).\n" \
@@ -114,26 +116,6 @@ int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **arg
 int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **argv);
 
-
-enum app_state
-{
-    STATE_INIT,
-    STATE_SIDEWALK_READY,
-    STATE_SIDEWALK_SECURE_CHANNEL_READY,
-    STATE_SIDEWALK_NOT_READY
-};
-
-struct app_context
-{
-//     struct sid_event_queue event_queue; // TODO RG
-    struct sid_handle **sidewalk_handle;
-    enum app_state state;
-    uint8_t counter;
-
-	// sidewalk work queue workers
-    struct k_work sidewalk_event_work;
-};
-
 struct cli_config {
 	struct sid_config *sid_cfg;
 	struct app_context *app_cxt;
@@ -142,6 +124,5 @@ struct cli_config {
 };
 
 void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct app_context *app_cxt);
-
 
 #endif /* SID_DUT_SHELL_H */
