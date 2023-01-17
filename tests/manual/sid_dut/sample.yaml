@@ -9,7 +9,6 @@ tests:
       - nrf52840dk_nrf52840
     tags: Sidewalk
 
-
   sidewalk.sid_dut.lora:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
@@ -25,4 +24,3 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
-

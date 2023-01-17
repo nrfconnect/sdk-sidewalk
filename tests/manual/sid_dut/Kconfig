@@ -12,4 +12,3 @@ config SIDEWALK_DUT_CLI
 	bool "Enable sidewalk CLI"
   default y
 	imply SHELL
-	imply GETOPT
