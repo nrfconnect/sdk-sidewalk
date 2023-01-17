@@ -107,6 +107,17 @@ struct sid_set_msg_dest_id_args {
 	uint32_t id;
 };
 
+struct sid_option_args {
+	struct k_work work;
+	struct k_sem completed;
+	sid_error_t return_value;
+
+	struct sid_handle *handle;
+	enum sid_option option;
+	void *data;
+	size_t len;
+};
+
 struct sid_api_ctx {
 	struct k_work_q *workq;
 
@@ -121,6 +132,7 @@ struct sid_api_ctx {
 	struct sid_ble_bcn_connection_request_args sid_ble_bcn_connection_request_ctx;
 	struct sid_get_time_args sid_get_time_ctx;
 	struct sid_set_msg_dest_id_args sid_set_msg_dest_id_ctx;
+	struct sid_option_args sid_option_ctx;
 };
 
 static struct sid_api_ctx ctx;
@@ -212,6 +224,13 @@ static void sid_set_msg_dest_id_delegated_work(struct k_work *work)
 	struct sid_set_msg_dest_id_args *arguments = CONTAINER_OF(work, struct sid_set_msg_dest_id_args, work);
 
 	arguments->return_value = sid_set_msg_dest_id(arguments->handle, arguments->id);
+	k_sem_give(&arguments->completed);
+}
+
+static void sid_option_delegated_work(struct k_work *work){
+	struct sid_option_args *arguments = CONTAINER_OF(work, struct sid_option_args, work);
+
+	arguments->return_value = sid_option(arguments->handle, arguments->option, arguments->data, arguments->len);
 	k_sem_give(&arguments->completed);
 }
 
@@ -361,6 +380,21 @@ sid_error_t sid_set_msg_dest_id_delegated(struct sid_handle *handle, uint32_t id
 	return ctx.sid_set_msg_dest_id_ctx.return_value;
 }
 
+sid_error_t sid_option_delegated(struct sid_handle *handle, enum sid_option option, void *data, size_t len){
+	
+	while (k_work_busy_get(&ctx.sid_option_ctx.work) != 0) {
+		k_sleep(K_MSEC(1));
+	}
+
+	ctx.sid_option_ctx.handle = handle;
+	ctx.sid_option_ctx.option = option;
+	ctx.sid_option_ctx.data = data;
+	ctx.sid_option_ctx.len = len;
+	k_work_submit_to_queue(ctx.workq, &ctx.sid_option_ctx.work);
+	k_sem_take(&ctx.sid_option_ctx.completed, K_FOREVER);
+	return ctx.sid_option_ctx.return_value;
+}
+
 void sid_api_delegated(struct k_work_q *workq)
 {
 	ctx.workq = workq;
@@ -387,4 +421,6 @@ void sid_api_delegated(struct k_work_q *workq)
 	k_work_init(&ctx.sid_get_time_ctx.work, sid_get_time_delegated_work);
 	k_sem_init(&ctx.sid_set_msg_dest_id_ctx.completed, 0, 1);
 	k_work_init(&ctx.sid_set_msg_dest_id_ctx.work, sid_set_msg_dest_id_delegated_work);
+	k_sem_init(&ctx.sid_option_ctx.completed, 0, 1);
+	k_work_init(&ctx.sid_option_ctx.work, sid_option_delegated_work);
 }

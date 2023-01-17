@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <getopt.h>
+#include <stdio.h>
 
 #include "zephyr/sys/util.h"
 #include <zephyr/kernel.h>
@@ -15,6 +16,7 @@
 #include <zephyr/logging/log.h>
 
 #include <sid_api.h>
+#include <sid_900_cfg.h>
 
 #include <sid_dut_shell.h>
 #include <sid_api_delegated.h>
@@ -305,8 +307,87 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **argv)
 {
-	shell_error(shell, "NOT IMPLEMENTED");
+	enum sid_option opt = SID_OPTION_BLE_BATTERY_LEVEL;
+	sid_error_t ret = SID_ERROR_NONE;
+	uint8_t arg1;
+
+	if (argc == 2) {
+		if (strcmp(argv[1], "-lp_get_l3") == 0) {
+			opt = SID_OPTION_900MHZ_GET_DEVICE_PROFILE;
+			arg1 = SID_LINK3_PROFILE_A;
+		} else if (strcmp(argv[1], "-lp_get_l2") == 0) {
+			opt = SID_OPTION_900MHZ_GET_DEVICE_PROFILE;
+			arg1 = SID_LINK2_PROFILE_1;
+		} else {
+			return -ENOEXEC;
+		}
+	} else {
+		arg1 = atoi(argv[2]);
+		if (strcmp(argv[1], "-lp_set") == 0) {
+			opt = SID_OPTION_900MHZ_SET_DEVICE_PROFILE;
+		} else if (strcmp(argv[1], "-b") == 0) {
+			opt = SID_OPTION_BLE_BATTERY_LEVEL;
+		} else {
+			return -ENOEXEC;
+		}
+	}
+
+	switch (opt) {
+	case SID_OPTION_BLE_BATTERY_LEVEL:{
+		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL, &arg1, sizeof(arg1));
+		shell_info(shell, "sid_option returned %d", ret);
+	}
+	break;
+	case SID_OPTION_900MHZ_SET_DEVICE_PROFILE:{
+		if(argc >4){
+			return -ENOEXEC;
+		}
+
+		struct sid_device_profile dev_cfg = { .unicast_params = { .device_profile_id = arg1 } };
+		if (IS_LINK3_PROFILE_ID(arg1) && argc == 4) {
+			dev_cfg.unicast_params.rx_window_count = atoi(argv[3]);
+			dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms =
+				SID_LINK3_RX_WINDOW_SEPARATION_3;
+		} else if (arg1 == SID_LINK2_PROFILE_1 && argc == 3) {
+			dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
+		} else if (arg1 == SID_LINK2_PROFILE_2 && argc <= 4) {
+			dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
+			dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms =
+				(argc < 4) ? SID_LINK2_RX_WINDOW_SEPARATION_1 :
+				(enum
+				sid_link2_rx_window_separation_ms)atoi(argv[3]);
+		} else {
+			return -ENOEXEC;
+		}
+		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE, &dev_cfg,
+				sizeof(dev_cfg));
+		shell_info(shell, "sid_option returned %d", ret);
+		
+	}
+	break;
+	case SID_OPTION_900MHZ_GET_DEVICE_PROFILE:{
+		struct sid_device_profile dev_cfg = { .unicast_params = { .device_profile_id = arg1 } };
+		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE, &dev_cfg,
+				 sizeof(dev_cfg));
+		if (IS_LINK2_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)
+		    || IS_LINK3_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)) {
+			char rx_int_output[32] = {};
+			if (dev_cfg.unicast_params.device_profile_id == SID_LINK2_PROFILE_2) {
+				snprintf(rx_int_output, sizeof(rx_int_output), " Rx_Int = %d",
+					 dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms);
+			}
+			shell_info(shell, "sid_option returned %d; Link_profile ID: %d Wndw_cnt: %d%s",ret,
+						dev_cfg.unicast_params.device_profile_id,
+						dev_cfg.unicast_params.rx_window_count, rx_int_output);
+		}
+	}
+	break;
+	default:
+		return -ENOEXEC;
+	}
+	
 	return 0;
+
 }
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv)
