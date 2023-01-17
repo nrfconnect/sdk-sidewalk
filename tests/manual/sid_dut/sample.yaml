@@ -2,7 +2,7 @@ sample:
   name: Sidewalk API test applicaiton
   description: Sample that uses shell to invoke sidewalk api functions
 tests:
-  manual.power.ble:
+  sidewalk.sid_dut.ble:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     integration_platforms:
@@ -10,7 +10,7 @@ tests:
     tags: Sidewalk
 
 
-  manual.power.lora:
+  sidewalk.sid_dut.lora:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     extra_args: OVERLAY_CONFIG=lora.conf
@@ -18,7 +18,7 @@ tests:
       - nrf52840dk_nrf52840
     tags: Sidewalk
 
-  manual.power.fsk:
+  sidewalk.sid_dut.fsk:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     extra_args: OVERLAY_CONFIG=fsk.conf

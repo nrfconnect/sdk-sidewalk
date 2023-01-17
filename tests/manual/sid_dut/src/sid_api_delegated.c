@@ -227,7 +227,8 @@ static void sid_set_msg_dest_id_delegated_work(struct k_work *work)
 	k_sem_give(&arguments->completed);
 }
 
-static void sid_option_delegated_work(struct k_work *work){
+static void sid_option_delegated_work(struct k_work *work)
+{
 	struct sid_option_args *arguments = CONTAINER_OF(work, struct sid_option_args, work);
 
 	arguments->return_value = sid_option(arguments->handle, arguments->option, arguments->data, arguments->len);
@@ -380,8 +381,9 @@ sid_error_t sid_set_msg_dest_id_delegated(struct sid_handle *handle, uint32_t id
 	return ctx.sid_set_msg_dest_id_ctx.return_value;
 }
 
-sid_error_t sid_option_delegated(struct sid_handle *handle, enum sid_option option, void *data, size_t len){
-	
+sid_error_t sid_option_delegated(struct sid_handle *handle, enum sid_option option, void *data, size_t len)
+{
+
 	while (k_work_busy_get(&ctx.sid_option_ctx.work) != 0) {
 		k_sleep(K_MSEC(1));
 	}

@@ -19,6 +19,7 @@ target_sources(app PRIVATE
   src/main.c
   src/sid_dut_shell.c
   src/sid_api_delegated.c
+  src/sid_thread.c
 )
 
 if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
