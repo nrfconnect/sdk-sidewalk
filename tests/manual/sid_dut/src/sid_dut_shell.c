@@ -7,15 +7,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <getopt.h>
 #include <stdio.h>
 
-#include "zephyr/sys/util.h"
 #include <string.h>
 #include <sys/errno.h>
-#include <zephyr/kernel.h>
 #include <zephyr/shell/shell.h>
-#include <zephyr/logging/log.h>
 
 #include <sid_api.h>
 #include <sid_900_cfg.h>
@@ -208,19 +204,21 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 {
-	struct sid_msg msg = { .size = strlen(argv[argc-1]), .data = (void*)argv[argc-1] };
+	if (argc < 1) {
+		return -ENOEXEC;
+	}
+
+	struct sid_msg msg = { .size = strlen(argv[argc - 1]), .data = (void *)argv[argc - 1] };
 	struct sid_msg_desc desc = {
 		.type = SID_MSG_TYPE_NOTIFY,
 		.link_type = cli_cfg.send_link_type,
 		.link_mode = SID_LINK_MODE_CLOUD,
 	};
 
-	for(int opt = 1; opt<argc; opt++){
-		if(strcmp("-t", argv[opt]) == 0)
-		{
+	for (int opt = 1; opt < argc; opt++) {
+		if (strcmp("-t", argv[opt]) == 0) {
 			opt++;
-			if (opt >= argc)
-			{
+			if (opt >= argc) {
 				shell_error(shell, "-t need a value");
 				return -ENOEXEC;
 			}
@@ -229,31 +227,27 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			case '1': desc.type = SID_MSG_TYPE_SET; break;
 			case '2': desc.type = SID_MSG_TYPE_NOTIFY; break;
 			case '3': desc.type = SID_MSG_TYPE_RESPONSE; break;
-			default: {shell_error(shell, "invalid type");return -ENOEXEC;}
+			default: { shell_error(shell, "invalid type"); return -ENOEXEC; }
 			}
-			continue;	
+			continue;
 		}
-		if(strcmp("-d", argv[opt]) == 0)
-		{
+		if (strcmp("-d", argv[opt]) == 0) {
 			opt++;
-			if (opt >= argc)
-			{
+			if (opt >= argc) {
 				shell_error(shell, "-d need a value");
 				return -ENOEXEC;
 			}
 			switch (argv[opt][0]) {
 			case '1': desc.link_mode = SID_LINK_MODE_CLOUD; break;
 			case '2': desc.link_mode = SID_LINK_MODE_MOBILE; break;
-			default: {shell_error(shell, "invalid mode"); return -ENOEXEC;}
+			default: { shell_error(shell, "invalid mode"); return -ENOEXEC; }
 			}
-			continue;	
+			continue;
 		}
-		if(strcmp("-r", argv[opt]) == 0)
-		{
+		if (strcmp("-r", argv[opt]) == 0) {
 			opt++;
-			if (opt >= argc)
-			{
-				shell_error(shell, "-d need a value");
+			if (opt >= argc) {
+				shell_error(shell, "-r need a value");
 				return -ENOEXEC;
 			}
 			int res = cli_parse_hexstr(argv[opt], send_cmd_buf, CLI_MAX_DATA_LEN);
@@ -263,7 +257,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			}
 			msg.size = (size_t)res;
 			msg.data = send_cmd_buf;
-			continue;	
+			continue;
 		}
 
 	}

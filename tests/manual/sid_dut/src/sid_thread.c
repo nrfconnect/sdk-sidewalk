@@ -19,6 +19,9 @@
 #include <sid_pal_crypto_ifc.h>
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 #include <sx126x_config.h>
+#include <sid_pal_gpio_ifc.h>
+#include <sid_900_cfg.h>
+#include <spi_bus.h>
 #endif
 
 #if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
@@ -39,7 +42,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 // ////////////////////////////////////////////////////////////////////////////
 
-struct k_work_q sidewalk_dut_work_q;
+static struct k_work_q sidewalk_dut_work_q;
 
 static struct sid_handle *sid_handle = NULL;
 
@@ -47,7 +50,7 @@ static struct app_context g_app_context = {
 	.sidewalk_handle = &sid_handle,
 };
 
-struct sid_event_callbacks event_callbacks = {
+static struct sid_event_callbacks event_callbacks = {
 	.context = &g_app_context,
 	.on_event = on_sidewalk_event,                          /* Called from ISR context */
 	.on_msg_received = on_sidewalk_msg_received,            /* Called from sid_process() */
@@ -62,7 +65,7 @@ static const sid_ble_link_config_t ble_link_config = {
 	.config = NULL,
 };
 
-struct sid_config config = {
+static struct sid_config config = {
 	.callbacks = &event_callbacks,
 	.link_config = &ble_link_config,
 };
@@ -99,7 +102,7 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
-	LOG_INF("send message succeded");
+	LOG_INF("send message succeeded");
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
@@ -138,24 +141,122 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 // ////////////////////////////////////////////////////////////////////////////
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-static void initialize_radio_busy_gpio(void)
+#define REGION_US915
+
+/* This product has no external PA and SX1262 can support max of 22dBm*/
+#define RADIO_SX1262_MAX_TX_POWER                                  22
+#define RADIO_SX1262_MIN_TX_POWER                                  -9
+
+#define RADIO_MAX_TX_POWER_NA                                      20
+#define RADIO_MAX_TX_POWER_EU                                      14
+
+#if defined (REGION_ALL)
+#define RADIO_REGION                                               RADIO_REGION_NONE
+#elif defined (REGION_US915)
+#define RADIO_REGION                                               RADIO_REGION_NA
+#elif defined (REGION_EU868)
+#define RADIO_REGION                                               RADIO_REGION_EU
+#endif
+
+#define RADIO_SX1262_SPI_BUFFER_SIZE                               255
+
+#define RADIO_SX1262_PA_DUTY_CYCLE                                 0x04
+#define RADIO_SX1262_HP_MAX                                        0x07
+#define RADIO_SX1262_DEVICE_SEL                                    0x00
+#define RADIO_SX1262_PA_LUT                                        0x01
+
+#define RADIO_RX_LNA_GAIN                                          0
+#define RADIO_MAX_CAD_SYMBOL                                       SID_PAL_RADIO_LORA_CAD_04_SYMBOL
+#define RADIO_ANT_GAIN(X)                                          ((X) * 100)
+
+static const halo_serial_bus_factory_t radio_spi_factory =
 {
-	LOG_DBG("Init Semtech busy pin");
-	if (SID_ERROR_NONE !=
-	    sid_pal_gpio_set_direction(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_DIRECTION_INPUT)) {
-		LOG_ERR("sid_pal_gpio_set_direction failed");
-		return;
+	.create = bus_serial_ncs_spi_create,
+	.config = NULL,
+};
+
+static uint8_t radio_sx1262_buffer[RADIO_SX1262_SPI_BUFFER_SIZE] = { 0 };
+
+static int32_t radio_sx1262_pa_cfg(int8_t tx_power, radio_sx126x_pa_cfg_t *pa_cfg)
+{
+	int8_t pwr = tx_power;
+
+	if (tx_power > RADIO_SX1262_MAX_TX_POWER) {
+		pwr = RADIO_SX1262_MAX_TX_POWER;
 	}
-	if (SID_ERROR_NONE != sid_pal_gpio_input_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_INPUT_CONNECT)) {
-		LOG_ERR("sid_pal_gpio_input_mode failed");
-		return;
+
+	if (tx_power < RADIO_SX1262_MIN_TX_POWER) {
+		pwr = RADIO_SX1262_MIN_TX_POWER;
 	}
-	if (SID_ERROR_NONE != sid_pal_gpio_pull_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_PULL_NONE)) {
-		LOG_ERR("sid_pal_gpio_pull_mode failed");
-		return;
-	}
+
+	pa_cfg->pa_duty_cycle = RADIO_SX1262_PA_DUTY_CYCLE;
+	pa_cfg->hp_max = RADIO_SX1262_HP_MAX;
+	pa_cfg->device_sel = RADIO_SX1262_DEVICE_SEL;
+	pa_cfg->pa_lut = RADIO_SX1262_PA_LUT;
+	pa_cfg->tx_power = pwr;  // one to one mapping between tx params and tx power
+	pa_cfg->ramp_time = RADIO_SX126X_RAMP_40_US;
+
+	return 0;
 }
 
+const radio_sx126x_regional_param_t radio_sx126x_regional_param[] =
+{
+    #if defined (REGION_ALL) || defined (REGION_US915)
+	{
+		.param_region = RADIO_REGION_NA,
+		.max_tx_power = { RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
+				  RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA },
+		.cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
+		.ant_dbi = RADIO_ANT_GAIN(2.15)
+	},
+    #endif
+    #if defined (REGION_ALL) || defined (REGION_EU868)
+	{
+		.param_region = RADIO_REGION_EU,
+		.max_tx_power = { RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
+				  RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU },
+		.cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
+		.ant_dbi = RADIO_ANT_GAIN(2.15)
+	},
+    #endif
+};
+
+const radio_sx126x_device_config_t radio_sx1262_cfg = {
+	.id = SEMTECH_ID_SX1262,                     // chip id register not supported
+	.regulator_mode = RADIO_SX126X_REGULATOR_DCDC,
+	.rx_boost = false,
+	.lna_gain = RADIO_RX_LNA_GAIN,
+	.bus_factory = &radio_spi_factory,
+	.gpio_power = 3,                // sx1262_NRESET
+	.gpio_int1 = 38,                // sx1262_DIO1
+	.gpio_radio_busy = 36,          // sx1262_BUSY
+	.gpio_rf_sw_ena = 42,           // sx1262 ANT_SW
+	.gpio_tx_bypass = 128,
+	.bus_selector = (halo_serial_bus_client_t){ .client_selector = 40 },
+	.pa_cfg_callback = radio_sx1262_pa_cfg,
+
+	.tcxo = {
+		.ctrl = SX126X_TCXO_CTRL_NONE,
+	},
+
+	.regional_config = {
+		.radio_region = RADIO_REGION,
+		.reg_param_table_size = sizeof(radio_sx126x_regional_param) / sizeof(radio_sx126x_regional_param[0]),
+		.reg_param_table = radio_sx126x_regional_param,
+	},
+
+	.state_timings = {
+		.sleep_to_full_power_us = 406,
+		.full_power_to_sleep_us = 0,
+		.rx_to_tx_us = 0,
+		.tx_to_rx_us = 0,
+	},
+
+	.internal_buffer = {
+		.p = radio_sx1262_buffer,
+		.size = sizeof(radio_sx1262_buffer),
+	},
+};
 #endif
 
 static sid_error_t sid_pal_init(void)
@@ -182,7 +283,6 @@ static sid_error_t sid_pal_init(void)
 	sid_pal_mfg_store_init(mfg_store_region);
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-	initialize_radio_busy_gpio();
 	set_radio_sx126x_device_config(&radio_sx1262_cfg);
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
