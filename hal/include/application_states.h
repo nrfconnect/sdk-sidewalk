@@ -9,7 +9,7 @@
 
 /* X(state_name, gpio_port, gpio_pin) */
 #define X_APPLICAITON_STATES	 \
-	X(error, gpio1, 2)	 \
+	X(error, gpio1, 7)	 \
 	X(working, gpio1, 5)	 \
 	X(registered, gpio0, 14) \
 	X(time_sync, gpio0, 15)	 \
@@ -17,6 +17,6 @@
 	X(connected, gpio0, 13)	 \
 	X(dfu, gpio1, 1)	 \
 	X(sending, gpio1, 3)	 \
-	X(receiving, gpio1, 4)
+	X(receiving, gpio1, 2)
 
 #endif /* APPLICATION_STATES_H */
