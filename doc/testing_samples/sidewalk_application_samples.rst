@@ -57,9 +57,9 @@ Depending on the selected board, the sample supports the following build types:
 
 You can build the ``release`` firmware for ``nrf52840dk_nrf52840`` by running the following command in the project directory:
 
-.. parsed-literal::
-   :class: highlight
-   west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
+.. code-block:: console
+
+   $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
    
 .. note::
     Selecting a build type is optional.
