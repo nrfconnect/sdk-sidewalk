@@ -16,7 +16,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y wget python3-pip git cmake ninja-build gperf  \
   ccache dfu-util device-tree-compiler \
   python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file  \
-  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 udev clangd ssh nano bash-completion sudo gpg ruby lcov screen uncrustify libfftw3-dev curl
+  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 udev clangd ssh nano bash-completion sudo gpg ruby lcov screen uncrustify libfftw3-dev curl python3-venv
 
 RUN apt-get install --no-install-recommends -y aria2
 RUN aria2c -V -d jlink https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-${TOOLS_VERSION}-x-x/${TOOLS_VERSION}-${TOOLS_VERSION_MAJOR}-${TOOLS_VERSION_MINOR}/nrf-command-line-tools-${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_linux-amd64.tar.gz && sync
