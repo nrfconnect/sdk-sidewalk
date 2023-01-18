@@ -10,7 +10,8 @@
 	],
 	"runArgs": [
 		"--privileged",
-		"--name", "nrf-sidewalk"
+		"--name", "nrf-sidewalk-1.14",
+		"--network=host"
 	],
 	"remoteUser": "vscode",
 	"updateRemoteUserUID": true,
