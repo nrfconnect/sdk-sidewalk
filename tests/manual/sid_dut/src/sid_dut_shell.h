@@ -8,11 +8,8 @@
 #define SID_DUT_SHELL_H
 
 #include <stdint.h>
-#include <zephyr/shell/shell.h>
 
 #include <sid_api.h>
-
-#include <sid_thread.h>
 
 #define CMD_SID_INIT_DESCRIPTION "<1,2,3,4>\n"																	    \
 	"initialize the sidewalk stack, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA) 4 is SID_LINK_TYPE_1 | SID_LINK_TYPE_3 (BLE + LORA).\n" \
@@ -100,6 +97,10 @@
 
 #define CMD_SID_SET_RSP_ID_DESCRIPTION "<value>\n" \
 	"allow the set ID for RESPONSE type message, this can be use before calling sid send command with message type set as RESPONSE."
+
+
+struct shell;
+struct app_context;
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv);
