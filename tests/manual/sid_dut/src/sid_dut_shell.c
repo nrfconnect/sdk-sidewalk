@@ -12,11 +12,13 @@
 #include <string.h>
 #include <sys/errno.h>
 #include <zephyr/shell/shell.h>
+#include <zephyr/sys/util.h>
 
 #include <sid_api.h>
 #include <sid_900_cfg.h>
 
 #include <sid_dut_shell.h>
+#include <sid_thread.h>
 #include <sid_api_delegated.h>
 
 #define CLI_CMD_OPT_LINK_BLE        1
@@ -26,6 +28,14 @@
 
 #define CLI_MAX_DATA_LEN            256
 #define CLI_MAX_HEX_STR_LEN         (CLI_MAX_DATA_LEN * 2)
+
+
+
+#define CHECK_SHELL_INITIALIZED(shell, cli_cfg) \
+	if (cli_cfg.app_cxt == NULL || cli_cfg.app_cxt->sidewalk_handle == NULL) {\
+		shell_error(shell, "Sidewalk CLI not initialized");\
+		return -ENOEXEC;\
+	}\
 
 static uint8_t send_cmd_buf[CLI_MAX_DATA_LEN];
 
@@ -38,7 +48,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	SHELL_CMD_ARG(send, NULL, CMD_SID_SEND_DESCRIPTION, cmd_sid_send, 2, 5),
 	SHELL_CMD_ARG(factory_reset, NULL, CMD_SID_FACTORY_RESET_DESCRIPTION, cmd_sid_factory_reset, 1, 0),
 	SHELL_CMD_ARG(get_mtu, NULL, CMD_SID_GET_MTU_DESCRIPTION, cmd_sid_get_mtu, 2, 0),
-	SHELL_CMD_ARG(option, NULL, CMD_SID_SET_OPTION_DESCRIPTION, cmd_sid_set_option, 1, 10),
+	SHELL_CMD_ARG(option, NULL, CMD_SID_SET_OPTION_DESCRIPTION, cmd_sid_set_option, 2, 10),
 	SHELL_CMD_ARG(last_status, NULL, CMD_SID_LAST_STATUS_DESCRIPTION, cmd_sid_last_status, 1, 0),
 	SHELL_CMD_ARG(conn_req, NULL, CMD_SID_CONN_REQUEST_DESCRIPTION, cmd_sid_conn_request, 2, 0),
 	SHELL_CMD_ARG(get_time, NULL, CMD_SID_GET_TIME_DESCRIPTION, cmd_sid_get_time, 2, 0),
@@ -50,7 +60,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 // command, subcommands, help, handler
 SHELL_CMD_REGISTER(sid, &sub_services, "sidewalk testing CLI", NULL);
 
-struct cli_config cli_cfg = {
+static struct cli_config cli_cfg = {
 	.send_link_type = SID_LINK_TYPE_ANY,
 	.rsp_msg_id = 0,
 };
@@ -135,7 +145,12 @@ static int cli_parse_hexstr(const char *str_p, uint8_t *data_p, size_t buf_len)
 // shell handlers
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
-{
+{	
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	if (argc!=2)
+	{
+		return -ENOEXEC;
+	}
 	const char *connection_type_arg = argv[1];
 	uint8_t connection_type = atoi(connection_type_arg);
 
@@ -145,10 +160,7 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 	if (!cli_parse_link_mask_opt(connection_type, &cli_cfg.sid_cfg->link_mask)) {
 		return -ENOEXEC;
 	}
-	if (!cli_cfg.app_cxt->sidewalk_handle) {
-		shell_error(shell, "Sidewalk CLI not initialized");
-		return -ENOEXEC;
-	}
+	
 
 	sid_error_t ret = sid_init_delegated(cli_cfg.sid_cfg, cli_cfg.app_cxt->sidewalk_handle);
 
@@ -158,6 +170,7 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	sid_error_t ret = sid_deinit_delegated(*cli_cfg.app_cxt->sidewalk_handle);
 
 	shell_info(shell, "sid_deinit returned %d", ret);
@@ -166,6 +179,7 @@ int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	uint32_t link_mask = 0;
 
 	if (argc == 1) {
@@ -175,21 +189,20 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 			return -ENOEXEC;
 		}
 	}
-
 	sid_error_t ret = sid_start_delegated(*cli_cfg.app_cxt->sidewalk_handle,
 					      link_mask);
-
 	shell_info(shell, "sid_start returned %d", ret);
 	return 0;
 }
 
 int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	uint32_t link_mask = 0;
 
-	if (argc == 0) {
+	if (argc == 1) {
 		link_mask = cli_cfg.sid_cfg->link_mask;
-	} else if (argc == 1) {
+	} else if (argc == 2) {
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_mask)) {
 			return -ENOEXEC;
 		}
@@ -204,12 +217,16 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	if (argc < 1) {
 		return -ENOEXEC;
 	}
 
-	struct sid_msg msg = { .size = strlen(argv[argc - 1]), .data = (void *)argv[argc - 1] };
-	struct sid_msg_desc desc = {
+	static struct sid_msg msg;
+	static struct sid_msg_desc desc;
+	
+	msg  = (struct sid_msg){ .size = strlen(argv[argc - 1]), .data = (void *)argv[argc - 1] };
+	desc = (struct sid_msg_desc){
 		.type = SID_MSG_TYPE_NOTIFY,
 		.link_type = cli_cfg.send_link_type,
 		.link_mode = SID_LINK_MODE_CLOUD,
@@ -274,6 +291,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	sid_error_t ret = sid_set_factory_reset_delegated(*cli_cfg.app_cxt->sidewalk_handle);
 
 	shell_info(shell, "sid_set_factory_reset returned %d", ret);
@@ -282,6 +300,12 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 
 int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	if(argc <2)
+	{
+		return -ENOEXEC;
+	}
+
 	enum sid_link_type link_type = SID_LINK_TYPE_1;
 
 	switch (argv[1][0]) {
@@ -311,9 +335,10 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	enum sid_option opt = SID_OPTION_BLE_BATTERY_LEVEL;
 	sid_error_t ret = SID_ERROR_NONE;
-	uint8_t arg1;
+	static uint8_t arg1;
 
 	if (argc == 2) {
 		if (strcmp(argv[1], "-lp_get_l3") == 0) {
@@ -348,7 +373,8 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 			return -ENOEXEC;
 		}
 
-		struct sid_device_profile dev_cfg = { .unicast_params = { .device_profile_id = arg1 } };
+		static struct sid_device_profile dev_cfg;
+		dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = arg1 } };
 		if (IS_LINK3_PROFILE_ID(arg1) && argc == 4) {
 			dev_cfg.unicast_params.rx_window_count = atoi(argv[3]);
 			dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms =
@@ -372,7 +398,8 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 	}
 	break;
 	case SID_OPTION_900MHZ_GET_DEVICE_PROFILE: {
-		struct sid_device_profile dev_cfg = { .unicast_params = { .device_profile_id = arg1 } };
+		static struct sid_device_profile dev_cfg;
+		dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = arg1 } };
 		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 					   &dev_cfg,
 					   sizeof(dev_cfg));
@@ -399,6 +426,7 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	struct sid_status status = {};
 	sid_error_t ret = sid_get_status_delegated(*cli_cfg.app_cxt->sidewalk_handle, &status);
 
@@ -422,6 +450,12 @@ int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **ar
 
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	if(argc!=2)
+	{
+		return -ENOEXEC;
+	}
+	
 	bool conn_req = false;
 
 	switch (argv[1][0]) {
@@ -446,6 +480,10 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 
 int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	if(argc <2){
+		return -ENOEXEC;
+	}
 	enum sid_time_format type = 0;
 	struct sid_timespec curr_time;
 
@@ -475,7 +513,11 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 
 int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **argv)
 {
-
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	if(argc!=2)
+	{
+		return -ENOEXEC;
+	}
 	uint32_t dst_id = atoi(argv[1]);
 	sid_error_t ret = sid_set_msg_dest_id_delegated(*cli_cfg.app_cxt->sidewalk_handle, dst_id);
 
@@ -485,6 +527,7 @@ int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **arg
 
 int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	uint32_t opt = atoi(argv[1]);
 
 	switch (opt) {
@@ -514,6 +557,7 @@ int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **
 
 int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **argv)
 {
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	cli_cfg.rsp_msg_id = atoi(argv[1]);
 	return 0;
 }
