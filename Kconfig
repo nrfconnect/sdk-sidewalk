@@ -47,6 +47,24 @@ config SIDEWALK_LINK_MASK_LORA
 
 endchoice # SIDEWALK_LINK_MASK
 
+choice SIDEWALK_LIBRARIES
+	prompt "Sidewalk libraries to use"
+	default SIDEWALK_BLE_ONLY_LIBRARIES if SIDEWALK_LINK_MASK_BLE
+	default SIDEWALK_BLE_AND_900_LIBRARIES if SIDEWALK_LINK_MASK_FSK
+	default SIDEWALK_BLE_AND_900_LIBRARIES if SIDEWALK_LINK_MASK_LORA
+	help 
+	  Select the sidewalk libraries to use.
+
+config SIDEWALK_BLE_ONLY_LIBRARIES
+	bool "Sidewalk libraries with only ble transport"
+	depends on SIDEWALK_BLE
+
+config SIDEWALK_BLE_AND_900_LIBRARIES
+	bool "Sidewalk libraries with ble, FSK and LORA transport"
+	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
+
+endchoice # SIDEWALK_LIBRARIES
+
 config SIDEWALK_BLE
 	bool "Enable Sidewalk Bluetooth Low Energy (BLE) module"
 	imply BT
