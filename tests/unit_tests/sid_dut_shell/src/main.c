@@ -18,6 +18,7 @@
 
 /* mocks and dummy headers */
 #include <mock/sid_api_delegated_mock.h>
+#include <mock/shell_mock.h>
 #include <sid_thread.h>
 
 // sidewalk handle pointer used in valid initialization

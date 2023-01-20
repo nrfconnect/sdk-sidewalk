@@ -6,8 +6,7 @@
 #ifndef SID_API_DELEGATED_H
 #define SID_API_DELEGATED_H
 #include <sid_api.h>
-
-struct k_work_q;
+#include <zephyr/kernel.h>
 
 sid_error_t sid_init_delegated(const struct sid_config *config, struct sid_handle **handle);
 sid_error_t sid_deinit_delegated(struct sid_handle *handle);

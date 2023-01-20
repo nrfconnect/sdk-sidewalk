@@ -30,7 +30,6 @@
 #define CLI_MAX_HEX_STR_LEN         (CLI_MAX_DATA_LEN * 2)
 
 
-
 #define CHECK_SHELL_INITIALIZED(shell, cli_cfg) \
 	if (cli_cfg.app_cxt == NULL || cli_cfg.app_cxt->sidewalk_handle == NULL) {\
 		shell_error(shell, "Sidewalk CLI not initialized");\
@@ -432,7 +431,8 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	struct sid_status status = {};
+	static struct sid_status status = {};
+	memset(&status, 0, sizeof(status));
 	sid_error_t ret = sid_get_status_delegated(*cli_cfg.app_cxt->sidewalk_handle, &status);
 
 	if (ret == SID_ERROR_NONE) {

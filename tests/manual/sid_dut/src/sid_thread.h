@@ -9,8 +9,7 @@
 #include <zephyr/kernel.h>
 #include <sid_error.h>
 
-#define SIDEWALK_DUT_WORK_Q_STACK_SIZE KB(5)
-#define SIDEWALK_DUT_WORK_Q_PRIORITY 5
+#define SIDEWALK_DUT_WORK_Q_STACK_SIZE KB(10)
 
 struct app_context {
 	struct sid_handle **sidewalk_handle;
