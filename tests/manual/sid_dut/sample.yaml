@@ -2,25 +2,9 @@ sample:
   name: Sidewalk API test applicaiton
   description: Sample that uses shell to invoke sidewalk api functions
 tests:
-  sidewalk.sid_dut.ble:
+  sidewalk.sid_dut:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    integration_platforms:
-      - nrf52840dk_nrf52840
-    tags: Sidewalk
-
-  sidewalk.sid_dut.lora:
-    build_only: true
-    platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=lora.conf
-    integration_platforms:
-      - nrf52840dk_nrf52840
-    tags: Sidewalk
-
-  sidewalk.sid_dut.fsk:
-    build_only: true
-    platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=fsk.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk

@@ -351,7 +351,12 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 			return -ENOEXEC;
 		}
 	} else {
-		arg1 = atoi(argv[2]);
+		int arg_val_raw = atoi(argv[2]);
+		if (arg_val_raw > (uint8_t)-1)
+		{
+			return -ENOEXEC;
+		}
+		arg1 = (uint8_t)arg_val_raw;
 		if (strcmp(argv[1], "-lp_set") == 0) {
 			opt = SID_OPTION_900MHZ_SET_DEVICE_PROFILE;
 		} else if (strcmp(argv[1], "-b") == 0) {
