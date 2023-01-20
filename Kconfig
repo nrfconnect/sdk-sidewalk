@@ -6,6 +6,7 @@
 
 menuconfig SIDEWALK
 	bool "Enable Amazon Sidewalk [EXPERIMENTAL]"
+	select EXPERIMENTAL
 	imply SIDEWALK_ASSERT
 	imply SIDEWALK_BLE
 	imply SIDEWALK_CRYPTO 
