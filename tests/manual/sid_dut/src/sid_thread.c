@@ -137,6 +137,16 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		LOG_INF("Sidewalk status changed to SID_STATE_SECURE_CHANNEL_READY");
 		break;
 	}
+
+	LOG_INF("EVENT SID STATUS: State: %d, Reg: %d, Time: %d, Link_Mask: %x\n",
+			status->state,
+			status->detail.registration_status,
+			status->detail.time_sync_status,
+			status->detail.link_status_mask);
+	LOG_INF("EVENT SID STATUS LINK MODE: LORA: %x, FSK: %x, BLE: %x\n",
+			status->detail.supported_link_modes[2],
+			status->detail.supported_link_modes[1],
+			status->detail.supported_link_modes[0]);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -293,8 +303,10 @@ sid_error_t sid_thread_init(void)
 {
 	k_work_queue_init(&sidewalk_dut_work_q);
 	k_work_queue_start(&sidewalk_dut_work_q, sidewalk_dut_work_q_stack,
-			   K_THREAD_STACK_SIZEOF(sidewalk_dut_work_q_stack), SIDEWALK_DUT_WORK_Q_PRIORITY,
+			   K_THREAD_STACK_SIZEOF(sidewalk_dut_work_q_stack), CONFIG_SIDEWALK_THREAD_PRIORITY,
 			   NULL);
+	k_tid_t sidewalk_thread = k_work_queue_thread_get(&sidewalk_dut_work_q);
+	k_thread_name_set(sidewalk_thread, "sidewalk_thread");
 	sid_api_delegated(&sidewalk_dut_work_q);
 	return sid_pal_init();
 }
