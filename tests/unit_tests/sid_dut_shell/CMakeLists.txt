@@ -18,7 +18,7 @@ target_sources(testbinary PRIVATE
 add_definitions(--include ztest.h)
 
 target_include_directories(testbinary PRIVATE 
-. 
-$ENV{ZEPHYR_BASE}/../sidewalk/tests/manual/sid_dut/src
-$ENV{ZEPHYR_BASE}/../sidewalk/lib/include
+        . 
+        $ENV{ZEPHYR_BASE}/../sidewalk/tests/manual/sid_dut/src
+        $ENV{ZEPHYR_BASE}/../sidewalk/lib/include
 )

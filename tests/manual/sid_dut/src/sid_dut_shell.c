@@ -29,31 +29,47 @@
 #define CLI_MAX_DATA_LEN            256
 #define CLI_MAX_HEX_STR_LEN         (CLI_MAX_DATA_LEN * 2)
 
+#define CHECK_SHELL_INITIALIZED(shell, cli_cfg)					   \
+	if (cli_cfg.app_cxt == NULL || cli_cfg.app_cxt->sidewalk_handle == NULL) { \
+		shell_error(shell, "Sidewalk CLI not initialized");		   \
+		return -EINVAL;							   \
+	}									   \
 
-#define CHECK_SHELL_INITIALIZED(shell, cli_cfg) \
-	if (cli_cfg.app_cxt == NULL || cli_cfg.app_cxt->sidewalk_handle == NULL) {\
-		shell_error(shell, "Sidewalk CLI not initialized");\
-		return -ENOEXEC;\
-	}\
+#define CHECK_ARGUMENT_COUNT(argc, required, \
+			     optional) if ((argc < required) || (argc > (required + optional))) { return -EINVAL; }
 
 static uint8_t send_cmd_buf[CLI_MAX_DATA_LEN];
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
-	SHELL_CMD_ARG(init, NULL, CMD_SID_INIT_DESCRIPTION, cmd_sid_init, 2, 0),
-	SHELL_CMD_ARG(de_init, NULL, CMD_SID_DEINIT_DESCRIPTION, cmd_sid_deinit, 1, 0),
-	SHELL_CMD_ARG(start, NULL, CMD_SID_START_DESCRIPTION, cmd_sid_start, 1, 1),
-	SHELL_CMD_ARG(stop, NULL, CMD_SID_STOP_DESCRIPTION, cmd_sid_stop, 1, 1),
-	SHELL_CMD_ARG(send, NULL, CMD_SID_SEND_DESCRIPTION, cmd_sid_send, 2, 5),
-	SHELL_CMD_ARG(factory_reset, NULL, CMD_SID_FACTORY_RESET_DESCRIPTION, cmd_sid_factory_reset, 1, 0),
-	SHELL_CMD_ARG(get_mtu, NULL, CMD_SID_GET_MTU_DESCRIPTION, cmd_sid_get_mtu, 2, 0),
-	SHELL_CMD_ARG(option, NULL, CMD_SID_SET_OPTION_DESCRIPTION, cmd_sid_set_option, 2, 10),
-	SHELL_CMD_ARG(last_status, NULL, CMD_SID_LAST_STATUS_DESCRIPTION, cmd_sid_last_status, 1, 0),
-	SHELL_CMD_ARG(conn_req, NULL, CMD_SID_CONN_REQUEST_DESCRIPTION, cmd_sid_conn_request, 2, 0),
-	SHELL_CMD_ARG(get_time, NULL, CMD_SID_GET_TIME_DESCRIPTION, cmd_sid_get_time, 2, 0),
-	SHELL_CMD_ARG(set_dst_id, NULL, CMD_SID_SET_DST_ID_DESCRIPTION, cmd_sid_set_dst_id, 2, 0),
-	SHELL_CMD_ARG(set_send_link, NULL, CMD_SID_SET_SEND_LINK_DESCRIPTION, cmd_sid_set_send_link, 2, 0),
-	SHELL_CMD_ARG(set_rsp_id, NULL, CMD_SID_SET_RSP_ID_DESCRIPTION, cmd_sid_set_rsp_id, 2, 0),
+	SHELL_CMD_ARG(init, NULL, CMD_SID_INIT_DESCRIPTION, cmd_sid_init, CMD_SID_INIT_ARG_REQUIRED,
+		      CMD_SID_INIT_ARG_OPTIONAL),
+	SHELL_CMD_ARG(de_init, NULL, CMD_SID_DEINIT_DESCRIPTION, cmd_sid_deinit, CMD_SID_DEINIT_ARG_REQUIRED,
+		      CMD_SID_DEINIT_ARG_OPTIONAL),
+	SHELL_CMD_ARG(start, NULL, CMD_SID_START_DESCRIPTION, cmd_sid_start, CMD_SID_START_ARG_REQUIRED,
+		      CMD_SID_START_ARG_OPTIONAL),
+	SHELL_CMD_ARG(stop, NULL, CMD_SID_STOP_DESCRIPTION, cmd_sid_stop, CMD_SID_STOP_ARG_REQUIRED,
+		      CMD_SID_STOP_ARG_OPTIONAL),
+	SHELL_CMD_ARG(send, NULL, CMD_SID_SEND_DESCRIPTION, cmd_sid_send, CMD_SID_SEND_ARG_REQUIRED,
+		      CMD_SID_SEND_ARG_OPTIONAL),
+	SHELL_CMD_ARG(factory_reset, NULL, CMD_SID_FACTORY_RESET_DESCRIPTION, cmd_sid_factory_reset,
+		      CMD_SID_FACTORY_RESET_ARG_REQUIRED, CMD_SID_FACTORY_RESET_ARG_OPTIONAL),
+	SHELL_CMD_ARG(get_mtu, NULL, CMD_SID_GET_MTU_DESCRIPTION, cmd_sid_get_mtu, CMD_SID_GET_MTU_ARG_REQUIRED,
+		      CMD_SID_GET_MTU_ARG_OPTIONAL),
+	SHELL_CMD_ARG(option, NULL, CMD_SID_SET_OPTION_DESCRIPTION, cmd_sid_set_option, CMD_SID_SET_OPTION_ARG_REQUIRED,
+		      CMD_SID_SET_OPTION_ARG_OPTIONAL),
+	SHELL_CMD_ARG(last_status, NULL, CMD_SID_LAST_STATUS_DESCRIPTION, cmd_sid_last_status,
+		      CMD_SID_LAST_STATUS_ARG_REQUIRED, CMD_SID_LAST_STATUS_ARG_OPTIONAL),
+	SHELL_CMD_ARG(conn_req, NULL, CMD_SID_CONN_REQUEST_DESCRIPTION, cmd_sid_conn_request,
+		      CMD_SID_CONN_REQUEST_ARG_REQUIRED, CMD_SID_CONN_REQUEST_ARG_OPTIONAL),
+	SHELL_CMD_ARG(get_time, NULL, CMD_SID_GET_TIME_DESCRIPTION, cmd_sid_get_time, CMD_SID_GET_TIME_ARG_REQUIRED,
+		      CMD_SID_GET_TIME_ARG_OPTIONAL),
+	SHELL_CMD_ARG(set_dst_id, NULL, CMD_SID_SET_DST_ID_DESCRIPTION, cmd_sid_set_dst_id,
+		      CMD_SID_SET_DST_ID_ARG_REQUIRED, CMD_SID_SET_DST_ID_ARG_OPTIONAL),
+	SHELL_CMD_ARG(set_send_link, NULL, CMD_SID_SET_SEND_LINK_DESCRIPTION, cmd_sid_set_send_link,
+		      CMD_SID_SET_SEND_LINK_ARG_REQUIRED, CMD_SID_SET_SEND_LINK_ARG_OPTIONAL),
+	SHELL_CMD_ARG(set_rsp_id, NULL, CMD_SID_SET_RSP_ID_DESCRIPTION, cmd_sid_set_rsp_id,
+		      CMD_SID_SET_RSP_ID_ARG_REQUIRED, CMD_SID_SET_RSP_ID_ARG_OPTIONAL),
 	SHELL_SUBCMD_SET_END);
 
 // command, subcommands, help, handler
@@ -144,22 +160,19 @@ static int cli_parse_hexstr(const char *str_p, uint8_t *data_p, size_t buf_len)
 // shell handlers
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
-{	
+{
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	if (argc!=2)
-	{
-		return -ENOEXEC;
-	}
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_INIT_ARG_REQUIRED, CMD_SID_INIT_ARG_OPTIONAL);
+
 	const char *connection_type_arg = argv[1];
 	uint8_t connection_type = atoi(connection_type_arg);
 
 	if (!IN_RANGE(connection_type, 1, 4)) {
-		return -ENOEXEC;
+		return -EINVAL;
 	}
 	if (!cli_parse_link_mask_opt(connection_type, &cli_cfg.sid_cfg->link_mask)) {
-		return -ENOEXEC;
+		return -EINVAL;
 	}
-	
 
 	sid_error_t ret = sid_init_delegated(cli_cfg.sid_cfg, cli_cfg.app_cxt->sidewalk_handle);
 
@@ -170,6 +183,8 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_DEINIT_ARG_REQUIRED, CMD_SID_DEINIT_ARG_OPTIONAL);
+
 	sid_error_t ret = sid_deinit_delegated(*cli_cfg.app_cxt->sidewalk_handle);
 
 	shell_info(shell, "sid_deinit returned %d", ret);
@@ -179,17 +194,22 @@ int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_START_ARG_REQUIRED, CMD_SID_START_ARG_OPTIONAL);
 	uint32_t link_mask = 0;
 
-	if (argc == 1) {
-		link_mask = cli_cfg.sid_cfg->link_mask;
-	} else if (argc == 2) {
+	switch (argc) {
+	case 1: link_mask = cli_cfg.sid_cfg->link_mask;
+		break;
+	case 2:
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_mask)) {
-			return -ENOEXEC;
+			return -EINVAL;
 		}
+		break;
+	default: return -EINVAL;
 	}
 	sid_error_t ret = sid_start_delegated(*cli_cfg.app_cxt->sidewalk_handle,
 					      link_mask);
+
 	shell_info(shell, "sid_start returned %d", ret);
 	return 0;
 }
@@ -197,14 +217,18 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_STOP_ARG_REQUIRED, CMD_SID_STOP_ARG_OPTIONAL);
 	uint32_t link_mask = 0;
 
-	if (argc == 1) {
-		link_mask = cli_cfg.sid_cfg->link_mask;
-	} else if (argc == 2) {
+	switch (argc) {
+	case 1: link_mask = cli_cfg.sid_cfg->link_mask;
+		break;
+	case 2:
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_mask)) {
-			return -ENOEXEC;
+			return -EINVAL;
 		}
+		break;
+	default: return -EINVAL;
 	}
 
 	sid_error_t ret = sid_stop_delegated(*cli_cfg.app_cxt->sidewalk_handle,
@@ -217,14 +241,12 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	if (argc < 1) {
-		return -ENOEXEC;
-	}
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SEND_ARG_REQUIRED, CMD_SID_SEND_ARG_OPTIONAL);
 
 	static struct sid_msg msg;
 	static struct sid_msg_desc desc;
-	
-	msg  = (struct sid_msg){ .size = strlen(argv[argc - 1]), .data = (void *)argv[argc - 1] };
+
+	msg = (struct sid_msg){ .size = strlen(argv[argc - 1]), .data = (void *)argv[argc - 1] };
 	desc = (struct sid_msg_desc){
 		.type = SID_MSG_TYPE_NOTIFY,
 		.link_type = cli_cfg.send_link_type,
@@ -236,14 +258,14 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			opt++;
 			if (opt >= argc) {
 				shell_error(shell, "-t need a value");
-				return -ENOEXEC;
+				return -EINVAL;
 			}
 			switch (argv[opt][0]) {
 			case '0': desc.type = SID_MSG_TYPE_GET; break;
 			case '1': desc.type = SID_MSG_TYPE_SET; break;
 			case '2': desc.type = SID_MSG_TYPE_NOTIFY; break;
 			case '3': desc.type = SID_MSG_TYPE_RESPONSE; break;
-			default: { shell_error(shell, "invalid type"); return -ENOEXEC; }
+			default: { shell_error(shell, "invalid type"); return -EINVAL; }
 			}
 			continue;
 		}
@@ -251,12 +273,12 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			opt++;
 			if (opt >= argc) {
 				shell_error(shell, "-d need a value");
-				return -ENOEXEC;
+				return -EINVAL;
 			}
 			switch (argv[opt][0]) {
 			case '1': desc.link_mode = SID_LINK_MODE_CLOUD; break;
 			case '2': desc.link_mode = SID_LINK_MODE_MOBILE; break;
-			default: { shell_error(shell, "invalid mode"); return -ENOEXEC; }
+			default: { shell_error(shell, "invalid mode"); return -EINVAL; }
 			}
 			continue;
 		}
@@ -264,12 +286,12 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			opt++;
 			if (opt >= argc) {
 				shell_error(shell, "-r need a value");
-				return -ENOEXEC;
+				return -EINVAL;
 			}
 			int res = cli_parse_hexstr(argv[opt], send_cmd_buf, CLI_MAX_DATA_LEN);
 			if (res < 0) {
 				shell_error(shell, "failed to parse value as hexstring");
-				return -ENOEXEC;
+				return -EINVAL;
 			}
 			msg.size = (size_t)res;
 			msg.data = send_cmd_buf;
@@ -291,6 +313,8 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_FACTORY_RESET_ARG_REQUIRED, CMD_SID_FACTORY_RESET_ARG_OPTIONAL);
+
 	sid_error_t ret = sid_set_factory_reset_delegated(*cli_cfg.app_cxt->sidewalk_handle);
 
 	shell_info(shell, "sid_set_factory_reset returned %d", ret);
@@ -300,10 +324,7 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	if(argc <2)
-	{
-		return -ENOEXEC;
-	}
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_GET_MTU_ARG_REQUIRED, CMD_SID_GET_MTU_ARG_OPTIONAL);
 
 	enum sid_link_type link_type = SID_LINK_TYPE_1;
 
@@ -321,7 +342,7 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 		break;
 	}
 	default: {
-		return -ENOEXEC;
+		return -EINVAL;
 	}
 	}
 
@@ -335,9 +356,12 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_ARG_REQUIRED, CMD_SID_SET_OPTION_ARG_OPTIONAL);
 	enum sid_option opt = SID_OPTION_BLE_BATTERY_LEVEL;
 	sid_error_t ret = SID_ERROR_NONE;
 	static uint8_t arg1;
+
+	arg1 = 0;
 
 	if (argc == 2) {
 		if (strcmp(argv[1], "-lp_get_l3") == 0) {
@@ -347,13 +371,12 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 			opt = SID_OPTION_900MHZ_GET_DEVICE_PROFILE;
 			arg1 = SID_LINK2_PROFILE_1;
 		} else {
-			return -ENOEXEC;
+			return -EINVAL;
 		}
 	} else {
 		int arg_val_raw = atoi(argv[2]);
-		if (arg_val_raw > (uint8_t)-1)
-		{
-			return -ENOEXEC;
+		if (arg_val_raw > UINT8_MAX) {
+			return -EINVAL;
 		}
 		arg1 = (uint8_t)arg_val_raw;
 		if (strcmp(argv[1], "-lp_set") == 0) {
@@ -361,7 +384,7 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 		} else if (strcmp(argv[1], "-b") == 0) {
 			opt = SID_OPTION_BLE_BATTERY_LEVEL;
 		} else {
-			return -ENOEXEC;
+			return -EINVAL;
 		}
 	}
 
@@ -374,7 +397,7 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 	break;
 	case SID_OPTION_900MHZ_SET_DEVICE_PROFILE: {
 		if (argc > 4) {
-			return -ENOEXEC;
+			return -EINVAL;
 		}
 
 		static struct sid_device_profile dev_cfg;
@@ -392,7 +415,7 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 				(enum
 				 sid_link2_rx_window_separation_ms)atoi(argv[3]);
 		} else {
-			return -ENOEXEC;
+			return -EINVAL;
 		}
 		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
 					   &dev_cfg,
@@ -421,7 +444,7 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 	}
 	break;
 	default:
-		return -ENOEXEC;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -431,7 +454,9 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_LAST_STATUS_ARG_REQUIRED, CMD_SID_LAST_STATUS_ARG_OPTIONAL);
 	static struct sid_status status = {};
+
 	memset(&status, 0, sizeof(status));
 	sid_error_t ret = sid_get_status_delegated(*cli_cfg.app_cxt->sidewalk_handle, &status);
 
@@ -456,11 +481,8 @@ int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **ar
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	if(argc!=2)
-	{
-		return -ENOEXEC;
-	}
-	
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_CONN_REQUEST_ARG_REQUIRED, CMD_SID_CONN_REQUEST_ARG_OPTIONAL);
+
 	bool conn_req = false;
 
 	switch (argv[1][0]) {
@@ -473,7 +495,7 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 		break;
 	}
 	default: {
-		return -ENOEXEC;
+		return -EINVAL;
 	}
 	}
 
@@ -486,9 +508,7 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	if(argc <2){
-		return -ENOEXEC;
-	}
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_GET_TIME_ARG_REQUIRED, CMD_SID_GET_TIME_ARG_OPTIONAL);
 	enum sid_time_format type = 0;
 	struct sid_timespec curr_time;
 
@@ -506,7 +526,7 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 		break;
 	}
 	default: {
-		return -ENOEXEC;
+		return -EINVAL;
 	}
 	}
 
@@ -519,10 +539,7 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	if(argc!=2)
-	{
-		return -ENOEXEC;
-	}
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_DST_ID_ARG_REQUIRED, CMD_SID_SET_DST_ID_ARG_OPTIONAL);
 	uint32_t dst_id = atoi(argv[1]);
 	sid_error_t ret = sid_set_msg_dest_id_delegated(*cli_cfg.app_cxt->sidewalk_handle, dst_id);
 
@@ -533,6 +550,8 @@ int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **arg
 int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_SEND_LINK_ARG_REQUIRED, CMD_SID_SET_SEND_LINK_ARG_OPTIONAL);
+
 	uint32_t opt = atoi(argv[1]);
 
 	switch (opt) {
@@ -553,7 +572,7 @@ int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **
 		break;
 	}
 	default: {
-		return -ENOEXEC;
+		return -EINVAL;
 	}
 	}
 
@@ -563,6 +582,7 @@ int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **
 int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_RSP_ID_ARG_REQUIRED, CMD_SID_SET_RSP_ID_ARG_OPTIONAL);
 	cli_cfg.rsp_msg_id = atoi(argv[1]);
 	return 0;
 }
