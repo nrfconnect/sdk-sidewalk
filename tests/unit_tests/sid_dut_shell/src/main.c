@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
+#include "fff.h"
 #include "toolchain/gcc.h"
 #include "ztest_assert.h"
 #include <asm-generic/errno-base.h>
@@ -59,7 +60,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_init_0_args, test_sid_init,
 		  (struct test_init_parameters){
 	.argc = 1,
 	.argv = (const char *[]){ "init" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_1, test_sid_init,
@@ -98,9 +99,15 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_init_5, test_sid_init,
 		  (struct test_init_parameters){
 	.argc = 2,
 	.argv = (const char *[]){ "init", "5" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_5_1, test_sid_init,
+		  (struct test_init_parameters){
+	.argc = 3,
+	.argv = (const char *[]){ "init", "5", "1" },
+	.return_code = -EINVAL
+})
 // ////////////////////////////////////////////////////////////////////////////
 
 ZTEST(sid_dut_shell_api, test_sid_deinit){
@@ -111,6 +118,16 @@ ZTEST(sid_dut_shell_api, test_sid_deinit){
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
 	zassert_equal(1, sid_deinit_delegated_fake.call_count);
+}
+
+ZTEST(sid_dut_shell_api, test_sid_deinit_1){
+	const char *argv[] = { "deinit", "1" };
+	int argc = sizeof(argv) / sizeof(argv[0]);
+
+	int ret = cmd_sid_deinit(NULL, argc, argv);
+
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
+	zassert_equal(0, sid_deinit_delegated_fake.call_count);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -180,7 +197,14 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_5, test_sid_start,
 		  (struct test_start_parameters){
 	.argc = 2,
 	.argv = (const char *[]){ "start", "5" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_5_1, test_sid_start,
+		  (struct test_start_parameters){
+	.argc = 3,
+	.argv = (const char *[]){ "start", "5", "1" },
+	.return_code = -EINVAL
 })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -249,7 +273,14 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_5, test_sid_stop,
 		  (struct test_stop_parameters){
 	.argc = 2,
 	.argv = (const char *[]){ "stop", "5" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_5_1, test_sid_stop,
+		  (struct test_stop_parameters){
+	.argc = 3,
+	.argv = (const char *[]){ "stop", "5", "1" },
+	.return_code = -EINVAL
 })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -349,20 +380,20 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t4, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 4,
 	.argv = (const char * []){ "send", "-t", "4", "ASCII_text_as_data" },
-	.return_code = -ENOEXEC,
+	.return_code = -EINVAL,
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t_missing, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 3,
 	.argv = (const char * []){ "send", "-t", "ASCII_text_as_data" },
-	.return_code = -ENOEXEC,
+	.return_code = -EINVAL,
 })
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t_missing2, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 2,
 	.argv = (const char * []){ "send", "-t", },
-	.return_code = -ENOEXEC,
+	.return_code = -EINVAL,
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d1, test_sid_send,
@@ -391,27 +422,27 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d0, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 4,
 	.argv = (const char * []){ "send", "-d", "0", "ASCII_text_as_data" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d3, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 4,
 	.argv = (const char * []){ "send", "-d", "3", "ASCII_text_as_data" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d_missing, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 3,
 	.argv = (const char * []){ "send", "-d", "ASCII_text_as_data" },
-	.return_code = -ENOEXEC,
+	.return_code = -EINVAL,
 })
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d_missing2, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 2,
 	.argv = (const char * []){ "send", "-d", },
-	.return_code = -ENOEXEC,
+	.return_code = -EINVAL,
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r1b, test_sid_send,
@@ -447,6 +478,13 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r_with_ascii, test_sid_se
 	.link_mode = SID_LINK_MODE_CLOUD
 })
 
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_no_arg, test_sid_send,
+		  (struct test_send_parameters){
+	.argc = 1,
+	.argv = (const char * []){ "send" },
+	.return_code = -EINVAL,
+})
+
 // ////////////////////////////////////////////////////////////////////////////
 ZTEST(sid_dut_shell_api, test_sid_factory_reset){
 	const char *argv[] = { "factory_reset" };
@@ -456,6 +494,16 @@ ZTEST(sid_dut_shell_api, test_sid_factory_reset){
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
 	zassert_equal(1, sid_set_factory_reset_delegated_fake.call_count);
+}
+
+ZTEST(sid_dut_shell_api, test_sid_factory_reset_1){
+	const char *argv[] = { "factory_reset", "1" };
+	int argc = sizeof(argv) / sizeof(argv[0]);
+
+	int ret = cmd_sid_factory_reset(NULL, argc, argv);
+
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
+	zassert_equal(0, sid_set_factory_reset_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
 
@@ -508,14 +556,21 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_0, test_sid_get_mtu,
 		  (struct test_get_mtu_params){
 	.argc = 2,
 	.argv = (const char * []){ "get_mtu", "0" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_4, test_sid_get_mtu,
 		  (struct test_get_mtu_params){
 	.argc = 2,
 	.argv = (const char * []){ "get_mtu", "4" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_no_arg, test_sid_get_mtu,
+		  (struct test_get_mtu_params){
+	.argc = 1,
+	.argv = (const char * []){ "get_mtu" },
+	.return_code = -EINVAL
 })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -531,6 +586,16 @@ ZTEST(sid_dut_shell_api, test_sid_last_status){
 	zassert_equal(1, sid_get_status_delegated_fake.call_count);
 }
 
+ZTEST(sid_dut_shell_api, test_sid_last_status_arg){
+	const char *argv[] = { "last_status", "1" };
+	int argc = sizeof(argv) / sizeof(argv[0]);
+
+	int ret = cmd_sid_last_status(NULL, argc, argv);
+
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
+	zassert_equal(0, sid_get_status_delegated_fake.call_count);
+}
+
 // ////////////////////////////////////////////////////////////////////////////
 
 ZTEST(sid_dut_shell_api, test_sid_conn_request_invalid){
@@ -539,7 +604,7 @@ ZTEST(sid_dut_shell_api, test_sid_conn_request_invalid){
 
 	int ret = cmd_sid_conn_request(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_ble_bcn_connection_request_delegated_fake.call_count);
 }
 
@@ -620,14 +685,21 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_3, test_sid_get_time,
 		  (struct test_sid_get_time_params){
 	.argc = 2,
 	.argv = (const char * []){ "get_time", "3" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_missing_argument, test_sid_get_time,
 		  (struct test_sid_get_time_params){
 	.argc = 1,
 	.argv = (const char * []){ "get_time" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_invalid_argument_number, test_sid_get_time,
+		  (struct test_sid_get_time_params){
+	.argc = 3,
+	.argv = (const char * []){ "get_time", "1", "2" },
+	.return_code = -EINVAL
 })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -674,7 +746,17 @@ ZTEST(sid_dut_shell_api, test_sid_set_dst_id_invalid_argument){
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
+	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
+}
+
+ZTEST(sid_dut_shell_api, test_sid_set_dst_id_invalid_argument_2){
+	const char *argv[] = { "set_dst_id", "1", "2" };
+	int argc = sizeof(argv) / sizeof(argv[0]);
+
+	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
+
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
 
 }
@@ -765,7 +847,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_1, test_sid_set_
 	.argv = (const char * []) { "option", "-lp_set", "1" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 1,  .rx_window_count = 0} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 1, .rx_window_count = 0 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
@@ -775,287 +857,331 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2, test_sid_set_
 	.argv = (const char * []) { "option", "-lp_set", "2" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_1} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_63, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "63"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "63" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_1} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_315, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "315"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "315" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_2} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_2 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_630, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "630"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "630" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_945, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "945"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "945" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_4} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_4 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_2520, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "2520"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "2520" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_5} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_5 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_3150, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "3150"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "3150" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_6} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_6 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_5040, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "5040"},
+	.argv = (const char * []) { "option", "-lp_set", "2", "5040" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2,  .rx_window_count = 0, .unicast_window_interval.sync_rx_interval_ms=SID_LINK2_RX_WINDOW_SEPARATION_7} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_7 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_0, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "0"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "0" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = 0, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_1, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "1"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "1" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = 1, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 1,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_5, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "5"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "5" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = SID_RX_WINDOW_CNT_2, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_2,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_10, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "10"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "10" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = SID_RX_WINDOW_CNT_3, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_3,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_15, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "15"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "15" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = SID_RX_WINDOW_CNT_4, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_4,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_20, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "20"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "20" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = SID_RX_WINDOW_CNT_5, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_5,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_65535, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "65535"},
+	.argv = (const char * []) { "option", "-lp_set", "128", "65535" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,  .rx_window_count = SID_RX_WINDOW_CONTINUOUS, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_0, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "0"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "0" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = 0, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_1, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "1"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "1" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = 1, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 1,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_5, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "5"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "5" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = SID_RX_WINDOW_CNT_2, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_2,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_10, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "10"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "10" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = SID_RX_WINDOW_CNT_3, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_3,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_15, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "15"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "15" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = SID_RX_WINDOW_CNT_4, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_4,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_20, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "20"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "20" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = SID_RX_WINDOW_CNT_5, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_5,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_65535, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "65535"},
+	.argv = (const char * []) { "option", "-lp_set", "129", "65535" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,  .rx_window_count = SID_RX_WINDOW_CONTINUOUS, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_0, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "0"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "0" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = 0, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_1, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "1"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "1" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = 1, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 1,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_5, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "5"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "5" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = SID_RX_WINDOW_CNT_2, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_2,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_10, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "10"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "10" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = SID_RX_WINDOW_CNT_3, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_3,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_15, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "15"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "15" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = SID_RX_WINDOW_CNT_4, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_4,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_20, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "20"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "20" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = SID_RX_WINDOW_CNT_5, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_5,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_65535, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "65535"},
+	.argv = (const char * []) { "option", "-lp_set", "131", "65535" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,  .rx_window_count = SID_RX_WINDOW_CONTINUOUS, .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3} },
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
 	.len = sizeof(struct sid_device_profile)
 })
 
@@ -1063,14 +1189,14 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_256, test
 		  (struct test_sid_set_option_params){
 	.argc = 3,
 	.argv = (const char * []) { "option", "-b", "256" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0, test_sid_set_option,
 		  (struct test_sid_set_option_params){
 	.argc = 3,
 	.argv = (const char * []) { "option", "-lp_set", "0" },
-	.return_code = -ENOEXEC
+	.return_code = -EINVAL
 })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1083,7 +1209,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_init){
 
 	int ret = cmd_sid_init(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_init_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1093,7 +1219,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_deinit){
 
 	int ret = cmd_sid_deinit(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_deinit_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1104,7 +1230,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_start){
 
 	int ret = cmd_sid_start(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_start_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1114,7 +1240,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_stop){
 
 	int ret = cmd_sid_stop(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_stop_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1124,7 +1250,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_send){
 
 	int ret = cmd_sid_send(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_put_msg_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1134,7 +1260,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_factory_reset){
 
 	int ret = cmd_sid_factory_reset(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_set_factory_reset_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1144,7 +1270,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_get_mtu){
 
 	int ret = cmd_sid_get_mtu(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_get_mtu_delegated_fake.call_count);
 }
 
@@ -1156,7 +1282,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_last_status){
 
 	int ret = cmd_sid_last_status(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_get_status_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1166,7 +1292,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_conn_request){
 
 	int ret = cmd_sid_conn_request(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_ble_bcn_connection_request_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1176,7 +1302,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_get_time){
 
 	int ret = cmd_sid_get_time(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_get_time_delegated_fake.call_count);
 }
 
@@ -1188,7 +1314,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_set_dst_id){
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
@@ -1198,7 +1324,7 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_set_option){
 
 	int ret = cmd_sid_set_option(NULL, argc, argv);
 
-	zassert_equal(-ENOEXEC, ret, "Returned error code %d", ret);
+	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_option_delegated_fake.call_count);
 }
 static void *correct_initialize(void)
@@ -1237,6 +1363,7 @@ void setup(void *fixture)
 	RESET_FAKE(sid_get_time_delegated);
 	RESET_FAKE(sid_set_msg_dest_id_delegated);
 	RESET_FAKE(sid_option_delegated);
+	FFF_RESET_HISTORY();
 }
 
 ZTEST_SUITE(sid_dut_shell_api, NULL, correct_initialize, setup, NULL, NULL);

@@ -8,7 +8,8 @@
 #define SID_DUT_SHELL_H
 
 #include <stdint.h>
-
+#include <zephyr/shell/shell.h>
+#include <sid_thread.h>
 #include <sid_api.h>
 
 #define CMD_SID_INIT_DESCRIPTION "<1,2,3,4>\n"																	    \
@@ -98,9 +99,34 @@
 #define CMD_SID_SET_RSP_ID_DESCRIPTION "<value>\n" \
 	"allow the set ID for RESPONSE type message, this can be use before calling sid send command with message type set as RESPONSE."
 
-
-struct shell;
-struct app_context;
+#define CMD_SID_INIT_ARG_REQUIRED 2
+#define CMD_SID_INIT_ARG_OPTIONAL 0
+#define CMD_SID_DEINIT_ARG_REQUIRED 1
+#define CMD_SID_DEINIT_ARG_OPTIONAL 0
+#define CMD_SID_START_ARG_REQUIRED 1
+#define CMD_SID_START_ARG_OPTIONAL 1
+#define CMD_SID_STOP_ARG_REQUIRED 1
+#define CMD_SID_STOP_ARG_OPTIONAL 1
+#define CMD_SID_SEND_ARG_REQUIRED 2
+#define CMD_SID_SEND_ARG_OPTIONAL 5
+#define CMD_SID_FACTORY_RESET_ARG_REQUIRED 1
+#define CMD_SID_FACTORY_RESET_ARG_OPTIONAL 0
+#define CMD_SID_GET_MTU_ARG_REQUIRED 2
+#define CMD_SID_GET_MTU_ARG_OPTIONAL 0
+#define CMD_SID_SET_OPTION_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_ARG_OPTIONAL 2
+#define CMD_SID_LAST_STATUS_ARG_REQUIRED 1
+#define CMD_SID_LAST_STATUS_ARG_OPTIONAL 0
+#define CMD_SID_CONN_REQUEST_ARG_REQUIRED 2
+#define CMD_SID_CONN_REQUEST_ARG_OPTIONAL 0
+#define CMD_SID_GET_TIME_ARG_REQUIRED 2
+#define CMD_SID_GET_TIME_ARG_OPTIONAL 0
+#define CMD_SID_SET_DST_ID_ARG_REQUIRED 2
+#define CMD_SID_SET_DST_ID_ARG_OPTIONAL 0
+#define CMD_SID_SET_SEND_LINK_ARG_REQUIRED 2
+#define CMD_SID_SET_SEND_LINK_ARG_OPTIONAL 0
+#define CMD_SID_SET_RSP_ID_ARG_REQUIRED 2
+#define CMD_SID_SET_RSP_ID_ARG_OPTIONAL 0
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv);
