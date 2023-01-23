@@ -36,31 +36,19 @@ choice SIDEWALK_LINK_MASK
 config SIDEWALK_LINK_MASK_BLE
 	bool "Bluetooth Low Energy link"
 	depends on SIDEWALK_BLE
-	select SIDEWALK_BLE_ONLY_LIBRARIES
+
 
 config SIDEWALK_LINK_MASK_FSK
 	bool "900 MHz link for FSK"
 	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
-	select SIDEWALK_BLE_AND_900_LIBRARIES
+
 
 config SIDEWALK_LINK_MASK_LORA
 	bool "900 MHz link for LORA"
 	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
-	select SIDEWALK_BLE_AND_900_LIBRARIES
+
 
 endchoice # SIDEWALK_LINK_MASK
-
-config SIDEWALK_BLE_ONLY_LIBRARIES
-	bool
-	depends on SIDEWALK_BLE
-	help
-	    Hidden option to select sidewalk libraries that only support BLE transport
-
-config SIDEWALK_BLE_AND_900_LIBRARIES
-	bool
-	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
-	help
-	    Hidden option to select sidewalk libraries with BLE, LORA, FSK support
 
 config SIDEWALK_BLE
 	bool "Enable Sidewalk Bluetooth Low Energy (BLE) module"
