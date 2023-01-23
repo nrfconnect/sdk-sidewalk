@@ -5,9 +5,9 @@
 #
 
 if (CONFIG_SIDEWALK)
-	if(CONFIG_SIDEWALK_BLE_ONLY_LIBRARIES)
-		add_subdirectory(ble_only)
-	elseif(CONFIG_SIDEWALK_BLE_AND_900_LIBRARIES)
+	if (CONFIG_SIDEWALK_LINK_MASK_FSK OR CONFIG_SIDEWALK_LINK_MASK_LORA)
 		add_subdirectory(lora_fsk)
+	else()
+		add_subdirectory(ble_only)
 	endif()
 endif(CONFIG_SIDEWALK)

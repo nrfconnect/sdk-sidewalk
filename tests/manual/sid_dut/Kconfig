@@ -4,37 +4,24 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-rsource "../../../samples/common/Kconfig.defconfig"
-
-source "Kconfig.zephyr"
-
 config SIDEWALK_DUT_CLI
 	bool "Enable sidewalk CLI"
-  default y
+  	default y
 	imply SHELL
 
 config SIDEWALK_GPIO
-	bool "Enable Sidewalk GPIO module."
-	imply SIDEWALK_LOG
 	default y
 
 config SIDEWALK_SPI_BUS
-	bool "Enable SPI bus interface for sidewalk"
-	imply SPI
-	imply SIDEWALK_GPIO
-	imply PM
-	imply PM_DEVICE
 	default y
 
 config SIDEWALK_TEMPERATURE
-	bool "Enable Sidewalk temperature module"
-	imply SENSOR
-	imply TEMP_NRF5
 	default y
 
-config SIDEWALK_BLE_AND_900_LIBRARIES
-	bool
-	default y
-	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
-	help
-	    Hidden option to select sidewalk libraries with BLE, LORA, FSK support
+choice SIDEWALK_LINK_MASK
+	default SIDEWALK_LINK_MASK_FSK
+endchoice
+
+rsource "../../../samples/common/Kconfig.defconfig"
+
+source "Kconfig.zephyr"
