@@ -266,13 +266,14 @@ static void sidewalk_abort(app_context_t *app_ctx)
 static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mask)
 {
 	if (app_ctx->sidewalk_config.link_mask != link_mask) {
-		LOG_INF("Start Sidewalk link_mask:%x", link_mask);
+		LOG_INF("Start Sidewalk link_mask: %s", LM_2_STR(link_mask));
 
 		sid_error_t ret = SID_ERROR_NONE;
 		if (app_ctx->sidewalk_handle != NULL) {
 			ret = sid_deinit(app_ctx->sidewalk_handle);
 			if (ret != SID_ERROR_NONE) {
-				LOG_ERR("failed to deinitialize sidewalk, link_mask:%x, err:%d", link_mask, (int)ret);
+				LOG_ERR("failed to deinitialize sidewalk, link_mask: %s, err:%d", LM_2_STR(link_mask),
+					(int)ret);
 				sidewalk_abort(app_ctx);
 				return SID_ERROR_GENERIC;
 			}
@@ -283,7 +284,7 @@ static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mas
 		// Initialise sidewalk
 		ret = sid_init(&app_ctx->sidewalk_config, &sid_handle);
 		if (SID_ERROR_NONE != ret) {
-			LOG_ERR("failed to initialize sidewalk link_mask:%x, err:%d", link_mask, (int)ret);
+			LOG_ERR("failed to initialize sidewalk link_mask: %s, err:%d", LM_2_STR(link_mask), (int)ret);
 			switch (ret) {
 			case SID_ERROR_GENERIC: LOG_ERR(
 					"Generic error - check if LoRa/FSK shield is connected correctly");
@@ -304,7 +305,7 @@ static sid_error_t init_and_start_link(app_context_t *app_ctx, uint32_t link_mas
 		// Start the sidewalk stack
 		ret = sid_start(sid_handle, link_mask);
 		if (SID_ERROR_NONE != ret) {
-			LOG_ERR("failed to start sidewalk, link_mask:%x, err:%d", link_mask, (int)ret);
+			LOG_ERR("failed to start sidewalk, link_mask: %s, err:%d", LM_2_STR(link_mask), (int)ret);
 			sidewalk_abort(app_ctx);
 			return SID_ERROR_GENERIC;
 		}
@@ -409,7 +410,7 @@ static void set_device_profile(app_context_t *app_ctx)
 				     &dev_cfg, sizeof(dev_cfg));
 
 	if (ret) {
-		LOG_ERR("Option failed (err %d)", ret);
+		LOG_ERR("Option GET_DEVICE_PROFILE failed (err %d)", ret);
 		return;
 	}
 
@@ -422,9 +423,9 @@ static void set_device_profile(app_context_t *app_ctx)
 		&& set_dp_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms
 		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
 		ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-				 &set_dp_cfg, sizeof(dev_cfg));
+				 &set_dp_cfg, sizeof(set_dp_cfg));
 		if (ret) {
-			LOG_ERR("Option failed (err %d)", ret);
+			LOG_ERR("Option SET_DEVICE_PROFILE failed (err %d)", ret);
 		}
 	} else {
 		LOG_INF("Device profile is already set to the desired value");
@@ -492,27 +493,6 @@ static void set_battery_level(app_context_t *app_ctx)
 	}
 }
 
-#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-static void initialize_radio_busy_gpio(void)
-{
-	LOG_DBG("Init Semtech busy pin");
-	if (SID_ERROR_NONE !=
-	    sid_pal_gpio_set_direction(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_DIRECTION_INPUT)) {
-		LOG_ERR("sid_pal_gpio_set_direction failed");
-		return;
-	}
-	if (SID_ERROR_NONE != sid_pal_gpio_input_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_INPUT_CONNECT)) {
-		LOG_ERR("sid_pal_gpio_input_mode failed");
-		return;
-	}
-	if (SID_ERROR_NONE != sid_pal_gpio_pull_mode(radio_sx1262_cfg.gpio_radio_busy, SID_PAL_GPIO_PULL_NONE)) {
-		LOG_ERR("sid_pal_gpio_pull_mode failed");
-		return;
-	}
-}
-
-#endif
-
 #if CONFIG_SIDEWALK_DFU_SERVICE_BLE
 static void sid_dfu_switch_state(app_context_t *app_ctx)
 {
@@ -555,7 +535,6 @@ static sid_error_t sid_pal_init(void)
 	sid_pal_mfg_store_init(mfg_store_region);
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-	initialize_radio_busy_gpio();
 	set_radio_sx126x_device_config(&radio_sx1262_cfg);
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
