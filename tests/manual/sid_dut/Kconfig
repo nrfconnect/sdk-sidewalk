@@ -22,6 +22,9 @@ choice SIDEWALK_LINK_MASK
 	default SIDEWALK_LINK_MASK_FSK
 endchoice
 
+config SHELL_CMD_BUFF_SIZE
+	default 1024
+
 rsource "../../../samples/common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
