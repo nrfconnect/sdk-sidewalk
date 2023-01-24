@@ -11,9 +11,9 @@
 #include <sid_ble_vnd_service.h>
 #include <sid_ble_adapter_callbacks.h>
 
-#include <bluetooth/uuid.h>
-#include <bluetooth/gatt.h>
-#include <logging/log.h>
+#include <zephyr/bluetooth/uuid.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(sid_ble_vnd_srv, CONFIG_SIDEWALK_LOG_LEVEL);
 
