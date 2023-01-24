@@ -26,8 +26,8 @@
 #define CLI_CMD_OPT_LINK_LORA       3
 #define CLI_CMD_OPT_LINK_LORA_BLE   4
 
-#define CLI_MAX_DATA_LEN            256
-#define CLI_MAX_HEX_STR_LEN         (CLI_MAX_DATA_LEN * 2)
+#define CLI_MAX_DATA_LEN            (CONFIG_SHELL_CMD_BUFF_SIZE / 2)
+#define CLI_MAX_HEX_STR_LEN         CONFIG_SHELL_CMD_BUFF_SIZE
 
 #define CHECK_SHELL_INITIALIZED(shell, cli_cfg)					   \
 	if (cli_cfg.app_cxt == NULL || cli_cfg.app_cxt->sidewalk_handle == NULL) { \
