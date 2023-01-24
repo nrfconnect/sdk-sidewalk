@@ -22,7 +22,7 @@
 #include <sid_ble_connection.h>
 
 #if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
-#include <bluetooth/controller.h>
+#include <zephyr/bluetooth/controller.h>
 #endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
 #include <zephyr/bluetooth/bluetooth.h>
