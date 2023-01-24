@@ -21,7 +21,8 @@
 #include <sx126x_config.h>
 #include <sid_pal_gpio_ifc.h>
 #include <sid_900_cfg.h>
-#include <spi_bus.h>
+#include <sid_pal_serial_bus_ifc.h>
+#include <sid_pal_serial_bus_spi_config.h>
 #endif
 
 #if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
@@ -179,10 +180,8 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 #define RADIO_MAX_CAD_SYMBOL                                       SID_PAL_RADIO_LORA_CAD_04_SYMBOL
 #define RADIO_ANT_GAIN(X)                                          ((X) * 100)
 
-static const halo_serial_bus_factory_t radio_spi_factory =
-{
-	.create = bus_serial_ncs_spi_create,
-	.config = NULL,
+static const struct sid_pal_serial_bus_factory radio_spi_factory = {
+	.create = sid_pal_serial_bus_nordic_spi_create,
 };
 
 static uint8_t radio_sx1262_buffer[RADIO_SX1262_SPI_BUFFER_SIZE] = { 0 };
@@ -242,7 +241,10 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.gpio_radio_busy = 36,          // sx1262_BUSY
 	.gpio_rf_sw_ena = 42,           // sx1262 ANT_SW
 	.gpio_tx_bypass = 128,
-	.bus_selector = (halo_serial_bus_client_t){ .client_selector = 40 },
+	.bus_selector = {
+		.client_selector = 40, // sx1262_NSS
+		.bit_order = SID_PAL_SERIAL_BUS_BIT_ORDER_MSB_FIRST,
+	},
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
@@ -267,7 +269,7 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 		.size = sizeof(radio_sx1262_buffer),
 	},
 };
-#endif
+#endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
 
 static sid_error_t sid_pal_init(void)
 {
