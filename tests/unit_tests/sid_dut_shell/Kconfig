@@ -1,1 +1,4 @@
 source "Kconfig.zephyr"
+
+config SHELL_CMD_BUFF_SIZE
+	default 1024

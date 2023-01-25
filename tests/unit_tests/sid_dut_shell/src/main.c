@@ -26,6 +26,8 @@
 static struct sid_handle *sidewalk_handle = NULL;
 static struct app_context app_ctx_valid;
 static struct sid_config sid_cfg_valid;
+static struct app_context app_ctx_invalid;
+static struct sid_config sid_cfg_invalid;
 
 #define PARAMETRIZED_TEST(siute, name, test_foo, ...) ZTEST(siute, name){ test_foo(__VA_ARGS__); }
 
@@ -1337,13 +1339,9 @@ static void *correct_initialize(void)
 
 static void *NULL_initialize(void)
 {
-	struct app_context app_ctx;
-
-	memset(&app_ctx, 0, sizeof(app_ctx));
-	struct sid_config sid_cfg;
-
-	memset(&sid_cfg, 0, sizeof(sid_cfg));
-	initialize_sidewalk_shell(&sid_cfg, &app_ctx);
+	memset(&app_ctx_invalid, 0, sizeof(app_ctx_invalid));
+	memset(&sid_cfg_invalid, 0, sizeof(sid_cfg_invalid));
+	initialize_sidewalk_shell(&sid_cfg_invalid, &app_ctx_invalid);
 	return NULL;
 }
 
