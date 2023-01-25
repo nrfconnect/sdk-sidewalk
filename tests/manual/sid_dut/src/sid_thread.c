@@ -61,6 +61,16 @@ static struct sid_event_callbacks event_callbacks = {
 	.on_factory_reset = on_sidewalk_factory_reset,          /* Called from sid_process */
 };
 
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+static const struct sid_sub_ghz_links_config sub_ghz_link_config = {
+		.enable_link_metrics = true,
+		.registration_config = {
+			.enable = true,
+			.periodicity_s = UINT32_MAX,
+		},
+	};
+#endif
+
 static const sid_ble_link_config_t ble_link_config = {
 	.create_ble_adapter = sid_pal_ble_adapter_create,
 	.config = NULL,
@@ -69,6 +79,12 @@ static const sid_ble_link_config_t ble_link_config = {
 static struct sid_config config = {
 	.callbacks = &event_callbacks,
 	.link_config = &ble_link_config,
+	.time_sync_periodicity_seconds = 7200,
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+	.sub_ghz_link_config = &sub_ghz_link_config,
+#else
+	.sub_ghz_link_config = NULL,
+#endif
 };
 
 // ////////////////////////////////////////////////////////////////////////////
