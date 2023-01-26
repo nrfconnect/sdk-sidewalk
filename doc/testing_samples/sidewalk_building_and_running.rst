@@ -45,13 +45,23 @@ Standard building and running the sample
 
    * Build with overlay:
 
-      .. code-block:: console
+   .. tabs::
 
-         $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="lora.conf"
+      .. group-tab:: LoRa
 
-      Alternatively, you can use VS Code to add the build configuration:
+         .. code-block:: console
 
-         .. figure:: /images/vscode_build_LoRa.png
+            $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="lora.conf"
+
+      .. group-tab:: FSK
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="fsk.conf"
+
+   Alternatively, you can use VS Code to add the build configuration:
+
+      .. figure:: /images/vscode_build_LoRa.png
 
    .. note::
       For more details on building with west, see the `West building flashing and debugging`_ documentation.

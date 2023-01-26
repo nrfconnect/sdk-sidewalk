@@ -24,56 +24,58 @@ The following configurations are available for Sidewalk:
 Memory layout
 *************
 
+To see how the memory is allocated for the BLE-only and template samples, refer to the table below:
+
 .. tabs::
 
   .. group-tab:: BLE-only
 
     .. code::
     
-      flash_primary (0x100000 - 1024kB): 
-      +-------------------------------------------------+
-      | 0x0: mcuboot (0x7000 - 28kB)                    |
-      +---0x7000: mcuboot_primary (0x7b000 - 492kB)-----+
-      | 0x7000: mcuboot_pad (0x200 - 512B)              |
-      +---0x7200: mcuboot_primary_app (0x7ae00 - 491kB)-+
-      | 0x7200: app (0x7ae00 - 491kB)                   |
-      +-------------------------------------------------+
-      | 0x82000: mcuboot_secondary (0x7b000 - 492kB)    |
-      | 0xfd000: settings_storage (0x2000 - 8kB)        |
-      | 0xff000: mfg_storage (0x1000 - 4kB)             |
-      +-------------------------------------------------+
+        flash_primary (0x00000000 - 0x000fffff):
+      +-------------------------------------------------------+
+      | 0x00000000 - 0x00006fff: mcuboot (28kB)               |
+      +---mcuboot_primary (480kB)-----------------------------+
+      | 0x00007000 - 0x000071ff: mcuboot_pad (512B)           |
+      | 0x00072000 - 0x0007efff: mcuboot_primary_app (479.5kB)|
+      +-------------------------------------------------------+
+      | 0x0007f000 - 0x000f6fff: mcuboot_secondary (480kB)    |
+      | 0x000f7000 - 0x000f8fff: settings_storage (8kB)       |
+      | 0x000f9000 - 0x000fefff: sidewalk_storage (24kB)      |
+      | 0x000ff000 - 0x000fffff: mfg_storage (4kB)            |
+      +-------------------------------------------------------+
 
-        sram_primary (0x40000 - 256kB): 
-      +--------------------------------------------+
-      | 0x20000000: sram_primary (0x40000 - 256kB) |
-      +--------------------------------------------+
+        sram_primary (0x20000000 - 0x2003ffff):
+      +-------------------------------------------------------+
+      | 0x20000000 - 0x2003ffff: sram_primary (256kB)         |
+      +-------------------------------------------------------+
 
   .. group-tab:: Template
      
     .. code::
 
-      external_flash (0x800000 - 8192kB): 
-      +---------------------------------------------+
-      | 0x0: mcuboot_secondary (0xf6000 - 984kB)    |
-      | 0xf6000: external_flash (0x70a000 - 7208kB) |
-      +---------------------------------------------+
+        external_flash (0x00000000 - 0x007fffff):
+      +-------------------------------------------------------+
+      | 0x00000000 - 0x000eefff: mcuboot_secondary (956kB)    |
+      | 0x000ef000 - 0x007fffff: external_flash (7.07MB)      |
+      +-------------------------------------------------------+
 
-        flash_primary (0x100000 - 1024kB): 
-      +-------------------------------------------------+
-      | 0x0: mcuboot (0x7000 - 28kB)                    |
-      +---0x7000: mcuboot_primary (0xf6000 - 984kB)-----+
-      | 0x7000: mcuboot_pad (0x200 - 512B)              |
-      +---0x7200: mcuboot_primary_app (0xf5e00 - 983kB)-+
-      | 0x7200: app (0xf5e00 - 983kB)                   |
-      +-------------------------------------------------+
-      | 0xfd000: settings_storage (0x2000 - 8kB)        |
-      | 0xff000: mfg_storage (0x1000 - 4kB)             |
-      +-------------------------------------------------+
+        flash_primary (0x00000000 - 0x000fffff):
+      +-------------------------------------------------------+
+      | 0x00000000 - 0x00006fff: mcuboot (28kB)               |
+      +---mcuboot_primary (480kB)-----------------------------+
+      | 0x00007000 - 0x000071ff: mcuboot_pad (512B)           |
+      | 0x00072000 - 0x000f5fff: mcuboot_primary_app (955.5kB)|
+      +-------------------------------------------------------+
+      | 0x000f6000 - 0x000f7fff: settings_storage (8kB)       |
+      | 0x000f8000 - 0x000fefff: sidewalk_storage (28kB)      |
+      | 0x000ff000 - 0x000fffff: mfg_storage (4kB)            |
+      +-------------------------------------------------------+
 
-        sram_primary (0x40000 - 256kB): 
-      +--------------------------------------------+
-      | 0x20000000: sram_primary (0x40000 - 256kB) |
-      +--------------------------------------------+
+        sram_primary (0x20000000 - 0x2003ffff):
+      +-------------------------------------------------------+
+      | 0x20000000 - 0x2003ffff: sram_primary (256kB)         |
+      +-------------------------------------------------------+
 
 
 DFU Services
