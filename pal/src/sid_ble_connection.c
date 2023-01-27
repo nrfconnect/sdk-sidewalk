@@ -102,9 +102,13 @@ const sid_ble_conn_params_t *sid_ble_conn_params_get(void)
 void sid_ble_conn_init(void)
 {
 	p_conn_params_out = &conn_params;
+	static bool bt_conn_registered;
 
-	bt_conn_cb_register(&conn_callbacks);
-	bt_gatt_cb_register(&gatt_callbacks);
+	if (!bt_conn_registered) {
+		bt_conn_cb_register(&conn_callbacks);
+		bt_gatt_cb_register(&gatt_callbacks);
+		bt_conn_registered = true;
+	}
 }
 
 int sid_ble_conn_disconnect(void)
