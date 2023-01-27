@@ -123,6 +123,4 @@ int sid_ble_conn_disconnect(void)
 void sid_ble_conn_deinit(void)
 {
 	p_conn_params_out = NULL;
-	bt_conn_cb_register(NULL);
-	bt_gatt_cb_register(NULL);
 }

@@ -120,7 +120,7 @@ void test_sid_ble_conn_positive(void)
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
 
-	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[1];
+	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
 	__cmock_sid_ble_adapter_conn_connected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
@@ -260,7 +260,7 @@ void test_sid_ble_cb_set_before_init(void)
 	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
 	__cmock_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
 
-	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[1];
+	struct bt_conn_cb *p_test_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL_MESSAGE(p_test_conn_cb, "Can't get bluetooth connection callback");
 
 	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
