@@ -5,12 +5,12 @@
 	"name": "sidewalk",
 	"mounts": [
 		"source=/dev,target=/dev,type=bind",
-		"source=/run/udev,target=/run/udev,type=bind,readonly",
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+		"source=/run/udev,target=/run/udev,type=bind,readonly"
 	],
 	"runArgs": [
 		"--privileged",
-		"--name", "nrf-sidewalk"
+		"--name", "nrf-sidewalk",
+		"--network=host"
 	],
 	"remoteUser": "vscode",
 	"updateRemoteUserUID": true,
@@ -55,7 +55,6 @@
 		}
 	},
 	"features": {
-		"git": "latest",
 		"git-lfs": "latest"
 	}
 }
