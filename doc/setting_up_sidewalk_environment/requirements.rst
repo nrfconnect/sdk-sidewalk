@@ -5,7 +5,7 @@ Requirements
 
 Ensure the requirements below are met:
 
-#. You are either located in US or have a VPN set up to simulate connection from US.
+#. You are located in the US.
 
    .. note::
        If you set up a non-US location during the account creation, Sidewalk might not be available.
