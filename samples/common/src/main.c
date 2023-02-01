@@ -40,8 +40,8 @@ static int board_init(void)
 	button_set_action(DK_BTN2, sidewalk_event, EVENT_TYPE_CONNECTION_REQUEST);
 	button_set_action_short_press(DK_BTN4, sidewalk_event, EVENT_TYPE_SET_BATTERY_LEVEL);
 #else
-	button_set_action(DK_BTN2, sidewalk_event, EVENT_TYPE_SET_DEVICE_PROFILE);
-	button_set_action_short_press(DK_BTN4, sidewalk_event, EVENT_TYPE_SEND_HELLO);
+	button_set_action_short_press(DK_BTN2, sidewalk_event, EVENT_TYPE_GET_DEVICE_PROFILE);
+	button_set_action_long_press(DK_BTN2, sidewalk_event, EVENT_TYPE_SET_DEVICE_PROFILE);
 #endif
 	button_set_action(DK_BTN3, sidewalk_event, EVENT_TYPE_SEND_HELLO);
 	button_set_action_long_press(DK_BTN4, sidewalk_event, EVENT_TYPE_NORDIC_DFU);
