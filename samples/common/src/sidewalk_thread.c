@@ -84,13 +84,45 @@ static app_context_t app_ctx = {
 
 struct notifier_ctx global_state_notifier;
 
-#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-static struct sid_device_profile set_dp_cfg = {
-	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A,
-	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_2,
-	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK)
+static struct sid_device_profile profile_light = {
+	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3,
+	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
-static struct sid_device_profile dev_cfg;
+
+static struct sid_device_profile profile_fast = {
+	.unicast_params.device_profile_id = SID_LINK2_PROFILE_2,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3,
+	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
+};
+
+static struct sid_device_profile profile_from_dev = {
+	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1
+};
+#elif defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+static struct sid_device_profile profile_light = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A,
+	.unicast_params.rx_window_count =  SID_RX_WINDOW_CNT_2,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
+};
+
+static struct sid_device_profile profile_fast = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_B,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
+};
+
+static struct sid_device_profile profile_from_dev = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A
+};
+#endif
+
+#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 #define REGION_US915
 
 /* This product has no external PA and SX1262 can support max of 22dBm*/
@@ -404,32 +436,38 @@ static void connection_request(app_context_t *app_ctx)
 }
 
 #else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
-static void set_device_profile(app_context_t *app_ctx)
+static void device_profile_get(app_context_t *app_ctx)
 {
 	sid_error_t ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
-				     &dev_cfg, sizeof(dev_cfg));
+				     &profile_from_dev, sizeof(profile_from_dev));
 
 	if (ret) {
-		LOG_ERR("Option GET_DEVICE_PROFILE failed (err %d)", ret);
+		LOG_ERR("Profile get failed (err %d)", ret);
 		return;
 	}
 
-	if (set_dp_cfg.unicast_params.device_profile_id != dev_cfg.unicast_params.device_profile_id
-	    || set_dp_cfg.unicast_params.rx_window_count != dev_cfg.unicast_params.rx_window_count
-	    || (set_dp_cfg.unicast_params.device_profile_id < SID_LINK3_PROFILE_A
-		&& set_dp_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms
-		!= dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms)
-	    || (set_dp_cfg.unicast_params.device_profile_id >= SID_LINK3_PROFILE_A
-		&& set_dp_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms
-		!= dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms)) {
-		ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-				 &set_dp_cfg, sizeof(set_dp_cfg));
-		if (ret) {
-			LOG_ERR("Option SET_DEVICE_PROFILE failed (err %d)", ret);
-		}
+	LOG_INF("Profile id 0x%x", profile_from_dev.unicast_params.device_profile_id);
+	LOG_INF("Profile dl count %d", profile_from_dev.unicast_params.rx_window_count);
+	LOG_INF("Profile dl interval %d", profile_from_dev.unicast_params.unicast_window_interval.async_rx_interval_ms);
+	LOG_INF("Profile wakeup %d", profile_from_dev.unicast_params.wakeup_type);
+}
+
+static void device_profile_set(app_context_t *app_ctx)
+{
+	static struct sid_device_profile *new_profile = &profile_light;
+
+	LOG_INF("Profile set %s", (&profile_light == new_profile) ? "light" : "fast");
+
+	sid_error_t ret = sid_option(app_ctx->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE, new_profile,
+				     sizeof(*new_profile));
+
+	if (!ret) {
+		new_profile = (&profile_light == new_profile) ? &profile_fast : &profile_light;
+		LOG_INF("Profile set success.");
 	} else {
-		LOG_INF("Device profile is already set to the desired value");
+		LOG_ERR("Profile set failed (err %d)", ret);
 	}
+
 }
 
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
@@ -664,14 +702,14 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 				break;
 			}
 #else /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
+			case EVENT_TYPE_GET_DEVICE_PROFILE:
+			{
+				device_profile_get(app_ctx);
+				break;
+			}
 			case EVENT_TYPE_SET_DEVICE_PROFILE:
 			{
-				if (app_ctx->sidewalk_config.link_mask != LINK_MASK) {
-					if (SID_ERROR_NONE != init_and_start_link(app_ctx, LINK_MASK)) {
-						return;
-					}
-				}
-				set_device_profile(app_ctx);
+				device_profile_set(app_ctx);
 				break;
 			}
 #endif /* !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
