@@ -94,13 +94,16 @@ To use a long press action, hold a button for 2 seconds or longer, and release i
 
    .. group-tab:: LoRa/FSK
 
-      * Button 1:
+      * Button 1 (long press):
          Factory reset.
 
-      * Button 2:
-         Set Device Profile.
+      * Button 2 (short press):
+         Get current Device Profiles.
 
-      * Button 3 and Button 4 (short press):
+      * Button 2 (long press):
+         Switch between Device Profiles.
+
+      * Button 3:
          Send Hello.
 
       * Button 4 (long press):
