@@ -215,6 +215,76 @@ Testing Device Firmware Update (DFU)
    If the update completes successfully, the device will start a new image.
    However, if the update fails, you will still be able to see the old image.
 
+Testing Power Profiles
+**********************
+
+Power profiles are available for 900 MHz radio communication like LoRa or FSK.
+For more information about Sidewalk Power Profiles, refer to the Sidewalk Protocol Specification.
+
+.. Link to the Sidewalk Protocol Specification page will be included during the release in March.
+
+The following profiles are available in the template application:
+
++-------+-------------------+----------------------+--------------+-------------+
+| Name  | Power consumption | Messages may be lost | LoRa profile | FSK profile |
++=======+===================+======================+==============+=============+
+| Light | Lower             | Yes                  | A            | 1           |
++-------+-------------------+----------------------+--------------+-------------+
+| Fast  | Higher            | No                   | B            | 2           |
++-------+-------------------+----------------------+--------------+-------------+
+
+To test power profiles. complete the following steps:
+
+#. Build and flash the template application with the LoRa or FSK link mask.
+
+   .. code-block:: console
+
+       [00:00:00.000,915] <inf> sid_template: Sidewalk example started!
+       ----------------------------------------------------------------
+       sidewalk             v1.14.0-6-gf586541-dirty
+       nrf                  v2.2.0
+       zephyr               v3.2.99-ncs1
+       ----------------------------------------------------------------
+       sidewalk_fork_point = 28f9d7955a00020715308d0c639013fc5f9db930
+       build time          = 2023-02-01 10:44:17.326681+00:00
+       ----------------------------------------------------------------
+       [00:00:00.001,251] <inf> sid_template: Marked image as OK
+       [00:00:00.063,476] <inf> sid_thread: Initializing sidewalk, built-in LoRa link mask
+
+#. Switch to LoRa or FSK by short pressing **Button 3**.
+
+   .. code-block:: console
+
+       [00:00:07.487,487] <inf> button: button pressed 3 short
+       [00:00:07.487,609] <inf> sid_thread: Start Sidewalk link_mask: LoRa
+
+   Wait a few seconds until you see the following output:
+
+   .. code-block:: console
+
+       [00:00:15.017,425] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
+       [00:00:15.017,486] <inf> sid_thread: Link mode cloud, on lora
+
+#. Set the power profile.
+   Long press **Button 2** to switch between the light and fast profiles.
+
+   .. code-block:: console
+
+       [00:00:29.375,732] <inf> button: button pressed 2 short
+       [00:00:29.375,854] <inf> sid_thread: Profile set fast
+       [00:00:29.375,976] <inf> sid_thread: Profile set success.
+
+#. Get the current profile by short pressing **Button 2**.
+
+   .. code-block:: console
+
+       [00:00:35.433,441] <inf> button: button pressed 2 long
+       [00:00:35.433,654] <inf> sid_thread: Profile id 0x81
+       [00:00:35.433,654] <inf> sid_thread: Profile dl count 0
+       [00:00:35.433,685] <inf> sid_thread: Profile dl interval 5000
+       [00:00:35.433,685] <inf> sid_thread: Profile wakeup 0
+
+
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
 .. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 .. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
