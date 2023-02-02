@@ -48,21 +48,6 @@ When Git LFS in not installed, the following build error appears:
    ld.bfd: sidewalk/lib/libsid_api.a: file format not recognized; treating as linker script
    ld.bfd: sidewalk/lib/libsid_api.a:1: syntax error
 
-Getting Started
-***************
-
-You can initialize this repository with west, similarly to the `sdk-nrf`_ repository.
-To do this, you need to replace ``sdk-nrf`` with ``sdk-sidewalk``, as shown below:
-
-.. parsed-literal::
-   :class: highlight
-
-   west init -m https:\ //github.com/nrfconnect/sdk-sidewalk *your-ncs-dir*
-   cd *your-ncs-dir*
-   west update
-
-See :ref:`zephyr:west-basics` for more details.
-
 Documentation
 *************
 
