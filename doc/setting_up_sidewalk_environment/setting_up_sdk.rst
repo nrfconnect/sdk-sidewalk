@@ -14,15 +14,11 @@ You can set up your device by following one of the installation methods below:
 
    .. tab:: Automatic installation (Toolchain Manager)
 
-      Complete the automatic installation by following the `Toolchain Manager`_ installation guide.
+      Complete the automatic installation by following the `Installing automatically`_ guide.
 
    .. tab:: Manual installation
 
-      Manually install the listed tools to build and flash the nRF Connect SDK applications:
-
-      * `Jlink tools`_ to interract with debugger embedded on Development board
-      * `nrf tools`_ to flash an image on a board
-      * `Zephyr toolchain`_ to build application for development board
+      Complete the manual installation by following the `Installing manually`_ guide.
 
    .. tab:: VSCode Dev Container (experimental, Linux only)
 
@@ -54,8 +50,8 @@ For additional information regarding setting up the device and familiarizing you
 
 .. _dk_building_sample_app:
 
-Building sample application and flash certificates
-**************************************************
+Downloading Sidewalk repository
+*******************************
 
 #. Install nRF Connect SDK with its dependencies.
 
@@ -97,7 +93,8 @@ To download nRF Command Line, go to `nRF command line tools`_ page.
 .. _Jlink tools: https://www.segger.com/downloads/jlink/
 .. _nrf tools: https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
 .. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_installing.html#install-a-toolchain
-.. _Toolchain Manager: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html#id5
+.. _Installing automatically: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html#installing-automatically
+.. _Installing manually: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_installing.html#install-the-required-tools
 .. _Docker: https://docs.docker.com/engine/install/ubuntu/
 .. _nRF_command_line_tools: https://infocenter.nordicsemi.com/topic/ug_nrf_cltools/UG/cltools/nrf_installation.html
 .. _nRF Sidewalk Repository: https://github.com/nrfconnect/sdk-sidewalk

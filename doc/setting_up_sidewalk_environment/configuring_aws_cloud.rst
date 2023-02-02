@@ -1,5 +1,5 @@
 
-.. _configuring_aws_cloud:
+.. _configuring_aws_cloud_cli:
 
 Configuring AWS Cloud
 #####################
@@ -19,14 +19,14 @@ The data flow between your Sidewalk Endpoint and cloud service is as follows:
 
    * AWS IoT SendDataToWirelessDevice API → Sidewalk → Sidewalk Endpoint via Sidewalk SDK.
 
-.. _configuring_aws_cloud_req:
+.. _configuring_aws_cloud_req_cli:
 
 Requirements
 ************
 
 * Ensure your AWS user account has the required IAM permissions to proceed with certain administrative operations.
 
-.. _configuring_aws_cloud_association:
+.. _configuring_aws_cloud_association_cli:
 
 Associating Sidewalk product with AWS IoT Core
 **********************************************
@@ -37,7 +37,7 @@ You can connect Sidewalk devices to AWS IoT by using the `AWS Management Console
 #. Follow instructions below to add destination and AWS IoT rule for the profile and Sidewalk endpoints.
 
 
-.. _configuring_aws_Lambda_function:
+.. _configuring_aws_Lambda_function_cli:
 
 Creating function using AWS Lambda
 **********************************
@@ -86,7 +86,7 @@ Creating function using AWS Lambda
 
    .. figure:: /images/LambdaFunctions-FunctionsList.jpg
 
-.. _configuring_destination_rule:
+.. _configuring_destination_rule_cli:
 
 Creating Sidewalk destination rule
 **********************************
