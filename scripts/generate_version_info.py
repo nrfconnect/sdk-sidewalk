@@ -4,8 +4,12 @@
  
 
 import subprocess
-import git
 import os
+
+try:
+    import git
+except ImportError as e:
+    raise Exception("GitPython module not found! install packages from `sidewalk/requirements.txt`")
 
 NCS_DIR = os.path.abspath(os.path.join(__file__, "../../.."))
 
