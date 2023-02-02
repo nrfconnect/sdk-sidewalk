@@ -401,7 +401,7 @@ int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **arg
 		}
 
 		static struct sid_device_profile dev_cfg;
-		dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = arg1 } };
+		dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = arg1, .wakeup_type=SID_TX_AND_RX_WAKEUP } };
 		if (IS_LINK3_PROFILE_ID(arg1) && argc == 4) {
 			dev_cfg.unicast_params.rx_window_count = atoi(argv[3]);
 			dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms =
