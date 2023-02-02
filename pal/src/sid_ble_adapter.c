@@ -18,6 +18,7 @@
 #include <sid_ble_log_service.h>
 #endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
 #include <sid_ble_adapter_callbacks.h>
+#include <sid_ble_adapter.h>
 #include <sid_ble_advert.h>
 #include <sid_ble_connection.h>
 
@@ -31,8 +32,12 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/settings/settings.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/atomic.h>
 
 LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_LOG_LEVEL);
+
+K_SEM_DEFINE(ble_disconnect_complete, 0, 1);
+static atomic_t manual_disconnect = ATOMIC_INIT(false);
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg);
 static sid_error_t ble_adapter_start_service(void);
@@ -223,15 +228,25 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 	return SID_ERROR_NONE;
 }
 
+void ble_adapter_disconnect_completed(void){
+	if (atomic_test_bit(&manual_disconnect, 1)) {
+		k_sem_give(&ble_disconnect_complete);
+	}
+}
+
 static sid_error_t ble_adapter_disconnect(void)
 {
+	atomic_set_bit(&manual_disconnect, 1);
 	int err = sid_ble_conn_disconnect();
 
 	if (err) {
 		LOG_ERR("Disconnection failed (err %d)", err);
+		atomic_clear_bit(&manual_disconnect, 1);
 		return SID_ERROR_GENERIC;
 	}
 
+	k_sem_take(&ble_disconnect_complete, K_FOREVER);
+	atomic_clear_bit(&manual_disconnect, 1);
 	return SID_ERROR_NONE;
 }
 

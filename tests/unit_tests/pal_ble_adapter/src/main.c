@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
+#include "zephyr/kernel.h"
 #include <unity.h>
 #include <zephyr/fff.h>
 
@@ -341,6 +342,8 @@ void test_ble_adapter_disconnect(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
 	__cmock_sid_ble_conn_disconnect_ExpectAndReturn(ESUCCESS);
+	extern struct k_sem ble_disconnect_complete;
+	k_sem_give(&ble_disconnect_complete);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->disconnect());
 
 	__cmock_sid_ble_conn_disconnect_ExpectAndReturn(-ENOENT);

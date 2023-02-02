@@ -9,15 +9,17 @@
  */
 
 #include <sid_ble_adapter_callbacks.h>
-
+#include <sid_ble_adapter.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/atomic.h>
 #include <zephyr/types.h>
 
-#define CALLBACK_SET(__target_cb, __source_cb)		       \
+#define CALLBACK_SET(__target_cb, __source_cb)	       \
 	do {					       \
-		if (NULL == __source_cb) {		       \
+		if (NULL == __source_cb) {	       \
 			return SID_ERROR_INVALID_ARGS; \
 		}				       \
-		__target_cb = __source_cb;		       \
+		__target_cb = __source_cb;	       \
 	} while (0)
 
 static sid_pal_ble_data_callback_t data_cb;
@@ -81,6 +83,7 @@ void sid_ble_adapter_conn_connected(const uint8_t *ble_addr)
 
 void sid_ble_adapter_conn_disconnected(const uint8_t *ble_addr)
 {
+	ble_adapter_disconnect_completed();
 	if (connection_cb) {
 		connection_cb(false, (uint8_t *)ble_addr);
 	}
@@ -111,4 +114,3 @@ void sid_ble_adapter_adv_started(void)
 		adv_start_cb();
 	}
 }
-
