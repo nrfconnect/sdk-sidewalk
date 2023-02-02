@@ -1,4 +1,13 @@
-import git
+# Copyright (c) 2023 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+
+try:
+    import git
+except ImportError as e:
+    raise Exception("GitPython module not found! install packages from `sidewalk/requirements.txt`")
+    exit(-1) 
+
 from pathlib import Path
 import os
 import re
