@@ -100,8 +100,11 @@ To use a long press action, hold a button for 2 seconds or longer, and release i
       * Button 2:
          Set Device Profile.
 
-      * Button 3 and Button 4 (short press):
+      * Button 3:
          Send Hello.
+
+      * Button 4 (short press):
+         Set fake battery level.
 
       * Button 4 (long press):
          Enter DFU state.

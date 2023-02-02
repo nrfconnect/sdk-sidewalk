@@ -5,27 +5,6 @@ Release notes
 
 See the release notes for the information about specific Sidewalk support releases for nRF Connect SDK.
 
-[v1.14.0] - 24/01/2023
-----------------------------
-* Used Sidewalk libraries 1.14.0.
-* Added "Experimental symbol SIDEWALK is enabled" info to build.
-* Added sid_dut for manual and certification tests.
-* Added application for power consumption analysis.
-* Added new unit and manual tests.
-* Updated documentation.
-* Added debug and release configuration.
-* Power consumption optimization.
-* Added DFU service to Sidewalk application.
-* Added configuration for FSK.
-* Fixed known issues:
-
-    * KRKNWK-14728: End Node sporadically freezes on LoRa.
-    * KRKNWK-14235: When using No Optimization (-O0), the Zephyr assertion fails in Sidewalk init.
-* Limitation:
-
-    * Dynamic FSK-WAN Profile switching from 2 to 1 is prohibited.
-    * User account can have one FSK gateway per location.
-
 [v1.13.0] - 11/04/2022
 ----------------------------
 
