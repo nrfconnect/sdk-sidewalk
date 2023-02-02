@@ -11,7 +11,6 @@ Creating Login with Amazon (LwA) security profile
 *************************************************
 
 #. Connect to `Dashboard`_ and log in with your Amazon credentials.
-   Credentials are the same as the ones you used to provision your Sidewalk device certificates within the Sidewalk console in :ref:`endpoints_config_provisioning`.
 
 #. Go to the :guilabel:`Login with Amazon` tab.
 
