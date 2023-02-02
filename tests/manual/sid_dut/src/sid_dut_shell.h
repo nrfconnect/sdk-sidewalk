@@ -62,10 +62,8 @@
 	"\"-lp_set 1\" - for SID_LINK2_PROFILE_1\".\n"															    \
 	"\"-lp_set 2 <rx_int>\" - for SID_LINK2_PROFILE_2 with optional rx_int parameter\".\n"										    \
 	"	<rx_int> Specifies DL interval between rx opportunities in units of ms. The value must be a multiple of 63ms. When ommitted the default value of 63ms is used.\n"\
-	"\"-lp_set 0x80 <rxwc>\" - for SID_LINK3_PROFILE_A, where <rxwc> is the rx_window count parameter.\n"								    \
-	"\"-lp_set 0x81 <rxwc>\" - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter.\n"								    \
-	"\"-lp_set 0x83 <rxwc>\" - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter.\n"								    \
-	"	<rxwc> - (uint8) rx window count. 0 represents infinite windows.\n"											    \
+	"\"-lp_set 128 <rxwc>\" - for SID_LINK3_PROFILE_A, where <rxwc> is the rx_window count parameter.\n"								    \
+	"\"-lp_set 129 <rxwc>\" - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter.\n"								    \
 	"\"-lp_get_l2\" - Gets link profile and associated parameters for SID_LINK_TYPE_2. Ex: \"app: CMD: ERR: 0 Link_profile ID: 1 Wndw_cnt: 0\".\n"			    \
 	"\"-lp_get_l3\" - Gets link profile and associated parameters for SID_LINK_TYPE_3. Ex: \"app: CMD: ERR: 0 Link_profile ID: 128 Wndw_cnt: 5\"."
 
