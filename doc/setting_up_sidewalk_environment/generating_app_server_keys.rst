@@ -11,12 +11,6 @@ To generate application server certificates, use the tool provided in the SDK to
 
          $ cd ${ZEPHYR_BASE}/../sidewalk/tools/application_server_cert
 
-   #. Install the requirements.
-
-      .. code-block:: console
-
-         $ pip3 install --user -r requirements.txt
-
    #. Run the application key generation script to generate your application server certificates.
 
       .. code-block:: console
