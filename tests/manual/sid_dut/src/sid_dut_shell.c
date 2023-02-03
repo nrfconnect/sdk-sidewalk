@@ -41,6 +41,16 @@
 static uint8_t send_cmd_buf[CLI_MAX_DATA_LEN];
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
+	sub_sid_option,
+	SHELL_CMD_ARG(-b, NULL, "battery_level", cmd_sid_option_battery, 2, 0),
+	SHELL_CMD_ARG(-lp_set, NULL,
+		      "profile(hex) <val2>\nprofiles: 0x80, 0x81, 0x83, 0x01,0x02\n<val2> - uint16_t value",
+		      cmd_sid_option_lp_set, 2, 1),
+	SHELL_CMD_ARG(-lp_get_l2, NULL, "", cmd_sid_option_lp_get_l2, 1, 0),
+	SHELL_CMD_ARG(-lp_get_l3, NULL, "", cmd_sid_option_lp_get_l3, 1, 0),
+	SHELL_SUBCMD_SET_END);
+
+SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
 	SHELL_CMD_ARG(init, NULL, CMD_SID_INIT_DESCRIPTION, cmd_sid_init, CMD_SID_INIT_ARG_REQUIRED,
 		      CMD_SID_INIT_ARG_OPTIONAL),
@@ -56,8 +66,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      CMD_SID_FACTORY_RESET_ARG_REQUIRED, CMD_SID_FACTORY_RESET_ARG_OPTIONAL),
 	SHELL_CMD_ARG(get_mtu, NULL, CMD_SID_GET_MTU_DESCRIPTION, cmd_sid_get_mtu, CMD_SID_GET_MTU_ARG_REQUIRED,
 		      CMD_SID_GET_MTU_ARG_OPTIONAL),
-	SHELL_CMD_ARG(option, NULL, CMD_SID_SET_OPTION_DESCRIPTION, cmd_sid_set_option, CMD_SID_SET_OPTION_ARG_REQUIRED,
-		      CMD_SID_SET_OPTION_ARG_OPTIONAL),
+	SHELL_CMD_ARG(option, &sub_sid_option, CMD_SID_SET_OPTION_DESCRIPTION, NULL, CMD_SID_SET_OPTION_ARG_REQUIRED,
+		      0),
 	SHELL_CMD_ARG(last_status, NULL, CMD_SID_LAST_STATUS_DESCRIPTION, cmd_sid_last_status,
 		      CMD_SID_LAST_STATUS_ARG_REQUIRED, CMD_SID_LAST_STATUS_ARG_OPTIONAL),
 	SHELL_CMD_ARG(conn_req, NULL, CMD_SID_CONN_REQUEST_DESCRIPTION, cmd_sid_conn_request,
@@ -155,6 +165,61 @@ static int cli_parse_hexstr(const char *str_p, uint8_t *data_p, size_t buf_len)
 		idx++;
 	}
 	return data_len;
+}
+
+static int sid_option_get_window_separation_ms(uint32_t value, enum sid_link2_rx_window_separation_ms *out)
+{
+	switch (value) {
+	case SID_LINK2_RX_WINDOW_SEPARATION_1: *out = SID_LINK2_RX_WINDOW_SEPARATION_1; return 0;
+	case SID_LINK2_RX_WINDOW_SEPARATION_2: *out = SID_LINK2_RX_WINDOW_SEPARATION_2; return 0;
+	case SID_LINK2_RX_WINDOW_SEPARATION_3: *out = SID_LINK2_RX_WINDOW_SEPARATION_3; return 0;
+	case SID_LINK2_RX_WINDOW_SEPARATION_4: *out = SID_LINK2_RX_WINDOW_SEPARATION_4; return 0;
+	case SID_LINK2_RX_WINDOW_SEPARATION_5: *out = SID_LINK2_RX_WINDOW_SEPARATION_5; return 0;
+	case SID_LINK2_RX_WINDOW_SEPARATION_6: *out = SID_LINK2_RX_WINDOW_SEPARATION_6; return 0;
+	case SID_LINK2_RX_WINDOW_SEPARATION_7: *out = SID_LINK2_RX_WINDOW_SEPARATION_7; return 0;
+	default:
+		return -EINVAL;
+	}
+}
+
+static int cmd_sid_option_handle_set_link3_profile(const char *value, struct sid_device_profile *out_profile)
+{
+	long rx_window_count_raw = 0l;
+	char *end = NULL;
+
+	rx_window_count_raw = strtol(value, &end, 0);
+	if (end == value) {
+		return -EINVAL;
+	}
+	if (!IN_RANGE(rx_window_count_raw, 0, UINT16_MAX)) {
+		return -EINVAL;
+	}
+	out_profile->unicast_params.rx_window_count = rx_window_count_raw;
+	out_profile->unicast_params.unicast_window_interval.async_rx_interval_ms =
+		SID_LINK3_RX_WINDOW_SEPARATION_3;
+	return 0;
+}
+
+static void sid_option_get(const struct shell *shell, enum sid_device_profile_id profile)
+{
+	static struct sid_device_profile dev_cfg;
+
+	dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = profile } };
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
+					       &dev_cfg,
+					       sizeof(dev_cfg));
+
+	if (IS_LINK2_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)
+	    || IS_LINK3_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)) {
+		char rx_int_output[32] = {};
+		if (dev_cfg.unicast_params.device_profile_id == SID_LINK2_PROFILE_2) {
+			snprintf(rx_int_output, sizeof(rx_int_output), " Rx_Int = %d",
+				 dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms);
+		}
+		shell_info(shell, "sid_option returned %d; Link_profile ID: %d Wndw_cnt: %d%s", ret,
+			   dev_cfg.unicast_params.device_profile_id,
+			   dev_cfg.unicast_params.rx_window_count, rx_int_output);
+	}
 }
 
 // shell handlers
@@ -353,102 +418,127 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 	return 0;
 }
 
-int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **argv)
+int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_ARG_REQUIRED, CMD_SID_SET_OPTION_ARG_OPTIONAL);
-	enum sid_option opt = SID_OPTION_BLE_BATTERY_LEVEL;
-	sid_error_t ret = SID_ERROR_NONE;
-	static uint8_t arg1;
+	CHECK_ARGUMENT_COUNT(argc, 2, 0);
 
-	arg1 = 0;
+	long data_raw = 0l;
+	static uint8_t data = 0;
+	char *end = NULL;
 
-	if (argc == 2) {
-		if (strcmp(argv[1], "-lp_get_l3") == 0) {
-			opt = SID_OPTION_900MHZ_GET_DEVICE_PROFILE;
-			arg1 = SID_LINK3_PROFILE_A;
-		} else if (strcmp(argv[1], "-lp_get_l2") == 0) {
-			opt = SID_OPTION_900MHZ_GET_DEVICE_PROFILE;
-			arg1 = SID_LINK2_PROFILE_1;
-		} else {
-			return -EINVAL;
-		}
-	} else {
-		int arg_val_raw = atoi(argv[2]);
-		if (arg_val_raw > UINT8_MAX) {
-			return -EINVAL;
-		}
-		arg1 = (uint8_t)arg_val_raw;
-		if (strcmp(argv[1], "-lp_set") == 0) {
-			opt = SID_OPTION_900MHZ_SET_DEVICE_PROFILE;
-		} else if (strcmp(argv[1], "-b") == 0) {
-			opt = SID_OPTION_BLE_BATTERY_LEVEL;
-		} else {
-			return -EINVAL;
-		}
+	data_raw = strtol(argv[1], &end, 0);
+	if (end == argv[1]) {
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], UINT8_MAX);
+		return -EINVAL;
 	}
-
-	switch (opt) {
-	case SID_OPTION_BLE_BATTERY_LEVEL: {
-		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL, &arg1,
-					   sizeof(arg1));
-		shell_info(shell, "sid_option returned %d", ret);
+	if (!IN_RANGE(data_raw, 0, UINT8_MAX)) {
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], UINT8_MAX);
+		return -EINVAL;
 	}
-	break;
-	case SID_OPTION_900MHZ_SET_DEVICE_PROFILE: {
-		if (argc > 4) {
-			return -EINVAL;
-		}
+	data = (uint8_t)data_raw;
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL, &data,
+					       sizeof(data));
 
-		static struct sid_device_profile dev_cfg;
-		dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = arg1 } };
-		if (IS_LINK3_PROFILE_ID(arg1) && argc == 4) {
-			dev_cfg.unicast_params.rx_window_count = atoi(argv[3]);
-			dev_cfg.unicast_params.unicast_window_interval.async_rx_interval_ms =
-				SID_LINK3_RX_WINDOW_SEPARATION_3;
-		} else if (arg1 == SID_LINK2_PROFILE_1 && argc == 3) {
-			dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
-		} else if (arg1 == SID_LINK2_PROFILE_2 && argc <= 4) {
-			dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
-			dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms =
-				(argc < 4) ? SID_LINK2_RX_WINDOW_SEPARATION_1 :
-				(enum
-				 sid_link2_rx_window_separation_ms)atoi(argv[3]);
-		} else {
-			return -EINVAL;
-		}
-		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-					   &dev_cfg,
-					   sizeof(dev_cfg));
-		shell_info(shell, "sid_option returned %d", ret);
+	shell_info(shell, "sid_option returned %d", ret);
+	return 0;
+}
 
+int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 2, 1);
+
+	long data_raw = 0l;
+	static uint8_t data = 0;
+	char *end = NULL;
+
+	data_raw = strtol(argv[1], &end, 0);
+	if (end == argv[1]) {
+		return -EINVAL;
 	}
-	break;
-	case SID_OPTION_900MHZ_GET_DEVICE_PROFILE: {
-		static struct sid_device_profile dev_cfg;
-		dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = arg1 } };
-		ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
-					   &dev_cfg,
-					   sizeof(dev_cfg));
-		if (IS_LINK2_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)
-		    || IS_LINK3_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)) {
-			char rx_int_output[32] = {};
-			if (dev_cfg.unicast_params.device_profile_id == SID_LINK2_PROFILE_2) {
-				snprintf(rx_int_output, sizeof(rx_int_output), " Rx_Int = %d",
-					 dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms);
-			}
-			shell_info(shell, "sid_option returned %d; Link_profile ID: %d Wndw_cnt: %d%s", ret,
-				   dev_cfg.unicast_params.device_profile_id,
-				   dev_cfg.unicast_params.rx_window_count, rx_int_output);
-		}
-	}
-	break;
-	default:
+	if (!IN_RANGE(data_raw, 0, UINT8_MAX)) {
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], UINT8_MAX);
 		return -EINVAL;
 	}
 
+	data = (uint8_t)data_raw;
+	static struct sid_device_profile dev_cfg;
+
+	memset(&dev_cfg, 0, sizeof(dev_cfg));
+	dev_cfg =
+		(struct sid_device_profile){ .unicast_params =
+					     { .device_profile_id = data, .wakeup_type = SID_TX_AND_RX_WAKEUP } };
+
+	switch (data) {
+	case SID_LINK3_PROFILE_A:
+	case SID_LINK3_PROFILE_B:
+	case SID_LINK3_PROFILE_D:
+	{
+		CHECK_ARGUMENT_COUNT(argc, 3, 0);
+		if (cmd_sid_option_handle_set_link3_profile(argv[2], &dev_cfg) != 0) {
+			shell_error(shell, "Invalid argument [%s], must be value <0, %d>", argv[2], UINT16_MAX);
+			return -EINVAL;
+		}
+		break;
+	}
+	case SID_LINK2_PROFILE_1:
+	{
+		CHECK_ARGUMENT_COUNT(argc, 2, 0);
+		dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
+		break;
+	}
+	case SID_LINK2_PROFILE_2:
+	{
+		long window_separation_ms_raw = 0;
+		dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1;
+		if (argc == 3) {
+			char *end = NULL;
+			window_separation_ms_raw = strtol(argv[2], &end, 0);
+			if (sid_option_get_window_separation_ms(window_separation_ms_raw,
+								&dev_cfg.unicast_params.unicast_window_interval.
+								sync_rx_interval_ms) != 0) {
+				shell_error(shell,
+					    "Invalid separation window value: [%s]\n valid values are [%d, %d, %d, %d, %d, %d, %d]",
+					    argv[2], SID_LINK2_RX_WINDOW_SEPARATION_1, SID_LINK2_RX_WINDOW_SEPARATION_2, SID_LINK2_RX_WINDOW_SEPARATION_3, SID_LINK2_RX_WINDOW_SEPARATION_4, SID_LINK2_RX_WINDOW_SEPARATION_5, SID_LINK2_RX_WINDOW_SEPARATION_6,
+					    SID_LINK2_RX_WINDOW_SEPARATION_7);
+				return -EINVAL;
+			}
+		}
+		dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
+		break;
+	}
+	default: {
+		shell_error(shell,
+			    "Invalid argument: [%s]\n valid values for profile are: [0x80, 0x81, 0x83, 0x01, 0x02]",
+			    argv[1]);
+		return -EINVAL;
+	}
+	}
+
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+					       &dev_cfg,
+					       sizeof(dev_cfg));
+
+	shell_info(shell, "sid_option returned %d", ret);
+	return 0;
+}
+
+int cmd_sid_option_lp_get_l2(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+	sid_option_get(shell, SID_LINK2_PROFILE_1);
 	return 0;
 
+}
+
+int cmd_sid_option_lp_get_l3(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+	sid_option_get(shell, SID_LINK3_PROFILE_A);
+	return 0;
 }
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv)

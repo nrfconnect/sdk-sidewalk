@@ -773,10 +773,8 @@ struct test_sid_set_option_params {
 	size_t len;
 };
 
-void test_sid_set_option(struct test_sid_set_option_params params)
+static void verify_sid_option_asserts(struct test_sid_set_option_params params, int ret)
 {
-	int ret = cmd_sid_set_option(NULL, params.argc, params.argv);
-
 	zassert_equal(params.return_code, ret, "Returned error code %d", ret);
 	if (params.return_code == 0) {
 		zassert_equal(1, sid_option_delegated_fake.call_count);
@@ -790,20 +788,48 @@ void test_sid_set_option(struct test_sid_set_option_params params)
 	}
 }
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_get_l3, test_sid_set_option,
+void test_sid_set_option_b(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_battery(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_lp_get_l2(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_lp_get_l2(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_lp_get_l3(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_lp_get_l3(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_lp_set(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_lp_set(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_get_l3, test_sid_set_option_lp_get_l3,
 		  (struct test_sid_set_option_params){
-	.argc = 2,
-	.argv = (const char * []) { "option", "-lp_get_l3" },
+	.argc = 1,
+	.argv = (const char * []) { "-lp_get_l3" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = SID_LINK3_PROFILE_A } },
 	.len = sizeof(struct sid_device_profile)
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_get_l2, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_get_l2, test_sid_set_option_lp_get_l2,
 		  (struct test_sid_set_option_params){
-	.argc = 2,
-	.argv = (const char * []) { "option", "-lp_get_l2" },
+	.argc = 1,
+	.argv = (const char * []) { "-lp_get_l2" },
 	.return_code = 0,
 	.option = SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = SID_LINK2_PROFILE_1 } },
@@ -811,10 +837,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_get_l2, test_sid_set
 })
 
 static uint8_t batery_level_1 = 1;
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level, test_sid_set_option_b,
 		  (struct test_sid_set_option_params){
-	.argc = 3,
-	.argv = (const char * []) { "option", "-b", "1" },
+	.argc = 2,
+	.argv = (const char * []) { "-b", "1" },
 	.return_code = 0,
 	.option = SID_OPTION_BLE_BATTERY_LEVEL,
 	.data = &batery_level_1,
@@ -822,10 +848,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level, test_sid
 })
 
 static uint8_t batery_level_100 = 100;
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_100, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_100, test_sid_set_option_b,
 		  (struct test_sid_set_option_params){
-	.argc = 3,
-	.argv = (const char * []) { "option", "-b", "100" },
+	.argc = 2,
+	.argv = (const char * []) { "-b", "100" },
 	.return_code = 0,
 	.option = SID_OPTION_BLE_BATTERY_LEVEL,
 	.data = &batery_level_100,
@@ -833,371 +859,433 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_100, test
 })
 
 static uint8_t batery_level_255 = 255;
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_255, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_255, test_sid_set_option_b,
 		  (struct test_sid_set_option_params){
-	.argc = 3,
-	.argv = (const char * []) { "option", "-b", "255" },
+	.argc = 2,
+	.argv = (const char * []) { "-b", "255" },
 	.return_code = 0,
 	.option = SID_OPTION_BLE_BATTERY_LEVEL,
 	.data = &batery_level_255,
 	.len = sizeof(batery_level_255)
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_1, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_ff, test_sid_set_option_b,
 		  (struct test_sid_set_option_params){
-	.argc = 3,
-	.argv = (const char * []) { "option", "-lp_set", "1" },
+	.argc = 2,
+	.argv = (const char * []) { "-b", "0xff" },
 	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 1, .rx_window_count = 0 } },
-	.len = sizeof(struct sid_device_profile)
+	.option = SID_OPTION_BLE_BATTERY_LEVEL,
+	.data = &batery_level_255,
+	.len = sizeof(batery_level_255)
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_not_number, test_sid_set_option_b,
 		  (struct test_sid_set_option_params){
-	.argc = 3,
-	.argv = (const char * []) { "option", "-lp_set", "2" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_63, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "63" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_315, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "315" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_2 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_630, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "630" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_945, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "945" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_4 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_2520, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "2520" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_5 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_3150, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "3150" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_6 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_5040, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "2", "5040" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
-								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_7 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_0, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "0" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 0,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_1, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "1" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 1,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_5, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "5" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
-								  .rx_window_count = SID_RX_WINDOW_CNT_2,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_10, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "10" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
-								  .rx_window_count = SID_RX_WINDOW_CNT_3,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_15, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "15" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
-								  .rx_window_count = SID_RX_WINDOW_CNT_4,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_20, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "20" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
-								  .rx_window_count = SID_RX_WINDOW_CNT_5,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_65535, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "128", "65535" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
-								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_0, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "0" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 0,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_1, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "1" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 1,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_5, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "5" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
-								  .rx_window_count = SID_RX_WINDOW_CNT_2,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_10, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "10" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
-								  .rx_window_count = SID_RX_WINDOW_CNT_3,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_15, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "15" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
-								  .rx_window_count = SID_RX_WINDOW_CNT_4,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_20, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "20" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
-								  .rx_window_count = SID_RX_WINDOW_CNT_5,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_65535, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "129", "65535" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
-								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_0, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "0" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 0,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_1, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "1" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 1,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_5, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "5" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
-								  .rx_window_count = SID_RX_WINDOW_CNT_2,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_10, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "10" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
-								  .rx_window_count = SID_RX_WINDOW_CNT_3,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_15, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "15" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
-								  .rx_window_count = SID_RX_WINDOW_CNT_4,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_20, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "20" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
-								  .rx_window_count = SID_RX_WINDOW_CNT_5,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_65535, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 4,
-	.argv = (const char * []) { "option", "-lp_set", "131", "65535" },
-	.return_code = 0,
-	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
-	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
-								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
-								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3 } },
-	.len = sizeof(struct sid_device_profile)
-})
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_256, test_sid_set_option,
-		  (struct test_sid_set_option_params){
-	.argc = 3,
-	.argv = (const char * []) { "option", "-b", "256" },
+	.argc = 2,
+	.argv = (const char * []) { "-b", "kot" },
 	.return_code = -EINVAL
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0, test_sid_set_option,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_1, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-lp_set", "1" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 1, .rx_window_count = 0,
+								  .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0x01, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-lp_set", "0x01" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 1, .rx_window_count = 0,
+								  .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-lp_set", "2" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_63, test_sid_set_option_lp_set,
 		  (struct test_sid_set_option_params){
 	.argc = 3,
-	.argv = (const char * []) { "option", "-lp_set", "0" },
+	.argv = (const char * []) { "-lp_set", "2", "63" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_1, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_315, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "2", "315" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_2, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_630, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "2", "630" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_945, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "2", "945" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_4, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_2520, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "2", "2520" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_5, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_3150, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "2", "3150" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_6, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_2_5040, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "2", "5040" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 2, .rx_window_count = 0,
+								  .unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_7, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0x80_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "0x80", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_1, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "1" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128, .rx_window_count = 1,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_5, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "5" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_2,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_10, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "10" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_3,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_15, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "15" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_4,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_20, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "20" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CNT_5,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_128_65535, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "128", "65535" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 128,
+								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0x81_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "0x81", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_1, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "1" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129, .rx_window_count = 1,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_5, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "5" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_2,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_10, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "10" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_3,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_15, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "15" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_4,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_20, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "20" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CNT_5,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_129_65535, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "129", "65535" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 129,
+								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0x83_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "0x83", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 0,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_1, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "1" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131, .rx_window_count = 1,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_5, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "5" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_2,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_10, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "10" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_3,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_15, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "15" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_4,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_20, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "20" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CNT_5,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_131_65535, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-lp_set", "131", "65535" },
+	.return_code = 0,
+	.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	.data = &(struct sid_device_profile){ .unicast_params = { .device_profile_id = 131,
+								  .rx_window_count = SID_RX_WINDOW_CONTINUOUS,
+								  .unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3, .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+	.len = sizeof(struct sid_device_profile)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_256, test_sid_set_option_b,
+		  (struct test_sid_set_option_params){
+	.argc = 3,
+	.argv = (const char * []) { "-b", "256" },
+	.return_code = -EINVAL
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0, test_sid_set_option_lp_set,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-lp_set", "0" },
 	.return_code = -EINVAL
 })
 
@@ -1320,15 +1408,16 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_set_dst_id){
 	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_set_option){
-	const char *argv[] = { "option", "-lp_get_l3", };
+ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_option_lp_get_l3){
+	const char *argv[] = { "-lp_get_l3", };
 	int argc = sizeof(argv) / sizeof(argv[0]);
 
-	int ret = cmd_sid_set_option(NULL, argc, argv);
+	int ret = cmd_sid_option_lp_get_l3(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_option_delegated_fake.call_count);
 }
+
 static void *correct_initialize(void)
 {
 	app_ctx_valid = (struct app_context){ .sidewalk_handle = &sidewalk_handle };

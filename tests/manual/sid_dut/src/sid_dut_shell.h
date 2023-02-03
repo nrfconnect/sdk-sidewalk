@@ -135,7 +135,12 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv);
-int cmd_sid_set_option(const struct shell *shell, int32_t argc, const char **argv);
+
+int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_lp_get_l2(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_lp_get_l3(const struct shell *shell, int32_t argc, const char **argv);
+
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv);
