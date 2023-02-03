@@ -63,12 +63,6 @@ Configuring your client information
 
        $ cd ${ZEPHYR_BASE}/../sidewalk/tools/sid_pc_link/apps/device_registration
 
-#. Install the requirements.
-
-   .. code-block:: console
-
-       pip3 install --user -r requirements.txt
-
 #. Fetch the LwA token only.
 
    .. code-block:: console

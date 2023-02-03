@@ -36,12 +36,6 @@ In order to flash the keys onto your Sidewalk Endpoint, you have to use the :fil
 
           $ cp /home/user/Downloads/certificate_BFFFFFFFFF.json ./
 
-#. Open the :file:`README` file and follow the instructions to install software requirements.
-
-   .. code-block:: console
-
-       pip3 install --user -r requirements.txt
-
 #. Generate the manufacturing page BIN file with the newly extracted device private keys and the application server public key generated in :ref:`generating_app_server_keys`.
 
    .. code-block:: console
