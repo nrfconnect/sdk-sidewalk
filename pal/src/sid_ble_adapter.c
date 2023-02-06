@@ -72,8 +72,8 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 	err_code = bt_enable(NULL);
 	switch (err_code) {
 	case -EALREADY:
-		LOG_INF("BT already initialized");
 	case 0:
+		LOG_INF("BT initialized");
 		break;
 	default:
 		LOG_ERR("BT init failed (err %d)", err_code);
@@ -237,11 +237,6 @@ static sid_error_t ble_adapter_disconnect(void)
 
 static sid_error_t ble_adapter_deinit(void)
 {
-	int err = bt_disable();
-
-	if (err < 0 && -ENOTSUP != err) {
-		LOG_ERR("BT disable failed (err %d)", err);
-	}
 	sid_ble_conn_deinit();
 
 	return SID_ERROR_NONE;
