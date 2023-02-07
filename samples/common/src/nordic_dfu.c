@@ -6,10 +6,12 @@
  */
 
 #include "nordic_dfu.h"
+#include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/mgmt/mcumgr/smp_bt.h>
-#include "os_mgmt/os_mgmt.h"
-#include "img_mgmt/img_mgmt.h"
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/gatt.h>
+#include <zephyr/mgmt/mcumgr/grp/os_mgmt/os_mgmt.h>
+#include <zephyr/mgmt/mcumgr/grp/img_mgmt/img_mgmt.h>
 
 #define LOG_LEVEL LOG_LEVEL_DBG
 #include <zephyr/logging/log.h>
