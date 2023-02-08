@@ -11,7 +11,7 @@ if [ -n "$staged_files" ]; then
         echo "## Executing uncrustify"
         uncrustify -c $UNCRUST_CONFIG --check $non_mamazon_files 
         if [ $? -ne 0 ]; then
-            uncrustify -c $UNCRUST_CONFIG --replace --no-backup $staged_files 
+            uncrustify -c $UNCRUST_CONFIG --replace --no-backup $non_mamazon_files 
             echo "suggested changes were made on the tracked files, please review them and stage for commit"
             exit 1
         fi

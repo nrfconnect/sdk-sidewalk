@@ -230,7 +230,8 @@ class TestLicenseVerificator(unittest.TestCase):
         self.cfg = verify_license.Configuration(valid_cfg_dict)
 
     def test_init(self):
-        instance = verify_license.LicenseVerificator(self.cfg, "dumy/file.path")
+        instance = verify_license.LicenseVerificator(
+            self.cfg, "dumy/file.path")
         self.assertIsInstance(instance, verify_license.LicenseVerificator)
 
     def test_find_license_txt(self):
@@ -280,7 +281,8 @@ class TestLicenseVerificator(unittest.TestCase):
             copyright_regexp, file_header))
 
     def test_validate_file_header(self):
-        instance = verify_license.LicenseVerificator(self.cfg, "dumy/file.path")
+        instance = verify_license.LicenseVerificator(
+            self.cfg, "dumy/file.path")
         expected_license = {"spdx": "LicenseRef-Nordic-4-Clause",
                             "copyright_regexp": "copyright",
                             "search_license_txt": None,
@@ -293,7 +295,8 @@ class TestLicenseVerificator(unittest.TestCase):
             list(file_header), expected_license))
 
     def test_validate_file_header2(self):
-        instance = verify_license.LicenseVerificator(self.cfg, "dumy/file.path")
+        instance = verify_license.LicenseVerificator(
+            self.cfg, "dumy/file.path")
         expected_license = {"spdx": "example",
                             "copyright_regexp": "copyright",
                             "search_license_txt": None,
@@ -306,7 +309,8 @@ class TestLicenseVerificator(unittest.TestCase):
             file_header, expected_license))
 
     def test_validate_file_header2(self):
-        instance = verify_license.LicenseVerificator(self.cfg, "dumy/file.path")
+        instance = verify_license.LicenseVerificator(
+            self.cfg, "dumy/file.path")
         expected_license = {"spdx": "example",
                             "copyright_regexp": "copyright",
                             "search_license_txt": None,
@@ -319,7 +323,8 @@ class TestLicenseVerificator(unittest.TestCase):
             file_header, expected_license))
 
     def test_validate_file_header2(self):
-        instance = verify_license.LicenseVerificator(self.cfg, "dumy/file.path")
+        instance = verify_license.LicenseVerificator(
+            self.cfg, "dumy/file.path")
         expected_license = {"spdx": "LicenseRef-Nordic-4-Clause",
                             "copyright_regexp": "copyright",
                             "search_license_txt": None,

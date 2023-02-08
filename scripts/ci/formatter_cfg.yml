@@ -1,0 +1,20 @@
+uncrustify_cfg: .uncrustify.cfg
+
+ignored_files_regexp:
+- hal/include/sid_hal_*
+- .*_ifc\.h$
+- include/.*
+- lib/include/.*
+- tools/.*
+- pal/utils/ace/.*
+- pal/utils/osal_alloc\.h$
+- tests/validation/storage_kv/.*(c|h)$
+- tests/validation/timer/.*(c|h)$
+- .*/sensor_monitoring/ext/.*$
+- .*/sensor_monitoring/config/app_900_config.*$
+- .*/sensor_monitoring/config/app_ble_config.h$
+- lib/include/sx126x_config.h$
+- venv/.*
+- site-packages/.*
+- twister-out.*
+- build.*
