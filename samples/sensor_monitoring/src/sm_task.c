@@ -42,6 +42,7 @@ static int32_t init_and_start_link(app_context_t *context, struct sid_config *co
 
 	config->link_mask = link_mask;
 	sid_error_t ret = sid_init(config, &sid_handle);
+
 	if (ret != SID_ERROR_NONE) {
 		LOG_ERR("Failed to initialize sidewalk err:%d", (int)ret);
 		config->link_mask = 0;
@@ -81,6 +82,7 @@ static void set_device_profile(struct sid_handle *sid_handle)
 	};
 	sid_error_t ret = sid_option(sid_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 				     &curr_dev_cfg, sizeof(curr_dev_cfg));
+
 	if (ret == SID_ERROR_NONE) {
 		struct sid_device_profile target_dev_cfg = {
 			.unicast_params = {

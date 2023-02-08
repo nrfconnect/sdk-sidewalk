@@ -48,6 +48,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 	}
 
 	const bt_addr_le_t *bt_addr_le = bt_conn_get_dst(conn);
+
 	if (bt_addr_le) {
 		memcpy(conn_params.addr, bt_addr_le->a.val, BT_ADDR_SIZE);
 	} else {
@@ -119,6 +120,7 @@ int sid_ble_conn_disconnect(void)
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
 	int err = bt_conn_disconnect(conn_params.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+
 	k_mutex_unlock(&bt_conn_mutex);
 
 	return err;

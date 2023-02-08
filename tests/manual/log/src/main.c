@@ -49,6 +49,7 @@ void main(void)
 
 	LOG_INF("> Test Sidewalk log hexdump.");
 	uint8_t data[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
 	SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_INFO, data, sizeof(data));
 	LOG_INF("Test end.\n");
 

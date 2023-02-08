@@ -133,6 +133,7 @@ int sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 	adv_data[ADV_DATA_MANUF_DATA].data_len = advert_manuf_data_copy(data, data_len);
 
 	int err = 0;
+
 	if (BLE_ADV_ENABLE == adv_state) {
 		err = bt_le_adv_update_data(adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 	}

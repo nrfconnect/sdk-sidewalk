@@ -175,13 +175,13 @@ void test_sid_pal_crypto_rng(void)
 
 	// Check for any length from 1 to RNG_BUFF_MAX_SIZE
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 1));
-	
+
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 3));
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, memcmp(rng_buff, tmp_buff, 3),
-	"Random value can not be 0");
+				      "Random value can not be 0");
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(tmp_buff, 3));
 	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, memcmp(rng_buff, tmp_buff, 3),
-	"two consequent random values can not be the same");
+				      "two consequent random values can not be the same");
 
 	for (int cnt = 0; cnt < ARRAY_SIZE(rng_test_len); cnt++) {
 		memset(tmp_buff, 0x00, sizeof(tmp_buff));
@@ -377,7 +377,8 @@ void test_sid_pal_crypto_hmac_sha256(void)
 	uint8_t digest[SHA_MAX_DIGEST_LEN];
 	size_t test_vector_data_in_len[] = { 8, 16, 24, 55, 64, HMAC_TEST_DATA_BLOCK_SIZE };
 
-	// openssl dgst -sha256 -mac hmac -macopt hexkey:AC1D0522AC1D0522FAD4CC29FAD4CC29DA3CEEA4820DAA50ACFEBB341D0522AC
+	// openssl dgst -sha256 -mac hmac -macopt
+	// hexkey:AC1D0522AC1D0522FAD4CC29FAD4CC29DA3CEEA4820DAA50ACFEBB341D0522AC
 	uint8_t openssl_test_hmac_sha256_vector[][SHA256_LEN] = {
 		{ 0x30, 0xdb, 0x3a, 0xff, 0x87, 0xd8, 0x45, 0x95, 0x22, 0x3d, 0x8e, 0x98, 0x59, 0xd1, 0x2f, 0xdb,
 		  0x9f, 0x5c, 0xb7, 0xae, 0xcf, 0x00, 0x03, 0xb2, 0xed, 0x68, 0x67, 0x7b, 0xea, 0x12, 0xdd, 0xf8 },
@@ -432,7 +433,8 @@ void test_sid_pal_crypto_hmac_sha256_fake_key(void)
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
 	uint8_t digest[SHA_MAX_DIGEST_LEN];
 
-	// openssl dgst -sha256 -mac hmac -macopt hexkey:AC1D0522AC1D0522FAD4CC29FAD4CC29DA3CEEA4820DAA50ACFEBB341D0522AC
+	// openssl dgst -sha256 -mac hmac -macopt
+	// hexkey:AC1D0522AC1D0522FAD4CC29FAD4CC29DA3CEEA4820DAA50ACFEBB341D0522AC
 	uint8_t openssl_test_hmac_sha256_vector[] = {
 		0xd2, 0x04, 0xb5, 0x7a, 0x7d, 0x20, 0x31, 0xf7, 0x83, 0x4c, 0x20, 0xea, 0x35, 0x77, 0x3d, 0x60,
 		0xf6, 0x0d, 0x26, 0xa3, 0xc7, 0x5c, 0xe9, 0xd3, 0xc9, 0x16, 0x63, 0x3e, 0x08, 0x48, 0x69, 0x7c
@@ -539,7 +541,8 @@ void test_sid_pal_crypto_hmac_sha512_fake_key(void)
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
 	uint8_t digest[SHA_MAX_DIGEST_LEN];
 
-	// openssl dgst -sha512 -mac hmac -macopt hexkey:AC1D0522AC1D0522FAD4CC29FAD4CC29DA3CEEA4820DAA50ACFEBB341D0522AC
+	// openssl dgst -sha512 -mac hmac -macopt
+	// hexkey:AC1D0522AC1D0522FAD4CC29FAD4CC29DA3CEEA4820DAA50ACFEBB341D0522AC
 	uint8_t openssl_test_hmac_sha512_vector[] = {
 		0x39, 0xcc, 0x0f, 0x33, 0xc5, 0x9e, 0xfa, 0xe8, 0x9f, 0xf2, 0x29, 0x5f, 0x92, 0x67, 0xe0, 0xb3,
 		0x7e, 0x9b, 0x0d, 0x92, 0xfd, 0x50, 0x65, 0x06, 0x1f, 0x5b, 0xed, 0x21, 0x42, 0x5c, 0x7a, 0x1f,
@@ -589,7 +592,8 @@ void test_sid_pal_crypto_aes_crypt(void)
 	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t cmac[AES_MAX_BLOCK_SIZE];
 
-	// echo -n "Openssl data in." | openssl enc -aes-128-ctr -K AC1D0522AC1D0522FAD4CC29FAD4CC29  -iv B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1 -e
+	// echo -n "Openssl data in." | openssl enc -aes-128-ctr -K AC1D0522AC1D0522FAD4CC29FAD4CC29  -iv
+	// B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1B1 -e
 	uint8_t external_data[16] = { "Openssl data in." };
 	uint8_t external_data_encrypted[AES_MAX_BLOCK_SIZE] = { 0xf0, 0xeb, 0x3f, 0x56, 0x38, 0xfd, 0xd3, 0x14,
 								0x3d, 0x14, 0x8b, 0xa9, 0x73, 0xc3, 0x8e, 0x45 };
@@ -605,7 +609,6 @@ void test_sid_pal_crypto_aes_crypt(void)
 		{ 0xd0, 0xe4, 0x8f, 0x0f, 0xa3, 0x27, 0x98, 0x55, 0x00, 0xc3, 0x89, 0x34, 0x2a, 0x8c, 0xe8, 0x78 },
 		{ 0x6d, 0xb4, 0x78, 0x04, 0xe7, 0xb7, 0xce, 0xf5, 0xd7, 0x34, 0xdf, 0x47, 0x78, 0x52, 0x53, 0x2c },
 	};
-
 
 	// Prepare test
 	memset(&params, 0x00, sizeof(params));
@@ -849,7 +852,6 @@ void test_sid_pal_crypto_aead_gcm_invalid_args(void)
 	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t mac[AES_MAX_BLOCK_SIZE];
-
 
 	// Prepare test
 	memset(&params, 0x00, sizeof(params));
@@ -1107,7 +1109,8 @@ void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
 		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 		// Encrypted data and mac shall be the same like from external tool
 		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_mac_vector[test_it], mac, AES_MAX_BLOCK_SIZE);
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data, test_vector_data_in_len[test_it]);
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data,
+					      test_vector_data_in_len[test_it]);
 	}
 
 }
@@ -1481,7 +1484,8 @@ void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
 		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 		// Encrypted data and mac shall be the same like from external tool
 		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_mac_vector[test_it], mac, AES_MAX_BLOCK_SIZE);
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data, test_vector_data_in_len[test_it]);
+		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data,
+					      test_vector_data_in_len[test_it]);
 	}
 }
 

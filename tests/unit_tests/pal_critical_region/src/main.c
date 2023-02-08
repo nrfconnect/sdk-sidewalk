@@ -14,14 +14,12 @@
 
 #include <zephyr/interrupt_util.h>
 
-
 #define TEST_IRQ        (24)
 #define TEST_IRQ_PRIO   (2)
 #define CHANGED         (1U)
 #define UNCHANGED       (0U)
 
 static volatile uint32_t resource;
-
 
 void irq_cb(const void *arg)
 {

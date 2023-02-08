@@ -42,7 +42,7 @@ static void notify_all(const struct notifier_ctx *ctx)
 
 #define X(name, ...) void application_state_##name(struct notifier_ctx *ctx, const uint32_t value) \
 	{ ctx->app_state.name = value; notify_all(ctx); }
-	X_APPLICAITON_STATES
+X_APPLICAITON_STATES
 #undef X
 
 typedef void (*change_state_handler)(struct notifier_ctx *ctx, uint32_t value);

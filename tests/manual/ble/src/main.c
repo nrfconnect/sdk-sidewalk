@@ -159,6 +159,7 @@ void main(void)
 
 	dk_leds_init();
 	int err = dk_buttons_init(app_button_handler);
+
 	if (err) {
 		LOG_ERR("button init error %d", err);
 	}

@@ -25,7 +25,8 @@ DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
 FAKE_VALUE_FUNC(int, bt_disable);
-FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t, const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t,
+		const struct bt_data *, size_t);
 FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
 FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
@@ -284,7 +285,6 @@ void test_ble_adapter_adapter_callback_fail(void)
 	__cmock_sid_ble_adapter_mtu_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
 	__cmock_sid_ble_adapter_mtu_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
-
 
 	set_callbacks(&cb);
 	cb.adv_start_callback = NULL;

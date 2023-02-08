@@ -12,7 +12,6 @@
 #include <unity.h>
 #include <stdlib.h>
 
-
 #define MAX_ABS_ERROR 1
 
 void test_initialize()
@@ -24,9 +23,11 @@ void test_valid_temperature_range_for_SoC()
 {
 	test_initialize();
 	int16_t die_temp = sid_pal_temperature_get();
+
 	TEST_ASSERT_GREATER_OR_EQUAL(-40, die_temp);
 	TEST_ASSERT_LESS_OR_EQUAL(85, die_temp);
 	char message[50];
+
 	sprintf(message, "die temperature = %d", die_temp);
 	TEST_MESSAGE(message);
 }
@@ -49,6 +50,7 @@ static void analyze_temp_readings(int16_t *values, size_t count, double limit)
 
 	mean = (double)sum / count;
 	double max_mean_error = 0;
+
 	for (int i = 0; i < count; i++) {
 		double err = values[i] - mean;
 		if (err < 0) {
@@ -61,6 +63,7 @@ static void analyze_temp_readings(int16_t *values, size_t count, double limit)
 
 	TEST_ASSERT_LESS_OR_EQUAL(limit, max_mean_error);
 	char message[50];
+
 	sprintf(message, "mean reading= %d.%02d, max deviation = %d.%02d",
 		(uint8_t)mean,
 		(uint8_t)((mean - (uint8_t)mean) * 100),
@@ -73,6 +76,7 @@ void test_multiple_fast_readings()
 {
 	test_initialize();
 	int16_t results[50] = { 0 };
+
 	for (int i = 0; i < ARRAY_SIZE(results); i++) {
 		results[i] = sid_pal_temperature_get();
 	}
@@ -85,6 +89,7 @@ void test_multiple_slow_readings()
 {
 	test_initialize();
 	int16_t results[20] = { 0 };
+
 	for (int i = 0; i < ARRAY_SIZE(results); i++) {
 		results[i] = sid_pal_temperature_get();
 		k_sleep(K_MSEC(50));

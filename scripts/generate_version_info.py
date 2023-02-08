@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Nordic Semiconductor ASA
-# 
+#
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
- 
+
 
 import subprocess
 import os
@@ -9,7 +9,8 @@ import os
 try:
     import git
 except ImportError as e:
-    raise Exception("GitPython module not found! install packages from `sidewalk/requirements.txt`")
+    raise Exception(
+        "GitPython module not found! install packages from `sidewalk/requirements.txt`")
 
 NCS_DIR = os.path.abspath(os.path.join(__file__, "../../.."))
 
@@ -27,10 +28,11 @@ def get_last_common_commit_with_upstream(ncs_dir):
     f = git.repo.Repo(os.path.join(ncs_dir, "sidewalk"))
     fork_point = "0000000"
     try:
-        fork_point=f.git.merge_base("--fork-point", "origin/main", "HEAD")
+        fork_point = f.git.merge_base("--fork-point", "origin/main", "HEAD")
     except:
         pass
     return fork_point
+
 
 def print_warning_header():
     return """
@@ -103,9 +105,11 @@ def helper_variables(ncs_dir_path, get_last_common_commit_with_upstream):
     return "const size_t sidewalk_version_component_count = sizeof(sidewalk_version_component)/sizeof(*sidewalk_version_component);\n" + \
         f"const char * const sidewalk_version_common_commit = \"{get_last_common_commit_with_upstream(ncs_dir_path)}\";\n"
 
+
 def build_time():
-    from datetime import datetime,timezone
+    from datetime import datetime, timezone
     return f"const char * const build_time_stamp = \"{str(datetime.now(timezone.utc))}\";\n"
+
 
 file_output = ""
 file_output += print_warning_header()

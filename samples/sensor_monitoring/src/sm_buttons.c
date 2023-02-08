@@ -64,6 +64,7 @@ void sm_buttons_action_response_process(struct sid_parse_state *state)
 	assert(state);
 	uint8_t temp_button_id_arr[DEMO_BUTTONS_MAX] = { 0 };
 	struct sid_demo_action_resp action_resp;
+
 	memset(&action_resp, 0, sizeof(action_resp));
 
 	action_resp.button_action_resp.button_id_arr = temp_button_id_arr;

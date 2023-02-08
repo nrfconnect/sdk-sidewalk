@@ -208,6 +208,7 @@ void test_sid_pal_timer_cancel_before_it_expire(void)
 
 	// Arm the timer again, but now with short period
 	struct sid_timespec period = { .tv_nsec = 500 };
+
 	when.tv_sec = 0;
 	when.tv_nsec = (150 * NSEC_PER_MSEC);
 	relative_time_calculate(&when);

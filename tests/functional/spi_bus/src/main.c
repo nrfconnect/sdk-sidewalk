@@ -40,6 +40,7 @@ void test_xfer_no_buffer()
 	TEST_ASSERT(interface);
 	TEST_ASSERT(interface->xfer);
 	sid_error_t e = interface->xfer(interface, NULL, NULL, NULL, 1);
+
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, e);
 }
 
@@ -53,8 +54,10 @@ void test_xfer_no_interface()
 	uint8_t tx[] = { 0x1d, 0x08, 0xac, 0, 0 };
 	uint8_t rx[5] = { 0 };
 	sid_error_t e = interface->xfer(NULL, NULL, tx, rx, sizeof(rx));
+
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, e);
 	uint8_t rx_expect[5] = { 0 };
+
 	TEST_ASSERT_EQUAL_MEMORY(rx_expect, rx, sizeof(rx));
 }
 
@@ -69,8 +72,10 @@ void test_xfer_wrong_interface()
 	uint8_t tx[] = { 0x1d, 0x08, 0xac, 0, 0 };
 	uint8_t rx[5] = { 0 };
 	sid_error_t e = interface->xfer(&interface2, NULL, tx, rx, sizeof(rx));
+
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, e);
 	uint8_t rx_expect[5] = { 0 };
+
 	TEST_ASSERT_EQUAL_MEMORY(rx_expect, rx, sizeof(rx));
 }
 
@@ -84,6 +89,7 @@ void test_send_spi()
 	uint8_t tx[] = { 0x1d, 0x08, 0xac, 0, 0 };
 	uint8_t rx[5] = { 0 };
 	sid_error_t e = interface->xfer(interface, &client, tx, rx, sizeof(rx));
+
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, e);
 	for (int i = 0; i < ARRAY_SIZE(rx); i++) {
 		// if shield is connected, rx will have valid response, and there should be no zeros
@@ -102,6 +108,7 @@ void test_only_tx_spi()
 	TEST_ASSERT(interface->xfer);
 	uint8_t tx[] = { 0x1d, 0x08, 0xac };
 	sid_error_t e = interface->xfer(interface, &client, tx, NULL, sizeof(tx));
+
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, e);
 }
 

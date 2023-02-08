@@ -111,6 +111,7 @@ static void send_led_response(app_context_t *app_context, struct sid_demo_action
 		}
 
 	};
+
 	LOG_INF("Sending led response");
 	sm_send_msg(app_context, &desc, &msg);
 }

@@ -29,6 +29,7 @@ void test_sid_pal_delay(void)
 
 	sid_pal_delay_us(MIN_DELAY_US);
 	uint64_t delta = TIMESTAMP_US_GET() -  timestamp;
+
 	TEST_ASSERT_LESS_OR_EQUAL(MAX_DELAY_US_THRESHOLD, abs((int)(MIN_DELAY_US - delta)));
 
 	timestamp = TIMESTAMP_US_GET();

@@ -293,14 +293,16 @@ static psa_status_t aead_execute(psa_aead_operation_t *op,
 					LOG_DBG("psa_aead_update_ad success (out_len=%d).", out_len);
 					if (SID_PAL_CRYPTO_ENCRYPT == params->mode) {
 						status = psa_aead_finish(op,
-									 params->out + out_len, params->out_size - out_len, &out_len,
+									 params->out + out_len,
+									 params->out_size - out_len, &out_len,
 									 params->mac, params->mac_size, &mac_len);
 						LOG_DBG("psa_aead_finish %s (out_len=%d, mac_len=%d)",
 							(PSA_SUCCESS == status) ? "success." : "failed!",
 							out_len, mac_len);
 					} else {
 						status = psa_aead_verify(op,
-									 params->out + out_len, params->out_size - out_len, &out_len,
+									 params->out + out_len,
+									 params->out_size - out_len, &out_len,
 									 params->mac, params->mac_size);
 						LOG_DBG("psa_aead_verify %s (out_len=%d)",
 							(PSA_SUCCESS == status) ? "success." : "failed!",

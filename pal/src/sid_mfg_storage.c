@@ -405,6 +405,7 @@ bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIA
 	}
 
 	const uint32_t version = sid_pal_mfg_store_get_version();
+
 	if (MFG_VERSION_1_VAL == version || 0x1 == version) {
 		ntoh_buff(serial_num, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 	}

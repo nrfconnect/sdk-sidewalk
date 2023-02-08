@@ -417,10 +417,12 @@ static void cmd_fatory_reset_work(struct k_work *item)
 	if (SID_ERROR_NONE != ret) {
 		switch (ret) {
 		case SID_ERROR_INVALID_ARGS:
-			shell_error(sid_factory_reset_work->shell, "Sidewalk not initialized, can not perform factory reset");
+			shell_error(sid_factory_reset_work->shell,
+				    "Sidewalk not initialized, can not perform factory reset");
 			break;
 		default:
-			shell_error(sid_factory_reset_work->shell, "Notification of factory reset to sid api failed with unhandled error %d",
+			shell_error(sid_factory_reset_work->shell,
+				    "Notification of factory reset to sid api failed with unhandled error %d",
 				    ret);
 			break;
 		}
