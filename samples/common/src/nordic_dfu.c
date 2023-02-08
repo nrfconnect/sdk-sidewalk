@@ -1,8 +1,7 @@
 /*
- * Copyright (c) 2012-2014 Wind River Systems, Inc.
- * Copyright (c) 2020 Prevas A/S
+ * Copyright (c) 2023 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
 #include "nordic_dfu.h"

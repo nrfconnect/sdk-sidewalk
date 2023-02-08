@@ -18,6 +18,7 @@ ignore_license_in_files:
 - version.conf$
 - tools/sid_pc_link/.*
 - tools/application_server_cert/.*
+- twister-out.*
 
 license_header_size: 30
 
@@ -29,24 +30,27 @@ licenses:
   search_license_txt:
   - This file is exposed to each procuct configuration to customize the driver behavior
   spdx: null
+
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
   - sidewalk/hal/include/sid_hal_*
-  - .*config_ifc\.h$
+  - .*_ifc\.h$
   - sidewalk/include/.*
   - sidewalk/lib/include/.*
   - sidewalk/tools/.*
   - sidewalk/pal/utils/ace/.*
   - sidewalk/pal/utils/osal_alloc\.h$
-  - sidewalk/tests/validation/storage_kv/.*\.c$
-  - sidewalk/tests/validation/storage_kv/.*\.h$
-  - sidewalk/tests/validation/timer/.*\.c$
-  - sidewalk/tests/validation/timer/.*\.h$
+  - sidewalk/tests/validation/storage_kv/.*(c|h)$
+  - sidewalk/tests/validation/timer/.*(c|h)$
+  - sidewalk/.*/sensor_monitoring/ext/.*$
+  - sidewalk/.*/sensor_monitoring/config/app_900_config.*$
+  - sidewalk/.*/sensor_monitoring/config/app_ble_config.h$
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
   - THESE MATERIALS ARE PROVIDED ON AN AS IS BASIS.
   spdx: null
+
 - copyright_regexp: Copyright \(c\) \d{4} Nordic Semiconductor ASA
   file_regexp:
   - .*

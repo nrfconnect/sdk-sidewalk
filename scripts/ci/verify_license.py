@@ -386,12 +386,12 @@ def argument_parser():
         "-s", "--scan-root", nargs=1, help="Check all files in repository")
     return parser_
 
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     parser = argument_parser()
     args = parser.parse_args()
 
-    logger = logging.getLogger(__name__)
     loggerFormat = "[%(levelname)-7s] %(asctime)s: %(message)s"
     loggerFormatter = logging.Formatter(loggerFormat)
 
@@ -430,8 +430,12 @@ if __name__ == "__main__":
         files = [Path(file).absolute().resolve() for file in args.files]
 
     error_count = 0
+    checked_files = 0
     for file in FileListManager(cfg, files).filtered_files:
         error_count += LicenseVerificator(cfg, file).check()
+        checked_files+=1
+
+    logger.info(f"Checked {checked_files} files:")
     if error_count > 0:
         logger.error(f"END WITH {error_count} ERRORS")
     else:
