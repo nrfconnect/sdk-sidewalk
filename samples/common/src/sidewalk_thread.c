@@ -619,7 +619,7 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 
 	LOG_INF("Initializing sidewalk, built-in %s link mask", LM_2_STR(LINK_MASK));
 
-	sid_error_t ret_code = init_and_start_link(app_ctx, SID_LINK_TYPE_1);
+	sid_error_t ret_code = init_and_start_link(app_ctx, LINK_MASK);
 
 	if (SID_ERROR_NONE != ret_code) {
 		LOG_ERR("failed to initialize Sidewalk, err: %d", (int)ret_code);
@@ -675,11 +675,6 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			}
 			case EVENT_TYPE_SEND_HELLO:
 			{
-				if (app_ctx->sidewalk_config.link_mask != LINK_MASK) {
-					if (SID_ERROR_NONE != init_and_start_link(app_ctx, LINK_MASK)) {
-						return;
-					}
-				}
 				send_message(app_ctx);
 				break;
 			}
