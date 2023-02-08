@@ -52,7 +52,6 @@ void test_sid_pal_uptime_accuracy(void)
 	TEST_ASSERT_EQUAL(ppm, sid_pal_uptime_get_xtal_ppm());
 }
 
-
 /* It is required to be added to each test. That is because unity is using
  * different main signature (returns int) and zephyr expects main which does
  * not return value.

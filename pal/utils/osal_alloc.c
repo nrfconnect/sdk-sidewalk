@@ -35,6 +35,7 @@ static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
 		LOG_DBG("heap usage %4u [%2d%%]", usage, (100 * usage / CONFIG_SIDEWALK_HEAP_SIZE));
 	}
 }
+
 #endif  /* CONFIG_SYS_HEAP_RUNTIME_STATS */
 
 ace_status_t aceAlloc_init(void)
@@ -80,6 +81,7 @@ void *aceAlloc_calloc(aceModules_moduleId_t module_id,
 	}
 
 	void *p = aceAlloc_alloc(module_id, buf_type, bounds);
+
 	if (p) {
 		(void)memset(p, 0, bounds);
 	}

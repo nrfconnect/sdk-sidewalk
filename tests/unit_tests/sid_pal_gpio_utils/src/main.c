@@ -22,12 +22,12 @@
 #define GPIO_LV_HI      (1)
 #define GPIO_LV_LO      (0)
 
-#define TEST_GPIO_LIST							    \
-	/*     GPIO_NUMBER, PIN_NUMBER, PORT */				    \
-	X_GPIO(0,           0,          DEVICE_DT_GET(DT_NODELABEL(gpio0))) \
-	X_GPIO(1,           1,          DEVICE_DT_GET(DT_NODELABEL(gpio0))) \
-	X_GPIO(15,          15,         DEVICE_DT_GET(DT_NODELABEL(gpio0))) \
-	X_GPIO(31,          31,         DEVICE_DT_GET(DT_NODELABEL(gpio0))) \
+#define TEST_GPIO_LIST					   \
+	/*     GPIO_NUMBER, PIN_NUMBER, PORT */		   \
+	X_GPIO(0, 0, DEVICE_DT_GET(DT_NODELABEL(gpio0)))   \
+	X_GPIO(1, 1, DEVICE_DT_GET(DT_NODELABEL(gpio0)))   \
+	X_GPIO(15, 15, DEVICE_DT_GET(DT_NODELABEL(gpio0))) \
+	X_GPIO(31, 31, DEVICE_DT_GET(DT_NODELABEL(gpio0))) \
 /* end of TEST_GPIO_LIST */
 
 static uint32_t test_gpio_number[] = {
@@ -82,7 +82,8 @@ void test_sid_gpio_utils_gpio_number_get_fail(void)
 void test_sid_gpio_utils_gpio_number_get_pass(void)
 {
 	for (int it = 0; it < ARRAY_SIZE(test_gpio_number); it++) {
-		TEST_ASSERT_EQUAL(test_gpio_number[it], sid_gpio_utils_gpio_number_get(test_port_pin[it].port, BIT(test_port_pin[it].pin)));
+		TEST_ASSERT_EQUAL(test_gpio_number[it],
+				  sid_gpio_utils_gpio_number_get(test_port_pin[it].port, BIT(test_port_pin[it].pin)));
 	}
 }
 

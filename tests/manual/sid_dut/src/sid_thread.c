@@ -63,12 +63,12 @@ static struct sid_event_callbacks event_callbacks = {
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static const struct sid_sub_ghz_links_config sub_ghz_link_config = {
-		.enable_link_metrics = true,
-		.registration_config = {
-			.enable = true,
-			.periodicity_s = UINT32_MAX,
-		},
-	};
+	.enable_link_metrics = true,
+	.registration_config = {
+		.enable = true,
+		.periodicity_s = UINT32_MAX,
+	},
+};
 #endif
 
 static const sid_ble_link_config_t ble_link_config = {

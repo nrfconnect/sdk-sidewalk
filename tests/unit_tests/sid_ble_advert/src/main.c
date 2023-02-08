@@ -15,7 +15,8 @@
 
 DEFINE_FFF_GLOBALS;
 
-FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t, const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t,
+		const struct bt_data *, size_t);
 FAKE_VALUE_FUNC(int, bt_le_adv_stop);
 FAKE_VALUE_FUNC(int, bt_le_adv_update_data, const struct bt_data *, size_t, const struct bt_data *, size_t);
 

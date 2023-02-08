@@ -31,6 +31,7 @@ static void bt_ready(int bt_err_code)
 	LOG_INF("Bluetooth initialized");
 
 	int err = bt_le_adv_start(BT_LE_ADV_CONN_NAME, ad, ARRAY_SIZE(ad), NULL, 0);
+
 	if (err) {
 		LOG_ERR("Advertising failed to start (err %d)", err);
 		return;

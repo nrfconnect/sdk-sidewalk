@@ -97,7 +97,8 @@ void test_sid_pal_gpio_set_direction_fail(void)
 
 	__cmock_sid_gpio_utils_port_pin_get_IgnoreAndReturn(E_OK);
 	__cmock_gpio_pin_configure_IgnoreAndReturn(-EINVAL);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_gpio_set_direction(GPIO_NUMBER, SID_PAL_GPIO_DIRECTION_INPUT));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_pal_gpio_set_direction(GPIO_NUMBER, SID_PAL_GPIO_DIRECTION_INPUT));
 }
 
 void test_sid_pal_gpio_set_direction_pass(void)
@@ -237,12 +238,14 @@ void test_sid_pal_gpio_set_irq_pass(void)
 	};
 	const uint8_t handle_argument = 5;
 
-	for (sid_pal_gpio_irq_trigger_t trigger = SID_PAL_GPIO_IRQ_TRIGGER_NONE; trigger < ARRAY_SIZE(irq_trigger_list); trigger++) {
+	for (sid_pal_gpio_irq_trigger_t trigger = SID_PAL_GPIO_IRQ_TRIGGER_NONE; trigger < ARRAY_SIZE(irq_trigger_list);
+	     trigger++) {
 		__cmock_sid_gpio_irq_configure_IgnoreAndReturn(E_OK);
 		if (SID_PAL_GPIO_IRQ_TRIGGER_NONE == trigger) {
 			__cmock_sid_gpio_irq_handler_set_Expect(GPIO_NUMBER, NULL, NULL);
 		} else {
-			__cmock_sid_gpio_irq_handler_set_Expect(GPIO_NUMBER, gpio_irq_handler, (void *)&handle_argument);
+			__cmock_sid_gpio_irq_handler_set_Expect(GPIO_NUMBER, gpio_irq_handler,
+								(void *)&handle_argument);
 		}
 		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_gpio_set_irq(GPIO_NUMBER, trigger,
 								       gpio_irq_handler, (void *)&handle_argument));

@@ -270,6 +270,7 @@ void test_sid_ble_conn_mtu_callback(void)
 	sid_ble_conn_init();
 
 	uint16_t tx_mtu = 32, rx_mtu = 44;
+
 	__cmock_sid_ble_adapter_mtu_changed_Expect(tx_mtu);
 	sid_bt_gatt_cb->att_mtu_updated(&test_conn, tx_mtu, rx_mtu);
 }
@@ -286,6 +287,7 @@ void test_sid_ble_conn_mtu_callback_curent_connection(void)
 	sid_bt_conn_cb->connected(&curr_conn, 0);
 
 	uint16_t tx_mtu = 32, rx_mtu = 44;
+
 	__cmock_sid_ble_adapter_mtu_changed_Expect(tx_mtu);
 	sid_bt_gatt_cb->att_mtu_updated(&curr_conn, tx_mtu, rx_mtu);
 

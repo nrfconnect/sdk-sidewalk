@@ -90,6 +90,7 @@ static void sid_pal_timer_list_insert(struct sid_pal_timer_ctx *ctx, sid_pal_tim
 
 	sid_pal_enter_critical_region();
 	sys_dnode_t *node = sys_dlist_peek_head(&ctx->list);
+
 	while (node) {
 		sid_pal_timer_t *element = CONTAINER_OF(node, __typeof__(*element), node);
 		if (sid_time_gt(&element->alarm, &timer->alarm)) {
@@ -139,6 +140,7 @@ static void sid_pal_timer_list_get_next_schedule(struct sid_pal_timer_ctx *ctx, 
 
 	sid_pal_enter_critical_region();
 	sid_pal_timer_t *result = SYS_DLIST_PEEK_HEAD_CONTAINER(&ctx->list, result, node);
+
 	if (result) {
 		*schedule = result->alarm;
 	}
@@ -212,6 +214,7 @@ bool sid_pal_timer_is_armed(const sid_pal_timer_t *timer_storage)
 		return false;
 	}
 	sid_pal_timer_t *timer = (sid_pal_timer_t *)timer_storage;
+
 	return sid_pal_timer_list_in_list(timer);
 }
 
@@ -236,6 +239,7 @@ void sid_pal_timer_event_callback(void *arg, const struct sid_timespec *now)
 	} while (1);
 
 	struct sid_timespec next_schedule;
+
 	sid_pal_timer_list_get_next_schedule(&sid_pal_timer_ctx, &next_schedule);
 	sid_timer_start(&next_schedule);
 }

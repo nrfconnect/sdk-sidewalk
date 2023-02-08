@@ -2,18 +2,16 @@
 # Copyright (c) 2022 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+import logging
+import yaml
+from typing import List, Union
+from pathlib import Path
+import subprocess
+import re
+import argparse
 import sys
 MIN_PYTHON = (3, 10)
 assert sys.version_info >= MIN_PYTHON, f"requires Python {'.'.join([str(n) for n in MIN_PYTHON])} or newer"
-
-import argparse
-import re
-import subprocess
-from pathlib import Path
-from typing import List, Union
-
-import yaml
-import logging
 
 
 class Configuration:
@@ -211,11 +209,13 @@ class FileListManager:
         return False
 
     def _remove_ignored_files(self):
-        new_file_set = set(filter(lambda file: not self._file_match_any_regexp(file, self.ignore_files), self.files))
+        new_file_set = set(filter(lambda file: not self._file_match_any_regexp(
+            file, self.ignore_files), self.files))
         self.files = new_file_set
 
     def _remove_not_supported_files(self):
-        new_file_set = set(filter(lambda file: self._file_match_any_regexp(file, self.supported_files), self.files))
+        new_file_set = set(filter(lambda file: self._file_match_any_regexp(
+            file, self.supported_files), self.files))
         self.files = new_file_set
 
     @property
@@ -278,7 +278,8 @@ class LicenseVerificator:
             int: if any of the license_txt elements could not be found in file_header, return 1, otherwise 0
         """
         for txt in license_txt:
-            normalized_header = re.sub(r"[^A-Za-z0-9().,\s]", " ", "".join(file_header.split("\n")))
+            normalized_header = re.sub(
+                r"[^A-Za-z0-9().,\s]", " ", "".join(file_header.split("\n")))
             normalized_header = re.sub(r"\s+", " ", normalized_header)
             if not re.search(txt, normalized_header, re.IGNORECASE):
                 logger.error(f"\tLicense text: {txt} could not be found")
@@ -300,7 +301,8 @@ class LicenseVerificator:
         if spdx:
             spdx = spdx.groups()[0]
         if spdx != expect_spdx:
-            logger.error(f"\tInvalid spdx found {spdx}, expected {expect_spdx}")
+            logger.error(
+                f"\tInvalid spdx found {spdx}, expected {expect_spdx}")
             return 1
         return 0
 
@@ -386,6 +388,7 @@ def argument_parser():
         "-s", "--scan-root", nargs=1, help="Check all files in repository")
     return parser_
 
+
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -433,7 +436,7 @@ if __name__ == "__main__":
     checked_files = 0
     for file in FileListManager(cfg, files).filtered_files:
         error_count += LicenseVerificator(cfg, file).check()
-        checked_files+=1
+        checked_files += 1
 
     logger.info(f"Checked {checked_files} files:")
     if error_count > 0:

@@ -45,11 +45,13 @@ int sid_gpio_utils_port_pin_get(uint32_t gpio_number, gpio_port_pin_t *port_pin)
 	}
 
 	int gpio_port_number = GPIO_NUM_TO_GPIO_PORT(gpio_number);
+
 	if (GPIO_COUNT < gpio_port_number) {
 		return -EINVAL;
 	}
 
 	const struct device *gpio = gpio_port[gpio_port_number];
+
 	if (!gpio) {
 		return -EINVAL;
 	}
@@ -86,6 +88,7 @@ int sid_gpio_utils_gpio_read(uint32_t gpio_number, uint8_t *value)
 
 	gpio_port_pin_t port_pin;
 	int ret_val = sid_gpio_utils_port_pin_get(gpio_number, &port_pin);
+
 	if (ret_val) {
 		return ret_val;
 	}

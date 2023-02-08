@@ -62,7 +62,9 @@ static void mfg_set_version(uint32_t version)
 	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN];
 
 	memcpy(write_buff, &version, SID_PAL_MFG_STORE_VERSION_SIZE);
-	TEST_ASSERT_EQUAL(0, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, SID_PAL_MFG_STORE_VERSION_SIZE));
+	TEST_ASSERT_EQUAL(0,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff,
+						  SID_PAL_MFG_STORE_VERSION_SIZE));
 	version = sys_cpu_to_be32(version);
 	TEST_ASSERT_EQUAL(version, sid_pal_mfg_store_get_version());
 }
@@ -75,9 +77,11 @@ static void mfg_clr_memory(void)
 
 void test_sid_pal_mfg_storage_no_init(void)
 {
-	uint8_t read_buffer[SID_PAL_MFG_STORE_VERSION_SIZE] = {0};
+	uint8_t read_buffer[SID_PAL_MFG_STORE_VERSION_SIZE] = { 0 };
 
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, read_buffer, SID_PAL_MFG_STORE_VERSION_SIZE));
+	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, read_buffer,
+						  SID_PAL_MFG_STORE_VERSION_SIZE));
 	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_mfg_store_erase());
 	TEST_ASSERT_FALSE(sid_pal_mfg_store_is_empty());
 	memset(read_buffer, 0xAA, SID_PAL_MFG_STORE_VERSION_SIZE);
@@ -99,13 +103,17 @@ void test_sid_pal_mfg_storage_init(void)
 
 void test_sid_pal_mfg_storage_write(void)
 {
-	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN] = {0};
+	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN] = { 0 };
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 128));
-	TEST_ASSERT_EQUAL(SID_ERROR_INCOMPATIBLE_PARAMS, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 3));
-	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND, sid_pal_mfg_store_write(999, write_buff, SID_PAL_MFG_STORE_VERSION_SIZE));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, NULL, SID_PAL_MFG_STORE_VERSION_SIZE));
+	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff,
+									      128));
+	TEST_ASSERT_EQUAL(SID_ERROR_INCOMPATIBLE_PARAMS,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 3));
+	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND,
+			  sid_pal_mfg_store_write(999, write_buff, SID_PAL_MFG_STORE_VERSION_SIZE));
+	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, NULL, SID_PAL_MFG_STORE_VERSION_SIZE));
 
 	mfg_set_version(MFG_VERSION_1_VAL);
 }
@@ -144,7 +152,8 @@ void test_sid_pal_mfg_storage_dev_id_get(void)
 
 	memset(dev_id, 0x00, sizeof(dev_id));
 	// Set fake dev_id.
-	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_DEVID, fake_dev_id, sizeof(fake_dev_id)));
+	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_DEVID, fake_dev_id, sizeof(fake_dev_id)));
 }
 
 void test_sid_pal_mfg_storage_sn_get(void)
@@ -162,7 +171,9 @@ void test_sid_pal_mfg_storage_sn_get(void)
 	TEST_ASSERT_FALSE(sid_pal_mfg_store_serial_num_get(serial_num));
 
 	// Set fake serial number.
-	TEST_ASSERT_EQUAL(0, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_SERIAL_NUM, fake_serial_num, sizeof(fake_serial_num)));
+	TEST_ASSERT_EQUAL(0,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_SERIAL_NUM, fake_serial_num,
+						  sizeof(fake_serial_num)));
 	TEST_ASSERT_TRUE(sid_pal_mfg_store_serial_num_get(serial_num));
 	TEST_ASSERT_EQUAL_HEX8_ARRAY(fake_serial_num, serial_num, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 

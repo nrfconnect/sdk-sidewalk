@@ -77,6 +77,7 @@ sid_error_t sid_pal_gpio_set_direction(uint32_t gpio_number,
 
 	gpio_port_pin_t port_pin;
 	int erc = sid_gpio_utils_port_pin_get(gpio_number, &port_pin);
+
 	if (!erc) {
 		gpio_config_flags[gpio_number] &= ~(GPIO_INPUT | GPIO_OUTPUT);
 		gpio_config_flags[gpio_number] |= GPIO_SET_DIRECTION(direction);
@@ -120,6 +121,7 @@ sid_error_t sid_pal_gpio_output_mode(uint32_t gpio_number, sid_pal_gpio_output_t
 
 	gpio_port_pin_t port_pin;
 	int erc = sid_gpio_utils_port_pin_get(gpio_number, &port_pin);
+
 	if (!erc) {
 		if (GPIO_OUTPUT != (gpio_config_flags[gpio_number] & GPIO_OUTPUT)) {
 			return SID_ERROR_INVALID_ARGS;

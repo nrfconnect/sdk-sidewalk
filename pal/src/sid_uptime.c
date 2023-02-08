@@ -29,6 +29,7 @@ sid_error_t sid_pal_uptime_now(struct sid_timespec *result)
 	}
 
 	uint64_t uptime_ns = zephyr_uptime_ns();
+
 	result->tv_sec = (sid_time_t)(uptime_ns / NSEC_PER_SEC);
 	result->tv_nsec = (uint32_t)(uptime_ns - ((uint64_t)result->tv_sec * NSEC_PER_SEC));
 

@@ -1,5 +1,5 @@
 # Copyright (c) 2022 Nordic Semiconductor ASA
-# 
+#
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 
 """Script to generate hardware map used by twister based on userdev_conf file or connected DKs."""
@@ -56,16 +56,20 @@ def main(hardware_map_path: str, userdev_conf_path: str):
         segger = hw_entry["id"].lstrip("0")
         matched_pcas = []
         if userdev_conf_path.upper() != "AUTO":
-            matched_pcas = [ud_entry["pca"] for ud_entry in userdev_conf if str(ud_entry.get("segger")) == segger]
+            matched_pcas = [ud_entry["pca"] for ud_entry in userdev_conf if str(
+                ud_entry.get("segger")) == segger]
         else:
             # recover DK
-            recover = subprocess.run(["nrfjprog", "--recover", "--snr", segger], capture_output=True)
+            recover = subprocess.run(
+                ["nrfjprog", "--recover", "--snr", segger], capture_output=True)
             if recover.returncode != 0:
                 # it is OK to continue if recovery fail. This DK will not be taken to test
                 continue
             # Read out device family
-            out = subprocess.run(["nrfjprog", "--deviceversion", "--snr", segger], capture_output=True)
-            matched_pcas = [family_to_pca[out.stdout.decode("utf-8").split("_")[0]]] if out.returncode == 0 else []
+            out = subprocess.run(
+                ["nrfjprog", "--deviceversion", "--snr", segger], capture_output=True)
+            matched_pcas = [family_to_pca[out.stdout.decode(
+                "utf-8").split("_")[0]]] if out.returncode == 0 else []
         if matched_pcas:
             try:
                 hw_entry["platform"] = pca_to_board[matched_pcas[0]]
