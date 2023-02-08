@@ -17,10 +17,10 @@ endif() # CONFIG_SIDEWALK_LOG_LEVEL_OFF
 zephyr_compile_definitions_ifndef(CONFIG_SIDEWALK_ASSERT SID_PAL_ASSERT_DISABLED)
 
 zephyr_include_directories(
-  include
-  hal/include
-  pal/include
-  lib/include
+	include
+	hal/include
+	pal/include
+	lib/include
 )
 
 add_subdirectory(pal)
