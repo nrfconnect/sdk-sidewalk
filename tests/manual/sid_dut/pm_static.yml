@@ -1,9 +1,14 @@
 sidewalk_storage:
   address: 0xf8000
   region: flash_primary
-  size: 0x7000
+  size: 0x5000
 
 mfg_storage:
-  address: 0xff000
+  address: 0xfd000
   region: flash_primary
   size: 0x1000
+
+dummy_storage:
+  address: 0xfe000
+  region: flash_primary
+  size: 0x2000
