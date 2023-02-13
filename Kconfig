@@ -101,19 +101,25 @@ if MAC_ADDRESS_TYPE_PUBLIC
 	  AA:BB:CC:DD:EE:FF).
 endif # MAC_ADDRESS_TYPE_PUBLIC
 
-choice SIDEWALK_BLE_ADV_INT
-	prompt "BLE advertising interval timers"
-	default BLE_ADV_FAST_INT_100_150_MS
+config SIDEWALK_BLE_ADV_INT_PRECISION
+	int "Precision of advertisement interval in ms"
+	range 1 1000
+	default 5
 
-config BLE_ADV_FAST_INT_30_60_MS
-	bool "MIN/MAX: 30/60 ms"
+config SIDEWALK_BLE_ADV_INT_FAST
+	int "Fast advertise interval in ms"
+	range 20 10240
+	default 160
+	
+config SIDEWALK_BLE_ADV_INT_SLOW
+	int "Slow advertise interval in ms"
+	range 20 10240
+	default 1000
 
-config BLE_ADV_FAST_INT_100_150_MS
-	bool "MIN/MAX: 100/150 ms"
-
-config BLE_ADV_SLOW_INT_1000_1200_MS
-	bool "MIN/MAX: 1/1.2 s"
-endchoice # SIDEWALK_BLE_ADV_INT
+config SIDEWALK_BLE_ADV_INT_TRANSITION
+	int "Duration of fast advertisement after sid_start in seconds"
+	range 1 2147483647
+	default 30
 
 config SIDEWALK_VENDOR_SERVICE
 	bool "Enable vendor service"
