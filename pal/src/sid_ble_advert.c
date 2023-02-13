@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
+#include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
 #include <sid_ble_advert.h>
 #include <sid_ble_uuid.h>
 
@@ -13,16 +15,7 @@
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/sys/byteorder.h>
 
-#ifdef CONFIG_BLE_ADV_SLOW_INT_1000_1200_MS
-#define ADV_INT_MIN     BT_GAP_ADV_SLOW_INT_MIN
-#define ADV_INT_MAX     BT_GAP_ADV_SLOW_INT_MAX
-#elif CONFIG_BLE_ADV_FAST_INT_30_60_MS
-#define ADV_INT_MIN     BT_GAP_ADV_FAST_INT_MIN_1
-#define ADV_INT_MAX     BT_GAP_ADV_FAST_INT_MAX_1
-#else
-#define ADV_INT_MIN     BT_GAP_ADV_FAST_INT_MIN_2
-#define ADV_INT_MAX     BT_GAP_ADV_FAST_INT_MAX_2
-#endif
+#define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
 
 #if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
 #define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_USE_NAME | \
@@ -33,12 +26,32 @@
 			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
 #endif
 
+#if 10240 < (CONFIG_SIDEWALK_BLE_ADV_INT_FAST + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION)
+#error \
+	"Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_FAST or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
+#endif
+
+#if 10240 < (CONFIG_SIDEWALK_BLE_ADV_INT_SLOW + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION)
+#error \
+	"Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_SLOW or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
+#endif
+#if CONFIG_SIDEWALK_BLE_ADV_INT_FAST > CONFIG_SIDEWALK_BLE_ADV_INT_SLOW
+#error "CONFIG_SIDEWALK_BLE_ADV_INT_FAST should be smaller than CONFIG_SIDEWALK_BLE_ADV_INT_SLOW"
+#endif
+
 /* Advertising parameters. */
-#define AMA_ADV_PARAM		  \
-	BT_LE_ADV_PARAM(	  \
-		AMA_ADV_OPTIONS,  \
-		ADV_INT_MIN,	  \
-		ADV_INT_MAX, NULL \
+#define AMA_ADV_PARAM_FAST											   \
+	BT_LE_ADV_PARAM(											   \
+		AMA_ADV_OPTIONS,										   \
+		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),						   \
+		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION), NULL \
+		)
+
+#define AMA_ADV_PARAM_SLOW											   \
+	BT_LE_ADV_PARAM(											   \
+		AMA_ADV_OPTIONS,										   \
+		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),						   \
+		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION), NULL \
 		)
 
 /**
@@ -67,7 +80,10 @@ typedef enum {
 	BLE_ADV_ENABLE
 } sid_ble_adv_state_t;
 
-static sid_ble_adv_state_t adv_state;
+static void change_adv(struct k_work *);
+K_WORK_DELAYABLE_DEFINE(change_adv_work, change_adv);
+
+static atomic_t adv_state = ATOMIC_INIT(BLE_ADV_DISABLE);
 
 static uint8_t bt_adv_manuf_data[AD_MANUF_DATA_LEN_MAX];
 
@@ -97,13 +113,31 @@ static uint8_t advert_manuf_data_copy(uint8_t *data, uint8_t data_len)
 	return new_data_len + ama_id_len;
 }
 
+static void change_adv(struct k_work *work)
+{
+	ARG_UNUSED(work);
+	if (BLE_ADV_ENABLE == atomic_get(&adv_state)) {
+
+		if (bt_le_adv_stop()) {
+			atomic_set(&adv_state, BLE_ADV_DISABLE);
+			return;
+		}
+		if (bt_le_adv_start(AMA_ADV_PARAM_SLOW, adv_data, ARRAY_SIZE(adv_data), NULL, 0)) {
+			atomic_set(&adv_state, BLE_ADV_DISABLE);
+			return;
+		}
+	}
+}
+
 int sid_ble_advert_start(void)
 {
-	int err = bt_le_adv_start(AMA_ADV_PARAM, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
+	k_work_reschedule(&change_adv_work, K_SECONDS(CONFIG_SIDEWALK_BLE_ADV_INT_TRANSITION));
+	int err = bt_le_adv_start(AMA_ADV_PARAM_FAST, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 
-	if (!err) {
-		adv_state = BLE_ADV_ENABLE;
+	if (err) {
+		return err;
 	}
+	atomic_set(&adv_state, BLE_ADV_ENABLE);
 
 #if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
 	static struct bt_le_oob oob;
@@ -115,10 +149,11 @@ int sid_ble_advert_start(void)
 
 int sid_ble_advert_stop(void)
 {
+	k_work_cancel_delayable(&change_adv_work);
 	int err = bt_le_adv_stop();
 
 	if (0 == err) {
-		adv_state = BLE_ADV_DISABLE;
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
 	}
 
 	return err;
@@ -134,7 +169,7 @@ int sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 
 	int err = 0;
 
-	if (BLE_ADV_ENABLE == adv_state) {
+	if (BLE_ADV_ENABLE == atomic_get(&adv_state)) {
 		err = bt_le_adv_update_data(adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 	}
 
