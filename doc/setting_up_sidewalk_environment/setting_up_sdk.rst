@@ -53,16 +53,6 @@ For additional information regarding setting up the device and familiarizing you
 Downloading Sidewalk repository
 *******************************
 
-#. Install nRF Connect SDK with its dependencies.
-
-   * Install `Git LFS`_ via the following command:
-
-      .. code-block:: console
-
-         sudo apt install git-lfs
-
-   * Refer to `NCS getting started`_ documentation for getting started with the nRF Connect SDK.
-
 #. Download Sidewalk application for nRF Connect SDK.
 
    * Clone Sidewalk application repository from `nRF Sidewalk Repository`_ to the NCS folder and name it `sidewalk` (private repository, special access required).
@@ -98,7 +88,6 @@ To download nRF Command Line, go to `nRF command line tools`_ page.
 .. _Docker: https://docs.docker.com/engine/install/ubuntu/
 .. _nRF_command_line_tools: https://infocenter.nordicsemi.com/topic/ug_nrf_cltools/UG/cltools/nrf_installation.html
 .. _nRF Sidewalk Repository: https://github.com/nrfconnect/sdk-sidewalk
-.. _Git LFS: https://git-lfs.github.com/
 .. _NCS getting started: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started.html
 .. _Nordic nRF52840-DK: https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF52840-DK
 .. _Semtech SX1262 mbed shield eval board: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
