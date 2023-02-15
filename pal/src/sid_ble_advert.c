@@ -14,6 +14,9 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/sys/byteorder.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
 #define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
 
@@ -80,8 +83,8 @@ typedef enum {
 	BLE_ADV_ENABLE
 } sid_ble_adv_state_t;
 
-static void change_adv(struct k_work *);
-K_WORK_DELAYABLE_DEFINE(change_adv_work, change_adv);
+static void change_advertisement_interval(struct k_work *);
+K_WORK_DELAYABLE_DEFINE(change_adv_work, change_advertisement_interval);
 
 static atomic_t adv_state = ATOMIC_INIT(BLE_ADV_DISABLE);
 
@@ -113,7 +116,7 @@ static uint8_t advert_manuf_data_copy(uint8_t *data, uint8_t data_len)
 	return new_data_len + ama_id_len;
 }
 
-static void change_adv(struct k_work *work)
+static void change_advertisement_interval(struct k_work *work)
 {
 	ARG_UNUSED(work);
 	if (BLE_ADV_ENABLE == atomic_get(&adv_state)) {
@@ -126,6 +129,7 @@ static void change_adv(struct k_work *work)
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
 			return;
 		}
+		LOG_DBG("BLE -> BLE");
 	}
 }
 

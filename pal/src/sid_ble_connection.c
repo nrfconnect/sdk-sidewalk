@@ -76,13 +76,13 @@ static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 		LOG_WRN("Unknow connection");
 		return;
 	}
+	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
 	bt_conn_unref(conn_params.conn);
 	conn_params.conn = NULL;
 	k_mutex_unlock(&bt_conn_mutex);
 
-	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
 	LOG_DBG("BT Disconnected");
 }
 

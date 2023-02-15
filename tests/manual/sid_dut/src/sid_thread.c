@@ -29,7 +29,7 @@
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
 
-LOG_MODULE_REGISTER(sid_thread, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(sid_thread, LOG_LEVEL_DBG);
 
 K_THREAD_STACK_DEFINE(sidewalk_dut_work_q_stack, SIDEWALK_DUT_WORK_Q_STACK_SIZE);
 
@@ -91,6 +91,7 @@ static struct sid_config config = {
 
 static void sidewalk_event_worker(struct k_work *work)
 {
+	LOG_DBG("sid_process handled");
 	struct app_context *app_ctx = CONTAINER_OF(work, struct app_context, sidewalk_event_work);
 
 	sid_error_t e = sid_process(*app_ctx->sidewalk_handle);
@@ -102,7 +103,7 @@ static void sidewalk_event_worker(struct k_work *work)
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	LOG_DBG("sidewalk event");
+	LOG_DBG("Sidewalk -> App");
 	struct app_context *ctx = (struct app_context *)context;
 
 	if (ctx->sidewalk_event_work.handler == NULL) {
@@ -113,23 +114,23 @@ static void on_sidewalk_event(bool in_isr, void *context)
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
 {
-	LOG_INF("Message received");
+	LOG_DBG("Sidewalk -> App");
 	LOG_HEXDUMP_INF(msg->data, msg->size, "");
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
-	LOG_INF("send message succeeded");
+	LOG_DBG("Sidewalk -> App");
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
 {
-	LOG_INF("send message failed with error %d", error);
+	LOG_DBG("Sidewalk -> App: error %d", error);
 }
 
 static void on_sidewalk_factory_reset(void *context)
 {
-	LOG_INF("factory reset handled");
+	LOG_DBG("Sidewalk -> App");
 }
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
@@ -155,12 +156,12 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		break;
 	}
 
-	LOG_INF("EVENT SID STATUS: State: %d, Reg: %d, Time: %d, Link_Mask: %x\n",
+	LOG_INF("EVENT SID STATUS: State: %d, Reg: %d, Time: %d, Link_Mask: %x",
 		status->state,
 		status->detail.registration_status,
 		status->detail.time_sync_status,
 		status->detail.link_status_mask);
-	LOG_INF("EVENT SID STATUS LINK MODE: LORA: %x, FSK: %x, BLE: %x\n",
+	LOG_INF("EVENT SID STATUS LINK MODE: LORA: %x, FSK: %x, BLE: %x",
 		status->detail.supported_link_modes[2],
 		status->detail.supported_link_modes[1],
 		status->detail.supported_link_modes[0]);
@@ -320,12 +321,10 @@ static sid_error_t sid_pal_init(void)
 sid_error_t sid_thread_init(void)
 {
 	k_work_queue_init(&sidewalk_dut_work_q);
+	static struct k_work_queue_config cfg = {.name = "sidewalk_thread", .no_yield = false};
 	k_work_queue_start(&sidewalk_dut_work_q, sidewalk_dut_work_q_stack,
 			   K_THREAD_STACK_SIZEOF(sidewalk_dut_work_q_stack), CONFIG_SIDEWALK_THREAD_PRIORITY,
-			   NULL);
-	k_tid_t sidewalk_thread = k_work_queue_thread_get(&sidewalk_dut_work_q);
-
-	k_thread_name_set(sidewalk_thread, "sidewalk_thread");
+			   &cfg);
 	sid_api_delegated(&sidewalk_dut_work_q);
 	return sid_pal_init();
 }

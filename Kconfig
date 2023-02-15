@@ -224,6 +224,10 @@ module-str = Amazon Sidewalk Crypto
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 endif # SIDEWALK_CRYPTO
 
+module = SIDEWALK_BLE_ADAPTER
+module-str = Sidewalk BLE interface
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 endif # SIDEWALK_LOG
 
 config SIDEWALK_MFG_STORAGE
