@@ -32,7 +32,7 @@
 #include <zephyr/settings/settings.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_LOG_LEVEL);
+LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg);
 static sid_error_t ble_adapter_start_service(void);
@@ -58,9 +58,10 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	ARG_UNUSED(cfg);
 
-	LOG_DBG("Enable BT");
+	LOG_INF("Enable BT");
 
 #if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
 	bt_addr_t pub_addr;
@@ -97,11 +98,13 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 
 static sid_error_t ble_adapter_start_service(void)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	return SID_ERROR_NONE;
 }
 
 static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	if (!data || 0 == length) {
 		return SID_ERROR_INVALID_ARGS;
 	}
@@ -118,6 +121,7 @@ static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length)
 
 static sid_error_t ble_adapter_start_advertisement(void)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	int err = sid_ble_advert_start();
 
 	if (err) {
@@ -130,6 +134,7 @@ static sid_error_t ble_adapter_start_advertisement(void)
 
 static sid_error_t ble_adapter_stop_advertisement(void)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	int err = sid_ble_advert_stop();
 
 	if (err) {
@@ -142,6 +147,7 @@ static sid_error_t ble_adapter_stop_advertisement(void)
 
 static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_srv_params_t srv_params = {};
 
 	switch (id) {
@@ -184,6 +190,7 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	sid_error_t err_code;
 
 	if (!cb) {
@@ -225,6 +232,7 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 
 static sid_error_t ble_adapter_disconnect(void)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	int err = sid_ble_conn_disconnect();
 
 	if (err) {
@@ -237,6 +245,7 @@ static sid_error_t ble_adapter_disconnect(void)
 
 static sid_error_t ble_adapter_deinit(void)
 {
+	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
 
 	return SID_ERROR_NONE;
