@@ -13,13 +13,13 @@ For information about building the sample, see the :ref:`samples_building_and_ru
    :glob:
    :caption: Subpages:
 
-   sidewalk_application_samples/ble_only.rst
    sidewalk_application_samples/template.rst
+   sidewalk_application_samples/template_ble.rst
 
 The table below shows differences between their configurations:
 
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Criteria              | Template                                                      | Bluetooth LE only                          |
+| Criteria              | Template                                                      | Template Bluetooth LE                      |
 +=======================+===============================================================+============================================+
 | Hardware required     | * `nRF52840dk_nrf52840`_                                      | * `nRF52840dk_nrf52840`_                   |
 |                       | * External flash (included in the DK)                         |                                            |
@@ -28,8 +28,8 @@ The table below shows differences between their configurations:
 | Bootloader            | * MCUBoot - DFU partition in external flash                   | * MCUBoot - DFU partition in internal flash|
 |                       | * Application partition size = 956kB                          | * Application partition size = 480kB       |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Application overlays  | * :file:`lora.conf`                                           | * :file:`usb_dfu`                          |
-|                       | * :file:`fsk.conf`                                            |                                            |
+| Application overlays  | * :file:`fsk.conf`                                            | * :file:`usb_dfu`                          |
+|                       | * :file:`ble.conf`                                            |                                            |
 |                       | * :file:`usb_dfu`                                             |                                            |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
 | Persistant data size  | * 8kB Zephyr settings                                         | * 8kB Zephyr settings                      |

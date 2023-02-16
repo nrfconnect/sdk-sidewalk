@@ -5,6 +5,7 @@ tests:
   sample.sidewalk.template.ble:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
+    extra_args: OVERLAY_CONFIG=ble.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
@@ -12,7 +13,7 @@ tests:
   sample.sidewalk.template.ble.cli:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    extra_args: CONFIG_SIDEWALK_CLI=y
+    extra_args: OVERLAY_CONFIG=ble.conf CONFIG_SIDEWALK_CLI=y
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk_cli
@@ -20,7 +21,7 @@ tests:
   sample.sidewalk.template.ble.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    extra_args: CONF_FILE=prj_release.conf
+    extra_args: OVERLAY_CONFIG=ble.conf CONF_FILE=prj_release.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
@@ -28,7 +29,6 @@ tests:
   sample.sidewalk.template.lora:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=lora.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
@@ -36,7 +36,7 @@ tests:
   sample.sidewalk.template.lora.cli:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=lora.conf CONFIG_SIDEWALK_CLI=y
+    extra_args: CONFIG_SIDEWALK_CLI=y
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk_cli
@@ -44,8 +44,7 @@ tests:
   sample.sidewalk.template.lora.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=lora.conf
-                CONF_FILE=prj_release.conf
+    extra_args: CONF_FILE=prj_release.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
@@ -69,8 +68,7 @@ tests:
   sample.sidewalk.template.fsk.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
-    extra_args: OVERLAY_CONFIG=fsk.conf
-                CONF_FILE=prj_release.conf
+    extra_args: OVERLAY_CONFIG=fsk.conf CONF_FILE=prj_release.conf
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
