@@ -21,4 +21,4 @@ jobs:
 
       - name: Check license
         run: |
-          python3 ./scripts/ci/verify_license.py -d -s . -c ./scripts/ci/license.yml
+          python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
