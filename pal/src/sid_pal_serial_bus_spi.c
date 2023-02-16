@@ -122,7 +122,7 @@ sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus
 		return SID_ERROR_INVALID_ARGS;
 	}
 
-	const struct device *spi_device = DEVICE_DT_GET(DT_NODELABEL(sid_900));
+	const struct device *spi_device = DEVICE_DT_GET(DT_NODELABEL(sid_semtech));
 
 	if (!device_is_ready(spi_device)) {
 		LOG_ERR("SPI device not ready");
@@ -133,7 +133,7 @@ sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus
 	bus_serial_ctx = (struct bus_serial_ctx_t){
 		.device = spi_device,
 		.cfg = {
-			.frequency = DT_PROP_OR(DT_NODELABEL(sid_900), clock_frequency, SPI_FREQUENCY_DEFAULT),
+			.frequency = DT_PROP_OR(DT_NODELABEL(sid_semtech), clock_frequency, SPI_FREQUENCY_DEFAULT),
 			.operation = SPI_OPTIONS,
 			.cs = NULL,
 		},
