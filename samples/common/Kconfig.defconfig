@@ -5,6 +5,10 @@
 #
 mainmenu "Sidewalk nRF Connect Application"
 
+# Crypto
+config PSA_CRYPTO_DRIVER_ALG_ECDSA_CC3XX
+	default n
+
 # Bluetooth
 config BT_REMOTE_VERSION
 	default y
