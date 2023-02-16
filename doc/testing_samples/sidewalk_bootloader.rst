@@ -13,11 +13,11 @@ Configuration in samples
 
 The following configurations are available for Sidewalk:
 
-* The ble_only sample - It is an example of Sidewalk configuration where only Bluetooth LE transport protocol is supported.
+* The Template BLE sample - It is an example of Sidewalk configuration where only Bluetooth LE transport protocol is supported.
   Because of the smaller footprint, both bootloader partitions for the application are placed in the internal flash memory of the supported SoC (nRF52840).
 
-* The template sample - It supports all available configurations (including ble_only), but because the size and location of the bootloader partitions have to be consistent, the sample uses an external memory to store the secondary partition for the application.
-  Partitions are set in the bootloader, and their adequate size is reservered.
+* The Template sample - It supports all available configurations (including BLE), but because the size and location of the bootloader partitions have to be consistent, the sample uses an external memory to store the secondary partition for the application.
+  Partitions are set in the bootloader, and their adequate size is reserved.
   This way, you should be able to update any template configuration or buy any other configuration.
 
 

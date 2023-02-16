@@ -2,14 +2,14 @@ sample:
   name: Sidewalk BLE only sample
   description: Sample implementing Amazon Sidewalk End Device
 tests:
-  sample.sidewalk.ble_only:
+  sample.sidewalk.template_ble:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     integration_platforms:
       - nrf52840dk_nrf52840
     tags: Sidewalk
 
-  sample.sidewalk.ble_only.release:
+  sample.sidewalk.template_ble.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     extra_args: CONF_FILE=prj_release.conf
@@ -17,7 +17,7 @@ tests:
       - nrf52840dk_nrf52840
     tags: Sidewalk
 
-  sample.sidewalk.ble_only.cli:
+  sample.sidewalk.template_ble.cli:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     extra_args: CONFIG_SIDEWALK_CLI=y

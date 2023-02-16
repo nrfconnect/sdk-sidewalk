@@ -1,7 +1,11 @@
-template
+.. _template_sample:
+
+Template
 ########
 
 The sample demonstrates a template for Sidewalk End Node application.
+It supports LoRa, FSK and Bluetooth LE link modes.
+External QSPI Flash is used for firmware updates.
 
 .. _template_requirements:
 
@@ -25,7 +29,8 @@ The supported modules are as follows:
 | `SX1262`_  | SX126xMB2xAS  | SPI @ 8Mhz |
 +------------+---------------+------------+
 
-The LoRa radio module shield must be connected to Arduino header of the development kit (connectors: P13, P14, P15, P16), and the antenna has to be connected to the radio module.
+.. note::
+   The LoRa radio module shield must be connected to the development kit header, and the antenna has to be connected to the radio module.
 
 .. _template_overview:
 
@@ -48,11 +53,14 @@ Before building a sample, follow the :ref:`setting_up_the_environment` instructi
 
 Overlays overview
 
-- :file:`lora.conf` - This configuration enables LoRa transport in the Sidewalk application.
-  To enable this overlay you have to connect the Semtech sx1262 shield. This overlay changes the button assignment, check :ref:`samples_ui`.
+- :file:`ble.conf` - This configuration enables Bluetooth LE transport in the Sidewalk application.
+  This overlay changes the button assignment.
+  For details, see the :ref:`samples_ui` section.
 
 - :file:`fsk.conf` - This configuration enables FSK transport in the Sidewalk application.
-  To enable this overlay you have to connect the Semtech sx1262 shield. This overlay changes the button assignment, check :ref:`samples_ui`.
+  To enable this overlay you have to connect the Semtech sx1262 shield.
+  This overlay changes the button assignment.
+  For details, see the :ref:`samples_ui` section.
 
 * :file:`cli` - This configuration adds an nRF Connect Shell over with Sidewalk Command Line Interface.
   For more details, see the :ref:`sidewalk_testing_with_cli` documentation.
@@ -75,24 +83,7 @@ To use a long press action, hold a button for 2 seconds or longer, and release i
 
 .. tabs::
 
-   .. group-tab:: Default
-
-      * Button 1 (long press):
-         Factory reset.
-
-      * Button 2:
-         Toggle Connection Request.
-
-      * Button 3:
-         Send Hello.
-
-      * Button 4 (short press):
-         Set fake battery level.
-
-      * Button 4 (long press):
-         Enter DFU state.
-
-   .. group-tab:: LoRa/FSK
+   .. group-tab:: LoRa (default) and FSK
 
       * Button 1 (long press):
          Factory reset.
@@ -105,6 +96,26 @@ To use a long press action, hold a button for 2 seconds or longer, and release i
 
       * Button 3:
          Send Hello.
+
+      * Button 4 (short press):
+         Send Hello.
+
+      * Button 4 (long press):
+         Enter DFU state.
+
+   .. group-tab:: Bluetooth LE
+
+      * Button 1 (long press):
+         Factory reset.
+
+      * Button 2:
+         Toggle Connection Request.
+
+      * Button 3:
+         Send Hello.
+
+      * Button 4 (short press):
+         Set fake battery level.
 
       * Button 4 (long press):
          Enter DFU state.

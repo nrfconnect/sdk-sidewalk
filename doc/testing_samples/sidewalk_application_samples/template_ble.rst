@@ -1,11 +1,12 @@
-.. _ble_only_sample:
+.. _template_ble_sample:
 
-Bluetooth LE only
-#################
+Template BLE
+############
 
 The sample demonstrates a template for Sidewalk End Node application.
+It is optimized for Bluetooth LE only.
 
-.. _ble_only_requirements:
+.. _template_ble_requirements:
 
 Requirements
 ************
@@ -18,14 +19,14 @@ The sample supports the following development kits:
 | nRF52840 DK        | PCA10056 | nrf52840dk_nrf52840  | ``nrf52840dk_nrf52840`` |
 +--------------------+----------+----------------------+-------------------------+
 
-.. _ble_only_overview:
+.. _template_ble_overview:
 
 Overview
 ********
 
 The sample shows implementation of Sidewalk API for the Bluetooth LE only transport protocol.
 
-.. _ble_only_config:
+.. _template_ble_config:
 
 Configuration
 *************
@@ -42,7 +43,7 @@ Overlays overview
   For more details, see the `USB DFU Sample Application`_ documentation.
 
 
-.. _ble_only_ui:
+.. _template_ble_ui:
 
 User interface
 **************
@@ -99,7 +100,7 @@ When the voltage drops to 0, entering low logic state, it means that one of the 
    * P1.4:
       The ``Received`` pin is toggled ``on`` and immediately ``off`` when the packet has been received.
 
-.. _ble_only_testing:
+.. _template_ble_testing:
 
 Testing
 =======

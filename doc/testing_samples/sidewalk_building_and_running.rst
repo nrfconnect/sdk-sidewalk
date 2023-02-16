@@ -8,8 +8,8 @@ Otherwise, proceed to :ref:`sample_running`.
 
 .. _samples_first_sample:
 
-Building the first sample
--------------------------
+Building sample for the first time
+----------------------------------
 
 You need to perform the following steps only once.
 You do no have to repeat it on every sample rebuild.
@@ -31,8 +31,8 @@ You do no have to repeat it on every sample rebuild.
 
 .. _sample_running:
 
-Standard building and running the sample
-----------------------------------------
+Building and running the sample
+-------------------------------
 
 #. Build the sample.
    Depending on the configuration, build with one of the commands below:
@@ -43,28 +43,8 @@ Standard building and running the sample
 
          $ west build -b nrf52840dk_nrf52840
 
-   * Build with overlay:
-
-   .. tabs::
-
-      .. group-tab:: LoRa
-
-         .. code-block:: console
-
-            $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="lora.conf"
-
-      .. group-tab:: FSK
-
-         .. code-block:: console
-
-            $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="fsk.conf"
-
-   Alternatively, you can use VS Code to add the build configuration:
-
-      .. figure:: /images/vscode_build_LoRa.png
-
-   .. note::
-      For more details on building with west, see the `West building flashing and debugging`_ documentation.
+      .. note::
+         For more details on building with west, see the `West building flashing and debugging`_ documentation.
 
 #. Flash the Sidewalk application.
 
@@ -111,6 +91,77 @@ Standard building and running the sample
 
          [00:00:00.006,225] <inf> sid_template: Sidewalk example started!
 
+
+Building with specific configurations
+-------------------------------------
+
+To see commonly used configurations for the Sidewalk samples, refer to the following table:
+
+.. tabs::
+
+   .. group-tab:: Template
+
+      #. To build the :ref:`template_sample` sample, go to its directory:
+
+         .. code-block:: console
+
+            cd sidewalk/samples/template
+
+      #. Run one of the following commands depending on the configuration you want to use:
+
+         * The FSK link mode:
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="fsk.conf"
+
+         * The release configuration:
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
+
+         * The debug configuration with CLI, Bluetooth LE link mode:
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="ble.conf" -DCONFIG_SIDEWALK_CLI=y
+
+   .. group-tab:: Template BLE
+
+      #. To build the :ref:`template_ble_sample` sample, go to its directory:
+
+         .. code-block:: console
+
+            cd sidewalk/samples/template
+
+      #. Run one of the following commands depending on the configuration you want to use:
+
+         * The release configuration:
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
+
+         * The debug configuration with CLI
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840 -- -DCONFIG_SIDEWALK_CLI=y
+
+   .. group-tab:: Manual tests
+
+      #. To build the Sidewalk Device Under Test application, go to its directory:
+
+         .. code-block:: console
+
+            cd sidewalk/tests/manual/sid_dut
+
+      #. To run the debug configuration, use the following command:
+
+         .. code-block:: console
+
+            $ west build -b nrf52840dk_nrf52840
 
 .. _West building flashing and debugging: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/develop/west/build-flash-debug.html
 .. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf52dk_nrf52832/doc/index.html#nrf52dk-nrf52832
