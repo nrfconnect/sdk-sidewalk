@@ -360,11 +360,11 @@ class LicenseVerificator:
             logger.warning(
                 f"File {self.file_path} is not covered by any license in the configuration!")
         file_header = self._read_header(self.file_path)
+        logger.debug(f"checking file {self.file_path}")
         ret = self.validate_file_header(file_header, expected_license)
         if ret > 0:
-            logger.error(f"checking file {self.file_path}")
-        else:
-            logger.debug(f"checking file {self.file_path}")
+            logger.error(f"Failed check on file: {self.file_path}")
+            
         return ret
 
 
@@ -441,6 +441,7 @@ if __name__ == "__main__":
     logger.info(f"Checked {checked_files} files:")
     if error_count > 0:
         logger.error(f"END WITH {error_count} ERRORS")
+        logger.error(f"Check if new files are correctly represented in sidewalk/ci/license.yml")
     else:
         logger.info("END WITH NO ERRORS")
     exit(error_count)
