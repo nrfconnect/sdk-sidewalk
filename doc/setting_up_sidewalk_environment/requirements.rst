@@ -23,7 +23,7 @@ Ensure the requirements below are met:
 #. You have a hardware development kit:
 
    - `Nordic nRF52840-DK`_ - nRF52840 MCU development kit.
-   - `Semtech SX1262 mbed shield eval board`_ - 900 MHz radio shield.
+   - `Semtech SX1262 mbed shield eval board`_ - sub-GHz radio shield.
    - `Nordic nRF52840-DK`_ - MX25R6435F external flash on Nordic DK or similar for dual bank firmware update.
 
    .. note::
