@@ -40,12 +40,12 @@ config SIDEWALK_LINK_MASK_BLE
 
 
 config SIDEWALK_LINK_MASK_FSK
-	bool "900 MHz link for FSK"
+	bool "Sub-GHz link for FSK"
 	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
 
 
 config SIDEWALK_LINK_MASK_LORA
-	bool "900 MHz link for LORA"
+	bool "Sub-GHz link for LORA"
 	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
 
 
