@@ -229,7 +229,7 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 	},
 
 	.state_timings = {
-		.sleep_to_full_power_us = 406,
+		.sleep_to_full_power_us = 440,
 		.full_power_to_sleep_us = 0,
 		.rx_to_tx_us = 0,
 		.tx_to_rx_us = 0,
@@ -266,7 +266,7 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 	#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_send();
 	#endif
-	LOG_DBG("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
+	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)

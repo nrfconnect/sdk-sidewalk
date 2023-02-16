@@ -274,7 +274,7 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 	},
 
 	.state_timings = {
-		.sleep_to_full_power_us = 406,
+		.sleep_to_full_power_us = 440,
 		.full_power_to_sleep_us = 0,
 		.rx_to_tx_us = 0,
 		.tx_to_rx_us = 0,
