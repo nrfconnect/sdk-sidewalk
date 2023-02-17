@@ -9,33 +9,19 @@
 		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
 	"runArgs": [
-		"--privileged",
-		"--name", "nrf-sidewalk-1.14",
+		"--name", "nrf-sidewalk",
 		"--network=host"
 	],
+	"privileged": true,
 	"remoteUser": "vscode",
 	"updateRemoteUserUID": true,
-	"settings": {
-		"github.gitAuthentication": true,
-		"git.terminalAuthentication": true,
-		"C_Cpp.intelliSenseEngine": "Disabled",
-		"nrf-connect.toolchain.path": "PATH",
-		"nrf-connect.welcome.showOnStartup": false,
-		"uncrustify.configPath.linux": "sidewalk/.uncrustify.cfg",
-		"files.insertFinalNewline": true,
-		"coverage-gutters.coverageBaseDir": "sidewalk/scripts/ci/**",
-		"coverage-gutters.coverageFileNames": [
-			"coverage.info",
-			"lcov.info"
-		],
-		"editor.tabSize": 8
-	},
 	"containerEnv": {
 		"LC_ALL": "C.UTF-8",
 		"ZEPHYR_BASE": "/home/vscode/work/ncs/zephyr"
 	},
 	"workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/work/ncs/sidewalk,type=bind",
 	"workspaceFolder": "/home/vscode/work/ncs",
+	"postCreateCommand": "bash /home/vscode/work/ncs/sidewalk/.devcontainer/bootstrap.sh",
 	"customizations": {
 		// Configure properties specific to VS Code.
 		"vscode": {
@@ -53,6 +39,21 @@
 				"ms-python.python",
 				"ryanluker.vscode-coverage-gutters"
 			]
+		},
+		"settings": {
+			"github.gitAuthentication": true,
+			"git.terminalAuthentication": true,
+			"C_Cpp.intelliSenseEngine": "disabled",
+			"nrf-connect.toolchain.path": "PATH",
+			"nrf-connect.welcome.showOnStartup": false,
+			"uncrustify.configPath.linux": "sidewalk/.uncrustify.cfg",
+			"files.insertFinalNewline": true,
+			"coverage-gutters.coverageBaseDir": "sidewalk/scripts/ci/**",
+			"coverage-gutters.coverageFileNames": [
+				"coverage.info",
+				"lcov.info"
+			],
+			"editor.tabSize": 8
 		}
 	},
 	"features": {

@@ -6,6 +6,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(BOARD unit_testing)
 project(state_notifier)
 find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
