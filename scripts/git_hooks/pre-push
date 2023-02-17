@@ -1,0 +1,10 @@
+#!/bin/sh
+
+#  Run unit tests nad tests on native_posix. Tests for nrf52840dk_nrf52840 are only build.
+#  This script takes very long time, so it is not enabled by default ( first run ~15min, cachced builds ~5min)
+#  To enable this hook create symbolic link to sidewalk/.git/hook/pre-push
+
+SIDEWALK_PATH=$(git rev-parse --show-toplevel)
+TWISTER_BIN=$SIDEWALK_PATH/../zephyr/scripts/twister
+
+$TWISTER_BIN -p native_posix -p unit_testing -p nrf52840dk_nrf52840 -n --enable-asan --enable-lsan --clobber-output -T $SIDEWALK_PATH --tag Sidewalk
