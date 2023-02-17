@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
+module = SIDEWALK_BLE_ADAPTER
+module-str = Sidewalk BLE interface
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 config SIDEWALK_BLE_ADV_INT_PRECISION
 	int "test value for Sidewalk configuration macro"
 	default 5
