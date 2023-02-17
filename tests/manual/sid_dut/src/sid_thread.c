@@ -91,7 +91,6 @@ static struct sid_config config = {
 
 static void sidewalk_event_worker(struct k_work *work)
 {
-	LOG_DBG("sid_process handled");
 	struct app_context *app_ctx = CONTAINER_OF(work, struct app_context, sidewalk_event_work);
 
 	sid_error_t e = sid_process(*app_ctx->sidewalk_handle);
@@ -103,7 +102,6 @@ static void sidewalk_event_worker(struct k_work *work)
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	LOG_DBG("Sidewalk -> App");
 	struct app_context *ctx = (struct app_context *)context;
 
 	if (ctx->sidewalk_event_work.handler == NULL) {
