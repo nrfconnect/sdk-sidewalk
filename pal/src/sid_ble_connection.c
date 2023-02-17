@@ -61,7 +61,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 	sid_ble_adapter_conn_connected((const uint8_t *)conn_params.addr);
 	k_mutex_unlock(&bt_conn_mutex);
 
-	LOG_DBG("BT Connected");
+	LOG_INF("BT Connected");
 }
 
 /**
@@ -83,7 +83,7 @@ static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 	conn_params.conn = NULL;
 	k_mutex_unlock(&bt_conn_mutex);
 
-	LOG_DBG("BT Disconnected");
+	LOG_INF("BT Disconnected Reason: 0x%x", reason);
 }
 
 static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu)
