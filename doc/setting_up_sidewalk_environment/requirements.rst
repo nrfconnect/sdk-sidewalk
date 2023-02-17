@@ -39,6 +39,42 @@ Ensure the requirements below are met:
    `Echo 4th Gen`_ is used as the Sidewalk Gateway.
    It is configured with the Alexa App on `iOS`_ or `Android`_ and requires an Amazon account for setup.
 
+.. _requirements_memory:
+
+RAM and flash memory requirements
+*********************************
+
+RAM and flash memory requirement values differ depending on the DK and the programmed sample.
+
+The following tables list memory requirement values for the Sidewalk samples.
+
+Values are provided in kilobytes (KB).
+
+.. tabs::
+
+   .. tab:: nRF52840 DK
+
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | Sample                                                       |   MCUBoot ROM |   Application ROM |   Settings |   Total ROM |   Total RAM |
+      +==============================================================+===============+===================+============+=============+=============+
+      | Sensor monitoring (Debug)                                    |             0 |               371 |          0 |         371 |          74 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template <template_sample>` (Debug)                    |            28 |               379 |          8 |         415 |          74 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template <template_sample>` (Release)                  |            28 |               317 |          8 |         353 |          70 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template <template_sample>` FSK (Debug)                |            28 |               477 |          8 |         513 |          91 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template <template_sample>` FSK (Release)              |            28 |               409 |          8 |         445 |          86 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template <template_sample>` LoRa (Debug)               |            28 |               477 |          8 |         513 |          91 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template <template_sample>` LoRa (Release)             |            28 |               323 |          8 |         359 |          73 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template Bluetooth LE <template_ble_sample>` (Debug)   |            28 |               379 |          8 |         415 |          74 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
+      | :ref:`Template Bluetooth LE <template_ble_sample>` (Release) |            28 |               317 |          8 |         353 |          70 |
+      +--------------------------------------------------------------+---------------+-------------------+------------+-------------+-------------+
 
 .. _Amazon developer account: https://developer.amazon.com/dashboard
 .. _Amazon Web Service account: https://console.aws.amazon.com/console/home
@@ -49,3 +85,4 @@ Ensure the requirements below are met:
 .. _Echo 4th Gen: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id944011620
 .. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
+.. _nrf52840 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.0-rc2/nrf/app_boards.html#board-names
