@@ -690,7 +690,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 
 	switch (params->algo) {
 	case SID_PAL_EDDSA_ED25519:
-		alg = PSA_ALG_ECDSA(PSA_ALG_SHA_256);
+		alg = PSA_ALG_PURE_EDDSA;
 		type = PSA_ECC_FAMILY_TWISTED_EDWARDS;
 		key_len = ED25519_KEY_LEN_BITS;
 		break;
