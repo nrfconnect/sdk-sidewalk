@@ -34,6 +34,8 @@ licenses:
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
   - sidewalk/hal/include/sid_hal_*
+  - sidewalk/hal/include/sid_memory_pool.h
+  - sidewalk/hal/src/memory.c
   - .*_ifc\.h$
   - sidewalk/include/.*
   - sidewalk/lib/include/.*
