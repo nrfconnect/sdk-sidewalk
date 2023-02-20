@@ -43,6 +43,8 @@ LOG_MODULE_REGISTER(sid_thread, CONFIG_SIDEWALK_LOG_LEVEL);
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
 
+#define EMPTY_MFG_HEX_PARTITION (0xFFFFFFFF)
+
 #define SID_LED_INDICATE_CONNECTED   (DK_LED1)
 #define SID_LED_INDICATE_INIT_ERROR  (DK_ALL_LEDS_MSK)
 
@@ -572,6 +574,14 @@ static sid_error_t sid_pal_init(void)
 
 	sid_pal_mfg_store_init(mfg_store_region);
 
+	if (sid_pal_mfg_store_get_version() == EMPTY_MFG_HEX_PARTITION) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", FLASH_AREA_OFFSET(mfg_storage));
+		LOG_ERR("SIZE: 0x%08x", FLASH_AREA_SIZE(mfg_storage));
+		return SID_ERROR_NOT_FOUND;
+	}
+
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 	set_radio_sx126x_device_config(&radio_sx1262_cfg);
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
@@ -619,7 +629,7 @@ static sid_error_t sid_lib_run(app_context_t *app_ctx)
 
 	LOG_INF("Initializing sidewalk, built-in %s link mask", LM_2_STR(LINK_MASK));
 
-	sid_error_t ret_code = init_and_start_link(app_ctx, SID_LINK_TYPE_1);
+	sid_error_t ret_code = init_and_start_link(app_ctx, LINK_MASK);
 
 	if (SID_ERROR_NONE != ret_code) {
 		LOG_ERR("failed to initialize Sidewalk, err: %d", (int)ret_code);
@@ -675,11 +685,6 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
 			}
 			case EVENT_TYPE_SEND_HELLO:
 			{
-				if (app_ctx->sidewalk_config.link_mask != LINK_MASK) {
-					if (SID_ERROR_NONE != init_and_start_link(app_ctx, LINK_MASK)) {
-						return;
-					}
-				}
 				send_message(app_ctx);
 				break;
 			}
