@@ -31,5 +31,7 @@ int nordic_dfu_ble_start(void)
 		return err;
 	}
 
+	LOG_INF("Advertising successfully started");
+
 	return 0;
 }
