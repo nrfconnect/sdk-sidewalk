@@ -816,6 +816,20 @@ void test_sid_set_option_lp_set(struct test_sid_set_option_params params)
 	verify_sid_option_asserts(params, ret);
 }
 
+void test_sid_set_option_d(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_d(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_gd(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_gd(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_get_l3, test_sid_set_option_lp_get_l3,
 		  (struct test_sid_set_option_params){
 	.argc = 1,
@@ -884,6 +898,46 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_not_numbe
 	.argc = 2,
 	.argv = (const char * []) { "-b", "kot" },
 	.return_code = -EINVAL
+})
+
+static uint8_t d_0 = 0;
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_d_0, test_sid_set_option_d,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-d", "0" },
+	.return_code = 0,
+	.option = SID_OPTION_SET_MSG_POLICY_FILTER_DUPLICATES,
+	.data = &d_0,
+	.len = sizeof(d_0)
+})
+
+static uint8_t d_1 = 1;
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_d_1, test_sid_set_option_d,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-d", "1" },
+	.return_code = 0,
+	.option = SID_OPTION_SET_MSG_POLICY_FILTER_DUPLICATES,
+	.data = &d_1,
+	.len = sizeof(d_1)
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_d_2, test_sid_set_option_d,
+		  (struct test_sid_set_option_params){
+	.argc = 2,
+	.argv = (const char * []) { "-d", "2" },
+	.return_code = -EINVAL
+})
+
+static uint8_t gd = 0;
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gd, test_sid_set_option_gd,
+		  (struct test_sid_set_option_params){
+	.argc = 1,
+	.argv = (const char * []) { "-gd" },
+	.return_code = 0,
+	.option = SID_OPTION_GET_MSG_POLICY_FILTER_DUPLICATES,
+	.data = &gd,
+	.len = sizeof(gd)
 })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_1, test_sid_set_option_lp_set,
