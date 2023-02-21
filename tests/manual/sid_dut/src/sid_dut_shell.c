@@ -48,6 +48,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      cmd_sid_option_lp_set, 2, 1),
 	SHELL_CMD_ARG(-lp_get_l2, NULL, "", cmd_sid_option_lp_get_l2, 1, 0),
 	SHELL_CMD_ARG(-lp_get_l3, NULL, "", cmd_sid_option_lp_get_l3, 1, 0),
+	SHELL_CMD_ARG(-d, NULL, "<0,1>", cmd_sid_option_d, 2, 0),
+	SHELL_CMD_ARG(-gd, NULL, "", cmd_sid_option_gd, 1, 0),
 	SHELL_SUBCMD_SET_END);
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
@@ -538,6 +540,43 @@ int cmd_sid_option_lp_get_l3(const struct shell *shell, int32_t argc, const char
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 	sid_option_get(shell, SID_LINK3_PROFILE_A);
+	return 0;
+}
+
+int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 2, 0);
+
+	long data_raw = 0l;
+	static uint8_t data = 0;
+	char *end = NULL;
+	data_raw = strtol(argv[1], &end, 0);
+	if (end == argv[1] || !IN_RANGE(data_raw, 0, 1)) {
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1] == NULL ? "NULL": argv[1], (unsigned int)1);
+		return -EINVAL;
+	}
+	data = (uint8_t)data_raw;
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_SET_MSG_POLICY_FILTER_DUPLICATES, &data,
+					       sizeof(data));
+
+	shell_info(shell, "sid_option returned %d", ret);
+	return 0;
+}
+
+int cmd_sid_option_gd(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+
+	static uint8_t data = 0;
+
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_GET_MSG_POLICY_FILTER_DUPLICATES, &data,
+					       sizeof(data));
+
+	shell_info(shell, "sid_option returned %d; Filter Duplicates: %d", ret, data);
 	return 0;
 }
 

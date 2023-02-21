@@ -67,7 +67,11 @@
 	"\"-lp_set 0x83 <rxwc>\" - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter.\n"								    \
 	"	<rxwc> - (uint8) rx window count. 0 represents infinite windows.\n"											    \
 	"\"-lp_get_l2\" - Gets link profile and associated parameters for SID_LINK_TYPE_2. Ex: \"app: CMD: ERR: 0 Link_profile ID: 1 Wndw_cnt: 0\".\n"			    \
-	"\"-lp_get_l3\" - Gets link profile and associated parameters for SID_LINK_TYPE_3. Ex: \"app: CMD: ERR: 0 Link_profile ID: 128 Wndw_cnt: 5\"."
+	"\"-lp_get_l3\" - Gets link profile and associated parameters for SID_LINK_TYPE_3. Ex: \"app: CMD: ERR: 0 Link_profile ID: 128 Wndw_cnt: 5\"."			    \
+	"\"-d <0,1>\" - filter duplicate message.\n"															    \
+	"   0 - filter duplicate message.\n"																    \
+	"   1 - don't filter duplicate message and notify to user."													    \
+	"\"-gd\" - Get filter duplicates configuration. Ex: \"app: CMD: ERR: 0 Filter Duplicates: 0\""
 
 #define CMD_SID_LAST_STATUS_DESCRIPTION "\n" \
 	"get last status of Sidewalk library. Result is printed in the same format as EVENT SID STATUS. This call the sid_get_status() API."
@@ -140,6 +144,8 @@ int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char *
 int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_lp_get_l2(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_lp_get_l3(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_gd(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv);
