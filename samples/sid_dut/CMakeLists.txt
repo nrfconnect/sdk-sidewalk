@@ -11,7 +11,7 @@ project(sidewalk_template)
 
 zephyr_include_directories(
   src/
-  $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/include
+  ../../utils/include
 )
 
 target_sources(app PRIVATE
@@ -22,5 +22,5 @@ target_sources(app PRIVATE
 )
 
 if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-	target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/src/nordic_dfu.c)
+	target_sources(app PRIVATE ../../utils/src/nordic_dfu.c)
 endif()

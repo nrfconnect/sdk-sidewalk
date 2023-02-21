@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
-rsource "../../../samples/common/Kconfig.defconfig"
+rsource "../../../utils/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
 

@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-include(../common/bootloader_version.cmake)
+include(../../utils/bootloader_version.cmake)
 
 set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/samples/template_ble/child_image/mcuboot/Kconfig.root)
 
@@ -14,14 +14,14 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template)
 
 zephyr_include_directories(
-  ../common/include
+  ../../utils/include
 )
 
 target_sources(app PRIVATE
-  ../common/src/main.c
-  ../common/src/sidewalk_thread.c
+  ../../utils/src/main.c
+  ../../utils/src/sidewalk_thread.c
 )
 
 if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-	target_sources(app PRIVATE ../common/src/nordic_dfu.c)
+	target_sources(app PRIVATE ../../utils/src/nordic_dfu.c)
 endif()

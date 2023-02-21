@@ -33,15 +33,15 @@ licenses:
 
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
-  - sidewalk/hal/include/sid_hal_*
-  - sidewalk/hal/include/sid_memory_pool.h
-  - sidewalk/hal/src/memory.c
+  - sidewalk/subsys/hal/include/sid_hal_*
+  - sidewalk/subsys/hal/include/sid_memory_pool.h
+  - sidewalk/subsys/hal/src/memory.c
   - .*_ifc\.h$
-  - sidewalk/include/.*
+  - sidewalk/subsys/include/.*
   - sidewalk/lib/include/.*
   - sidewalk/tools/.*
-  - sidewalk/pal/utils/ace/.*
-  - sidewalk/pal/utils/osal_alloc\.h$
+  - sidewalk/subsys/pal/utils/ace/.*
+  - sidewalk/subsys/pal/utils/osal_alloc\.h$
   - sidewalk/tests/validation/storage_kv/.*(c|h)$
   - sidewalk/tests/validation/timer/.*(c|h)$
   - sidewalk/.*/sensor_monitoring/ext/.*$

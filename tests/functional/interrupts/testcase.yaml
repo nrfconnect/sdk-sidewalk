@@ -1,6 +1,7 @@
 tests:
   unity.sidewalk.functional.interrupts:
     tags: Sidewalk
+    platform_allow: nrf52840dk_nrf52840 native_posix
     integration_platforms:
       - native_posix
-      - nrf52840dk
+      - nrf52840dk_nrf52840

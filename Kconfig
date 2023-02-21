@@ -371,4 +371,4 @@ config SIDEWALK_DFU_BOOTLOADER
 	imply FLASH_PAGE_LAYOUT
 	imply EXTRA_EXCEPTION_INFO
 
-rsource "hal/Kconfig"
+rsource "subsys/hal/Kconfig"

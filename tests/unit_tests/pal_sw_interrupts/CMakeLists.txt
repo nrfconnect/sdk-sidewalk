@@ -9,8 +9,8 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_critical_region)
 
-target_include_directories(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/include)
-target_sources(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/pal/src/sid_sw_interrupts.c)
+target_include_directories(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/subsys/include)
+target_sources(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/subsys/pal/src/sid_sw_interrupts.c)
 
 # add test file
 target_sources(app PRIVATE src/main.c)

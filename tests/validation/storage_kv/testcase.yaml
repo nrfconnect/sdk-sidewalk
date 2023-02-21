@@ -3,4 +3,4 @@ tests:
     platform_allow: nrf52840dk_nrf52840
     tags: Sidewalk
     integration_platforms:
-      - nrf52840dk
+      - nrf52840dk_nrf52840

@@ -13,13 +13,13 @@ find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 target_sources(testbinary PRIVATE 
         src/main.c
-        $ENV{ZEPHYR_BASE}/../sidewalk/tests/manual/sid_dut/src/sid_dut_shell.c
+        $ENV{ZEPHYR_BASE}/../sidewalk/samples/sid_dut/src/sid_dut_shell.c
 )
 
 add_definitions(--include ztest.h)
 
 target_include_directories(testbinary PRIVATE 
         . 
-        $ENV{ZEPHYR_BASE}/../sidewalk/tests/manual/sid_dut/src
+        $ENV{ZEPHYR_BASE}/../sidewalk/samples/sid_dut/src
         $ENV{ZEPHYR_BASE}/../sidewalk/lib/include
 )

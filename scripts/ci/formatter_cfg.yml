@@ -6,8 +6,8 @@ ignored_files_regexp:
 - include/.*
 - lib/include/.*
 - tools/.*
-- pal/utils/ace/.*
-- pal/utils/osal_alloc\.h$
+- subsys/pal/utils/ace/.*
+- subsys/pal/utils/osal_alloc\.h$
 - tests/validation/storage_kv/.*(c|h)$
 - tests/validation/timer/.*(c|h)$
 - .*/sensor_monitoring/ext/.*$
