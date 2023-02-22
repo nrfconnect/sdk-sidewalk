@@ -1,18 +1,19 @@
 #!/bin/bash -x
-if [ ! -f /devcontainer_initalized ]; then
-    bash ~/work/ncs/sidewalk/.devcontainer/git_shell_prompt.sh
+if [ ! -f $HOME/.devcontainer_initalized ]; then
+    bash /work/ncs/sidewalk/.devcontainer/git_shell_prompt.sh
 
-    cd ~/work/ncs
+    cd /work/ncs
     west init -l sidewalk
-    west update -n -o=--depth=1 --path-cache=/cache
-    bash ~/work/ncs/sidewalk/scripts/git_hooks/install_hooks.sh
-    pip install -r ~/work/ncs/sidewalk/requirements.txt
+    west config update.path-cache /cache
+    west config update.narrow true
+    west update
+    bash /work/ncs/sidewalk/scripts/git_hooks/install_hooks.sh
+    pip install -r /work/ncs/sidewalk/requirements.txt
 
-    cd ~/work/ncs/sidewalk/doc/
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r ~/work/ncs/sidewalk/doc/requirements-doc.txt
-    deactivate
-
-    touch /devcontainer_initalized
+    if [ ! -f /work/ncs/sidewalk/doc/venv/bin/activate ]; then
+        cd /work/ncs/sidewalk/doc/
+        python3 -m venv venv
+        /bin/bash -c ". /work/ncs/sidewalk/doc/venv/bin/activate && pip install -r /work/ncs/sidewalk/doc/requirements-doc.txt"
+    fi
+    touch $HOME/.devcontainer_initalized
 fi
