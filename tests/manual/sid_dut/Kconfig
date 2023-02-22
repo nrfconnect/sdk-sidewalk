@@ -25,6 +25,12 @@ endchoice
 config SHELL_CMD_BUFF_SIZE
 	default 1024
 
+config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
+	default 128
+
+config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
+	default 1024
+
 rsource "../../../samples/common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
