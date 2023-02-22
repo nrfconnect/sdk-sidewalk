@@ -101,13 +101,21 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_init_5, test_sid_init,
 		  (struct test_init_parameters){
 	.argc = 2,
 	.argv = (const char *[]){ "init", "5" },
+	.return_code = 0,
+	.expected_link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_6, test_sid_init,
+		  (struct test_init_parameters){
+	.argc = 2,
+	.argv = (const char *[]){ "init", "6" },
 	.return_code = -EINVAL
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_init_5_1, test_sid_init,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_6_1, test_sid_init,
 		  (struct test_init_parameters){
 	.argc = 3,
-	.argv = (const char *[]){ "init", "5", "1" },
+	.argv = (const char *[]){ "init", "6", "1" },
 	.return_code = -EINVAL
 })
 // ////////////////////////////////////////////////////////////////////////////
@@ -199,13 +207,21 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_5, test_sid_start,
 		  (struct test_start_parameters){
 	.argc = 2,
 	.argv = (const char *[]){ "start", "5" },
+	.return_code = 0,
+	.expected_link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_6, test_sid_start,
+		  (struct test_start_parameters){
+	.argc = 2,
+	.argv = (const char *[]){ "start", "6" },
 	.return_code = -EINVAL
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_5_1, test_sid_start,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_6_1, test_sid_start,
 		  (struct test_start_parameters){
 	.argc = 3,
-	.argv = (const char *[]){ "start", "5", "1" },
+	.argv = (const char *[]){ "start", "6", "1" },
 	.return_code = -EINVAL
 })
 
@@ -275,13 +291,21 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_5, test_sid_stop,
 		  (struct test_stop_parameters){
 	.argc = 2,
 	.argv = (const char *[]){ "stop", "5" },
+	.return_code = 0,
+	.expected_link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2
+})
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_6, test_sid_stop,
+		  (struct test_stop_parameters){
+	.argc = 2,
+	.argv = (const char *[]){ "stop", "6" },
 	.return_code = -EINVAL
 })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_5_1, test_sid_stop,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_6_1, test_sid_stop,
 		  (struct test_stop_parameters){
 	.argc = 3,
-	.argv = (const char *[]){ "stop", "5", "1" },
+	.argv = (const char *[]){ "stop", "6", "1" },
 	.return_code = -EINVAL
 })
 

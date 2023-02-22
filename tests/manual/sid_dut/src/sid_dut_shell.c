@@ -25,6 +25,7 @@
 #define CLI_CMD_OPT_LINK_FSK        2
 #define CLI_CMD_OPT_LINK_LORA       3
 #define CLI_CMD_OPT_LINK_LORA_BLE   4
+#define CLI_CMD_OPT_LINK_FSK_BLE    5
 
 #define CLI_MAX_DATA_LEN            (CONFIG_SHELL_CMD_BUFF_SIZE / 2)
 #define CLI_MAX_HEX_STR_LEN         CONFIG_SHELL_CMD_BUFF_SIZE
@@ -118,6 +119,9 @@ static bool cli_parse_link_mask_opt(uint8_t arg, uint32_t *link_mask)
 		break;
 	case CLI_CMD_OPT_LINK_LORA_BLE:
 		*link_mask = SID_LINK_TYPE_1 | SID_LINK_TYPE_3;
+		break;
+	case CLI_CMD_OPT_LINK_FSK_BLE:
+		*link_mask = SID_LINK_TYPE_1 | SID_LINK_TYPE_2;
 		break;
 	default:
 		return false;
@@ -234,7 +238,7 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 	const char *connection_type_arg = argv[1];
 	uint8_t connection_type = atoi(connection_type_arg);
 
-	if (!IN_RANGE(connection_type, 1, 4)) {
+	if (!IN_RANGE(connection_type, 1, 5)) {
 		return -EINVAL;
 	}
 	if (!cli_parse_link_mask_opt(connection_type, &cli_cfg.sid_cfg->link_mask)) {
