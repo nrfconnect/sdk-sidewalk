@@ -99,6 +99,10 @@
 #define CMD_SID_SET_RSP_ID_DESCRIPTION "<value>\n" \
 	"allow the set ID for RESPONSE type message, this can be use before calling sid send command with message type set as RESPONSE."
 
+#define CMD_SID_SDK_VERSION_DESCRIPTION "Print sid sdk version"
+
+#define CMD_SID_SDK_CONFIG_DESCRIPTION "Print sid sdk config"
+
 #define CMD_SID_INIT_ARG_REQUIRED 2
 #define CMD_SID_INIT_ARG_OPTIONAL 0
 #define CMD_SID_DEINIT_ARG_REQUIRED 1
@@ -127,6 +131,10 @@
 #define CMD_SID_SET_SEND_LINK_ARG_OPTIONAL 0
 #define CMD_SID_SET_RSP_ID_ARG_REQUIRED 2
 #define CMD_SID_SET_RSP_ID_ARG_OPTIONAL 0
+#define CMD_SID_SDK_VERSION_DESCRIPTION_ARG_REQUIRED 1
+#define CMD_SID_SDK_VERSION_DESCRIPTION_ARG_OPTIONAL 0
+#define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED 1
+#define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL 0
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv);
@@ -147,6 +155,8 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **argv);
 
 struct cli_config {
 	struct sid_config *sid_cfg;

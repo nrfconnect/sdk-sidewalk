@@ -20,6 +20,8 @@
 #include <sid_dut_shell.h>
 #include <sid_thread.h>
 #include <sid_api_delegated.h>
+#include <sid_sdk_version.h>
+#include <sidewalk_version.h>
 
 #define CLI_CMD_OPT_LINK_BLE        1
 #define CLI_CMD_OPT_LINK_FSK        2
@@ -80,6 +82,10 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      CMD_SID_SET_SEND_LINK_ARG_REQUIRED, CMD_SID_SET_SEND_LINK_ARG_OPTIONAL),
 	SHELL_CMD_ARG(set_rsp_id, NULL, CMD_SID_SET_RSP_ID_DESCRIPTION, cmd_sid_set_rsp_id,
 		      CMD_SID_SET_RSP_ID_ARG_REQUIRED, CMD_SID_SET_RSP_ID_ARG_OPTIONAL),
+	SHELL_CMD_ARG(sdk_version, NULL, CMD_SID_SDK_VERSION_DESCRIPTION, cmd_sid_sdk_version,
+		      CMD_SID_SDK_VERSION_DESCRIPTION_ARG_REQUIRED, CMD_SID_SDK_VERSION_DESCRIPTION_ARG_OPTIONAL),
+	SHELL_CMD_ARG(sdk_config, NULL, CMD_SID_SDK_CONFIG_DESCRIPTION, cmd_sid_sdk_config,
+		      CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED, CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL),
 	SHELL_SUBCMD_SET_END);
 
 // command, subcommands, help, handler
@@ -674,5 +680,32 @@ int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **arg
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_RSP_ID_ARG_REQUIRED, CMD_SID_SET_RSP_ID_ARG_OPTIONAL);
 	cli_cfg.rsp_msg_id = atoi(argv[1]);
+	return 0;
+}
+
+int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SDK_VERSION_DESCRIPTION_ARG_REQUIRED, CMD_SID_SDK_VERSION_DESCRIPTION_ARG_OPTIONAL);
+
+	#define SID_SDK_VERSION_STR STRINGIFY(SID_SDK_MAJOR_VERSION) "." STRINGIFY(SID_SDK_MINOR_VERSION) "." STRINGIFY(SID_SDK_PATCH_VERSION) "-" STRINGIFY(SID_SDK_BUILD_VERSION)
+    shell_info(shell, "SID_SDK_VERSION: "SID_SDK_VERSION_STR);
+
+    shell_info(shell, "SID_SDK_MAJOR_VERSION: %d", SID_SDK_MAJOR_VERSION);
+    shell_info(shell, "SID_SDK_MINOR_VERSION: %d", SID_SDK_MINOR_VERSION);
+    shell_info(shell, "SID_SDK_PATCH_VERSION: %d", SID_SDK_PATCH_VERSION);
+    shell_info(shell, "SID_SDK_BUILD_VERSION: %d", SID_SDK_BUILD_VERSION);
+
+	shell_info(shell, "Nordic version: %s", sidewalk_version_component[0]);
+	return 0;
+}
+
+int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED, CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL);
+	shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_1: %d", true);
+    shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_2: %d", IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_FSK) || IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
+    shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_3: %d", IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_FSK) || IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
 	return 0;
 }
