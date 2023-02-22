@@ -122,7 +122,7 @@ function run_build ()
     run_twister --build-only --show-footprint -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/samples)) || { return $?; }
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-build"
 
-	python3 memory_requirements.py --twister-out-dir "${CURRENT_DIR}/twister-out-build" --ncs-dir "${ZEPHYR_BASE}/../" > "${CURRENT_DIR}/twister-out-build/memory_report.rst"
+	python3 ${CURRENT_DIR}/memory_requirements.py --twister-out-dir "${CURRENT_DIR}/twister-out-build" --ncs-dir "${ZEPHYR_BASE}/../" > "${CURRENT_DIR}/twister-out-build/memory_report.rst"
 }
 
 function run_ut ()
