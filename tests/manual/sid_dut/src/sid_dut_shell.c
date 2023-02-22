@@ -362,6 +362,66 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			msg.data = send_cmd_buf;
 			continue;
 		}
+		if (strcmp("-l", argv[opt]) == 0) {
+			opt++;
+			if (opt >= argc) {
+				shell_error(shell, "-l need a value");
+				return -EINVAL;
+			}
+
+			if(!cli_parse_link_mask_opt(atoi(argv[opt]), &desc.link_type)){
+				return -EINVAL;
+			}
+			continue;
+		}
+		if (strcmp("-i", argv[opt]) == 0) {
+			opt++;
+			if (opt >= argc) {
+				shell_error(shell, "-i need a value");
+				return -EINVAL;
+			}
+			char *end = NULL;
+			long data_raw = strtol(argv[opt], &end, 0);
+			if (!IN_RANGE(data_raw, 0, UINT16_MAX) || end == argv[opt]) {
+				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[opt],
+					    (unsigned int)UINT16_MAX);
+				return -EINVAL;
+			}
+			cli_cfg.rsp_msg_id = (uint16_t)data_raw;
+			continue;
+		}
+		if (strcmp("-a", argv[opt]) == 0) {
+			if (opt + 3 > argc) {
+				shell_error(shell, "-a need 3 positional arguments");
+				return -EINVAL;
+			}
+
+			const char *ack = argv[++opt];
+			const char *retry = argv[++opt];
+			const char *ttl = argv[++opt];
+			char *end = NULL;
+			long ack_val = strtol(ack, &end, 0);
+			if (!IN_RANGE(ack_val, 0, 1) || end == ack) {
+				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", ack, 1);
+				return -EINVAL;
+			}
+			desc.msg_desc_attr.tx_attr.request_ack = (bool)ack_val;
+
+			long retry_val = strtol(retry, &end, 0);
+			if (!IN_RANGE(ack_val, 0, UINT8_MAX) || end == ack) {
+				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", retry, (unsigned int)UINT8_MAX);
+				return -EINVAL;
+			}
+			desc.msg_desc_attr.tx_attr.num_retries = (uint8_t)retry_val;
+
+			long ttl_val = strtol(ttl, &end, 0);
+			if (!IN_RANGE(ttl_val, 0, UINT16_MAX) || end == ack) {
+				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", ttl, (unsigned int)UINT16_MAX);
+				return -EINVAL;
+			}
+			desc.msg_desc_attr.tx_attr.ttl_in_seconds = (uint16_t)ttl_val;
+			continue;
+		}
 
 	}
 
@@ -429,11 +489,11 @@ int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char *
 
 	data_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1]) {
-		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], UINT8_MAX);
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], (unsigned int)UINT8_MAX);
 		return -EINVAL;
 	}
 	if (!IN_RANGE(data_raw, 0, UINT8_MAX)) {
-		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], UINT8_MAX);
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], (unsigned int)UINT8_MAX);
 		return -EINVAL;
 	}
 	data = (uint8_t)data_raw;
@@ -458,7 +518,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 		return -EINVAL;
 	}
 	if (!IN_RANGE(data_raw, 0, UINT8_MAX)) {
-		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], UINT8_MAX);
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], (unsigned int)UINT8_MAX);
 		return -EINVAL;
 	}
 
@@ -477,7 +537,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 	{
 		CHECK_ARGUMENT_COUNT(argc, 3, 0);
 		if (cmd_sid_option_handle_set_link3_profile(argv[2], &dev_cfg) != 0) {
-			shell_error(shell, "Invalid argument [%s], must be value <0, %d>", argv[2], UINT16_MAX);
+			shell_error(shell, "Invalid argument [%s], must be value <0, %d>", argv[2], (unsigned int)UINT16_MAX);
 			return -EINVAL;
 		}
 		break;
@@ -673,6 +733,13 @@ int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **arg
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_RSP_ID_ARG_REQUIRED, CMD_SID_SET_RSP_ID_ARG_OPTIONAL);
-	cli_cfg.rsp_msg_id = atoi(argv[1]);
+	
+	char *end;
+	long data_raw = strtol(argv[1], &end, 0);
+	if (end == argv[1] || !IN_RANGE(data_raw, 0, UINT16_MAX)) {
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], (unsigned int)UINT16_MAX);
+		return -EINVAL;
+	}
+	cli_cfg.rsp_msg_id = (uint16_t)data_raw;
 	return 0;
 }
