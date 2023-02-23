@@ -72,20 +72,10 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 		.count = 1
 	};
 
-#if CONFIG_PM_DEVICE
-	int err = pm_device_action_run(bus_serial_ctx.device, PM_DEVICE_ACTION_RESUME);
-	if ((err < 0) && (err != -EALREADY)) {
-		LOG_ERR("spi pm device resume failed with error %d", err);
-		return SID_ERROR_GENERIC;
-	}
-#else
-	int err = 0;
-#endif
-
 	sid_pal_gpio_write(client->client_selector, 0);
 
-	err = spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
-			     ((rx) ? &rx_set : NULL));
+	int err = spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
+				 ((rx) ? &rx_set : NULL));
 
 	sid_pal_gpio_write(client->client_selector, 1);
 
@@ -94,14 +84,6 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 		LOG_ERR("spi_transceive failed with error %d", err);
 		ret = SID_ERROR_GENERIC;
 	}
-
-#if CONFIG_PM_DEVICE
-	err = pm_device_action_run(bus_serial_ctx.device, PM_DEVICE_ACTION_SUSPEND);
-
-	if (err < 0 && (err != -EALREADY)) {
-		LOG_ERR("spi pm device suspend failed with error %d", err);
-	}
-#endif
 
 	return ret;
 }
