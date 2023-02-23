@@ -526,7 +526,6 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_4_with_ascii, test_sid_
 	.desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_3, .type = SID_MSG_TYPE_NOTIFY, .link_mode = SID_LINK_MODE_CLOUD }
 })
 
-ZTEST_EXPECT_FAIL(sid_dut_shell_api, test_sid_send_hex_l_5_with_ascii);
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_5_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
 	.argc = 4,
