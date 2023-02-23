@@ -40,8 +40,14 @@ Overview
 You can use this sample as a starting point to implement a Sidewalk device.
 The sample shows implementation of Sidewalk API for the following transport protocols:
 
+<<<<<<< HEAD:doc/testing_samples/sidewalk_application_samples/template_subghz.rst
+=======
+* Bluetooth LE - For registration and communication
+>>>>>>> e01da09 (doc: documentation enhancement update):doc/testing_samples/sidewalk_application_samples/template.rst
 * LoRa - Bluetooth LE for registration and LoRa for communication
 * FSK - FSK for registration and communication
+
+The Template sample supports all available configurations but because the size and location of the bootloader partitions have to be consistent, the sample uses an external memory to store the secondary partition for the application. This solution is required only for the Device Firmware Update (DFU).
 
 .. _samples_config:
 
@@ -53,6 +59,9 @@ Before building a sample, follow the :ref:`setting_up_the_environment` instructi
 Overlays overview
 
 - :file:`fsk.conf` - This configuration enables FSK transport in the Sidewalk application.
+  To enable this overlay you have to connect the Semtech SX1262MB2CAS Arduino Shield.
+  This overlay changes the button assignment.
+  For details, see the :ref:`samples_ui` section.
 
 * :file:`cli` - This configuration adds an nRF Connect Shell over with Sidewalk Command Line Interface.
   For more details, see the :ref:`sidewalk_testing_with_cli` documentation.
@@ -98,14 +107,14 @@ LEDs represent the current state of the application:
 
    * LED 2:
       Application ``Registered`` successfully.
-   
+
    * LED 3:
       Application ``time sync`` successfully.
 
    * LED 4:
       Application ``link`` is up.
 
-Other states are routed to generic GPIO pins. 
+Other states are routed to generic GPIO pins.
 When the voltage drops to 0, entering low logic state, it means that one of the following states is active:
 
    * P1.1:
@@ -113,7 +122,7 @@ When the voltage drops to 0, entering low logic state, it means that one of the 
 
    * P1.2:
       ``ERROR`` has occured.
-   
+
    * P1.3:
       ``Sending`` pin is active when the packet is being transmitted.
 

@@ -4,7 +4,7 @@ Template BLE
 ############
 
 The sample demonstrates a template for Sidewalk End Node application.
-It is optimized for Bluetooth LE only.
+It is optimized for Bluetooth LE.
 
 .. _template_ble_requirements:
 
@@ -24,7 +24,9 @@ The sample supports the following development kits:
 Overview
 ********
 
-The sample shows implementation of Sidewalk API for the Bluetooth LE only transport protocol.
+The sample shows implementation of the Sidewalk API for the Bluetooth LE transport protocol.
+It is a memory-optimized example of Sidewalk configuration where only Bluetooth LE transport protocol is supported.
+Because of the smaller footprint, both bootloader partitions for the application are placed in the internal flash memory of the supported SoC (nRF52840).
 
 .. _template_ble_config:
 
@@ -78,14 +80,14 @@ LEDs represent the current state of the application:
 
    * LED 2:
       Application ``Registered`` successfully.
-   
+
    * LED 3:
       Application ``time sync`` successfully.
 
    * LED 4:
       Application ``link`` is up.
 
-Other states are routed to generic GPIO pins. 
+Other states are routed to generic GPIO pins.
 When the voltage drops to 0, entering low logic state, it means that one of the following states is active:
 
    * P1.1:
@@ -93,7 +95,7 @@ When the voltage drops to 0, entering low logic state, it means that one of the 
 
    * P1.2:
       ``ERROR`` has occured.
-   
+
    * P1.3:
       ``Sending`` pin is active when the packet is being transmitted.
 

@@ -9,7 +9,7 @@ Amazon Sidewalk is a low bandwidth long-range wireless communication network tha
 * Extend the low-bandwidth working range of devices.
 * Help devices stay online even outside the range of home WiFi.
 
-It supports Echo and Ring devices (Sidewalk bridges) and allows Sidewalk-enabled devices to connect with them directly.
+It supports Echo and Ring devices (Sidewalk Gateway) and allows Sidewalk-enabled devices to connect with them directly.
 
 The instructions will guide you through:
 

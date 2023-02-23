@@ -9,7 +9,8 @@ Setting up the Sidewalk environment
    :caption: Subpages:
 
    requirements.rst
-   setting_up_sidewalk_bridges.rst
+   setting_up_hardware.rst
+   setting_up_sidewalk_gateway.rst
    setting_up_sdk.rst
 
 .. _setting_up_with_aws_cli:
