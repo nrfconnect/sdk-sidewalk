@@ -10,7 +10,7 @@ Ensure the requirements below are met:
 
 #. You created the following accounts:
 
-   - An `Amazon Web Service account`_ to be able to connect AWS cloud applications with your Sidewalk Endpoints.
+   * An `Amazon Web Service account`_ to be able to connect AWS cloud applications with your Sidewalk Endpoints.
 
 #. You have installed `AWS CLI`_ with Sidewalk commends support in order to send data to your Sidewalk Endpoints.
 
@@ -20,14 +20,20 @@ Ensure the requirements below are met:
       * Operations in this quick start guide are based on common Linux commands and software packages.
       * Python3 and python3-pip are required to run Sidewalk tools.
 
-#. You have a hardware development kit:
+#. You have the required hardware for the specific sample:
 
-   - `Nordic nRF52840-DK`_ - nRF52840 MCU development kit.
-   - `Semtech SX1262 mbed shield eval board`_ - sub-GHz radio shield.
-   - `Nordic nRF52840-DK`_ - MX25R6435F external flash on Nordic DK or similar for dual bank firmware update.
-
-   .. note::
-      To test Sidewalk over Bluetooth LE you only need Nordic nRF52840-DK.
+   +---------------------------------------------------------------+-------------------------------------------------------------------+
+   | Sample                                                        | Hardware required                                                 |
+   +===============================================================+===================================================================+
+   | Template                                                      | * `Nordic nRF52840-DK`_ - nRF52840 MCU development kit            |
+   |                                                               | * External flash MX25R6435F or similar for dual bank firmware     |
+   |                                                               |   update (included in the DK)                                     |
+   |                                                               | * `Semtech SX1262MB2CAS`_ - sub-GHz radio shield                  |
+   +---------------------------------------------------------------+-------------------------------------------------------------------+
+   | Template Bluetooth LE                                         | * `Nordic nRF52840-DK`_ - nRF52840 MCU development kit            |
+   +-----------------------+---------------------------------------+-------------------------------------------------------------------+
+   | Sensor Monitoring                                             | * `Nordic nRF52840-DK`_ - nRF52840 MCU development kit            |
+   +---------------------------------------------------------------+-------------------------------------------------------------------+
 
 #. You have a Bluetooth wireless interface on your Ubuntu machine or USB Bluetooth adapter.
 
@@ -81,7 +87,7 @@ Values are provided in kilobytes (KB).
 .. _Amazon Web Service account: https://console.aws.amazon.com/console/home
 .. _AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
 .. _Nordic nRF52840-DK: https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK
-.. _Semtech SX1262 mbed shield eval board: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
+.. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
 .. _USB Bluetooth adapter: https://www.amazon.com/Kinivo-USB-Bluetooth-4-0-Compatible/dp/B007Q45EF4
 .. _Echo 4th Gen: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id944011620

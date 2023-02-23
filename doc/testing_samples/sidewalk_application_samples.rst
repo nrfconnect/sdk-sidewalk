@@ -20,22 +20,20 @@ For information about building the sample, see the :ref:`samples_building_and_ru
 
 The table below shows differences between their configurations:
 
-+-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Criteria              | Template sub-GHz                                              | Template Bluetooth LE                      |
-+=======================+===============================================================+============================================+
-| Hardware required     | * `nRF52840dk_nrf52840`_                                      | * `nRF52840dk_nrf52840`_                   |
-|                       | * External flash (included in the DK)                         |                                            |
-|                       | * Semtech sx1262 (only for the configurations with LoRa/FSK)  |                                            |
-+-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Bootloader            | * MCUBoot - DFU partition in external flash                   | * MCUBoot - DFU partition in internal flash|
-|                       | * Application partition size = 956kB                          | * Application partition size = 480kB       |
-+-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Application overlays  | * :file:`fsk.conf`                                            | * :file:`usb_dfu`                          |
-|                       | * :file:`usb_dfu`                                             |                                            |
-+-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Persistant data size  | * 8kB Zephyr settings                                         | * 8kB Zephyr settings                      |
-|                       | * 28kB Sidewalk key-value storage                             | * 24kB Sidewalk key-value storage          |
-+-----------------------+---------------------------------------------------------------+--------------------------------------------+
++-----------------------+--------------------------------------------------------------------------+-----------------------------------------------+--------------------------------------------+------------------------------------+--------------------------+
+| Sample                | Hardware required                                                        | Bootloader                                    | Application overlays                       | Persistant data size               | Supported transports     |
++=======================+==========================================================================+===============================================+============================================+====================================+==========================+
+| Template sub-GHz      | * `nRF52840dk_nrf52840`_                                                 | * MCUBoot - DFU partition in external flash   | * :file:`fsk.conf`                         | * 8kB Zephyr settings              | * Bluetooth LE           |
+|                       | * External flash (included in the DK)                                    | * Application partition size = 956kB          | * :file:`ble.conf`                         | * 28kB Sidewalk key-value storage  | * LoRa                   |
+|                       | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) |                                               | * :file:`usb_dfu`                          |                                    | * FSK                    |
++-----------------------+--------------------------------------------------------------------------+-----------------------------------------------+--------------------------------------------+------------------------------------+--------------------------+
+| Template Bluetooth LE | * `nRF52840dk_nrf52840`_                                                 | * MCUBoot - DFU partition in internal flash   | * :file:`usb_dfu`                          | * 8kB Zephyr settings              | * Bluetooth LE           |
+|                       |                                                                          | * Application partition size = 480kB          |                                            | * 24kB Sidewalk key-value storage  |                          |
++-----------------------+--------------------------------------------------------------------------+-----------------------------------------------+--------------------------------------------+------------------------------------+--------------------------+
+| Sensor Monitoring     | * `nRF52840dk_nrf52840`_                                                 | --                                            | --                                         | * 8kB Zephyr settings              | * Bluetooth LE           |
+|                       | * `Semtech SX1262MB2CAS`_                                                |                                               |                                            | * 24kB Sidewalk key-value storage  |                          |
++-----------------------+--------------------------------------------------------------------------+-----------------------------------------------+--------------------------------------------+------------------------------------+--------------------------+
+
 
 .. _sidewalk_samples_build_type:
 
@@ -61,7 +59,7 @@ You can build the ``release`` firmware for ``nrf52840dk_nrf52840`` by running th
 .. code-block:: console
 
    $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
-   
+
 .. note::
     Selecting a build type is optional.
     However, if the build type is not selected, the ``debug`` build type is used by default.
@@ -86,7 +84,7 @@ User interface actions
       This action will queue a message to the cloud.
       If Sidewalk is not ready, it will simply show an error and do nothing.
       The queue will be processed eventually and all the queued messages will be sent.
-	
+
    * Set Device Profile:
       The app sets the device profile fields like link, profile id, window count, sync & async intervals for communication.
 
@@ -99,3 +97,4 @@ User interface actions
 	  To exit DFU state perform power cycle on your device.
 
 .. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf52dk_nrf52832/doc/index.html#nrf52dk-nrf52832
+.. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas

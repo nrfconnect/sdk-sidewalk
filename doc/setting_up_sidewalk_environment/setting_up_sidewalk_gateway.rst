@@ -1,19 +1,19 @@
-.. _setting_up_sidewalk_bridges:
+.. _setting_up_sidewalk_gateway:
 
-Setting up Sidewalk bridges
+Setting up Sidewalk Gateway
 ###########################
 
 Sidewalk needs to be set up and enabled on the latest generation `Echo`_ device.
-The device is used as Sidewalk Bridge and is configured with Alexa app (`iOS`_ or `Android`_).
-Your Sidewalk Endpoint will connect to and communicate with the Sidewalk Bridge after it has gone through the registration.
+The device is used as Sidewalk Gateway and is configured with Alexa app (`iOS`_ or `Android`_).
+Your Sidewalk Endpoint will connect to and communicate with the Sidewalk Gateway after it has gone through the registration.
 
 .. note::
-    Refer to `Sidewalk`_ for the complete list of available Sidewalk Bridges.
+    Refer to `Sidewalk`_ for the complete list of available Sidewalk Gateway.
 
-.. _setting_up_sidewalk_bridge_exising_device:
+.. _setting_up_sidewalk_gateway_exising_device:
 
-Enabling Ring device as a Sidewalk Bridge
-*****************************************
+Enabling Ring device as a Sidewalk Gateway
+******************************************
 
 If you are setting up a new Echo device, go through the Out Of Box Experience (OOBE) to set up the device in the Alexa app.
 
@@ -26,12 +26,12 @@ If you are setting up a new Echo device, go through the Out Of Box Experience (O
 
    .. figure:: /images/sidewalk_alexa_image1.png
 
-.. _setting_up_sidewalk_bridge_new_device:
+.. _setting_up_sidewalk_gateway_new_device:
 
 Enabling Sidewalk on the existing Echo device
 *********************************************
 
-If you already have an existing Echo device, check your device settings to determine whether your device can act as a Sidewalk Bridge.
+If you already have an existing Echo device, check your device settings to determine whether your device can act as a Sidewalk Gateway.
 
 #. Open :guilabel:`More`, and select :guilabel:`Settings`.
 #. Click :guilabel:`Account Settings`.
@@ -39,7 +39,7 @@ If you already have an existing Echo device, check your device settings to deter
 
    .. figure:: /images/sidewalk_alexa_image2.png
 
-.. _setting_up_sidewalk_bridge_linking_ring_amazon_account:
+.. _setting_up_sidewalk_gateway_linking_ring_amazon_account:
 
 Linking your Ring account to your Amazon account
 ************************************************

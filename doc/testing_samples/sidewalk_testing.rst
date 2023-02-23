@@ -218,7 +218,7 @@ Testing Device Firmware Update (DFU)
 Testing Power Profiles
 **********************
 
-Power profiles are available for sub-GHz radio communication like LoRa or FSK.
+Power profiles are available for sub-GHz radio communication, such as LoRa or FSK.
 For more information about Sidewalk Power Profiles, refer to the Sidewalk Protocol Specification.
 
 .. Link to the Sidewalk Protocol Specification page will be included during the release in March.
