@@ -133,7 +133,7 @@ class ElfSizeParser:
 class ReportGenerator:
 
     HEADERS = ['Sample', 'MCUBoot ROM', 'Application ROM',
-               'Settings', 'Total ROM', 'Total RAM']
+               'Sidewalk Settings', 'Total ROM', 'Total RAM']
 
     def __init__(self):
         print()
@@ -222,15 +222,17 @@ def build_report(twister_out_dir: str, variants: list) -> None:
             partitions = PartitionParser(build_dir / 'partitions.yml')
             total_rom = elf.region_size_kb('text') + partitions.region_size_kb(
                 'mcuboot',
-                'settings_storage'
+				'settings_storage',
+                'sidewalk_storage',
+				'mfg_storage'
             )
 
             report.add_variant(SampleVariantStats(sample=variant.full_title(),
                                mcuboot_rom=partitions.region_size_kb(
-                                   'mcuboot'),
+                                   'mcuboot', 'settings_storage'),
                                app_rom=elf.region_size_kb('text'),
                                settings=partitions.region_size_kb(
-                                   'settings_storage'),
+                                   'sidewalk_storage', 'mfg_storage'),
                                total_rom=total_rom,
                                total_ram=elf.region_size_kb('bss', 'data')))
 
