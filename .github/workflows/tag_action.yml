@@ -1,0 +1,27 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  build:
+  permissions: write-all
+  name: Add documentaiton as asset
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cd sidewalk/doc; ./build_local.sh && zip -r documentation.zip build/html/*
+
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: sidewalk/doc/documentation.zip
+        asset_name: documentation.zip
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "HTML documentation is includded in the release asset in documentation.zip file."
