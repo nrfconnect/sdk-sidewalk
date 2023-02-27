@@ -31,6 +31,6 @@ config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
-rsource "../../../samples/common/Kconfig.defconfig"
+rsource "../common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
