@@ -1,10 +1,10 @@
 .. _template_sample:
 
-Template
-########
+Template sub-GHz
+################
 
 The sample demonstrates a template for Sidewalk End Node application.
-It supports LoRa, FSK and Bluetooth LE link modes.
+It supports LoRa and FSK link modes.
 External QSPI Flash is used for firmware updates.
 
 .. _template_requirements:
@@ -40,9 +40,8 @@ Overview
 You can use this sample as a starting point to implement a Sidewalk device.
 The sample shows implementation of Sidewalk API for the following transport protocols:
 
-* Bluetooth LE only - For registration and communication
 * LoRa - Bluetooth LE for registration and LoRa for communication
-* FSK - Bluetooth LE for registration and FSK for communication
+* FSK - FSK for registration and communication
 
 .. _samples_config:
 
@@ -53,14 +52,7 @@ Before building a sample, follow the :ref:`setting_up_the_environment` instructi
 
 Overlays overview
 
-- :file:`ble.conf` - This configuration enables Bluetooth LE transport in the Sidewalk application.
-  This overlay changes the button assignment.
-  For details, see the :ref:`samples_ui` section.
-
 - :file:`fsk.conf` - This configuration enables FSK transport in the Sidewalk application.
-  To enable this overlay you have to connect the Semtech sx1262 shield.
-  This overlay changes the button assignment.
-  For details, see the :ref:`samples_ui` section.
 
 * :file:`cli` - This configuration adds an nRF Connect Shell over with Sidewalk Command Line Interface.
   For more details, see the :ref:`sidewalk_testing_with_cli` documentation.
@@ -81,44 +73,23 @@ To learn more about actions details see: :ref:`sidewalk_samples_ui`
 A button action is triggered when you release the button.
 To use a long press action, hold a button for 2 seconds or longer, and release it.
 
-.. tabs::
+   * Button 1 (long press):
+      Factory reset.
 
-   .. group-tab:: LoRa (default) and FSK
+   * Button 2 (short press):
+      Get current Device Profiles.
 
-      * Button 1 (long press):
-         Factory reset.
+   * Button 2 (long press):
+      Switch between Device Profiles.
 
-      * Button 2 (short press):
-         Get current Device Profiles.
+   * Button 3:
+      Send Hello.
 
-      * Button 2 (long press):
-         Switch between Device Profiles.
+   * Button 4 (short press):
+      Send Hello.
 
-      * Button 3:
-         Send Hello.
-
-      * Button 4 (short press):
-         Send Hello.
-
-      * Button 4 (long press):
-         Enter DFU state.
-
-   .. group-tab:: Bluetooth LE
-
-      * Button 1 (long press):
-         Factory reset.
-
-      * Button 2:
-         Toggle Connection Request.
-
-      * Button 3:
-         Send Hello.
-
-      * Button 4 (short press):
-         Set fake battery level.
-
-      * Button 4 (long press):
-         Enter DFU state.
+   * Button 4 (long press):
+      Enter DFU state.
 
 LEDs represent the current state of the application:
 

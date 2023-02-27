@@ -13,15 +13,15 @@ For information about building the sample, see the :ref:`samples_building_and_ru
    :glob:
    :caption: Subpages:
 
-   sidewalk_application_samples/template.rst
-   sidewalk_application_samples/template_ble.rst
    sidewalk_application_samples/sensor_monitoring.rst
+   sidewalk_application_samples/template_ble.rst
+   sidewalk_application_samples/template_subghz.rst
    sidewalk_application_samples/dut.rst
 
 The table below shows differences between their configurations:
 
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
-| Criteria              | Template                                                      | Template Bluetooth LE                      |
+| Criteria              | Template sub-GHz                                              | Template Bluetooth LE                      |
 +=======================+===============================================================+============================================+
 | Hardware required     | * `nRF52840dk_nrf52840`_                                      | * `nRF52840dk_nrf52840`_                   |
 |                       | * External flash (included in the DK)                         |                                            |
@@ -31,7 +31,6 @@ The table below shows differences between their configurations:
 |                       | * Application partition size = 956kB                          | * Application partition size = 480kB       |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
 | Application overlays  | * :file:`fsk.conf`                                            | * :file:`usb_dfu`                          |
-|                       | * :file:`ble.conf`                                            |                                            |
 |                       | * :file:`usb_dfu`                                             |                                            |
 +-----------------------+---------------------------------------------------------------+--------------------------------------------+
 | Persistant data size  | * 8kB Zephyr settings                                         | * 8kB Zephyr settings                      |
