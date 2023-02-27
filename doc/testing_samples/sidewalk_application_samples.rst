@@ -16,6 +16,7 @@ For information about building the sample, see the :ref:`samples_building_and_ru
    sidewalk_application_samples/template.rst
    sidewalk_application_samples/template_ble.rst
    sidewalk_application_samples/sensor_monitoring.rst
+   sidewalk_application_samples/dut.rst
 
 The table below shows differences between their configurations:
 
