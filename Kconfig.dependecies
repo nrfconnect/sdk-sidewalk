@@ -1,0 +1,224 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+
+config SIDEWALK_SUBGHZ
+	bool
+	default SIDEWALK && (SIDEWALK_LINK_MASK_FSK || SIDEWALK_LINK_MASK_LORA)
+	help
+	  Use Sidewalk with support for BLE, LoRa and FSK
+
+config SIDEWALK_DEFAULTS
+	bool
+	default SIDEWALK
+	imply REQUIRES_FULL_LIBC
+	imply FPU
+	imply REBOOT
+
+config SIDEWALK_BLE
+	bool
+	default SIDEWALK
+	imply BT
+	imply SETTINGS
+	imply BT_PERIPHERAL
+	imply BT_GATT_CLIENT
+	help 
+		Sidewalk Bluetooth Low Energy (BLE) module
+
+config SIDEWALK_ASSERT
+	bool
+	default SIDEWALK
+	imply ASSERT
+	help
+	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
+	  If the assertion fails, program will trigger a fatal error.
+
+config SIDEWALK_CRYPTO
+	bool
+	default SIDEWALK
+	imply NRF_SECURITY
+	imply PSA_CRYPTO_DRIVER_OBERON
+	imply PSA_WANT_ALG_HMAC
+	imply PSA_WANT_ALG_CTR
+	imply PSA_WANT_ALG_GCM
+	imply PSA_WANT_ALG_CMAC
+	imply PSA_WANT_ALG_SHA_256
+	imply PSA_WANT_ALG_ECDH
+	imply PSA_WANT_ALG_ECDSA
+	imply PSA_WANT_ALG_DETERMINISTIC_ECDSA
+	imply PSA_WANT_ALG_STREAM_CIPHER
+	imply PSA_WANT_ECC_SECP_R1_256
+	imply PSA_WANT_ECC_MONTGOMERY_255
+	imply PSA_WANT_KEY_TYPE_AES
+	imply PSA_WANT_KEY_TYPE_ECC_KEY_PAIR
+	imply PSA_WANT_KEY_TYPE_HMAC
+	imply MBEDTLS_PSA_BUILTIN_ALG_CMAC
+	imply MBEDTLS_PSA_BUILTIN_ALG_HMAC
+	help
+	   Sidewalk security module
+
+config SIDEWALK_LOG
+	bool
+	default SIDEWALK
+	imply LOG
+	help
+	  Sidewalk log module
+
+config SIDEWALK_GENERATE_VERSION_MINIMAL
+	bool
+	default SIDEWALK
+	help
+	  Generate minimal information of application version (sidewalk, zephyr, nrf). 
+	  In order to generate full version report from all modules set this config to `N`.
+
+config SIDEWALK_MFG_STORAGE
+	bool
+	default SIDEWALK
+	imply FLASH
+	help
+	  Sidewalk manufacturing storage module
+
+config SIDEWALK_STORAGE
+	bool
+	default SIDEWALK
+	imply NVS
+	imply FLASH
+	help
+	  Sidewalk storage module
+
+config SIDEWALK_TIMER
+	bool
+	default SIDEWALK
+	help
+	  Sidewalk timer module
+
+config SIDEWALK_UPTIME
+	bool
+	default SIDEWALK
+	help
+	  Sidewalk uptime module
+
+config SIDEWALK_CRITICAL_REGION
+	bool
+	default SIDEWALK
+	help
+	   Sidewalk critical region module
+
+config SIDEWALK_GPIO
+	bool
+	default SIDEWALK_SUBGHZ
+	imply SIDEWALK_LOG
+	help
+	  Sidewalk GPIO module
+
+config SIDEWALK_ACE_OSAL_ZEPHYR
+	bool
+	default SIDEWALK
+	help
+	  Zephyr RTOS abstraction layer for Sidewalk
+
+config SIDEWALK_TEMPERATURE
+	bool "Sidewalk temperature module"
+	default SIDEWALK_SUBGHZ
+	imply SENSOR
+	imply TEMP_NRF5
+	help
+	  Sidewalk temperature module
+
+config SIDEWALK_SW_INTERRUPTS
+	bool
+	default SIDEWALK
+	help
+	  Sidewalk software interrupts module
+
+config SIDEWALK_DELAY
+	bool
+	default SIDEWALK
+	help
+	  Sidewalk delay module
+	
+config SIDEWALK_SPI_BUS
+	bool
+	default SIDEWALK_SUBGHZ
+	imply SPI
+	imply SIDEWALK_GPIO
+	imply PM
+	imply PM_DEVICE
+	help
+	  SPI bus interface for sidewalk
+
+# Hidden configuration (experimental)
+config SIDEWALK_SWI_PRIORITY
+	int
+	default 0
+
+config SIDEWALK_SWI_STACK_SIZE
+	int
+	default 4096
+
+config SIDEWALK_GPIO_IRQ_PRIORITY
+	int
+	default 1
+
+config SIDEWALK_GPIO_IRQ_STACK_SIZE
+	int
+	default 2048
+
+config SIDEWALK_THREAD_TIMER
+	bool
+	default n
+
+if SIDEWALK_THREAD_TIMER
+config SIDEWALK_TIMER_PRIORITY
+	int
+	default 2
+
+config SIDEWALK_TIMER_STACK_SIZE
+	int
+	default 2048
+endif # Hidden configuration (experimental)
+
+config SIDEWALK_DFU_BOOTLOADER
+	bool "Bootloder configuration for Sidewalk sample"
+	default SIDEWALK_DFU
+	imply IMG_MANAGER
+	imply BOOTLOADER_MCUBOOT
+	imply FLASH
+	imply FLASH_PAGE_LAYOUT
+	imply EXTRA_EXCEPTION_INFO
+
+if SIDEWALK_DFU_SERVICE_BLE
+
+config SIDEWALK_DFU_SERVICE_BLE_DEFAULTS
+	bool
+	default SIDEWALK_DFU_SERVICE_BLE
+	imply MCUMGR
+	imply MCUMGR_CMD_IMG_MGMT
+	imply MCUMGR_CMD_OS_MGMT
+	imply MCUMGR_SMP_BT
+	imply MCUMGR_SMP_BT_CONN_PARAM_CONTROL
+
+config MCUMGR_SMP_BT_AUTHEN
+	default n
+
+endif # SIDEWALK_DFU_SERVICE_BLE
+
+if SIDEWALK_DFU_SERVICE_USB
+
+config SIDEWALK_DFU_SERVICE_USB_DEFAULTS
+	bool
+	default SIDEWALK_DFU_SERVICE_USB
+	imply USB_DFU_CLASS
+	imply USB_DEVICE_STACK
+	imply USB_DFU_ENABLE_UPLOAD
+	imply USB_DFU_REBOOT
+	imply USB_DC_HAS_HS_SUPPORT
+
+config USB_DEVICE_PRODUCT
+	default "DFU for Sidewalk"
+
+config USB_REQUEST_BUFFER_SIZE
+	default 8192
+endif # SIDEWALK_DFU_SERVICE_USB

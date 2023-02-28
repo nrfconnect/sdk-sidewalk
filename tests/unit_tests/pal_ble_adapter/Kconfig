@@ -1,0 +1,30 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+config SIDEWALK_BLE
+    default y
+
+config SETTINGS
+	default y
+
+config SIDEWALK_BLE_ADV_INT_PRECISION
+	default 5
+
+config SIDEWALK_BLE_ADV_INT_FAST
+	default 160
+	
+config SIDEWALK_BLE_ADV_INT_SLOW
+	default 1000
+
+config SIDEWALK_BLE_ADV_INT_TRANSITION
+	default 30
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+config SIDEWALK_BLE_ADAPTER_LOG_LEVEL
+	default 0
+
+source "Kconfig.zephyr"

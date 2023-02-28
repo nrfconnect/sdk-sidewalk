@@ -3,4 +3,5 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
-CONFIG_UNITY=y
+
+source "Kconfig.zephyr"
