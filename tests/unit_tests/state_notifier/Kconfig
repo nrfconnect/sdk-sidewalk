@@ -1,3 +1,11 @@
-rsource "../../../hal/Kconfig"
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+rsource "../../../utils/Kconfig"
+
+config STATE_NOTIFIER_HANDLER_MAX
+	default 2
 
 source "Kconfig.zephyr"

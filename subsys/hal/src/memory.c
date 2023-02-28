@@ -18,6 +18,9 @@
 #include <sid_memory_pool.h>
 #include <sid_pal_log_ifc.h>
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_REGISTER(hal_memory, CONFIG_SIDEWALK_LOG_LEVEL);
+
 #ifndef SID_HAL_PROTOCOL_MEMORY_SZ
 #if GW_SUPPORT
 #define SID_HAL_PROTOCOL_MEMORY_SZ 5120
@@ -35,7 +38,7 @@ void *sid_hal_malloc(size_t size)
         struct sid_memory_pool_config mem_config = {.size = sizeof(mem_pool), .buffer = mem_pool};
         int rv = 0;
         if ((rv = sid_memory_pool_init(&mem_pool_handle, &mem_config)) != SID_ERROR_NONE) {
-            SID_PAL_LOG_INFO("%s: pool init failed (%d)", __func__, rv);
+            LOG_INF("%s: pool init failed (%d)", __func__, rv);
             return NULL;
         }
     }

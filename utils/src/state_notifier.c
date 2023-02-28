@@ -33,7 +33,7 @@ void enumerate_states(const struct notifier_state *state, const enumerate_functi
 
 static void notify_all(const struct notifier_ctx *ctx)
 {
-	for (int i = 0; i < CONFIG_NOTIFIER_HANDLER_MAX; i++) {
+	for (int i = 0; i < CONFIG_STATE_NOTIFIER_HANDLER_MAX; i++) {
 		if (ctx->handler[i]) {
 			ctx->handler[i](&ctx->app_state);
 		}
@@ -49,7 +49,7 @@ typedef void (*change_state_handler)(struct notifier_ctx *ctx, uint32_t value);
 
 bool subscribe_for_state_change(struct notifier_ctx *ctx, state_change_handler handler)
 {
-	for (int i = 0; i < CONFIG_NOTIFIER_HANDLER_MAX; i++) {
+	for (int i = 0; i < CONFIG_STATE_NOTIFIER_HANDLER_MAX; i++) {
 		if (ctx->handler[i] == NULL) {
 			ctx->handler[i] = handler;
 			return true;

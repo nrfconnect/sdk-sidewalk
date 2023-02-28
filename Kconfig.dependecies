@@ -17,6 +17,12 @@ config SIDEWALK_DEFAULTS
 	imply FPU
 	imply REBOOT
 
+config SIDEWALK_BUILD
+	bool
+	default SIDEWALK
+	help
+	  An internal config to build the NCS Sidewalk Sources.
+
 config SIDEWALK_BLE
 	bool
 	default SIDEWALK

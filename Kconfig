@@ -173,6 +173,6 @@ endchoice # SIDEWALK_DFU_SERVICE
 endif # SIDEWALK_DFU
 
 rsource "Kconfig.dependecies"
-rsource "hal/Kconfig"
+rsource "utils/Kconfig"
 
 endif # SIDEWALK

@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
+config SIDEWALK_BUILD
+	default y
+
 config SIDEWALK_STORAGE
 	default y
 	imply NVS

@@ -1,0 +1,24 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+
+config SIDEWALK_BUTTONS
+	bool
+	default SIDEWALK
+	help
+	  Button long and short press detection for Sidewalk application.
+
+config STATE_NOTIFIER
+	bool
+	default SIDEWALK
+	help
+	  Stete notifier module for Sidewalk application.
+
+config STATE_NOTIFIER_HANDLER_MAX
+	int
+	default 2 if LOG
+	default 1
+	help
+	  Maximum number of the notifier listeners.

@@ -8,8 +8,9 @@ cmake_minimum_required(VERSION 3.20.0)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_uptime)
+set(SIDEAWLK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
-cmock_handle(${ZEPHYR_BASE}/../sidewalk/pal/utils/zephyr_time.h)
+cmock_handle(${SIDEAWLK_BASE}/subsys/sal/sid_pal/include/zephyr_time.h)
 
 # add test file
 FILE(GLOB app_sources src/*.c)

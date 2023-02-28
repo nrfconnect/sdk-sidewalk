@@ -3,11 +3,14 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
+config SIDEWALK_BUILD
+	default y
+
 config SIDEWALK_LOG_LEVEL
-    default 0
+	default 0
 
 config SIDEWALK_BLE_ADAPTER_LOG_LEVEL
-    default 0
+	default 0
 
 config SIDEWALK_GPIO_IRQ_PRIORITY
 	default 1

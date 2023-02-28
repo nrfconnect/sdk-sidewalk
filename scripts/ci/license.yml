@@ -26,22 +26,20 @@ licenses:
 # evaluate licenses from top to bottom
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
-  - sidewalk/lib/include/sx126x_config.h$
+  - sidewalk/subsys/semtech/include/sx126x_config.h$
   search_license_txt:
   - This file is exposed to each procuct configuration to customize the driver behavior
   spdx: null
 
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
-  - sidewalk/hal/include/sid_hal_*
-  - sidewalk/hal/include/sid_memory_pool.h
-  - sidewalk/hal/src/memory.c
-  - .*_ifc\.h$
-  - sidewalk/include/.*
-  - sidewalk/lib/include/.*
+  - sidewalk/subsys/ace(/.*)+h$
+  - sidewalk/subsys/config(/.*)+h$
+  - sidewalk/subsys/hal(/.*)+h$
+  - sidewalk/subsys/hal/src/memory.c$
+  - sidewalk/subsys/sal/common(/.*)+h$
+  - sidewalk/subsys/semtech/include/semtech_radio_ifc.h$
   - sidewalk/tools/.*
-  - sidewalk/pal/utils/ace/.*
-  - sidewalk/pal/utils/osal_alloc\.h$
   - sidewalk/tests/validation/storage_kv/.*(c|h)$
   - sidewalk/tests/validation/timer/.*(c|h)$
   - sidewalk/.*/sensor_monitoring/ext/.*$

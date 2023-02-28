@@ -4,10 +4,13 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
+config SIDEWALK_BUILD
+	default y
+
 config SIDEWALK_ACE_OSAL_ZEPHYR
-    default y
+	default y
 
 config SIDEWALK_HEAP_SIZE
-    default 1024
+	default 1024
 
 source "Kconfig.zephyr"
