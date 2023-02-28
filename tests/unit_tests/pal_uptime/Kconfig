@@ -3,4 +3,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
-CONFIG_UNITY=y
+config SIDEWALK_UPTIME
+    default y
+
+source "Kconfig.zephyr"

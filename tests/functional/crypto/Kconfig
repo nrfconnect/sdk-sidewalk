@@ -1,0 +1,52 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+#
+config SIDEWALK_CRYPTO
+	imply NRF_SECURITY
+	default y
+
+# PSA config
+config PSA_WANT_ALG_HMAC
+	default y
+config PSA_WANT_ALG_CTR
+	default y
+config PSA_WANT_ALG_GCM
+	default y
+config PSA_WANT_ALG_CMAC
+	default y
+config PSA_WANT_ALG_CCM
+	default y
+config PSA_WANT_ALG_SHA_256
+	default y
+config PSA_WANT_ALG_SHA_512
+	default y
+config PSA_WANT_ALG_ECDH
+	default y
+config PSA_WANT_ALG_ECDSA
+	default y
+config PSA_WANT_ALG_DETERMINISTIC_ECDSA
+	default y
+config PSA_WANT_ALG_STREAM_CIPHER
+	default y
+config PSA_WANT_ECC_SECP_R1_256
+	default y
+config PSA_WANT_ECC_MONTGOMERY_255
+	default y
+config MBEDTLS_PSA_BUILTIN_ALG_CMAC
+	default y
+config MBEDTLS_PSA_BUILTIN_ALG_HMAC
+	default y
+
+# Stacks
+config MAIN_STACK_SIZE
+	default 8192
+config HEAP_MEM_POOL_SIZE
+	default 8192
+config MBEDTLS_ENABLE_HEAP
+	default y
+config MBEDTLS_HEAP_SIZE
+	default 8192
+
+source "Kconfig.zephyr"

@@ -3,4 +3,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
-CONFIG_UNITY=y
+
+config SIDEWALK_MFG_STORAGE
+	imply FLASH
+	default y
+
+source "Kconfig.zephyr"

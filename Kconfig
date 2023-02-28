@@ -7,26 +7,9 @@
 menuconfig SIDEWALK
 	bool "Enable Amazon Sidewalk [EXPERIMENTAL]"
 	select EXPERIMENTAL
-	imply SIDEWALK_ASSERT
-	imply SIDEWALK_BLE
-	imply SIDEWALK_CRYPTO 
-	imply SIDEWALK_LOG
-	imply SIDEWALK_MFG_STORAGE
-	imply SIDEWALK_STORAGE
-	imply SIDEWALK_TIMER
-	imply SIDEWALK_UPTIME
-	imply SIDEWALK_CRITICAL_REGION
-	imply SIDEWALK_ACE_OSAL_ZEPHYR
-	imply SIDEWALK_SW_INTERRUPTS
-	imply SIDEWALK_DELAY
 	imply SIDEWALK_DFU
 
-config SIDEWALK_DEFAULTS
-	bool
-	default SIDEWALK
-	imply REQUIRES_FULL_LIBC
-	imply FPU
-	imply REBOOT
+if SIDEWALK
 
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type"
@@ -36,29 +19,14 @@ choice SIDEWALK_LINK_MASK
 
 config SIDEWALK_LINK_MASK_BLE
 	bool "Bluetooth Low Energy link"
-	depends on SIDEWALK_BLE
-
 
 config SIDEWALK_LINK_MASK_FSK
 	bool "Sub-GHz link for FSK"
-	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
-
 
 config SIDEWALK_LINK_MASK_LORA
 	bool "Sub-GHz link for LORA"
-	depends on (SIDEWALK_GPIO && SIDEWALK_SPI_BUS && SIDEWALK_TEMPERATURE)
-
 
 endchoice # SIDEWALK_LINK_MASK
-
-config SIDEWALK_BLE
-	bool "Enable Sidewalk Bluetooth Low Energy (BLE) module"
-	imply BT
-	imply SETTINGS
-	imply BT_PERIPHERAL
-	imply BT_GATT_CLIENT
-
-if SIDEWALK_BLE
 
 choice SIDEWALK_BLE_MAC_ADDR_TYPE
 	prompt "BLE MAC address type"
@@ -134,8 +102,6 @@ config SIDEWALK_LOGGING_SERVICE
 	help
 	   "Enables the logging service for Sidewalk."
 
-endif # SIDEWALK_BLE
-
 config SIDEWALK_THREAD_STACK_SIZE
 	int "Stack size for the Sidewalk thread"
 	range 8192 131072
@@ -164,50 +130,9 @@ config SIDEWALK_HEAP_SIZE
 	help
 	  Set the heap size for dynamic memory alocation in Sidewalk.
 
-config SIDEWALK_ASSERT
-	bool "Enable Sidewalk assert module."
-	imply ASSERT
-	help
-	  This enables the SID_PAL_ASSERT() macro in the Sidewalk pal code.
-	  If the assertion fails, program will trigger a fatal error.
-
-config SIDEWALK_CRYPTO
-	bool "Enable Sidewalk security module"
-	imply NRF_SECURITY
-	imply PSA_CRYPTO_DRIVER_OBERON
-	imply PSA_WANT_ALG_HMAC
-	imply PSA_WANT_ALG_CTR
-	imply PSA_WANT_ALG_GCM
-	imply PSA_WANT_ALG_CMAC
-	imply PSA_WANT_ALG_SHA_256
-	imply PSA_WANT_ALG_ECDH
-	imply PSA_WANT_ALG_ECDSA
-	imply PSA_WANT_ALG_DETERMINISTIC_ECDSA
-	imply PSA_WANT_ALG_STREAM_CIPHER
-	imply PSA_WANT_ECC_SECP_R1_256
-	imply PSA_WANT_ECC_MONTGOMERY_255
-	imply PSA_WANT_KEY_TYPE_AES
-	imply PSA_WANT_KEY_TYPE_ECC_KEY_PAIR
-	imply PSA_WANT_KEY_TYPE_HMAC
-	imply MBEDTLS_PSA_BUILTIN_ALG_CMAC
-	imply MBEDTLS_PSA_BUILTIN_ALG_HMAC
-
-config SIDEWALK_LOG
-	bool "Enable Sidewalk log module"
-	imply LOG
-
 config SIDEWALK_CLI
 	bool "Enable sidewalk CLI"
 	imply SHELL
-
-config SIDEWALK_GENERATE_VERSION_MINIMAL
-	bool
-	default y
-	help
-	  Generate minimal information of application version (sidewalk, zephyr, nrf). 
-	  In order to generate full version report from all modules set this config to `N`.
-
-if SIDEWALK_LOG
 
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
@@ -219,95 +144,17 @@ module = SIDEWALK
 module-str = Amazon Sidewalk
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
-if SIDEWALK_CRYPTO
 module = SIDEWALK_CRYPTO
 module-str = Amazon Sidewalk Crypto
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
-endif # SIDEWALK_CRYPTO
 
 module = SIDEWALK_BLE_ADAPTER
 module-str = Sidewalk BLE interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
-endif # SIDEWALK_LOG
-
-config SIDEWALK_MFG_STORAGE
-	bool "Enable Sidewalk manufacturing storage module"
-	imply FLASH
-
-config SIDEWALK_STORAGE
-	bool "Enable Sidewalk storage module"
-	imply NVS
-	imply FLASH
-
-config SIDEWALK_TIMER
-	bool "Enable Sidewalk timer module"
-
-config SIDEWALK_UPTIME
-	bool "Enable Sidewalk uptime module"
-
-config SIDEWALK_CRITICAL_REGION
-	bool "Enable Sidewalk critical region module"
-
-config SIDEWALK_GPIO
-	bool "Enable Sidewalk GPIO module."
-	imply SIDEWALK_LOG
-
-config SIDEWALK_ACE_OSAL_ZEPHYR
-	bool "Enable Zephyr RTOS abstraction layer for Sidewalk"
-
-config SIDEWALK_TEMPERATURE
-	bool "Enable Sidewalk temperature module"
-	imply SENSOR
-	imply TEMP_NRF5
-
-config SIDEWALK_SW_INTERRUPTS
-	bool "Enable Sidewalk software interrupts module"
-
-config SIDEWALK_DELAY
-	bool "Enable Sidewalk delay module"
-	
-config SIDEWALK_SPI_BUS
-	bool "Enable SPI bus interface for sidewalk"
-	imply SPI
-	imply SIDEWALK_GPIO
-	imply PM
-	imply PM_DEVICE
-
 module = SPI_BUS
 module-str = Sidewalk spi bus interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
-
-# Hidden configuration (experimental)
-config SIDEWALK_SWI_PRIORITY
-	int
-	default 0
-
-config SIDEWALK_SWI_STACK_SIZE
-	int
-	default 4096
-
-config SIDEWALK_GPIO_IRQ_PRIORITY
-	int
-	default 1
-
-config SIDEWALK_GPIO_IRQ_STACK_SIZE
-	int
-	default 2048
-
-config SIDEWALK_THREAD_TIMER
-	bool
-	default n
-
-if SIDEWALK_THREAD_TIMER
-config SIDEWALK_TIMER_PRIORITY
-	int
-	default 2
-
-config SIDEWALK_TIMER_STACK_SIZE
-	int
-	default 2048
-endif
 
 # DFU
 menuconfig SIDEWALK_DFU
@@ -321,55 +168,14 @@ choice SIDEWALK_DFU_SERVICE
 
 config SIDEWALK_DFU_SERVICE_BLE
 	bool "Upload image over BLE"
-	imply MCUMGR
-	imply MCUMGR_CMD_IMG_MGMT
-	imply MCUMGR_CMD_OS_MGMT
-	imply MCUMGR_SMP_BT
-	imply MCUMGR_SMP_BT_CONN_PARAM_CONTROL
 
 config SIDEWALK_DFU_SERVICE_USB
 	bool "Upload image over USB. Test only!"
-	imply USB_DFU_CLASS
-	imply USB_DEVICE_STACK
-	imply USB_DFU_ENABLE_UPLOAD
-	imply USB_DFU_REBOOT
-	imply USB_DC_HAS_HS_SUPPORT
 
 endchoice # SIDEWALK_DFU_SERVICE
-
-if SIDEWALK_DFU_SERVICE_BLE
-config MCUMGR_SMP_BT_AUTHEN
-	default n
-
-config SIDEWALK_DFU_BLE_FAST
-	bool "Speed up DFU over BLE"
-	imply MCUMGR_SMP_REASSEMBLY_BT
-	imply OS_MGMT_MCUMGR_PARAMS
-
-
-config MCUMGR_BUF_SIZE
-	default 2475 if SIDEWALK_DFU_BLE_FAST
-
-endif # SIDEWALK_DFU_SERVICE_BLE
-
-if SIDEWALK_DFU_SERVICE_USB
-config USB_DEVICE_PRODUCT
-	default "DFU for Sidewalk"
-
-config USB_REQUEST_BUFFER_SIZE
-	default 8192
-endif # SIDEWALK_DFU_SERVICE_USB
-
 endif # SIDEWALK_DFU
 
-# Bootloader
-config SIDEWALK_DFU_BOOTLOADER
-	bool "Bootloder configuration for Sidewalk sample"
-	default SIDEWALK_DFU
-	imply IMG_MANAGER
-	imply BOOTLOADER_MCUBOOT
-	imply FLASH
-	imply FLASH_PAGE_LAYOUT
-	imply EXTRA_EXCEPTION_INFO
-
+rsource "Kconfig.dependecies"
 rsource "hal/Kconfig"
+
+endif # SIDEWALK
