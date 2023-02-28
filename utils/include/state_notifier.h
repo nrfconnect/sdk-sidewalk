@@ -77,7 +77,7 @@ typedef void (*state_change_handler)(const struct notifier_state *new_state);
  */
 struct notifier_ctx {
 	struct notifier_state app_state;
-	state_change_handler handler[CONFIG_NOTIFIER_HANDLER_MAX];
+	state_change_handler handler[CONFIG_STATE_NOTIFIER_HANDLER_MAX];
 };
 
 #define X(name, ...) void application_state_##name(struct notifier_ctx *ctx, const uint32_t value);

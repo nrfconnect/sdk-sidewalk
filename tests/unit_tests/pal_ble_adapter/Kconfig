@@ -3,8 +3,12 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
+
+config SIDEWALK_BUILD
+	default y
+
 config SIDEWALK_BLE
-    default y
+	default y
 
 config SETTINGS
 	default y

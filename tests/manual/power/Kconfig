@@ -8,6 +8,9 @@ rsource "../../../samples/common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
 
+config STATE_NOTIFIER_HANDLER_MAX
+	default 3
+
 config DELAY_BETWEN_MESSAGES
     int "delay in ms between messages"
     default 100

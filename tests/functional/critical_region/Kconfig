@@ -3,6 +3,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
+config SIDEWALK_BUILD
+	default y
+
 config SIDEWALK_CRITICAL_REGION
 	default y
 

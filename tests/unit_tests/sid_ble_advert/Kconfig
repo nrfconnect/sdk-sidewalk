@@ -3,6 +3,11 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_LOG_LEVEL
+	default 0
 
 module = SIDEWALK_BLE_ADAPTER
 module-str = Sidewalk BLE interface
