@@ -11,6 +11,7 @@ menuconfig SIDEWALK
 
 if SIDEWALK
 
+# General
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type"
 	default SIDEWALK_LINK_MASK_BLE
@@ -28,6 +29,63 @@ config SIDEWALK_LINK_MASK_LORA
 
 endchoice # SIDEWALK_LINK_MASK
 
+config SIDEWALK_THREAD_STACK_SIZE
+	int "Stack size for the Sidewalk thread"
+	range 8192 131072
+	default 8192
+	help
+	  Set the internal stack size for Sidewalk thread.
+
+config SIDEWALK_THREAD_QUEUE_SIZE
+	int "Message queue size for the Sidewalk thread"
+	range 4 256
+	default 10
+	help
+	  Set the message queue size for the Sidewalk thread.
+
+config SIDEWALK_THREAD_PRIORITY
+	int "Priority of the Sidewalk thread"
+	range -16 14
+	default 14
+	help
+	  Priority at which the Sidewalk thread runs.
+
+config SIDEWALK_HEAP_SIZE
+	int "Heap size for Sidewalk utils"
+	default 1024 if SIDEWALK_ACE_OSAL_ZEPHYR
+	default 0
+	help
+	  Set the heap size for dynamic memory alocation in Sidewalk.
+
+# CLI
+config SIDEWALK_CLI
+	bool "Enable sidewalk CLI"
+	imply SHELL
+
+# Log
+config SIDEWALK_LOG_MSG_LENGTH_MAX
+	int "Log message max length"
+	default 80
+	help
+	  Maxium message length for Sidewalk PAL log in bytes.
+
+module = SIDEWALK
+module-str = Amazon Sidewalk
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = SIDEWALK_CRYPTO
+module-str = Amazon Sidewalk Crypto
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = SIDEWALK_BLE_ADAPTER
+module-str = Sidewalk BLE interface
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+module = SPI_BUS
+module-str = Sidewalk spi bus interface
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+# BLE
 choice SIDEWALK_BLE_MAC_ADDR_TYPE
 	prompt "BLE MAC address type"
 	default MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
@@ -35,20 +93,20 @@ choice SIDEWALK_BLE_MAC_ADDR_TYPE
 config MAC_ADDRESS_TYPE_PUBLIC
 	bool "Public Address"
 	help
-	   Address obtained from IEEE registration authority, no privacy
+	   Address obtained from IEEE registration authority, no privacy.
 
 config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE
 	bool "Random Private Non-Resolvable Address"
 	imply BT_SMP
 	help
 	   Random generated address non resolvable by remote
-	   changes on every advertisement or connection
+	   changes on every advertisement or connection.
 
 config MAC_ADDRESS_TYPE_STATIC_RANDOM
 	bool "Random Static Address"
 	help
 	   Random generated address changes on each device boot up or
-	   stay fixed for lifetime of device
+	   stay fixed for lifetime of device.
 
 config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
 	bool "Random Private Resolvable Address"
@@ -56,18 +114,17 @@ config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
 	imply BT_PRIVACY
 	help
 	   Random generated address with IRK(Identity Resolving Key)
-	   resolvable by remote. Used when bonding is enabled
+	   resolvable by remote. Used when bonding is enabled.
 
 endchoice # SIDEWALK_BLE_MAC_ADDR_TYPE
 
 if MAC_ADDRESS_TYPE_PUBLIC
-	config SID_BT_PUB_ADDR
+config SID_BT_PUB_ADDR
 	string "Public MAC address for controller"
 	default "AA:FF:BB:EE:CC:DD"
 	help
 	  Specify a MAC address for the BLE interface in the form of
-	  six hex 8-bit chars separated by colons (e.g.:
-	  AA:BB:CC:DD:EE:FF).
+	  six hex 8-bit chars separated by colons (e.g.:AA:BB:CC:DD:EE:FF).
 endif # MAC_ADDRESS_TYPE_PUBLIC
 
 config SIDEWALK_BLE_ADV_INT_PRECISION
@@ -91,70 +148,10 @@ config SIDEWALK_BLE_ADV_INT_TRANSITION
 	default 30
 
 config SIDEWALK_VENDOR_SERVICE
-	bool "Enable vendor service"
-	default n
-	help
-	   "Enables the vendor service for Sidewalk."
+	bool "Enable Sidewalk BLE vendor service"
 
 config SIDEWALK_LOGGING_SERVICE
-	bool "Enable logging service"
-	default n
-	help
-	   "Enables the logging service for Sidewalk."
-
-config SIDEWALK_THREAD_STACK_SIZE
-	int "Stack size for the Sidewalk thread"
-	range 8192 131072
-	default 8192
-	help
-	  Set the internal stack size for Sidewalk thread.
-
-config SIDEWALK_THREAD_QUEUE_SIZE
-	int "Message queue size for the Sidewalk thread"
-	range 4 256
-	default 10
-	help
-	  Set the message queue size for the Sidewalk thread.
-
-config SIDEWALK_THREAD_PRIORITY
-	int "Priority of the Sidewalk thread"
-	default 14
-	range -16 14
-	help
-	  Priority at which the Sidewalk thread runs.
-
-config SIDEWALK_HEAP_SIZE
-	int "Heap size for Sidewalk utils"
-	default 1024 if SIDEWALK_ACE_OSAL_ZEPHYR
-	default 0
-	help
-	  Set the heap size for dynamic memory alocation in Sidewalk.
-
-config SIDEWALK_CLI
-	bool "Enable sidewalk CLI"
-	imply SHELL
-
-config SIDEWALK_LOG_MSG_LENGTH_MAX
-	int "Log message max length"
-	default 80
-	help
-	  Maxium message length for Sidewalk PAL log in bytes.
-
-module = SIDEWALK
-module-str = Amazon Sidewalk
-source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
-
-module = SIDEWALK_CRYPTO
-module-str = Amazon Sidewalk Crypto
-source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
-
-module = SIDEWALK_BLE_ADAPTER
-module-str = Sidewalk BLE interface
-source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
-
-module = SPI_BUS
-module-str = Sidewalk spi bus interface
-source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+	bool "Enable Sidewalk BLE logging service"
 
 # DFU
 menuconfig SIDEWALK_DFU
