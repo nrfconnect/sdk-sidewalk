@@ -56,6 +56,7 @@ config SIDEWALK_BLE
 	imply BT
 	imply SETTINGS
 	imply BT_PERIPHERAL
+	imply BT_GATT_CLIENT
 
 if SIDEWALK_BLE
 
