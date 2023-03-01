@@ -25,6 +25,7 @@ FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
 FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
 FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
+FAKE_VALUE_FUNC(int, bt_gatt_exchange_mtu, struct bt_conn *, struct bt_gatt_exchange_params *);
 
 #define FFF_FAKES_LIST(FAKE)	  \
 	FAKE(bt_conn_cb_register) \
@@ -32,7 +33,8 @@ FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
 	FAKE(bt_conn_ref)	  \
 	FAKE(bt_conn_unref)	  \
 	FAKE(bt_conn_get_dst)	  \
-	FAKE(bt_conn_disconnect)
+	FAKE(bt_conn_disconnect)  \
+	FAKE(bt_gatt_exchange_mtu)
 
 #define CONNECTED (true)
 #define DISCONNECTED (false)
