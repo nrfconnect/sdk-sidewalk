@@ -6,8 +6,8 @@ Automatic Touchless Registration using Sidewalk FFN
 Touchless registration using Sidewalk FFN is a silent, automatic process that occurs between an unregistered Sidewalk Endpoint and a Sidewalk Gateway over Bluetooth LE.
 The endpoint sends Bluetooth LE beacons that are received by the Sidewalk Gateway when the endpoint and gateway are in close proximity.
 
-Ensure you Sidewalk Gateway is opted into Sidewalk, powered on and in close range to your Sidewalk Endpoint.
-Successful registration is indicated by a log message ``Device Is registered`` as shown below.
+Ensure your Sidewalk Gateway is opted into Sidewalk, powered on and in close range to your Sidewalk Endpoint.
+Successful registration is indicated by the following ``Device Is registered`` log message:
 
    .. code-block:: console
 
@@ -38,21 +38,22 @@ Successful registration is indicated by a log message ``Device Is registered`` a
 
 
 De-registering your Sidewalk Endpoint
-=====================================
+*************************************
 
 Under certain situations, you may wish to de-register your endpoint.
 For example, if you want to test the registration process multiple times, you will need to de-register your endpoint before attempting to re-register it.
 
 #. Find ``<AWS_ACCESS_KEY>`` and ``<AWS_SECRET_KEY>`` with your AWS credentials.
-   These are the credentials you noted down during setting up your AWS account.
+   You should have made note of these credentials when setting up your AWS account.
 
    a. In case you need to obtain new keys, navigate to :guilabel:`IAM`, and select :guilabel:`Users`.
-   #. Under your user account go to :guilabel:`Security Credentials` tab, and click :guilabel:`Create access key button`.
+   #. Under your user account, go to :guilabel:`Security Credentials` tab, and click :guilabel:`Create access key button`.
 
    .. figure:: /images/AWSDeregisterSecurityCredentials.png
 
 #. Replace ``<YOUR WIRELESS DEVICE ID>`` variable with your own wireless device ID.
-   You can find it listed as :guilabel:`Device ID` under :guilabel:`AWS IoT` → :guilabel:`Manage` → :guilabel:`LPWAN devices` → :guilabel:`Devices`.
+   You can find it under :guilabel:`AWS IoT` → :guilabel:`Manage` → :guilabel:`LPWAN devices` → :guilabel:`Devices`.
+   It is listed as :guilabel:`Device ID`.
 
    .. figure:: /images/AWSDeregisterWirelessId.png
 

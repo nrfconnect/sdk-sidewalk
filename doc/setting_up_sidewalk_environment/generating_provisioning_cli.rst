@@ -1,11 +1,9 @@
 .. _generate_manufacturing_data_cli:
 
 Generating device manufacturing data
-************************************
+####################################
 
-Before configuring your HDK, ensure you have successfully completed the following steps:
-
-    * :ref:`designing_sidewalk_product` - Where you generated :file:`device_profile.json` and :file:`wireless_device.json` files
+Before configuring your HDK, ensure you have successfully completed the :ref:`designing_sidewalk_product_cli` instructions where you generated the :file:`device_profile.json` and :file:`wireless_device.json` files.
 
 In order to flash the keys onto your Sidewalk Endpoint, you have to use the :file:`provision.py` script provided in the Sidewalk software package.
 
@@ -50,6 +48,6 @@ In order to flash the keys onto your Sidewalk Endpoint, you have to use the :fil
 
 #. Flash the HEX file with nrfjprog by running the following command:
 
-    .. code-block:: console
+   .. code-block:: console
 
-	$ nrfjprog --program mfg.hex --sectorerase --reset
+      $ nrfjprog --program mfg.hex --sectorerase --reset

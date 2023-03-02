@@ -29,8 +29,8 @@ Configuring AWS Cloud with AWS CLI
              }
            ]
          }
-      
-   #. Use ``create-role`` CLI command to create role: 
+
+   #. Use ``create-role`` CLI command to create role:
 
       .. code-block:: console
 
@@ -82,8 +82,8 @@ Configuring AWS Cloud with AWS CLI
           "Name": "SidewalkDestination"
       }
 
-Expected output
-***************
+Expected results
+****************
 
 At the end of this step you need to have the following:
 
