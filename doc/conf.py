@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Sidewalk'
-copyright = '2022, Nordic Semiconductor'
+copyright = '2023, Nordic Semiconductor'
 author = 'Nordic Semiconductor'
 
 # -- General configuration ---------------------------------------------------

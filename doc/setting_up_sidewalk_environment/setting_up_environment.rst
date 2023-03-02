@@ -3,6 +3,19 @@
 Setting up the Sidewalk environment
 ###################################
 
+The documentation will guide you through:
+
+#. Connecting and setting up your hardware development kit (HDK) to develop and debug embedded applications.
+#. Designing your Sidewalk product.
+#. Configuring your cloud services and managing your Sidewalk Endpoints.
+#. Setting up your Sidewalk Gateway.
+#. Provisioning and configuring your Sidewalk Endpoints.
+#. Registering and associating with your Sidewalk Endpoints.
+
+Once completed, you will be able to run a sample application and test it with Sidewalk.
+
+For the exact steps on setting up your environment, follow the below documentation:
+
 .. toctree::
    :maxdepth: 1
    :glob:
@@ -12,43 +25,4 @@ Setting up the Sidewalk environment
    setting_up_hardware.rst
    setting_up_sidewalk_gateway.rst
    setting_up_sdk.rst
-
-.. _setting_up_with_aws_cli:
-
-Setup with AWS CLI
-******************
-
-The following instructions require the AWS CLI tool with the Sidewalk support.
-If your CLI tool does not support it, refer to the :ref:`setting_up_with_amazon_developer` documentation.
-
-.. TBD update note: specify minimal required AWS CLI version.
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-   :caption: Subpages:
-
-   designing_sidewalk_product_cli.rst
-   generating_provisioning_cli.rst
-   configuring_aws_cloud_cli.rst
-
-.. _setting_up_with_amazon_developer:
-
-Setup using Amazon developer portal
-***********************************
-
-The below diagram present simplified Sidewalk setup process:
-
-.. figure:: /images/SidewalkSetup.svg
-
-For the step-by-step instructions on setting up Sidewalk, follow the documentation below:
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-   :caption: Subpages:
-
-   generating_app_server_keys.rst
-   designing_sidewalk_product.rst
-   generating_provisioning.rst
-   configuring_aws_cloud.rst
+   setting_up_sidewalk_product.rst

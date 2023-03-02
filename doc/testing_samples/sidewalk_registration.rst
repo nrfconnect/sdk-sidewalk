@@ -1,12 +1,12 @@
 .. _registering_sidewalk:
 
 Registering Sidewalk Endpoint
-*****************************
+#############################
 
 You can complete Sidewalk registration in one of the two ways:
 
  * Through an automatic touchless mode that uses Sidewalk Frustration-Free Networking (FFN) where no user interaction is required
- * Through a manual process by using a local Ubuntu machine to run a registration script and to connect to the Endpoint over Bluetooth LE
+ * Through a manual process by using a local machine to run a registration script and to connect to the Endpoint over Bluetooth LE
 
 There are advantages of using automatic FFN registration:
 
