@@ -67,7 +67,7 @@ static ssize_t ama_srv_on_write(struct bt_conn *conn,
 	ARG_UNUSED(flags);
 
 	LOG_DBG("Data received for AMA_SERVICE [len=%d].", len);
-
+	LOG_HEXDUMP_INF(buf, len, "Raw message received on BLE: ");
 	sid_ble_adapter_data_write(AMA_SERVICE, (uint8_t *)buf, len);
 	return len;
 }

@@ -323,6 +323,7 @@ void sm_send_msg(const app_context_t *app_context, struct sid_msg_desc *desc, st
 			return;
 		}
 		LOG_INF("queued data message id:%u", desc->id);
+		LOG_HEXDUMP_INF(msg->data, msg->size, "sending message: ");
 	} else {
 		LOG_ERR("sidewalk is not ready yet!");
 	}
