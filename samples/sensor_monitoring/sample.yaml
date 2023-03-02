@@ -2,9 +2,23 @@ sample:
   description: Amazon Sidewalk demo app
   name: Sensor monitoring app
 tests:
-  sample.sidewalk.demo:
+  sample.sidewalk.demo.ble:
     build_only: true
     platform_allow: nrf52840dk_nrf52840
     integration_platforms:
       - nrf52840dk_nrf52840
-    tags: Amazon Sidewalk
+    tags: Sidewalk BLE
+  sample.sidewalk.demo.fsk:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: OVERLAY_CONFIG=fsk.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk FSK
+  sample.sidewalk.demo.lora:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    extra_args: OVERLAY_CONFIG=lora.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk LoRa
