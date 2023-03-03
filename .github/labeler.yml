@@ -24,6 +24,13 @@
 "manifest":
   - "west.yml"
 
+"scripts":
+  - "scripts/**/*"
+  - "scripts/*"
+
+"tests":
+  - "tests/**/*"
+
 # Add 'source' label to any change in repo EXCEPT the ones defined with ! at the beginning
 "source":
-  - any: ['**/*', '!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml']
+  - any: ['**/*', '!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml', "!.devcontainer/*", "!scripts/*", "!scripts/**/*", "!tests/**/*", "!.github/*", "!.github/**/*"]
