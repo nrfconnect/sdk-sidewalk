@@ -3,9 +3,7 @@
 link_hook()
 {
     hook_name=$1
-    if test -f "$ZEPHYR_BASE/../sidewalk/.git/hooks/$hook_name"; then
-        rm -rf $ZEPHYR_BASE/../sidewalk/.git/hooks/$hook_name
-    fi
+    rm -rf $ZEPHYR_BASE/../sidewalk/.git/hooks/$hook_name
 
     ln -s $ZEPHYR_BASE/../sidewalk/scripts/git_hooks/$hook_name  $ZEPHYR_BASE/../sidewalk/.git/hooks/$hook_name
     chmod +x $ZEPHYR_BASE/../sidewalk/scripts/git_hooks/$hook_name
