@@ -11,6 +11,8 @@
 #include <sid_error.h>
 #include <sid_dut_shell.h>
 #include <sid_thread.h>
+#include <sid_api_delegated.h>
+#include <board_init.h>
 
 LOG_MODULE_REGISTER(sid_main, LOG_LEVEL_INF);
 
@@ -18,11 +20,11 @@ void main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
-	initialize_sidewalk_shell(sid_thread_get_config(), sid_thread_get_app_context());
+	if(sidewalk_board_init() != SID_ERROR_NONE)
+	{return;}
 
-	sid_error_t e = sid_thread_init();
-
-	if (e != SID_ERROR_NONE) {
-		LOG_ERR("sidwalk failed to initialize with error (sid_error_t) %d", e);
-	}
+	struct k_work_q * workq = sid_thread_init();
+	sid_api_delegated_init(workq);
+	
+	initialize_sidewalk_shell(get_sidewalk_config(), get_sidewalk_handle());
 }

@@ -44,6 +44,6 @@ API_FUNCTIONS
 #undef X
 #undef ARGUMENT_LIST
 
-void sid_api_delegated(struct k_work_q *workq);
+void sid_api_delegated_init(struct k_work_q *workq);
 
 #endif /* SID_API_DELEGATED_H */

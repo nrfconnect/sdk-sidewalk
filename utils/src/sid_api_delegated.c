@@ -65,7 +65,7 @@ API_FUNCTIONS
 	sid_error_t api_function ## _delegated(WINDOW_ITERATOR_SIZE_2(ARGUMENT_LIST, ( , ), __VA_ARGS__)) \
 	{												  \
 		if (ctx.workq == NULL) {								  \
-			sid_api_delegated(get_default_workq());						  \
+			sid_api_delegated_init(get_default_workq());						  \
 		}											  \
 		while (k_work_busy_get(&ctx.api_function ## _ctx.work) != 0) {				  \
 			k_sleep(K_MSEC(1));								  \
@@ -86,7 +86,7 @@ API_FUNCTIONS
  *
  * @param workq work queue to execute the api calls
  */
-void sid_api_delegated(struct k_work_q *workq)
+void sid_api_delegated_init(struct k_work_q *workq)
 {
 	ctx.workq = workq;
 

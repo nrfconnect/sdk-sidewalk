@@ -176,11 +176,11 @@ int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **arg
 
 struct cli_config {
 	struct sid_config *sid_cfg;
-	struct app_context *app_cxt;
+	struct sid_handle** app_handler;
 	enum sid_link_type send_link_type;
 	uint16_t rsp_msg_id;
 };
 
-void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct app_context *app_cxt);
+void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct sid_handle** app_handler);
 
 #endif /* SID_DUT_SHELL_H */

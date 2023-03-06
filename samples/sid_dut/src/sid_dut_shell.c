@@ -33,7 +33,7 @@
 #define CLI_MAX_HEX_STR_LEN         CONFIG_SHELL_CMD_BUFF_SIZE
 
 #define CHECK_SHELL_INITIALIZED(shell, cli_cfg)					   \
-	if (cli_cfg.app_cxt == NULL || cli_cfg.app_cxt->sidewalk_handle == NULL) { \
+	if (cli_cfg.app_handler == NULL) { \
 		shell_error(shell, "Sidewalk CLI not initialized");		   \
 		return -EINVAL;							   \
 	}									   \
@@ -99,9 +99,9 @@ static struct cli_config cli_cfg = {
 	.rsp_msg_id = 0,
 };
 
-void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct app_context *app_cxt)
+void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct sid_handle** app_handler)
 {
-	cli_cfg.app_cxt = app_cxt;
+	cli_cfg.app_handler = app_handler;
 	cli_cfg.sid_cfg = sid_cfg;
 }
 
@@ -217,7 +217,7 @@ static void sid_option_get(const struct shell *shell, enum sid_device_profile_id
 	static struct sid_device_profile dev_cfg;
 
 	dev_cfg = (struct sid_device_profile){ .unicast_params = { .device_profile_id = profile } };
-	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_handler, SID_OPTION_900MHZ_GET_DEVICE_PROFILE,
 					       &dev_cfg,
 					       sizeof(dev_cfg));
 
@@ -251,7 +251,7 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 		return -EINVAL;
 	}
 
-	sid_error_t ret = sid_init_delegated(cli_cfg.sid_cfg, cli_cfg.app_cxt->sidewalk_handle);
+	sid_error_t ret = sid_init_delegated(cli_cfg.sid_cfg, cli_cfg.app_handler);
 
 	shell_info(shell, "sid_init returned %d", ret);
 	return 0;
@@ -262,7 +262,7 @@ int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_DEINIT_ARG_REQUIRED, CMD_SID_DEINIT_ARG_OPTIONAL);
 
-	sid_error_t ret = sid_deinit_delegated(*cli_cfg.app_cxt->sidewalk_handle);
+	sid_error_t ret = sid_deinit_delegated(*cli_cfg.app_handler);
 
 	shell_info(shell, "sid_deinit returned %d", ret);
 	return 0;
@@ -284,7 +284,7 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 		break;
 	default: return -EINVAL;
 	}
-	sid_error_t ret = sid_start_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+	sid_error_t ret = sid_start_delegated(*cli_cfg.app_handler,
 					      link_mask);
 
 	shell_info(shell, "sid_start returned %d", ret);
@@ -308,7 +308,7 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 	default: return -EINVAL;
 	}
 
-	sid_error_t ret = sid_stop_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+	sid_error_t ret = sid_stop_delegated(*cli_cfg.app_handler,
 					     link_mask);
 
 	shell_info(shell, "sid_stop returned %d", ret);
@@ -441,7 +441,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 		desc.id = cli_cfg.rsp_msg_id;
 	}
 
-	sid_error_t ret = sid_put_msg_delegated(*cli_cfg.app_cxt->sidewalk_handle, &msg, &desc);
+	sid_error_t ret = sid_put_msg_delegated(*cli_cfg.app_handler, &msg, &desc);
 
 	shell_info(shell, "sid_put_msg returned %d, TYPE: %d ID: %d", ret, desc.type, desc.id);
 	return 0;
@@ -452,7 +452,7 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_FACTORY_RESET_ARG_REQUIRED, CMD_SID_FACTORY_RESET_ARG_OPTIONAL);
 
-	sid_error_t ret = sid_set_factory_reset_delegated(*cli_cfg.app_cxt->sidewalk_handle);
+	sid_error_t ret = sid_set_factory_reset_delegated(*cli_cfg.app_handler);
 
 	shell_info(shell, "sid_set_factory_reset returned %d", ret);
 	return 0;
@@ -484,7 +484,7 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 	}
 
 	size_t mtu = 0;
-	sid_error_t ret = sid_get_mtu_delegated(*cli_cfg.app_cxt->sidewalk_handle, link_type, &mtu);
+	sid_error_t ret = sid_get_mtu_delegated(*cli_cfg.app_handler, link_type, &mtu);
 
 	shell_info(shell, "sid_get_mtu returned %d, MTU: %d", ret, mtu);
 	return 0;
@@ -509,7 +509,7 @@ int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char *
 		return -EINVAL;
 	}
 	data = (uint8_t)data_raw;
-	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_BLE_BATTERY_LEVEL, &data,
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_handler, SID_OPTION_BLE_BATTERY_LEVEL, &data,
 					       sizeof(data));
 
 	shell_info(shell, "sid_option returned %d", ret);
@@ -588,7 +588,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 	}
 	}
 
-	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_handler, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
 					       &dev_cfg,
 					       sizeof(dev_cfg));
 
@@ -627,7 +627,7 @@ int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv)
 		return -EINVAL;
 	}
 	data = (uint8_t)data_raw;
-	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_handler,
 					       SID_OPTION_SET_MSG_POLICY_FILTER_DUPLICATES, &data,
 					       sizeof(data));
 
@@ -642,7 +642,7 @@ int cmd_sid_option_gd(const struct shell *shell, int32_t argc, const char **argv
 
 	static uint8_t data = 0;
 
-	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_handler,
 					       SID_OPTION_GET_MSG_POLICY_FILTER_DUPLICATES, &data,
 					       sizeof(data));
 
@@ -657,7 +657,7 @@ int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **ar
 	static struct sid_status status = {};
 
 	memset(&status, 0, sizeof(status));
-	sid_error_t ret = sid_get_status_delegated(*cli_cfg.app_cxt->sidewalk_handle, &status);
+	sid_error_t ret = sid_get_status_delegated(*cli_cfg.app_handler, &status);
 
 	if (ret == SID_ERROR_NONE) {
 
@@ -698,7 +698,7 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 	}
 	}
 
-	sid_error_t ret = sid_ble_bcn_connection_request_delegated(*cli_cfg.app_cxt->sidewalk_handle, conn_req);
+	sid_error_t ret = sid_ble_bcn_connection_request_delegated(*cli_cfg.app_handler, conn_req);
 
 	shell_info(shell, "sid_ble_bcn_connection_request returned %d", ret);
 	return 0;
@@ -729,7 +729,7 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 	}
 	}
 
-	sid_error_t ret = sid_get_time_delegated(*cli_cfg.app_cxt->sidewalk_handle, type, &curr_time);
+	sid_error_t ret = sid_get_time_delegated(*cli_cfg.app_handler, type, &curr_time);
 
 	shell_info(shell, "sid_get_time returned %d, SEC: %d NSEC: %d", ret, curr_time.tv_sec, curr_time.tv_nsec);
 	return 0;
@@ -740,7 +740,7 @@ int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **arg
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_DST_ID_ARG_REQUIRED, CMD_SID_SET_DST_ID_ARG_OPTIONAL);
 	uint32_t dst_id = atoi(argv[1]);
-	sid_error_t ret = sid_set_msg_dest_id_delegated(*cli_cfg.app_cxt->sidewalk_handle, dst_id);
+	sid_error_t ret = sid_set_msg_dest_id_delegated(*cli_cfg.app_handler, dst_id);
 
 	shell_info(shell, "sid_set_msg_dest_id returned %d", ret);
 	return 0;

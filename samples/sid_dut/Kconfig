@@ -9,6 +9,14 @@ config SIDEWALK_DUT_CLI
   	default y
 	imply SHELL
 
+module = SID_THREAD
+module-str = Sidewalk event thread
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+choice SID_THREAD_LOG_LEVEL_CHOICE
+	default SID_THREAD_LOG_LEVEL_DBG
+endchoice
+
 config SIDEWALK_GPIO
 	default y
 

@@ -34,7 +34,8 @@ licenses:
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
   - sidewalk/subsys/ace(/.*)+h$
-  - sidewalk/subsys/config(/.*)+h$
+  - sidewalk/subsys/config/app_ble_config..$
+  - sidewalk/subsys/config/app_subGHz_config.c$
   - sidewalk/subsys/hal(/.*)+h$
   - sidewalk/subsys/hal/src/memory.c$
   - sidewalk/subsys/sal/common(/.*)+h$

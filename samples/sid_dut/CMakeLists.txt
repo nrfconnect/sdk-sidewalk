@@ -11,16 +11,24 @@ project(sidewalk_template)
 
 zephyr_include_directories(
   src/
-  $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/include
+  $ENV{ZEPHYR_BASE}/../sidewalk/subsys/sal/sid_pal/include
+  $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config
+  $ENV{ZEPHYR_BASE}/../sidewalk/utils/include
 )
 
 target_sources(app PRIVATE
   src/main.c
-  src/sid_api_delegated.c
   src/sid_dut_shell.c
   src/sid_thread.c
+  $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/board_init.c
+  $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/app_ble_config.c
+  $ENV{ZEPHYR_BASE}/../sidewalk/utils/src/sid_api_delegated.c
 )
 
 if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-	target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/src/nordic_dfu.c)
+	target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../sidewalk/utils/src/nordic_dfu.c)
+endif()
+
+if(CONFIG_SIDEWALK_SUBGHZ)
+  target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/app_subGHz_config.c)
 endif()
