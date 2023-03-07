@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
 
+module = SID_THREAD
+module-str = Sidewalk event thread
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 rsource "../common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"

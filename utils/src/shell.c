@@ -12,7 +12,7 @@
 #include <zephyr/logging/log.h>
 
 #include <sid_api.h>
-#include <sidewalk_thread.h>
+
 #include "buttons_internal.h"
 
 #include <sidewalk_version.h>
@@ -25,13 +25,8 @@
 
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#define SID_API_STACK_SIZE 5120
-#define SID_API_WORKER_PRIO 5
-
-K_THREAD_STACK_DEFINE(sid_api_work_q_stack, SID_API_STACK_SIZE);
-
-struct k_work_q sid_api_work_q;
-
+struct k_work_q* sid_api_work_q;
+struct sid_handle *sid_handler;
 extern struct notifier_ctx global_state_notifier;
 
 DECLARE_RESULT(uint32_t, ButtonParserResult, EMPTY_ARG, INVALID_INPUT);
@@ -74,7 +69,7 @@ struct sid_factory_reset_t factory_reset_work;
 
 static const struct sid_status *CLI_status = &dummy;
 struct messages_stats sidewalk_messages;
-static app_context_t *sid_app_ctx;
+
 
 void CLI_register_message_send()
 {
@@ -92,15 +87,10 @@ void CLI_register_message_received(uint16_t resp_id)
 	sidewalk_messages.resp_id = resp_id;
 }
 
-void CLI_init(app_context_t *ctx)
+void CLI_init(struct k_work_q* work_q, struct sid_handle *handle)
 {
-	sid_app_ctx = ctx;
-
-	k_work_queue_init(&sid_api_work_q);
-
-	k_work_queue_start(&sid_api_work_q, sid_api_work_q_stack,
-			   K_THREAD_STACK_SIZEOF(sid_api_work_q_stack), SID_API_WORKER_PRIO,
-			   NULL);
+	sid_api_work_q = work_q;
+	sid_handler = handle;
 }
 
 void CLI_register_sid_status(const struct sid_status *status)
@@ -248,9 +238,9 @@ static void cmd_send_work(struct k_work *item)
 {
 	struct sid_send_work_t *sid_send_work =
 		CONTAINER_OF(item, struct sid_send_work_t, work);
-
-	if (!(STATE_SIDEWALK_READY == sid_app_ctx->state) &&
-	    !(STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx->state)) {
+	struct sid_status current_status;
+	sid_get_status(sid_handler, &current_status);
+	if ((current_status.state != SID_STATE_READY) && (current_status.state != SID_STATE_SECURE_CHANNEL_READY)) {
 		LOG_ERR("sidewalk is not ready yet!");
 		return;
 	}
@@ -267,7 +257,7 @@ static void cmd_send_work(struct k_work *item)
 		desc.id = sid_send_work->resp_id;
 	}
 	application_state_sending(&global_state_notifier, true);
-	sid_error_t sid_ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &sid_send_work->msg, &desc);
+	sid_error_t sid_ret = sid_put_msg(sid_handler, &sid_send_work->msg, &desc);
 
 	if (SID_ERROR_NONE != sid_ret) {
 		LOG_ERR("failed sending message err:%d", (int) sid_ret);
@@ -335,7 +325,7 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 	send_work.type = type;
 	send_work.resp_id = sidewalk_messages.resp_id;
 	k_work_init(&send_work.work, cmd_send_work);
-	k_work_submit_to_queue(&sid_api_work_q, &send_work.work);
+	k_work_submit_to_queue(sid_api_work_q, &send_work.work);
 
 	return CMD_RETURN_OK;
 }
@@ -343,17 +333,14 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 {
 	const char *state_repo[] = {
-		"STATE_INIT",
-		"STATE_SIDEWALK_READY",
-		"STATE_SIDEWALK_NOT_READY",
-		"STATE_SIDEWALK_SECURE_CONNECTION",
-		"STATE_PAL_INIT_ERROR",
-		"STATE_PAL_INIT_ERROR"
+		 "SID_STATE_READY","SID_STATE_NOT_READY","SID_STATE_ERROR","SID_STATE_SECURE_CHANNEL_READY"
 	};
 	const char *state;
+	struct sid_status current_status;
+	sid_get_status(sid_handler, &current_status);
 
-	if (sid_app_ctx->state <= STATE_LIB_INIT_ERROR) {
-		state = state_repo[sid_app_ctx->state];
+	if (current_status.state <= SID_STATE_SECURE_CHANNEL_READY) {
+		state = state_repo[current_status.state];
 	} else {
 		state = "invalid";
 	}
@@ -412,7 +399,7 @@ static void cmd_fatory_reset_work(struct k_work *item)
 {
 	struct sid_factory_reset_t *sid_factory_reset_work =
 		CONTAINER_OF(item, struct sid_factory_reset_t, work);
-	sid_error_t ret = sid_set_factory_reset(sid_app_ctx->sidewalk_handle);
+	sid_error_t ret = sid_set_factory_reset(sid_handler);
 
 	if (SID_ERROR_NONE != ret) {
 		switch (ret) {
@@ -441,7 +428,7 @@ static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv
 
 	factory_reset_work.shell = shell;
 	k_work_init(&factory_reset_work.work, cmd_fatory_reset_work);
-	k_work_submit_to_queue(&sid_api_work_q, &factory_reset_work.work);
+	k_work_submit_to_queue(sid_api_work_q, &factory_reset_work.work);
 	return CMD_RETURN_OK;
 }
 

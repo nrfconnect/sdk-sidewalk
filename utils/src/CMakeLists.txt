@@ -23,3 +23,7 @@ if (CONFIG_SIDEWALK_CLI)
     zephyr_include_directories(${ZEPHYR_BASE}/../sidewalk/lib/include/)
     zephyr_include_directories(${ZEPHYR_BASE}/../sidewalk/samples/template/include)
 endif() # CONFIG_SIDEWALK_CLI
+
+if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+    zephyr_library_sources(nordic_dfu.c)
+endif() # CONFIG_SIDEWALK_DFU_SERVICE_BLE
