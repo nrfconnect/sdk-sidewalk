@@ -215,8 +215,10 @@ void main(void)
 {
 	extern struct notifier_ctx global_state_notifier;
 
-	subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test);
-
+	if (!subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test))
+	{
+		__ASSERT(false, "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
+	}
 	if (0 != board_init()) {
 		return;
 	}
