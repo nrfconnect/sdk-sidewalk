@@ -21,7 +21,7 @@ add_definitions(--include ztest.h)
 
 target_include_directories(testbinary PRIVATE 
         . 
-        ${SIDEAWLK_BASE}/samples/sid_dut/src
+        ${SIDEAWLK_BASE}/samples/sid_dut/include
         ${SIDEAWLK_BASE}/subsys/sal/common/sid_ifc
         ${SIDEAWLK_BASE}/subsys/sal/common/sid_time_ops
         ${SIDEAWLK_BASE}/subsys/sal/common/sid_pal_ifc

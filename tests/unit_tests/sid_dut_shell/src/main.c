@@ -24,9 +24,9 @@
 
 // sidewalk handle pointer used in valid initialization
 static struct sid_handle *sidewalk_handle = NULL;
-static struct app_context app_ctx_valid;
+static struct sid_handle ** sidewalk_handler_valid;
 static struct sid_config sid_cfg_valid;
-static struct app_context app_ctx_invalid;
+static struct sid_handle ** sidewalk_handler_invalid;
 static struct sid_config sid_cfg_invalid;
 
 #define PARAMETRIZED_TEST(siute, name, test_foo, ...) ZTEST(siute, name){ test_foo(__VA_ARGS__); }
@@ -1748,17 +1748,17 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_option_lp_get_l3){
 
 static void *correct_initialize(void)
 {
-	app_ctx_valid = (struct app_context){ .sidewalk_handle = &sidewalk_handle };
+	sidewalk_handler_valid = &sidewalk_handle;
 	memset(&sid_cfg_valid, 0, sizeof(sid_cfg_valid));
-	initialize_sidewalk_shell(&sid_cfg_valid, &app_ctx_valid);
+	initialize_sidewalk_shell(&sid_cfg_valid, sidewalk_handler_valid);
 	return NULL;
 }
 
 static void *NULL_initialize(void)
 {
-	memset(&app_ctx_invalid, 0, sizeof(app_ctx_invalid));
+	sidewalk_handler_invalid = NULL;
 	memset(&sid_cfg_invalid, 0, sizeof(sid_cfg_invalid));
-	initialize_sidewalk_shell(&sid_cfg_invalid, &app_ctx_invalid);
+	initialize_sidewalk_shell(&sid_cfg_invalid, sidewalk_handler_invalid);
 	return NULL;
 }
 
