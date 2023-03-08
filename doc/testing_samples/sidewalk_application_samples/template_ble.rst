@@ -139,38 +139,34 @@ The following table presents how the memory is allocated for the Template Blueto
 DFU services
 ============
 
-If a new, correct image is found, the bootloader can only start the application placed in the first partition and swap the application from the second partition.
-It cannot take any new image other than the one from the secondary partition.
+To test the Device Firmware Update, follow :ref:`sidewalk_testing_dfu`.
+
+If a new, correct image is found, the bootloader can only start the application that is placed in the first partition and exchange the application from the second partition.
+It may take a few seconds.
 
 Building and running
 ********************
 
 This sample can be found under :file:`samples/template_ble`.
 
+.. note::
+   Before you flash you Sidewalk sample, make sure you have:
 
-#. If you are building the sample for the first time, set up the environment:
+      * Downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
+      * Provisioned your device during the :ref:`setting_up_sidewalk_product`
 
-   .. note::
-      This step needs to be completed only once.
-      You do not have to repeat it on every sample rebuild.
+   This step needs to be completed only once.
+   You do not have to repeat it on every sample rebuild.
 
-   a. Run the application manifest and update.
+To build the sample, follow the steps in the `Building and programming an application`_ documentation.
+If you want to select a specific build type, see :ref:`template_ble_selecting_build`.
 
-      .. code-block:: console
+.. _template_ble_selecting_build:
 
-         $ west config manifest.path sidewalk
-         $ west update
+Selecting a build type
+======================
 
-   #. Flash the :file:`mfg.hex` file.
-
-      .. code-block:: console
-
-         $ nrfjprog --chiperase --family NRF52 \
-         --program ${ZEPHYR_BASE}/../sidewalk/tools/provision/mfg.hex \
-         --reset
-
-#. Once you have set up your environment, build the sample.
-   Depending on the configuration, build with one of the commands below:
+Use one of the common sample configurations:
 
    * Build with the default configuration:
 
@@ -190,63 +186,37 @@ This sample can be found under :file:`samples/template_ble`.
 
          $ west build -b nrf52840dk_nrf52840 -- -DCONFIG_SIDEWALK_CLI=y
 
-   .. note::
-      For more details on building with west, see the `West building flashing and debugging`_ documentation.
-
-#. Flash the Sidewalk application.
-
-   .. code-block:: console
-
-	   $ west flash
-
-#. Confirm the Sidewalk sample is flashed.
-
-   a. List a serial port of the connected development kit.
-
-      .. code-block:: console
-
-          $ nrfjprog --com
-          683929577    /dev/ttyACM0    VCOM0
-
-   #. Connect to the listed serial port with the following settings:
-
-      * Baud rate: 115200
-      * 8 data bits
-      * 1 stop bit
-      * No parity
-      * HW flow control: None
-
-      For example, you can use the Screen tool:
-
-      .. code-block:: console
-
-        $  screen  /dev/ttyACM0 115200
-
-   #. To refresh the logs, restart the program by pressing the :guilabel:`RESET` button on your development kit.
-
-      .. code-block:: console
-
-         *** Booting Zephyr OS build v3.0.99-ncs1-4913-gf7b06162027d  ***
-         ----------------------------------------------------------------
-         sidewalk             v1.13.0-6-g2e0691d-dirty
-         nrf                  v2.0.0-734-g3904875f6
-         zephyr               v3.0.99-ncs1-4913-gf7b0616202-dirty
-         ----------------------------------------------------------------
-         sidewalk_fork_point = 92dcbff2da68dc6853412de792c06cc6966b8b79
-         build time          = 2022-11-17 10:52:50.833532+00:00
-         ----------------------------------------------------------------
-
-         [00:00:00.006,225] <inf> sid_template: Sidewalk example started!
-
 .. _template_ble_testing:
 
 Testing
 =======
 
-After successfully building the sample and flashing manufacturing data wait for the device to complete :ref:`automatic_registration_sidewalk_endpoints`.
+See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
+
+After successfully building the sample and flashing manufacturing data, the sample is ready to use.
+To refresh the logs, restart the program by pressing the :guilabel:`RESET` button on your development kit.
+You should see the following output:
+
+      .. code-block:: console
+
+         *** Booting Zephyr OS build v3.2.99-ncs2 ***
+         ----------------------------------------------------------------
+         sidewalk             v1.14.3-1-g1232aabb
+         nrf                  v2.3.0
+         zephyr               v3.2.99-ncs2
+         ----------------------------------------------------------------
+         sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
+         build time          = 2023-03-14 15:00:00.000000+00:00
+         ----------------------------------------------------------------
+
+         [00:00:00.006,225] <inf> sid_template: Sidewalk example started!
+
+Wait for the device to complete the :ref:`automatic_registration_sidewalk_endpoints`.
+
 To test the device, follow the steps in :ref:`sidewalk_testing`.
 
-.. _USB DFU Sample Application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/samples/subsys/usb/dfu/README.html
-.. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/app_bootloaders.html
-.. _West building flashing and debugging: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/develop/west/build-flash-debug.html
-.. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf52dk_nrf52832/doc/index.html#nrf52dk-nrf52832
+.. _USB DFU Sample Application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/samples/subsys/usb/dfu/README.html
+.. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/app_bootloaders.html
+.. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming
+.. _Testing and debugging an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/testing.html#gs-testing
+.. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/boards/arm/nrf52dk_nrf52832/doc/index.html#nrf52dk-nrf52832
