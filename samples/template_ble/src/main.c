@@ -4,18 +4,19 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
+#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <dk_buttons_and_leds.h>
 
 #include <sidewalk_version.h>
 
 #include <sid_error.h>
-#include <sid_thread.h>
+
 #include <sid_api_delegated.h>
 #include <board_init.h>
-#include <dk_buttons_and_leds.h>
+#include <sid_thread.h>
 #include <buttons.h>
 
-#include <zephyr/kernel.h>
 #if CONFIG_STATE_NOTIFIER
 #include <state_notifier.h>
 #endif

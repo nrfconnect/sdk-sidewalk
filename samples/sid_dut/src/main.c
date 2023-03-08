@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
+#include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
 #include <sidewalk_version.h>
@@ -20,11 +21,13 @@ void main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
-	if(sidewalk_board_init() != SID_ERROR_NONE)
-	{return;}
+	if (sidewalk_board_init() != SID_ERROR_NONE) {
+		return;
+	}
 
-	struct k_work_q * workq = sid_thread_init();
+	struct k_work_q *workq = sid_thread_init();
+
 	sid_api_delegated_init(workq);
-	
+
 	initialize_sidewalk_shell(get_sidewalk_config(), get_sidewalk_handle());
 }

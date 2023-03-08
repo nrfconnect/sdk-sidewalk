@@ -7,7 +7,15 @@
 #define SID_THREAD_H
 
 #include <zephyr/kernel.h>
+#include <sid_api.h>
 #include <sid_error.h>
+
+typedef struct sid_thread_ctx {
+	struct k_work_q sidewalk_work_q;
+	struct sid_handle *sidewalk_handle;
+        struct sid_config sidewalk_config;
+        struct k_work sidewalk_event_work;
+}sid_thread_ctx_t;
 
 /**
  * @brief Start Sidewalk work queue thread
@@ -22,13 +30,10 @@ struct k_work_q* sid_thread_init(void);
  */
 struct sid_handle** get_sidewalk_handle(void);
 
-
 /**
  * @brief Get Sidewalk configuration
  * 
  */
 struct sid_config *get_sidewalk_config(void);
-
-
 
 #endif /* SID_THREAD_H */

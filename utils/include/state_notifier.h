@@ -94,4 +94,13 @@ X_APPLICAITON_STATES
  */
 bool subscribe_for_state_change(struct notifier_ctx *ctx, state_change_handler handler);
 
+extern struct notifier_ctx global_state_notifier;
+
+#endif
+
+#if CONFIG_GPIO
+#include <state_notifier_gpio_backend.h>
+#endif
+#if CONFIG_LOG
+#include <state_notifier_log_backend.h>
 #endif

@@ -18,7 +18,8 @@ config STATE_NOTIFIER
 
 config STATE_NOTIFIER_HANDLER_MAX
 	int
-	default 2 if LOG
-	default 1
+	default 2 if LOG && GPIO
+	default 1 if LOG || GPIO
+	default 0
 	help
 	  Maximum number of the notifier listeners.

@@ -6,6 +6,8 @@
 if(CONFIG_STATE_NOTIFIER)
 zephyr_library_sources(
     state_notifier.c
+)
+zephyr_library_sources_ifdef(CONFIG_GPIO
     state_notifier_gpio_backend.c
 )
 zephyr_library_sources_ifdef(CONFIG_LOG

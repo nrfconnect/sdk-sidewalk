@@ -10,7 +10,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template)
 
 zephyr_include_directories(
-  src/
+  include/
   $ENV{ZEPHYR_BASE}/../sidewalk/subsys/sal/sid_pal/include
   $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config
   $ENV{ZEPHYR_BASE}/../sidewalk/utils/include
@@ -20,6 +20,7 @@ target_sources(app PRIVATE
   src/main.c
   src/sid_dut_shell.c
   src/sid_thread.c
+  src/sid_callbacks.c
   $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/board_init.c
   $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/app_ble_config.c
   $ENV{ZEPHYR_BASE}/../sidewalk/utils/src/sid_api_delegated.c

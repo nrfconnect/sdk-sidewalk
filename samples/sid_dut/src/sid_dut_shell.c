@@ -32,11 +32,11 @@
 #define CLI_MAX_DATA_LEN            (CONFIG_SHELL_CMD_BUFF_SIZE / 2)
 #define CLI_MAX_HEX_STR_LEN         CONFIG_SHELL_CMD_BUFF_SIZE
 
-#define CHECK_SHELL_INITIALIZED(shell, cli_cfg)					   \
-	if (cli_cfg.app_handler == NULL) { \
-		shell_error(shell, "Sidewalk CLI not initialized");		   \
-		return -EINVAL;							   \
-	}									   \
+#define CHECK_SHELL_INITIALIZED(shell, cli_cfg)			    \
+	if (cli_cfg.app_handler == NULL) {			    \
+		shell_error(shell, "Sidewalk CLI not initialized"); \
+		return -EINVAL;					    \
+	}							    \
 
 #define CHECK_ARGUMENT_COUNT(argc, required, \
 			     optional) if ((argc < required) || (argc > (required + optional))) { return -EINVAL; }
@@ -99,7 +99,7 @@ static struct cli_config cli_cfg = {
 	.rsp_msg_id = 0,
 };
 
-void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct sid_handle** app_handler)
+void initialize_sidewalk_shell(struct sid_config *sid_cfg, struct sid_handle **app_handler)
 {
 	cli_cfg.app_handler = app_handler;
 	cli_cfg.sid_cfg = sid_cfg;
@@ -381,7 +381,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 				return -EINVAL;
 			}
 
-			if(!cli_parse_link_mask_opt(atoi(argv[opt]), &desc.link_type)){
+			if (!cli_parse_link_mask_opt(atoi(argv[opt]), &desc.link_type)) {
 				return -EINVAL;
 			}
 			continue;
@@ -421,14 +421,16 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 
 			long retry_val = strtol(retry, &end, 0);
 			if (!IN_RANGE(ack_val, 0, UINT8_MAX) || end == ack) {
-				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", retry, (unsigned int)UINT8_MAX);
+				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", retry,
+					    (unsigned int)UINT8_MAX);
 				return -EINVAL;
 			}
 			desc.msg_desc_attr.tx_attr.num_retries = (uint8_t)retry_val;
 
 			long ttl_val = strtol(ttl, &end, 0);
 			if (!IN_RANGE(ttl_val, 0, UINT16_MAX) || end == ack) {
-				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", ttl, (unsigned int)UINT16_MAX);
+				shell_error(shell, "Invalid argument [%s], must be value <0, %x>", ttl,
+					    (unsigned int)UINT16_MAX);
 				return -EINVAL;
 			}
 			desc.msg_desc_attr.tx_attr.ttl_in_seconds = (uint16_t)ttl_val;
@@ -549,7 +551,8 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 	{
 		CHECK_ARGUMENT_COUNT(argc, 3, 0);
 		if (cmd_sid_option_handle_set_link3_profile(argv[2], &dev_cfg) != 0) {
-			shell_error(shell, "Invalid argument [%s], must be value <0, %d>", argv[2], (unsigned int)UINT16_MAX);
+			shell_error(shell, "Invalid argument [%s], must be value <0, %d>", argv[2],
+				    (unsigned int)UINT16_MAX);
 			return -EINVAL;
 		}
 		break;
@@ -621,9 +624,11 @@ int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv)
 	long data_raw = 0l;
 	static uint8_t data = 0;
 	char *end = NULL;
+
 	data_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1] || !IN_RANGE(data_raw, 0, 1)) {
-		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1] == NULL ? "NULL": argv[1], (unsigned int)1);
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1] == NULL ? "NULL": argv[1],
+			    (unsigned int)1);
 		return -EINVAL;
 	}
 	data = (uint8_t)data_raw;
@@ -782,9 +787,10 @@ int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **arg
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_RSP_ID_ARG_REQUIRED, CMD_SID_SET_RSP_ID_ARG_OPTIONAL);
-	
+
 	char *end;
 	long data_raw = strtol(argv[1], &end, 0);
+
 	if (end == argv[1] || !IN_RANGE(data_raw, 0, UINT16_MAX)) {
 		shell_error(shell, "Invalid argument [%s], must be value <0, %x>", argv[1], (unsigned int)UINT16_MAX);
 		return -EINVAL;
@@ -796,15 +802,17 @@ int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **arg
 int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SDK_VERSION_DESCRIPTION_ARG_REQUIRED, CMD_SID_SDK_VERSION_DESCRIPTION_ARG_OPTIONAL);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SDK_VERSION_DESCRIPTION_ARG_REQUIRED,
+			     CMD_SID_SDK_VERSION_DESCRIPTION_ARG_OPTIONAL);
 
-	#define SID_SDK_VERSION_STR STRINGIFY(SID_SDK_MAJOR_VERSION) "." STRINGIFY(SID_SDK_MINOR_VERSION) "." STRINGIFY(SID_SDK_PATCH_VERSION) "-" STRINGIFY(SID_SDK_BUILD_VERSION)
-    shell_info(shell, "SID_SDK_VERSION: "SID_SDK_VERSION_STR);
+	#define SID_SDK_VERSION_STR STRINGIFY(SID_SDK_MAJOR_VERSION) "." STRINGIFY(SID_SDK_MINOR_VERSION) "." STRINGIFY( \
+		SID_SDK_PATCH_VERSION) "-" STRINGIFY(SID_SDK_BUILD_VERSION)
+	shell_info(shell, "SID_SDK_VERSION: "SID_SDK_VERSION_STR);
 
-    shell_info(shell, "SID_SDK_MAJOR_VERSION: %d", SID_SDK_MAJOR_VERSION);
-    shell_info(shell, "SID_SDK_MINOR_VERSION: %d", SID_SDK_MINOR_VERSION);
-    shell_info(shell, "SID_SDK_PATCH_VERSION: %d", SID_SDK_PATCH_VERSION);
-    shell_info(shell, "SID_SDK_BUILD_VERSION: %d", SID_SDK_BUILD_VERSION);
+	shell_info(shell, "SID_SDK_MAJOR_VERSION: %d", SID_SDK_MAJOR_VERSION);
+	shell_info(shell, "SID_SDK_MINOR_VERSION: %d", SID_SDK_MINOR_VERSION);
+	shell_info(shell, "SID_SDK_PATCH_VERSION: %d", SID_SDK_PATCH_VERSION);
+	shell_info(shell, "SID_SDK_BUILD_VERSION: %d", SID_SDK_BUILD_VERSION);
 
 	shell_info(shell, "Nordic version: %s", sidewalk_version_component[0]);
 	return 0;
@@ -813,9 +821,12 @@ int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **ar
 int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED, CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED,
+			     CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL);
 	shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_1: %d", true);
-    shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_2: %d", IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_FSK) || IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
-    shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_3: %d", IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_FSK) || IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
+	shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_2: %d", IS_ENABLED(
+			   CONFIG_SIDEWALK_LINK_MASK_FSK) || IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
+	shell_info(shell, "SID_SDK_CONFIG_ENABLE_LINK_TYPE_3: %d", IS_ENABLED(
+			   CONFIG_SIDEWALK_LINK_MASK_FSK) || IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
 	return 0;
 }
