@@ -70,20 +70,20 @@ BOARDS = {
 
 SAMPLES = [
     Sample('sidewalk/samples/sensor_monitoring', 'sample.sidewalk.demo',
-           ':ref:`Sensor monitoring <_sensor_monitoring_sample>`'),
+           ':ref:`Sensor monitoring <sensor_monitoring>`'),
     Sample('sidewalk/samples/template_subghz', 'sample.sidewalk.template',
-           ':ref:`Template sub-GHz <template_sample>`'),
+           ':ref:`Template sub-GHz <template_subghz>`'),
     Sample('sidewalk/samples/template_ble', 'sample.sidewalk.template_ble',
-           ':ref:`Template Bluetooth LE <template_ble_sample>`'),
+           ':ref:`Template Bluetooth LE <template_ble>`'),
 ]
 
 VARIANTS = {
     '': 'Debug',
     '.release': 'Release',
-    '.ble': 'BLE Debug',
+    '.ble': 'Bluetooth LE Debug',
     '.fsk': 'FSK Debug',
     '.lora': 'LoRa Debug',
-    '.ble.release': 'BLE Release',
+    '.ble.release': 'Bluetooth LE Release',
     '.fsk.release': 'FSK Release',
     '.lora.release': 'LoRa Release',
 }
@@ -133,7 +133,7 @@ class ElfSizeParser:
 
 class ReportGenerator:
 
-    HEADERS = ['Sample', 'MCUBoot ROM', 'Application ROM',
+    HEADERS = ['Sample', 'MCUboot ROM', 'Application ROM',
                'Sidewalk Settings', 'Total ROM', 'Total RAM']
 
     def __init__(self):
@@ -221,7 +221,7 @@ def build_report(twister_out_dir: str, variants: list) -> None:
 
             elf = ElfSizeParser(build_dir / 'zephyr' / 'zephyr.elf')
             partitions = PartitionParser(build_dir / 'partitions.yml')
-            total_rom = elf.region_size_kb('text') + partitions.region_size_kb(
+            total_rom = elf.region_size_kb('text', 'data') + partitions.region_size_kb(
                 'mcuboot',
 				'settings_storage',
                 'sidewalk_storage',
@@ -231,7 +231,7 @@ def build_report(twister_out_dir: str, variants: list) -> None:
             report.add_variant(SampleVariantStats(sample=variant.full_title(),
                                mcuboot_rom=partitions.region_size_kb(
                                    'mcuboot', 'settings_storage'),
-                               app_rom=elf.region_size_kb('text'),
+                               app_rom=elf.region_size_kb('text', 'data'),
                                settings=partitions.region_size_kb(
                                    'sidewalk_storage', 'mfg_storage'),
                                total_rom=total_rom,
