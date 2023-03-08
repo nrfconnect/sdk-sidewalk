@@ -5,7 +5,11 @@
  */
 
 #include <app_ble_config.h>
-#include <app_900_config.h>
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#include <app_subGHz_config.h>
+#endif
+#include <sid_900_cfg.h>
+
 #include <sm_task.h>
 #include <sm_leds.h>
 #include <sm_buttons.h>

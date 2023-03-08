@@ -11,18 +11,19 @@ project(sensor_monitoring)
 
 FILE(GLOB app_sources
     src/*.c
-    config/*.c
     ext/*.c
+    $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/board_init.c
+    $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/app_ble_config.c
 )
-
-if (CONFIG_SIDEWALK_LINK_MASK_BLE)
-    list(FILTER app_sources EXCLUDE REGEX "_900_*")
-endif()
 
 target_sources(app PRIVATE ${app_sources})
 
 zephyr_include_directories(
-    config
+    $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config
     include
     ext
 )
+
+if(CONFIG_SIDEWALK_SUBGHZ)
+  target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../sidewalk/subsys/config/app_subGHz_config.c)
+endif()

@@ -14,8 +14,9 @@
 #include <board_init.h>
 #include <dk_buttons_and_leds.h>
 #include <buttons.h>
-
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 #include <sid_900_cfg.h>
+#endif
 
 #include <zephyr/kernel.h>
 #if CONFIG_STATE_NOTIFIER
