@@ -22,15 +22,15 @@ To start Sidewalk, do the following:
 
    .. code-block:: console
 
-      *** Booting Zephyr OS build v3.0.99-ncs1-4913-gf7b06162027d  ***
-      ----------------------------------------------------------------
-      sidewalk             v1.13.0-6-g2e0691d-dirty
-      nrf                  v2.0.0-734-g3904875f6
-      zephyr               v3.0.99-ncs1-4913-gf7b0616202-dirty
-      ----------------------------------------------------------------
-      sidewalk_fork_point = 92dcbff2da68dc6853412de792c06cc6966b8b79
-      build time          = 2022-11-17 10:52:50.833532+00:00
-      ----------------------------------------------------------------
+       *** Booting Zephyr OS build v3.2.99-ncs2 ***
+       ----------------------------------------------------------------
+       sidewalk             v1.14.3-1-g1232aabb
+       nrf                  v2.3.0
+       zephyr               v3.2.99-ncs2
+       ----------------------------------------------------------------
+       sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
+       build time          = 2023-03-14 15:00:00.000000+00:00
+       ----------------------------------------------------------------
 
       [00:00:00.006,225] <inf> sid_template: Sidewalk example started!
 
@@ -42,6 +42,8 @@ To start Sidewalk, do the following:
 
       [00:00:31.045,471] <inf> sid_thread: Device Is registered, Time Sync Fail, Link status Up
 
+   When Sidewalk registration status changes, **LED 2** turns on.
+
 #. Wait for the device to complete time sync with the Sidewalk network.
 
    You should see the following logs:
@@ -50,6 +52,8 @@ To start Sidewalk, do the following:
 
       [00:00:35.827,789] <inf> sid_thread: status changed: ready
       [00:00:35.827,850] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
+
+   When Sidewalk gets Time Sync, **LED 3** turns on.
 
 #. Perform a button action.
 
@@ -60,39 +64,20 @@ To start Sidewalk, do the following:
 
          [00:44:42.347,747] <inf> sid_thread: Set connection request
 
-      Wait for status change.
+      Sidewalk automatically disconnects Bluetooth LE after some inactivity period.
+      You have to repeat the button action.
 
-      When Sidewalk status changes, **LED 1** turns on.
-      The following messages appear in the log:
+   #. For a LoRa and FSK device, no action is needed.
 
-      .. code-block:: console
+#. Wait for status change.
+   The following messages appear in the log:
 
-          [00:45:31.597,564] <inf> sid_thread: status changed: init
-          [00:45:31.597,564] <dbg> sid_thread: on_sidewalk_status_changed: Device Is registered, Time Sync Success, Link status Up
+   .. code-block:: console
 
-   #. For a LoRa device, press any button except the factory reset button.
-      To switch the transport protocol from Bluetooth LE to LoRa, press **Button 2**.
+      [00:45:31.597,564] <inf> sid_thread: status changed: init
+      [00:45:31.597,564] <dbg> sid_thread: on_sidewalk_status_changed: Device Is registered, Time Sync Success, Link status Up
 
-      .. code-block:: console
-
-         [00:00:09.089,385] <inf> sid_template: Pressed button 2
-         [00:00:09.089,508] <inf> sid_thread: Start Sidewalk link_mask:4
-         [00:00:09.089,874] <inf> sid_thread: status changed: not ready
-         [00:00:09.089,904] <inf> sid_thread: Device Is registered, Time Sync Fail, Link status Down
-         [00:00:09.537,963] <inf> sid_thread: Device Is registered, Time Sync Fail, Link status Up
-         [00:00:09.537,963] <inf> sid_thread: Link mode cloud, on lora
-         [00:00:09.537,994] <err> sid_thread: Option failed (err -11)
-
-    Wait for status change.
-
-    When Sidewalk status changes, **LED 1** turns on.
-    The following messages appear in the log:
-
-      .. code-block:: console
-
-         [00:00:21.362,884] <inf> sid_thread: status changed: ready
-         [00:00:21.362,915] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
-         [00:00:21.362,945] <inf> sid_thread: Link mode cloud, on lora
+   When Sidewalk Link Status is Up, **LED 4** turns on.
 
 .. _sidewalk_testing_send_message:
 
@@ -202,6 +187,8 @@ Receiving message from AWS MQTT
                                      48 65 6c 6c 6f 20 20 20  53 69 64 65 77 61 6c 6b |Hello    Sidewalk
                                      21                                               |!
 
+.. _sidewalk_testing_dfu:
+
 Testing Device Firmware Update (DFU)
 ************************************
 
@@ -237,40 +224,24 @@ To test the power profiles, complete the following steps:
 
    .. code-block:: console
 
-       [00:00:00.000,915] <inf> sid_template: Sidewalk example started!
+       *** Booting Zephyr OS build v3.2.99-ncs2 ***
        ----------------------------------------------------------------
-       sidewalk             v1.14.0-6-gf586541-dirty
-       nrf                  v2.2.0
-       zephyr               v3.2.99-ncs1
+       sidewalk             v1.14.3-1-g1232aabb
+       nrf                  v2.3.0
+       zephyr               v3.2.99-ncs2
        ----------------------------------------------------------------
-       sidewalk_fork_point = 28f9d7955a00020715308d0c639013fc5f9db930
-       build time          = 2023-02-01 10:44:17.326681+00:00
+       sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
+       build time          = 2023-03-14 15:00:00.000000+00:00
        ----------------------------------------------------------------
-       [00:00:00.001,251] <inf> sid_template: Marked image as OK
        [00:00:00.063,476] <inf> sid_thread: Initializing sidewalk, built-in LoRa link mask
 
-#. Switch to LoRa or FSK by short pressing **Button 3**.
-
-   .. code-block:: console
-
-       [00:00:07.487,487] <inf> button: button pressed 3 short
-       [00:00:07.487,609] <inf> sid_thread: Start Sidewalk link_mask: LoRa
-
-   Wait a few seconds until you see the following output:
+#. Wait a few seconds until device establishes the connection with Gateway.
+   You should see the following output:
 
    .. code-block:: console
 
        [00:00:15.017,425] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
        [00:00:15.017,486] <inf> sid_thread: Link mode cloud, on lora
-
-#. Set the power profile.
-   Long press **Button 2** to switch between the light and fast profiles.
-
-   .. code-block:: console
-
-       [00:00:29.375,732] <inf> button: button pressed 2 short
-       [00:00:29.375,854] <inf> sid_thread: Profile set fast
-       [00:00:29.375,976] <inf> sid_thread: Profile set success.
 
 #. Get the current profile by short pressing **Button 2**.
 
@@ -281,6 +252,14 @@ To test the power profiles, complete the following steps:
        [00:00:35.433,654] <inf> sid_thread: Profile dl count 0
        [00:00:35.433,685] <inf> sid_thread: Profile dl interval 5000
        [00:00:35.433,685] <inf> sid_thread: Profile wakeup 0
+
+#. Switch between the light and fast profile by long pressing **Button 2**.
+
+   .. code-block:: console
+
+       [00:00:29.375,732] <inf> button: button pressed 2 short
+       [00:00:29.375,854] <inf> sid_thread: Profile set fast
+       [00:00:29.375,976] <inf> sid_thread: Profile set success.
 
 .. _sidewalk_testing_application_cli:
 
@@ -354,9 +333,9 @@ See the example version output:
 .. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 .. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
 .. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
-.. _Zephyr SMP Server: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/services/device_mgmt/ota.html#smp-server
+.. _Zephyr SMP Server: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/services/device_mgmt/ota.html#smp-server
 .. _Sidewalk Protocol Specification: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-specification.html
 .. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
 .. _CloudShell: https://console.aws.amazon.com/cloudshell
-.. _NCS testing applications: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_testing.html
+.. _NCS testing applications: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/gs_testing.html
