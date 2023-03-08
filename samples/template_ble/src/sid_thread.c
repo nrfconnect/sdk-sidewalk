@@ -60,7 +60,7 @@ struct sid_config *get_sidewalk_config()
 			return NULL;
 		}
 		g_sid_thread_ctx.sidewalk_config = (struct sid_config){
-			.link_mask = 0,
+			.link_mask = SID_LINK_TYPE_1,
 			.callbacks = &event_callbacks,
 			.link_config = app_get_ble_config(),
 			.time_sync_periodicity_seconds = 7200,

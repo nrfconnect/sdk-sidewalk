@@ -36,4 +36,8 @@ struct sid_handle** get_sidewalk_handle(void);
  */
 struct sid_config *get_sidewalk_config(void);
 
+#define LM_2_STR(_lm)   (_lm == SID_LINK_TYPE_1 ? "BLE" :    \
+			 ((_lm == SID_LINK_TYPE_2) ? "FSK" : \
+			  ((_lm == SID_LINK_TYPE_3) ? "LoRa" : "INVALID")))
+
 #endif /* SID_THREAD_H */

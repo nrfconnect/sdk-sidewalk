@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
+#include "sid_api.h"
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <dk_buttons_and_leds.h>
@@ -22,6 +23,9 @@
 #endif
 #if CONFIG_SIDEWALK_DFU_SERVICE_BLE
 #include <nordic_dfu.h> 
+#endif
+#if CONFIG_BOOTLOADER_MCUBOOT
+#include <zephyr/dfu/mcuboot.h>
 #endif
 
 extern struct notifier_ctx global_state_notifier;
@@ -215,6 +219,17 @@ static int application_board_init()
 		return err;
 	}
 #endif
+	#if CONFIG_BOOTLOADER_MCUBOOT
+	if (!boot_is_img_confirmed()) {
+		int ret = boot_write_img_confirmed();
+
+		if (ret) {
+			LOG_ERR("Couldn't confirm image: %d", ret);
+		} else {
+			LOG_INF("Marked image as OK");
+		}
+	}
+	#endif
 
 	return 0;
 }
@@ -234,9 +249,21 @@ void main(void)
 	ctx.workq = sid_thread_init();
 	sid_api_delegated_init(ctx.workq);
         ctx.handle = get_sidewalk_handle();
+	struct sid_config* cfg = get_sidewalk_config();
+        sid_error_t e = sid_init_delegated( cfg, ctx.handle);
 
-        sid_init_delegated(get_sidewalk_config(), ctx.handle);
+	if (SID_ERROR_NONE != e) {
+			LOG_ERR("failed to initialize sidewalk link_mask: %s, err:%d", LM_2_STR(cfg->link_mask), (int)e);
+			switch (e) {
+			case SID_ERROR_NOT_FOUND: LOG_ERR("resource not found - check if mfg.hex has been flashed");
+				break;
+			default: LOG_ERR("Unknown error during Sidewalk init (err: %d)", e);
+				break;
+			}
+		}
 
-        sid_start_delegated(*ctx.handle, SID_LINK_TYPE_1);
-
+        e = sid_start_delegated(*ctx.handle, cfg->link_mask);
+	if (SID_ERROR_NONE != e) {
+			LOG_ERR("failed to start sidewalk, link_mask: %s, err:%d", LM_2_STR(cfg->link_mask), (int)e);
+	}
 }

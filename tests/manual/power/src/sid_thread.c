@@ -3,15 +3,12 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
-
-
 #include <zephyr/kernel.h>
 
-#include <sid_thread.h>
 #include <sid_api.h>
+#include <sid_thread.h>
 
 #include <app_ble_config.h>
-#include <app_subGHz_config.h>
 #include <sid_callbacks.h>
 
 #ifdef CONFIG_STATE_NOTIFIER
@@ -30,7 +27,7 @@ static struct sid_event_callbacks event_callbacks;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct k_work_q * sid_thread_init(void)
+struct k_work_q *sid_thread_init(void)
 {
 	#ifdef CONFIG_STATE_NOTIFIER
 	#ifdef CONFIG_GPIO
@@ -58,27 +55,18 @@ struct sid_config *get_sidewalk_config()
 {
 	static bool config_initialized = false;
 
-	uint32_t link_mask = SID_LINK_TYPE_1;
-	#if SIDEWALK_LINK_MASK_FSK
-	link_mask |= SID_LINK_TYPE_2
-	#endif
-	#if SIDEWALK_LINK_MASK_LORA
-	link_mask |= SID_LINK_TYPE_3
-	#endif
-
 	if (!config_initialized) {
 		if (sid_callbacks_set(&g_sid_thread_ctx, &event_callbacks)) {
 			return NULL;
 		}
 		g_sid_thread_ctx.sidewalk_config = (struct sid_config){
-			.link_mask = link_mask,
+			.link_mask = 0,
 			.callbacks = &event_callbacks,
 			.link_config = app_get_ble_config(),
 			.time_sync_periodicity_seconds = 7200,
-			.sub_ghz_link_config = app_get_sub_ghz_config(),
+			.sub_ghz_link_config = NULL,
 		};
 		config_initialized = true;
-
 	}
 	return &g_sid_thread_ctx.sidewalk_config;
 }

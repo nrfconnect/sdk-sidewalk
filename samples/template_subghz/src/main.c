@@ -26,8 +26,9 @@
 #include <nordic_dfu.h> 
 #endif
 
-
-
+#if CONFIG_BOOTLOADER_MCUBOOT
+#include <zephyr/dfu/mcuboot.h>
+#endif
 
 extern struct notifier_ctx global_state_notifier;
 LOG_MODULE_REGISTER(sid_main, LOG_LEVEL_INF);
@@ -250,7 +251,7 @@ static int init_button_actions()
 	button_set_action(DK_BTN3, submit_to_work, (uint32_t)&ctx.send_hello);
 	#if CONFIG_SIDEWALK_DFU_SERVICE_BLE
 	button_set_action_long_press(DK_BTN4, submit_to_work, (uint32_t)&ctx.enter_dfu);
-#endif
+	#endif
 	return buttons_init();
 }
 
@@ -276,6 +277,17 @@ static int application_board_init()
 		return err;
 	}
 #endif
+	#if CONFIG_BOOTLOADER_MCUBOOT
+	if (!boot_is_img_confirmed()) {
+		int ret = boot_write_img_confirmed();
+
+		if (ret) {
+			LOG_ERR("Couldn't confirm image: %d", ret);
+		} else {
+			LOG_INF("Marked image as OK");
+		}
+	}
+	#endif
 	return 0;
 }
 
@@ -294,9 +306,31 @@ void main(void)
 	ctx.workq = sid_thread_init();
 	sid_api_delegated_init(ctx.workq);
         ctx.handle = get_sidewalk_handle();
+	struct sid_config* cfg = get_sidewalk_config();
+        sid_error_t e = sid_init_delegated( cfg, ctx.handle);
 
-        sid_init_delegated(get_sidewalk_config(), ctx.handle);
-
-        sid_start_delegated(*ctx.handle, SID_LINK_TYPE_1);
+	if (SID_ERROR_NONE != e) {
+			LOG_ERR("failed to initialize sidewalk link_mask: %s, err:%d", LM_2_STR(cfg->link_mask), (int)e);
+			switch (e) {
+			case SID_ERROR_GENERIC: LOG_ERR(
+					"Generic error - check if LoRa/FSK shield is connected correctly");
+				break;
+			case SID_ERROR_NOT_FOUND: LOG_ERR("resource not found - check if mfg.hex has been flashed");
+				break;
+			default: LOG_ERR("Unknown error during Sidewalk init (err: %d)", e);
+				break;
+			}
+		}
+	uint32_t start_link_mask = 0;
+	#if SIDEWALK_LINK_MASK_FSK
+	start_link_mask |= SID_LINK_TYPE_2
+	#endif
+	#if SIDEWALK_LINK_MASK_LORA
+	start_link_mask |= SID_LINK_TYPE_3
+	#endif
+        e = sid_start_delegated(*ctx.handle, start_link_mask);
+	if (SID_ERROR_NONE != e) {
+			LOG_ERR("failed to start sidewalk, link_mask: %s, err:%d", LM_2_STR(start_link_mask), (int)e);
+	}
 
 }

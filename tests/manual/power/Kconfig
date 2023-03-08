@@ -15,5 +15,9 @@ config MESSAGES_TO_SEND
     int "number of messages to send during test"
     default 20
 
+module = SID_THREAD
+module-str = Sidewalk event thread
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 rsource "../../../samples/common/Kconfig.defconfig"
 source "Kconfig.zephyr"
