@@ -29,6 +29,8 @@
 	#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
 
+#define EMPTY_MFG_HEX_PARTITION (0xFFFFFFFF)
+
 LOG_MODULE_REGISTER(sid_thread, LOG_LEVEL_DBG);
 
 K_THREAD_STACK_DEFINE(sidewalk_dut_work_q_stack, SIDEWALK_DUT_WORK_Q_STACK_SIZE);
@@ -309,6 +311,14 @@ static sid_error_t sid_pal_init(void)
 
 	sid_pal_mfg_store_init(mfg_store_region);
 
+	if (sid_pal_mfg_store_get_version() == EMPTY_MFG_HEX_PARTITION) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", FLASH_AREA_OFFSET(mfg_storage));
+		LOG_ERR("SIZE: 0x%08x", FLASH_AREA_SIZE(mfg_storage));
+		return SID_ERROR_NOT_FOUND;
+	}
+
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 	set_radio_sx126x_device_config(&radio_sx1262_cfg);
 #endif /* defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA) */
@@ -319,7 +329,7 @@ static sid_error_t sid_pal_init(void)
 sid_error_t sid_thread_init(void)
 {
 	k_work_queue_init(&sidewalk_dut_work_q);
-	static struct k_work_queue_config cfg = {.name = "sidewalk_thread", .no_yield = false};
+	static struct k_work_queue_config cfg = { .name = "sidewalk_thread", .no_yield = false };
 	k_work_queue_start(&sidewalk_dut_work_q, sidewalk_dut_work_q_stack,
 			   K_THREAD_STACK_SIZEOF(sidewalk_dut_work_q_stack), CONFIG_SIDEWALK_THREAD_PRIORITY,
 			   &cfg);
