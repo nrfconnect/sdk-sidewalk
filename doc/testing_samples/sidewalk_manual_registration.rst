@@ -5,6 +5,9 @@ Manual registration using local machine and Registration Script
 
 This section outlines how to register your Sidewalk Endpoint and associate it with your Amazon account before it can be connected to Sidewalk.
 
+.. note::
+   To be able to perform manual registration steps, you need to have the developer account and you need to be allow-listed by Amazon.
+
 .. _reg_associating_creating_LwA:
 
 Creating Login with Amazon (LwA) security profile

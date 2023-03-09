@@ -102,7 +102,7 @@ MQTT client
 
    .. figure:: /images/AWSIoTCoreMQTT.png
 
-.. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/amazon-sidewalk-sample-iot-app
-.. _Prerequisites: https://github.com/aws-samples/amazon-sidewalk-sample-iot-app#prerequisites
-.. _Install virtual environment: https://github.com/aws-samples/amazon-sidewalk-sample-iot-app#1-install-virtual-environment
+.. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
+.. _Prerequisites: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#prerequisites
+.. _Install virtual environment: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#1-install-virtual-environment
 .. _AWS: https://aws.amazon.com/

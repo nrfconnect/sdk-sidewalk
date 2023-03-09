@@ -115,6 +115,39 @@ When the voltage drops to 0, entering low logic state, it means that one of the 
 Configuration
 *************
 
+When running the sample, you can use different configurations files depending on the supported features.
+
+.. _template_subghz_build_type:
+
+Build types
+===========
+
+Configuration files are provided for different build types and are located in the application root directory.
+
+The :file:`prj.conf` file represents a ``debug`` build type.
+Other build types are covered by dedicated files with the respective build type added to the file name.
+For example, the ``release`` build type file is named :file:`prj_release.conf`.
+The same naming convention is followed if a board has other configuration files that are, for example, associated with the partition layout or child image configuration.
+
+Before you start testing the application, you can select one of the build types supported by the sample.
+Depending on the selected board, a sample supports the following build types:
+
+* ``debug`` -- Debug version of the application - can be used to enable additional features, such as logs or command-line shell, to verify the application behavior.
+* ``release`` -- Release version of the application - can be used to enable only the necessary application functionalities to optimize its performance.
+
+You can build the ``release`` firmware for ``nrf52840dk_nrf52840`` by running the following command in the project directory:
+
+.. code-block:: console
+
+   $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
+
+.. note::
+    Selecting a build type is optional.
+    However, if the build type is not selected, the ``debug`` build type is used by default.
+
+Configuration files
+===================
+
 For this sample, you can use the following overlays:
 
 * :file:`fsk.conf` - This configuration enables the FSK transport in the Sidewalk application.
@@ -127,14 +160,14 @@ For this sample, you can use the following overlays:
   For more details, check the `USB DFU Sample Application`_ documentation.
 
 Bootloader and Device Firmware Update (DFU)
-*******************************************
+===========================================
 
 MCUboot is configured to have two banks of memory for an application.
 
 For more information on bootloaders and delivery options for the updated images, see `Bootloader and DFU solutions for NCS`_.
 
 Memory layout
-=============
+-------------
 
 The following table presents how the memory is allocated for the Template sub-GHz sample:
 
@@ -165,7 +198,7 @@ The following table presents how the memory is allocated for the Template sub-GH
 
 
 DFU services
-============
+------------
 
 To test the Device Firmware Update, follow :ref:`sidewalk_testing_dfu`.
 
@@ -178,23 +211,24 @@ Building and running
 This sample can be found under :file:`samples/template_subghz`.
 
 .. note::
-   Before you flash you Sidewalk sample, make sure you have:
+   Before you flash you Sidewalk sample, make sure you completed the following:
 
-      * Downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
-      * Provisioned your device during the :ref:`setting_up_sidewalk_product`
+      * You downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
+      * You provisioned your device during the :ref:`setting_up_sidewalk_product`.
 
    This step needs to be completed only once.
    You do not have to repeat it on every sample rebuild.
 
 To build the sample, follow the steps in the `Building and programming an application`_ documentation.
-If you want to select a specific build type, see :ref:`template_subghz_selecting_build`.
+If you want to select a specific build type instead of a default one, see :ref:`sensor_monitoring_selecting_build`
 
 .. _template_subghz_selecting_build:
 
 Selecting a build type
 ======================
 
-Use one of the common sample configurations:
+Before you start testing the application, you can select one of the available build types.
+To select the build type when building the application from command line, specify it by adding one of the following parameters to the ``west build`` command:
 
 * Build with the default configuration (LoRa link mode):
 
