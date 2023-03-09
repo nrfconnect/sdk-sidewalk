@@ -11,18 +11,12 @@ project(sensor_monitoring)
 
 FILE(GLOB app_sources
     src/*.c
-    config/*.c
     ext/*.c
 )
-
-if (CONFIG_SIDEWALK_LINK_MASK_BLE)
-    list(FILTER app_sources EXCLUDE REGEX "_900_*")
-endif()
 
 target_sources(app PRIVATE ${app_sources})
 
 zephyr_include_directories(
-    config
     include
     ext
 )

@@ -3,9 +3,9 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
 #
-rsource "../../../utils/Kconfig"
 
 config STATE_NOTIFIER_HANDLER_MAX
 	default 2
 
+rsource "../../../utils/Kconfig"
 source "Kconfig.zephyr"
