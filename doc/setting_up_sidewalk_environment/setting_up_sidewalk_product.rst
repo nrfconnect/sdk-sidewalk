@@ -13,15 +13,15 @@ Downloading repository
 
    .. code-block:: console
 
-      $ git clone https://github.com/aws-samples/amazon-sidewalk-sample-iot-app
-      $ cd amazon-sidewalk-sample-iot-app
+      $ git clone https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app.git
+      $ cd aws-iot-core-for-amazon-sidewalk-sample-app
 
 #. Complete the instructions in `Prerequisites`_ and `Install virtual environment`_ sections.
 
 Generating provisioning
 ***********************
 
-#. Populate the :file:`config.yaml` configuration file located in the ``amazon-sidewalk-sample-iot-app`` directory.
+#. Populate the :file:`config.yaml` configuration file located in the ``aws-iot-core-for-amazon-sidewalk-sample-app`` directory.
    Fill out your credentials and the details of your device:
 
    .. code-block:: console
@@ -44,7 +44,7 @@ Generating provisioning
 
    .. code-block:: console
 
-      $ python3 EdgeDeviceProvisioning/generate_prototype.py
+      $ python3 EdgeDeviceProvisioning/provision_sidewalk_end_device.py
 
    You should see the following output:
 
