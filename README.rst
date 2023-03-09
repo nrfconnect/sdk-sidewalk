@@ -1,7 +1,7 @@
 nRF Connect SDK: sdk-sidewalk
 #############################
 
-This repository contains an Amazon Sidewalk platform abstraction layer fot the Nordic nRF Connect SDK which is based on Zephyr RTOS.
+This repository contains an Amazon Sidewalk platform abstraction layer for the Nordic nRF Connect SDK which is based on Zephyr RTOS.
 
 To view the documentation, open https://nrfconnect.github.io/sdk-sidewalk/ in a web browser.
 
