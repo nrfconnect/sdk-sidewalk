@@ -39,25 +39,26 @@ Building and running
 This sample can be found under :file:`samples/sensor_monitoring`.
 
 .. note::
-   Before you flash you Sidewalk sample, make sure you have:
+   Before you flash you Sidewalk sample, make sure you completed the following:
 
-      * Downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
-      * Provisioned your device during the :ref:`setting_up_sidewalk_product`
+      * You downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
+      * You provisioned your device during the :ref:`setting_up_sidewalk_product`.
 
    This step needs to be completed only once.
    You do not have to repeat it on every sample rebuild.
 
 To build the sample, follow the steps in the `Building and programming an application`_ documentation.
-If you want to select a specific build type, see :ref:`sensor_monitoring_selecting_build`.
+If you want to select a specific build type instead of a default one, see :ref:`sensor_monitoring_selecting_build`.
 
 .. _sensor_monitoring_selecting_build:
 
 Selecting a build type
 ======================
 
-Use one of the common sample configurations:
+Before you start testing the application, you can select one of the available build types.
+To select the build type when building the application from command line, specify it by adding one of the following parameters to the ``west build`` command:
 
-* Build with the default configuration (BLE link mode):
+* Build with the default configuration (Bluetooth LE link mode):
 
    .. code-block:: console
 
@@ -104,6 +105,6 @@ Wait for the device to complete the :ref:`automatic_registration_sidewalk_endpoi
    For the full installation guidelines and the application overview, refer to the `Amazon Sidewalk Sample IoT App`_ repository.
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
-.. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/amazon-sidewalk-sample-iot-app
+.. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
 .. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming
 .. _Testing and debugging an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/testing.html#gs-testing

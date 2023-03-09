@@ -31,6 +31,9 @@ To meet the hardware requirements, ensure you have the following:
    +---------------------------------------------------------------+-------------------------------------------------------------------+
    | Sample                                                        | Hardware required                                                 |
    +===============================================================+===================================================================+
+   | Sensor Monitoring                                             | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
+   |                                                               | * `Semtech SX1262MB2CAS`_ (optional) - sub-GHz radio shield       |
+   +---------------------------------------------------------------+-------------------------------------------------------------------+
    | Template sub-GHz                                              | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
    |                                                               | * External flash MX25R6435F or similar for dual bank firmware     |
    |                                                               |   update (included in the DK)                                     |
@@ -38,10 +41,8 @@ To meet the hardware requirements, ensure you have the following:
    +---------------------------------------------------------------+-------------------------------------------------------------------+
    | Template Bluetooth LE                                         | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
    +-----------------------+---------------------------------------+-------------------------------------------------------------------+
-   | Sensor Monitoring                                             | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
-   +---------------------------------------------------------------+-------------------------------------------------------------------+
    | Device Under Test (DUT)                                       | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
-   |                                                               | * `Semtech SX1262MB2CAS`_ - sub-GHz radio shield                  |
+   |                                                               | * `Semtech SX1262MB2CAS`_ (optional) - sub-GHz radio shield       |
    +---------------------------------------------------------------+-------------------------------------------------------------------+
 
 * Bluetooth wireless interface on your machine or a USB Bluetooth adapter

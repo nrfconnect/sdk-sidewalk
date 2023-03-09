@@ -46,10 +46,10 @@ Building and running
 This sample can be found under :file:`samples/sid_dut`.
 
 .. note::
-   Before you flash you Sidewalk sample, make sure you have:
+   Before you flash you Sidewalk sample, make sure you completed the following:
 
-      * Downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
-      * Provisioned your device during the :ref:`setting_up_sidewalk_product`
+      * You downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
+      * You provisioned your device during the :ref:`setting_up_sidewalk_product`.
 
    This step needs to be completed only once.
    You do not have to repeat it on every sample rebuild.
