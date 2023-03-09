@@ -5,8 +5,7 @@
 #
 
 menuconfig SIDEWALK
-	bool "Enable Amazon Sidewalk [EXPERIMENTAL]"
-	select EXPERIMENTAL
+	bool "Enable Amazon Sidewalk"
 	imply SIDEWALK_DFU
 
 if SIDEWALK
