@@ -17,7 +17,7 @@
 #include <sid_pal_serial_bus_spi_config.h>
 #include <sx126x_config.h>
 
-#include "app_900_config.h"
+#include <app_subGHz_config.h>
 
 #define REGION_US915
 

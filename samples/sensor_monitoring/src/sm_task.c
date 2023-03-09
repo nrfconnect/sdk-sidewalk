@@ -5,7 +5,7 @@
  */
 
 #include <app_ble_config.h>
-#include <app_900_config.h>
+#include <app_subGHz_config.h>
 #include <sm_task.h>
 #include <sm_leds.h>
 #include <sm_buttons.h>

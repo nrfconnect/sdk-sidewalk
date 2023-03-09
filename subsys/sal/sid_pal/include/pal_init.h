@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
  */
 
-#ifndef BOARD_CONFIG_H
-#define BOARD_CONFIG_H
+#ifndef PAL_INIT_H
+#define PAL_INIT_H
 
 #include <sid_error.h>
 
@@ -14,6 +14,6 @@
  *
  * @return SID_ERROR_NONE when success or error code otherwise.
  */
-sid_error_t board_config(void);
+sid_error_t application_pal_init(void);
 
-#endif /* BOARD_CONFIG_H */
+#endif /* PAL_INIT_H */
