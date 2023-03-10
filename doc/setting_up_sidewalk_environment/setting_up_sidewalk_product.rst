@@ -56,15 +56,13 @@ Generating provisioning
          - WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911\
              --  Nordic_MFG.bin
              --  Nordic_MFG.hex
-             --  Nordic_NCS_MFG.bin
-             --  Nordic_NCS_MFG.hex
              --  WirelessDevice.json
 
-#. Flash the :file:`Nordic_NCS_MFG.hex` file:
+#. Flash the :file:`Nordic_MFG.hex` file:
 
    .. code-block:: console
 
-       $ nrfjprog -f nrf52 --sectorerase --program EdgeDeviceProvisioning/DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9/WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911/Nordic_NCS_MFG --reset
+       $ nrfjprog -f nrf52 --sectorerase --program EdgeDeviceProvisioning/DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9/WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911/Nordic_MFG.hex --reset
 
 Add MQTT to destination
 ***********************
