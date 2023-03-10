@@ -14,7 +14,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
   wget git cmake ninja-build gperf ccache dfu-util device-tree-compiler \
   python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file  \
-  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 udev aria2
+  make gcc gcc-multilib g++-multilib libsdl2-dev libmagic1 udev aria2 graphviz default-jdk
 # Download jlink tools
 RUN aria2c -V -d jlink https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-${TOOLS_VERSION}-x-x/${TOOLS_VERSION}-${TOOLS_VERSION_MAJOR}-${TOOLS_VERSION_MINOR}/nrf-command-line-tools-${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_linux-amd64.tar.gz && sync; \
 cd jlink; tar -xvf nrf-command-line-tools-${TOOLS_VERSION}.${TOOLS_VERSION_MAJOR}.${TOOLS_VERSION_MINOR}_linux-amd64.tar.gz && dpkg -i JLink_Linux_*.deb; apt-get --fix-broken install -y && rm -rf jlink
@@ -42,6 +42,7 @@ echo "$UNAME"' ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/$UNAME && \
 usermod -aG sudo $UNAME && \
 usermod -aG dialout $UNAME && \
 echo "$UNAME:$UNAME_PASSWORD" | chpasswd
+RUN echo "PATH=$PATH:/opt/SEGGER/JLINK:/opt/zephyr-sdk-0.15.2/arm-zephyr-eabi/bin:/opt/zephyr-sdk-0.15.2/x86_64-zephyr-elf/bin" >> /home/$UNAME/.bashrc
 
 USER $UNAME
 

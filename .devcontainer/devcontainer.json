@@ -40,7 +40,8 @@
 				"GitHub.vscode-pull-request-github",
 				"zachflower.uncrustify",
 				"ms-python.python",
-				"ryanluker.vscode-coverage-gutters"
+				"ryanluker.vscode-coverage-gutters",
+				"jebbs.plantuml"
 			],
 			"settings": {
 				"github.gitAuthentication": true,
