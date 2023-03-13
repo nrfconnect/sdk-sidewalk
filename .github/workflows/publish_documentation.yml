@@ -36,12 +36,12 @@ jobs:
         uses: actions/configure-pages@v3
 
       - name: Build
-        run: cd sidewalk/doc; ./build_local.sh 
+        run: cd doc; ./build_local.sh 
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'sidewalk/doc/build/html'
+          path: 'doc/build/html'
           
       - name: Deploy to GitHub Pages
         id: deployment
