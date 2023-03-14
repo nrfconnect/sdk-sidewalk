@@ -57,3 +57,4 @@ bool subscribe_for_state_change(struct notifier_ctx *ctx, state_change_handler h
 	}
 	return false;
 }
+struct notifier_ctx global_state_notifier;

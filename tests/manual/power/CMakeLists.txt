@@ -18,7 +18,3 @@ target_sources(app PRIVATE
   src/main.c
   $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/src/sidewalk_thread.c
 )
-
-if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-	target_sources(app PRIVATE $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/src/nordic_dfu.c)
-endif()

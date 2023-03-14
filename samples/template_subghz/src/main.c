@@ -15,8 +15,11 @@
 #include <zephyr/logging/log.h>
 #include <dk_buttons_and_leds.h>
 #include <sidewalk_version.h>
-#if CONFIG_BOOTLOADER_MCUBOOT
+#if defined(CONFIG_BOOTLOADER_MCUBOOT)
 #include <zephyr/dfu/mcuboot.h>
+#endif
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
+#include <zephyr/usb/usb_device.h>
 #endif
 
 #include <pal_init.h>
@@ -59,10 +62,9 @@ static void app_setup(void)
 	}
 
 	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
-	err = usb_enable(NULL);
-	if (err) {
+	if (usb_enable(NULL)) {
 		LOG_ERR("Failed to enable USB");
-		return err;
+		return;
 	}
 	#endif
 
@@ -97,5 +99,7 @@ void main()
 	PRINT_SIDEWALK_VERSION();
 
 	app_setup();
-	app_thread_init(&app_context);
+	if (app_thread_init(&app_context)) {
+		LOG_ERR("Failed to start Sidewalk thread");
+	}
 }

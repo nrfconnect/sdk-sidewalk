@@ -94,4 +94,5 @@ X_APPLICAITON_STATES
  */
 bool subscribe_for_state_change(struct notifier_ctx *ctx, state_change_handler handler);
 
+extern struct notifier_ctx global_state_notifier;
 #endif

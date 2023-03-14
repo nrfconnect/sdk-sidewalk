@@ -89,7 +89,6 @@ static app_context_t app_ctx = {
 	.state = STATE_INIT,
 };
 
-struct notifier_ctx global_state_notifier;
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK)
 static struct sid_device_profile profile_light = {
@@ -581,7 +580,7 @@ app_context_t *sidewalk_thread_enable(void)
 	ARG_UNUSED(sid_tid);
 	k_thread_name_set(&sid_thread, "sidewalk");
 #ifdef CONFIG_SIDEWALK_CLI
-	CLI_init(&app_ctx);
+	CLI_init(app_ctx.sidewalk_handle);
 #endif
 	return &app_ctx;
 }

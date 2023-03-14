@@ -12,7 +12,6 @@
 #include <zephyr/logging/log.h>
 
 #include <sid_api.h>
-#include <sidewalk_thread.h>
 #include "buttons_internal.h"
 
 #include <sidewalk_version.h>
@@ -74,7 +73,7 @@ struct sid_factory_reset_t factory_reset_work;
 
 static const struct sid_status *CLI_status = &dummy;
 struct messages_stats sidewalk_messages;
-static app_context_t *sid_app_ctx;
+static struct sid_handle* sidewalk_handle;
 
 void CLI_register_message_send()
 {
@@ -92,9 +91,9 @@ void CLI_register_message_received(uint16_t resp_id)
 	sidewalk_messages.resp_id = resp_id;
 }
 
-void CLI_init(app_context_t *ctx)
+void CLI_init(struct sid_handle* handle)
 {
-	sid_app_ctx = ctx;
+	sidewalk_handle = handle;
 
 	k_work_queue_init(&sid_api_work_q);
 
@@ -249,12 +248,6 @@ static void cmd_send_work(struct k_work *item)
 	struct sid_send_work_t *sid_send_work =
 		CONTAINER_OF(item, struct sid_send_work_t, work);
 
-	if (!(STATE_SIDEWALK_READY == sid_app_ctx->state) &&
-	    !(STATE_SIDEWALK_SECURE_CONNECTION == sid_app_ctx->state)) {
-		LOG_ERR("sidewalk is not ready yet!");
-		return;
-	}
-
 	LOG_HEXDUMP_DBG(sid_send_work->msg.data, sid_send_work->msg.size, "sending message");
 
 	struct sid_msg_desc desc = {
@@ -267,7 +260,7 @@ static void cmd_send_work(struct k_work *item)
 		desc.id = sid_send_work->resp_id;
 	}
 	application_state_sending(&global_state_notifier, true);
-	sid_error_t sid_ret = sid_put_msg(sid_app_ctx->sidewalk_handle, &sid_send_work->msg, &desc);
+	sid_error_t sid_ret = sid_put_msg(sidewalk_handle, &sid_send_work->msg, &desc);
 
 	if (SID_ERROR_NONE != sid_ret) {
 		LOG_ERR("failed sending message err:%d", (int) sid_ret);
@@ -343,20 +336,12 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 {
 	const char *state_repo[] = {
-		"STATE_INIT",
-		"STATE_SIDEWALK_READY",
-		"STATE_SIDEWALK_NOT_READY",
-		"STATE_SIDEWALK_SECURE_CONNECTION",
-		"STATE_PAL_INIT_ERROR",
-		"STATE_PAL_INIT_ERROR"
+		"SID_STATE_READY",
+		"SID_STATE_NOT_READY",
+		"SID_STATE_ERROR",
+		"SID_STATE_SECURE_CHANNEL_READY"
 	};
-	const char *state;
-
-	if (sid_app_ctx->state <= STATE_LIB_INIT_ERROR) {
-		state = state_repo[sid_app_ctx->state];
-	} else {
-		state = "invalid";
-	}
+	const char *state = state_repo[CLI_status->state];
 
 	bool in_line = (argc == 2 && strcmp("--oneline", argv[1]) == 0);
 
@@ -412,7 +397,7 @@ static void cmd_fatory_reset_work(struct k_work *item)
 {
 	struct sid_factory_reset_t *sid_factory_reset_work =
 		CONTAINER_OF(item, struct sid_factory_reset_t, work);
-	sid_error_t ret = sid_set_factory_reset(sid_app_ctx->sidewalk_handle);
+	sid_error_t ret = sid_set_factory_reset(sidewalk_handle);
 
 	if (SID_ERROR_NONE != ret) {
 		switch (ret) {

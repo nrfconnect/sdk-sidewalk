@@ -35,6 +35,8 @@ licenses:
   file_regexp:
   - sidewalk/subsys/ace(/.*)+h$
   - sidewalk/subsys/config(/.*)+(c|h)$
+  - sidewalk/subsys/config/common/.*(c|h)$
+  - sidewalk/subsys/config/common/src/.*(c|h)$
   - sidewalk/subsys/hal(/.*)+h$
   - sidewalk/subsys/hal/src/memory.c$
   - sidewalk/subsys/sal/common(/.*)+h$
