@@ -6,7 +6,9 @@ Requirements
 This page outlines the requirements that you need to meet before you start working with the Amazon Sidewalk environment.
 
 .. note::
-   Keep in mind that Amazon Sidewalk is available only in the USA.
+   Amazon Sidewalk is available only in the United States of America.
+   To an extent, any Sidewalk gateway functionality might be used outside of the U.S., however, it should be used only for the Amazon Sidewalk endpoint development purposes.
+   In addition, we recommend that you consult with your local regulatory bodies, and check if the gateway is allowed to operate its radio in your locale, as U.S. license-free band devices, only for development.
 
 Software requirements
 *********************
