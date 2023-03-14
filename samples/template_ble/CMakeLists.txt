@@ -22,6 +22,3 @@ target_sources(app PRIVATE
   ../common/src/sidewalk_thread.c
 )
 
-if (CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-	target_sources(app PRIVATE ../common/src/nordic_dfu.c)
-endif()
