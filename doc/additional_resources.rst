@@ -12,14 +12,18 @@ For additional Amazon resources, refer to the following list:
 * `API Reference`_
 * `Sidewalk Mobile SDK Developer Guide`_
 * `Manufacturing Provisioning`_
-* `Sidewalk Program Requirements`_
+* `AWS Terms of Use`_
+* `Sidewalk Terms of Use`_
+* `Sidewalk Qualification`_
 
 
-.. _Introduction to Sidewalk: https://docs.aws.amazon.com/iot/latest/developerguide/amazon-sidewalk-intro.html
+.. _Introduction to Sidewalk: https://docs.sidewalk.amazon/introduction/
 .. _Getting Started Guide: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-getting-started.html
-.. _Protocol Specification: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-specification.html
+.. _Protocol Specification: https://docs.sidewalk.amazon/specifications/
 .. _Test Specification: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-test-specs.html
 .. _API Reference: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-aws-api-reference.html
-.. _Sidewalk Mobile SDK Developer Guide: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-mobile-sdk.html
-.. _Manufacturing Provisioning: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-manufacturing-provisioning.html
-.. _Sidewalk Program Requirements: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-program-requirements.html
+.. _Sidewalk Mobile SDK Developer Guide: https://docs.sidewalk.amazon/mobile-sdk
+.. _Manufacturing Provisioning: https://docs.sidewalk.amazon/manufacturing/
+.. _AWS Terms of Use: https://aws.amazon.com/service-terms/
+.. _Sidewalk Terms of Use: https://docs.sidewalk.amazon/sidewalk-terms-and-agreements/
+.. _Sidewalk Qualification: https://docs.sidewalk.amazon/qualification/

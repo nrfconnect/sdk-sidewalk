@@ -37,6 +37,7 @@ User interface
 **************
 
 Device uses UART CLI to communicate with the user.
+To see the list of available commands, type ``sid help``.
 
 .. _dut_building_and_running:
 
@@ -79,7 +80,7 @@ You should see the following output:
        ----------------------------------------------------------------
        uart:~$
 
-To see the list of available commands, type ``sid help``.
+To start testing the application, you can use the available commands (``sid help``).
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 .. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming

@@ -334,7 +334,7 @@ See the example version output:
 .. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
 .. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
 .. _Zephyr SMP Server: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/services/device_mgmt/ota.html#smp-server
-.. _Sidewalk Protocol Specification: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-specification.html
+.. _Sidewalk Protocol Specification: https://docs.sidewalk.amazon/specifications/
 .. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
 .. _CloudShell: https://console.aws.amazon.com/cloudshell
