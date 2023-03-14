@@ -4,9 +4,9 @@ name: Deploy static content to Pages
 on:
   push:
     branches: 
-      - "main"
+      - main
     paths:
-      - 'sidewalk/doc/**'
+      - 'doc/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
