@@ -223,9 +223,9 @@ def build_report(twister_out_dir: str, variants: list) -> None:
             partitions = PartitionParser(build_dir / 'partitions.yml')
             total_rom = elf.region_size_kb('text', 'data') + partitions.region_size_kb(
                 'mcuboot',
-				'settings_storage',
+                'settings_storage',
                 'sidewalk_storage',
-				'mfg_storage'
+                'mfg_storage'
             )
 
             report.add_variant(SampleVariantStats(sample=variant.full_title(),

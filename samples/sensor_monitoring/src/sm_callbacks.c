@@ -118,7 +118,6 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 
 	if ((status->detail.registration_status == SID_STATUS_REGISTERED)
 	    && (status->detail.time_sync_status == SID_STATUS_TIME_SYNCED)) {
-
 		if (BUILT_IN_LM == SID_LINK_TYPE_1 &&
 		    !(status->detail.link_status_mask & SID_LINK_TYPE_1)) {
 			sm_cap_timer_set_and_run(K_MSEC(CONNECT_LINK_TYPE_1_INIT_DELAY_MS));

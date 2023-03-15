@@ -107,9 +107,7 @@ static void send_led_response(app_context_t *app_context, struct sid_demo_action
 				.num_retries = SID_DEMO_APP_RETRIES_MAX,
 				.request_ack = true,
 			}
-
 		}
-
 	};
 
 	LOG_INF("Sending led response");

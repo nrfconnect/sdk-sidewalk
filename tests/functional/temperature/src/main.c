@@ -82,7 +82,6 @@ void test_multiple_fast_readings()
 	}
 
 	analyze_temp_readings(results, ARRAY_SIZE(results), MAX_ABS_ERROR);
-
 }
 
 void test_multiple_slow_readings()

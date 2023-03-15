@@ -49,13 +49,13 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *,
 
 #define FFF_FAKES_LIST(FAKE)		\
 	FAKE(bt_enable)			\
-	FAKE(bt_disable)                \
+	FAKE(bt_disable)		\
 	FAKE(bt_le_adv_start)		\
-	FAKE(bt_le_adv_stop)            \
-	FAKE(bt_gatt_exchange_mtu)      \
+	FAKE(bt_le_adv_stop)		\
+	FAKE(bt_gatt_exchange_mtu)	\
 	FAKE(bt_conn_cb_register)	\
 	FAKE(bt_conn_ref)		\
-	FAKE(bt_conn_unref)             \
+	FAKE(bt_conn_unref)		\
 	FAKE(bt_conn_get_dst)		\
 	FAKE(bt_gatt_attr_read_service)	\
 	FAKE(bt_gatt_attr_read_chrc)	\

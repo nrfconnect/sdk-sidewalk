@@ -80,6 +80,7 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 	sid_pal_gpio_write(client->client_selector, 1);
 
 	sid_error_t ret = SID_ERROR_NONE;
+
 	if (err < 0) {
 		LOG_ERR("spi_transceive failed with error %d", err);
 		ret = SID_ERROR_GENERIC;

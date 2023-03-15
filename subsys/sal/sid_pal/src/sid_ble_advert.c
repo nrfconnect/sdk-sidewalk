@@ -120,7 +120,6 @@ static void change_advertisement_interval(struct k_work *work)
 {
 	ARG_UNUSED(work);
 	if (BLE_ADV_ENABLE == atomic_get(&adv_state)) {
-
 		if (bt_le_adv_stop()) {
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
 			return;

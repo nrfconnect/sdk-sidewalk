@@ -12,7 +12,8 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sm_main, CONFIG_SIDEWALK_LOG_LEVEL);
 
-static int init_leds_and_buttons(){
+static int init_leds_and_buttons()
+{
 	int err = sm_buttons_init();
 
 	if (err) {
@@ -32,8 +33,7 @@ void main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
-	
-	if(init_leds_and_buttons()){
+	if (init_leds_and_buttons()) {
 		LOG_INF("Buttons or LEDs faild to initialize.");
 		return;
 	}

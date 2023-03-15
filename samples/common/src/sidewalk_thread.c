@@ -89,7 +89,6 @@ static app_context_t app_ctx = {
 	.state = STATE_INIT,
 };
 
-
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK)
 static struct sid_device_profile profile_light = {
 	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1,
@@ -127,8 +126,6 @@ static struct sid_device_profile profile_from_dev = {
 	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A
 };
 #endif
-
-
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
@@ -355,7 +352,6 @@ static void device_profile_set(app_context_t *app_ctx)
 	} else {
 		LOG_ERR("Profile set failed (err %d)", ret);
 	}
-
 }
 
 #endif /* !defined(CONFIG_SIDEWALK_SUBGHZ) */
@@ -439,7 +435,6 @@ static void sid_dfu_switch_state(app_context_t *app_ctx)
 
 static sid_error_t sid_lib_run(app_context_t *app_ctx)
 {
-
 	static struct sid_event_callbacks event_callbacks = {
 		.context = NULL,
 		.on_event = on_sidewalk_event,                                  /* Called from ISR context */

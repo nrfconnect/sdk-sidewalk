@@ -68,6 +68,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 	conn_params.conn = bt_conn_ref(conn);
 	exchange_params.func = exchange_func;
 	int error = bt_gatt_exchange_mtu(conn_params.conn, &exchange_params);
+
 	if (error) {
 		LOG_WRN("bt_gatt_exchange_mtu: %d", error);
 	}

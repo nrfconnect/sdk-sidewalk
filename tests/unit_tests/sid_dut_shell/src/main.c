@@ -54,7 +54,6 @@ void test_sid_init(struct test_init_parameters parameters)
 		zassert_equal_ptr(&sidewalk_handle, sid_init_delegated_fake.arg1_val, "Invalid sidewalk_handle passed");
 	} else {
 		zassert_equal(0, sid_init_delegated_fake.call_count);
-
 	}
 }
 
@@ -343,7 +342,6 @@ void test_sid_send(struct test_send_parameters parameters)
 		zassert_equal(sid_put_msg_delegated_fake.arg2_val->msg_desc_attr.tx_attr.ttl_in_seconds,
 			      parameters.desc.msg_desc_attr.tx_attr.ttl_in_seconds,
 			      "Invalid desc.msg_desc_attr.tx_attr.ttl_in_seconds");
-
 	} else {
 		zassert_equal(0, sid_put_msg_delegated_fake.call_count);
 	}
@@ -1034,7 +1032,6 @@ ZTEST(sid_dut_shell_api, test_sid_set_dst_id_invalid_argument_2){
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
 	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
-
 }
 // ////////////////////////////////////////////////////////////////////////////
 
@@ -1642,7 +1639,6 @@ ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_deinit){
 }
 // ////////////////////////////////////////////////////////////////////////////
 ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_start){
-
 	const char *argv[] = { "start", "1" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
 

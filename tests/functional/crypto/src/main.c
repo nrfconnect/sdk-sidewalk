@@ -1112,7 +1112,6 @@ void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
 		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data,
 					      test_vector_data_in_len[test_it]);
 	}
-
 }
 
 void test_sid_pal_crypto_aead_gcm_bad_key(void)
@@ -2126,7 +2125,6 @@ void test_sid_pal_crypto_ecc_ecdh_secp256r1(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(secret_expected_b2, ecdh_params.shared_secret, ecdh_params.shared_secret_sz);
-
 }
 
 void test_sid_pal_crypto_ecc_ecdh_secp256r1_negative(void)

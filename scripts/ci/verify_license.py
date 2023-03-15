@@ -364,7 +364,7 @@ class LicenseVerificator:
         ret = self.validate_file_header(file_header, expected_license)
         if ret > 0:
             logger.error(f"Failed check on file: {self.file_path}")
-            
+
         return ret
 
 
@@ -441,7 +441,8 @@ if __name__ == "__main__":
     logger.info(f"Checked {checked_files} files:")
     if error_count > 0:
         logger.error(f"END WITH {error_count} ERRORS")
-        logger.error(f"Check if new files are correctly represented in sidewalk/ci/license.yml")
+        logger.error(
+            f"Check if new files are correctly represented in sidewalk/ci/license.yml")
     else:
         logger.info("END WITH NO ERRORS")
     exit(error_count)
