@@ -166,7 +166,6 @@ ZTEST(utils, test_enumerate_states){
 
 	zassert_equal(APPLICATION_STATE_s4, enumerate_mock_history.args[3].state_id, "Invalid state change called");
 	zassert_equal(1, enumerate_mock_history.args[3].value, "Invalid value on change enumerate element");
-
 }
 
 void clean_handlers(void *fixture)

@@ -546,7 +546,6 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 	if ((key_len != params->key_size) ||
 	    ((SID_PAL_AES_CTR_128 == params->algo) &&
 	     params->iv_size != PSA_CIPHER_IV_LENGTH(PSA_KEY_TYPE_AES, alg))) {
-
 		// Log is only for debug purpose, in other case use error code.
 		LOG_DBG("Incorrect %s length.",
 			(key_len != params->key_size) ? "key" : "IV");

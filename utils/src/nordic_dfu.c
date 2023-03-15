@@ -20,6 +20,7 @@ static const struct bt_data ad[] = {
 int nordic_dfu_ble_start(void)
 {
 	int err = bt_enable(NULL);
+
 	if (err && err != -EALREADY) {
 		LOG_ERR("Bluetooth enable failed (err %d)", err);
 		return err;

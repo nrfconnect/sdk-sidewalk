@@ -21,9 +21,10 @@
 #define GPIO_NUM_TO_GPIO_PORT(_num) ((_num >> GPIO_PIN_MASK) & 0x0F)
 #define GPIO_NUM_TO_GPIO_PIN(_num)  (_num & (GPIO_MAX_PINS_PER_PORT - 1))
 
-#define NUMBERS_OF_PINS														      \
-	(DT_NODE_HAS_STATUS(DT_NODELABEL(gpio0), okay) && DT_NODE_HAS_STATUS(DT_NODELABEL(gpio1), okay) ? (MAX_NUMBERS_OF_PINS - 1) : \
-	 ((DT_NODE_HAS_STATUS(DT_NODELABEL(gpio0), okay) ? (P0_PIN_NUM - 1) :							      \
+#define NUMBERS_OF_PINS												 \
+	(DT_NODE_HAS_STATUS(DT_NODELABEL(gpio0),								 \
+			    okay) && DT_NODE_HAS_STATUS(DT_NODELABEL(gpio1), okay) ? (MAX_NUMBERS_OF_PINS - 1) : \
+	 ((DT_NODE_HAS_STATUS(DT_NODELABEL(gpio0), okay) ? (P0_PIN_NUM - 1) :					 \
 	   (DT_NODE_HAS_STATUS(DT_NODELABEL(gpio1), okay) ? (P1_PIN_NUM - 1) : 0))))
 
 typedef struct {

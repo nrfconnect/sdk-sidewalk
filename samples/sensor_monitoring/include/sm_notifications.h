@@ -26,7 +26,7 @@ void sm_notify_sensor_data(app_context_t *app_context, bool button_pressed);
 
 /**
  * @brief Check button press notification.
- * 
+ *
  * @param app_context application context.
  */
 void sm_check_button_press_notify(app_context_t *app_context);

@@ -12,7 +12,7 @@
 #include <sid_thread.h>
 #include <sid_api.h>
 
-#define CMD_SID_INIT_DESCRIPTION "<1,2,3,4,5>\n"																	    \
+#define CMD_SID_INIT_DESCRIPTION "<1,2,3,4,5>\n"																							 \
 	"initialize the sidewalk stack, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA) 4 is SID_LINK_TYPE_1 | SID_LINK_TYPE_3 (BLE + LORA),  5 is SID_LINK_TYPE_1 | SID_LINK_TYPE_2 (BLE + FSK).\n" \
 	"This calls the sid_init() API."
 

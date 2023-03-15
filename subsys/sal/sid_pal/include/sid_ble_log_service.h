@@ -20,8 +20,8 @@
 
 /**
  * @brief Get the logging service object.
- * 
- * @return struct bt_gatt_service_static* 
+ *
+ * @return struct bt_gatt_service_static*
  */
 const struct bt_gatt_service_static *sid_ble_get_log_service(void);
 

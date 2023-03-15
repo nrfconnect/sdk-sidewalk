@@ -12,7 +12,7 @@
 /**
  * @brief X macro for api functions:
  * X(API_function_name, [argument_type, argument_name] * N)
- * 
+ *
  */
 #define API_FUNCTIONS									    \
 	X(sid_init, const struct sid_config *, config, struct sid_handle **, handle)	    \

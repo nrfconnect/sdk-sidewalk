@@ -312,7 +312,6 @@ bool sid_pal_mfg_store_is_empty(void)
 		for (off_t offset = nrf_mfg_store_region.addr_start;
 		     offset < nrf_mfg_store_region.addr_end;
 		     offset += length) {
-
 			if ((offset + length) > nrf_mfg_store_region.addr_end) {
 				length = nrf_mfg_store_region.addr_end - offset;
 			}

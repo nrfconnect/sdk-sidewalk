@@ -78,7 +78,7 @@ void sid_ble_adapter_conn_connected(const uint8_t *ble_addr);
 
 /**
  * @brief Execute callback after BLE device disconnected.
- * 
+ *
  * @param ble_addr BLE address.
  */
 void sid_ble_adapter_conn_disconnected(const uint8_t *ble_addr);
@@ -93,7 +93,7 @@ sid_error_t sid_ble_adapter_mtu_cb_set(sid_pal_ble_mtu_callback_t cb);
 
 /**
  * @brief Execute callback after mtu changed.
- * 
+ *
  * @param mtu_size new mtu size.
  */
 void sid_ble_adapter_mtu_changed(uint16_t mtu_size);
@@ -108,7 +108,7 @@ sid_error_t sid_ble_adapter_adv_start_cb_set(sid_pal_ble_adv_start_callback_t cb
 
 /**
  * @brief Execute callback after advertising started.
- * 
+ *
  */
 void sid_ble_adapter_adv_started(void);
 

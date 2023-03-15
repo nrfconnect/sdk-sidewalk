@@ -248,7 +248,6 @@ static psa_status_t mock_psa_aead_update(psa_aead_operation_t *operation,
 					 size_t output_size,
 					 size_t *output_length)
 {
-
 	if (FFF_ARG_HISTORY_LEN <= mock_psa_aead_update_values.call_count) {
 		TEST_FAIL_MESSAGE("Function psa_aead_update called too many times!");
 	}

@@ -139,7 +139,6 @@ static void state_change_handler_power_test(const struct notifier_state *state)
 	if (current_app_state.link) {
 		k_sem_give(&link_sem);
 	}
-
 }
 
 void wait_for_registered()
@@ -195,7 +194,6 @@ static inline void perform_power_test(void)
 	#endif
 
 	for (int i = 0; i < CONFIG_MESSAGES_TO_SEND; i++) {
-
 	#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 		if (!current_app_state.connected) {
 			wait_for_registered();
@@ -215,9 +213,9 @@ void main(void)
 {
 	extern struct notifier_ctx global_state_notifier;
 
-	if (!subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test))
-	{
-		__ASSERT(false, "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
+	if (!subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test)) {
+		__ASSERT(false,
+			 "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
 	}
 	if (0 != board_init()) {
 		return;

@@ -53,7 +53,7 @@ typedef struct app_context {
  *
  * @return app_context_t* poiner to applicaiton context
  */
-app_context_t* sidewalk_thread_enable(void);
+app_context_t *sidewalk_thread_enable(void);
 
 /**
  * @brief Add message to thread queue.

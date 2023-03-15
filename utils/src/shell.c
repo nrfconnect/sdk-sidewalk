@@ -52,7 +52,6 @@ static const struct sid_status dummy = {
 	.detail = { .link_status_mask = 0,
 		    .registration_status = SID_STATUS_NOT_REGISTERED,
 		    .time_sync_status = SID_STATUS_NO_TIME }
-
 };
 
 struct sid_send_work_t {
@@ -73,7 +72,7 @@ struct sid_factory_reset_t factory_reset_work;
 
 static const struct sid_status *CLI_status = &dummy;
 struct messages_stats sidewalk_messages;
-static struct sid_handle* sidewalk_handle;
+static struct sid_handle *sidewalk_handle;
 
 void CLI_register_message_send()
 {
@@ -91,7 +90,7 @@ void CLI_register_message_received(uint16_t resp_id)
 	sidewalk_messages.resp_id = resp_id;
 }
 
-void CLI_init(struct sid_handle* handle)
+void CLI_init(struct sid_handle *handle)
 {
 	sidewalk_handle = handle;
 
@@ -199,7 +198,6 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 		payload_size++;
 	}
 	return (StrToHexRet) Result_Val(payload_size);
-
 }
 
 static StrToDecRet string_to_dec(char *string)
@@ -418,7 +416,6 @@ static void cmd_fatory_reset_work(struct k_work *item)
 
 static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv)
 {
-
 	if (k_work_busy_get(&factory_reset_work.work) != 0) {
 		shell_error(shell, "Can not execute factory_reset command, previous command has not completed yet");
 		return CMD_RETURN_NOT_EXECUTED;

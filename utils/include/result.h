@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
- 
+
 typedef enum { Val, Err } result_t;
 
 #define Result(value_t, error_e) struct {			\

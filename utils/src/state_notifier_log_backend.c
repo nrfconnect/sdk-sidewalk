@@ -15,7 +15,7 @@ LOG_MODULE_REGISTER(application_state, LOG_LEVEL_INF);
 
 static void log_enumerate_state(enum application_state state_id, uint32_t value)
 {
-	LOG_INF("%s = %s", application_state_name[state_id], value?"true":"false");
+	LOG_INF("%s = %s", application_state_name[state_id], value ? "true" : "false");
 }
 
 static void state_change_handler_log(const struct notifier_state *state)
@@ -29,6 +29,7 @@ static void state_change_handler_log(const struct notifier_state *state)
 void state_watch_init_log(struct notifier_ctx *ctx)
 {
 	if (!subscribe_for_state_change(ctx, state_change_handler_log)) {
-		__ASSERT(false, "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
+		__ASSERT(false,
+			 "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
 	}
 }

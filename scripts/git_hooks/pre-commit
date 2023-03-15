@@ -3,18 +3,11 @@
 SIDEWALK_PATH=$(git rev-parse --show-toplevel)
 UNCRUST_CONFIG="$SIDEWALK_PATH/.uncrustify.cfg"
 # get list of staged files
-staged_files=$(git diff --name-only --staged --diff-filter=AMR | grep -E '\.(c|h|cpp|hpp)$')
+staged_files=$(git diff --name-only --staged --diff-filter=AMR | grep -E '\.(c|h|cpp|hpp|py)$')
 if [ -n "$staged_files" ]; then
-    non_mamazon_files=$(grep -L -l -E "Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates." $staged_files)
-    if [ -n "$non_mamazon_files" ]; then
-
-        echo "## Executing uncrustify"
-        uncrustify -c $UNCRUST_CONFIG --check $non_mamazon_files 
-        if [ $? -ne 0 ]; then
-            uncrustify -c $UNCRUST_CONFIG --replace --no-backup $non_mamazon_files 
-            echo "suggested changes were made on the tracked files, please review them and stage for commit"
-            exit 1
-        fi
+    python3 $SIDEWALK_PATH/scripts/ci/verify_formatting.py -d -c $SIDEWALK_PATH/scripts/ci/formatter_cfg.yml -f $staged_files
+    if [ $? -ne 0 ]; then
+        exit 1
     fi
 fi
 

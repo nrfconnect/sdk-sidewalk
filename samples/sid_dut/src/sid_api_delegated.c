@@ -383,7 +383,6 @@ sid_error_t sid_set_msg_dest_id_delegated(struct sid_handle *handle, uint32_t id
 
 sid_error_t sid_option_delegated(struct sid_handle *handle, enum sid_option option, void *data, size_t len)
 {
-
 	while (k_work_busy_get(&ctx.sid_option_ctx.work) != 0) {
 		k_sleep(K_MSEC(1));
 	}

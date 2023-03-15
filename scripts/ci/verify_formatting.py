@@ -8,7 +8,6 @@ import logging
 from pathlib import Path
 import subprocess
 import re
-import time
 logger = logging.getLogger(__name__)
 
 
@@ -22,8 +21,10 @@ def argument_parser():
                          help="YAML configuration file")
     parser_.add_argument("-d", "--debug", action="store_true", default=False, required=False,
                          help="Enable debug mode, more logs.")
-    parser_.add_argument("-s", "--scan-root", nargs=1,
-                         required=True, help="Check all files in directory")
+    action = parser_.add_mutually_exclusive_group(required=True)
+    action.add_argument("-s", "--scan-root", nargs=1,
+                        help="Check all files in directory")
+    action.add_argument("-f", "--files", nargs='+', help="files to check")
     return parser_
 
 
@@ -44,20 +45,24 @@ class Configuration:
         self._config = cfg
 
 
-def get_files() -> dict():
+def split_files_for_languages(files):
+    return {
+        "source": [
+            f for f in files if f[-2:] == ".h" or f[-2:] == ".c"
+        ],
+        "python": [
+            f for f in files if f[-3:] == ".py"
+        ]
+    }
+
+
+def get_files_from_git() -> dict():
     git_files_run = subprocess.run(
         "git ls-files".split(" "), capture_output=True)
 
     git_files = git_files_run.stdout.decode("utf8").split("\n")
 
-    return {
-        "source": [
-            f for f in git_files if f[-2:] == ".h" or f[-2:] == ".c"
-        ],
-        "python": [
-            f for f in git_files if f[-3:] == ".py"
-        ]
-    }
+    return split_files_for_languages(git_files)
 
 
 def filter_files(files, filters):
@@ -87,20 +92,16 @@ if __name__ == "__main__":
 
     with open(Path(args.config).absolute().resolve(), "r") as cfg_file:
         cfg = Configuration(yaml.safe_load(cfg_file))
-    start_search = time.time()
-    files = get_files()
-
-    end_search = time.time()
-    logger.debug(f"gathering files took {end_search - start_search}s")
+    if args.files is None:
+        files = get_files_from_git()
+    else:
+        files = split_files_for_languages(args.files)
 
     C_files_filtered = filter_files(
         files.get("source"), cfg._config["ignored_files_regexp"])
 
     py_filtered = filter_files(
         files.get("python"), cfg._config["ignored_files_regexp"])
-
-    filtered = time.time()
-    logger.debug(f"filtering files took {filtered - end_search}s")
 
     top_level_cmd = subprocess.run(
         "git rev-parse --show-toplevel".split(" "), capture_output=True)
@@ -111,23 +112,29 @@ if __name__ == "__main__":
     for file in C_files_filtered:
         logger.debug(file)
 
-    filtered_files_str = " ".join([str(f) for f in C_files_filtered])
-    uncrustify_check = subprocess.run(
-        f"uncrustify -c {uncrustify_config} --replace --no-backup {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
-    uncrustify_time = time.time()
-    logger.debug(f"uncrustify execution took {uncrustify_time - filtered}s")
+    print_diff = False
+    if len(C_files_filtered) > 0:
+        filtered_files_str = " ".join([str(f) for f in C_files_filtered])
+        uncrustify_check = subprocess.run(
+            f"uncrustify -c {uncrustify_config} --check {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
 
-    logger.debug(f"checking {len(py_filtered)} Python files")
-    for file in py_filtered:
-        logger.debug(file)
+        if uncrustify_check.returncode != 0:
+            subprocess.run(
+                f"uncrustify -c {uncrustify_config} --replace --no-backup {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
+            print_diff = True
 
-    filtered_py_files_str = " ".join([str(f) for f in py_filtered])
-    autopep_check = subprocess.run(
-        f"autopep8 -i {filtered_py_files_str}".split(" "), cwd=top_level, capture_output=True)
-    pep_time = time.time()
-    logger.debug(f"pep8 took {pep_time - uncrustify_time}s")
+    if len(py_filtered) > 0:
+        logger.debug(f"checking {len(py_filtered)} Python files")
+        for file in py_filtered:
+            logger.debug(file)
 
-    if (uncrustify_check.returncode != 0 or autopep_check.returncode != 0):
+        filtered_py_files_str = " ".join([str(f) for f in py_filtered])
+        autopep_check = subprocess.run(
+            f"autopep8 -i --exit-code {filtered_py_files_str}".split(" "), cwd=top_level, capture_output=True)
+        if autopep_check.returncode != 0:
+            print_diff = True
+
+    if print_diff:
         changes = subprocess.run(
             f"git diff".split(" "), cwd=top_level, capture_output=True)
         logger.error(changes.stdout.decode("utf-8"))

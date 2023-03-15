@@ -24,7 +24,6 @@ void test_init_spi()
 	const struct sid_pal_serial_bus_iface *interface;
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_serial_bus_nordic_spi_create(&interface, NULL));
-
 }
 
 void test_invalid_init_spi()
