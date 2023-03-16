@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2022 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 #include <sid_pal_gpio_ifc.h>
 #include <zephyr/drivers/cmock_sid_gpio_utils.h>

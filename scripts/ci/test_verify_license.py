@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Nordic Semiconductor ASA
 #
-# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
 import verify_license
 import unittest
@@ -253,29 +253,29 @@ class TestLicenseVerificator(unittest.TestCase):
             license_txt, file_header))
 
     def test_find_spdx(self):
-        spdx = "LicenseRef-Nordic-4-Clause"
-        file_header = "This license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-4-Clause"
+        spdx = "LicenseRef-Nordic-5-Clause"
+        file_header = "This license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-5-Clause"
 
         self.assertEqual(
             0, verify_license.LicenseVerificator(self.cfg, "dumy/file.path").find_spdx(spdx, file_header))
 
     def test_find_spdx2(self):
         spdx = "LicenseRef-Nordic-3-Clause"
-        file_header = "This license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-4-Clause"
+        file_header = "This license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-5-Clause"
 
         self.assertEqual(
             1, verify_license.LicenseVerificator(self.cfg, "dumy/file.path").find_spdx(spdx, file_header))
 
     def test_find_copyright(self):
         copyright_regexp = r"Copyright \d{4}"
-        file_header = "Copyright 2099 AwesomeCompany inc.\nThis license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-4-Clause"
+        file_header = "Copyright 2099 AwesomeCompany inc.\nThis license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-5-Clause"
 
         self.assertEqual(0, verify_license.LicenseVerificator(self.cfg, "dumy/file.path").find_copyright(
             copyright_regexp, file_header))
 
     def test_find_copyright2(self):
         copyright_regexp = r"Copyright \d{4}"
-        file_header = "Copyright 99 AwesomeCompany inc.\nThis license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-4-Clause"
+        file_header = "Copyright 99 AwesomeCompany inc.\nThis license says : \nIt is very secret file, sharing is not permited\n SPDX-License-Identifier: LicenseRef-Nordic-5-Clause"
 
         self.assertEqual(1, verify_license.LicenseVerificator(self.cfg, "dumy/file.path").find_copyright(
             copyright_regexp, file_header))
@@ -283,12 +283,12 @@ class TestLicenseVerificator(unittest.TestCase):
     def test_validate_file_header(self):
         instance = verify_license.LicenseVerificator(
             self.cfg, "dumy/file.path")
-        expected_license = {"spdx": "LicenseRef-Nordic-4-Clause",
+        expected_license = {"spdx": "LicenseRef-Nordic-5-Clause",
                             "copyright_regexp": "copyright",
                             "search_license_txt": None,
                             "file_regexp": [r".*"]
                             }
-        file_header = "copyright 1099 company.\n\n\nSPDX-License-Identifier: LicenseRef-Nordic-4-Clause\n".split(
+        file_header = "copyright 1099 company.\n\n\nSPDX-License-Identifier: LicenseRef-Nordic-5-Clause\n".split(
             "\n")
 
         self.assertEqual(0, instance.validate_file_header(
@@ -325,12 +325,12 @@ class TestLicenseVerificator(unittest.TestCase):
     def test_validate_file_header2(self):
         instance = verify_license.LicenseVerificator(
             self.cfg, "dumy/file.path")
-        expected_license = {"spdx": "LicenseRef-Nordic-4-Clause",
+        expected_license = {"spdx": "LicenseRef-Nordic-5-Clause",
                             "copyright_regexp": "copyright",
                             "search_license_txt": None,
                             "file_regexp": [r".*"]
                             }
-        file_header = "SPDX-License-Identifier: LicenseRef-Nordic-4-Clause \n Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.".split(
+        file_header = "SPDX-License-Identifier: LicenseRef-Nordic-5-Clause \n Lorem Ipsum is simply dummy text of the printing and typesetting industry.\nLorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.".split(
             "\n")
 
         self.assertEqual(1, instance.validate_file_header(

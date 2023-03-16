@@ -1,7 +1,7 @@
 """Verify existence of license file headers in files according to yaml configuration file."""
 # Copyright (c) 2022 Nordic Semiconductor ASA
 #
-# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 import logging
 import yaml
 from typing import List, Union

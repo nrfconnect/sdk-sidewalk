@@ -55,5 +55,5 @@ licenses:
   file_regexp:
   - .*
   search_license_txt: null
-  spdx: LicenseRef-Nordic-4-Clause
+  spdx: LicenseRef-Nordic-5-Clause
 
