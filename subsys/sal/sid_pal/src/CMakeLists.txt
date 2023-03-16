@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2023 Nordic Semiconductor ASA
 #
-# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
 if(NOT(CONFIG_LOG) OR CONFIG_SIDEWALK_LOG_LEVEL_OFF)

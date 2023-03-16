@@ -1,6 +1,6 @@
 # Copyright (c) 2022 Nordic Semiconductor ASA
 #
-# SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
 
 import subprocess
@@ -39,7 +39,7 @@ def print_warning_header():
 /*
  * Copyright (c) 2023 Nordic Semiconductor ASA
  *
- * SPDX-License-Identifier: LicenseRef-Nordic-4-Clause
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
 /******************************************
