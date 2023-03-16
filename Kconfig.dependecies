@@ -228,3 +228,6 @@ config USB_DEVICE_PRODUCT
 config USB_REQUEST_BUFFER_SIZE
 	default 8192
 endif # SIDEWALK_DFU_SERVICE_USB
+
+config UART_1_NRF_UARTE
+    default n
