@@ -63,11 +63,18 @@ static sid_error_t kv_storage_init(struct nvs_fs *fs)
 sid_error_t sid_pal_storage_kv_init()
 {
 #if defined(CONFIG_NVS)
+	static bool init_done = false;
+
+	if (init_done) {
+		return SID_ERROR_NONE;
+	}
+
 	for (int cnt = 0; cnt < SID_GROUP_ID_COUNT; cnt++) {
 		if (SID_ERROR_NONE != kv_storage_init(&fs[cnt])) {
 			return SID_ERROR_GENERIC;
 		}
 	}
+	init_done = true;
 	return SID_ERROR_NONE;
 #else
 	return SID_ERROR_NOSUPPORT;
