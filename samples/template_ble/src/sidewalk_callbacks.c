@@ -78,6 +78,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	switch (status->state) {
 	case SID_STATE_READY:
 		application_state_connected(&global_state_notifier, true);
+		app_ctx->connection_request = false;
 		break;
 	case SID_STATE_NOT_READY:
 		application_state_connected(&global_state_notifier, false);
