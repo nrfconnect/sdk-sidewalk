@@ -20,7 +20,8 @@ The sample supports the following development kits:
 | nRF52840 DK        | PCA10056 | nrf52840dk_nrf52840  | ``nrf52840dk_nrf52840`` |
 +--------------------+----------+----------------------+-------------------------+
 
-If you want to run this sample with LoRa or FSK configuration, you also need the LoRa Radio Module.
+To run the sample in the Bluetooth LE link mode, you only need the development kit.
+However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
 The supported modules are as follows:
 
 +------------+---------------+------------+
