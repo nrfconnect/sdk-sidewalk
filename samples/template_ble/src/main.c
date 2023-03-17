@@ -8,7 +8,6 @@
 #include <sid_error.h>
 #include <sid_pal_assert_ifc.h>
 #include <app_ble_config.h>
-#include <app_subGHz_config.h>
 
 #include <stdbool.h>
 #include <zephyr/kernel.h>
@@ -45,9 +44,9 @@ static void button_handler(uint32_t event)
 static sid_error_t app_buttons_init(btn_handler_t handler)
 {
 	button_set_action_long_press(DK_BTN1, handler, BUTTON_EVENT_FACTORY_RESET);
-	button_set_action_short_press(DK_BTN2, handler, BUTTON_EVENT_GET_DEVICE_PROFILE);
-	button_set_action_long_press(DK_BTN2, handler, BUTTON_EVENT_SET_DEVICE_PROFILE);
+	button_set_action(DK_BTN2, handler, BUTTON_EVENT_CONNECTION_REQUEST);
 	button_set_action(DK_BTN3, handler, BUTTON_EVENT_SEND_HELLO);
+	button_set_action_short_press(DK_BTN4, handler, BUTTON_EVENT_SET_BATTERY_LEVEL);
 	#if defined(CONFIG_SIDEWALK_DFU)
 	button_set_action_long_press(DK_BTN4, handler, BUTTON_EVENT_NORDIC_DFU);
 	#endif
@@ -90,7 +89,7 @@ static void app_setup(void)
 		.time_sync_periodicity_seconds = 7200,
 		.callbacks = &app_context.event_callbacks,
 		.link_config = app_get_ble_config(),
-		.sub_ghz_link_config = app_get_sub_ghz_config(),
+		.sub_ghz_link_config = NULL,
 	};
 
 	#if defined(CONFIG_BOOTLOADER_MCUBOOT)
