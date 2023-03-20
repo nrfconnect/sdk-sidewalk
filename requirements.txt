@@ -1,4 +1,3 @@
 GitPython==3.1.29
 
--r tools/sid_pc_link/apps/device_registration/requirements.txt
 -r scripts/ci/requirements.txt
