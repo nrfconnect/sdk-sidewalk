@@ -6,12 +6,6 @@
 import subprocess
 import os
 
-try:
-    import git
-except ImportError as e:
-    raise Exception(
-        "GitPython module not found! install packages from `sidewalk/requirements.txt`")
-
 NCS_DIR = os.path.abspath(os.path.join(__file__, "../../.."))
 
 ESSENTIAL_MODULES = ["sidewalk", "nrf", "zephyr"]
@@ -25,13 +19,11 @@ def west_module_list():
 
 
 def get_last_common_commit_with_upstream(ncs_dir):
-    f = git.repo.Repo(os.path.join(ncs_dir, "sidewalk"))
-    fork_point = "0000000"
-    try:
-        fork_point = f.git.merge_base("--fork-point", "origin/main", "HEAD")
-    except:
-        pass
-    return fork_point
+    merge_base_cmd = subprocess.run(["git", "merge-base", "--fork-point", "origin/main",
+                                    "HEAD"], cwd=os.path.join(ncs_dir, "sidewalk"),  capture_output=True)
+    if merge_base_cmd.returncode != 0:
+        return "0000000"
+    return merge_base_cmd.stdout.decode("utf-8").strip()
 
 
 def print_warning_header():
@@ -79,11 +71,13 @@ def print_x_macro(ncs_dir_path, essential_modules, west_module_list):
     result += "#define SIDEWALK_VERSION_COMPONENTS "
 
     for path, hash in west_module_list():
-        f = git.repo.Repo(os.path.join(ncs_dir_path, path))
-        try:
-            version = f.git.describe("--always", "--dirty")
-        except:
+
+        describe_cmd = subprocess.run(["git", "describe", "--always", "--dirty"],
+                                      cwd=os.path.join(ncs_dir_path, path),  capture_output=True)
+        if describe_cmd.returncode != 0:
             version = hash[:7] + "-suspicious"
+        else:
+            version = describe_cmd.stdout.decode("utf-8").strip()
 
         result += f"\\\n\tITEM(\"{path}\", \"{version}\", {int(path in essential_modules)})"
     return result + '\n'
