@@ -22,9 +22,6 @@ LOG_MODULE_REGISTER(callbacks, CONFIG_SIDEWALK_LOG_LEVEL);
 static const uint8_t *status_name[] = {
 	"ready", "not ready", "Error", "secure channel ready"
 };
-static const uint8_t *link_mode_name[] = {
-	"none", [SID_LINK_MODE_CLOUD] = "cloud", [SID_LINK_MODE_MOBILE] = "mobile"
-};
 
 static const uint8_t *link_mode_idx_name[] = {
 	"ble", "fsk", "lora"
@@ -94,16 +91,20 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	application_state_time_sync(&global_state_notifier, status->detail.time_sync_status == SID_STATUS_TIME_SYNCED);
 	application_state_link(&global_state_notifier, !!(status->detail.link_status_mask));
 
-	LOG_INF("Device %sregistered, Time Sync %s, Link status %s",
+	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, LORA: %s, FSK: %s}",
 		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
 		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
-		status->detail.link_status_mask ? "Up" : "Down");
+		(status->detail.link_status_mask & SID_LINK_TYPE_1) ? "Up" : "Down",
+		(status->detail.link_status_mask & SID_LINK_TYPE_2) ? "Up" : "Down",
+		(status->detail.link_status_mask & SID_LINK_TYPE_3) ? "Up" : "Down");
 
 	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
 		enum sid_link_mode mode = (enum sid_link_mode)status->detail.supported_link_modes[i];
 
 		if (mode) {
-			LOG_INF("Link mode %s, on %s", link_mode_name[mode], link_mode_idx_name[i]);
+			LOG_INF("Link mode on %s = {Cloud: %s, Mobile: %s}", link_mode_idx_name[i],
+				(mode & SID_LINK_MODE_CLOUD) ? "True" : "False",
+				(mode & SID_LINK_MODE_MOBILE) ? "True" : "False");
 		}
 	}
 }
