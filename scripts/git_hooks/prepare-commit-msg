@@ -1,5 +1,10 @@
 #!/bin/sh
+
+# Copyright (c) 2022 Nordic Semiconductor ASA
 #
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+
+
 # git prepare-commit-msg hook for automatically prepending an issue key
 # from the start of the current branch name to commit messages.
  

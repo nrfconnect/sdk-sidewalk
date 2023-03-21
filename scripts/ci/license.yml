@@ -5,6 +5,9 @@ supported_file_extensions:
 - .*\.h$
 - .*CMakeLists.txt$
 - .*\.conf$
+- .*\.sh$
+- .*git_hooks/.*
+- .*\.overlay$
 
 ignore_license_in_files:
 - doc/.*
