@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+
 #  Run unit tests nad tests on native_posix. Tests for nrf52840dk_nrf52840 are only build.
 #  This script takes very long time, so it is not enabled by default ( first run ~15min, cachced builds ~5min)
 #  To enable this hook create symbolic link to sidewalk/.git/hook/pre-push
