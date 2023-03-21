@@ -3,25 +3,34 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include "sid_api.h"
-#include "sid_error.h"
-#include <sidewalk_thread.h>
-#include <zephyr/kernel.h>
-#include <dk_buttons_and_leds.h>
-#include <buttons.h>
-#include <zephyr/logging/log.h>
+#include <sid_api.h>
+#include <sid_error.h>
+#include <sid_pal_assert_ifc.h>
+#include <app_ble_config.h>
 
-#if CONFIG_BOOTLOADER_MCUBOOT
+#include <stdbool.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+#include <dk_buttons_and_leds.h>
+#include <sidewalk_version.h>
+#if defined(CONFIG_BOOTLOADER_MCUBOOT)
 #include <zephyr/dfu/mcuboot.h>
 #endif
-
-#include <state_notifier.h>
-
-#include <sidewalk_version.h>
-
-#if CONFIG_SIDEWALK_DFU_SERVICE_USB
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
 #include <zephyr/usb/usb_device.h>
 #endif
+#if defined(CONFIG_GPIO)
+#include <state_notifier_gpio_backend.h>
+#endif
+#if defined(CONFIG_LOG)
+#include <state_notifier_log_backend.h>
+#endif
+
+#include <pal_init.h>
+#include <buttons.h>
+#include <application_thread.h>
+#include <sidewalk_callbacks.h>
+#include <state_notifier.h>
 
 #include <zephyr/settings/settings.h>
 
@@ -46,6 +55,8 @@ K_SEM_DEFINE(working_sem, 0, 1);
 K_SEM_DEFINE(connected_sem, 0, 1);
 K_SEM_DEFINE(time_sync_sem, 0, 1);
 K_SEM_DEFINE(link_sem, 0, 1);
+
+static app_ctx_t app_context;
 
 volatile struct notifier_state current_app_state = {};
 
@@ -78,44 +89,73 @@ void assert_post_action(const char *file, unsigned int line)
 	k_panic();
 }
 
-void sidewalk_event(uint32_t event_nr)
+static void button_handler(uint32_t event)
 {
-	sidewalk_thread_message_q_write((enum event_type)event_nr);
+	app_event_send((app_event_t) event);
 }
 
-static int board_init(void)
+static sid_error_t app_buttons_init(btn_handler_t handler)
 {
-	button_set_action_long_press(DK_BTN1, sidewalk_event, EVENT_TYPE_FACTORY_RESET);
-#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-	button_set_action(DK_BTN2, sidewalk_event, EVENT_TYPE_CONNECTION_REQUEST);
-#else
-	button_set_action(DK_BTN2, sidewalk_event, EVENT_TYPE_SET_DEVICE_PROFILE);
-#endif
-	button_set_action(DK_BTN3, sidewalk_event, EVENT_TYPE_SEND_HELLO);
-	button_set_action_short_press(DK_BTN4, sidewalk_event, EVENT_TYPE_SET_BATTERY_LEVEL);
-	button_set_action_long_press(DK_BTN4, sidewalk_event, EVENT_TYPE_NORDIC_DFU);
-	int err = buttons_init();
+	button_set_action_long_press(DK_BTN1, handler, BUTTON_EVENT_FACTORY_RESET);
+	button_set_action(DK_BTN2, handler, BUTTON_EVENT_CONNECTION_REQUEST);
+	button_set_action(DK_BTN3, handler, BUTTON_EVENT_SEND_HELLO);
+	button_set_action_short_press(DK_BTN4, handler, BUTTON_EVENT_SET_BATTERY_LEVEL);
+	#if defined(CONFIG_SIDEWALK_DFU)
+	button_set_action_long_press(DK_BTN4, handler, BUTTON_EVENT_NORDIC_DFU);
+	#endif
 
-	if (err) {
-		LOG_ERR("Failed to initialize buttons (err: %d)", err);
-		return err;
+	return buttons_init() ? SID_ERROR_GENERIC : SID_ERROR_NONE;
+}
+
+static void app_setup(void)
+{
+	if (app_buttons_init(button_handler)) {
+		LOG_ERR("Failed to initialze buttons.");
+		SID_PAL_ASSERT(false);
 	}
 
-	err = dk_leds_init();
-	if (err) {
-		LOG_ERR("Failed to initialize LEDs (err: %d)", err);
-		return err;
+	if (dk_leds_init()) {
+		LOG_ERR("Failed to initialze LEDs.");
+		SID_PAL_ASSERT(false);
 	}
+	#if defined(CONFIG_GPIO)
+	state_watch_init_gpio(&global_state_notifier);
+	#endif
+	#if defined(CONFIG_LOG)
+	state_watch_init_log(&global_state_notifier);
+	#endif
 
-#if CONFIG_SIDEWALK_DFU_SERVICE_USB
-	err = usb_enable(NULL);
-	if (err != 0) {
+	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
+	if (usb_enable(NULL)) {
 		LOG_ERR("Failed to enable USB");
-		return err;
+		return;
 	}
-#endif
+	#endif
 
-	return 0;
+	if (sidewalk_callbacks_set(&app_context, &app_context.event_callbacks)) {
+		LOG_ERR("Failed to set sidewalk callbacks");
+		SID_PAL_ASSERT(false);
+	}
+
+	app_context.config = (struct sid_config) {
+		.link_mask = BUILT_IN_LM,
+		.time_sync_periodicity_seconds = 7200,
+		.callbacks = &app_context.event_callbacks,
+		.link_config = app_get_ble_config(),
+		.sub_ghz_link_config = NULL,
+	};
+
+	#if defined(CONFIG_BOOTLOADER_MCUBOOT)
+	if (!boot_is_img_confirmed()) {
+		int ret = boot_write_img_confirmed();
+
+		if (ret) {
+			LOG_ERR("Couldn't confirm image: %d", ret);
+		} else {
+			LOG_INF("Marked image as OK");
+		}
+	}
+	#endif
 }
 
 static void state_change_handler_power_test(const struct notifier_state *state)
@@ -187,24 +227,17 @@ static inline void perform_power_test(void)
 	wait_for_registered();
 	wait_for_time_sync();
 
-	#if defined(CONFIG_SIDEWALK_LINK_MASK_FSK) || defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-	sidewalk_thread_message_q_write(EVENT_TYPE_SEND_HELLO);
-	wait_for_time_sync();
-	wait_for_connected();
-	#endif
-
 	for (int i = 0; i < CONFIG_MESSAGES_TO_SEND; i++) {
-	#if !defined(CONFIG_SIDEWALK_LINK_MASK_FSK) && !defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 		if (!current_app_state.connected) {
 			wait_for_registered();
 			wait_for_time_sync();
-			sidewalk_thread_message_q_write(EVENT_TYPE_CONNECTION_REQUEST);
+			app_event_send(BUTTON_EVENT_CONNECTION_REQUEST);
 			wait_for_connected();
 		}
-	#endif
+
 		wait_for_connected();
 		wait_for_not_sending();
-		sidewalk_thread_message_q_write(EVENT_TYPE_SEND_HELLO);
+		app_event_send(BUTTON_EVENT_SEND_HELLO);
 		k_sleep(K_MSEC(CONFIG_DELAY_BETWEN_MESSAGES));
 	}
 }
@@ -217,27 +250,12 @@ void main(void)
 		__ASSERT(false,
 			 "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
 	}
-	if (0 != board_init()) {
-		return;
+
+	app_setup();
+	if (app_thread_init(&app_context)) {
+		LOG_ERR("Failed to start Sidewalk thread");
 	}
 
-	LOG_INF("Sidewalk example started!");
-
-	PRINT_SIDEWALK_VERSION();
-
-	sidewalk_thread_enable();
-
-	#if CONFIG_BOOTLOADER_MCUBOOT
-	if (!boot_is_img_confirmed()) {
-		int ret = boot_write_img_confirmed();
-
-		if (ret) {
-			LOG_ERR("Couldn't confirm image: %d", ret);
-		} else {
-			LOG_INF("Marked image as OK");
-		}
-	}
-	#endif
 	if (!current_app_state.working) {
 		k_sem_take(&working_sem, K_FOREVER);
 	}
@@ -253,7 +271,7 @@ void main(void)
 
 		LOG_INF("Perform factory reset");
 		k_sleep(K_SECONDS(1));
-		sidewalk_thread_message_q_write(EVENT_TYPE_FACTORY_RESET);
+		app_event_send(BUTTON_EVENT_FACTORY_RESET);
 		k_sleep(K_FOREVER);
 	}
 	factory_reset_bypass = false;
