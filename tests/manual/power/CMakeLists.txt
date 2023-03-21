@@ -11,11 +11,11 @@ set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/tests/manual/power/child_
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template)
 
-zephyr_include_directories(
-  $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/include
-)
+zephyr_include_directories(include)
 
 target_sources(app PRIVATE
-  src/main.c
-  $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/src/sidewalk_thread.c
+src/main.c
+src/application_thread.c
+src/board_events.c
+src/sidewalk_callbacks.c
 )
