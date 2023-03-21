@@ -279,6 +279,9 @@ Wait for the device to complete the :ref:`automatic_registration_sidewalk_endpoi
 
 To test the device, follow the steps in :ref:`sidewalk_testing`.
 
+.. note::
+   If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
+   If you need to operate multiple FSK gateways, we recommend setting them up under separate Amazon accounts.
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 .. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/app_bootloaders.html
