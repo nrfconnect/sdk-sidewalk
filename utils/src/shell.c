@@ -46,7 +46,7 @@ struct messages_stats {
 };
 
 static const struct sid_status dummy = {
-	.state = SID_STATE_SECURE_CHANNEL_READY + 1,
+	.state = SID_STATE_NOT_READY,
 	.detail = { .link_status_mask = 0,
 		    .registration_status = SID_STATUS_NOT_REGISTERED,
 		    .time_sync_status = SID_STATUS_NO_TIME }
@@ -164,7 +164,7 @@ static HexToByteRet hex_nib_to_byte(char hex)
 
 static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char *in)
 {
-	uint8_t *working_ptr = in;
+	char *working_ptr = in;
 
 	if (strlen(in) < 2) {
 		return (StrToHexRet) Result_Err(ARG_EMPTY);
