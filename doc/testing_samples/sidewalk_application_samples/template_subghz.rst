@@ -155,10 +155,6 @@ For this sample, you can use the following overlays:
 
 * :file:`cli` - This configuration adds an nRF Connect Shell with Sidewalk Command Line Interface.
 
-* :file:`usb_dfu` - This configuration adds a USB device to the application which acts as the target for the firmware update.
-  A new image is then acquired through USB and placed in the second partition for the bootloader.
-  For more details, check the `USB DFU Sample Application`_ documentation.
-
 Bootloader and Device Firmware Update (DFU)
 ===========================================
 
@@ -285,7 +281,6 @@ To test the device, follow the steps in :ref:`sidewalk_testing`.
 
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
-.. _USB DFU Sample Application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/samples/subsys/usb/dfu/README.html
 .. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/app_bootloaders.html
 .. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming
 .. _Testing and debugging an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/testing.html#gs-testing
