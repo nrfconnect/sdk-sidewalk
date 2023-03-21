@@ -206,7 +206,7 @@ static int cmd_sid_option_handle_set_link3_profile(const char *value, struct sid
 	if (!IN_RANGE(rx_window_count_raw, 0, UINT16_MAX)) {
 		return -EINVAL;
 	}
-	out_profile->unicast_params.rx_window_count = rx_window_count_raw;
+	out_profile->unicast_params.rx_window_count = (enum sid_rx_window_count)rx_window_count_raw;
 	out_profile->unicast_params.unicast_window_interval.async_rx_interval_ms =
 		SID_LINK3_RX_WINDOW_SEPARATION_3;
 	return 0;
@@ -274,16 +274,14 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_START_ARG_REQUIRED, CMD_SID_START_ARG_OPTIONAL);
 	uint32_t link_mask = 0;
 
-	switch (argc) {
-	case 1: link_mask = cli_cfg.sid_cfg->link_mask;
-		break;
-	case 2:
+	if (argc == 1) {
+		link_mask = cli_cfg.sid_cfg->link_mask;
+	} else {
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_mask)) {
 			return -EINVAL;
 		}
-		break;
-	default: return -EINVAL;
 	}
+
 	sid_error_t ret = sid_start_delegated(*cli_cfg.app_cxt->sidewalk_handle,
 					      link_mask);
 
@@ -297,15 +295,12 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_STOP_ARG_REQUIRED, CMD_SID_STOP_ARG_OPTIONAL);
 	uint32_t link_mask = 0;
 
-	switch (argc) {
-	case 1: link_mask = cli_cfg.sid_cfg->link_mask;
-		break;
-	case 2:
+	if (argc == 1) {
+		link_mask = cli_cfg.sid_cfg->link_mask;
+	} else {
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_mask)) {
 			return -EINVAL;
 		}
-		break;
-	default: return -EINVAL;
 	}
 
 	sid_error_t ret = sid_stop_delegated(*cli_cfg.app_cxt->sidewalk_handle,
@@ -434,8 +429,8 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 				return -EINVAL;
 			}
 			desc.msg_desc_attr.tx_attr.ttl_in_seconds = (uint16_t)ttl_val;
-			continue;
 		}
+		/* The last condition does not need 'continue' statement. */
 	}
 
 	if (desc.type == SID_MSG_TYPE_RESPONSE) {
@@ -523,7 +518,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, 2, 1);
 
 	long data_raw = 0l;
-	static uint8_t data = 0;
+	static enum sid_device_profile_id dev_profile = SID_LINK3_PROFILE_LAST;
 	char *end = NULL;
 
 	data_raw = strtol(argv[1], &end, 0);
@@ -535,15 +530,16 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 		return -EINVAL;
 	}
 
-	data = (uint8_t)data_raw;
+	dev_profile = (enum sid_device_profile_id)data_raw;
 	static struct sid_device_profile dev_cfg;
 
 	memset(&dev_cfg, 0, sizeof(dev_cfg));
 	dev_cfg =
 		(struct sid_device_profile){ .unicast_params =
-					     { .device_profile_id = data, .wakeup_type = SID_TX_AND_RX_WAKEUP } };
+					     { .device_profile_id = dev_profile,
+					       .wakeup_type = SID_TX_AND_RX_WAKEUP } };
 
-	switch (data) {
+	switch (dev_profile) {
 	case SID_LINK3_PROFILE_A:
 	case SID_LINK3_PROFILE_B:
 	case SID_LINK3_PROFILE_D:
@@ -709,7 +705,7 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_GET_TIME_ARG_REQUIRED, CMD_SID_GET_TIME_ARG_OPTIONAL);
-	enum sid_time_format type = 0;
+	enum sid_time_format type = SID_GET_GPS_TIME;
 	struct sid_timespec curr_time;
 
 	switch (argv[1][0]) {
