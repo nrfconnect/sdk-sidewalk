@@ -5,9 +5,9 @@ Known issues
 
 See the list of known issues that are valid for the current state of development.
 
-02/01/2023
-----------
-* "KRKNWK-16402: DFU failure on unregistered devices.
+v1.14.3
+-------
+* KRKNWK-16402: DFU failure on unregistered devices.
     Workaround is to enter the DFU mode when the device is registered.
 
 * KRKNWK-14583: Bus fault after flash, before the :file:`Nordic_MFG.hex` data flash.
@@ -16,6 +16,9 @@ See the list of known issues that are valid for the current state of development
 
 * KRKNWK-14299: NRPA MAC address cannot be set in Zephyr.
     The non-resolvable private address (NRPA) cannot be set in the connectable mode for Bluetooth LE.
+    Currently there is no workaround for this issue.
+
+* Dynamic FSK-WAN Profile switching from 2 to 1 is prohibited.
     Currently there is no workaround for this issue.
 
 * Note for users with multiple Echo devices:
