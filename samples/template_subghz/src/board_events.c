@@ -20,40 +20,42 @@
 LOG_MODULE_REGISTER(board_events, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #if defined(CONFIG_SIDEWALK_LINK_MASK_FSK)
-
-#define PROFILE_ID_LIGHT SID_LINK2_PROFILE_1
-#define PROFILE_ID_FAST SID_LINK2_PROFILE_2
-#define RX_WINDOW_COUNT_LIGHT SID_RX_WINDOW_CNT_INFINITE
-#define RX_WINDOW_COUNT_FAST SID_RX_WINDOW_CNT_INFINITE
-#define SYNC_RX_INTERVAL SID_LINK2_RX_WINDOW_SEPARATION_3
-
-#elif defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
-
-#define PROFILE_ID_LIGHT SID_LINK3_PROFILE_A
-#define PROFILE_ID_FAST SID_LINK3_PROFILE_B
-#define RX_WINDOW_COUNT_LIGHT SID_RX_WINDOW_CNT_2
-#define RX_WINDOW_COUNT_FAST SID_RX_WINDOW_CNT_INFINITE
-#define SYNC_RX_INTERVAL SID_LINK3_RX_WINDOW_SEPARATION_3
-
-#endif
-
 static struct sid_device_profile profile_light = {
-	.unicast_params.device_profile_id = PROFILE_ID_LIGHT,
-	.unicast_params.rx_window_count = RX_WINDOW_COUNT_LIGHT,
-	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SYNC_RX_INTERVAL,
+	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3,
 	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
 
 static struct sid_device_profile profile_fast = {
-	.unicast_params.device_profile_id = PROFILE_ID_FAST,
-	.unicast_params.rx_window_count = RX_WINDOW_COUNT_FAST,
-	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SYNC_RX_INTERVAL,
+	.unicast_params.device_profile_id = SID_LINK2_PROFILE_2,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3,
 	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
 
 static struct sid_device_profile profile_from_dev = {
-	.unicast_params.device_profile_id = PROFILE_ID_LIGHT
+	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1
 };
+#elif defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
+static struct sid_device_profile profile_light = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A,
+	.unicast_params.rx_window_count =  SID_RX_WINDOW_CNT_2,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
+};
+
+static struct sid_device_profile profile_fast = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_B,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
+};
+
+static struct sid_device_profile profile_from_dev = {
+	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A
+};
+#endif
 
 void button_event_send_hello(app_ctx_t *application_ctx)
 {
