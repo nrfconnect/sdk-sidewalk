@@ -14,13 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build
-        run: cd sidewalk/doc; ./build_local.sh && zip -r documentation.zip build/html/*
+        run: cd doc; ./build_local.sh && zip -r documentation.zip build/html/*
 
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: sidewalk/doc/documentation.zip
+          file: doc/documentation.zip
           asset_name: documentation.zip
           tag: ${{ github.ref }}
           overwrite: true
