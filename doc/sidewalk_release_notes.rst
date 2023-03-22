@@ -5,15 +5,10 @@ Release notes
 
 See the release notes for the information about specific Sidewalk support releases for nRF Connect SDK.
 
-[v1.14.4] - 03/XX/2023
+[v1.14.3] - 03/22/2023
 ----------------------
 
 * Released the nRF Connect SDK platform support for Sidewalk over Bluetooth LE, LoRa and FSK.
-
-[v1.14.3] - 03/13/2023
-----------------------
-
-* Released the Sidewalk documentation on GitHub.
 
 [v1.14.2] - 02/23/2023
 ----------------------
