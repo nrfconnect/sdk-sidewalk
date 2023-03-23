@@ -56,11 +56,29 @@ Downloading Sidewalk repository
 
 Download the Sidewalk application for the nRF Connect SDK:
 
-#. Clone the Sidewalk application repository from the `sdk-sidewalk repository`_ to the nRF Connect SDK folder and name it ``sidewalk``.
+1. Open a terminal window.
+
+   If you have installed the nRF Connect SDK through the automatic installation (using the Toolchain Manager), click the down arrow next to the version you installed, and select :guilabel:`Open bash`.
+
+   .. figure:: /images/toolchain_manager.png
+
+   Your directory structure should look as follows:
 
    .. code-block:: console
 
-      $ cd $ZEPHYR_BASE/../
+       .
+       |___ .west
+       |___ bootloader
+       |___ modules
+       |___ nrf
+       |___ nrfxlib
+       |___ zephyr
+       |___ ...
+
+#. Clone the Sidewalk application repository from the `sdk-sidewalk repository`_ to the nRF Connect SDK folder, and name it ``sidewalk`` by running the following command: 
+
+   .. code-block:: console
+
       $ git clone https://github.com/nrfconnect/sdk-sidewalk.git sidewalk
 
 #. Install Python requirements for Sidewalk.
@@ -69,12 +87,35 @@ Download the Sidewalk application for the nRF Connect SDK:
 
       $ pip install -r sidewalk/requirements.txt
 
-#. Run the application manifest and update.
+#. Set the Sidewalk application manifest and update.
 
-   .. code-block:: console
+   a. Check the current manifest path:
 
-      $ west config manifest.path sidewalk
-      $ west update
+      .. code-block:: console
+
+         $ west manifest --path
+         /path-to-ncs-folder/nrf/west.yml
+
+   #. Set the manifest path to the Sidewalk repository:
+
+      .. code-block:: console
+
+         $ west config manifest.path sidewalk
+
+   #. Verify the new manifest path:
+
+      .. code-block:: console
+
+         $ west manifest --path
+         /path-to-ncs-folder/sidewalk/west.yml
+
+   #. Update all repositories:
+
+      .. code-block:: console
+
+         $ west update
+
+      Depending on your connection, the update might take some time.
 
 Extracting nRF Command Line Tools
 *********************************
