@@ -3,28 +3,32 @@
 Setting up your Sidewalk product
 ################################
 
-To complete the set up of your Sidewalk product, you have to download the `Amazon Sidewalk Sample IoT App`_ repository, generate provisioning, and add MQTT to destination.
+To complete the set up of your Sidewalk product, you have to generate provisioning and add MQTT to destination.
 
-Downloading repository
-**********************
+Preconditions
+*************
 
-#. Download `Amazon Sidewalk Sample IoT App`_ with EdgeDeviceProvisioning.
-   Open the folder to which you want to clone the repository, and run the following command:
+Before creating a Sidewalk provisioning file, you have to:
 
-   .. code-block:: console
+ * Create an AWS account
+ * Set up an AWS user with permissions to create resources
+ * Set up user's AWS credentials file on your local machine
+ * Complete the `Amazon Sidewalk IoT Prerequisites`_ instructions
 
-      $ git clone https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app.git
-      $ cd aws-iot-core-for-amazon-sidewalk-sample-app
 
-#. Complete the instructions in `Prerequisites`_ and `Install virtual environment`_ sections.
-
-Generating provisioning
+Provisioning generation
 ***********************
 
-#. Populate the :file:`config.yaml` configuration file located in the ``aws-iot-core-for-amazon-sidewalk-sample-app`` directory.
-   Fill out your credentials and the details of your device:
+#. Go to AWS IoT Core for Sidewalk tools:
 
    .. code-block:: console
+
+      cd tools/aws-iot-core-for-sidewalk
+
+#. Populate the :file:`config.yaml` configuration file.
+   Set `NORDIC` hardware platform:
+
+   .. code-block:: yaml
 
       Config:
         AWS_PROFILE: default  # Name of your AWS profile from .aws/credentials
@@ -42,27 +46,90 @@ Generating provisioning
 
 #. Run device provisioning scripts:
 
-   .. code-block:: console
+   a. Set up Python virtual environment for the provisioning tools:
 
-      $ python3 EdgeDeviceProvisioning/provision_sidewalk_end_device.py
+      .. tabs::
 
-   You should see the following output:
+         .. tab:: Linux
+
+            .. code-block:: console
+
+               python3 -m pip install --user virtualenv
+               python3 -m virtualenv sample-app-env
+               source sample-app-env/bin/activate
+               python3 -m pip install --upgrade pip
+               python3 -m pip install -r requirements.txt
+               python3 -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
+
+         .. tab:: Windows
+      
+            .. code-block:: console
+
+               python3 -m pip install --user virtualenv
+               python3 -m virtualenv sample-app-env
+               sample-app-env\Scripts\activate.bat
+               python3 -m pip install --upgrade pip
+               python3 -m pip install -r requirements.txt
+               python3 -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
+
+   #. Run the device provisioning scripts:
+
+      .. code-block:: console
+   
+         python3 EdgeDeviceProvisioning/provision_sidewalk_end_device.py
+
+      You should see the following output:
+
+      .. code-block:: console
+
+         INFO:root:Status: 200
+         INFO:root:Saving wireless device to file
+         INFO:root:Generating MFG by calling provision.py
+         INFO:root:  Generating MFG.hex for Nordic
+         INFO:root:Done!
+
+   #. Exit the Python virtual environment:
+
+      .. code-block:: console
+
+         deactivate
+
+#. Flash the :file:`Nordic_MFG.hex` file.
+
+   Your provisioning file is located in the :file:`EdgeDeviceProvisioning` directory.
+   Devices are grouped in the device profile's subdirectory as shown in the structure below:
 
    .. code-block:: console
 
       EdgeDeviceProvisioning \
-      - DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9 \
+      - DeviceProfile_<profile-id> \
          - DeviceProfile.json
-         - WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911\
+         - WirelessDevice_<device-id>\
              --  Nordic_MFG.bin
              --  Nordic_MFG.hex
              --  WirelessDevice.json
 
-#. Flash the :file:`Nordic_MFG.hex` file:
+   a. Go to the device subdirectory:
 
-   .. code-block:: console
+      .. code-block:: console
 
-       $ nrfjprog -f nrf52 --sectorerase --program EdgeDeviceProvisioning/DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9/WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911/Nordic_MFG.hex --reset
+         cd EdgeDeviceProvisioning/DeviceProfile_<profile-id>/WirelessDevice_<device-id>
+
+      For example:
+
+      .. code-block:: console
+
+         cd EdgeDeviceProvisioning/DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9/WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911
+
+   #. Flash the :file:`Nordic_MFG.hex` file with the provisioning data: 
+
+      .. code-block:: console
+
+         $ nrfjprog --sectorerase --program Nordic_MFG.hex --reset
+
+      .. note::
+         If you reflashed the :file:`Nordic_MFG.hex` file on an already working device, make sure to perform a factory reset (**Button 1** long press) to deregister the previously flashed device.
+         This will allow you to register a new product (new :file:`Nordic_MFG.hex`) in the Sidewalk network.
 
 Add MQTT to destination
 ***********************
@@ -101,6 +168,6 @@ MQTT client
    .. figure:: /images/AWSIoTCoreMQTT.png
 
 .. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
-.. _Prerequisites: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#prerequisites
+.. _Amazon Sidewalk IoT Prerequisites: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#prerequisites
 .. _Install virtual environment: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#1-install-virtual-environment
 .. _AWS: https://aws.amazon.com/
