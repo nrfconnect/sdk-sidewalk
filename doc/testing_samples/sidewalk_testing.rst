@@ -101,7 +101,9 @@ Follow the outlined steps:
 
 
       # Logs from MQTT test client
-      "WirelessDeviceId": "a6e53628-ffc8-4320-9461-cf5c7997bf17",
+	  {
+      "MessageId": "4c5dadb3-2762-40fa-9763-8a432c023eb5",
+      "WirelessDeviceId": "5153dd3a-c78f-4e9e-9d8c-3d84fabb8911",
       "PayloadData": "MDA=",
       "WirelessMetadata": {
          "Sidewalk": {
@@ -114,11 +116,11 @@ Follow the outlined steps:
       }
 
    Payload data is presented in base64 format.
-   You can check it using the Linux base64 tool:
+   You can decode it using Python:
 
    .. code-block:: console
 
-      $ echo -n "MDA=" | base64 --decode
+      python -c "import sys,base64;print(base64.b64decode(sys.argv[1].encode('utf-8')).decode('utf-8'))" MDA=
       00
 
    Data is republished into the subscribed MQTT topic.
@@ -132,34 +134,39 @@ Receiving message from AWS MQTT
 
 #. To be able to use AWS CLI, ensure you completed steps in the `Installing or updating the latest version of the AWS CLI`_ documentation.
 
-#. Ensure your AWS user account or IAM role has the corresponding AWSIoTWireless permission policy.
-
-   .. figure:: /images/sidewalk_iam_iotwireless_policy.png
-
-   For more information on how to change permissions for an IAM user, see the `ID users change permissions`_ documentation.
-
-#. Run the following command to send a message to your Sidewalk Endpoint, where:
-
-   * :guilabel:`Wireless-Device-ID` is the ID of the wireless devices listed in AWS IoT Core
-   * The Seq integer should be different for each subsequent request
-   * The payload data is base64 encoded
-
-#. Prepare message payload in the base64 format.
+#. Run the following command to send a message to your Sidewalk Endpoint:
 
    .. code-block:: console
 
-      $ echo -n "Hello   Sidewalk!" | base64
-      SGVsbG8gICBTaWRld2FsayE=
+      aws iotwireless send-data-to-wireless-device --id=<wireless-device-id> --transmit-mode 0 --payload-data="<payload-data>" --wireless-metadata "Sidewalk={Seq=<sequence-number>}"
 
-#. Send message using AWS tools.
+
+   * ``<wireless-device-id>`` is the Wireless Device ID of your Sidewalk Device.
+
+      You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_product`.
+
+      You can also find your Wireless Device ID in the message sent form the device to AWS, it you have sent it before.
+
+   * ``<payload-data>`` is base64 encoded.
+
+      To prepare a message payload in the base64 format, run:
+
+      .. code-block:: console
+
+         python -c "import sys,base64;print(base64.b64encode(sys.argv[1].encode('utf-8')).decode('utf-8'))" "Hello   Sidewalk!"
+         SGVsbG8gICBTaWRld2FsayE=
+
+   * ``<sequence-number>`` is an integer and should be different for each subsequent request.
+
+      .. note::
+         Ensure to increase 'Seq' number on every message.
+         The device will not receive a message with lower or equal sequence number.
+
+   Once you have populated the command with data, it should look similar to the following:
 
    .. code-block:: console
 
-      $ aws iotwireless send-data-to-wireless-device --id=f1b4a9f5-4bf0-41ae-a383-5007c8340969 --transmit-mode 0 --payload-data="SGVsbG8gICBTaWRld2FsayE=" --wireless-metadata "Sidewalk={Seq=1}"
-
-   .. note::
-      Ensure to increase 'Seq' number on every message.
-      The device will not receive a message with lower or equal sequence number.
+      aws iotwireless send-data-to-wireless-device --id=5153dd3a-c78f-4e9e-9d8c-3d84fabb8911 --transmit-mode 0 --payload-data="SGVsbG8gICBTaWRld2FsayE=" --wireless-metadata "Sidewalk={Seq=1}"
 
    Successfully sent response should look as follows:
 
@@ -295,7 +302,7 @@ See the example report output:
 
 .. code-block:: console
 
-   uart:~$ sidewalk report
+   uart:~sidewalk report
    "SIDEWALK_CLI": {
          "state": "invalid",
          "registered": 1,
@@ -315,7 +322,7 @@ See the example version output:
 
 .. code-block:: console
 
-   uart:~$ sidewalk version
+   uart:~sidewalk version
    "COMPONENTS_VERSION": {
         "sidewalk_fork_point": "ab13e49adea9edd4456fa7d8271c8840949fde70",
         "modules": {
