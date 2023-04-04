@@ -4,7 +4,7 @@ if [ ! -f $HOME/.devcontainer_initalized ]; then
 
     cd /work/ncs
     west init -l sidewalk
-    west config update.path-cache /cache
+    west config update.path-cache /workdir
     west config update.narrow true
     west update
     bash /work/ncs/sidewalk/scripts/git_hooks/install_hooks.sh
