@@ -477,6 +477,8 @@ void test_casual_timer_snaps(void)
     // Start the precise timer first, so that the casual timer can snap to it straight away
     ret = timer_arm_relative(TIMER_PRECISE_INDEX, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &offset, &period);
     TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    // After the timers have been armed we can copy the initial timeout time
+    timer_arg_data[TIMER_PRECISE_INDEX].next_timeout = test_timers[TIMER_PRECISE_INDEX].alarm;
 
     offset.tv_nsec = (1 * SID_TIME_NSEC_PER_MSEC);  // attempt to start 1ms in the future
     period.tv_nsec = (TIMER_CASUAL_PERIOD_MS * SID_TIME_NSEC_PER_MSEC);
@@ -485,16 +487,14 @@ void test_casual_timer_snaps(void)
 
     ret = timer_arm_relative(TIMER_CASUAL_INDEX, SID_PAL_TIMER_PRIO_CLASS_LOWPOWER, &offset, &period);
     TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    // After the timers have been armed we can copy the initial timeout time
+    timer_arg_data[TIMER_CASUAL_INDEX].next_timeout = test_timers[TIMER_CASUAL_INDEX].alarm;
 
     // Confirm that the earlier casual timer has snapped to the slightly later precise timer
     TEST_ASSERT_EQUAL_UINT32(test_timers[TIMER_PRECISE_INDEX].alarm.tv_sec,
         test_timers[TIMER_CASUAL_INDEX].alarm.tv_sec);
     TEST_ASSERT_EQUAL_UINT32(test_timers[TIMER_PRECISE_INDEX].alarm.tv_nsec,
         test_timers[TIMER_CASUAL_INDEX].alarm.tv_nsec);
-
-    // After the timers have been armed we can copy the initial timeout time
-    timer_arg_data[TIMER_PRECISE_INDEX].next_timeout = test_timers[TIMER_PRECISE_INDEX].alarm;
-    timer_arg_data[TIMER_CASUAL_INDEX].next_timeout = test_timers[TIMER_CASUAL_INDEX].alarm;
 
     // Spin until several precise timer events have occurred
     const uint32_t expected_events = (NUM_CASUAL_TIMEOUTS_BEFORE_SNAP + 2) * TEST_CASUAL_TIMER_CYCLES;
@@ -577,20 +577,20 @@ void test_casual_timer_doesnt_snap(void)
 
     ret = timer_arm_relative(TIMER_CASUAL_INDEX, SID_PAL_TIMER_PRIO_CLASS_LOWPOWER, &offset, &period);
     TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    // After the timers have been armed we can copy the initial timeout time
+    timer_arg_data[TIMER_CASUAL_INDEX].next_timeout = test_timers[TIMER_CASUAL_INDEX].alarm;
 
     offset.tv_nsec = (2 * SID_TIME_NSEC_PER_MSEC);
     ret = timer_arm_relative(TIMER_PRECISE_INDEX, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &offset, &period);
     TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    // After the timers have been armed we can copy the initial timeout time
+    timer_arg_data[TIMER_PRECISE_INDEX].next_timeout = test_timers[TIMER_PRECISE_INDEX].alarm;
 
     // Confirm that the casual timer has not snapped to the precise timer
     TEST_ASSERT_GREATER_OR_EQUAL_UINT32(test_timers[TIMER_PRECISE_INDEX].alarm.tv_sec,
         test_timers[TIMER_CASUAL_INDEX].alarm.tv_sec);
     TEST_ASSERT_NOT_EQUAL_UINT32(test_timers[TIMER_PRECISE_INDEX].alarm.tv_nsec,
         test_timers[TIMER_CASUAL_INDEX].alarm.tv_nsec);
-
-    // After the timers have been armed we can copy the initial timeout time
-    timer_arg_data[TIMER_PRECISE_INDEX].next_timeout = test_timers[TIMER_PRECISE_INDEX].alarm;
-    timer_arg_data[TIMER_CASUAL_INDEX].next_timeout = test_timers[TIMER_CASUAL_INDEX].alarm;
 
     // Wait for enough test events to accumulate
     struct sid_timespec now;
