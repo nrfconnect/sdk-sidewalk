@@ -1,0 +1,129 @@
+name: On PR action
+on:
+  pull_request:
+
+env:
+  TWISTER_BUILD_PATH_GLOB: twister-out/**/sidewalk/samples/**/**/zephyr
+           
+jobs:
+  ValidateCodeCompliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install requirements
+        run: |
+          python3 -m pip install -r ./scripts/ci/requirements.txt && sudo apt install uncrustify
+
+      - name: Check formatting
+        run: |
+          python3 ./scripts/ci/verify_formatting.py -d -s . -c ./scripts/ci/formatter_cfg.yml
+
+      - name: Check license
+        run: |
+          python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
+
+  Build_samples:
+    needs: ValidateCodeCompliance
+    strategy:
+      matrix:
+        samples_to_test:
+          - template_subghz
+          - template_ble
+          - sensor_monitoring
+          - sid_dut
+
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:          
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update -n -o=--depth=1
+
+      - name: twister build samples 
+        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/samples/${{ matrix.samples_to_test }} --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sample-${{ matrix.samples_to_test }}
+          path: |
+            $TWISTER_BUILD_PATH_GLOB/zephyr.elf
+            $TWISTER_BUILD_PATH_GLOB/zephyr.hex
+            $TWISTER_BUILD_PATH_GLOB/dfu_application.zip
+            $TWISTER_BUILD_PATH_GLOB/.config
+            twister-out/twister.json
+
+  Run_Unit_Tests: 
+    needs: ValidateCodeCompliance
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update -n -o=--depth=1
+
+      - name: twister build and run x86 tests 
+        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/unit_tests --no-clean -vvv
+
+  Build_manual_tests:
+    needs: ValidateCodeCompliance
+    strategy:
+      matrix:
+        samples_to_test:
+          - functional
+          - manual
+          - validation
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update -n -o=--depth=1
+
+      - name: twister build and run x86 tests 
+        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/${{ matrix.samples_to_test }} --no-clean -vvv
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-${{ matrix.samples_to_test }} 
+          path: |
+            $TWISTER_BUILD_PATH_GLOB/zephyr.elf
+            $TWISTER_BUILD_PATH_GLOB/zephyr.hex
+            $TWISTER_BUILD_PATH_GLOB/dfu_application.zip
+            $TWISTER_BUILD_PATH_GLOB/.config
+            twister-out/twister.json
