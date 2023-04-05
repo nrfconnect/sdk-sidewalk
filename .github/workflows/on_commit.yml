@@ -4,9 +4,6 @@ on:
   push:
     branches: ["master"]
 
-env:
-  TWISTER_BUILD_PATH_GLOB: twister-out/**/sidewalk/samples/**/**/zephyr
-
 jobs:
   Build_samples:
     strategy:
@@ -41,10 +38,10 @@ jobs:
         with:
           name: sample-${{ matrix.samples_to_test }}
           path: |
-            $TWISTER_BUILD_PATH_GLOB/zephyr.elf
-            $TWISTER_BUILD_PATH_GLOB/zephyr.hex
-            $TWISTER_BUILD_PATH_GLOB/dfu_application.zip
-            $TWISTER_BUILD_PATH_GLOB/.config
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
             twister-out/twister.json
 
   Run_Unit_Tests: 
@@ -98,8 +95,8 @@ jobs:
         with:
           name: tests-${{ matrix.samples_to_test }} 
           path: |
-            $TWISTER_BUILD_PATH_GLOB/zephyr.elf
-            $TWISTER_BUILD_PATH_GLOB/zephyr.hex
-            $TWISTER_BUILD_PATH_GLOB/dfu_application.zip
-            $TWISTER_BUILD_PATH_GLOB/.config
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
             twister-out/twister.json
