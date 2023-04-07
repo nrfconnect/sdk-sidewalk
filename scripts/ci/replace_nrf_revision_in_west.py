@@ -7,7 +7,7 @@ import sys
 
 manifest = dict()
 with open(sys.argv[1], "r") as f:
-    manifest = yaml.load(f)
+    manifest = yaml.safe_load(f)
 
 nrf = filter(lambda a: a["name"] == "nrf", manifest["manifest"]["projects"])
 # I expect that there will be 1 such element, if not exeption will be thrown by next()

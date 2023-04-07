@@ -1,7 +1,9 @@
 name: On PR action
 on:
   pull_request:
-           
+    branches:
+      - main
+
 jobs:
   ValidateCodeCompliance:
     runs-on: ubuntu-latest
@@ -124,3 +126,40 @@ jobs:
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
             twister-out/twister.json
+
+  Create_comment_with_memory_usage:
+    needs: Build_samples
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Get artifacts from current build
+        uses: actions/download-artifact@v3
+        with:
+          path: current
+
+      - name: Get artifacts from base build
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          commit: ${{github.event.pull_request.base.sha}}
+          path: old
+          if_no_artifact_found: warn
+      
+      - name: Generage memory diff
+        run: |
+          python3 scripts/ci/combine_twister_reports.py current/sample-template_subghz/twister.json current/sample-template_ble/twister.json current/sample-sensor_monitoring/twister.json current/sample-sid_dut/twister.json new.json
+          echo "{}" > old.json
+          python3 scripts/ci/combine_twister_reports.py old/sample-template_subghz/twister.json old/sample-template_ble/twister.json old/sample-sensor_monitoring/twister.json old/sample-sid_dut/twister.json old.json
+          python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output > memory_usage.md
+          echo ${{ github.event.number }} > pr_number
+        
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: PR_comment
+          path: |
+            memory_usage.md
+            pr_number
+     
