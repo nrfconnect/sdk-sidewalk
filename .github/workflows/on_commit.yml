@@ -2,7 +2,7 @@ name: On Commit action
 
 on:
   push:
-    branches: ["master"]
+    branches: ["main"]
 
 jobs:
   Build_samples:
