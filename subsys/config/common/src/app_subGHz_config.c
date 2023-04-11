@@ -98,16 +98,16 @@ const radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.rx_boost = false,
 	.lna_gain = RADIO_RX_LNA_GAIN,
 	.bus_factory = &radio_spi_factory,
-	.gpio_power = 3,                // sx1262_NRESET
-	.gpio_int1 = 38,                // sx1262_DIO1
-	.gpio_radio_busy = 36,          // sx1262_BUSY
-	.gpio_rf_sw_ena = 42,           // sx1262 ANT_SW
+	.gpio_power = RADIO_SX126X_NRESET_GPIO,                // sx1262_NRESET
+	.gpio_int1 = RADIO_SX126X_DIO1_GPIO,                   // sx1262_DIO1
+	.gpio_radio_busy = RADIO_SX126X_BUSY_GPIO,             // sx1262_BUSY
+	.gpio_rf_sw_ena = RADIO_SX126X_ANT_SW_GPIO,            // sx1262 ANT_SW
 	.gpio_tx_bypass = 128,
 
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.bus_selector = {
-		.client_selector = 40, // sx1262_NSS
+		.client_selector = RADIO_SX126X_NSS_GPIO,      // sx1262_NSS
 		.speed_hz = 0,
 		.bit_order = SID_PAL_SERIAL_BUS_BIT_ORDER_MSB_FIRST,
 		.mode = 0,

@@ -22,6 +22,26 @@ extern "C" {
 #define SEMTECH_ID_SX1261                       0x1
 #define SEMTECH_ID_SX1262                       0x2
 
+#ifndef RADIO_SX126X_NRESET_GPIO
+#define RADIO_SX126X_NRESET_GPIO                3
+#endif
+
+#ifndef RADIO_SX126X_DIO1_GPIO
+#define RADIO_SX126X_DIO1_GPIO                  38
+#endif
+
+#ifndef RADIO_SX126X_BUSY_GPIO
+#define RADIO_SX126X_BUSY_GPIO                  36
+#endif
+
+#ifndef RADIO_SX126X_ANT_SW_GPIO
+#define RADIO_SX126X_ANT_SW_GPIO                42
+#endif
+
+#ifndef RADIO_SX126X_NSS_GPIO
+#define RADIO_SX126X_NSS_GPIO                   40
+#endif
+
 #define RADIO_SX126X_REGULATOR_LDO              0x00
 #define RADIO_SX126X_REGULATOR_DCDC             0x01
 
