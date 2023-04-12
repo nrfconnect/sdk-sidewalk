@@ -1,78 +1,38 @@
 ############ Amazon License ############
 
-Copyright 2020-2022 Amazon.com, Inc., Ring, LLC and/or their affiliates, referred to herein collectively as "Amazon". All
-Rights Reserved.
+Amazon Sidewalk Content License
 
-These materials are licensed to you as "Program Materials" under the Program Materials License Agreement (the
-"Agreement") in connection with the Amazon Sidewalk Program and related services. The Agreement is available at
-https://developer.amazon.com/support/legal/pml. See the Agreement for the specific terms and conditions of the Agreement. 
-Capitalized terms not defined in this file have the meanings given to them in the Agreement.
+©2023 Amazon.com, Inc. or its affiliates (collectively, “Amazon”). All Rights Reserved.
 
-In addition to the terms and conditions of the Agreement, the following terms and conditions ("Additional Terms" and
-collectively with the Agreement, the "Terms") apply to these materials. In the event of a conflict between the terms and
-conditions of the Agreement and these Additional Terms, these Additional Terms will apply.
+These materials are licensed to you as "AWS Content" under the AWS Intellectual Property License (https://aws.amazon.com/legal/aws-ip-license-terms/) (the “IP License”) and made available to you solely in connection with the developer program for Amazon Sidewalk and related services (such AWS Content, “Amazon Sidewalk Content”). 
 
-You may only use the Program Materials to (a) evaluate, develop, test, and troubleshoot the operation and compatibility
-of the Program Materials with Your Products; and (b) integrate the Program Materials into Your Products that access the
-Sidewalk Service. If any of the Program Materials incorporated in Your Product were provided to you in source code form,
-such Program Materials (and modifications thereof) may be distributed solely in binary form as incorporated in Your
-Products. You may not distribute any of Your Products that incorporate or were developed using the Program Materials
-unless you submit Your Product to us for approval and we specifically approve the distribution in writing.
+Capitalized terms not defined in this file have the meanings given to them in the AWS Customer Agreement (https://aws.amazon.com/agreement/) or the Service Terms (https://aws.amazon.com/service-terms/), including any documentation referenced or incorporated therein (collectively, the “Agreement”).
 
-Notwithstanding the foregoing, if you are a system-on-chip manufacturer, you may distribute the Program Materials,
-including any source code (subject to the limitations herein) made available by Amazon, to device manufacturers for the
-purpose of such device manufacturers integrating the Program Materials in their digital and physical products that
-access the Sidewalk Service; provided that you also make available this LICENSE.TXT file to such device manufacturer
-together with the Program Materials. For the purpose of the Terms, such Program Materials will be deemed to have been
-made available to the device manufacturers from Amazon.
+In addition to the terms and conditions of the IP License, the following terms and conditions ("Additional Terms," and collectively with the IP License, the "Terms") apply to the Amazon Sidewalk Content. In the event of a conflict between the IP License and these Additional Terms, the IP License will control.
 
-WITH THE EXCEPTION OF FILES IDENTIFIED AS A "MODIFIABLE FILE" WITHIN THE FILE HEADER, YOU MAY NOT MODIFY ANY SOURCE CODE
-IN ANY FILE IN THIS PACKAGE. Your modifications to the Program Materials are "Modified Materials". You may reproduce
-and distribute copies of the Modified Materials thereof in any medium, with or without modifications, and in source or
-object form, provided that you meet the following conditions:
+You may only use the Amazon Sidewalk Content to (a) evaluate, develop, test, and troubleshoot the operation and compatibility of the Amazon Sidewalk Content with your AS Devices; and (b) integrate the Amazon Sidewalk Content into your AS Devices that access Amazon Sidewalk. If any of the Amazon Sidewalk Content incorporated in your AS Device were provided to you in source code form, such Amazon Sidewalk Content (and modifications thereof) may be distributed solely in binary form as incorporated in your AS Devices. You may not distribute any of your AS Devices that incorporate or were developed using the Amazon Sidewalk Content unless you submit your AS Device to us for approval and we specifically approve the distribution in writing.  You may not: (i) use Amazon Sidewalk Content with any software or other materials that are subject to licenses or restrictions (e.g., open source software licenses) that, when combined with Amazon Sidewalk Content, would require you or us to disclose, license, distribute, or otherwise make all or any part of such Amazon Sidewalk Content available to anyone; or (ii) remove, modify, or obscure any copyright, patent, trademark, or other proprietary or attribution notices on or in any Amazon Sidewalk Content.
 
-* You must give any other recipients of the Modified Materials a copy of this License; and
+Notwithstanding the foregoing, if you are a system-on-chip manufacturer, you may distribute the Amazon Sidewalk Content, including any source code (subject to the limitations herein) made available by Amazon, to AS Device manufacturers for the purpose of such AS Device manufacturers integrating the Amazon Sidewalk Content in their AS Devices and their associated applications and services; provided that you also make available this LICENSE.TXT file to such device manufacturer together with the Amazon Sidewalk Content. For the purpose of the Terms, such Amazon Sidewalk Content will be deemed to have been made available to the device manufacturers from Amazon.
+
+WITH THE EXCEPTION OF FILES IDENTIFIED AS A "MODIFIABLE FILE" WITHIN THE FILE HEADER, YOU MAY NOT MODIFY ANY SOURCE CODE IN ANY FILE IN THIS PACKAGE. Your modifications to the Amazon Sidewalk Content are “Modified Content”. You may reproduce and distribute copies of the Modified Content thereof in any medium, with or without modifications, and in source or object form, provided that you meet the following conditions:
+
+* You must give any other recipients of the Modified Content a copy of these Terms; and
 
 * You must cause any modified files to carry prominent notices stating that you changed the files; and
 
-* You must retain, in the source form of any Modified Materials that you distribute, all copyright, patent,
-trademark, and attribution notices from the source form of the Program Materials, excluding those notices that do not
-pertain to any part of the Modified Materials; and
+* You must retain, in the source form of any Modified Content that you distribute, all copyright, patent, trademark, and attribution notices from the source form of the Amazon Sidewalk Content, excluding those notices that do not pertain to any part of the Modified Content; and
 
-* If the Program Materials include a "NOTICE" text file as part of its distribution, then any Modified Materials
-that you distribute must include a readable copy of the attribution notices contained within such NOTICE file, excluding
-those notices that do not pertain to any part of the Modified Materials, in at least one of the following places: within
-a NOTICE text file distributed as part of the Modified Materials; within the source form or documentation, if provided
-along with the Modified Materials; or, within a display generated by the Modified Materials, if and wherever such
-third-party notices normally appear. The contents of the NOTICE file are for informational purposes only and do not
-modify the License. You may add your own attribution notices within Modified Materials that you distribute, alongside or
-as an addendum to the NOTICE text from the Program Materials, provided that such additional attribution notices cannot
-be construed as modifying this Agreement.
+* If the Amazon Sidewalk Content includes a "NOTICE" text file as part of its distribution, then any Modified Content that you distribute must include a readable copy of the attribution notices contained within such NOTICE file, excluding those notices that do not pertain to any part of the Modified Content, in at least one of the following places: within a NOTICE text file distributed as part of the Modified Content; within the source form or documentation, if provided along with the Modified Content; or, within a display generated by the Modified Content, if and wherever such third-party notices normally appear. The contents of the NOTICE file are for informational purposes only and do not modify the Terms. You may add your own attribution notices within Modified Content that you distribute, alongside or as an addendum to the NOTICE text from the Amazon Sidewalk Content, provided that such additional attribution notices cannot be construed as modifying these Terms.
 
-You may add your own copyright statement to your modifications and may provide additional or different license terms and
-conditions for use, reproduction, or distribution of your modifications, or for any such Modified Materials as a whole,
-provided your use, reproduction, and distribution of the Program Materials otherwise complies with the conditions stated
-in this Agreement.
+You may add your own copyright statement to your modifications and may provide additional or different license terms and conditions for use, reproduction, or distribution of your modifications, or for any such Modified Content as a whole, provided your use, reproduction, and distribution of the Amazon Sidewalk Content otherwise complies with the conditions stated in these Terms.
 
-EXTERNAL DEPENDENCIES
+Our licensors may enforce the Terms against you with respect to their software and other materials included in the Amazon Sidewalk Content, and our licensors are third-party beneficiaries of these Terms solely for that purpose.
 
-=====================
+Amazon Sidewalk Content may include and/or be dependent upon certain third-party libraries or other software packages ("External Dependencies").  If you do not agree with every term in the license file associated with the External Dependencies, you should not use these materials.
 
-These materials may include and/or be dependent upon certain third-party libraries or other software packages ("External
-Dependencies").  If you do not agree with every term in the license file associated with the External Dependencies, you
-should not use these materials.
+THE AMAZON SIDEWALK CONTENT AND THE EXTERNAL DEPENDENCIES ARE PROVIDED BY AMAZON AND AMAZON’S LICENSORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. AMAZON DOES NOT PROMISE THAT THE EXTERNAL DEPENDENCIES AND THEIR APPLICABLE TERMS ARE COMPLETE, ACCURATE, OR UP-TO-DATE, AND AMAZON WILL HAVE NO LIABILITY FOR ANY OMISSIONS OR INACCURACIES. YOU SHOULD CONSULT THE DOWNLOAD SITES FOR THE EXTERNAL DEPENDENCIES FOR THE MOST COMPLETE AND UP-TO-DATE LICENSING INFORMATION. YOUR USE OF THE AMAZON SIDEWALK CONTENT AND THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMAZON BE LIABLE FOR ANY DAMAGES, INCLUDING WITHOUT LIMITATION ANY DIRECT, INDIRECT, CONSEQUENTIAL, SPECIAL, INCIDENTAL, OR PUNITIVE DAMAGES (INCLUDING FOR ANY LOSS OF GOODWILL, BUSINESS INTERRUPTION, LOST PROFITS OR DATA, OR COMPUTER FAILURE OR MALFUNCTION) ARISING FROM OR RELATING TO THE AMAZON SIDEWALK CONTENT OR EXTERNAL DEPENDENCIES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, EVEN IF AMAZON HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. THESE LIMITATIONS AND DISCLAIMERS APPLY EXCEPT TO THE EXTENT PROHIBITED BY APPLICABLE LAW.
 
-THIS INFORMATION IS PROVIDED FOR CONVENIENCE ONLY. AMAZON DOES NOT PROMISE THAT THE EXTERNAL DEPENDENCIES AND THEIR
-APPLICABLE TERMS ARE COMPLETE, ACCURATE, OR UP-TO-DATE, AND AMAZON WILL HAVE NO LIABILITY FOR ANY OMISSIONS OR
-INACCURACIES. YOU SHOULD CONSULT THE DOWNLOAD SITES FOR THE EXTERNAL DEPENDENCIES FOR THE MOST COMPLETE AND UP-TO-DATE
-LICENSING INFORMATION.
-
-YOUR USE OF THE EXTERNAL DEPENDENCIES IS AT YOUR SOLE RISK. IN NO EVENT WILL AMAZON BE LIABLE FOR ANY DAMAGES, INCLUDING
-WITHOUT LIMITATION ANY DIRECT, INDIRECT, CONSEQUENTIAL, SPECIAL, INCIDENTAL, OR PUNITIVE DAMAGES (INCLUDING FOR ANY LOSS
-OF GOODWILL, BUSINESS INTERRUPTION, LOST PROFITS OR DATA, OR COMPUTER FAILURE OR MALFUNCTION) ARISING FROM OR RELATING
-TO THE EXTERNAL DEPENDENCIES, HOWEVER CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, EVEN IF AMAZON HAS BEEN ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGES. THESE LIMITATIONS AND DISCLAIMERS APPLY EXCEPT TO THE EXTENT PROHIBITED BY
-APPLICABLE LAW.
+You will defend, indemnify, and hold harmless Amazon, its affiliates, and licensors against any and all claims, losses, and damages arising out of or relating to your distribution of the Amazon Sidewalk Content or External Dependencies in breach of the Terms.
 
 If you do not agree to the Terms, you may not use any file in this package.
 
