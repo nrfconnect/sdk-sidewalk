@@ -251,6 +251,10 @@ static inline void perform_power_test(void)
 			wait_for_connected();
 		}
 	#endif
+		wait_for_connected();
+		wait_for_not_sending();
+		app_event_send(BUTTON_EVENT_SEND_HELLO);
+		k_sleep(K_MSEC(CONFIG_DELAY_BETWEN_MESSAGES));
 	}
 }
 
