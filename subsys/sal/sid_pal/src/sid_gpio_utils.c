@@ -31,7 +31,7 @@ static uint32_t sid_gpio_utils_mask_to_pin_number(uint32_t pin_mask)
 			return pin;
 		}
 	}
-	return __UINT32_MAX__;
+	return GPIO_UNUSED_PIN;
 }
 
 int sid_gpio_utils_port_pin_get(uint32_t gpio_number, gpio_port_pin_t *port_pin)
@@ -65,19 +65,29 @@ int sid_gpio_utils_port_pin_get(uint32_t gpio_number, gpio_port_pin_t *port_pin)
 uint32_t sid_gpio_utils_gpio_number_get(const struct device *port, uint32_t pin_mask)
 {
 	if (!port) {
-		return __UINT32_MAX__;
+		return GPIO_UNUSED_PIN;
 	}
 
 	for (int port_number = 0; port_number < ARRAY_SIZE(gpio_port); port_number++) {
 		if (port == gpio_port[port_number]) {
 			int pin = sid_gpio_utils_mask_to_pin_number(pin_mask);
-			if (__UINT32_MAX__ == pin) {
-				return __UINT32_MAX__;
+			if (GPIO_UNUSED_PIN == pin) {
+				return GPIO_UNUSED_PIN;
 			}
 			return ((1 << GPIO_PIN_MASK) * port_number) + pin;
 		}
 	}
-	return __UINT32_MAX__;
+	return GPIO_UNUSED_PIN;
+}
+
+uint32_t sid_gpio_utils_get_gpio_number_dt(struct gpio_dt_spec gpio)
+{
+	for (int port_number = 0; port_number < ARRAY_SIZE(gpio_port); port_number++) {
+		if (gpio.port == gpio_port[port_number]) {
+			return ((1 << GPIO_PIN_MASK) * port_number) + gpio.pin;
+		}
+	}
+	return GPIO_UNUSED_PIN;
 }
 
 int sid_gpio_utils_gpio_read(uint32_t gpio_number, uint8_t *value)

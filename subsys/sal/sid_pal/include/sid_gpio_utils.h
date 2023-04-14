@@ -21,6 +21,8 @@
 #define GPIO_NUM_TO_GPIO_PORT(_num) ((_num >> GPIO_PIN_MASK) & 0x0F)
 #define GPIO_NUM_TO_GPIO_PIN(_num)  (_num & (GPIO_MAX_PINS_PER_PORT - 1))
 
+#define GPIO_UNUSED_PIN 128
+
 #define NUMBERS_OF_PINS												 \
 	(DT_NODE_HAS_STATUS(DT_NODELABEL(gpio0),								 \
 			    okay) && DT_NODE_HAS_STATUS(DT_NODELABEL(gpio1), okay) ? (MAX_NUMBERS_OF_PINS - 1) : \
@@ -48,9 +50,17 @@ int sid_gpio_utils_port_pin_get(uint32_t gpio_number, gpio_port_pin_t *port_pin)
  *
  * @param port - GPIO port.
  * @param pin_mask - GPIO pin mask.
- * @return GPIO number or __UINT32_MAX__ if pin_mask or port is incorrect.
+ * @return GPIO number or GPIO_UNUSED_PIN if pin_mask or port is incorrect.
  */
 uint32_t sid_gpio_utils_gpio_number_get(const struct device *port, uint32_t pin_mask);
+
+/**
+ * @brief Convert GPIO device tree spec to sidewalk pin number.
+ *
+ * @param gpio - GPIO.
+ * @return GPIO number or GPIO_UNUSED_PIN if pin_mask or port is incorrect.
+ */
+uint32_t sid_gpio_utils_get_gpio_number_dt(struct gpio_dt_spec gpio);
 
 /**
  * @brief Get GPIO pin state.

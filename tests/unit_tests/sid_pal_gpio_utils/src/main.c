@@ -74,9 +74,9 @@ void test_sid_gpio_utils_port_pin_get_pass(void)
 
 void test_sid_gpio_utils_gpio_number_get_fail(void)
 {
-	TEST_ASSERT_EQUAL(__UINT32_MAX__, sid_gpio_utils_gpio_number_get(NULL, GPIO_NUMBER_1_MASK));
+	TEST_ASSERT_EQUAL(GPIO_UNUSED_PIN, sid_gpio_utils_gpio_number_get(NULL, GPIO_NUMBER_1_MASK));
 
-	TEST_ASSERT_EQUAL(__UINT32_MAX__, sid_gpio_utils_gpio_number_get(&fake_gpio_port, GPIO_NUMBER_1_MASK));
+	TEST_ASSERT_EQUAL(GPIO_UNUSED_PIN, sid_gpio_utils_gpio_number_get(&fake_gpio_port, GPIO_NUMBER_1_MASK));
 }
 
 void test_sid_gpio_utils_gpio_number_get_pass(void)
