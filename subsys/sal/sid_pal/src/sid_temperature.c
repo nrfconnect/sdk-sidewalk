@@ -7,9 +7,23 @@
 /** @file sid_temperature.c
  *  @brief Temperature interface implementation
  */
+ #include <zephyr/kernel.h>
+ #include <sid_pal_temperature_ifc.h>
+ #if defined (NRF5340_XXAA)
+
+sid_error_t sid_pal_temperature_init(void)
+{
+	return SID_ERROR_NONE;
+}
+
+int16_t sid_pal_temperature_get(void)
+{
+	return 25;
+}
+
+ #else
 
 #include "zephyr/devicetree.h"
-#include <sid_pal_temperature_ifc.h>
 #include <stdint.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
@@ -43,3 +57,5 @@ int16_t sid_pal_temperature_get(void)
 
 	return val.val1;
 }
+
+#endif

@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+sid_semtech: &arduino_spi {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	pinctrl-names = "default", "sleep";
+	clock-frequency = <DT_FREQ_M(8)>;
+};

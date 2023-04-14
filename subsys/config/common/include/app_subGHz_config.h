@@ -23,4 +23,23 @@
 const radio_sx126x_device_config_t *get_radio_cfg(void);
 const sid_pal_mfg_store_region_t *get_mfg_cfg(void);
 const struct sid_sub_ghz_links_config *app_get_sub_ghz_config(void);
+
+/* TODO: RG - This is temporary solution to check new platform.
+ * This configuration should be moved to DTS
+ * The PR https://github.com/nrfconnect/sdk-sidewalk/pull/294 already addresses this issue
+ */
+
+#include <zephyr/kernel.h>
+#if defined (NRF5340_XXAA)
+#define GPIO_POWER              4               // sx1262_NRESET
+#define GPIO_INT1               39              // sx1262_DIO1
+#define GPIO_RADIO_BUSY         37              // sx1262_BUSY
+#define GPIO_RF_SW_ENA          42              // sx1262 ANT_SW
+#else
+#define GPIO_POWER              3               // sx1262_NRESET
+#define GPIO_INT1               38              // sx1262_DIO1
+#define GPIO_RADIO_BUSY         36              // sx1262_BUSY
+#define GPIO_RF_SW_ENA          42              // sx1262 ANT_SW
+#endif
+
 #endif
