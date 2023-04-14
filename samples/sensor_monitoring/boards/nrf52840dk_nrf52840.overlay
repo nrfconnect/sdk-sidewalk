@@ -17,6 +17,32 @@ sid_semtech: &spi2 {
 	clock-frequency = <DT_FREQ_M(8)>;
 };
 
+/{
+ 	semtech_sx1262_gpios{
+ 		compatible = "gpio-keys";
+		semtech_sx1262_cs: cs {
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
+			label = "semtech_sx1262 CS";
+		};
+ 		semtech_sx1262_reset_gpios: reset {
+			gpios = <&gpio0 0x3 GPIO_ACTIVE_LOW>;
+			label = "semtech_sx1262 Reset";
+		};
+		semtech_sx1262_busy_gpios: busy {
+			gpios = <&gpio1 0x4 GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 Busy";
+		};
+		semtech_sx1262_antenna_enable_gpios: antena_enable {
+			gpios = <&gpio1 0xa GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 Antena Enable";
+		};
+		semtech_sx1262_dio1_gpios: dio1 {
+			gpios = <&gpio1 0x6 GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 DIO1";
+		};
+ 	};
+ };
+
 &spi2_default {
 	group1 {
 		psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
