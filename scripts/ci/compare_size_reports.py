@@ -87,7 +87,7 @@ def main():
         if diff_result.get(key, None) is None:
             diff_result[key] = {}
         diff_result[key]["old_used_ram"] = element.get("used_ram", 0)
-        diff_result[key]["old_used_rom"] = element.get("used_ram", 0)
+        diff_result[key]["old_used_rom"] = element.get("used_rom", 0)
 
     print_ouptput(options, diff_result)
 

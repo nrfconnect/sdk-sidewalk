@@ -143,6 +143,7 @@ jobs:
       - name: Get artifacts from base build
         uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: on_commit.yml
           commit: ${{github.event.pull_request.base.sha}}
           path: old
           if_no_artifact_found: warn
