@@ -13,6 +13,7 @@ def get_arguments():
     parser.add_argument("-o", "--old", required=True, type=str)
     parser.add_argument("-n", "--new", required=True, type=str)
     parser.add_argument("--md_output", action='store_true')
+    parser.add_argument("-d", "--show_only_diff", action='store_true')
     return parser
 
 
@@ -30,14 +31,15 @@ def convert_unit(value) -> str:
     if negative:
         current_value = -1 * current_value
     unit = units[unit_index]
-    return f"{current_value:.2f} {unit}"
+    return f"{current_value:.2f}".rstrip("0").rstrip(".") + f" {unit}"
 
 
-def print_ouptput(options, diff_result):
+def get_output_string(options, diff_result) -> str:
+    output = ""
+    any_change = False
     if options.md_output:
-        print("||RAM||| ROM|||")
-        print("|---|---|---|---|---|---|---|")
-        print("| Sample | diff | used | total | diff | used | total |")
+        output += "| Sample | | diff | used | total |\n"
+        output += "|---|---|---|---|---|\n"
 
         for key, element in diff_result.items():
             diff_ram = element.get("new_used_ram", 0) - \
@@ -45,16 +47,27 @@ def print_ouptput(options, diff_result):
             diff_rom = element.get("new_used_rom", 0) - \
                 element.get("old_used_rom", 0)
 
+            if diff_ram != 0 or diff_rom != 0:
+                any_change = True
+            else:
+                if options.show_only_diff:
+                    continue
+
             diff_ram = convert_unit(diff_ram)
+
             used_ram = convert_unit(element.get("new_used_ram", None))
             avaliable_ram = convert_unit(element.get("available_ram", None))
             diff_rom = convert_unit(diff_rom)
+
             used_rom = convert_unit(element.get("new_used_rom", None))
             avaliable_rom = convert_unit(element.get("available_rom", None))
-            print(
-                f"|{key}|{diff_ram}|{used_ram}|{avaliable_ram}|{diff_rom}|{used_rom}|{avaliable_rom}|")
+            output += f"|{key}|RAM|{diff_ram}|{used_ram}|{avaliable_ram}|\n"
+            output += f"| |ROM|{diff_rom}|{used_rom}|{avaliable_rom}|\n"
+        if any_change is False:
+            output += "\nMemory usage did not change for any of the samples."
     else:
-        print(diff_result)
+        output += str(diff_result)
+    return output
 
 
 def main():
@@ -89,7 +102,8 @@ def main():
         diff_result[key]["old_used_ram"] = element.get("used_ram", 0)
         diff_result[key]["old_used_rom"] = element.get("used_rom", 0)
 
-    print_ouptput(options, diff_result)
+    message = get_output_string(options, diff_result)
+    print(message)
 
 
 if __name__ == "__main__":

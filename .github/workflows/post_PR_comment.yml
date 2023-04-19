@@ -33,7 +33,7 @@ jobs:
         with:
           issue-number:  ${{ steps.get-pr-number.outputs.pr_number }}
           comment-author: 'github-actions[bot]'
-          body-includes: "| Sample | diff | used | total | diff | used | total |" 
+          body-includes: "| Sample | | diff | used | total |" 
 
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v3

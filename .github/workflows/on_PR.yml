@@ -153,7 +153,7 @@ jobs:
           python3 scripts/ci/combine_twister_reports.py current/sample-template_subghz/twister.json current/sample-template_ble/twister.json current/sample-sensor_monitoring/twister.json current/sample-sid_dut/twister.json new.json
           echo "{}" > old.json
           python3 scripts/ci/combine_twister_reports.py old/sample-template_subghz/twister.json old/sample-template_ble/twister.json old/sample-sensor_monitoring/twister.json old/sample-sid_dut/twister.json old.json
-          python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output > memory_usage.md
+          python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output --show_only_diff > memory_usage.md
           echo ${{ github.event.number }} > pr_number
         
       - name: Upload build artifacts
