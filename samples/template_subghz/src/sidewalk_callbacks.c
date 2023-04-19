@@ -91,7 +91,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	application_state_time_sync(&global_state_notifier, status->detail.time_sync_status == SID_STATUS_TIME_SYNCED);
 	application_state_link(&global_state_notifier, !!(status->detail.link_status_mask));
 
-	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, LORA: %s, FSK: %s}",
+	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
 		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
 		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
 		(status->detail.link_status_mask & SID_LINK_TYPE_1) ? "Up" : "Down",
