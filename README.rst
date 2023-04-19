@@ -1,3 +1,7 @@
+.. image:: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/on_commit.yml/badge.svg?branch=main
+ :target: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/on_commit.yml
+
+
 nRF Connect SDK: sdk-sidewalk
 #############################
 
