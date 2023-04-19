@@ -9,7 +9,10 @@ on:
 jobs:
   Create_comment_with_memory_usage:
     runs-on: ubuntu-latest
-
+    permissions:
+      issues: write
+      pull-requests: write
+      
     steps:
       - name: Get artifacts from base build
         uses: dawidd6/action-download-artifact@v2
@@ -22,7 +25,7 @@ jobs:
         id: get-pr-number
         run: |
           pr_number="$(cat PR_comment/pr_number)"
-          echo "::set-output name=pr_number::$pr_number"
+          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
@@ -35,7 +38,6 @@ jobs:
       - name: Create comment
         uses: peter-evans/create-or-update-comment@v3
         with:
-          token: ${{ secrets.NCS_GITHUB_TOKEN }}
           comment-id: ${{ steps.fc.outputs.comment-id }} 
           issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
           body-path: PR_comment/memory_usage.md
