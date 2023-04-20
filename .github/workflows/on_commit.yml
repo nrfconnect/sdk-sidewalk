@@ -5,14 +5,34 @@ on:
     branches: ["main"]
 
 jobs:
+  ValidateCodeCompliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install requirements
+        run: |
+          python3 -m pip install -r ./scripts/ci/requirements.txt && sudo apt install uncrustify
+
+      - name: Check formatting
+        run: |
+          python3 ./scripts/ci/verify_formatting.py -d -s . -c ./scripts/ci/formatter_cfg.yml
+
+      - name: Check license
+        run: |
+          python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
+
   Build_samples:
+    needs: ValidateCodeCompliance
     strategy:
       matrix:
-        samples_to_test:
-          - template_subghz
-          - template_ble
-          - sensor_monitoring
-          - sid_dut
+        subset: [1, 2, 3, 4, 5, 6]
 
     runs-on: ubuntu-latest
     container:
@@ -30,47 +50,31 @@ jobs:
           west config manifest.path sidewalk
           west update -n -o=--depth=1
 
-      - name: twister build samples 
-        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/samples/${{ matrix.samples_to_test }} --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only
+      - name: Twister build samples 
+        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/samples/ --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{matrix.subset}}/${{ strategy.job-total }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sample-${{ matrix.samples_to_test }}
+          name: sample-${{matrix.subset}}_of_${{ strategy.job-total }}
           path: |
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/merged.hex
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/app_update.bin
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
+            twister-out/**/sidewalk/samples/**/*sidewalk*/build.log
+            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
+            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/.config
             twister-out/twister.json
 
-  Run_Unit_Tests: 
-    runs-on: ubuntu-latest
-    container:
-      image: nordicplayground/nrfconnect-sdk:main
-      options: --cpus 2
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Reconfigure west
-        run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
-          cd /workdir
-          west config manifest.path sidewalk
-          west update -n -o=--depth=1
-
-      - name: twister build and run x86 tests 
-        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/unit_tests --no-clean -vvv
-
-  Build_manual_tests:
+  Build_tests_and_run_x86:
+    needs: ValidateCodeCompliance
     strategy:
       matrix:
-        samples_to_test:
-          - functional
-          - manual
-          - validation
+        subset: [1, 2, 3, 4, 5]
+
     runs-on: ubuntu-latest
     container:
       image: nordicplayground/nrfconnect-sdk:main
@@ -87,16 +91,23 @@ jobs:
           west config manifest.path sidewalk
           west update -n -o=--depth=1
 
-      - name: twister build and run x86 tests 
-        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/${{ matrix.samples_to_test }} --no-clean -vvv
+      - name: Build test artifacts and run tests for x86
+        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --subset ${{matrix.subset}}/${{ strategy.job-total }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: tests-${{ matrix.samples_to_test }} 
+          name: tests-${{matrix.subset}}_of_${{ strategy.job-total }} 
           path: |
+            twister-out/**/sidewalk/samples/**/*sidewalk*/testbinary
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/merged.hex
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/app_update.bin
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
+            twister-out/**/sidewalk/samples/**/*sidewalk*/build.log
+            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
+            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/.config
             twister-out/twister.json

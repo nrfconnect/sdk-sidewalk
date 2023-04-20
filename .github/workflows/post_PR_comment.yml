@@ -14,24 +14,35 @@ jobs:
       pull-requests: write
       
     steps:
-      - name: Get artifacts from base build
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Get artifacts from PR
         uses: dawidd6/action-download-artifact@v2
         with:
-          workflow: on_PR.yml
-          name: PR_comment
-          path: PR_comment
-
-      - name: Unpack PR number
-        id: get-pr-number
+          run_id: ${{github.event.workflow_run.id}}
+          path: current
+        
+      - name: Get artifacts from PR base
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          commit: ${{github.event.workflow_run.event.pull_request.base.sha}}
+          workflow: on_commit.yml
+          path: old
+              
+      - name: Generage memory diff
         run: |
-          pr_number="$(cat PR_comment/pr_number)"
-          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+          pr_reports=$(ls current/**/twister.json)
+          python3 scripts/ci/combine_twister_reports.py $pr_reports new.json
+          base_reports=$(ls old/**/twister.json)
+          python3 scripts/ci/combine_twister_reports.py $base_reports old.json
+          python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output --show_only_diff > memory_usage.md
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
         id: fc
         with:
-          issue-number:  ${{ steps.get-pr-number.outputs.pr_number }}
+          issue-number:  ${{ github.event.workflow_run.event.number }}
           comment-author: 'github-actions[bot]'
           body-includes: "| Sample | | diff | used | total |" 
 
@@ -39,6 +50,6 @@ jobs:
         uses: peter-evans/create-or-update-comment@v3
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }} 
-          issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
-          body-path: PR_comment/memory_usage.md
+          issue-number: ${{ github.event.workflow_run.event.number }}
+          body-path: memory_usage.md
           edit-mode: replace
