@@ -66,7 +66,7 @@ static void sid_pal_crypto_aead_test_execute(sid_pal_aead_params_t *params)
 	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t mac[AES_MAX_BLOCK_SIZE];
-	size_t mac_len_test_vector[] = { 4, 5, 8, 11, sizeof(mac) };
+	size_t mac_len_test_vector[] = { 4, 8, 12, 13, 14, 15, sizeof(mac) };
 
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
