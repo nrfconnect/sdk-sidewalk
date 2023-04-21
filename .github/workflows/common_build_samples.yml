@@ -1,0 +1,154 @@
+name: Build Sidewalk samples and tests
+on:
+  workflow_call:
+    inputs:
+      change_nrf_revision: 
+        description: 'change revision of nrf in west.yml to `main`'
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  Build_samples:
+    strategy:
+      matrix:
+        subset: [1, 2, 3, 4, 5, 6]
+        platform: [nrf52840dk_nrf52840]
+    env:
+      MAX_SUBSETS: 6
+
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:          
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{inputs.change_nrf_revision}}
+        run: |
+          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py sidewalk/west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Twister build samples ${{matrix.platform}}
+        run: /workdir/zephyr/scripts/twister --platform ${{matrix.platform}} --testsuite-root /workdir/sidewalk/samples/ --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{matrix.subset}}/${{ env.MAX_SUBSETS }}
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: sample-${{matrix.platform}}-${{matrix.subset}}_of_${{ env.MAX_SUBSETS }}
+          path: |
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/merged.hex
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/app_update.bin
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
+            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
+            twister-out/**/sidewalk/samples/**/*sidewalk*/build.log
+            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
+            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/.config
+            twister-out/twister.json
+
+  Build_tests_for_boards:
+    strategy:
+      matrix:
+        subset: [1, 2]
+        platform: [nrf52840dk_nrf52840]
+    env:
+      MAX_SUBSETS: 2
+
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{inputs.change_nrf_revision}}
+        run: |
+          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py sidewalk/west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Build test artifacts for ${{matrix.platform}}
+        run: /workdir/zephyr/scripts/twister --platform ${{matrix.platform}} --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --build-only --subset ${{matrix.subset}}/${{ env.MAX_SUBSETS }}
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-${{matrix.platform}}-${{matrix.subset}}_of_${{ env.MAX_SUBSETS }}
+          path: |
+            twister-out/**/sidewalk/tests/**/*sidewalk*/testbinary
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/merged.hex
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/app_update.bin
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/dfu_application.zip
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/.config
+            twister-out/**/sidewalk/tests/**/*sidewalk*/build.log
+            twister-out/**/sidewalk/tests/**/*sidewalk*/handler.log
+            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
+            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/.config
+            twister-out/twister.json
+
+  Build_and_run_tests_for_x86:
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{inputs.change_nrf_revision}}
+        run: |
+          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py sidewalk/west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Build test artifacts for x86
+        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86
+          path: |
+            twister-out/**/sidewalk/tests/**/*sidewalk*/testbinary
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/merged.hex
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/app_update.bin
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/dfu_application.zip
+            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/.config
+            twister-out/**/sidewalk/tests/**/*sidewalk*/build.log
+            twister-out/**/sidewalk/tests/**/*sidewalk*/handler.log
+            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
+            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/.config
+            twister-out/twister.json
