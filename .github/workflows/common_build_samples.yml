@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: change_nrf_revision
-        if: ${{inputs.change_nrf_revision}}
+        if: ${{ inputs.change_nrf_revision }}
         run: |
           python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py sidewalk/west.yml
 
@@ -38,14 +38,14 @@ jobs:
           west config manifest.path sidewalk
           west update --narrow -o=--depth=1
 
-      - name: Twister build samples ${{matrix.platform}}
-        run: /workdir/zephyr/scripts/twister --platform ${{matrix.platform}} --testsuite-root /workdir/sidewalk/samples/ --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{matrix.subset}}/${{ env.MAX_SUBSETS }}
+      - name: Twister build samples ${{ matrix.platform }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: sample-${{matrix.platform}}-${{matrix.subset}}_of_${{ env.MAX_SUBSETS }}
+          name: sample-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/merged.hex
             twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
@@ -61,10 +61,10 @@ jobs:
   Build_tests_for_boards:
     strategy:
       matrix:
-        subset: [1, 2]
+        subset: [1, 2, 3]
         platform: [nrf52840dk_nrf52840]
     env:
-      MAX_SUBSETS: 2
+      MAX_SUBSETS: 3
 
     runs-on: ubuntu-latest
     container:
@@ -76,7 +76,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: change_nrf_revision
-        if: ${{inputs.change_nrf_revision}}
+        if: ${{ inputs.change_nrf_revision }}
         run: |
           python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py sidewalk/west.yml
 
@@ -87,14 +87,14 @@ jobs:
           west config manifest.path sidewalk
           west update --narrow -o=--depth=1
 
-      - name: Build test artifacts for ${{matrix.platform}}
-        run: /workdir/zephyr/scripts/twister --platform ${{matrix.platform}} --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --build-only --subset ${{matrix.subset}}/${{ env.MAX_SUBSETS }}
+      - name: Build test artifacts for ${{ matrix.platform }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: tests-${{matrix.platform}}-${{matrix.subset}}_of_${{ env.MAX_SUBSETS }}
+          name: tests-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
             twister-out/**/sidewalk/tests/**/*sidewalk*/testbinary
             twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/merged.hex
@@ -110,6 +110,12 @@ jobs:
             twister-out/twister.json
 
   Build_and_run_tests_for_x86:
+    strategy:
+      matrix:
+        subset: [1]
+    env:
+      MAX_SUBSETS: 1
+
     runs-on: ubuntu-latest
     container:
       image: nordicplayground/nrfconnect-sdk:main
@@ -120,7 +126,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: change_nrf_revision
-        if: ${{inputs.change_nrf_revision}}
+        if: ${{ inputs.change_nrf_revision }}
         run: |
           python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py sidewalk/west.yml
 
@@ -131,14 +137,14 @@ jobs:
           west config manifest.path sidewalk
           west update --narrow -o=--depth=1
 
-      - name: Build test artifacts for x86
-        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv
+      - name: Build test artifacts for x86 and run
+        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: tests-x86
+          name: tests-x86-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
             twister-out/**/sidewalk/tests/**/*sidewalk*/testbinary
             twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/merged.hex

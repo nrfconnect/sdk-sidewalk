@@ -42,11 +42,11 @@ jobs:
         uses: peter-evans/find-comment@v2
         id: fc
         with:
-          issue-number:  ${{ github.event.workflow_run.event.number }}
+          issue-number:  ${{ github.event.workflow_run.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: "| Sample | | diff | used | total |" 
 
-      - name: Create comment
+      - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v3
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }} 
