@@ -12,7 +12,7 @@
 
 LOG_MODULE_REGISTER(log_test, LOG_LEVEL_DBG);
 
-void main(void)
+int main(void)
 {
 	LOG_INF("> Test application log.\n");
 
@@ -54,4 +54,6 @@ void main(void)
 	LOG_INF("Test end.\n");
 
 	LOG_INF("Sidewalk log %s, level %d\n", SID_PAL_LOG_ENABLED ? "Enabled" : "Disabled", SID_PAL_LOG_LEVEL);
+
+	return 0;
 }

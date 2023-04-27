@@ -26,7 +26,9 @@ void test_sid_pal_temperature_get()
  */
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	(void)unity_main();
+
+	return 0;
 }

@@ -261,8 +261,10 @@ void test_sid_pal_storage_erase_all_2(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	test_sid_pal_storage_init();
 	(void)unity_main();
+
+	return 0;
 }

@@ -185,7 +185,9 @@ void test_sid_ble_advert_update_value(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	(void)unity_main();
+
+	return 0;
 }

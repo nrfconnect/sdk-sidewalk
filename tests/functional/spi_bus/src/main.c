@@ -113,7 +113,9 @@ void test_only_tx_spi()
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	(void)unity_main();
+
+	return 0;
 }

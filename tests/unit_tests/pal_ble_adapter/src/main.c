@@ -356,7 +356,9 @@ void test_ble_adapter_disconnect(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	(void)unity_main();
+
+	return 0;
 }

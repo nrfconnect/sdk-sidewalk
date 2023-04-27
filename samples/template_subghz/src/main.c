@@ -106,7 +106,7 @@ static void app_setup(void)
 	#endif
 }
 
-void main()
+int main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
@@ -114,4 +114,6 @@ void main()
 	if (app_thread_init(&app_context)) {
 		LOG_ERR("Failed to start Sidewalk thread");
 	}
+
+	return 0;
 }

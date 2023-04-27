@@ -229,7 +229,9 @@ void test_record_group_delete_error(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	(void)unity_main();
+
+	return 0;
 }

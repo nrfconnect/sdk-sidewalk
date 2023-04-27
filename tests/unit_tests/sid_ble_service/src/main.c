@@ -202,7 +202,9 @@ void test_sid_ble_send_data_incorrect_arguments(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
 	(void)unity_main();
+
+	return 0;
 }

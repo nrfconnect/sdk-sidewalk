@@ -29,7 +29,7 @@ static int init_leds_and_buttons()
 	return err;
 }
 
-void main(void)
+int main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
@@ -45,4 +45,6 @@ void main(void)
 	LOG_INF("Sidewalk demo started!");
 
 	sm_task_start();
+
+	return 0;
 }

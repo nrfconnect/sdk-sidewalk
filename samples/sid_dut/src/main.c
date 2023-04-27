@@ -14,7 +14,7 @@
 
 LOG_MODULE_REGISTER(sid_main, LOG_LEVEL_INF);
 
-void main(void)
+int main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
@@ -25,4 +25,6 @@ void main(void)
 	if (e != SID_ERROR_NONE) {
 		LOG_ERR("sidwalk failed to initialize with error (sid_error_t) %d", e);
 	}
+
+	return 0;
 }
