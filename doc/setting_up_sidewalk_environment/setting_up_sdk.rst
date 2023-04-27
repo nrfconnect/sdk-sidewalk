@@ -102,13 +102,6 @@ Download the Sidewalk application for the nRF Connect SDK:
 
          $ west config manifest.path sidewalk
 
-   #. Verify the new manifest path:
-
-      .. code-block:: console
-
-         $ west manifest --path
-         /path-to-ncs-folder/sidewalk/west.yml
-
    #. Update all repositories:
 
       .. code-block:: console
@@ -116,6 +109,13 @@ Download the Sidewalk application for the nRF Connect SDK:
          $ west update
 
       Depending on your connection, the update might take some time.
+      
+   #. Verify the new manifest path:
+
+     .. code-block:: console
+
+        $ west manifest --path
+        /path-to-ncs-folder/sidewalk/west.yml
 
 Extracting nRF Command Line Tools
 *********************************
