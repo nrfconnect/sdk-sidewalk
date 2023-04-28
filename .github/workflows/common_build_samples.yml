@@ -47,15 +47,14 @@ jobs:
         with:
           name: sample-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/merged.hex
-            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.elf
-            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/zephyr.hex
-            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/app_update.bin
-            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/dfu_application.zip
-            twister-out/**/sidewalk/samples/**/*sidewalk*/zephyr/.config
-            twister-out/**/sidewalk/samples/**/*sidewalk*/build.log
-            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
-            twister-out/**/sidewalk/samples/**/*sidewalk*/mcuboot/zephyr/.config
+            twister-out/**/testbinary
+            twister-out/**/zephyr/merged.hex
+            twister-out/**/zephyr/zephyr.elf
+            twister-out/**/zephyr/zephyr.hex
+            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/dfu_application.zip
+            twister-out/**/zephyr/.config
+            twister-out/**/build.log
             twister-out/twister.json
 
   Build_tests_for_boards:
@@ -96,17 +95,14 @@ jobs:
         with:
           name: tests-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/sidewalk/tests/**/*sidewalk*/testbinary
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/merged.hex
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.elf
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.hex
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/app_update.bin
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/dfu_application.zip
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/.config
-            twister-out/**/sidewalk/tests/**/*sidewalk*/build.log
-            twister-out/**/sidewalk/tests/**/*sidewalk*/handler.log
-            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
-            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/.config
+            twister-out/**/testbinary
+            twister-out/**/zephyr/merged.hex
+            twister-out/**/zephyr/zephyr.elf
+            twister-out/**/zephyr/zephyr.hex
+            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/dfu_application.zip
+            twister-out/**/zephyr/.config
+            twister-out/**/build.log
             twister-out/twister.json
 
   Build_and_run_tests_for_x86:
@@ -146,15 +142,12 @@ jobs:
         with:
           name: tests-x86-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/sidewalk/tests/**/*sidewalk*/testbinary
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/merged.hex
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.elf
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/zephyr.hex
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/app_update.bin
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/dfu_application.zip
-            twister-out/**/sidewalk/tests/**/*sidewalk*/zephyr/.config
-            twister-out/**/sidewalk/tests/**/*sidewalk*/build.log
-            twister-out/**/sidewalk/tests/**/*sidewalk*/handler.log
-            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/zephyr.elf
-            twister-out/**/sidewalk/tests/**/*sidewalk*/mcuboot/zephyr/.config
+            twister-out/**/testbinary
+            twister-out/**/zephyr/merged.hex
+            twister-out/**/zephyr/zephyr.elf
+            twister-out/**/zephyr/zephyr.hex
+            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/dfu_application.zip
+            twister-out/**/zephyr/.config
+            twister-out/**/build.log
             twister-out/twister.json
