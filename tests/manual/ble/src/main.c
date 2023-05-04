@@ -137,7 +137,7 @@ static void app_adv_start_callback(void)
 	LOG_DBG("%s", __func__);
 }
 
-void main(void)
+int main(void)
 {
 	LOG_INF("> Test Bluetooth");
 	sid_pal_ble_adapter_create(&p_ble_ifc);
@@ -167,4 +167,6 @@ void main(void)
 	for (;;) {
 		k_sleep(K_MSEC(500));
 	}
+
+	return 0;
 }

@@ -37,6 +37,8 @@ config PSA_WANT_ECC_SECP_R1_256
 	default y
 config PSA_WANT_ECC_MONTGOMERY_255
 	default y
+config PSA_WANT_ECC_TWISTED_EDWARDS_255 
+	default y
 config MBEDTLS_PSA_BUILTIN_ALG_CMAC
 	default y
 config MBEDTLS_PSA_BUILTIN_ALG_HMAC

@@ -307,7 +307,7 @@ void test_sid_ble_conn_disconnect(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
-	(void)unity_main();
+	return unity_main();
 }

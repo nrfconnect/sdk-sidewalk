@@ -29,20 +29,27 @@ static int init_leds_and_buttons()
 	return err;
 }
 
-void main(void)
+int main(void)
 {
+	int err;
+
 	PRINT_SIDEWALK_VERSION();
 
-	if (init_leds_and_buttons()) {
+	err = init_leds_and_buttons();
+	if (err) {
 		LOG_INF("Buttons or LEDs faild to initialize.");
-		return;
+		return err;
 	}
-	if (application_pal_init()) {
+
+	err = application_pal_init();
+	if (err) {
 		LOG_INF("Failed to initialize PAL layer.");
-		return;
+		return err;
 	}
 
 	LOG_INF("Sidewalk demo started!");
 
 	sm_task_start();
+
+	return 0;
 }
