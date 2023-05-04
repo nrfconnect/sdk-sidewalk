@@ -242,7 +242,7 @@ static inline void perform_power_test(void)
 	}
 }
 
-void main(void)
+int main(void)
 {
 	extern struct notifier_ctx global_state_notifier;
 
@@ -279,4 +279,6 @@ void main(void)
 	settings_commit();
 
 	perform_power_test();
+
+	return 0;
 }

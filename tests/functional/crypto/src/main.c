@@ -2299,7 +2299,7 @@ void test_sid_pal_crypto_ecc_ecdh_shared_secret(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
-	(void)unity_main();
+	return unity_main();
 }

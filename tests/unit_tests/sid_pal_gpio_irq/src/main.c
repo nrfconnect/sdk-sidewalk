@@ -186,7 +186,7 @@ void test_sid_gpio_irq_set_pass(void)
  */
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
-	(void)unity_main();
+	return unity_main();
 }

@@ -1749,7 +1749,7 @@ void test_ecc_dsa_secp256r1_negative(void)
 
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
-	(void)unity_main();
+	return unity_main();
 }

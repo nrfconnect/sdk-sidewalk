@@ -145,7 +145,7 @@ void test_sid_gpio_utils_gpio_toggle_pass(void)
  */
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
-	(void)unity_main();
+	return unity_main();
 }

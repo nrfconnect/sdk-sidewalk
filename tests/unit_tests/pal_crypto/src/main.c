@@ -2485,7 +2485,7 @@ void test_sid_pal_crypto_ecc_ecdh_SECP256R1_buffer_overflow(void)
  */
 extern int unity_main(void);
 
-void main(void)
+int main(void)
 {
-	(void)unity_main();
+	return unity_main();
 }
