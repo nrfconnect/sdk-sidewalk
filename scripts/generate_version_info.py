@@ -22,7 +22,7 @@ def get_last_common_commit_with_upstream(ncs_dir):
     merge_base_cmd = subprocess.run(["git", "merge-base", "--fork-point", "origin/main",
                                     "HEAD"], cwd=os.path.join(ncs_dir, "sidewalk"),  capture_output=True)
     if merge_base_cmd.returncode != 0:
-        return "0000000"
+        return "0000000000000000000000000000000000000000"
     return merge_base_cmd.stdout.decode("utf-8").strip()
 
 
