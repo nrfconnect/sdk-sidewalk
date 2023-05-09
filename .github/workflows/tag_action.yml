@@ -8,15 +8,41 @@ on:
 jobs:
   build:
     permissions: write-all
-    name: Add documentaiton as asset
+    name: Create release page
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
-      - name: Build
-        run: cd doc; ./build_local.sh && zip -r documentation.zip build/html/*
 
-      - name: Upload binaries to release
+      - name: Check artifacts from commit
+        id: get_artifacts
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          commit: ${{github.sha}}
+          workflow: on_commit.yml
+          dry_run: true
+          if_no_artifact_found: ignore
+      
+      - name: Sleep 15 min to wait for builds
+        if: ${{steps.get_artifacts.outputs.dry_run == false}}
+        run: |
+          sleep 15m
+      
+      - name: Get artifacts from commit
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          commit: ${{github.sha}}
+          workflow: on_commit.yml
+      
+      - name: Build documentation
+        run: cd doc; ./build_local.sh && zip -r documentation.zip build/html/*
+  
+      - name: Pack build artifacts
+        run: |
+          zip -r build_artifacts.zip sample*
+          zip -r test_artifacts.zip tests*
+
+      - name: Upload documentation binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
@@ -24,4 +50,21 @@ jobs:
           asset_name: documentation.zip
           tag: ${{ github.ref }}
           overwrite: true
-          body: "HTML documentation is includded in the release asset in documentation.zip file."
+      
+      - name: Upload build binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build_artifacts.zip
+          asset_name: twister_build_artifacts.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+
+      - name: Upload test binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: test_artifacts.zip
+          asset_name: twister_test_artifacts.zip
+          tag: ${{ github.ref }}
+          overwrite: true
