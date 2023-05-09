@@ -29,7 +29,7 @@ jobs:
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
         run: |
-          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
+          python3 -m pip install -r scripts/ci/requirements.txt
           python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
 
       - name: Reconfigure west
