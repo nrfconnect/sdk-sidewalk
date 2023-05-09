@@ -25,6 +25,8 @@ jobs:
     steps:          
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
