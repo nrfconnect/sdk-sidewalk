@@ -65,12 +65,12 @@ Provisioning generation
       
             .. code-block:: console
 
-               python3 -m pip install --user virtualenv
-               python3 -m virtualenv sample-app-env
+               py -m pip install --user virtualenv
+               py -m virtualenv sample-app-env
                sample-app-env\Scripts\activate.bat
-               python3 -m pip install --upgrade pip
-               python3 -m pip install -r requirements.txt
-               python3 -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
+               py -m pip install --upgrade pip
+               py -m pip install -r requirements.txt
+               py -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
 
    #. Run the device provisioning scripts:
 
