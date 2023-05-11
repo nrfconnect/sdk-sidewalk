@@ -3,6 +3,8 @@ name: On Commit action
 on:
   push:
     branches: ["main"]
+    
+  workflow_dispatch:
 
 jobs:
   Build_samples_and_tests:
