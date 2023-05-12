@@ -63,10 +63,10 @@ jobs:
   Build_tests_for_boards:
     strategy:
       matrix:
-        subset: [1, 2, 3]
+        subset: [1, 2, 3, 4, 5]
         platform: [nrf52840dk_nrf52840]
     env:
-      MAX_SUBSETS: 3
+      MAX_SUBSETS: 5
 
     runs-on: ubuntu-latest
     container:
