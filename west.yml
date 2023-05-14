@@ -15,7 +15,7 @@ manifest:
     - name: nrf
       repo-path: sdk-nrf
       path: nrf
-      revision: d85e59fd54af405553bcc987d439cdcb4d22959c
+      revision: v2.4.0-rc1
       import: true
     - name: aws-iot-core-for-sidewalk
       remote: aws-samples

@@ -63,6 +63,7 @@ config SIDEWALK_CRYPTO
 	imply PSA_WANT_KEY_TYPE_HMAC
 	imply MBEDTLS_PSA_BUILTIN_ALG_CMAC
 	imply MBEDTLS_PSA_BUILTIN_ALG_HMAC
+	imply MBEDTLS_ENABLE_HEAP
 	help
 	   Sidewalk security module
 
