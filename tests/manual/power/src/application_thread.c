@@ -42,14 +42,14 @@ static void sidewalk_app_entry(void *ctx, void *unused, void *unused2)
 	switch (err) {
 	case SID_ERROR_NONE: break;
 	case SID_ERROR_ALREADY_INITIALIZED: LOG_WRN("Sidewalk already initialized!"); break;
-	default: LOG_ERR("Unknown error during sidewalk initialization!");
+	default: LOG_ERR("Unknown error (%d) during sidewalk initialization!", err);
 		application_state_error(&global_state_notifier, true);
 		return;
 	}
 
 	err = sid_start(application_ctx->handle, BUILT_IN_LM);
 	if (err) {
-		LOG_ERR("Unknown error during sidewalk start!");
+		LOG_ERR("Unknown error (%d) during sidewalk start!", err);
 		application_state_error(&global_state_notifier, true);
 		return;
 	}
