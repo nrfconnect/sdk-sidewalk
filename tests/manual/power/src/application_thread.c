@@ -72,7 +72,7 @@ static void sidewalk_app_entry(void *ctx, void *unused, void *unused2)
 			case BUTTON_EVENT_FACTORY_RESET: button_event_factory_reset(application_ctx); break;
 			case BUTTON_EVENT_CONNECTION_REQUEST: button_event_connection_request(application_ctx); break;
 
-			#if defined(CONFIG_SIDEWALK_DFU)
+			#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 			case BUTTON_EVENT_NORDIC_DFU: button_event_DFU(application_ctx); break;
 			#endif
 

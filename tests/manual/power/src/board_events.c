@@ -124,7 +124,7 @@ void button_event_set_battery(app_ctx_t *application_ctx)
 	}
 }
 
-#if defined(CONFIG_SIDEWALK_DFU)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 void button_event_DFU(app_ctx_t *application_ctx)
 {
 	sid_error_t err = sid_deinit(application_ctx->handle);

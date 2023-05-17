@@ -22,3 +22,26 @@ config STATE_NOTIFIER_HANDLER_MAX
 	default 1
 	help
 	  Maximum number of the notifier listeners.
+if SIDEWALK_DFU_SERVICE_BLE
+
+config DFU_FLAG_SETTINGS_KEY
+	string 
+	default "application/settings/DFU_mode"
+	help
+	  Key for settings to store DFU flag in flash for next reboot
+	  If value is set to True, the applicaiton will start in DFU mode after reset
+
+config DFU_UPLOAD_START_TIMEOUT
+	int
+	default 5
+	help
+	  Time in minutes in which the DFU has to start, after this time the device will reboot and exit DFU mode
+
+config DFU_UPLOAD_COMPLETE_TIMEOUT
+	int 
+	default 60
+	help
+	  Time in minutes in which the DFU has to complete (starting from entering to DFU mode)
+	  if it do not complete in this time, the device will reboot and exit DFU mode 
+
+endif # SIDEWALK_DFU_SERVICE_BLE
