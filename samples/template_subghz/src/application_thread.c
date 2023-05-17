@@ -73,7 +73,7 @@ static void sidewalk_app_entry(void *ctx, void *unused, void *unused2)
 			case BUTTON_EVENT_GET_DEVICE_PROFILE: button_event_get_profile(application_ctx); break;
 			case BUTTON_EVENT_SET_DEVICE_PROFILE: button_event_set_ptofile(application_ctx); break;
 
-			#if defined(CONFIG_SIDEWALK_DFU)
+			#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 			case BUTTON_EVENT_NORDIC_DFU: button_event_DFU(application_ctx); break;
 			#endif
 

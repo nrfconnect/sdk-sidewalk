@@ -248,6 +248,13 @@ static sid_error_t ble_adapter_deinit(void)
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
 
+	int err = bt_disable();
+
+	if (err) {
+		LOG_ERR("BT disable failed (error %d)", err);
+		return SID_ERROR_GENERIC;
+	}
+
 	return SID_ERROR_NONE;
 }
 

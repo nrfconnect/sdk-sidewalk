@@ -12,8 +12,12 @@
 #include <stdbool.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/settings/settings.h>
+
+#include <settings_utils.h>
 #include <dk_buttons_and_leds.h>
 #include <sidewalk_version.h>
+#include <nordic_dfu.h>
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
 #include <zephyr/dfu/mcuboot.h>
 #endif
@@ -47,7 +51,7 @@ static sid_error_t app_buttons_init(btn_handler_t handler)
 	button_set_action(DK_BTN2, handler, BUTTON_EVENT_CONNECTION_REQUEST);
 	button_set_action(DK_BTN3, handler, BUTTON_EVENT_SEND_HELLO);
 	button_set_action_short_press(DK_BTN4, handler, BUTTON_EVENT_SET_BATTERY_LEVEL);
-	#if defined(CONFIG_SIDEWALK_DFU)
+	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	button_set_action_long_press(DK_BTN4, handler, BUTTON_EVENT_NORDIC_DFU);
 	#endif
 
@@ -109,9 +113,23 @@ int main(void)
 {
 	PRINT_SIDEWALK_VERSION();
 
-	app_setup();
-	if (app_thread_init(&app_context)) {
-		LOG_ERR("Failed to start Sidewalk thread");
+	switch (application_to_start()) {
+	case SIDEWALK_APPLICATION: {
+		app_setup();
+		if (app_thread_init(&app_context)) {
+			LOG_ERR("Failed to start Sidewalk thread");
+		}
+		break;
+	};
+	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	case DFU_APPLICATION: {
+		const int ret = nordic_dfu_ble_start();
+		LOG_INF("DFU service started, return value %d", ret);
+		break;
+	}
+	#endif
+	default:
+		LOG_ERR("Unknown application to start.");
 	}
 
 	return 0;

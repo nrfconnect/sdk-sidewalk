@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <zephyr/kernel.h>
 #include <sid_api.h>
 #include <sid_error.h>
 
@@ -15,6 +16,8 @@
 #endif
 
 #include <zephyr/logging/log.h>
+#include <zephyr/settings/settings.h>
+#include <zephyr/sys/reboot.h>
 
 LOG_MODULE_REGISTER(board_events, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -83,27 +86,21 @@ void button_event_set_battery(app_ctx_t *application_ctx)
 	}
 }
 
-#if defined(CONFIG_SIDEWALK_DFU)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 void button_event_DFU(app_ctx_t *application_ctx)
 {
-	sid_error_t err = sid_deinit(application_ctx->handle);
+	bool DFU_mode = true;
 
-	if (err != SID_ERROR_NONE) {
-		LOG_ERR("Failed to deinitialize sidewalk! sid_deinit returned %d", err);
-		return;
-	}
+	(void) settings_save_one(CONFIG_DFU_FLAG_SETTINGS_KEY, (const void *)&DFU_mode,
+				 sizeof(DFU_mode));
 
-	application_ctx->handle = NULL;
+	sid_deinit(application_ctx->handle);
+	k_sleep(K_SECONDS(1));
 
-	int ret = nordic_dfu_ble_start();
-
-	if (ret) {
-		LOG_ERR("DFU SMP start error (code %d)", ret);
-	}
-	application_state_dfu(&global_state_notifier, true);
+	sys_reboot(SYS_REBOOT_COLD);
 }
 
-#endif
+#endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
 
 void button_event_factory_reset(app_ctx_t *application_ctx)
 {
