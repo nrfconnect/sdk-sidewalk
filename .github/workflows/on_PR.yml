@@ -28,17 +28,13 @@ jobs:
         run: |
           python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
 
-  Build_samples_and_tests:
-    needs: ValidateCodeCompliance
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common_build_samples.yml@main
-  
   Save_PR_number:
     runs-on: ubuntu-latest
     steps:
       - name: save PR number to file
         run: |
           echo "${{ github.event.number }}" > PR_number
-      
+  
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -46,3 +42,10 @@ jobs:
           path: |
             PR_number
 
+  Build_samples_and_tests:
+    needs: ValidateCodeCompliance
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common_build_samples.yml@main
+  
+  Run_tests_on_DUT:
+    needs: Build_samples_and_tests
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-ut-on-dut.yml@main

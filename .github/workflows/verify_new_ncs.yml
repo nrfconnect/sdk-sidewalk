@@ -11,3 +11,7 @@ jobs:
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common_build_samples.yml@main
     with:
       change_nrf_revision: true
+
+  Run_tests_on_DUT:
+    needs: Build_samples_and_tests
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-ut-on-dut.yml@main
