@@ -19,8 +19,8 @@ For additional Amazon resources, refer to the following list:
 
 .. _Introduction to Sidewalk: https://docs.sidewalk.amazon/introduction/
 .. _Getting Started Guide: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-getting-started.html
-.. _Protocol Specification: https://docs.sidewalk.amazon/specifications/
-.. _Test Specification: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-test-specs.html
+.. _Protocol Specification: https://docs.sidewalk.amazon/specifications/#amazon-sidewalk-protocol-specification
+.. _Test Specification: https://docs.sidewalk.amazon/specifications/#amazon-sidewalk-test-specification
 .. _API Reference: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-aws-api-reference.html
 .. _Sidewalk Mobile SDK Developer Guide: https://docs.sidewalk.amazon/mobile-sdk
 .. _Manufacturing Provisioning: https://docs.sidewalk.amazon/manufacturing/
