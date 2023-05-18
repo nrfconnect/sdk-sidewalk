@@ -42,7 +42,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Twister build samples ${{ matrix.platform }}
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --no-clean --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -50,14 +50,20 @@ jobs:
         with:
           name: sample-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/testbinary
-            twister-out/**/zephyr/merged.hex
+            twister-out/**/CMakeFiles/rules.ninja
+            twister-out/**/CMakeCache.txt
+            twister-out/**/build.log
+            twister-out/**/build.ninja
+            twister-out/**/handler.log
+            twister-out/**/zephyr/.config
+            twister-out/**/zephyr/runners.yaml
+            twister-out/**/zephyr/zephyr.bin
             twister-out/**/zephyr/zephyr.elf
             twister-out/**/zephyr/zephyr.hex
+            twister-out/**/zephyr/merged.hex
             twister-out/**/zephyr/app_update.bin
             twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/zephyr/.config
-            twister-out/**/build.log
+            twister-out/**/testbinary
             twister-out/twister.json
 
   Build_tests_for_boards:
@@ -90,7 +96,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for ${{ matrix.platform }}
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -98,14 +104,20 @@ jobs:
         with:
           name: tests-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/testbinary
-            twister-out/**/zephyr/merged.hex
+            twister-out/**/CMakeFiles/rules.ninja
+            twister-out/**/CMakeCache.txt
+            twister-out/**/build.log
+            twister-out/**/build.ninja
+            twister-out/**/handler.log
+            twister-out/**/zephyr/.config
+            twister-out/**/zephyr/runners.yaml
+            twister-out/**/zephyr/zephyr.bin
             twister-out/**/zephyr/zephyr.elf
             twister-out/**/zephyr/zephyr.hex
+            twister-out/**/zephyr/merged.hex
             twister-out/**/zephyr/app_update.bin
             twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/zephyr/.config
-            twister-out/**/build.log
+            twister-out/**/testbinary
             twister-out/twister.json
 
   Build_and_run_tests_for_x86:
@@ -137,7 +149,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for x86 and run
-        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --no-clean -vvv --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -145,12 +157,26 @@ jobs:
         with:
           name: tests-x86-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/testbinary
-            twister-out/**/zephyr/merged.hex
+            twister-out/**/CMakeFiles/rules.ninja
+            twister-out/**/CMakeCache.txt
+            twister-out/**/build.log
+            twister-out/**/build.ninja
+            twister-out/**/handler.log
+            twister-out/**/zephyr/.config
+            twister-out/**/zephyr/runners.yaml
+            twister-out/**/zephyr/zephyr.bin
             twister-out/**/zephyr/zephyr.elf
             twister-out/**/zephyr/zephyr.hex
+            twister-out/**/zephyr/merged.hex
             twister-out/**/zephyr/app_update.bin
             twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/zephyr/.config
-            twister-out/**/build.log
+            twister-out/**/testbinary
             twister-out/twister.json
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86_result
+          path: |
+            twister-out/twister.xml
