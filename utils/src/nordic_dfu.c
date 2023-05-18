@@ -41,11 +41,6 @@ static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more,
 		LOG_INF("DFU Pending");
 		break;
 	case MGMT_EVT_OP_IMG_MGMT_DFU_CHUNK:
-		struct img_mgmt_upload_check *img_data = (struct img_mgmt_upload_check *)data;
-		LOG_INF("Software update progress of image %u: %u B / %u B",
-			(unsigned) (img_data->req->image),
-			(unsigned) (img_data->req->off),
-			(unsigned) (img_data->action->size));
 		break;
 	default:
 		LOG_ERR("Unknown event %d", event);
