@@ -1,11 +1,11 @@
-name: On PR action
+name: on PR action
 on:
   pull_request:
     branches:
       - main
 
 jobs:
-  ValidateCodeCompliance:
+  validate_code_compliance:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,11 +28,11 @@ jobs:
         run: |
           python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
 
-  Build_samples_and_tests:
-    needs: ValidateCodeCompliance
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common_build_samples.yml@main
-  
-  Save_PR_number:
+  build_samples_and_tests:
+    needs: validate_code_compliance
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build-samples.yml@main
+
+  save_pr_number:
     runs-on: ubuntu-latest
     steps:
       - name: save PR number to file

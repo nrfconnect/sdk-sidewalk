@@ -7,7 +7,7 @@ on:
 
 jobs:
 
-  Build_samples_and_tests:
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common_build_samples.yml@main
+  build_samples_and_tests:
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build-samples.yml@main
     with:
       change_nrf_revision: true

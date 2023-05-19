@@ -1,0 +1,11 @@
+name: On Commit action
+
+on:
+  push:
+    branches: ["main"]
+    
+  workflow_dispatch:
+
+jobs:
+  build_samples_and_tests:
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build-samples.yml@main

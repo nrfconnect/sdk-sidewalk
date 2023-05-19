@@ -7,7 +7,7 @@ on:
       - completed
 
 jobs:
-  Create_comment_with_memory_usage:
+  create_comment_with_memory_usage:
     runs-on: ubuntu-latest
     permissions:
       issues: write
