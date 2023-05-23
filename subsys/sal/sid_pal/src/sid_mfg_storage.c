@@ -62,7 +62,7 @@ static uint32_t default_app_value_to_offset(int value);
 static off_t checked_addr_return(off_t offset, uintptr_t start_address, uintptr_t end_address);
 static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_address, uintptr_t end_address);
 
-// *INDENT-OFF*
+// clang-format off
 struct sid_pal_mfg_store_value_to_address_offset sid_pal_mfg_store_app_value_to_offset_table[] = {
 	{ SID_PAL_MFG_STORE_VERSION,                      SID_PAL_MFG_STORE_OFFSET_VERSION },
 	{ SID_PAL_MFG_STORE_DEVID,                        SID_PAL_MFG_STORE_OFFSET_DEVID },
@@ -103,7 +103,7 @@ struct sid_pal_mfg_store_value_to_address_offset sid_pal_mfg_store_app_value_to_
 	{ SID_PAL_MFG_STORE_AMZN_PUB_ED25519,             SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_ED25519 },
 	{ SID_PAL_MFG_STORE_AMZN_PUB_P256R1,              SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_P256R1 },
 };
-// *INDENT-ON*
+// clang-format on
 
 static sid_pal_mfg_store_region_t nrf_mfg_store_region = {
 	.app_value_to_offset = default_app_value_to_offset,

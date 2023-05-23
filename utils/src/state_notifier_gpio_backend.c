@@ -19,7 +19,7 @@ struct gpio_pin {
 
 static inline struct gpio_pin state_to_pin_mapper(enum application_state state)
 {
-	/* *INDENT-OFF* */
+	// clang-format off
 	switch (state) {
 	#define X(name, port_obj, pin_num, ...)\
 		case APPLICATION_STATE_ENUM(name):\
@@ -27,7 +27,7 @@ static inline struct gpio_pin state_to_pin_mapper(enum application_state state)
 		X_APPLICAITON_STATES
 	#undef X
 	}
-	/* *INDENT-ON* */
+	// clang-format on
 	return (struct gpio_pin){ NULL, 0 };
 }
 
