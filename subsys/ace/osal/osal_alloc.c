@@ -36,15 +36,14 @@ static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
 	}
 }
 
-#endif  /* CONFIG_SYS_HEAP_RUNTIME_STATS */
+#endif /* CONFIG_SYS_HEAP_RUNTIME_STATS */
 
 ace_status_t aceAlloc_init(void)
 {
 	return ACE_STATUS_OK;
 }
 
-ace_status_t aceAlloc_initWithAllocator(aceAlloc_allocator_t *allocators,
-					size_t count)
+ace_status_t aceAlloc_initWithAllocator(aceAlloc_allocator_t *allocators, size_t count)
 {
 	ARG_UNUSED(allocators);
 	ARG_UNUSED(count);
@@ -57,8 +56,7 @@ ace_status_t aceAlloc_deInit(void)
 	return ACE_STATUS_OK;
 }
 
-void *aceAlloc_alloc(aceModules_moduleId_t module_id,
-		     aceAlloc_bufferType_t buf_type, size_t size)
+void *aceAlloc_alloc(aceModules_moduleId_t module_id, aceAlloc_bufferType_t buf_type, size_t size)
 {
 	ARG_UNUSED(module_id);
 	ARG_UNUSED(buf_type);
@@ -70,8 +68,7 @@ void *aceAlloc_alloc(aceModules_moduleId_t module_id,
 	return k_heap_alloc(&sid_heap, size, K_NO_WAIT);
 }
 
-void *aceAlloc_calloc(aceModules_moduleId_t module_id,
-		      aceAlloc_bufferType_t buf_type, size_t nmemb,
+void *aceAlloc_calloc(aceModules_moduleId_t module_id, aceAlloc_bufferType_t buf_type, size_t nmemb,
 		      size_t size)
 {
 	size_t bounds;
@@ -89,8 +86,7 @@ void *aceAlloc_calloc(aceModules_moduleId_t module_id,
 	return p;
 }
 
-void aceAlloc_free(aceModules_moduleId_t module_id,
-		   aceAlloc_bufferType_t buf_type, void *p)
+void aceAlloc_free(aceModules_moduleId_t module_id, aceAlloc_bufferType_t buf_type, void *p)
 {
 	ARG_UNUSED(module_id);
 	ARG_UNUSED(buf_type);

@@ -11,25 +11,27 @@
 #include <stdint.h>
 #include <sid_api.h>
 
-#define PAYLOAD_MAX_SIZE                (255)
-#define SID_DEMO_APP_TTL_MAX            (60)
-#define SID_DEMO_APP_RETRIES_MAX        (3)
+#define PAYLOAD_MAX_SIZE (255)
+#define SID_DEMO_APP_TTL_MAX (60)
+#define SID_DEMO_APP_RETRIES_MAX (3)
 
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
-#define BUILT_IN_LM             (uint32_t)(SID_LINK_TYPE_1)
-#elif  CONFIG_SIDEWALK_LINK_MASK_FSK
-#define BUILT_IN_LM             (uint32_t)(SID_LINK_TYPE_2)
+#define BUILT_IN_LM (uint32_t)(SID_LINK_TYPE_1)
+#elif CONFIG_SIDEWALK_LINK_MASK_FSK
+#define BUILT_IN_LM (uint32_t)(SID_LINK_TYPE_2)
 #elif CONFIG_SIDEWALK_LINK_MASK_LORA
-#define BUILT_IN_LM             (uint32_t)(SID_LINK_TYPE_3)
+#define BUILT_IN_LM (uint32_t)(SID_LINK_TYPE_3)
 #else
 #error "Not defined Sidewalk link mask!!"
 #endif
 
-#define SID_APP_LM_2_STR(_lm)   (_lm == SID_LINK_TYPE_1 ? "BLE" :			      \
-				 (_lm == SID_LINK_TYPE_2) ? "FSK" :			      \
-				 (_lm == SID_LINK_TYPE_3) ? "LoRa" :			      \
-				 (_lm == (SID_LINK_TYPE_1 | SID_LINK_TYPE_2)) ? "BLE & FSK" : \
-				 (_lm == (SID_LINK_TYPE_1 | SID_LINK_TYPE_3)) ? "BLE & LoRa" : "INVALID")
+#define SID_APP_LM_2_STR(_lm)                                                                      \
+	(_lm == SID_LINK_TYPE_1			      ? "BLE" :                                    \
+	 (_lm == SID_LINK_TYPE_2)		      ? "FSK" :                                    \
+	 (_lm == SID_LINK_TYPE_3)		      ? "LoRa" :                                   \
+	 (_lm == (SID_LINK_TYPE_1 | SID_LINK_TYPE_2)) ? "BLE & FSK" :                              \
+	 (_lm == (SID_LINK_TYPE_1 | SID_LINK_TYPE_3)) ? "BLE & LoRa" :                             \
+							"INVALID")
 
 struct app_demo_msg {
 	enum sid_link_type link_type;

@@ -9,14 +9,14 @@
 #include <zephyr/drivers/cmock_sid_gpio_utils.h>
 #include <unity.h>
 
-#define E_OK    (0)
+#define E_OK (0)
 
-#define INVALID_GPIO    (99)
-#define GPIO_NUMBER_1   (1)
-#define GPIO_NUMBER_2   (2)
-#define GPIO_NUMBER_3   (3)
-#define GPIO_NUMBER_4   (4)
-#define GPIO_NUMBER_9   (9)
+#define INVALID_GPIO (99)
+#define GPIO_NUMBER_1 (1)
+#define GPIO_NUMBER_2 (2)
+#define GPIO_NUMBER_3 (3)
+#define GPIO_NUMBER_4 (4)
+#define GPIO_NUMBER_9 (9)
 
 #define TEST_PORT (DEVICE_DT_GET(DT_NODELABEL(gpio0)))
 
@@ -170,13 +170,15 @@ void test_sid_gpio_irq_set_pass(void)
 	__cmock_gpio_add_callback_IgnoreAndReturn(E_OK);
 
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_irq_configure(test_pin, test_flag));
-	__cmock_gpio_pin_interrupt_configure_ExpectAndReturn(TEST_PORT, test_pin, GPIO_INT_DISABLE, E_OK);
+	__cmock_gpio_pin_interrupt_configure_ExpectAndReturn(TEST_PORT, test_pin, GPIO_INT_DISABLE,
+							     E_OK);
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_irq_set(test_pin, false));
 
 	__cmock_gpio_pin_interrupt_configure_ExpectAndReturn(TEST_PORT, test_pin, test_flag, E_OK);
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_irq_set(test_pin, true));
 
-	__cmock_gpio_pin_interrupt_configure_ExpectAndReturn(TEST_PORT, test_pin, GPIO_INT_DISABLE, E_OK);
+	__cmock_gpio_pin_interrupt_configure_ExpectAndReturn(TEST_PORT, test_pin, GPIO_INT_DISABLE,
+							     E_OK);
 	TEST_ASSERT_EQUAL(E_OK, sid_gpio_irq_set(test_pin, false));
 }
 

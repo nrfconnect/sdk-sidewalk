@@ -29,7 +29,6 @@ typedef struct {
  * @param length data buffer length.
  * @return 0 in case of success, negative value otherwise.
  */
-int sid_ble_send_data(sid_ble_srv_params_t *params,
-		      uint8_t *data, uint16_t length);
+int sid_ble_send_data(sid_ble_srv_params_t *params, uint8_t *data, uint16_t length);
 
 #endif /* SID_PAL_BLE_SERVICE_H */

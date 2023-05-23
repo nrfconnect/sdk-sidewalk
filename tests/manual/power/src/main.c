@@ -42,13 +42,11 @@ bool factory_reset_bypass = false;
 int alpha_handle_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg);
 int alpha_handle_export(int (*cb)(const char *name, const void *value, size_t val_len));
 
-struct settings_handler alph_handler = {
-	.name = "test",
-	.h_get = NULL,
-	.h_set = alpha_handle_set,
-	.h_commit = NULL,
-	.h_export = alpha_handle_export
-};
+struct settings_handler alph_handler = { .name = "test",
+					 .h_get = NULL,
+					 .h_set = alpha_handle_set,
+					 .h_commit = NULL,
+					 .h_export = alpha_handle_export };
 
 K_SEM_DEFINE(registered_sem, 0, 1);
 K_SEM_DEFINE(not_sending_sem, 0, 1);
@@ -61,8 +59,7 @@ static app_ctx_t app_context;
 
 volatile struct notifier_state current_app_state = {};
 
-int alpha_handle_set(const char *name, size_t len, settings_read_cb read_cb,
-		     void *cb_arg)
+int alpha_handle_set(const char *name, size_t len, settings_read_cb read_cb, void *cb_arg)
 {
 	const char *next;
 
@@ -76,8 +73,7 @@ int alpha_handle_set(const char *name, size_t len, settings_read_cb read_cb,
 	return -ENOENT;
 }
 
-int alpha_handle_export(int (*cb)(const char *name,
-				  const void *value, size_t val_len))
+int alpha_handle_export(int (*cb)(const char *name, const void *value, size_t val_len))
 {
 	(void)cb("test/factory_reset_bypass", &factory_reset_bypass, sizeof(factory_reset_bypass));
 	return 0;
@@ -92,22 +88,22 @@ void assert_post_action(const char *file, unsigned int line)
 
 static void button_handler(uint32_t event)
 {
-	app_event_send((app_event_t) event);
+	app_event_send((app_event_t)event);
 }
 
 static sid_error_t app_buttons_init(btn_handler_t handler)
 {
 	button_set_action_long_press(DK_BTN1, handler, BUTTON_EVENT_FACTORY_RESET);
-	#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 	button_set_action_short_press(DK_BTN2, handler, BUTTON_EVENT_GET_DEVICE_PROFILE);
 	button_set_action_long_press(DK_BTN2, handler, BUTTON_EVENT_SET_DEVICE_PROFILE);
-	#else
+#else
 	button_set_action(DK_BTN2, handler, BUTTON_EVENT_CONNECTION_REQUEST);
-	#endif
+#endif
 	button_set_action(DK_BTN3, handler, BUTTON_EVENT_SEND_HELLO);
-	#if defined(CONFIG_SIDEWALK_DFU)
+#if defined(CONFIG_SIDEWALK_DFU)
 	button_set_action_long_press(DK_BTN4, handler, BUTTON_EVENT_NORDIC_DFU);
-	#endif
+#endif
 
 	return buttons_init() ? SID_ERROR_GENERIC : SID_ERROR_NONE;
 }
@@ -123,38 +119,37 @@ static void app_setup(void)
 		LOG_ERR("Failed to initialze LEDs.");
 		SID_PAL_ASSERT(false);
 	}
-	#if defined(CONFIG_GPIO)
+#if defined(CONFIG_GPIO)
 	state_watch_init_gpio(&global_state_notifier);
-	#endif
-	#if defined(CONFIG_LOG)
+#endif
+#if defined(CONFIG_LOG)
 	state_watch_init_log(&global_state_notifier);
-	#endif
+#endif
 
-	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
 	if (usb_enable(NULL)) {
 		LOG_ERR("Failed to enable USB");
 		return;
 	}
-	#endif
+#endif
 
 	if (sidewalk_callbacks_set(&app_context, &app_context.event_callbacks)) {
 		LOG_ERR("Failed to set sidewalk callbacks");
 		SID_PAL_ASSERT(false);
 	}
 
-	app_context.config = (struct sid_config) {
-		.link_mask = BUILT_IN_LM,
-		.time_sync_periodicity_seconds = 7200,
-		.callbacks = &app_context.event_callbacks,
-		.link_config = app_get_ble_config(),
-		#if defined(CONFIG_SIDEWALK_SUBGHZ)
+	app_context.config = (struct sid_config)
+	{
+		.link_mask = BUILT_IN_LM, .time_sync_periodicity_seconds = 7200,
+		.callbacks = &app_context.event_callbacks, .link_config = app_get_ble_config(),
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
-		#else
+#else
 		.sub_ghz_link_config = NULL,
-		#endif
+#endif
 	};
 
-	#if defined(CONFIG_BOOTLOADER_MCUBOOT)
+#if defined(CONFIG_BOOTLOADER_MCUBOOT)
 	if (!boot_is_img_confirmed()) {
 		int ret = boot_write_img_confirmed();
 
@@ -164,7 +159,7 @@ static void app_setup(void)
 			LOG_INF("Marked image as OK");
 		}
 	}
-	#endif
+#endif
 }
 
 static void state_change_handler_power_test(const struct notifier_state *state)
@@ -236,21 +231,21 @@ static inline void perform_power_test(void)
 	wait_for_registered();
 	wait_for_time_sync();
 
-	#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 	app_event_send(BUTTON_EVENT_SEND_HELLO);
 	wait_for_time_sync();
 	wait_for_connected();
-	#endif
+#endif
 
 	for (int i = 0; i < CONFIG_MESSAGES_TO_SEND; i++) {
-	#if !defined(CONFIG_SIDEWALK_SUBGHZ)
+#if !defined(CONFIG_SIDEWALK_SUBGHZ)
 		if (!current_app_state.connected) {
 			wait_for_registered();
 			wait_for_time_sync();
 			app_event_send(BUTTON_EVENT_CONNECTION_REQUEST);
 			wait_for_connected();
 		}
-	#endif
+#endif
 		wait_for_connected();
 		wait_for_not_sending();
 		app_event_send(BUTTON_EVENT_SEND_HELLO);
@@ -263,8 +258,9 @@ int main(void)
 	extern struct notifier_ctx global_state_notifier;
 
 	if (!subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test)) {
-		__ASSERT(false,
-			 "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
+		__ASSERT(
+			false,
+			"failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
 	}
 
 	PRINT_SIDEWALK_VERSION();

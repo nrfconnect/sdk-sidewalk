@@ -43,7 +43,8 @@ sid_error_t sid_ble_adapter_data_cb_set(sid_pal_ble_data_callback_t cb);
  * @param data buffer with data.
  * @param length data buffer length.
  */
-void sid_ble_adapter_data_write(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
+void sid_ble_adapter_data_write(sid_ble_cfg_service_identifier_t id, uint8_t *data,
+				uint16_t length);
 
 /**
  * @brief Set a callback for notification subscription change.

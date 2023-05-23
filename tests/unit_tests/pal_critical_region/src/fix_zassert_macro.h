@@ -4,4 +4,4 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
- #define zassert_true(a, ...)
+#define zassert_true(a, ...)

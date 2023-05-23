@@ -21,41 +21,35 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 #define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
 
 #if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
-#define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_USE_NAME | \
-			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
+#define AMA_ADV_OPTIONS (BT_LE_ADV_OPT_USE_NAME | BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
 #else
-#define AMA_ADV_OPTIONS     (BT_LE_ADV_OPT_CONNECTABLE | \
-			     BT_LE_ADV_OPT_USE_NAME |	 \
-			     BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
+#define AMA_ADV_OPTIONS                                                                            \
+	(BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_USE_NAME | BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
 #endif
 
 #if 10240 < (CONFIG_SIDEWALK_BLE_ADV_INT_FAST + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION)
-#error \
-	"Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_FAST or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
+#error "Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_FAST or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
 #endif
 
 #if 10240 < (CONFIG_SIDEWALK_BLE_ADV_INT_SLOW + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION)
-#error \
-	"Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_SLOW or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
+#error "Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_SLOW or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
 #endif
 #if CONFIG_SIDEWALK_BLE_ADV_INT_FAST > CONFIG_SIDEWALK_BLE_ADV_INT_SLOW
 #error "CONFIG_SIDEWALK_BLE_ADV_INT_FAST should be smaller than CONFIG_SIDEWALK_BLE_ADV_INT_SLOW"
 #endif
 
 /* Advertising parameters. */
-#define AMA_ADV_PARAM_FAST											   \
-	BT_LE_ADV_PARAM(											   \
-		AMA_ADV_OPTIONS,										   \
-		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),						   \
-		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION), NULL \
-		)
+#define AMA_ADV_PARAM_FAST                                                                         \
+	BT_LE_ADV_PARAM(AMA_ADV_OPTIONS, MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),     \
+			MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST +                      \
+					   CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION),                 \
+			NULL)
 
-#define AMA_ADV_PARAM_SLOW											   \
-	BT_LE_ADV_PARAM(											   \
-		AMA_ADV_OPTIONS,										   \
-		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),						   \
-		MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION), NULL \
-		)
+#define AMA_ADV_PARAM_SLOW                                                                         \
+	BT_LE_ADV_PARAM(AMA_ADV_OPTIONS, MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),     \
+			MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW +                      \
+					   CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION),                 \
+			NULL)
 
 /**
  * @brief Advertising data items values size in bytes.
@@ -66,22 +60,13 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 #define AD_NAME_SHORT_LEN 2
 #define AD_TLV_TYPE_AND_LENGTH 2
 #define AD_TLV_LEN(x) (x + AD_TLV_TYPE_AND_LENGTH)
-#define AD_MANUF_DATA_LEN_MAX (BT_GAP_ADV_MAX_ADV_DATA_LEN - \
-			       AD_TLV_TYPE_AND_LENGTH  -     \
-			       AD_TLV_LEN(AD_FLAGS_LEN) -    \
-			       AD_TLV_LEN(AD_SERVICES_LEN) - \
-			       AD_TLV_LEN(AD_NAME_SHORT_LEN))
+#define AD_MANUF_DATA_LEN_MAX                                                                      \
+	(BT_GAP_ADV_MAX_ADV_DATA_LEN - AD_TLV_TYPE_AND_LENGTH - AD_TLV_LEN(AD_FLAGS_LEN) -         \
+	 AD_TLV_LEN(AD_SERVICES_LEN) - AD_TLV_LEN(AD_NAME_SHORT_LEN))
 
-enum adv_data_items {
-	ADV_DATA_FLAGS,
-	ADV_DATA_SERVICES,
-	ADV_DATA_MANUF_DATA
-};
+enum adv_data_items { ADV_DATA_FLAGS, ADV_DATA_SERVICES, ADV_DATA_MANUF_DATA };
 
-typedef enum {
-	BLE_ADV_DISABLE,
-	BLE_ADV_ENABLE
-} sid_ble_adv_state_t;
+typedef enum { BLE_ADV_DISABLE, BLE_ADV_ENABLE } sid_ble_adv_state_t;
 
 static void change_advertisement_interval(struct k_work *);
 K_WORK_DELAYABLE_DEFINE(change_adv_work, change_advertisement_interval);
@@ -92,8 +77,10 @@ static uint8_t bt_adv_manuf_data[AD_MANUF_DATA_LEN_MAX];
 
 static struct bt_data adv_data[] = {
 	[ADV_DATA_FLAGS] = BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	[ADV_DATA_SERVICES] = BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(AMA_SERVICE_UUID_VAL)),
-	[ADV_DATA_MANUF_DATA] = BT_DATA(BT_DATA_MANUFACTURER_DATA, &bt_adv_manuf_data, AD_MANUF_DATA_LEN_MAX)
+	[ADV_DATA_SERVICES] =
+		BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(AMA_SERVICE_UUID_VAL)),
+	[ADV_DATA_MANUF_DATA] =
+		BT_DATA(BT_DATA_MANUFACTURER_DATA, &bt_adv_manuf_data, AD_MANUF_DATA_LEN_MAX)
 };
 
 /**

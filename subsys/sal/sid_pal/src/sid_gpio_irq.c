@@ -57,7 +57,8 @@ int sid_gpio_irq_configure(uint32_t gpio_number, gpio_flags_t irq_flags)
 	struct gpio_callback *clbk = &gpio_cb[port_number];
 	bool is_initialized = ((0 != clbk->pin_mask) ? true : false);
 
-	WRITE_BIT(clbk->pin_mask, port_pin.pin, (GPIO_INT_DISABLE != (irq_flags & GPIO_INT_DISABLE)));
+	WRITE_BIT(clbk->pin_mask, port_pin.pin,
+		  (GPIO_INT_DISABLE != (irq_flags & GPIO_INT_DISABLE)));
 
 	if (!is_initialized) {
 		if (GPIO_INT_DISABLE != irq_flags) {

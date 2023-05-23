@@ -30,14 +30,11 @@ static struct bt_conn_cb conn_callbacks = {
 	.disconnected = ble_disconnect_cb,
 };
 
-static struct bt_gatt_cb gatt_callbacks = {
-	.att_mtu_updated = ble_mtu_cb
-};
+static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = ble_mtu_cb };
 
 static struct bt_gatt_exchange_params exchange_params;
 
-static void exchange_func(struct bt_conn *conn, uint8_t err,
-			  struct bt_gatt_exchange_params *params)
+static void exchange_func(struct bt_conn *conn, uint8_t err, struct bt_gatt_exchange_params *params)
 {
 	LOG_INF("Exchange MTU finished err status: %d", err);
 }

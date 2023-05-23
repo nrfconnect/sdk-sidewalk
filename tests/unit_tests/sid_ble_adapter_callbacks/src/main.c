@@ -10,7 +10,7 @@
 #include <zephyr/bluetooth/conn.h>
 #include <stdbool.h>
 
-#define TEST_DATA_CHUNK  (16)
+#define TEST_DATA_CHUNK (16)
 
 typedef struct {
 	int call_cnt;
@@ -36,7 +36,8 @@ void setUp(void)
 /**
  * Callbacks
  */
-static void ble_write_data_callback(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
+static void ble_write_data_callback(sid_ble_cfg_service_identifier_t id, uint8_t *data,
+				    uint16_t length)
 {
 	++ble_write_data_callback_call_cnt;
 }
@@ -79,13 +80,15 @@ void test_sid_ble_adapter_notification_sent_wo_callback(void)
 void test_sid_ble_adapter_notification_cb_set(void)
 {
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_ble_adapter_notification_cb_set(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_notification_cb_set(ble_indication_callback));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_ble_adapter_notification_cb_set(ble_indication_callback));
 }
 
 void test_sid_ble_notification_sent_pass(void)
 {
 	sid_ble_adapter_notification_sent();
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_notification_cb_set(ble_indication_callback));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_ble_adapter_notification_cb_set(ble_indication_callback));
 	TEST_ASSERT_EQUAL(1, ble_indication_callback_call_cnt);
 }
 
@@ -120,14 +123,17 @@ void test_sid_ble_adapter_notification_changed_wo_callback(void)
 
 void test_sid_ble_adapter_notification_changed_cb_set(void)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_ble_adapter_notification_changed_cb_set(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_notification_changed_cb_set(ble_notify_callback));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_ble_adapter_notification_changed_cb_set(NULL));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_ble_adapter_notification_changed_cb_set(ble_notify_callback));
 }
 
 void test_sid_ble_adapter_notification_changed_pass(void)
 {
 	sid_ble_adapter_notification_changed(0, true);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_ble_adapter_notification_changed_cb_set(ble_notify_callback));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  sid_ble_adapter_notification_changed_cb_set(ble_notify_callback));
 	TEST_ASSERT_EQUAL(1, ble_notify_callback_call_cnt);
 }
 

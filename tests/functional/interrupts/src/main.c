@@ -12,16 +12,8 @@
 #define BUFFER_SIZE 6
 
 static char buffer_in[BUFFER_NO][BUFFER_SIZE] = {
-	"test_0",
-	"test_1",
-	"test_2",
-	"test_3",
-	"test_4",
-	"test_5",
-	"test_6",
-	"test_7",
-	"test_8",
-	"test_9",
+	"test_0", "test_1", "test_2", "test_3", "test_4",
+	"test_5", "test_6", "test_7", "test_8", "test_9",
 };
 static char buffer_out[BUFFER_NO][BUFFER_SIZE];
 

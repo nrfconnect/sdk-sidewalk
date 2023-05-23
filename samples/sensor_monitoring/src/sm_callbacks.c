@@ -13,17 +13,13 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sm_callbacks, CONFIG_SIDEWALK_LOG_LEVEL);
 
-static const uint8_t *status_name[] = {
-	"ready", "not ready", "Error", "secure channel ready"
-};
+static const uint8_t *status_name[] = { "ready", "not ready", "Error", "secure channel ready" };
 
 static const uint8_t *link_mode_name[] = {
 	"none", [SID_LINK_MODE_CLOUD] = "cloud", [SID_LINK_MODE_MOBILE] = "mobile"
 };
 
-static const uint8_t *link_mode_idx_name[] = {
-	"ble", "fsk", "lora"
-};
+static const uint8_t *link_mode_idx_name[] = { "ble", "fsk", "lora" };
 
 static void cb_sid_event(bool in_isr, void *context)
 {
@@ -31,12 +27,13 @@ static void cb_sid_event(bool in_isr, void *context)
 	sm_main_task_msg_q_write(EVENT_TYPE_SIDEWALK);
 }
 
-static void cb_sid_msg_received(const struct sid_msg_desc *msg_desc,
-				const struct sid_msg *msg, void *context)
+static void cb_sid_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
+				void *context)
 {
 	LOG_INF("Received message(type: %d, link_mode: %d, id: %u size %u rssi %d snr %d)",
 		(int)msg_desc->type, (int)msg_desc->link_mode, msg_desc->id, msg->size,
-		(int)msg_desc->msg_desc_attr.rx_attr.rssi, (int)msg_desc->msg_desc_attr.rx_attr.snr);
+		(int)msg_desc->msg_desc_attr.rx_attr.rssi,
+		(int)msg_desc->msg_desc_attr.rx_attr.snr);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 
 	if (msg_desc->type == SID_MSG_TYPE_RESPONSE && msg_desc->msg_desc_attr.rx_attr.is_msg_ack) {
@@ -58,8 +55,8 @@ static void cb_sid_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 
 static void cb_sid_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
 {
-	LOG_ERR("Failed to send message(type: %d, id: %u), err:%d",
-		(int)msg_desc->type, msg_desc->id, (int)error);
+	LOG_ERR("Failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type,
+		msg_desc->id, (int)error);
 }
 
 static void cd_sid_status_changed(const struct sid_status *status, void *context)
@@ -92,7 +89,8 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	app_context->link_status.time_sync_status = status->detail.time_sync_status;
 
 	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
-		enum sid_link_mode mode = (enum sid_link_mode)status->detail.supported_link_modes[i];
+		enum sid_link_mode mode =
+			(enum sid_link_mode)status->detail.supported_link_modes[i];
 		app_context->link_status.supported_link_mode[i] = mode;
 
 		if ((mode == SID_LINK_MODE_CLOUD) || (mode == SID_LINK_MODE_MOBILE)) {
@@ -116,8 +114,8 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 		sm_cap_timer_set_and_run(delay);
 	}
 
-	if ((status->detail.registration_status == SID_STATUS_REGISTERED)
-	    && (status->detail.time_sync_status == SID_STATUS_TIME_SYNCED)) {
+	if ((status->detail.registration_status == SID_STATUS_REGISTERED) &&
+	    (status->detail.time_sync_status == SID_STATUS_TIME_SYNCED)) {
 		if (BUILT_IN_LM == SID_LINK_TYPE_1 &&
 		    !(status->detail.link_status_mask & SID_LINK_TYPE_1)) {
 			sm_cap_timer_set_and_run(K_MSEC(CONNECT_LINK_TYPE_1_INIT_DELAY_MS));
@@ -147,12 +145,12 @@ sid_error_t sm_callbacks_set(void *ctx, struct sid_event_callbacks *cb)
 	}
 
 	cb->context = (app_context_t *)ctx;
-	cb->on_event = cb_sid_event;                            /* Called from ISR context */
-	cb->on_msg_received = cb_sid_msg_received;              /* Called from sid_process() */
-	cb->on_msg_sent = cb_sid_msg_sent;                      /* Called from sid_process() */
-	cb->on_send_error = cb_sid_send_error;                  /* Called from sid_process() */
-	cb->on_status_changed = cd_sid_status_changed;          /* Called from sid_process() */
-	cb->on_factory_reset = cb_sid_factory_reset;            /* Called from sid_process() */
+	cb->on_event = cb_sid_event; /* Called from ISR context */
+	cb->on_msg_received = cb_sid_msg_received; /* Called from sid_process() */
+	cb->on_msg_sent = cb_sid_msg_sent; /* Called from sid_process() */
+	cb->on_send_error = cb_sid_send_error; /* Called from sid_process() */
+	cb->on_status_changed = cd_sid_status_changed; /* Called from sid_process() */
+	cb->on_factory_reset = cb_sid_factory_reset; /* Called from sid_process() */
 
 	return SID_ERROR_NONE;
 }

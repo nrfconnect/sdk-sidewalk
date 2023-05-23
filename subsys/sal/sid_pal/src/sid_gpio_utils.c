@@ -21,7 +21,7 @@ static const struct device *gpio_port[] = {
 	DEVICE_DT_GET(DT_NODELABEL(gpio1)),
 #else
 	NULL,
-#endif  /* DT_NODE_HAS_STATUS(DT_NODELABEL(gpio1), okay) */
+#endif /* DT_NODE_HAS_STATUS(DT_NODELABEL(gpio1), okay) */
 };
 
 static uint32_t sid_gpio_utils_mask_to_pin_number(uint32_t pin_mask)

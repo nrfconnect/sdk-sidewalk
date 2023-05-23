@@ -15,7 +15,8 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
 
-#define SPI_OPTIONS (uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX)
+#define SPI_OPTIONS                                                                                \
+	(uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX)
 
 struct bus_serial_ctx_t {
 	const struct sid_pal_serial_bus_iface *iface;
@@ -24,10 +25,8 @@ struct bus_serial_ctx_t {
 };
 
 static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
-				       const struct sid_pal_serial_bus_client *client,
-				       uint8_t *tx,
-				       uint8_t *rx,
-				       size_t xfer_size);
+				       const struct sid_pal_serial_bus_client *client, uint8_t *tx,
+				       uint8_t *rx, size_t xfer_size);
 static sid_error_t bus_serial_spi_destroy(const struct sid_pal_serial_bus_iface *iface);
 
 static const struct sid_pal_serial_bus_iface bus_ops = {
@@ -38,17 +37,16 @@ static const struct sid_pal_serial_bus_iface bus_ops = {
 static struct bus_serial_ctx_t bus_serial_ctx = {
 	.iface = &bus_ops,
 	.device = DEVICE_DT_GET(DT_NODELABEL(sid_semtech)),
-	.cfg = (struct spi_config){
-		.operation = SPI_OPTIONS,
-		.cs = NULL,
-	},
+	.cfg =
+		(struct spi_config){
+			.operation = SPI_OPTIONS,
+			.cs = NULL,
+		},
 };
 
 static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
-				       const struct sid_pal_serial_bus_client *client,
-				       uint8_t *tx,
-				       uint8_t *rx,
-				       size_t xfer_size)
+				       const struct sid_pal_serial_bus_client *client, uint8_t *tx,
+				       uint8_t *rx, size_t xfer_size)
 {
 	LOG_DBG("%s(%p, %p, %p, %p, %d)", __func__, iface, client, tx, rx, xfer_size);
 	if (iface != bus_serial_ctx.iface || (!tx && !rx) || !xfer_size || !client) {
@@ -62,10 +60,7 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 		},
 	};
 
-	struct spi_buf_set tx_set = {
-		.buffers = tx_buff,
-		.count = 1
-	};
+	struct spi_buf_set tx_set = { .buffers = tx_buff, .count = 1 };
 
 	struct spi_buf rx_buff[] = {
 		{
@@ -74,15 +69,12 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 		},
 	};
 
-	struct spi_buf_set rx_set = {
-		.buffers =  rx_buff,
-		.count = 1
-	};
+	struct spi_buf_set rx_set = { .buffers = rx_buff, .count = 1 };
 
 	sid_pal_gpio_write(client->client_selector, 0);
 
-	int err = spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg, ((tx) ? &tx_set : NULL),
-				 ((rx) ? &rx_set : NULL));
+	int err = spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg,
+				 ((tx) ? &tx_set : NULL), ((rx) ? &rx_set : NULL));
 
 	sid_pal_gpio_write(client->client_selector, 1);
 
@@ -105,7 +97,8 @@ static sid_error_t bus_serial_spi_destroy(const struct sid_pal_serial_bus_iface 
 	return SID_ERROR_NONE;
 }
 
-sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus_iface **iface, const void *cfg)
+sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus_iface **iface,
+						 const void *cfg)
 {
 	ARG_UNUSED(cfg);
 	if (!iface) {

@@ -13,8 +13,8 @@
 #error "Architecture not supported"
 #endif
 
-#define TEST_IRQ        (24)
-#define TEST_IRQ_PRIO   (2)
+#define TEST_IRQ (24)
+#define TEST_IRQ_PRIO (2)
 
 #define UNCHANGED 0
 #define CHANGED 1

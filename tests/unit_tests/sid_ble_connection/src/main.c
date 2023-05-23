@@ -27,13 +27,13 @@ FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
 FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
 FAKE_VALUE_FUNC(int, bt_gatt_exchange_mtu, struct bt_conn *, struct bt_gatt_exchange_params *);
 
-#define FFF_FAKES_LIST(FAKE)	  \
-	FAKE(bt_conn_cb_register) \
-	FAKE(bt_gatt_cb_register) \
-	FAKE(bt_conn_ref)	  \
-	FAKE(bt_conn_unref)	  \
-	FAKE(bt_conn_get_dst)	  \
-	FAKE(bt_conn_disconnect)  \
+#define FFF_FAKES_LIST(FAKE)                                                                       \
+	FAKE(bt_conn_cb_register)                                                                  \
+	FAKE(bt_gatt_cb_register)                                                                  \
+	FAKE(bt_conn_ref)                                                                          \
+	FAKE(bt_conn_unref)                                                                        \
+	FAKE(bt_conn_get_dst)                                                                      \
+	FAKE(bt_conn_disconnect)                                                                   \
 	FAKE(bt_gatt_exchange_mtu)
 
 #define CONNECTED (true)
@@ -110,9 +110,7 @@ void test_sid_ble_conn_positive(void)
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const sid_ble_conn_params_t *params = NULL;
-	struct bt_conn test_conn = {
-		.dummy = 0xDC
-	};
+	struct bt_conn test_conn = { .dummy = 0xDC };
 	const bt_addr_le_t test_addr = {
 		.type = BT_ADDR_LE_RANDOM,
 		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
@@ -140,9 +138,7 @@ void test_sid_ble_set_conn_cb_positive(void)
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const sid_ble_conn_params_t *params = NULL;
-	struct bt_conn test_conn = {
-		.dummy = 0xDC
-	};
+	struct bt_conn test_conn = { .dummy = 0xDC };
 	const bt_addr_le_t test_addr = {
 		.type = BT_ADDR_LE_RANDOM,
 		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
@@ -176,9 +172,7 @@ void test_sid_ble_conn_cb_set_call_count(void)
 	uint8_t test_error_timeout = BT_HCI_ERR_CONN_TIMEOUT;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const bt_addr_le_t test_addr;
-	struct bt_conn test_conn = {
-		.dummy = 0xDC
-	};
+	struct bt_conn test_conn = { .dummy = 0xDC };
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
@@ -213,9 +207,7 @@ void test_sid_ble_disconnected_wrong_conn(void)
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
 	const bt_addr_le_t test_addr;
-	struct bt_conn test_conn = {
-		.dummy = 0xDC
-	};
+	struct bt_conn test_conn = { .dummy = 0xDC };
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
@@ -241,9 +233,7 @@ void test_sid_ble_disconnected_wrong_conn(void)
 void test_sid_ble_cb_set_before_init(void)
 {
 	size_t conn_cb_cnt_expected = 0;
-	struct bt_conn test_conn = {
-		.dummy = 0xDC
-	};
+	struct bt_conn test_conn = { .dummy = 0xDC };
 
 	bt_conn_ref_fake.return_val = &test_conn;
 
@@ -265,9 +255,7 @@ void test_sid_ble_cb_set_before_init(void)
 
 void test_sid_ble_conn_mtu_callback(void)
 {
-	struct bt_conn test_conn = {
-		.dummy = 0xDC
-	};
+	struct bt_conn test_conn = { .dummy = 0xDC };
 
 	sid_ble_conn_init();
 

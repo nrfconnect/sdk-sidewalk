@@ -45,12 +45,11 @@ struct messages_stats {
 	uint16_t resp_id;
 };
 
-static const struct sid_status dummy = {
-	.state = SID_STATE_NOT_READY,
-	.detail = { .link_status_mask = 0,
-		    .registration_status = SID_STATUS_NOT_REGISTERED,
-		    .time_sync_status = SID_STATUS_NO_TIME }
-};
+static const struct sid_status dummy = { .state = SID_STATE_NOT_READY,
+					 .detail = { .link_status_mask = 0,
+						     .registration_status =
+							     SID_STATUS_NOT_REGISTERED,
+						     .time_sync_status = SID_STATUS_NO_TIME } };
 
 struct sid_send_work_t {
 	struct k_work work;
@@ -95,8 +94,7 @@ void CLI_init(struct sid_handle *handle)
 	k_work_queue_init(&sid_api_work_q);
 
 	k_work_queue_start(&sid_api_work_q, sid_api_work_q_stack,
-			   K_THREAD_STACK_SIZEOF(sid_api_work_q_stack), SID_API_WORKER_PRIO,
-			   NULL);
+			   K_THREAD_STACK_SIZEOF(sid_api_work_q_stack), SID_API_WORKER_PRIO, NULL);
 }
 
 void CLI_register_sid_status(const struct sid_status *status)
@@ -107,29 +105,34 @@ void CLI_register_sid_status(const struct sid_status *status)
 static ButtonParserResult button_id_from_arg(const char *arg)
 {
 	if (NULL == arg) {
-		return (ButtonParserResult) Result_Err(EMPTY_ARG);
+		return (ButtonParserResult)Result_Err(EMPTY_ARG);
 	}
 
 	if (strlen(arg) != 1) {
-		return (ButtonParserResult) Result_Err(INVALID_INPUT);
+		return (ButtonParserResult)Result_Err(INVALID_INPUT);
 	}
 
 	switch (*arg) {
-	case '1': return (ButtonParserResult) Result_Val(0);
-	case '2': return (ButtonParserResult) Result_Val(1);
-	case '3': return (ButtonParserResult) Result_Val(2);
-	case '4': return (ButtonParserResult) Result_Val(3);
-	default: return (ButtonParserResult) Result_Err(INVALID_INPUT);
+	case '1':
+		return (ButtonParserResult)Result_Val(0);
+	case '2':
+		return (ButtonParserResult)Result_Val(1);
+	case '3':
+		return (ButtonParserResult)Result_Val(2);
+	case '4':
+		return (ButtonParserResult)Result_Val(3);
+	default:
+		return (ButtonParserResult)Result_Err(INVALID_INPUT);
 	}
 }
 
-static int press_button(button_action_t action, const struct shell *shell, size_t argc,
-			char **argv)
+static int press_button(button_action_t action, const struct shell *shell, size_t argc, char **argv)
 {
 	ButtonParserResult button_id = button_id_from_arg(argv[1]);
 
 	if (button_id.result == Err) {
-		shell_error(shell, "invalid button selectd to press:\nexample: sidewalk press_button 4");
+		shell_error(shell,
+			    "invalid button selectd to press:\nexample: sidewalk press_button 4");
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 	button_pressed(button_id.val_or_err.val, action);
@@ -150,16 +153,16 @@ static int cmd_button_press_short(const struct shell *shell, size_t argc, char *
 static HexToByteRet hex_nib_to_byte(char hex)
 {
 	if (IN_RANGE(hex, '0', '9')) {
-		return (HexToByteRet) Result_Val(hex - '0');
+		return (HexToByteRet)Result_Val(hex - '0');
 	}
 	if (IN_RANGE(hex, 'A', 'F')) {
-		return (HexToByteRet) Result_Val(hex - 'A' + 10);
+		return (HexToByteRet)Result_Val(hex - 'A' + 10);
 	}
 	if (IN_RANGE(hex, 'a', 'f')) {
-		return (HexToByteRet) Result_Val(hex - 'a' + 10);
+		return (HexToByteRet)Result_Val(hex - 'a' + 10);
 	}
 
-	return (HexToByteRet) Result_Err(NOT_HEX);
+	return (HexToByteRet)Result_Err(NOT_HEX);
 }
 
 static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char *in)
@@ -167,12 +170,12 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 	char *working_ptr = in;
 
 	if (strlen(in) < 2) {
-		return (StrToHexRet) Result_Err(ARG_EMPTY);
+		return (StrToHexRet)Result_Err(ARG_EMPTY);
 	}
 
 	if (in[0] == '0' && in[1] == 'x') {
 		if (strlen(in) == 2) {
-			return (StrToHexRet) Result_Err(ARG_EMPTY);
+			return (StrToHexRet)Result_Err(ARG_EMPTY);
 		}
 		working_ptr = &in[2];
 	}
@@ -180,7 +183,7 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 	size_t in_size = strlen(working_ptr);
 
 	if (in_size % 2 != 0) {
-		return (StrToHexRet) Result_Err(ARG_NOT_ALIGNED);
+		return (StrToHexRet)Result_Err(ARG_NOT_ALIGNED);
 	}
 
 	uint8_t payload_size = 0;
@@ -190,12 +193,12 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 		HexToByteRet lo = hex_nib_to_byte(*(working_ptr + 1));
 
 		if (hi.result == Err || lo.result == Err) {
-			return (StrToHexRet) Result_Err(ARG_NOT_HEX);
+			return (StrToHexRet)Result_Err(ARG_NOT_HEX);
 		}
 		out[payload_size] = (hi.val_or_err.val << 4) + lo.val_or_err.val;
 		payload_size++;
 	}
-	return (StrToHexRet) Result_Val(payload_size);
+	return (StrToHexRet)Result_Val(payload_size);
 }
 
 static StrToDecRet string_to_dec(char *string)
@@ -204,34 +207,37 @@ static StrToDecRet string_to_dec(char *string)
 
 	while (*string != '\0') {
 		if (IN_RANGE(*string, '0', '9') == false) {
-			return (StrToDecRet) Result_Err(NOT_NUMBER);
+			return (StrToDecRet)Result_Err(NOT_NUMBER);
 		}
 		value *= 10;
 		value += (uint8_t)((*string) - '0');
 		string++;
 	}
-	return (StrToDecRet) Result_Val(value);
+	return (StrToDecRet)Result_Val(value);
 }
 
 static int cmd_set_response_id(const struct shell *shell, size_t argc, char **argv)
 {
 	if (strlen(argv[1]) > 5) {
-		shell_error(shell,
-			    "Value out of valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
+		shell_error(
+			shell,
+			"Value out of valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
 	StrToDecRet id_raw = string_to_dec(argv[1]);
 
 	if (id_raw.result == Err) {
-		shell_error(shell,
-			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
+		shell_error(
+			shell,
+			"Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
 	if (id_raw.val_or_err.val > 16383) {
-		shell_error(shell,
-			    "Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
+		shell_error(
+			shell,
+			"Invalid sequence id of message valid range [0:16383]\nexample: $ sidewalk set_response_id 123");
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
@@ -241,8 +247,7 @@ static int cmd_set_response_id(const struct shell *shell, size_t argc, char **ar
 
 static void cmd_send_work(struct k_work *item)
 {
-	struct sid_send_work_t *sid_send_work =
-		CONTAINER_OF(item, struct sid_send_work_t, work);
+	struct sid_send_work_t *sid_send_work = CONTAINER_OF(item, struct sid_send_work_t, work);
 
 	LOG_HEXDUMP_DBG(sid_send_work->msg.data, sid_send_work->msg.size, "sending message");
 
@@ -259,7 +264,7 @@ static void cmd_send_work(struct k_work *item)
 	sid_error_t sid_ret = sid_put_msg(sidewalk_handle, &sid_send_work->msg, &desc);
 
 	if (SID_ERROR_NONE != sid_ret) {
-		LOG_ERR("failed sending message err:%d", (int) sid_ret);
+		LOG_ERR("failed sending message err:%d", (int)sid_ret);
 		return;
 	}
 	LOG_INF("queued data message id:%u", desc.id);
@@ -277,16 +282,25 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 	}
 
 	switch (argv[2][0]) {
-	case '0': type = SID_MSG_TYPE_GET; break;
-	case '1': type = SID_MSG_TYPE_SET; break;
-	case '2': type = SID_MSG_TYPE_NOTIFY; break;
-	case '3': type = SID_MSG_TYPE_RESPONSE; break;
+	case '0':
+		type = SID_MSG_TYPE_GET;
+		break;
+	case '1':
+		type = SID_MSG_TYPE_SET;
+		break;
+	case '2':
+		type = SID_MSG_TYPE_NOTIFY;
+		break;
+	case '3':
+		type = SID_MSG_TYPE_RESPONSE;
+		break;
 	default:
 		shell_error(shell, "send type incorrect");
 		return CMD_RETURN_ARGUMENT_INVALID;
 	}
 
-	StrToHexRet ret = convert_hex_str_to_data(message_raw_data, sizeof(message_raw_data), argv[1]);
+	StrToHexRet ret =
+		convert_hex_str_to_data(message_raw_data, sizeof(message_raw_data), argv[1]);
 
 	if (ret.result == Err) {
 		switch (ret.val_or_err.err) {
@@ -296,26 +310,28 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 				    sizeof(message_raw_data));
 			return CMD_RETURN_ARGUMENT_INVALID;
 		case ARG_NOT_HEX:
-			shell_error(shell,
-				    "Payload is not hex string\nexample: $ sidewalk send deadbeefCAFE 2");
+			shell_error(
+				shell,
+				"Payload is not hex string\nexample: $ sidewalk send deadbeefCAFE 2");
 			return CMD_RETURN_ARGUMENT_INVALID;
 		case ARG_EMPTY:
 			shell_error(shell,
 				    "Payload is empty\nexample: $ sidewalk send deadbeefCAFE 2");
 			return CMD_RETURN_ARGUMENT_INVALID;
 		case ARG_NOT_ALIGNED:
-			shell_error(shell,
-				    "Payload is not aligned to full bytes\nexample: $ sidewalk send deadbeefCAFE 2");
+			shell_error(
+				shell,
+				"Payload is not aligned to full bytes\nexample: $ sidewalk send deadbeefCAFE 2");
 			return CMD_RETURN_ARGUMENT_INVALID;
 		default:
-			shell_error(shell,
-				    "Invalid payload");
+			shell_error(shell, "Invalid payload");
 			return CMD_RETURN_HELP;
 		}
 	}
 
 	if (k_work_busy_get(&send_work.work) != 0) {
-		shell_error(shell, "Can not execute send command, previous send has not completed yet");
+		shell_error(shell,
+			    "Can not execute send command, previous send has not completed yet");
 		return CMD_RETURN_NOT_EXECUTED;
 	}
 
@@ -331,38 +347,37 @@ static int cmd_send(const struct shell *shell, size_t argc, char **argv)
 
 static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 {
-	const char *state_repo[] = {
-		"SID_STATE_READY",
-		"SID_STATE_NOT_READY",
-		"SID_STATE_ERROR",
-		"SID_STATE_SECURE_CHANNEL_READY"
-	};
+	const char *state_repo[] = { "SID_STATE_READY", "SID_STATE_NOT_READY", "SID_STATE_ERROR",
+				     "SID_STATE_SECURE_CHANNEL_READY" };
 	const char *state = state_repo[CLI_status->state];
 
 	bool in_line = (argc == 2 && strcmp("--oneline", argv[1]) == 0);
 
 	JSON_DICT("SIDEWALK_CLI", in_line, {
 		JSON_VAL_STR("state", state, JSON_NEXT);
-		JSON_VAL(
-			"registered",
-			(CLI_status->detail.registration_status == SID_STATUS_REGISTERED), JSON_NEXT);
-		JSON_VAL(
-			"time_synced",
-			(CLI_status->detail.time_sync_status == SID_STATUS_TIME_SYNCED), JSON_NEXT);
+		JSON_VAL("registered",
+			 (CLI_status->detail.registration_status == SID_STATUS_REGISTERED),
+			 JSON_NEXT);
+		JSON_VAL("time_synced",
+			 (CLI_status->detail.time_sync_status == SID_STATUS_TIME_SYNCED),
+			 JSON_NEXT);
 		JSON_VAL("link_up", (CLI_status->detail.link_status_mask), JSON_NEXT);
 		JSON_VAL_DICT(
 			"link_modes",
-		{
-			JSON_VAL("ble",
-				 CLI_status->detail.supported_link_modes[SID_LINK_TYPE_1_IDX],
-				 JSON_NEXT);
-			JSON_VAL("fsk",
-				 CLI_status->detail.supported_link_modes[SID_LINK_TYPE_2_IDX],
-				 JSON_NEXT);
-			JSON_VAL("lora",
-				 CLI_status->detail.supported_link_modes[SID_LINK_TYPE_3_IDX],
-				 JSON_LAST);
-		},
+			{
+				JSON_VAL(
+					"ble",
+					CLI_status->detail.supported_link_modes[SID_LINK_TYPE_1_IDX],
+					JSON_NEXT);
+				JSON_VAL(
+					"fsk",
+					CLI_status->detail.supported_link_modes[SID_LINK_TYPE_2_IDX],
+					JSON_NEXT);
+				JSON_VAL(
+					"lora",
+					CLI_status->detail.supported_link_modes[SID_LINK_TYPE_3_IDX],
+					JSON_LAST);
+			},
 			JSON_NEXT);
 		JSON_VAL("tx_successfull", sidewalk_messages.tx_successfull, JSON_NEXT);
 		JSON_VAL("tx_failed", sidewalk_messages.tx_failed, JSON_NEXT);
@@ -381,10 +396,11 @@ void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
 		JSON_VAL_STR("build_time", build_time_stamp, JSON_NEXT);
 		JSON_VAL_DICT(
 			"modules",
-		{
-			JSON_VAL_STR_ENUMERATE(sidewalk_version_component_name, sidewalk_version_component,
-					       sidewalk_version_component_count, JSON_LAST);
-		},
+			{
+				JSON_VAL_STR_ENUMERATE(sidewalk_version_component_name,
+						       sidewalk_version_component,
+						       sidewalk_version_component_count, JSON_LAST);
+			},
 			JSON_LAST);
 	});
 }
@@ -402,9 +418,10 @@ static void cmd_fatory_reset_work(struct k_work *item)
 				    "Sidewalk not initialized, can not perform factory reset");
 			break;
 		default:
-			shell_error(sid_factory_reset_work->shell,
-				    "Notification of factory reset to sid api failed with unhandled error %d",
-				    ret);
+			shell_error(
+				sid_factory_reset_work->shell,
+				"Notification of factory reset to sid api failed with unhandled error %d",
+				ret);
 			break;
 		}
 		return;
@@ -415,7 +432,9 @@ static void cmd_fatory_reset_work(struct k_work *item)
 static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv)
 {
 	if (k_work_busy_get(&factory_reset_work.work) != 0) {
-		shell_error(shell, "Can not execute factory_reset command, previous command has not completed yet");
+		shell_error(
+			shell,
+			"Can not execute factory_reset command, previous command has not completed yet");
 		return CMD_RETURN_NOT_EXECUTED;
 	}
 
@@ -426,23 +445,24 @@ static int cmd_factory_reset(const struct shell *shell, size_t argc, char **argv
 }
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
-	sub_button,
-	SHELL_CMD_ARG(short, NULL, "{1,2,3,4}", cmd_button_press_short, 2, 0),
-	SHELL_CMD_ARG(long, NULL, "{1,2,3,4}", cmd_button_press_long, 2, 0),
-	SHELL_SUBCMD_SET_END);
+	sub_button, SHELL_CMD_ARG(short, NULL, "{1,2,3,4}", cmd_button_press_short, 2, 0),
+	SHELL_CMD_ARG(long, NULL, "{1,2,3,4}", cmd_button_press_long, 2, 0), SHELL_SUBCMD_SET_END);
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
 	SHELL_CMD_ARG(press_button, &sub_button, "{1,2,3,4}", cmd_button_press_short, 2, 0),
-	SHELL_CMD_ARG(set_response_id, NULL, "set ID of a next send message with type response", cmd_set_response_id, 2,
-		      0),
-	SHELL_CMD_ARG(send, NULL, "<hex payload> <type [0-3]>\n" \
-		      "\thex payload have to have even number of hex characters, type id: 0 - get, 1 - set, 2 - notify, 3 - response",
-		      cmd_send, 3, 0),
+	SHELL_CMD_ARG(set_response_id, NULL, "set ID of a next send message with type response",
+		      cmd_set_response_id, 2, 0),
+	SHELL_CMD_ARG(
+		send, NULL,
+		"<hex payload> <type [0-3]>\n"
+		"\thex payload have to have even number of hex characters, type id: 0 - get, 1 - set, 2 - notify, 3 - response",
+		cmd_send, 3, 0),
 	SHELL_CMD_ARG(report, NULL, "[--oneline] get state of the application", cmd_report, 1, 1),
-	SHELL_CMD_ARG(version, NULL, "[--oneline] print version of sidewalk and its components", cmd_print_version, 1,
-		      1),
-	SHELL_CMD(factory_reset, NULL, "perform factory reset of Sidewalk application", cmd_factory_reset),
+	SHELL_CMD_ARG(version, NULL, "[--oneline] print version of sidewalk and its components",
+		      cmd_print_version, 1, 1),
+	SHELL_CMD(factory_reset, NULL, "perform factory reset of Sidewalk application",
+		  cmd_factory_reset),
 	SHELL_SUBCMD_SET_END);
 
 // command, subcommands, help, handler

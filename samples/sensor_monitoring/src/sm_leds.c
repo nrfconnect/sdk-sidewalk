@@ -17,10 +17,10 @@ static int leds_state;
 static uint8_t led_id_arr[DEMO_LEDS_MAX];
 
 enum leds_id_t {
-	LED_ID_0        = 0,
-	LED_ID_1        = 1,
-	LED_ID_2        = 2,
-	LED_ID_3        = 3,
+	LED_ID_0 = 0,
+	LED_ID_1 = 1,
+	LED_ID_2 = 2,
+	LED_ID_3 = 3,
 	LED_ID_LAST,
 };
 
@@ -97,24 +97,22 @@ static void send_led_response(app_context_t *app_context, struct sid_demo_action
 		.size = state.offset,
 	};
 
-	struct sid_msg_desc desc = {
-		.link_type = link_type,
-		.type = SID_MSG_TYPE_NOTIFY,
-		.link_mode = SID_LINK_MODE_CLOUD,
-		.msg_desc_attr = {
-			.tx_attr = {
-				.ttl_in_seconds = SID_DEMO_APP_TTL_MAX,
-				.num_retries = SID_DEMO_APP_RETRIES_MAX,
-				.request_ack = true,
-			}
-		}
-	};
+	struct sid_msg_desc desc = { .link_type = link_type,
+				     .type = SID_MSG_TYPE_NOTIFY,
+				     .link_mode = SID_LINK_MODE_CLOUD,
+				     .msg_desc_attr = {
+					     .tx_attr = {
+						     .ttl_in_seconds = SID_DEMO_APP_TTL_MAX,
+						     .num_retries = SID_DEMO_APP_RETRIES_MAX,
+						     .request_ack = true,
+					     } } };
 
 	LOG_INF("Sending led response");
 	sm_send_msg(app_context, &desc, &msg);
 }
 
-static void turn_all_leds_process(app_context_t *app_context, enum sid_demo_led_action led_action_req,
+static void turn_all_leds_process(app_context_t *app_context,
+				  enum sid_demo_led_action led_action_req,
 				  struct sid_demo_action_resp *action_resp)
 {
 	if (led_action_req == SID_DEMO_ACTION_LED_ON) {
@@ -126,8 +124,9 @@ static void turn_all_leds_process(app_context_t *app_context, enum sid_demo_led_
 	action_resp->led_action_resp.action_resp = led_action_req;
 
 	for (size_t i = 0; i < DEMO_LEDS_MAX; i++) {
-		bool result = (led_action_req == SID_DEMO_ACTION_LED_ON) ? is_led_on((enum leds_id_t)led_id_arr[i]) :
-			      !is_led_on((enum leds_id_t)led_id_arr[i]);
+		bool result = (led_action_req == SID_DEMO_ACTION_LED_ON) ?
+				      is_led_on((enum leds_id_t)led_id_arr[i]) :
+				      !is_led_on((enum leds_id_t)led_id_arr[i]);
 		if (result) {
 			action_resp->led_action_resp.num_leds += 1;
 			action_resp->led_action_resp.led_id_arr[i] = led_id_arr[i];
@@ -155,9 +154,9 @@ static void turn_leds_process(app_context_t *app_context, struct sid_demo_led_ac
 	action_resp->led_action_resp.action_resp = led_req->action_req;
 
 	for (uint8_t i = 0; i < led_req->num_leds; i++) {
-		bool result = (led_req->action_req == SID_DEMO_ACTION_LED_ON) ? is_led_on(
-			(enum leds_id_t)led_req->led_id_arr[i]) :
-			      !is_led_on((enum leds_id_t)led_req->led_id_arr[i]);
+		bool result = (led_req->action_req == SID_DEMO_ACTION_LED_ON) ?
+				      is_led_on((enum leds_id_t)led_req->led_id_arr[i]) :
+				      !is_led_on((enum leds_id_t)led_req->led_id_arr[i]);
 		if (result) {
 			action_resp->led_action_resp.num_leds += 1;
 			action_resp->led_action_resp.led_id_arr[i] = led_req->led_id_arr[i];
@@ -183,9 +182,12 @@ void sm_leds_action_request_process(app_context_t *app_context, struct sid_parse
 
 	if (state->ret_code != SID_ERROR_NONE) {
 		LOG_ERR("de-serialize led action req failed %d", state->ret_code);
-	} else if (led_req.action_req == SID_DEMO_ACTION_LED_ON || led_req.action_req == SID_DEMO_ACTION_LED_OFF) {
+	} else if (led_req.action_req == SID_DEMO_ACTION_LED_ON ||
+		   led_req.action_req == SID_DEMO_ACTION_LED_OFF) {
 		uint8_t temp_led_id_arr_resp[DEMO_LEDS_MAX] = { 0 };
-		struct sid_demo_action_resp action_resp = { .resp_type = SID_DEMO_ACTION_TYPE_LED, };
+		struct sid_demo_action_resp action_resp = {
+			.resp_type = SID_DEMO_ACTION_TYPE_LED,
+		};
 		action_resp.led_action_resp.led_id_arr = temp_led_id_arr_resp;
 		struct sid_timespec curr_time = { 0 };
 
@@ -193,7 +195,8 @@ void sm_leds_action_request_process(app_context_t *app_context, struct sid_parse
 		action_resp.gps_time_in_seconds = curr_time.tv_sec;
 
 		if ((curr_time.tv_sec - led_req.gps_time_in_seconds) > 0) {
-			action_resp.down_link_latency_secs = curr_time.tv_sec - led_req.gps_time_in_seconds;
+			action_resp.down_link_latency_secs =
+				curr_time.tv_sec - led_req.gps_time_in_seconds;
 		}
 
 		if (led_req.num_leds == 0xFF) {

@@ -18,9 +18,7 @@
  * @brief Enumeration of application states
  */
 #define X(name, ...) APPLICATION_STATE_ENUM(name),
-enum application_state {
-	X_APPLICAITON_STATES
-};
+enum application_state { X_APPLICAITON_STATES };
 #undef X
 
 /**

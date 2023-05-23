@@ -73,7 +73,8 @@ void app_button_handler(uint32_t button_state, uint32_t has_changed)
 			} else {
 				memset(data_oversize, 0xF0, sizeof(data_oversize));
 				ret = p_ble_ifc->set_adv_data(data_oversize, sizeof(data_oversize));
-				LOG_HEXDUMP_DBG(data_oversize, sizeof(data_oversize), "set adv data: ");
+				LOG_HEXDUMP_DBG(data_oversize, sizeof(data_oversize),
+						"set adv data: ");
 				LOG_INF("set adv status %d", ret);
 			}
 			break;
@@ -116,7 +117,8 @@ static void app_connection_callback(bool state, uint8_t *addr)
 {
 	LOG_DBG("%s", __func__);
 	LOG_DBG("state %s", state ? "true" : "false");
-	LOG_DBG("addr %02x:%02x:%02x:%02x:%02x:%02x", addr[5], addr[4], addr[3], addr[2], addr[1], addr[0]);
+	LOG_DBG("addr %02x:%02x:%02x:%02x:%02x:%02x", addr[5], addr[4], addr[3], addr[2], addr[1],
+		addr[0]);
 
 	dk_set_led(LED_CONN, state ? 1U : 0U);
 }

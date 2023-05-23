@@ -30,8 +30,7 @@ static void cap_timer_cb(struct k_timer *timer_id)
 		}
 	}
 
-	if (sm_app_state_get() == DEMO_APP_STATE_NOTIFY_SENSOR_DATA &&
-	    sm_is_sidewalk_ready()) {
+	if (sm_app_state_get() == DEMO_APP_STATE_NOTIFY_SENSOR_DATA && sm_is_sidewalk_ready()) {
 		delay = K_MSEC(DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS);
 	}
 	k_timer_start(&cap_timer, delay, Z_TIMEOUT_NO_WAIT);

@@ -85,8 +85,9 @@ void sm_notify_sensor_data(app_context_t *app_context, bool button_pressed)
 
 	memset(&state, 0, sizeof(state));
 
-	action_notify.button_action_notify.action_resp = (button_pressed) ? SID_DEMO_ACTION_BUTTON_PRESSED :
-							 SID_DEMO_ACTION_BUTTON_NOT_PRESSED;
+	action_notify.button_action_notify.action_resp = (button_pressed) ?
+								 SID_DEMO_ACTION_BUTTON_PRESSED :
+								 SID_DEMO_ACTION_BUTTON_NOT_PRESSED;
 	sid_get_time(app_context->sidewalk_handle, SID_GET_GPS_TIME, &curr_time);
 
 	if (!button_pressed) {
@@ -97,13 +98,15 @@ void sm_notify_sensor_data(app_context_t *app_context, bool button_pressed)
 		uint8_t temp_button_arr[DEMO_BUTTONS_MAX] = { 0 };
 		uint8_t num_buttons_pressed = 0;
 		for (size_t i = 0; i < DEMO_BUTTONS_MAX; i++) {
-			if (sm_buttons_press_mask_bit_is_set(i) && !sm_buttons_notify_mask_bit_is_set(i)) {
+			if (sm_buttons_press_mask_bit_is_set(i) &&
+			    !sm_buttons_notify_mask_bit_is_set(i)) {
 				uint8_t *btn_id_array = sm_buttons_id_array_get();
 				temp_button_arr[num_buttons_pressed] = btn_id_array[i];
 				num_buttons_pressed += 1;
 				sm_buttons_notify_mask_bit_set(i);
 				sm_buttons_press_time_set(i, curr_time.tv_sec);
-				sm_btn_press_timer_set_and_run(K_SECONDS(BUTTON_PRESS_CHECK_PERIOD_SECS), false);
+				sm_btn_press_timer_set_and_run(
+					K_SECONDS(BUTTON_PRESS_CHECK_PERIOD_SECS), false);
 			}
 		}
 		action_notify.button_action_notify.button_id_arr = temp_button_arr;
@@ -172,9 +175,9 @@ void sm_check_button_press_notify(app_context_t *app_context)
 	for (size_t i = 0; i < DEMO_BUTTONS_MAX; i++) {
 		if (sm_buttons_press_time_get(i)) {
 			if (sm_buttons_notify_mask_bit_is_set(i)) {
-				next_timer_schedule_secs = curr_time.tv_sec - sm_buttons_press_time_get(i);
-				LOG_INF(
-					"Button press timeout pre check: button_notify_mask %x next_timer_schedule_secs %d",
+				next_timer_schedule_secs =
+					curr_time.tv_sec - sm_buttons_press_time_get(i);
+				LOG_INF("Button press timeout pre check: button_notify_mask %x next_timer_schedule_secs %d",
 					sm_buttons_notify_mask_get(), next_timer_schedule_secs);
 				if (next_timer_schedule_secs >= BUTTON_PRESS_CHECK_PERIOD_SECS) {
 					sm_buttons_notify_mask_bit_clear(i);

@@ -17,9 +17,7 @@
  * @param cb Original struct gpio_callback owning this handler
  * @param pins Mask of pins that triggers the callback handler
  */
-void sid_gpio_irq_callback(const struct device *gpiob,
-			   struct gpio_callback *cb,
-			   uint32_t pins);
+void sid_gpio_irq_callback(const struct device *gpiob, struct gpio_callback *cb, uint32_t pins);
 
 /**
  * @brief Set IRQ handler for GPIO pin.
@@ -28,8 +26,7 @@ void sid_gpio_irq_callback(const struct device *gpiob,
  * @param gpio_irq_handler - the callback.
  * @param callback_arg - callback arguments.
  */
-void sid_gpio_irq_handler_set(uint32_t gpio_number,
-			      sid_pal_gpio_irq_handler_t gpio_irq_handler,
+void sid_gpio_irq_handler_set(uint32_t gpio_number, sid_pal_gpio_irq_handler_t gpio_irq_handler,
 			      void *callback_arg);
 
 #endif /* #define SID_GPIO_IRQ_HANDLER_H */

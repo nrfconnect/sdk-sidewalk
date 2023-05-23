@@ -29,7 +29,8 @@ void test_sid_pal_mfg_storage_no_init(void)
 	TEST_ASSERT_FALSE(sid_pal_mfg_store_is_empty());
 	memset(read_buffer, 0xAA, SID_PAL_MFG_STORE_VERSION_SIZE);
 	memset(test_data_buffer, 0xAA, SID_PAL_MFG_STORE_VERSION_SIZE);
-	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_VERSION, read_buffer, SID_PAL_MFG_STORE_VERSION_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_VERSION, read_buffer,
+			       SID_PAL_MFG_STORE_VERSION_SIZE);
 	TEST_ASSERT_EQUAL_HEX8_ARRAY(read_buffer, test_data_buffer, SID_PAL_MFG_STORE_VERSION_SIZE);
 }
 
@@ -48,20 +49,21 @@ void test_sid_pal_mfg_storage_write(void)
 {
 	uint8_t write_buff[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN] = { 0 };
 
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff,
-									      128));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 0));
+	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES,
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 128));
 	TEST_ASSERT_EQUAL(SID_ERROR_INCOMPATIBLE_PARAMS,
 			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff, 3));
 	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND,
 			  sid_pal_mfg_store_write(999, write_buff, SID_PAL_MFG_STORE_VERSION_SIZE));
 	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER,
-			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, NULL, SID_PAL_MFG_STORE_VERSION_SIZE));
+			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, NULL,
+						  SID_PAL_MFG_STORE_VERSION_SIZE));
 
 	__cmock_flash_write_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(0,
-			  sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff,
-						  SID_PAL_MFG_STORE_VERSION_SIZE));
+	TEST_ASSERT_EQUAL(0, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, write_buff,
+						     SID_PAL_MFG_STORE_VERSION_SIZE));
 }
 
 void test_sid_pal_mfg_storage_dev_id_get(void)

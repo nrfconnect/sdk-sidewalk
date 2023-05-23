@@ -30,8 +30,9 @@ void test_log_arguments(void)
 	sid_pal_log(SID_PAL_LOG_SEVERITY_INFO, 1, "%d", 1);
 	sid_pal_log(SID_PAL_LOG_SEVERITY_INFO, 5, "%d, %d, %d, %d, %d", 1, 2, 3, 4, 5);
 
-	sid_pal_log(SID_PAL_LOG_SEVERITY_INFO, 1,
-		    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+	sid_pal_log(
+		SID_PAL_LOG_SEVERITY_INFO, 1,
+		"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
 	TEST_PASS();
 }
 
@@ -56,7 +57,8 @@ void test_log_get_buffer(void)
 	struct sid_pal_log_buffer *const test_log_buffer = NULL;
 
 	ret = sid_pal_log_get_log_buffer(test_log_buffer);
-	TEST_ASSERT_FALSE_MESSAGE(ret, "sid_pal_log_get_log_buffer not implemented, should always return false.");
+	TEST_ASSERT_FALSE_MESSAGE(
+		ret, "sid_pal_log_get_log_buffer not implemented, should always return false.");
 }
 
 /* It is required to be added to each test. That is because unity is using

@@ -42,7 +42,7 @@ static app_ctx_t app_context;
 
 static void button_handler(uint32_t event)
 {
-	app_event_send((app_event_t) event);
+	app_event_send((app_event_t)event);
 }
 
 static sid_error_t app_buttons_init(btn_handler_t handler)
@@ -51,9 +51,9 @@ static sid_error_t app_buttons_init(btn_handler_t handler)
 	button_set_action(DK_BTN2, handler, BUTTON_EVENT_CONNECTION_REQUEST);
 	button_set_action(DK_BTN3, handler, BUTTON_EVENT_SEND_HELLO);
 	button_set_action_short_press(DK_BTN4, handler, BUTTON_EVENT_SET_BATTERY_LEVEL);
-	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	button_set_action_long_press(DK_BTN4, handler, BUTTON_EVENT_NORDIC_DFU);
-	#endif
+#endif
 
 	return buttons_init() ? SID_ERROR_GENERIC : SID_ERROR_NONE;
 }
@@ -69,26 +69,26 @@ static void app_setup(void)
 		LOG_ERR("Failed to initialze LEDs.");
 		SID_PAL_ASSERT(false);
 	}
-	#if defined(CONFIG_GPIO)
+#if defined(CONFIG_GPIO)
 	state_watch_init_gpio(&global_state_notifier);
-	#endif
-	#if defined(CONFIG_LOG)
+#endif
+#if defined(CONFIG_LOG)
 	state_watch_init_log(&global_state_notifier);
-	#endif
+#endif
 
-	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
 	if (usb_enable(NULL)) {
 		LOG_ERR("Failed to enable USB");
 		return;
 	}
-	#endif
+#endif
 
 	if (sidewalk_callbacks_set(&app_context, &app_context.event_callbacks)) {
 		LOG_ERR("Failed to set sidewalk callbacks");
 		SID_PAL_ASSERT(false);
 	}
 
-	app_context.config = (struct sid_config) {
+	app_context.config = (struct sid_config){
 		.link_mask = BUILT_IN_LM,
 		.time_sync_periodicity_seconds = 7200,
 		.callbacks = &app_context.event_callbacks,
@@ -96,7 +96,7 @@ static void app_setup(void)
 		.sub_ghz_link_config = NULL,
 	};
 
-	#if defined(CONFIG_BOOTLOADER_MCUBOOT)
+#if defined(CONFIG_BOOTLOADER_MCUBOOT)
 	if (!boot_is_img_confirmed()) {
 		int ret = boot_write_img_confirmed();
 
@@ -106,7 +106,7 @@ static void app_setup(void)
 			LOG_INF("Marked image as OK");
 		}
 	}
-	#endif
+#endif
 }
 
 int main(void)
@@ -121,13 +121,13 @@ int main(void)
 		}
 		break;
 	};
-	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	case DFU_APPLICATION: {
 		const int ret = nordic_dfu_ble_start();
 		LOG_INF("DFU service started, return value %d", ret);
 		break;
 	}
-	#endif
+#endif
 	default:
 		LOG_ERR("Unknown application to start.");
 	}

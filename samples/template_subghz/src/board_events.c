@@ -26,38 +26,40 @@ LOG_MODULE_REGISTER(board_events, CONFIG_SIDEWALK_LOG_LEVEL);
 static struct sid_device_profile profile_light = {
 	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1,
 	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
-	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3,
+	.unicast_params.unicast_window_interval.sync_rx_interval_ms =
+		SID_LINK2_RX_WINDOW_SEPARATION_3,
 	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
 
 static struct sid_device_profile profile_fast = {
 	.unicast_params.device_profile_id = SID_LINK2_PROFILE_2,
 	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
-	.unicast_params.unicast_window_interval.sync_rx_interval_ms = SID_LINK2_RX_WINDOW_SEPARATION_3,
+	.unicast_params.unicast_window_interval.sync_rx_interval_ms =
+		SID_LINK2_RX_WINDOW_SEPARATION_3,
 	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
 
-static struct sid_device_profile profile_from_dev = {
-	.unicast_params.device_profile_id = SID_LINK2_PROFILE_1
-};
+static struct sid_device_profile profile_from_dev = { .unicast_params.device_profile_id =
+							      SID_LINK2_PROFILE_1 };
 #elif defined(CONFIG_SIDEWALK_LINK_MASK_LORA)
 static struct sid_device_profile profile_light = {
 	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A,
-	.unicast_params.rx_window_count =  SID_RX_WINDOW_CNT_2,
-	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_2,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms =
+		SID_LINK3_RX_WINDOW_SEPARATION_3,
 	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
 
 static struct sid_device_profile profile_fast = {
 	.unicast_params.device_profile_id = SID_LINK3_PROFILE_B,
 	.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
-	.unicast_params.unicast_window_interval.async_rx_interval_ms = SID_LINK3_RX_WINDOW_SEPARATION_3,
+	.unicast_params.unicast_window_interval.async_rx_interval_ms =
+		SID_LINK3_RX_WINDOW_SEPARATION_3,
 	.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP,
 };
 
-static struct sid_device_profile profile_from_dev = {
-	.unicast_params.device_profile_id = SID_LINK3_PROFILE_A
-};
+static struct sid_device_profile profile_from_dev = { .unicast_params.device_profile_id =
+							      SID_LINK3_PROFILE_A };
 #endif
 
 void button_event_send_hello(app_ctx_t *application_ctx)
@@ -71,15 +73,18 @@ void button_event_send_hello(app_ctx_t *application_ctx)
 
 	err = sid_get_status(application_ctx->handle, &status);
 	switch (err) {
-	case SID_ERROR_NONE: break;
-	case SID_ERROR_INVALID_ARGS: LOG_ERR("Sidewalk library is not initialzied!"); return;
-	default: LOG_ERR("Unknown error during sid_get_status() -> %d", err);
+	case SID_ERROR_NONE:
+		break;
+	case SID_ERROR_INVALID_ARGS:
+		LOG_ERR("Sidewalk library is not initialzied!");
+		return;
+	default:
+		LOG_ERR("Unknown error during sid_get_status() -> %d", err);
 		return;
 	}
 
 	if (status.state != SID_STATE_READY && status.state != SID_STATE_SECURE_CHANNEL_READY) {
-		LOG_ERR(
-			"Sidewalk Status is invalid!, expected SID_STATE_READY or SID_STATE_SECURE_CHANNEL_READY, got %d",
+		LOG_ERR("Sidewalk Status is invalid!, expected SID_STATE_READY or SID_STATE_SECURE_CHANNEL_READY, got %d",
 			status.state);
 		return;
 	}
@@ -103,7 +108,8 @@ void button_event_send_hello(app_ctx_t *application_ctx)
 		LOG_ERR("there is no space in the transmit queue, Try again.");
 		break;
 	}
-	default: LOG_ERR("Unknown error returned from sid_put_msg() -> %d", err);
+	default:
+		LOG_ERR("Unknown error returned from sid_put_msg() -> %d", err);
 	}
 }
 
@@ -130,8 +136,8 @@ void button_event_DFU(app_ctx_t *application_ctx)
 {
 	bool DFU_mode = true;
 
-	(void) settings_save_one(CONFIG_DFU_FLAG_SETTINGS_KEY, (const void *)&DFU_mode,
-				 sizeof(DFU_mode));
+	(void)settings_save_one(CONFIG_DFU_FLAG_SETTINGS_KEY, (const void *)&DFU_mode,
+				sizeof(DFU_mode));
 
 	sid_deinit(application_ctx->handle);
 	k_sleep(K_SECONDS(1));
@@ -162,10 +168,10 @@ void button_event_get_profile(app_ctx_t *application_ctx)
 		return;
 	}
 
-	LOG_INF("\n"			   \
-		"Profile id 0x%x\n"	   \
-		"Profile dl count %d\n"	   \
-		"Profile dl interval %d\n" \
+	LOG_INF("\n"
+		"Profile id 0x%x\n"
+		"Profile dl count %d\n"
+		"Profile dl interval %d\n"
 		"Profile wakeup %d\n",
 		profile_from_dev.unicast_params.device_profile_id,
 		profile_from_dev.unicast_params.rx_window_count,
@@ -179,8 +185,8 @@ void button_event_set_ptofile(app_ctx_t *application_ctx)
 
 	LOG_INF("Profile set %s", (&profile_light == new_profile) ? "light" : "fast");
 
-	sid_error_t ret = sid_option(application_ctx->handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE, new_profile,
-				     sizeof(*new_profile));
+	sid_error_t ret = sid_option(application_ctx->handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+				     new_profile, sizeof(*new_profile));
 
 	if (!ret) {
 		new_profile = (&profile_light == new_profile) ? &profile_fast : &profile_light;

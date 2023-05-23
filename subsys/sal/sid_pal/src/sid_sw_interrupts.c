@@ -12,11 +12,11 @@
 #include <zephyr/kernel.h>
 
 #ifndef CONFIG_SIDEWALK_SWI_PRIORITY
-	#error "CONFIG_SIDEWALK_SWI_PRIORITY must be defined"
+#error "CONFIG_SIDEWALK_SWI_PRIORITY must be defined"
 #endif
 
 #ifndef CONFIG_SIDEWALK_SWI_STACK_SIZE
-	#error "CONFIG_SIDEWALK_SWI_STACK_SIZE must be defined"
+#error "CONFIG_SIDEWALK_SWI_STACK_SIZE must be defined"
 #endif
 
 static K_SEM_DEFINE(swi_trigger_sem, 0, 1);

@@ -27,8 +27,7 @@ static void notification_sent(struct bt_conn *conn, void *user_data)
 	sid_ble_adapter_notification_sent();
 }
 
-int sid_ble_send_data(sid_ble_srv_params_t *params,
-		      uint8_t *data, uint16_t length)
+int sid_ble_send_data(sid_ble_srv_params_t *params, uint8_t *data, uint16_t length)
 {
 	int error_code;
 	const struct bt_gatt_attr *srv_attrs = NULL;
@@ -44,9 +43,7 @@ int sid_ble_send_data(sid_ble_srv_params_t *params,
 		srv_attr_count = params->service->attr_count;
 	}
 
-	attr = bt_gatt_find_by_uuid(srv_attrs,
-				    srv_attr_count,
-				    params->uuid);
+	attr = bt_gatt_find_by_uuid(srv_attrs, srv_attr_count, params->uuid);
 
 	if (!attr) {
 		LOG_ERR("Attribute not found.");

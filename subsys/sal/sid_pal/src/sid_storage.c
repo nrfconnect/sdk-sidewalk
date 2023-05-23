@@ -16,18 +16,18 @@
 #include <zephyr/storage/flash_map.h>
 
 /* Reserved space in the NVM memory. */
-#define NVS_RES_SPACE   (32U)
+#define NVS_RES_SPACE (32U)
 
 /* Flash partition for NVS */
 #define NVS_FLASH_DEVICE FIXED_PARTITION_DEVICE(sidewalk_storage)
 /* Flash block size in bytes */
-#define NVS_SECTOR_SIZE  (DT_PROP(DT_CHOSEN(zephyr_flash), erase_block_size))
+#define NVS_SECTOR_SIZE (DT_PROP(DT_CHOSEN(zephyr_flash), erase_block_size))
 /* Numbers of sectors */
 #define NVS_SECTOR_COUNT 2
 /* Start address of the filesystem in flash */
 #define NVS_STORAGE_OFFSET FIXED_PARTITION_OFFSET(sidewalk_storage)
 /* Number of group IDs */
-#define SID_GROUP_ID_COUNT      1
+#define SID_GROUP_ID_COUNT 1
 
 static struct nvs_fs fs[SID_GROUP_ID_COUNT] = {
 	{
@@ -128,7 +128,8 @@ sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint
 	return SID_ERROR_STORAGE_READ_FAIL;
 }
 
-sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void const *p_data, uint32_t len)
+sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void const *p_data,
+					  uint32_t len)
 {
 	ssize_t rc;
 	uint8_t *buff;

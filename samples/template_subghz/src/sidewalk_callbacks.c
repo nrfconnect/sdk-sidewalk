@@ -19,13 +19,9 @@
 
 LOG_MODULE_REGISTER(callbacks, CONFIG_SIDEWALK_LOG_LEVEL);
 
-static const uint8_t *status_name[] = {
-	"ready", "not ready", "Error", "secure channel ready"
-};
+static const uint8_t *status_name[] = { "ready", "not ready", "Error", "secure channel ready" };
 
-static const uint8_t *link_mode_idx_name[] = {
-	"ble", "fsk", "lora"
-};
+static const uint8_t *link_mode_idx_name[] = { "ble", "fsk", "lora" };
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
@@ -33,11 +29,12 @@ static void on_sidewalk_event(bool in_isr, void *context)
 	app_event_send(SIDEWALK_EVENT);
 }
 
-static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg, void *context)
+static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
+				     void *context)
 {
-	#ifdef CONFIG_SIDEWALK_CLI
+#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_received(msg_desc->id);
-	#endif
+#endif
 	application_state_receiving(&global_state_notifier, true);
 	application_state_receiving(&global_state_notifier, false);
 	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
@@ -48,19 +45,21 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
 	application_state_sending(&global_state_notifier, false);
-	#ifdef CONFIG_SIDEWALK_CLI
+#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_send();
-	#endif
+#endif
 	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 }
 
-static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc, void *context)
+static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
+				   void *context)
 {
 	application_state_sending(&global_state_notifier, false);
-	#ifdef CONFIG_SIDEWALK_CLI
+#ifdef CONFIG_SIDEWALK_CLI
 	CLI_register_message_not_send();
-	#endif
-	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type, msg_desc->id, (int)error);
+#endif
+	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type,
+		msg_desc->id, (int)error);
 }
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
@@ -88,7 +87,8 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 	application_state_registered(&global_state_notifier,
 				     status->detail.registration_status == SID_STATUS_REGISTERED);
-	application_state_time_sync(&global_state_notifier, status->detail.time_sync_status == SID_STATUS_TIME_SYNCED);
+	application_state_time_sync(&global_state_notifier,
+				    status->detail.time_sync_status == SID_STATUS_TIME_SYNCED);
 	application_state_link(&global_state_notifier, !!(status->detail.link_status_mask));
 
 	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
@@ -99,7 +99,8 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		(status->detail.link_status_mask & SID_LINK_TYPE_3) ? "Up" : "Down");
 
 	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
-		enum sid_link_mode mode = (enum sid_link_mode)status->detail.supported_link_modes[i];
+		enum sid_link_mode mode =
+			(enum sid_link_mode)status->detail.supported_link_modes[i];
 
 		if (mode) {
 			LOG_INF("Link mode on %s = {Cloud: %s, Mobile: %s}", link_mode_idx_name[i],
@@ -126,11 +127,11 @@ sid_error_t sidewalk_callbacks_set(void *context, struct sid_event_callbacks *ca
 	}
 	callbacks->context = context;
 	callbacks->on_event = on_sidewalk_event;
-	callbacks->on_msg_received = on_sidewalk_msg_received;                          /* Called from sid_process() */
-	callbacks->on_msg_sent = on_sidewalk_msg_sent;                                  /* Called from sid_process() */
-	callbacks->on_send_error = on_sidewalk_send_error;                              /* Called from sid_process() */
-	callbacks->on_status_changed = on_sidewalk_status_changed;                      /* Called from sid_process() */
-	callbacks->on_factory_reset = on_sidewalk_factory_reset;                        /* Called from sid_process() */
+	callbacks->on_msg_received = on_sidewalk_msg_received; /* Called from sid_process() */
+	callbacks->on_msg_sent = on_sidewalk_msg_sent; /* Called from sid_process() */
+	callbacks->on_send_error = on_sidewalk_send_error; /* Called from sid_process() */
+	callbacks->on_status_changed = on_sidewalk_status_changed; /* Called from sid_process() */
+	callbacks->on_factory_reset = on_sidewalk_factory_reset; /* Called from sid_process() */
 
 	return SID_ERROR_NONE;
 }

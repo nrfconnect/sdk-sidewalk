@@ -13,7 +13,7 @@
 
 #include <zephyr/kernel.h>
 
-#define RE_ENTRY_MAX_AMOUNT     (8)
+#define RE_ENTRY_MAX_AMOUNT (8)
 
 static atomic_t count = ATOMIC_INIT(0);
 static unsigned int key = 0;

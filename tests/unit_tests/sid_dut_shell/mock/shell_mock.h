@@ -9,4 +9,5 @@
 
 DEFINE_FFF_GLOBALS;
 
-FAKE_VOID_FUNC_VARARG(shell_fprintf, const struct shell *, enum shell_vt100_color, const char *, ...);
+FAKE_VOID_FUNC_VARARG(shell_fprintf, const struct shell *, enum shell_vt100_color, const char *,
+		      ...);

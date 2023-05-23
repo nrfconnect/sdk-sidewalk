@@ -18,15 +18,14 @@ LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	BT_DATA_BYTES(BT_DATA_UUID128_ALL,
-		      0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86,
-		      0xd3, 0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53, 0x8d),
+	BT_DATA_BYTES(BT_DATA_UUID128_ALL, 0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86, 0xd3,
+		      0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53, 0x8d),
 };
 struct k_work_delayable dfu_not_started_handler;
 struct k_work_delayable failed_to_finish_update;
 
-static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more,
-			   void *data, size_t data_size)
+static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more, void *data,
+			   size_t data_size)
 {
 	switch (event) {
 	case MGMT_EVT_OP_IMG_MGMT_DFU_STARTED:
@@ -58,10 +57,8 @@ static void exit_dfu_mode(struct k_work *work)
 
 static struct mgmt_callback dfu_mode_mgmt_cb = {
 	.callback = dfu_mode_cb,
-	.event_id = MGMT_EVT_OP_IMG_MGMT_DFU_STARTED |
-		    MGMT_EVT_OP_IMG_MGMT_DFU_STOPPED |
-		    MGMT_EVT_OP_IMG_MGMT_DFU_PENDING |
-		    MGMT_EVT_OP_IMG_MGMT_DFU_CHUNK,
+	.event_id = MGMT_EVT_OP_IMG_MGMT_DFU_STARTED | MGMT_EVT_OP_IMG_MGMT_DFU_STOPPED |
+		    MGMT_EVT_OP_IMG_MGMT_DFU_PENDING | MGMT_EVT_OP_IMG_MGMT_DFU_CHUNK,
 };
 
 int nordic_dfu_ble_start(void)

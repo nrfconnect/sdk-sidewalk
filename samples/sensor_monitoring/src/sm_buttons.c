@@ -11,12 +11,13 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sm_buttons, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#define BTN_CHECK_AND_SET_MASK(_id) do {					\
-		if (!atomic_test_bit(&button_press_mask, button_id_arr[_id])) {	\
-			atomic_set_bit(&button_press_mask, button_id_arr[_id]);	\
-			notify_event = true;					\
-		}								\
-} while (0);
+#define BTN_CHECK_AND_SET_MASK(_id)                                                                \
+	do {                                                                                       \
+		if (!atomic_test_bit(&button_press_mask, button_id_arr[_id])) {                    \
+			atomic_set_bit(&button_press_mask, button_id_arr[_id]);                    \
+			notify_event = true;                                                       \
+		}                                                                                  \
+	} while (0);
 
 static uint8_t button_id_arr[DEMO_BUTTONS_MAX];
 static atomic_t button_press_mask = ATOMIC_INIT(0);
@@ -53,8 +54,7 @@ static void btn_event_handler(uint32_t event)
 		break;
 	}
 
-	if (notify_event &&
-	    atomic_cas(&button_event_pending_processing, false, true)) {
+	if (notify_event && atomic_cas(&button_event_pending_processing, false, true)) {
 		sm_main_task_msg_q_write(EVENT_BUTTON_PRESS);
 	}
 }
@@ -80,8 +80,10 @@ void sm_buttons_action_response_process(struct sid_parse_state *state)
 			}
 		} else if (action_resp.button_action_resp.num_buttons <= DEMO_BUTTONS_MAX) {
 			for (size_t i = 0; i < action_resp.button_action_resp.num_buttons; i++) {
-				atomic_clear_bit(&button_press_mask, action_resp.button_action_resp.button_id_arr[i]);
-				WRITE_BIT(button_notify_mask, action_resp.button_action_resp.button_id_arr[i], false);
+				atomic_clear_bit(&button_press_mask,
+						 action_resp.button_action_resp.button_id_arr[i]);
+				WRITE_BIT(button_notify_mask,
+					  action_resp.button_action_resp.button_id_arr[i], false);
 				button_press_time_in_sec_id_arr[i] = 0;
 			}
 		} else {
