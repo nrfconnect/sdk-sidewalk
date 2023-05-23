@@ -18,7 +18,7 @@ jobs:
 
       - name: Install requirements
         run: |
-          python3 -m pip install -r ./scripts/ci/requirements.txt && sudo apt install uncrustify
+          python3 -m pip install -r ./scripts/ci/requirements.txt
 
       - name: Check formatting
         run: |

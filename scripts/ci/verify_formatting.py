@@ -106,7 +106,6 @@ if __name__ == "__main__":
     top_level_cmd = subprocess.run(
         "git rev-parse --show-toplevel".split(" "), capture_output=True)
     top_level = Path(top_level_cmd.stdout.decode("utf8").strip())
-    uncrustify_config = Path(top_level).joinpath(cfg._config["uncrustify_cfg"])
 
     logger.debug(f"checking {len(C_files_filtered)} C files")
     for file in C_files_filtered:
@@ -115,12 +114,12 @@ if __name__ == "__main__":
     print_diff = False
     if len(C_files_filtered) > 0:
         filtered_files_str = " ".join([str(f) for f in C_files_filtered])
-        uncrustify_check = subprocess.run(
-            f"uncrustify -c {uncrustify_config} --check {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
+        formatting_check = subprocess.run(
+            f"clang-format --dry-run -Werror {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
 
-        if uncrustify_check.returncode != 0:
+        if formatting_check.returncode != 0:
             subprocess.run(
-                f"uncrustify -c {uncrustify_config} --replace --no-backup {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
+                f"clang-format -i {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
             print_diff = True
 
     if len(py_filtered) > 0:
