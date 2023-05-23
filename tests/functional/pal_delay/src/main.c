@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <sid_pal_delay_ifc.h>
 
-#define MIN_DELAY_US       (0ULL)
-#define DELAY_US           (1200ULL)
+#define MIN_DELAY_US (0ULL)
+#define DELAY_US (1200ULL)
 
 #define MAX_DELAY_US_THRESHOLD (120ULL)
 
@@ -28,13 +28,13 @@ void test_sid_pal_delay(void)
 	uint64_t timestamp = TIMESTAMP_US_GET();
 
 	sid_pal_delay_us(MIN_DELAY_US);
-	uint64_t delta = TIMESTAMP_US_GET() -  timestamp;
+	uint64_t delta = TIMESTAMP_US_GET() - timestamp;
 
 	TEST_ASSERT_LESS_OR_EQUAL(MAX_DELAY_US_THRESHOLD, abs((int)(MIN_DELAY_US - delta)));
 
 	timestamp = TIMESTAMP_US_GET();
 	sid_pal_delay_us(DELAY_US);
-	delta = TIMESTAMP_US_GET() -  timestamp;
+	delta = TIMESTAMP_US_GET() - timestamp;
 	TEST_ASSERT_LESS_OR_EQUAL(MAX_DELAY_US_THRESHOLD, abs((int)(DELAY_US - delta)));
 }
 

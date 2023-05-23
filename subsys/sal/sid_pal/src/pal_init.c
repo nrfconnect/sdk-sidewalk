@@ -37,15 +37,16 @@ sid_error_t application_pal_init(void)
 		LOG_ERR("Sidewalk Init Crypto HAL, err: %d", ret_code);
 		return ret_code;
 	}
-	#if defined(CONFIG_SIDEWALK_TEMPERATURE)
+#if defined(CONFIG_SIDEWALK_TEMPERATURE)
 	ret_code = sid_pal_temperature_init();
 	if (ret_code) {
 		LOG_ERR("Sidewalk Init temperature pal  err: %d", ret_code);
 	}
-	#endif
+#endif
 	static const sid_pal_mfg_store_region_t mfg_store_region = {
 		.addr_start = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage)),
-		.addr_end = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage) + FIXED_PARTITION_SIZE(mfg_storage)),
+		.addr_end = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage) +
+					FIXED_PARTITION_SIZE(mfg_storage)),
 	};
 
 	sid_pal_mfg_store_init(mfg_store_region);
@@ -58,9 +59,9 @@ sid_error_t application_pal_init(void)
 		return SID_ERROR_NOT_FOUND;
 	}
 
-	#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 	set_radio_sx126x_device_config(get_radio_cfg());
-	#endif /* defined(CONFIG_SIDEWALK_SUBGHZ) */
+#endif /* defined(CONFIG_SIDEWALK_SUBGHZ) */
 
 	return SID_ERROR_NONE;
 }

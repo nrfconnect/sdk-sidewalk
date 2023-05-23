@@ -10,11 +10,11 @@
 #include <sid_api.h>
 
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
-#define BUILT_IN_LM             (uint32_t)(SID_LINK_TYPE_1)
-#elif  CONFIG_SIDEWALK_LINK_MASK_FSK
-#define BUILT_IN_LM             (uint32_t)(SID_LINK_TYPE_2)
+#define BUILT_IN_LM (uint32_t)(SID_LINK_TYPE_1)
+#elif CONFIG_SIDEWALK_LINK_MASK_FSK
+#define BUILT_IN_LM (uint32_t)(SID_LINK_TYPE_2)
 #elif CONFIG_SIDEWALK_LINK_MASK_LORA
-#define BUILT_IN_LM             (uint32_t)(SID_LINK_TYPE_3)
+#define BUILT_IN_LM (uint32_t)(SID_LINK_TYPE_3)
 #else
 #error "Not defined Sidewalk link mask!!"
 #endif
@@ -32,14 +32,14 @@ typedef enum application_events {
 	BUTTON_EVENT_SEND_HELLO,
 	BUTTON_EVENT_SET_BATTERY_LEVEL,
 	BUTTON_EVENT_FACTORY_RESET,
-	#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 	BUTTON_EVENT_GET_DEVICE_PROFILE,
 	BUTTON_EVENT_SET_DEVICE_PROFILE,
-	#endif
+#endif
 	BUTTON_EVENT_CONNECTION_REQUEST,
-	#if  defined(CONFIG_SIDEWALK_DFU)
+#if defined(CONFIG_SIDEWALK_DFU)
 	BUTTON_EVENT_NORDIC_DFU,
-	#endif
+#endif
 } app_event_t;
 
 /**

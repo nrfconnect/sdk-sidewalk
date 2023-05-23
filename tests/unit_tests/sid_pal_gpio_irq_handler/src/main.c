@@ -8,14 +8,14 @@
 #include <cmock_sid_gpio_utils.h>
 #include <unity.h>
 
-#define E_OK    (0)
+#define E_OK (0)
 
-#define TEST_LOOP       (10)
+#define TEST_LOOP (10)
 
-#define GPIO_NUMBER_1   (1)
-#define GPIO_NUMBER_9   (9)
+#define GPIO_NUMBER_1 (1)
+#define GPIO_NUMBER_9 (9)
 
-#define GPIO_CALLBACK_NUM       (2)
+#define GPIO_CALLBACK_NUM (2)
 
 #define TEST_PORT (DEVICE_DT_GET(DT_NODELABEL(gpio0)))
 

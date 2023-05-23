@@ -27,50 +27,50 @@
 
 // module_path, version, always_raport
 // define macro X(name, version) to operate on Xmacro
-#define SIDEWALK_VERSION_COMPONENTS				   \
-	ITEM("sidewalk", "v1.14.1-21-gce309be-dirty", 1)	   \
-	ITEM("nrf", "v2.2.99-dev1", 1)				   \
-	ITEM("zephyr", "1a5051acc44", 1)			   \
-	ITEM("modules/lib/hostap", "7856cab", 0)		   \
-	ITEM("bootloader/mcuboot", "4f775a87", 0)		   \
-	ITEM("modules/crypto/mbedtls", "v3.1.0-ncs3-rc1", 0)	   \
-	ITEM("nrfxlib", "ffa944ce", 0)				   \
-	ITEM("modules/tee/tf-m/trusted-firmware-m", "f2ae8d49", 0) \
-	ITEM("modules/lib/matter", "292ead8ff", 0)		   \
-	ITEM("modules/lib/cjson", "c6af068", 0)			   \
-	ITEM("modules/lib/azure-sdk-for-c", "308c171", 0)	   \
-	ITEM("test/cmock", "f65066f", 0)			   \
-	ITEM("modules/lib/memfault-firmware-sdk", "0.35.0", 0)	   \
-	ITEM("modules/hal/cirrus-logic", "9f6b381", 0)		   \
-	ITEM("modules/lib/openthread", "a1953a7", 0)		   \
-	ITEM("modules/lib/canopennode", "53d3415", 0)		   \
-	ITEM("modules/lib/chre", "fe0ab36", 0)			   \
-	ITEM("modules/hal/cmsis", "74981bf", 0)			   \
-	ITEM("tools/edtt", "000fb87", 0)			   \
-	ITEM("modules/fs/fatfs", "38f303a", 0)			   \
-	ITEM("modules/hal/nordic", "fe0be3c", 0)		   \
-	ITEM("modules/hal/st", "cccbc24", 0)			   \
-	ITEM("modules/hal/wurthelektronik", "24ca987", 0)	   \
-	ITEM("modules/hal/libmetal", "efa2ace", 0)		   \
-	ITEM("modules/lib/liblc3", "448f3de", 0)		   \
-	ITEM("modules/fs/littlefs", "ca583fd", 0)		   \
-	ITEM("modules/lib/loramac-node", "ce57712", 0)		   \
-	ITEM("modules/lib/gui/lvgl", "5ab8309", 0)		   \
-	ITEM("modules/lib/lz4", "8e303c2", 0)			   \
-	ITEM("modules/debug/mipi-sys-t", "0d521d8", 0)		   \
-	ITEM("modules/lib/nanopb", "dc4deed", 0)		   \
-	ITEM("tools/net-tools", "e0828aa", 0)			   \
-	ITEM("modules/bsim_hw_models/nrf_hw_models", "65bc530", 0) \
-	ITEM("modules/lib/open-amp", "aedcc26", 0)		   \
-	ITEM("modules/lib/picolibc", "04ada59", 0)		   \
-	ITEM("modules/debug/segger", "d4e568a", 0)		   \
-	ITEM("modules/lib/tinycbor", "9e1f34b", 0)		   \
-	ITEM("modules/crypto/tinycrypt", "3e9a49d", 0)		   \
-	ITEM("modules/debug/TraceRecorder", "d926075", 0)	   \
-	ITEM("modules/tee/tf-m/tf-m-tests", "bcb53bc", 0)	   \
-	ITEM("modules/tee/tf-m/psa-arch-tests", "f4fc244", 0)	   \
-	ITEM("modules/lib/uoscore-uedhoc", "e892019", 0)	   \
-	ITEM("modules/lib/zcbor", "0556eda", 0)			   \
+#define SIDEWALK_VERSION_COMPONENTS                                                                \
+	ITEM("sidewalk", "v1.14.1-21-gce309be-dirty", 1)                                           \
+	ITEM("nrf", "v2.2.99-dev1", 1)                                                             \
+	ITEM("zephyr", "1a5051acc44", 1)                                                           \
+	ITEM("modules/lib/hostap", "7856cab", 0)                                                   \
+	ITEM("bootloader/mcuboot", "4f775a87", 0)                                                  \
+	ITEM("modules/crypto/mbedtls", "v3.1.0-ncs3-rc1", 0)                                       \
+	ITEM("nrfxlib", "ffa944ce", 0)                                                             \
+	ITEM("modules/tee/tf-m/trusted-firmware-m", "f2ae8d49", 0)                                 \
+	ITEM("modules/lib/matter", "292ead8ff", 0)                                                 \
+	ITEM("modules/lib/cjson", "c6af068", 0)                                                    \
+	ITEM("modules/lib/azure-sdk-for-c", "308c171", 0)                                          \
+	ITEM("test/cmock", "f65066f", 0)                                                           \
+	ITEM("modules/lib/memfault-firmware-sdk", "0.35.0", 0)                                     \
+	ITEM("modules/hal/cirrus-logic", "9f6b381", 0)                                             \
+	ITEM("modules/lib/openthread", "a1953a7", 0)                                               \
+	ITEM("modules/lib/canopennode", "53d3415", 0)                                              \
+	ITEM("modules/lib/chre", "fe0ab36", 0)                                                     \
+	ITEM("modules/hal/cmsis", "74981bf", 0)                                                    \
+	ITEM("tools/edtt", "000fb87", 0)                                                           \
+	ITEM("modules/fs/fatfs", "38f303a", 0)                                                     \
+	ITEM("modules/hal/nordic", "fe0be3c", 0)                                                   \
+	ITEM("modules/hal/st", "cccbc24", 0)                                                       \
+	ITEM("modules/hal/wurthelektronik", "24ca987", 0)                                          \
+	ITEM("modules/hal/libmetal", "efa2ace", 0)                                                 \
+	ITEM("modules/lib/liblc3", "448f3de", 0)                                                   \
+	ITEM("modules/fs/littlefs", "ca583fd", 0)                                                  \
+	ITEM("modules/lib/loramac-node", "ce57712", 0)                                             \
+	ITEM("modules/lib/gui/lvgl", "5ab8309", 0)                                                 \
+	ITEM("modules/lib/lz4", "8e303c2", 0)                                                      \
+	ITEM("modules/debug/mipi-sys-t", "0d521d8", 0)                                             \
+	ITEM("modules/lib/nanopb", "dc4deed", 0)                                                   \
+	ITEM("tools/net-tools", "e0828aa", 0)                                                      \
+	ITEM("modules/bsim_hw_models/nrf_hw_models", "65bc530", 0)                                 \
+	ITEM("modules/lib/open-amp", "aedcc26", 0)                                                 \
+	ITEM("modules/lib/picolibc", "04ada59", 0)                                                 \
+	ITEM("modules/debug/segger", "d4e568a", 0)                                                 \
+	ITEM("modules/lib/tinycbor", "9e1f34b", 0)                                                 \
+	ITEM("modules/crypto/tinycrypt", "3e9a49d", 0)                                             \
+	ITEM("modules/debug/TraceRecorder", "d926075", 0)                                          \
+	ITEM("modules/tee/tf-m/tf-m-tests", "bcb53bc", 0)                                          \
+	ITEM("modules/tee/tf-m/psa-arch-tests", "f4fc244", 0)                                      \
+	ITEM("modules/lib/uoscore-uedhoc", "e892019", 0)                                           \
+	ITEM("modules/lib/zcbor", "0556eda", 0)                                                    \
 	ITEM("modules/lib/zscilib", "ca070dd", 0)
 
 #define X(name, version) name,
@@ -81,7 +81,7 @@ const char *const sidewalk_version_component_name[] = { SIDEWALK_VERSION_COMPONE
 const char *const sidewalk_version_component[] = { SIDEWALK_VERSION_COMPONENTS };
 #undef X
 
-const size_t sidewalk_version_component_count = sizeof(sidewalk_version_component) /
-						sizeof(*sidewalk_version_component);
+const size_t sidewalk_version_component_count =
+	sizeof(sidewalk_version_component) / sizeof(*sidewalk_version_component);
 const char *const sidewalk_version_common_commit = "ce309bedddf4e44e85ccbf5282104b56eb6bbaf9";
 const char *const build_time_stamp = "2023-02-22 10:38:27.315875+00:00";

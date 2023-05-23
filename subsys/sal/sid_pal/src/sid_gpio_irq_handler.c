@@ -13,11 +13,11 @@
 #include <sid_gpio_utils.h>
 
 #ifndef CONFIG_SIDEWALK_GPIO_IRQ_PRIORITY
-	#error "CONFIG_SIDEWALK_GPIO_IRQ_PRIORITY must be defined"
+#error "CONFIG_SIDEWALK_GPIO_IRQ_PRIORITY must be defined"
 #endif
 
 #ifndef CONFIG_SIDEWALK_GPIO_IRQ_STACK_SIZE
-	#error "CONFIG_SIDEWALK_GPIO_IRQ_STACK_SIZE must be defined"
+#error "CONFIG_SIDEWALK_GPIO_IRQ_STACK_SIZE must be defined"
 #endif
 
 static K_SEM_DEFINE(gpio_trigger_sem, 0, 1);
@@ -30,9 +30,7 @@ typedef struct {
 static sid_gpio_irq_cb_t gpio_irq_cb[MAX_NUMBERS_OF_PINS];
 volatile uint32_t gpio_number;
 
-void sid_gpio_irq_callback(const struct device *gpiob,
-			   struct gpio_callback *cb,
-			   uint32_t pins)
+void sid_gpio_irq_callback(const struct device *gpiob, struct gpio_callback *cb, uint32_t pins)
 {
 	ARG_UNUSED(cb);
 
@@ -44,8 +42,7 @@ void sid_gpio_irq_callback(const struct device *gpiob,
 	k_sem_give(&gpio_trigger_sem);
 }
 
-void sid_gpio_irq_handler_set(uint32_t gpio_number,
-			      sid_pal_gpio_irq_handler_t gpio_irq_handler,
+void sid_gpio_irq_handler_set(uint32_t gpio_number, sid_pal_gpio_irq_handler_t gpio_irq_handler,
 			      void *callback_arg)
 {
 	if (NUMBERS_OF_PINS < gpio_number) {
@@ -71,7 +68,8 @@ static void gpio_task(void *arg1, void *arg2, void *arg3)
 		}
 
 		if (gpio_irq_cb[gpio_number].handler) {
-			gpio_irq_cb[gpio_number].handler(gpio_number, gpio_irq_cb[gpio_number].args);
+			gpio_irq_cb[gpio_number].handler(gpio_number,
+							 gpio_irq_cb[gpio_number].args);
 		}
 	}
 }

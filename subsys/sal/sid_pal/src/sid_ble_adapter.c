@@ -39,7 +39,8 @@ static sid_error_t ble_adapter_start_service(void);
 static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length);
 static sid_error_t ble_adapter_start_advertisement(void);
 static sid_error_t ble_adapter_stop_advertisement(void);
-static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
+static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data,
+					 uint16_t length);
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb);
 static sid_error_t ble_adapter_disconnect(void);
 static sid_error_t ble_adapter_deinit(void);
@@ -145,34 +146,32 @@ static sid_error_t ble_adapter_stop_advertisement(void)
 	return SID_ERROR_NONE;
 }
 
-static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
+static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data,
+					 uint16_t length)
 {
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_srv_params_t srv_params = {};
 
 	switch (id) {
-	case AMA_SERVICE:
-	{
+	case AMA_SERVICE: {
 		srv_params.uuid = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
 		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_ama_service();
 		break;
 	}
-	#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
-	case VENDOR_SERVICE:
-	{
+#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
+	case VENDOR_SERVICE: {
 		srv_params.uuid = VND_SID_BT_CHARACTERISTIC_NOTIFY;
 		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_vnd_service();
 		break;
 	}
-	#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
-	#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
-	case LOGGING_SERVICE:
-	{
+#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
+#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
+	case LOGGING_SERVICE: {
 		srv_params.uuid = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
 		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_log_service();
 		break;
 	}
-	#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
+#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
 	default:
 		return SID_ERROR_NOSUPPORT;
 	}

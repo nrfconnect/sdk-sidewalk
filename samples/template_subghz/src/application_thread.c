@@ -40,9 +40,13 @@ static void sidewalk_app_entry(void *ctx, void *unused, void *unused2)
 	sid_error_t err = sid_init(&application_ctx->config, &application_ctx->handle);
 
 	switch (err) {
-	case SID_ERROR_NONE: break;
-	case SID_ERROR_ALREADY_INITIALIZED: LOG_WRN("Sidewalk already initialized!"); break;
-	default: LOG_ERR("Unknown error (%d) during sidewalk initialization!", err);
+	case SID_ERROR_NONE:
+		break;
+	case SID_ERROR_ALREADY_INITIALIZED:
+		LOG_WRN("Sidewalk already initialized!");
+		break;
+	default:
+		LOG_ERR("Unknown error (%d) during sidewalk initialization!", err);
 		application_state_error(&global_state_notifier, true);
 		return;
 	}
@@ -63,19 +67,33 @@ static void sidewalk_app_entry(void *ctx, void *unused, void *unused2)
 
 		if (!k_msgq_get(&application_thread_msgq, &event, K_FOREVER)) {
 			switch (event) {
-			case SIDEWALK_EVENT: err = sid_process(application_ctx->handle); if (err) {
+			case SIDEWALK_EVENT:
+				err = sid_process(application_ctx->handle);
+				if (err) {
 					LOG_WRN("sid_process returned %d", err);
-			}
+				}
 				break;
-			case BUTTON_EVENT_SEND_HELLO: button_event_send_hello(application_ctx); break;
-			case BUTTON_EVENT_SET_BATTERY_LEVEL: button_event_set_battery(application_ctx); break;
-			case BUTTON_EVENT_FACTORY_RESET: button_event_factory_reset(application_ctx); break;
-			case BUTTON_EVENT_GET_DEVICE_PROFILE: button_event_get_profile(application_ctx); break;
-			case BUTTON_EVENT_SET_DEVICE_PROFILE: button_event_set_ptofile(application_ctx); break;
+			case BUTTON_EVENT_SEND_HELLO:
+				button_event_send_hello(application_ctx);
+				break;
+			case BUTTON_EVENT_SET_BATTERY_LEVEL:
+				button_event_set_battery(application_ctx);
+				break;
+			case BUTTON_EVENT_FACTORY_RESET:
+				button_event_factory_reset(application_ctx);
+				break;
+			case BUTTON_EVENT_GET_DEVICE_PROFILE:
+				button_event_get_profile(application_ctx);
+				break;
+			case BUTTON_EVENT_SET_DEVICE_PROFILE:
+				button_event_set_ptofile(application_ctx);
+				break;
 
-			#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-			case BUTTON_EVENT_NORDIC_DFU: button_event_DFU(application_ctx); break;
-			#endif
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+			case BUTTON_EVENT_NORDIC_DFU:
+				button_event_DFU(application_ctx);
+				break;
+#endif
 
 			default:
 				LOG_ERR("Invalid Event received!");
@@ -87,7 +105,8 @@ static void sidewalk_app_entry(void *ctx, void *unused, void *unused2)
 
 void app_event_send(app_event_t event)
 {
-	int ret = k_msgq_put(&application_thread_msgq, (void *)&event, k_is_in_isr() ? K_NO_WAIT : K_FOREVER);
+	int ret = k_msgq_put(&application_thread_msgq, (void *)&event,
+			     k_is_in_isr() ? K_NO_WAIT : K_FOREVER);
 
 	if (ret) {
 		LOG_ERR("Failed to send event to application thread. err: %d", ret);
@@ -100,9 +119,8 @@ sid_error_t app_thread_init(app_ctx_t *ctx)
 		return SID_ERROR_NULL_POINTER;
 	}
 	(void)k_thread_create(&application_thread, application_thread_stack,
-			      K_THREAD_STACK_SIZEOF(application_thread_stack),
-			      sidewalk_app_entry, ctx, NULL, NULL,
-			      CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
+			      K_THREAD_STACK_SIZEOF(application_thread_stack), sidewalk_app_entry,
+			      ctx, NULL, NULL, CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
 	k_thread_name_set(&application_thread, "sidewalk_thread");
 	return SID_ERROR_NONE;
 }

@@ -17,7 +17,8 @@
 // Real pin number for sx1262 NSS for nrf52840
 #define NSS_PIN_NUMBER 40
 
-struct sid_pal_serial_bus_client client = (struct sid_pal_serial_bus_client){ .client_selector = NSS_PIN_NUMBER };
+struct sid_pal_serial_bus_client client =
+	(struct sid_pal_serial_bus_client){ .client_selector = NSS_PIN_NUMBER };
 
 void test_init_spi()
 {

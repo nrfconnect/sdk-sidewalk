@@ -26,7 +26,8 @@ typedef struct {
 static button_act_t buttons[BUTTONS_NUMBER][BUTTON_ACTION_LAST];
 static int64_t buttons_press_time[BUTTONS_NUMBER];
 
-static int action_set(uint8_t button_nr, button_action_t act_nr, btn_handler_t handler, uint32_t param)
+static int action_set(uint8_t button_nr, button_action_t act_nr, btn_handler_t handler,
+		      uint32_t param)
 {
 	if (button_nr >= BUTTONS_NUMBER || act_nr >= BUTTON_ACTION_LAST) {
 		return -ENOENT;
@@ -40,8 +41,8 @@ static int action_set(uint8_t button_nr, button_action_t act_nr, btn_handler_t h
 
 static void action_run(uint8_t button_nr, button_action_t act_nr)
 {
-	LOG_INF("button pressed %d %s", BUTTON_NR_ON_DK(
-			button_nr), BUTTON_ACTION_LONG_PRESS == act_nr ? "long" : "short");
+	LOG_INF("button pressed %d %s", BUTTON_NR_ON_DK(button_nr),
+		BUTTON_ACTION_LONG_PRESS == act_nr ? "long" : "short");
 
 	button_act_t action = buttons[button_nr][act_nr];
 
@@ -55,17 +56,27 @@ static void button_handler(uint32_t button_state, uint32_t has_changed)
 	uint8_t button_nr;
 
 	switch (has_changed) {
-	case DK_BTN1_MSK: button_nr = DK_BTN1; break;
-	case DK_BTN2_MSK: button_nr = DK_BTN2; break;
-	case DK_BTN3_MSK: button_nr = DK_BTN3; break;
-	case DK_BTN4_MSK: button_nr = DK_BTN4; break;
-	default: return;
+	case DK_BTN1_MSK:
+		button_nr = DK_BTN1;
+		break;
+	case DK_BTN2_MSK:
+		button_nr = DK_BTN2;
+		break;
+	case DK_BTN3_MSK:
+		button_nr = DK_BTN3;
+		break;
+	case DK_BTN4_MSK:
+		button_nr = DK_BTN4;
+		break;
+	default:
+		return;
 	}
 
 	if (button_state & has_changed) {
 		buttons_press_time[button_nr] = k_uptime_get();
 	} else {
-		if (k_uptime_delta(&buttons_press_time[button_nr]) > (BUTTONS_LONG_PRESS_TIMEOUT_SEC * MSEC_PER_SEC)) {
+		if (k_uptime_delta(&buttons_press_time[button_nr]) >
+		    (BUTTONS_LONG_PRESS_TIMEOUT_SEC * MSEC_PER_SEC)) {
 			action_run(button_nr, BUTTON_ACTION_LONG_PRESS);
 		} else {
 			action_run(button_nr, BUTTON_ACTION_SHORT_PRESS);

@@ -35,7 +35,8 @@ int main(void)
 	SID_PAL_LOG_INFO("One %d", 1);
 	SID_PAL_LOG_INFO("One %d, Two: %d", 1, 2);
 	SID_PAL_LOG_INFO("One %d, Two: %d, Three: %d", 1, 2, 3);
-	SID_PAL_LOG_INFO("Ten: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+	SID_PAL_LOG_INFO("Ten: %d, %d, %d, %d, %d, %d, %d, %d, %d, %d", 1, 2, 3, 4, 5, 6, 7, 8, 9,
+			 10);
 	LOG_INF("Test end.\n");
 
 	LOG_INF("> Test Sidewalk log long messages.");
@@ -53,7 +54,8 @@ int main(void)
 	SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_INFO, data, sizeof(data));
 	LOG_INF("Test end.\n");
 
-	LOG_INF("Sidewalk log %s, level %d\n", SID_PAL_LOG_ENABLED ? "Enabled" : "Disabled", SID_PAL_LOG_LEVEL);
+	LOG_INF("Sidewalk log %s, level %d\n", SID_PAL_LOG_ENABLED ? "Enabled" : "Disabled",
+		SID_PAL_LOG_LEVEL);
 
 	return 0;
 }

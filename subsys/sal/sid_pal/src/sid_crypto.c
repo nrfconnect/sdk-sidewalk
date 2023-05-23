@@ -19,45 +19,49 @@
 
 LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 
-#define BYTE_TO_BITS(_byte)    (_byte << 3)
-#define BITS_TO_BYTE(_bits)    (_bits >> 3)
+#define BYTE_TO_BITS(_byte) (_byte << 3)
+#define BITS_TO_BYTE(_bits) (_bits >> 3)
 
 /* AES key length in bytes. */
-#define AES_128_KEY_LENGTH       (16)
+#define AES_128_KEY_LENGTH (16)
 
 /* EC key length in bits. */
-#define CURVE25519_KEY_LEN_BITS  (255)
-#define SECP256R1_KEY_LEN_BITS   (256)
-#define ED25519_KEY_LEN_BITS     (255)
+#define CURVE25519_KEY_LEN_BITS (255)
+#define SECP256R1_KEY_LEN_BITS (256)
+#define ED25519_KEY_LEN_BITS (255)
 
 /* Data chunk used in cryptographic algorithm. */
 #define ALGO_DATA_CHUNK (32)
 
 /* Max. EC key buffer length in bytes. */
-#define EC_MAX_KEY_LENGTH        (65)
-#define EC_MAX_PUBLIC_KEY_LENGTH        (EC_MAX_KEY_LENGTH)
+#define EC_MAX_KEY_LENGTH (65)
+#define EC_MAX_PUBLIC_KEY_LENGTH (EC_MAX_KEY_LENGTH)
 
 /* Public key prefix length */
-#define SECPxxx_KEY_PREFIX_LEN  (0x01)
+#define SECPxxx_KEY_PREFIX_LEN (0x01)
 
 /* Public key prefix offset */
-#define SECPxxx_PREFIX_OFFSET   (0)
+#define SECPxxx_PREFIX_OFFSET (0)
 
 /* Public key x coordinate offset in buffer. */
-#define SECPxxx_KEY_OFFSET      (SECPxxx_KEY_PREFIX_LEN)
+#define SECPxxx_KEY_OFFSET (SECPxxx_KEY_PREFIX_LEN)
 
 /* Sid AES mode to PSA key usage policy. */
-#define AES_MODE_TO_USAGE(_mode) ((SID_PAL_CRYPTO_ENCRYPT == _mode) ? PSA_KEY_USAGE_ENCRYPT :  \
-				  ((SID_PAL_CRYPTO_DECRYPT == _mode) ? PSA_KEY_USAGE_DECRYPT : \
-				   PSA_KEY_USAGE_SIGN_MESSAGE))
+#define AES_MODE_TO_USAGE(_mode)                                                                   \
+	((SID_PAL_CRYPTO_ENCRYPT == _mode) ?                                                       \
+		 PSA_KEY_USAGE_ENCRYPT :                                                           \
+		 ((SID_PAL_CRYPTO_DECRYPT == _mode) ? PSA_KEY_USAGE_DECRYPT :                      \
+						      PSA_KEY_USAGE_SIGN_MESSAGE))
 
 /* Sid ECDSA mode to PSA key usage policy. */
-#define ECDSA_MODE_TO_USAGE(_mode) ((SID_PAL_CRYPTO_VERIFY == _mode) ? PSA_KEY_USAGE_VERIFY_MESSAGE : \
-				    PSA_KEY_USAGE_SIGN_MESSAGE)
+#define ECDSA_MODE_TO_USAGE(_mode)                                                                 \
+	((SID_PAL_CRYPTO_VERIFY == _mode) ? PSA_KEY_USAGE_VERIFY_MESSAGE :                         \
+					    PSA_KEY_USAGE_SIGN_MESSAGE)
 
 /* Sid ECDSA mode to PSA key key family type. */
-#define ECC_FAMILY_TYPE(_mode, _type) ((SID_PAL_CRYPTO_VERIFY == _mode) ? \
-				       PSA_KEY_TYPE_ECC_PUBLIC_KEY(_type) : PSA_KEY_TYPE_ECC_KEY_PAIR(_type))
+#define ECC_FAMILY_TYPE(_mode, _type)                                                              \
+	((SID_PAL_CRYPTO_VERIFY == _mode) ? PSA_KEY_TYPE_ECC_PUBLIC_KEY(_type) :                   \
+					    PSA_KEY_TYPE_ECC_KEY_PAIR(_type))
 
 /* Crypto initialization global flag. */
 static bool is_initialized = false;
@@ -67,20 +71,16 @@ static const uint8_t secpxxx_key_prefix[SECPxxx_KEY_PREFIX_LEN] = { 0x04 };
 
 static sid_error_t get_error(psa_status_t psa_erc);
 static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t key_bits,
-				psa_key_usage_t usage_flags, psa_algorithm_t alg, psa_key_type_t type,
-				psa_key_handle_t *key_handle);
-static psa_status_t aes_execute(psa_cipher_operation_t *operation,
-				sid_pal_aes_params_t *params);
-static psa_status_t aes_encrypt(psa_key_handle_t key_handle,
-				sid_pal_aes_params_t *params);
-static psa_status_t aes_decrypt(psa_key_handle_t key_handle,
-				sid_pal_aes_params_t *params);
-static psa_status_t aead_execute(psa_aead_operation_t *op,
-				 sid_pal_aead_params_t *params);
-static psa_status_t aead_encrypt(psa_key_handle_t key_handle,
-				 sid_pal_aead_params_t *params, psa_algorithm_t alg);
-static psa_status_t aead_decrypt(psa_key_handle_t key_handle,
-				 sid_pal_aead_params_t *params, psa_algorithm_t alg);
+				psa_key_usage_t usage_flags, psa_algorithm_t alg,
+				psa_key_type_t type, psa_key_handle_t *key_handle);
+static psa_status_t aes_execute(psa_cipher_operation_t *operation, sid_pal_aes_params_t *params);
+static psa_status_t aes_encrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params);
+static psa_status_t aes_decrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params);
+static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t *params);
+static psa_status_t aead_encrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+				 psa_algorithm_t alg);
+static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+				 psa_algorithm_t alg);
 
 /**
  * @brief Get the psa error object and return sidewalk error code.
@@ -141,8 +141,8 @@ static sid_error_t get_error(psa_status_t psa_erc)
  * @return PSA_SUCCESS when success, otherwise error code.
  */
 static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t key_bits,
-				psa_key_usage_t usage_flags, psa_algorithm_t alg, psa_key_type_t type,
-				psa_key_handle_t *key_handle)
+				psa_key_usage_t usage_flags, psa_algorithm_t alg,
+				psa_key_type_t type, psa_key_handle_t *key_handle)
 {
 	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 	psa_status_t status;
@@ -174,8 +174,7 @@ static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t ke
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aes_execute(psa_cipher_operation_t *operation,
-				sid_pal_aes_params_t *params)
+static psa_status_t aes_execute(psa_cipher_operation_t *operation, sid_pal_aes_params_t *params)
 {
 	psa_status_t status;
 	size_t out_len;
@@ -184,17 +183,13 @@ static psa_status_t aes_execute(psa_cipher_operation_t *operation,
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("psa_cipher_set_iv success.");
-		status = psa_cipher_update(operation,
-					   params->in, params->in_size,
-					   params->out, params->out_size,
-					   &out_len);
+		status = psa_cipher_update(operation, params->in, params->in_size, params->out,
+					   params->out_size, &out_len);
 
 		if (PSA_SUCCESS == status) {
 			LOG_DBG("psa_cipher_update success.");
-			status = psa_cipher_finish(operation,
-						   params->out + out_len,
-						   params->out_size - out_len,
-						   &out_len);
+			status = psa_cipher_finish(operation, params->out + out_len,
+						   params->out_size - out_len, &out_len);
 		}
 	}
 	return status;
@@ -208,8 +203,7 @@ static psa_status_t aes_execute(psa_cipher_operation_t *operation,
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aes_encrypt(psa_key_handle_t key_handle,
-				sid_pal_aes_params_t *params)
+static psa_status_t aes_encrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params)
 {
 	psa_status_t status;
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
@@ -238,8 +232,7 @@ static psa_status_t aes_encrypt(psa_key_handle_t key_handle,
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aes_decrypt(psa_key_handle_t key_handle,
-				sid_pal_aes_params_t *params)
+static psa_status_t aes_decrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params)
 {
 	psa_status_t status;
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
@@ -268,8 +261,7 @@ static psa_status_t aes_decrypt(psa_key_handle_t key_handle,
  * @param params - AES parameters.
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aead_execute(psa_aead_operation_t *op,
-				 sid_pal_aead_params_t *params)
+static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t *params)
 {
 	size_t out_len, mac_len;
 	psa_status_t status = psa_aead_set_lengths(op, params->aad_size, params->in_size);
@@ -290,22 +282,26 @@ static psa_status_t aead_execute(psa_aead_operation_t *op,
 							 params->out, params->out_size, &out_len);
 
 				if (PSA_SUCCESS == status) {
-					LOG_DBG("psa_aead_update_ad success (out_len=%d).", out_len);
+					LOG_DBG("psa_aead_update_ad success (out_len=%d).",
+						out_len);
 					if (SID_PAL_CRYPTO_ENCRYPT == params->mode) {
-						status = psa_aead_finish(op,
-									 params->out + out_len,
-									 params->out_size - out_len, &out_len,
-									 params->mac, params->mac_size, &mac_len);
+						status =
+							psa_aead_finish(op, params->out + out_len,
+									params->out_size - out_len,
+									&out_len, params->mac,
+									params->mac_size, &mac_len);
 						LOG_DBG("psa_aead_finish %s (out_len=%d, mac_len=%d)",
-							(PSA_SUCCESS == status) ? "success." : "failed!",
+							(PSA_SUCCESS == status) ? "success." :
+										  "failed!",
 							out_len, mac_len);
 					} else {
-						status = psa_aead_verify(op,
-									 params->out + out_len,
-									 params->out_size - out_len, &out_len,
-									 params->mac, params->mac_size);
+						status = psa_aead_verify(op, params->out + out_len,
+									 params->out_size - out_len,
+									 &out_len, params->mac,
+									 params->mac_size);
 						LOG_DBG("psa_aead_verify %s (out_len=%d)",
-							(PSA_SUCCESS == status) ? "success." : "failed!",
+							(PSA_SUCCESS == status) ? "success." :
+										  "failed!",
 							out_len);
 					}
 				}
@@ -324,8 +320,8 @@ static psa_status_t aead_execute(psa_aead_operation_t *op,
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aead_encrypt(psa_key_handle_t key_handle,
-				 sid_pal_aead_params_t *params, psa_algorithm_t alg)
+static psa_status_t aead_encrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+				 psa_algorithm_t alg)
 {
 	psa_aead_operation_t op = PSA_AEAD_OPERATION_INIT;
 	psa_status_t status = psa_aead_encrypt_setup(&op, key_handle, alg);
@@ -350,8 +346,8 @@ static psa_status_t aead_encrypt(psa_key_handle_t key_handle,
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aead_decrypt(psa_key_handle_t key_handle,
-				 sid_pal_aead_params_t *params, psa_algorithm_t alg)
+static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+				 psa_algorithm_t alg)
 {
 	psa_aead_operation_t op = PSA_AEAD_OPERATION_INIT;
 	psa_status_t status = psa_aead_decrypt_setup(&op, key_handle, alg);
@@ -432,10 +428,8 @@ sid_error_t sid_pal_crypto_hash(sid_pal_hash_params_t *params)
 		return SID_ERROR_NOSUPPORT;
 	}
 
-	return get_error(psa_hash_compute(alg_sha,
-					  params->data, params->data_size,
-					  params->digest, params->digest_size,
-					  &hash_length));
+	return get_error(psa_hash_compute(alg_sha, params->data, params->data_size, params->digest,
+					  params->digest_size, &hash_length));
 }
 
 sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
@@ -487,7 +481,8 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 			do {
 				data_chunk = MIN(s_left, data_chunk);
 
-				status = psa_mac_update(&operation, &params->data[offset], data_chunk);
+				status = psa_mac_update(&operation, &params->data[offset],
+							data_chunk);
 
 				offset += data_chunk;
 				s_left -= data_chunk;
@@ -498,7 +493,8 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 				status = psa_mac_sign_finish(&operation, params->digest,
 							     params->digest_size, &hmac_length);
 				LOG_DBG("psa_mac_sign_finish %s [hmac length=%d]",
-					(PSA_SUCCESS == status) ? "success." : "failed!", hmac_length);
+					(PSA_SUCCESS == status) ? "success." : "failed!",
+					hmac_length);
 			}
 		}
 
@@ -547,15 +543,13 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 	    ((SID_PAL_AES_CTR_128 == params->algo) &&
 	     params->iv_size != PSA_CIPHER_IV_LENGTH(PSA_KEY_TYPE_AES, alg))) {
 		// Log is only for debug purpose, in other case use error code.
-		LOG_DBG("Incorrect %s length.",
-			(key_len != params->key_size) ? "key" : "IV");
+		LOG_DBG("Incorrect %s length.", (key_len != params->key_size) ? "key" : "IV");
 		return SID_ERROR_INVALID_ARGS;
 	}
 
 	// NOTE: key_size is in bits.
 	status = prepare_key(params->key, BITS_TO_BYTE(params->key_size), params->key_size,
-			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES,
-			     &key_handle);
+			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES, &key_handle);
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("Key import success");
@@ -569,15 +563,14 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 			status = aes_decrypt(key_handle, params);
 			LOG_DBG("AES decrypt %s", (PSA_SUCCESS == status) ? "success." : "failed!");
 			break;
-		case SID_PAL_CRYPTO_MAC_CALCULATE:
-		{
+		case SID_PAL_CRYPTO_MAC_CALCULATE: {
 			size_t out_len;
 
 			status = psa_mac_compute(key_handle, alg, params->in, params->in_size,
 						 params->out, params->out_size, &out_len);
-			LOG_DBG("Mac calculate %s", (PSA_SUCCESS == status) ? "success." : "failed!");
-		}
-		break;
+			LOG_DBG("Mac calculate %s",
+				(PSA_SUCCESS == status) ? "success." : "failed!");
+		} break;
 		default:
 			return SID_ERROR_INVALID_ARGS;
 		}
@@ -601,8 +594,8 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 		return SID_ERROR_UNINITIALIZED;
 	}
 
-	if (!params || !params->key || !params->in ||
-	    !params->out || !params->aad || !params->mac) {
+	if (!params || !params->key || !params->in || !params->out || !params->aad ||
+	    !params->mac) {
 		return SID_ERROR_NULL_POINTER;
 	}
 
@@ -635,8 +628,7 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 
 	// NOTE: key_size is in bits.
 	status = prepare_key(params->key, BITS_TO_BYTE(params->key_size), params->key_size,
-			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES,
-			     &key_handle);
+			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES, &key_handle);
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("Key import success.");
@@ -644,11 +636,13 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 		switch (params->mode) {
 		case SID_PAL_CRYPTO_ENCRYPT:
 			status = aead_encrypt(key_handle, params, alg);
-			LOG_DBG("AEAD encrypt %s", (PSA_SUCCESS == status) ? "success." : "failed!");
+			LOG_DBG("AEAD encrypt %s",
+				(PSA_SUCCESS == status) ? "success." : "failed!");
 			break;
 		case SID_PAL_CRYPTO_DECRYPT:
 			status = aead_decrypt(key_handle, params, alg);
-			LOG_DBG("AEAD decrypt %s", (PSA_SUCCESS == status) ? "success." : "failed!");
+			LOG_DBG("AEAD decrypt %s",
+				(PSA_SUCCESS == status) ? "success." : "failed!");
 			break;
 		default:
 			return SID_ERROR_INVALID_ARGS;
@@ -716,31 +710,24 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 	memcpy(&key[key_offset], params->key, key_size - key_offset);
 
 	// NOTE: key_size is in bytes.
-	status = prepare_key(key, key_size,
-			     key_len, ECDSA_MODE_TO_USAGE(params->mode), alg,
-			     ECC_FAMILY_TYPE(params->mode, type),
-			     &key_handle);
+	status = prepare_key(key, key_size, key_len, ECDSA_MODE_TO_USAGE(params->mode), alg,
+			     ECC_FAMILY_TYPE(params->mode, type), &key_handle);
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("Key import success.");
 
 		switch (params->mode) {
 		case SID_PAL_CRYPTO_VERIFY:
-			status = psa_verify_message(key_handle, alg,
-						    params->in, params->in_size,
+			status = psa_verify_message(key_handle, alg, params->in, params->in_size,
 						    params->signature, params->sig_size);
 
 			break;
-		case SID_PAL_CRYPTO_SIGN:
-		{
+		case SID_PAL_CRYPTO_SIGN: {
 			size_t out_len;
 
-			status = psa_sign_message(key_handle, alg,
-						  params->in, params->in_size,
-						  params->signature, params->sig_size,
-						  &out_len);
-		}
-		break;
+			status = psa_sign_message(key_handle, alg, params->in, params->in_size,
+						  params->signature, params->sig_size, &out_len);
+		} break;
 		default:
 			return SID_ERROR_INVALID_ARGS;
 		}
@@ -794,10 +781,8 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 	}
 
 	// NOTE: params->prk_size and params->puk_size are in bytes.
-	status = prepare_key(params->prk, params->prk_size,
-			     key_len, PSA_KEY_USAGE_DERIVE, PSA_ALG_ECDH,
-			     PSA_KEY_TYPE_ECC_KEY_PAIR(type),
-			     &priv_key_handle);
+	status = prepare_key(params->prk, params->prk_size, key_len, PSA_KEY_USAGE_DERIVE,
+			     PSA_ALG_ECDH, PSA_KEY_TYPE_ECC_KEY_PAIR(type), &priv_key_handle);
 
 	if (PSA_SUCCESS == status) {
 		size_t out_len;
@@ -807,8 +792,7 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		pub_key_size = MIN(sizeof(pub_key), pub_key_size);
 		memcpy(&pub_key[pub_key_offset], params->puk, pub_key_size - pub_key_offset);
 
-		status = psa_raw_key_agreement(PSA_ALG_ECDH, priv_key_handle,
-					       pub_key, pub_key_size,
+		status = psa_raw_key_agreement(PSA_ALG_ECDH, priv_key_handle, pub_key, pub_key_size,
 					       params->shared_secret, params->shared_secret_sz,
 					       &out_len);
 	}
@@ -884,10 +868,12 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 
 			LOG_DBG("Private key exported.");
 
-			status = psa_export_public_key(keys_handle, public_key, sizeof(public_key), &key_len);
+			status = psa_export_public_key(keys_handle, public_key, sizeof(public_key),
+						       &key_len);
 			memcpy(params->puk, &public_key[pub_key_offset], params->puk_size);
 
-			LOG_DBG("Public key export %s", (PSA_SUCCESS == status) ? "success." : "failed!");
+			LOG_DBG("Public key export %s",
+				(PSA_SUCCESS == status) ? "success." : "failed!");
 		}
 
 		if (PSA_SUCCESS != psa_destroy_key(keys_handle)) {

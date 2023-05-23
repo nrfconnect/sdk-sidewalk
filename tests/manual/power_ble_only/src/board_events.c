@@ -29,15 +29,18 @@ void button_event_send_hello(app_ctx_t *application_ctx)
 
 	err = sid_get_status(application_ctx->handle, &status);
 	switch (err) {
-	case SID_ERROR_NONE: break;
-	case SID_ERROR_INVALID_ARGS: LOG_ERR("Sidewalk library is not initialzied!"); return;
-	default: LOG_ERR("Unknown error during sid_get_status() -> %d", err);
+	case SID_ERROR_NONE:
+		break;
+	case SID_ERROR_INVALID_ARGS:
+		LOG_ERR("Sidewalk library is not initialzied!");
+		return;
+	default:
+		LOG_ERR("Unknown error during sid_get_status() -> %d", err);
 		return;
 	}
 
 	if (status.state != SID_STATE_READY && status.state != SID_STATE_SECURE_CHANNEL_READY) {
-		LOG_ERR(
-			"Sidewalk Status is invalid!, expected SID_STATE_READY or SID_STATE_SECURE_CHANNEL_READY, got %d",
+		LOG_ERR("Sidewalk Status is invalid!, expected SID_STATE_READY or SID_STATE_SECURE_CHANNEL_READY, got %d",
 			status.state);
 		return;
 	}
@@ -61,7 +64,8 @@ void button_event_send_hello(app_ctx_t *application_ctx)
 		LOG_ERR("there is no space in the transmit queue, Try again.");
 		break;
 	}
-	default: LOG_ERR("Unknown error returned from sid_put_msg() -> %d", err);
+	default:
+		LOG_ERR("Unknown error returned from sid_put_msg() -> %d", err);
 	}
 }
 
@@ -122,9 +126,13 @@ void button_event_connection_request(app_ctx_t *application_ctx)
 	sid_error_t err = sid_get_status(application_ctx->handle, &status);
 
 	switch (err) {
-	case SID_ERROR_NONE: break;
-	case SID_ERROR_INVALID_ARGS: LOG_ERR("Sidewalk library is not initialzied!"); return;
-	default: LOG_ERR("Unknown error during sid_get_status() -> %d", err);
+	case SID_ERROR_NONE:
+		break;
+	case SID_ERROR_INVALID_ARGS:
+		LOG_ERR("Sidewalk library is not initialzied!");
+		return;
+	default:
+		LOG_ERR("Unknown error during sid_get_status() -> %d", err);
 		return;
 	}
 

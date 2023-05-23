@@ -29,7 +29,8 @@ static void state_change_handler_log(const struct notifier_state *state)
 void state_watch_init_log(struct notifier_ctx *ctx)
 {
 	if (!subscribe_for_state_change(ctx, state_change_handler_log)) {
-		__ASSERT(false,
-			 "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
+		__ASSERT(
+			false,
+			"failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
 	}
 }

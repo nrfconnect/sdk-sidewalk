@@ -9,7 +9,7 @@
 
 #include <sm_task.h>
 
-#define DEMO_BUTTONS_MAX        4
+#define DEMO_BUTTONS_MAX 4
 
 /**
  * @brief Action response process.

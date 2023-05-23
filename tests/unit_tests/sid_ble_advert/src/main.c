@@ -15,14 +15,15 @@
 
 DEFINE_FFF_GLOBALS;
 
-FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t,
-		const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *,
+		size_t, const struct bt_data *, size_t);
 FAKE_VALUE_FUNC(int, bt_le_adv_stop);
-FAKE_VALUE_FUNC(int, bt_le_adv_update_data, const struct bt_data *, size_t, const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_adv_update_data, const struct bt_data *, size_t, const struct bt_data *,
+		size_t);
 
-#define FFF_FAKES_LIST(FAKE)  \
-	FAKE(bt_le_adv_start) \
-	FAKE(bt_le_adv_stop)  \
+#define FFF_FAKES_LIST(FAKE)                                                                       \
+	FAKE(bt_le_adv_start)                                                                      \
+	FAKE(bt_le_adv_stop)                                                                       \
 	FAKE(bt_le_adv_update_data)
 
 #define ESUCCESS (0)
@@ -103,12 +104,13 @@ void test_sid_ble_advert_update_in_every_state(void)
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 }
 
-bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t *result, uint8_t *result_len)
+bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t *result,
+				uint8_t *result_len)
 {
 	for (size_t i = 0; i < ad_len; i++) {
 		if (ad[i].type == BT_DATA_MANUFACTURER_DATA) {
 			TEST_ASSERT_GREATER_OR_EQUAL_UINT8(BT_COMP_ID_LEN, ad[i].data_len);
-			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA) & 0xff), ad[i].data[0]);
+			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA)&0xff), ad[i].data[0]);
 			TEST_ASSERT_EQUAL_UINT8((((BT_COMP_ID_AMA) >> 8) & 0xff), ad[i].data[1]);
 
 			*result_len = ad[i].data_len - BT_COMP_ID_LEN;
@@ -142,7 +144,8 @@ void test_sid_ble_advert_update_before_start(void)
 	TEST_ASSERT_NOT_NULL(advert_data);
 	TEST_ASSERT_GREATER_THAN_size_t(0, advert_data_size);
 
-	found = advert_data_manuf_data_get(advert_data, advert_data_size, test_result, &test_result_size);
+	found = advert_data_manuf_data_get(advert_data, advert_data_size, test_result,
+					   &test_result_size);
 	TEST_ASSERT_MESSAGE(found, "Manufacturer data not found in advertising data.");
 	TEST_ASSERT_EQUAL_UINT8(sizeof(test_data), test_result_size);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data, test_result, sizeof(test_data));
@@ -166,7 +169,8 @@ void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 	TEST_ASSERT_NOT_NULL(advert_data);
 	TEST_ASSERT_GREATER_THAN_size_t(0, advert_data_size);
 
-	found = advert_data_manuf_data_get(advert_data, advert_data_size, test_result, &test_result_size);
+	found = advert_data_manuf_data_get(advert_data, advert_data_size, test_result,
+					   &test_result_size);
 	TEST_ASSERT_MESSAGE(found, "Manufacturer data not found in advertising data.");
 	TEST_ASSERT_EQUAL_UINT8(data_len, test_result_size);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(data, test_result, data_len);

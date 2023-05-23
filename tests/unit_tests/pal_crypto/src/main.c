@@ -22,194 +22,126 @@ DEFINE_FFF_GLOBALS;
 * ***********************************************************************/
 FAKE_VALUE_FUNC(psa_status_t, psa_crypto_init);
 FAKE_VALUE_FUNC(psa_status_t, psa_generate_random, uint8_t *, size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_hash_compute, psa_algorithm_t,
-		const uint8_t *,
-		size_t,
-		uint8_t *,
-		size_t,
-		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_import_key, const psa_key_attributes_t *,
-		const uint8_t *,
-		size_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_hash_compute, psa_algorithm_t, const uint8_t *, size_t, uint8_t *,
+		size_t, size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_import_key, const psa_key_attributes_t *, const uint8_t *, size_t,
 		mbedtls_svc_key_id_t *);
 FAKE_VALUE_FUNC(psa_status_t, psa_destroy_key, mbedtls_svc_key_id_t);
 FAKE_VOID_FUNC(psa_reset_key_attributes, psa_key_attributes_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_mac_sign_setup, psa_mac_operation_t *,
-		mbedtls_svc_key_id_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_mac_sign_setup, psa_mac_operation_t *, mbedtls_svc_key_id_t,
 		psa_algorithm_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_mac_update, psa_mac_operation_t *,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_mac_sign_finish, psa_mac_operation_t *,
-		uint8_t *,
-		size_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_mac_update, psa_mac_operation_t *, const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_mac_sign_finish, psa_mac_operation_t *, uint8_t *, size_t,
 		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_set_key_domain_parameters, psa_key_attributes_t *,
-		psa_key_type_t,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_mac_compute, mbedtls_svc_key_id_t,
-		psa_algorithm_t,
-		const uint8_t *,
-		size_t,
-		uint8_t *,
-		size_t,
-		size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_set_key_domain_parameters, psa_key_attributes_t *, psa_key_type_t,
+		const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_mac_compute, mbedtls_svc_key_id_t, psa_algorithm_t,
+		const uint8_t *, size_t, uint8_t *, size_t, size_t *);
 FAKE_VALUE_FUNC(psa_status_t, psa_cipher_encrypt_setup, psa_cipher_operation_t *,
-		mbedtls_svc_key_id_t,
-		psa_algorithm_t);
+		mbedtls_svc_key_id_t, psa_algorithm_t);
 FAKE_VALUE_FUNC(psa_status_t, psa_cipher_decrypt_setup, psa_cipher_operation_t *,
-		mbedtls_svc_key_id_t,
-		psa_algorithm_t);
+		mbedtls_svc_key_id_t, psa_algorithm_t);
 FAKE_VALUE_FUNC(psa_status_t, psa_cipher_abort, psa_cipher_operation_t *)
-FAKE_VALUE_FUNC(psa_status_t, psa_cipher_set_iv, psa_cipher_operation_t *,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_cipher_update, psa_cipher_operation_t *,
-		const uint8_t *,
-		size_t,
-		uint8_t *,
-		size_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_cipher_set_iv, psa_cipher_operation_t *, const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_cipher_update, psa_cipher_operation_t *, const uint8_t *, size_t,
+		uint8_t *, size_t, size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_cipher_finish, psa_cipher_operation_t *, uint8_t *, size_t,
 		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_cipher_finish, psa_cipher_operation_t *,
-		uint8_t *,
-		size_t,
-		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_verify_message, psa_key_handle_t,
-		psa_algorithm_t,
-		const uint8_t *,
-		size_t,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_sign_message, psa_key_handle_t,
-		psa_algorithm_t,
-		const uint8_t *,
-		size_t,
-		uint8_t *,
-		size_t,
-		size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_verify_message, psa_key_handle_t, psa_algorithm_t,
+		const uint8_t *, size_t, const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_sign_message, psa_key_handle_t, psa_algorithm_t, const uint8_t *,
+		size_t, uint8_t *, size_t, size_t *);
 FAKE_VALUE_FUNC(psa_status_t, psa_generate_key, const psa_key_attributes_t *,
 		mbedtls_svc_key_id_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_export_key, mbedtls_svc_key_id_t,
-		uint8_t *,
-		size_t,
-		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_export_public_key, mbedtls_svc_key_id_t,
-		uint8_t *,
-		size_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_export_key, mbedtls_svc_key_id_t, uint8_t *, size_t, size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_export_public_key, mbedtls_svc_key_id_t, uint8_t *, size_t,
 		size_t *);
 
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_set_lengths, psa_aead_operation_t *,
-		size_t,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_set_nonce, psa_aead_operation_t *,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_update_ad, psa_aead_operation_t *,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_update, psa_aead_operation_t *,
-		const uint8_t *,
-		size_t,
-		uint8_t *,
-		size_t,
-		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_finish, psa_aead_operation_t *,
-		uint8_t *,
-		size_t,
-		size_t *,
-		uint8_t *,
-		size_t,
-		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_verify, psa_aead_operation_t *,
-		uint8_t *,
-		size_t,
-		size_t *,
-		const uint8_t *,
-		size_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_encrypt_setup, psa_aead_operation_t *,
-		mbedtls_svc_key_id_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_set_lengths, psa_aead_operation_t *, size_t, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_set_nonce, psa_aead_operation_t *, const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_update_ad, psa_aead_operation_t *, const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_update, psa_aead_operation_t *, const uint8_t *, size_t,
+		uint8_t *, size_t, size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_finish, psa_aead_operation_t *, uint8_t *, size_t, size_t *,
+		uint8_t *, size_t, size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_verify, psa_aead_operation_t *, uint8_t *, size_t, size_t *,
+		const uint8_t *, size_t);
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_encrypt_setup, psa_aead_operation_t *, mbedtls_svc_key_id_t,
 		psa_algorithm_t);
-FAKE_VALUE_FUNC(psa_status_t, psa_aead_decrypt_setup, psa_aead_operation_t *,
-		mbedtls_svc_key_id_t,
+FAKE_VALUE_FUNC(psa_status_t, psa_aead_decrypt_setup, psa_aead_operation_t *, mbedtls_svc_key_id_t,
 		psa_algorithm_t);
 FAKE_VALUE_FUNC(psa_status_t, psa_aead_abort, psa_aead_operation_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_raw_key_agreement, psa_algorithm_t,
-		mbedtls_svc_key_id_t,
-		const uint8_t *,
-		size_t,
-		uint8_t *,
-		size_t,
-		size_t *);
+FAKE_VALUE_FUNC(psa_status_t, psa_raw_key_agreement, psa_algorithm_t, mbedtls_svc_key_id_t,
+		const uint8_t *, size_t, uint8_t *, size_t, size_t *);
 /*************************************************************************
 * Create fake functions for tests end.
 * ***********************************************************************/
 
-#define FFF_FAKES_LIST(FAKE)	       \
-	FAKE(psa_crypto_init)	       \
-	FAKE(psa_generate_random)      \
-	FAKE(psa_hash_compute)	       \
-	FAKE(psa_import_key)	       \
-	FAKE(psa_destroy_key)	       \
-	FAKE(psa_reset_key_attributes) \
-	FAKE(psa_mac_sign_setup)       \
-	FAKE(psa_mac_update)	       \
-	FAKE(psa_mac_sign_finish)      \
-	FAKE(psa_mac_compute)	       \
-	FAKE(psa_cipher_abort)	       \
-	FAKE(psa_cipher_encrypt_setup) \
-	FAKE(psa_cipher_decrypt_setup) \
-	FAKE(psa_cipher_set_iv)	       \
-	FAKE(psa_cipher_update)	       \
-	FAKE(psa_cipher_finish)	       \
-	FAKE(psa_verify_message)       \
-	FAKE(psa_sign_message)	       \
-	FAKE(psa_generate_key)	       \
-	FAKE(psa_export_key)	       \
-	FAKE(psa_export_public_key)    \
-	FAKE(psa_aead_decrypt_setup)   \
-	FAKE(psa_aead_encrypt_setup)   \
-	FAKE(psa_aead_verify)	       \
-	FAKE(psa_aead_finish)	       \
-	FAKE(psa_aead_update)	       \
-	FAKE(psa_aead_update_ad)       \
-	FAKE(psa_aead_set_nonce)       \
-	FAKE(psa_aead_set_lengths)     \
-	FAKE(psa_aead_abort)	       \
+#define FFF_FAKES_LIST(FAKE)                                                                       \
+	FAKE(psa_crypto_init)                                                                      \
+	FAKE(psa_generate_random)                                                                  \
+	FAKE(psa_hash_compute)                                                                     \
+	FAKE(psa_import_key)                                                                       \
+	FAKE(psa_destroy_key)                                                                      \
+	FAKE(psa_reset_key_attributes)                                                             \
+	FAKE(psa_mac_sign_setup)                                                                   \
+	FAKE(psa_mac_update)                                                                       \
+	FAKE(psa_mac_sign_finish)                                                                  \
+	FAKE(psa_mac_compute)                                                                      \
+	FAKE(psa_cipher_abort)                                                                     \
+	FAKE(psa_cipher_encrypt_setup)                                                             \
+	FAKE(psa_cipher_decrypt_setup)                                                             \
+	FAKE(psa_cipher_set_iv)                                                                    \
+	FAKE(psa_cipher_update)                                                                    \
+	FAKE(psa_cipher_finish)                                                                    \
+	FAKE(psa_verify_message)                                                                   \
+	FAKE(psa_sign_message)                                                                     \
+	FAKE(psa_generate_key)                                                                     \
+	FAKE(psa_export_key)                                                                       \
+	FAKE(psa_export_public_key)                                                                \
+	FAKE(psa_aead_decrypt_setup)                                                               \
+	FAKE(psa_aead_encrypt_setup)                                                               \
+	FAKE(psa_aead_verify)                                                                      \
+	FAKE(psa_aead_finish)                                                                      \
+	FAKE(psa_aead_update)                                                                      \
+	FAKE(psa_aead_update_ad)                                                                   \
+	FAKE(psa_aead_set_nonce)                                                                   \
+	FAKE(psa_aead_set_lengths)                                                                 \
+	FAKE(psa_aead_abort)                                                                       \
 	FAKE(psa_raw_key_agreement)
 
-#define RNG_BUFF_MAX_SIZE       (128)
+#define RNG_BUFF_MAX_SIZE (128)
 
-#define SHA256_LEN                      (32)
-#define SHA512_LEN                      (64)
-#define SHA_MAX_DIGEST_LEN              (SHA512_LEN)
+#define SHA256_LEN (32)
+#define SHA512_LEN (64)
+#define SHA_MAX_DIGEST_LEN (SHA512_LEN)
 
-#define HMAC_MAX_BLOCK_SIZE             (32)
+#define HMAC_MAX_BLOCK_SIZE (32)
 
-#define HASH_TEST_DATA_BLOCK_SIZE       (128)
-#define AES_MAX_BLOCK_SIZE              (16)
-#define AES_TEST_DATA_BLOCK_SIZE        (128)
-#define HMAC_TEST_DATA_BLOCK_SIZE       (128)
+#define HASH_TEST_DATA_BLOCK_SIZE (128)
+#define AES_MAX_BLOCK_SIZE (16)
+#define AES_TEST_DATA_BLOCK_SIZE (128)
+#define HMAC_TEST_DATA_BLOCK_SIZE (128)
 
-#define AES_IV_SIZE                     (16)
-#define AES_GCM_IV_SIZE                 (12)
-#define AES_CCM_IV_SIZE                 (13)
+#define AES_IV_SIZE (16)
+#define AES_GCM_IV_SIZE (12)
+#define AES_CCM_IV_SIZE (13)
 
-#define EC_ED25519_PRIV_KEY_LEN         (32)
-#define EC_CURVE25519_PRIV_KEY_LEN      (32)
-#define EC_SECP256R1_PRIV_KEY_LEN       (32)
-#define ECC_PRIVATE_KEY_MAX_LEN         (EC_SECP256R1_PRIV_KEY_LEN)
+#define EC_ED25519_PRIV_KEY_LEN (32)
+#define EC_CURVE25519_PRIV_KEY_LEN (32)
+#define EC_SECP256R1_PRIV_KEY_LEN (32)
+#define ECC_PRIVATE_KEY_MAX_LEN (EC_SECP256R1_PRIV_KEY_LEN)
 
-#define EC_ED25519_PUB_KEY_LEN          (32)
-#define EC_CURVE25519_PUB_KEY_LEN       (32)
-#define EC_SECP256R1_PUB_KEY_LEN        (64)
-#define ECC_PUBLIC_KEY_MAX_LEN          (EC_SECP256R1_PUB_KEY_LEN)
+#define EC_ED25519_PUB_KEY_LEN (32)
+#define EC_CURVE25519_PUB_KEY_LEN (32)
+#define EC_SECP256R1_PUB_KEY_LEN (64)
+#define ECC_PUBLIC_KEY_MAX_LEN (EC_SECP256R1_PUB_KEY_LEN)
 
-#define ECDH_SECRET_SIZE                (32)
+#define ECDH_SECRET_SIZE (32)
 
-#define ECDSA_SIGNATURE_SIZE            (64)
+#define ECDSA_SIGNATURE_SIZE (64)
 
-#define ALGO_DATA_CHUNK         (32)
+#define ALGO_DATA_CHUNK (32)
 
 /**
  * @brief create pointer to variable
@@ -217,12 +149,8 @@ FAKE_VALUE_FUNC(psa_status_t, psa_raw_key_agreement, psa_algorithm_t,
  */
 #define ALIAS(variable, alias_name) __typeof__(&variable) alias_name = &variable
 
-typedef psa_status_t (*custom_psa_aead_update_t)(psa_aead_operation_t *,
-						 const uint8_t *,
-						 size_t,
-						 uint8_t *,
-						 size_t,
-						 size_t *);
+typedef psa_status_t (*custom_psa_aead_update_t)(psa_aead_operation_t *, const uint8_t *, size_t,
+						 uint8_t *, size_t, size_t *);
 struct mock_psa_aead_update_values_t {
 	uint32_t call_count;
 	struct {
@@ -241,17 +169,15 @@ struct mock_psa_aead_update_values_t {
 };
 static struct mock_psa_aead_update_values_t mock_psa_aead_update_values;
 
-static psa_status_t mock_psa_aead_update(psa_aead_operation_t *operation,
-					 const uint8_t *input,
-					 size_t input_length,
-					 uint8_t *output,
-					 size_t output_size,
+static psa_status_t mock_psa_aead_update(psa_aead_operation_t *operation, const uint8_t *input,
+					 size_t input_length, uint8_t *output, size_t output_size,
 					 size_t *output_length)
 {
 	if (FFF_ARG_HISTORY_LEN <= mock_psa_aead_update_values.call_count) {
 		TEST_FAIL_MESSAGE("Function psa_aead_update called too many times!");
 	}
-	ALIAS(mock_psa_aead_update_values.parameters[mock_psa_aead_update_values.call_count], call_parameters);
+	ALIAS(mock_psa_aead_update_values.parameters[mock_psa_aead_update_values.call_count],
+	      call_parameters);
 	mock_psa_aead_update_values.call_count++;
 
 	call_parameters->in_operation = operation;
@@ -278,21 +204,20 @@ struct mock_psa_aead_update_output {
 	size_t output_size;
 };
 
-#define MOCK_PSA_AEAD_UPDATE_SET_RETURN_internal(id, \
-						 value) mock_psa_aead_update_values.parameters[id].out_ret_val = value
-#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH_internal(id,						       \
-							    value) mock_psa_aead_update_values.parameters[id]. \
-	out_output_length = value
-#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_internal(int,							    \
-						     value) mock_psa_aead_update_values.parameters[id].out_output = \
-	value.output;												    \
+#define MOCK_PSA_AEAD_UPDATE_SET_RETURN_internal(id, value)                                        \
+	mock_psa_aead_update_values.parameters[id].out_ret_val = value
+#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH_internal(id, value)                             \
+	mock_psa_aead_update_values.parameters[id].out_output_length = value
+#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_internal(int, value)                                   \
+	mock_psa_aead_update_values.parameters[id].out_output = value.output;                      \
 	mock_psa_aead_update_values.parameters[id].out_output_size = output_size
 
-#define MOCK_PSA_AEAD_UPDATE_SET_RETURN(...) FOR_EACH_IDX(MOCK_PSA_AEAD_UPDATE_SET_RETURN_internal, (; ), __VA_ARGS__)
-#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH(...) FOR_EACH_IDX( \
-		MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH_internal, (; ), __VA_ARGS__)
-#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT(...) FOR_EACH_IDX(MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_internal, (; ), \
-							      __VA_ARGS__)
+#define MOCK_PSA_AEAD_UPDATE_SET_RETURN(...)                                                       \
+	FOR_EACH_IDX(MOCK_PSA_AEAD_UPDATE_SET_RETURN_internal, (;), __VA_ARGS__)
+#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH(...)                                            \
+	FOR_EACH_IDX(MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH_internal, (;), __VA_ARGS__)
+#define MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT(...)                                                   \
+	FOR_EACH_IDX(MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_internal, (;), __VA_ARGS__)
 
 /*************************************************************************
 * setUp & tearDown
@@ -674,9 +599,12 @@ void test_sid_pal_crypto_hmac_false_positives(void)
 	uint8_t data[HMAC_TEST_DATA_BLOCK_SIZE];
 	uint8_t digest[SHA_MAX_DIGEST_LEN];
 	uint8_t hmac_test_key[HMAC_MAX_BLOCK_SIZE];
-	psa_status_t psa_import_key_ret[] = { PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_mac_sign_setup_ret[] = { PSA_ERROR_NOT_SUPPORTED, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_mac_update_ret[] = { PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
+	psa_status_t psa_import_key_ret[] = { PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS,
+					      PSA_SUCCESS };
+	psa_status_t psa_mac_sign_setup_ret[] = { PSA_ERROR_NOT_SUPPORTED, PSA_SUCCESS, PSA_SUCCESS,
+						  PSA_SUCCESS };
+	psa_status_t psa_mac_update_ret[] = { PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS,
+					      PSA_SUCCESS };
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_import_key, psa_import_key_ret, sizeof(psa_import_key_ret));
@@ -761,8 +689,9 @@ void test_sid_pal_crypto_hmac_variable_data_len(void)
 	for (int it = 0; it < (int)(sizeof(test_vector) / sizeof(test_vector[0])); it++) {
 		params.data_size = test_vector[it];
 		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-		TEST_ASSERT_EQUAL(ceilf((double)((double)params.data_size / (double)ALGO_DATA_CHUNK)),
-				  psa_mac_update_fake.call_count);
+		TEST_ASSERT_EQUAL(
+			ceilf((double)((double)params.data_size / (double)ALGO_DATA_CHUNK)),
+			psa_mac_update_fake.call_count);
 		RESET_FAKE(psa_mac_update);
 	}
 }
@@ -1051,16 +980,33 @@ void test_sid_pal_crypto_aes_encrypt_pass(void)
 void test_sid_pal_crypto_aes_encrypt_false_positives(void)
 {
 	sid_pal_aes_params_t params;
-	psa_status_t psa_import_key_ret[] =
-	{ PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_encrypt_setup_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_set_iv_ret[] =
-	{ PSA_ERROR_INSUFFICIENT_MEMORY, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_update_ret[] =
-	{ PSA_ERROR_INSUFFICIENT_MEMORY, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_finish_ret[] =
-	{ PSA_ERROR_BAD_STATE, PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
+	psa_status_t psa_import_key_ret[] = { PSA_ERROR_NOT_PERMITTED,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS };
+	psa_status_t psa_cipher_encrypt_setup_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+							PSA_SUCCESS,
+							PSA_SUCCESS,
+							PSA_SUCCESS,
+							PSA_SUCCESS,
+							PSA_SUCCESS };
+	psa_status_t psa_cipher_set_iv_ret[] = { PSA_ERROR_INSUFFICIENT_MEMORY,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS };
+	psa_status_t psa_cipher_update_ret[] = { PSA_ERROR_INSUFFICIENT_MEMORY,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS };
+	psa_status_t psa_cipher_finish_ret[] = { PSA_ERROR_BAD_STATE, PSA_ERROR_BAD_STATE,
+						 PSA_SUCCESS,	      PSA_SUCCESS,
+						 PSA_SUCCESS,	      PSA_SUCCESS };
 	uint8_t data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t iv[AES_MAX_BLOCK_SIZE];
 	uint8_t encrypted_data[AES_TEST_DATA_BLOCK_SIZE];
@@ -1068,7 +1014,8 @@ void test_sid_pal_crypto_aes_encrypt_false_positives(void)
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_import_key, psa_import_key_ret, sizeof(psa_import_key_ret));
-	SET_RETURN_SEQ(psa_cipher_encrypt_setup, psa_cipher_encrypt_setup_ret, sizeof(psa_cipher_encrypt_setup_ret));
+	SET_RETURN_SEQ(psa_cipher_encrypt_setup, psa_cipher_encrypt_setup_ret,
+		       sizeof(psa_cipher_encrypt_setup_ret));
 	SET_RETURN_SEQ(psa_cipher_set_iv, psa_cipher_set_iv_ret, sizeof(psa_cipher_set_iv_ret));
 	SET_RETURN_SEQ(psa_cipher_update, psa_cipher_update_ret, sizeof(psa_cipher_update_ret));
 	SET_RETURN_SEQ(psa_cipher_finish, psa_cipher_finish_ret, sizeof(psa_cipher_finish_ret));
@@ -1134,16 +1081,33 @@ void test_sid_pal_crypto_aes_decrypt_pass(void)
 void test_sid_pal_crypto_aes_decrypt_false_positives(void)
 {
 	sid_pal_aes_params_t params;
-	psa_status_t psa_import_key_ret[] =
-	{ PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_decrypt_setup_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_set_iv_ret[] =
-	{ PSA_ERROR_INSUFFICIENT_MEMORY, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_update_ret[] =
-	{ PSA_ERROR_INSUFFICIENT_MEMORY, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_cipher_finish_ret[] =
-	{ PSA_ERROR_BAD_STATE, PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
+	psa_status_t psa_import_key_ret[] = { PSA_ERROR_NOT_PERMITTED,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS };
+	psa_status_t psa_cipher_decrypt_setup_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+							PSA_SUCCESS,
+							PSA_SUCCESS,
+							PSA_SUCCESS,
+							PSA_SUCCESS,
+							PSA_SUCCESS };
+	psa_status_t psa_cipher_set_iv_ret[] = { PSA_ERROR_INSUFFICIENT_MEMORY,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS };
+	psa_status_t psa_cipher_update_ret[] = { PSA_ERROR_INSUFFICIENT_MEMORY,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS,
+						 PSA_SUCCESS };
+	psa_status_t psa_cipher_finish_ret[] = { PSA_ERROR_BAD_STATE, PSA_ERROR_BAD_STATE,
+						 PSA_SUCCESS,	      PSA_SUCCESS,
+						 PSA_SUCCESS,	      PSA_SUCCESS };
 	uint8_t data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t iv[AES_MAX_BLOCK_SIZE];
 	uint8_t decrypted_data[AES_TEST_DATA_BLOCK_SIZE];
@@ -1151,7 +1115,8 @@ void test_sid_pal_crypto_aes_decrypt_false_positives(void)
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_import_key, psa_import_key_ret, sizeof(psa_import_key_ret));
-	SET_RETURN_SEQ(psa_cipher_decrypt_setup, psa_cipher_decrypt_setup_ret, sizeof(psa_cipher_decrypt_setup_ret));
+	SET_RETURN_SEQ(psa_cipher_decrypt_setup, psa_cipher_decrypt_setup_ret,
+		       sizeof(psa_cipher_decrypt_setup_ret));
 	SET_RETURN_SEQ(psa_cipher_set_iv, psa_cipher_set_iv_ret, sizeof(psa_cipher_set_iv_ret));
 	SET_RETURN_SEQ(psa_cipher_update, psa_cipher_update_ret, sizeof(psa_cipher_update_ret));
 	SET_RETURN_SEQ(psa_cipher_finish, psa_cipher_finish_ret, sizeof(psa_cipher_finish_ret));
@@ -1701,15 +1666,18 @@ void test_sid_pal_crypto_ecc_key_gen_false_positives(void)
 {
 	sid_pal_ecc_key_gen_params_t params;
 	psa_status_t psa_generate_key_ret[] = { PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_export_key_ret[] = { PSA_ERROR_BUFFER_TOO_SMALL, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_export_public_key_ret[] = { PSA_ERROR_BUFFER_TOO_SMALL, PSA_SUCCESS, PSA_SUCCESS };
+	psa_status_t psa_export_key_ret[] = { PSA_ERROR_BUFFER_TOO_SMALL, PSA_SUCCESS,
+					      PSA_SUCCESS };
+	psa_status_t psa_export_public_key_ret[] = { PSA_ERROR_BUFFER_TOO_SMALL, PSA_SUCCESS,
+						     PSA_SUCCESS };
 	uint8_t private_key[ECC_PRIVATE_KEY_MAX_LEN];
 	uint8_t public_key[ECC_PUBLIC_KEY_MAX_LEN];
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_generate_key, psa_generate_key_ret, sizeof(psa_generate_key_ret));
 	SET_RETURN_SEQ(psa_export_key, psa_export_key_ret, sizeof(psa_export_key_ret));
-	SET_RETURN_SEQ(psa_export_public_key, psa_export_public_key_ret, sizeof(psa_export_public_key_ret));
+	SET_RETURN_SEQ(psa_export_public_key, psa_export_public_key_ret,
+		       sizeof(psa_export_public_key_ret));
 
 	psa_crypto_init_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
@@ -1946,7 +1914,8 @@ void test_sid_pal_crypto_aead_gcm_128_encrypt_pass(void)
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	psa_aead_finish_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
@@ -1994,7 +1963,8 @@ void test_sid_pal_crypto_aead_gcm_128_decrypt_pass(void)
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	psa_aead_verify_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
@@ -2043,7 +2013,8 @@ void test_sid_pal_crypto_aead_ccm_128_encrypt_pass(void)
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	psa_aead_finish_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
@@ -2092,7 +2063,8 @@ void test_sid_pal_crypto_aead_ccm_128_decrypt_pass(void)
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	psa_aead_verify_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
@@ -2138,7 +2110,8 @@ void test_sid_pal_crypto_aead_no_iv(void)
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	psa_aead_verify_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
@@ -2148,18 +2121,40 @@ void test_sid_pal_crypto_aead_no_iv(void)
 void test_sid_pal_crypto_aead_decrypt_false_positives(void)
 {
 	sid_pal_aead_params_t params;
-	psa_status_t psa_import_key_ret[] =
-	{ PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_decrypt_setup_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_set_lengths_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_set_nonce_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_update_ad_ret[] =
-	{ PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_verify_ret[] =
-	{ PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
+	psa_status_t psa_import_key_ret[] = { PSA_ERROR_NOT_PERMITTED,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS };
+	psa_status_t psa_aead_decrypt_setup_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS };
+	psa_status_t psa_aead_set_lengths_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS };
+	psa_status_t psa_aead_set_nonce_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS };
+	psa_status_t psa_aead_update_ad_ret[] = { PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS,
+						  PSA_SUCCESS,	       PSA_SUCCESS, PSA_SUCCESS,
+						  PSA_SUCCESS };
+	psa_status_t psa_aead_verify_ret[] = { PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS,
+					       PSA_SUCCESS,	    PSA_SUCCESS, PSA_SUCCESS,
+					       PSA_SUCCESS };
 
 	uint8_t data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
@@ -2170,8 +2165,10 @@ void test_sid_pal_crypto_aead_decrypt_false_positives(void)
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_import_key, psa_import_key_ret, sizeof(psa_import_key_ret));
-	SET_RETURN_SEQ(psa_aead_decrypt_setup, psa_aead_decrypt_setup_ret, sizeof(psa_aead_decrypt_setup_ret));
-	SET_RETURN_SEQ(psa_aead_set_lengths, psa_aead_set_lengths_ret, sizeof(psa_aead_set_lengths_ret));
+	SET_RETURN_SEQ(psa_aead_decrypt_setup, psa_aead_decrypt_setup_ret,
+		       sizeof(psa_aead_decrypt_setup_ret));
+	SET_RETURN_SEQ(psa_aead_set_lengths, psa_aead_set_lengths_ret,
+		       sizeof(psa_aead_set_lengths_ret));
 	SET_RETURN_SEQ(psa_aead_set_nonce, psa_aead_set_nonce_ret, sizeof(psa_aead_set_nonce_ret));
 	SET_RETURN_SEQ(psa_aead_update_ad, psa_aead_update_ad_ret, sizeof(psa_aead_update_ad_ret));
 	SET_RETURN_SEQ(psa_aead_verify, psa_aead_verify_ret, sizeof(psa_aead_verify_ret));
@@ -2195,14 +2192,16 @@ void test_sid_pal_crypto_aead_decrypt_false_positives(void)
 	params.mac_size = sizeof(mac);
 
 	memset(&mock_psa_aead_update_values, 0, sizeof(mock_psa_aead_update_values));
-	MOCK_PSA_AEAD_UPDATE_SET_RETURN(PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS,
-					PSA_SUCCESS, PSA_SUCCESS);
-	MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH(0, 0, 1, params.out_size - 1, params.out_size - 2,
-						   params.out_size - 1, params.out_size - 1);
+	MOCK_PSA_AEAD_UPDATE_SET_RETURN(PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS,
+					PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS);
+	MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH(0, 0, 1, params.out_size - 1,
+						   params.out_size - 2, params.out_size - 1,
+						   params.out_size - 1);
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NO_PERMISSION, sid_pal_crypto_aead_crypt(&params));
 	TEST_ASSERT_EQUAL(0, psa_destroy_key_fake.call_count);
@@ -2218,18 +2217,40 @@ void test_sid_pal_crypto_aead_decrypt_false_positives(void)
 void test_sid_pal_crypto_aead_encrypt_false_positives(void)
 {
 	sid_pal_aead_params_t params;
-	psa_status_t psa_import_key_ret[] =
-	{ PSA_ERROR_NOT_PERMITTED, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_encrypt_setup_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_set_lengths_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_set_nonce_ret[] =
-	{ PSA_ERROR_INVALID_ARGUMENT, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_update_ad_ret[] =
-	{ PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
-	psa_status_t psa_aead_finish_ret[] =
-	{ PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS };
+	psa_status_t psa_import_key_ret[] = { PSA_ERROR_NOT_PERMITTED,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS,
+					      PSA_SUCCESS };
+	psa_status_t psa_aead_encrypt_setup_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS,
+						      PSA_SUCCESS };
+	psa_status_t psa_aead_set_lengths_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS,
+						    PSA_SUCCESS };
+	psa_status_t psa_aead_set_nonce_ret[] = { PSA_ERROR_INVALID_ARGUMENT,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS,
+						  PSA_SUCCESS };
+	psa_status_t psa_aead_update_ad_ret[] = { PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS,
+						  PSA_SUCCESS,	       PSA_SUCCESS, PSA_SUCCESS,
+						  PSA_SUCCESS };
+	psa_status_t psa_aead_finish_ret[] = { PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS,
+					       PSA_SUCCESS,	    PSA_SUCCESS, PSA_SUCCESS,
+					       PSA_SUCCESS };
 
 	uint8_t data[AES_TEST_DATA_BLOCK_SIZE];
 	uint8_t additional_data[AES_TEST_DATA_BLOCK_SIZE] = { "Additional data..." };
@@ -2240,8 +2261,10 @@ void test_sid_pal_crypto_aead_encrypt_false_positives(void)
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_import_key, psa_import_key_ret, sizeof(psa_import_key_ret));
-	SET_RETURN_SEQ(psa_aead_encrypt_setup, psa_aead_encrypt_setup_ret, sizeof(psa_aead_encrypt_setup_ret));
-	SET_RETURN_SEQ(psa_aead_set_lengths, psa_aead_set_lengths_ret, sizeof(psa_aead_set_lengths_ret));
+	SET_RETURN_SEQ(psa_aead_encrypt_setup, psa_aead_encrypt_setup_ret,
+		       sizeof(psa_aead_encrypt_setup_ret));
+	SET_RETURN_SEQ(psa_aead_set_lengths, psa_aead_set_lengths_ret,
+		       sizeof(psa_aead_set_lengths_ret));
 	SET_RETURN_SEQ(psa_aead_set_nonce, psa_aead_set_nonce_ret, sizeof(psa_aead_set_nonce_ret));
 	SET_RETURN_SEQ(psa_aead_update_ad, psa_aead_update_ad_ret, sizeof(psa_aead_update_ad_ret));
 	SET_RETURN_SEQ(psa_aead_finish, psa_aead_finish_ret, sizeof(psa_aead_finish_ret));
@@ -2265,14 +2288,16 @@ void test_sid_pal_crypto_aead_encrypt_false_positives(void)
 	params.mac_size = sizeof(mac);
 
 	memset(&mock_psa_aead_update_values, 0, sizeof(mock_psa_aead_update_values));
-	MOCK_PSA_AEAD_UPDATE_SET_RETURN(PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS,
-					PSA_SUCCESS, PSA_SUCCESS);
-	MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH(0, 0, 1, params.out_size - 1, params.out_size - 2,
-						   params.out_size - 1, params.out_size - 1);
+	MOCK_PSA_AEAD_UPDATE_SET_RETURN(PSA_ERROR_BAD_STATE, PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS,
+					PSA_SUCCESS, PSA_SUCCESS, PSA_SUCCESS);
+	MOCK_PSA_AEAD_UPDATE_SET_OUT_OUTPUT_LENGTH(0, 0, 1, params.out_size - 1,
+						   params.out_size - 2, params.out_size - 1,
+						   params.out_size - 1);
 
 	custom_psa_aead_update_t custom_psa_aead_update[] = { mock_psa_aead_update };
 
-	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update, ARRAY_SIZE(custom_psa_aead_update));
+	SET_CUSTOM_FAKE_SEQ(psa_aead_update, custom_psa_aead_update,
+			    ARRAY_SIZE(custom_psa_aead_update));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NO_PERMISSION, sid_pal_crypto_aead_crypt(&params));
 	TEST_ASSERT_EQUAL(0, psa_destroy_key_fake.call_count);
@@ -2428,7 +2453,8 @@ void test_sid_pal_crypto_ecc_ecdh_false_positives(void)
 
 	memset(&params, 0x00, sizeof(params));
 	SET_RETURN_SEQ(psa_import_key, psa_import_key_ret, sizeof(psa_import_key_ret));
-	SET_RETURN_SEQ(psa_raw_key_agreement, psa_raw_key_agreement_ret, sizeof(psa_raw_key_agreement_ret));
+	SET_RETURN_SEQ(psa_raw_key_agreement, psa_raw_key_agreement_ret,
+		       sizeof(psa_raw_key_agreement_ret));
 
 	psa_crypto_init_fake.return_val = PSA_SUCCESS;
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());

@@ -173,13 +173,15 @@ static void sid_put_msg_delegated_work(struct k_work *work)
 {
 	struct sid_put_msg_args *arguments = CONTAINER_OF(work, struct sid_put_msg_args, work);
 
-	arguments->return_value = sid_put_msg(arguments->handle, arguments->msg, arguments->msg_desc);
+	arguments->return_value =
+		sid_put_msg(arguments->handle, arguments->msg, arguments->msg_desc);
 	k_sem_give(&arguments->completed);
 }
 
 static void sid_set_factory_reset_delegated_work(struct k_work *work)
 {
-	struct sid_set_factory_reset_args *arguments = CONTAINER_OF(work, struct sid_set_factory_reset_args, work);
+	struct sid_set_factory_reset_args *arguments =
+		CONTAINER_OF(work, struct sid_set_factory_reset_args, work);
 
 	arguments->return_value = sid_set_factory_reset(arguments->handle);
 	k_sem_give(&arguments->completed);
@@ -189,13 +191,15 @@ static void sid_get_mtu_delegated_work(struct k_work *work)
 {
 	struct sid_get_mtu_args *arguments = CONTAINER_OF(work, struct sid_get_mtu_args, work);
 
-	arguments->return_value = sid_get_mtu(arguments->handle, arguments->link_type, arguments->mtu);
+	arguments->return_value =
+		sid_get_mtu(arguments->handle, arguments->link_type, arguments->mtu);
 	k_sem_give(&arguments->completed);
 }
 
 static void sid_get_status_delegated_work(struct k_work *work)
 {
-	struct sid_get_status_args *arguments = CONTAINER_OF(work, struct sid_get_status_args, work);
+	struct sid_get_status_args *arguments =
+		CONTAINER_OF(work, struct sid_get_status_args, work);
 
 	arguments->return_value = sid_get_status(arguments->handle, arguments->current_status);
 	k_sem_give(&arguments->completed);
@@ -203,9 +207,8 @@ static void sid_get_status_delegated_work(struct k_work *work)
 
 static void sid_ble_bcn_connection_request_delegated_work(struct k_work *work)
 {
-	struct sid_ble_bcn_connection_request_args *arguments = CONTAINER_OF(work,
-									     struct sid_ble_bcn_connection_request_args,
-									     work);
+	struct sid_ble_bcn_connection_request_args *arguments =
+		CONTAINER_OF(work, struct sid_ble_bcn_connection_request_args, work);
 
 	arguments->return_value = sid_ble_bcn_connection_request(arguments->handle, arguments->set);
 	k_sem_give(&arguments->completed);
@@ -215,13 +218,15 @@ static void sid_get_time_delegated_work(struct k_work *work)
 {
 	struct sid_get_time_args *arguments = CONTAINER_OF(work, struct sid_get_time_args, work);
 
-	arguments->return_value = sid_get_time(arguments->handle, arguments->format, arguments->curr_time);
+	arguments->return_value =
+		sid_get_time(arguments->handle, arguments->format, arguments->curr_time);
 	k_sem_give(&arguments->completed);
 }
 
 static void sid_set_msg_dest_id_delegated_work(struct k_work *work)
 {
-	struct sid_set_msg_dest_id_args *arguments = CONTAINER_OF(work, struct sid_set_msg_dest_id_args, work);
+	struct sid_set_msg_dest_id_args *arguments =
+		CONTAINER_OF(work, struct sid_set_msg_dest_id_args, work);
 
 	arguments->return_value = sid_set_msg_dest_id(arguments->handle, arguments->id);
 	k_sem_give(&arguments->completed);
@@ -231,7 +236,8 @@ static void sid_option_delegated_work(struct k_work *work)
 {
 	struct sid_option_args *arguments = CONTAINER_OF(work, struct sid_option_args, work);
 
-	arguments->return_value = sid_option(arguments->handle, arguments->option, arguments->data, arguments->len);
+	arguments->return_value =
+		sid_option(arguments->handle, arguments->option, arguments->data, arguments->len);
 	k_sem_give(&arguments->completed);
 }
 
@@ -287,7 +293,8 @@ sid_error_t sid_stop_delegated(struct sid_handle *handle, uint32_t link_mask)
 	return ctx.sid_stop_ctx.return_value;
 }
 
-sid_error_t sid_put_msg_delegated(struct sid_handle *handle, const struct sid_msg *msg, struct sid_msg_desc *msg_desc)
+sid_error_t sid_put_msg_delegated(struct sid_handle *handle, const struct sid_msg *msg,
+				  struct sid_msg_desc *msg_desc)
 {
 	while (k_work_busy_get(&ctx.sid_put_msg_ctx.work) != 0) {
 		k_sleep(K_MSEC(1));
@@ -313,7 +320,8 @@ sid_error_t sid_set_factory_reset_delegated(struct sid_handle *handle)
 	return ctx.sid_set_factory_reset_ctx.return_value;
 }
 
-sid_error_t sid_get_mtu_delegated(struct sid_handle *handle, enum sid_link_type link_type, size_t *mtu)
+sid_error_t sid_get_mtu_delegated(struct sid_handle *handle, enum sid_link_type link_type,
+				  size_t *mtu)
 {
 	while (k_work_busy_get(&ctx.sid_get_mtu_ctx.work) != 0) {
 		k_sleep(K_MSEC(1));
@@ -381,7 +389,8 @@ sid_error_t sid_set_msg_dest_id_delegated(struct sid_handle *handle, uint32_t id
 	return ctx.sid_set_msg_dest_id_ctx.return_value;
 }
 
-sid_error_t sid_option_delegated(struct sid_handle *handle, enum sid_option option, void *data, size_t len)
+sid_error_t sid_option_delegated(struct sid_handle *handle, enum sid_option option, void *data,
+				 size_t len)
 {
 	while (k_work_busy_get(&ctx.sid_option_ctx.work) != 0) {
 		k_sleep(K_MSEC(1));
@@ -417,7 +426,8 @@ void sid_api_delegated(struct k_work_q *workq)
 	k_sem_init(&ctx.sid_get_status_ctx.completed, 0, 1);
 	k_work_init(&ctx.sid_get_status_ctx.work, sid_get_status_delegated_work);
 	k_sem_init(&ctx.sid_ble_bcn_connection_request_ctx.completed, 0, 1);
-	k_work_init(&ctx.sid_ble_bcn_connection_request_ctx.work, sid_ble_bcn_connection_request_delegated_work);
+	k_work_init(&ctx.sid_ble_bcn_connection_request_ctx.work,
+		    sid_ble_bcn_connection_request_delegated_work);
 	k_sem_init(&ctx.sid_get_time_ctx.completed, 0, 1);
 	k_work_init(&ctx.sid_get_time_ctx.work, sid_get_time_delegated_work);
 	k_sem_init(&ctx.sid_set_msg_dest_id_ctx.completed, 0, 1);

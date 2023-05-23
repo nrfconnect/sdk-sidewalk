@@ -27,19 +27,19 @@
 LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 
 // Manufacturing version define
-#define MFG_VERSION_1_VAL   0x01000000
-#define MFG_VERSION_2_VAL   0x2
+#define MFG_VERSION_1_VAL 0x01000000
+#define MFG_VERSION_2_VAL 0x2
 
-#define FLASH_MEM_CHUNK   (128)
+#define FLASH_MEM_CHUNK (128)
 
 #ifndef DEV_ID_REG
-#if defined (NRF52840_XXAA) || defined (NRF52833_XXAA) || defined (NRF52832_XXAA)
-#define DEV_ID_REG  (uint32_t)(NRF_FICR->DEVICEID[0])
-#elif defined (NRF5340_XXAA)
+#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(NRF52832_XXAA)
+#define DEV_ID_REG (uint32_t)(NRF_FICR->DEVICEID[0])
+#elif defined(NRF5340_XXAA)
 #if defined(NRF_APPLICATION)
-#define DEV_ID_REG  (uint32_t)(NRF_FICR_S->DEVICEID[0])
-#elif defined (NRF_NETWORK)
-#define DEV_ID_REG  (uint32_t)(NRF_FICR_NS->DEVICEID[0])
+#define DEV_ID_REG (uint32_t)(NRF_FICR_S->DEVICEID[0])
+#elif defined(NRF_NETWORK)
+#define DEV_ID_REG (uint32_t)(NRF_FICR_NS->DEVICEID[0])
 #endif /* NRF5340_XXAA */
 #else
 #error "Unknow Device ID register."
@@ -47,10 +47,10 @@ LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 #endif /* DEV_ID_REG */
 
 // DEV_ID masks
-#define ENCODED_DEV_ID_SIZE_5_BYTES_MASK    0xA0
+#define ENCODED_DEV_ID_SIZE_5_BYTES_MASK 0xA0
 #define DEV_ID_MSB_MASK 0x1F
 
-#define MFG_WORD_SIZE_VER_1     (8)
+#define MFG_WORD_SIZE_VER_1 (8)
 
 struct sid_pal_mfg_store_value_to_address_offset {
 	sid_pal_mfg_store_value_t value;
@@ -60,7 +60,8 @@ struct sid_pal_mfg_store_value_to_address_offset {
 static void ntoh_buff(uint8_t *buffer, size_t buff_len);
 static uint32_t default_app_value_to_offset(int value);
 static off_t checked_addr_return(off_t offset, uintptr_t start_address, uintptr_t end_address);
-static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_address, uintptr_t end_address);
+static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_address,
+			     uintptr_t end_address);
 
 // clang-format off
 struct sid_pal_mfg_store_value_to_address_offset sid_pal_mfg_store_app_value_to_offset_table[] = {
@@ -184,7 +185,8 @@ static off_t checked_addr_return(off_t offset, uintptr_t start_address, uintptr_
  * @param end_address - mfg partition end address.
  * @return Offset in physical flash memory when success otherwise SID_PAL_MFG_STORE_INVALID_OFFSET.
  */
-static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_address, uintptr_t end_address)
+static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_address,
+			     uintptr_t end_address)
 {
 	const size_t table_count = ARRAY_SIZE(sid_pal_mfg_store_app_value_to_offset_table);
 
@@ -192,7 +194,8 @@ static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_ad
 		if (value == sid_pal_mfg_store_app_value_to_offset_table[i].value) {
 			const off_t offset = sid_pal_mfg_store_app_value_to_offset_table[i].offset;
 			return (off_t)((SID_PAL_MFG_STORE_INVALID_OFFSET != offset) ?
-				       (start_address + (offset << 2)) : SID_PAL_MFG_STORE_INVALID_OFFSET);
+					       (start_address + (offset << 2)) :
+					       SID_PAL_MFG_STORE_INVALID_OFFSET);
 		}
 	}
 
@@ -224,7 +227,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 
 int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length)
 {
-#if defined (HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
+#if defined(HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
 	uint8_t __aligned(4) wr_array[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN];
 
 	if (0u == length) {
@@ -240,8 +243,8 @@ int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length
 		return (int32_t)SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
 
-	const off_t value_offset = value_to_offset(
-		value, nrf_mfg_store_region.addr_start, nrf_mfg_store_region.addr_end);
+	const off_t value_offset = value_to_offset(value, nrf_mfg_store_region.addr_start,
+						   nrf_mfg_store_region.addr_end);
 
 	if (SID_PAL_MFG_STORE_INVALID_OFFSET == value_offset) {
 		return (int32_t)SID_ERROR_NOT_FOUND;
@@ -264,8 +267,9 @@ int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length
 
 void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
 {
-	const off_t value_offset = value_to_offset(
-		(sid_pal_mfg_store_value_t)value, nrf_mfg_store_region.addr_start, nrf_mfg_store_region.addr_end);
+	const off_t value_offset =
+		value_to_offset((sid_pal_mfg_store_value_t)value, nrf_mfg_store_region.addr_start,
+				nrf_mfg_store_region.addr_end);
 
 	if (!buffer) {
 		LOG_ERR("Null pointer provided.");
@@ -286,7 +290,7 @@ void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
 
 int32_t sid_pal_mfg_store_erase(void)
 {
-#if defined (HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
+#if defined(HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
 	const size_t mfg_size = nrf_mfg_store_region.addr_end - nrf_mfg_store_region.addr_start;
 	if (flash_dev) {
 		return (int32_t)flash_erase(flash_dev, nrf_mfg_store_region.addr_start, mfg_size);
@@ -300,7 +304,7 @@ int32_t sid_pal_mfg_store_erase(void)
 
 bool sid_pal_mfg_store_is_empty(void)
 {
-#if defined (HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
+#if defined(HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
 	uint8_t empty_flash_mem[FLASH_MEM_CHUNK];
 	uint8_t tmp_buff[FLASH_MEM_CHUNK];
 	size_t length = sizeof(tmp_buff);
@@ -310,8 +314,7 @@ bool sid_pal_mfg_store_is_empty(void)
 	if (flash_dev) {
 		int rc;
 		for (off_t offset = nrf_mfg_store_region.addr_start;
-		     offset < nrf_mfg_store_region.addr_end;
-		     offset += length) {
+		     offset < nrf_mfg_store_region.addr_end; offset += length) {
 			if ((offset + length) > nrf_mfg_store_region.addr_end) {
 				length = nrf_mfg_store_region.addr_end - offset;
 			}
@@ -340,8 +343,8 @@ uint32_t sid_pal_mfg_store_get_version(void)
 {
 	uint32_t version = 0;
 
-	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_VERSION,
-			       (uint8_t *)&version, SID_PAL_MFG_STORE_VERSION_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_VERSION, (uint8_t *)&version,
+			       SID_PAL_MFG_STORE_VERSION_SIZE);
 	// Assuming that we keep this behavior for both 1P & 3P
 	return sys_be32_to_cpu(version);
 }
@@ -354,8 +357,8 @@ bool sid_pal_mfg_store_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE])
 		uint8_t unset_dev_id[SID_PAL_MFG_STORE_DEVID_SIZE];
 		memset(unset_dev_id, 0xFF, SID_PAL_MFG_STORE_DEVID_SIZE);
 		memset(dev_id, 0xFF, SID_PAL_MFG_STORE_DEVID_SIZE);
-		sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID,
-				       dev_id, SID_PAL_MFG_STORE_DEVID_SIZE);
+		sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, dev_id,
+				       SID_PAL_MFG_STORE_DEVID_SIZE);
 
 		if (0 == memcmp(dev_id, unset_dev_id, SID_PAL_MFG_STORE_DEVID_SIZE)) {
 			uint32_t mcu_devid = DEV_ID_REG;
@@ -373,7 +376,8 @@ bool sid_pal_mfg_store_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE])
 				 * read and each word needs to be changed to host endian format.
 				 */
 				uint8_t dev_id_buffer[MFG_WORD_SIZE_VER_1] = { 0 };
-				sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, dev_id_buffer, sizeof(dev_id_buffer));
+				sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, dev_id_buffer,
+						       sizeof(dev_id_buffer));
 				ntoh_buff(dev_id_buffer, sizeof(dev_id_buffer));
 				// Encode the size in the first 3 bits in MSB of the devId
 				dev_id_buffer[0] = (dev_id_buffer[0] & DEV_ID_MSB_MASK) |
@@ -396,8 +400,8 @@ bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIA
 
 	memset(unset_serial_num, 0xFF, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 	memset(serial_num, 0xFF, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
-	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_SERIAL_NUM,
-			       serial_num, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_SERIAL_NUM, serial_num,
+			       SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 
 	if (0 == memcmp(serial_num, unset_serial_num, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE)) {
 		return false;

@@ -64,10 +64,8 @@ static void analyze_temp_readings(int16_t *values, size_t count, double limit)
 	TEST_ASSERT_LESS_OR_EQUAL(limit, max_mean_error);
 	char message[50];
 
-	sprintf(message, "mean reading= %d.%02d, max deviation = %d.%02d",
-		(uint8_t)mean,
-		(uint8_t)((mean - (uint8_t)mean) * 100),
-		(uint8_t)max_mean_error,
+	sprintf(message, "mean reading= %d.%02d, max deviation = %d.%02d", (uint8_t)mean,
+		(uint8_t)((mean - (uint8_t)mean) * 100), (uint8_t)max_mean_error,
 		(uint8_t)((max_mean_error - (uint8_t)max_mean_error) * 100));
 	TEST_MESSAGE(message);
 }

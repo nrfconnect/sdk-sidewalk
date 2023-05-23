@@ -25,8 +25,8 @@ DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
 FAKE_VALUE_FUNC(int, bt_disable);
-FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *, size_t,
-		const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *,
+		size_t, const struct bt_data *, size_t);
 FAKE_VALUE_FUNC(int, bt_gatt_exchange_mtu, struct bt_conn *, struct bt_gatt_exchange_params *);
 
 FAKE_VALUE_FUNC(int, bt_le_adv_stop);
@@ -34,32 +34,28 @@ FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
 FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
 FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_service, struct bt_conn *,
-		const struct bt_gatt_attr *,
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_service, struct bt_conn *, const struct bt_gatt_attr *,
 		void *, uint16_t, uint16_t);
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_chrc, struct bt_conn *,
-		const struct bt_gatt_attr *, void *,
-		uint16_t, uint16_t);
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *,
-		const struct bt_gatt_attr *, void *,
-		uint16_t, uint16_t);
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *,
-		const struct bt_gatt_attr *, const void *,
-		uint16_t, uint16_t, uint8_t);
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_chrc, struct bt_conn *, const struct bt_gatt_attr *,
+		void *, uint16_t, uint16_t);
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *, const struct bt_gatt_attr *,
+		void *, uint16_t, uint16_t);
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct bt_gatt_attr *,
+		const void *, uint16_t, uint16_t, uint8_t);
 
-#define FFF_FAKES_LIST(FAKE)		\
-	FAKE(bt_enable)			\
-	FAKE(bt_disable)		\
-	FAKE(bt_le_adv_start)		\
-	FAKE(bt_le_adv_stop)		\
-	FAKE(bt_gatt_exchange_mtu)	\
-	FAKE(bt_conn_cb_register)	\
-	FAKE(bt_conn_ref)		\
-	FAKE(bt_conn_unref)		\
-	FAKE(bt_conn_get_dst)		\
-	FAKE(bt_gatt_attr_read_service)	\
-	FAKE(bt_gatt_attr_read_chrc)	\
-	FAKE(bt_gatt_attr_read_ccc)	\
+#define FFF_FAKES_LIST(FAKE)                                                                       \
+	FAKE(bt_enable)                                                                            \
+	FAKE(bt_disable)                                                                           \
+	FAKE(bt_le_adv_start)                                                                      \
+	FAKE(bt_le_adv_stop)                                                                       \
+	FAKE(bt_gatt_exchange_mtu)                                                                 \
+	FAKE(bt_conn_cb_register)                                                                  \
+	FAKE(bt_conn_ref)                                                                          \
+	FAKE(bt_conn_unref)                                                                        \
+	FAKE(bt_conn_get_dst)                                                                      \
+	FAKE(bt_gatt_attr_read_service)                                                            \
+	FAKE(bt_gatt_attr_read_chrc)                                                               \
+	FAKE(bt_gatt_attr_read_ccc)                                                                \
 	FAKE(bt_gatt_attr_write_ccc)
 
 #define ESUCCESS (0)
@@ -194,14 +190,17 @@ void test_ble_adapter_set_adv_data(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
 	__cmock_sid_ble_advert_update_IgnoreAndReturn(ESUCCESS);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
+	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
+			  p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(NULL, 0));
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(test_data, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->set_adv_data(NULL, sizeof(test_data)));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  p_test_ble_ifc->set_adv_data(NULL, sizeof(test_data)));
 
 	__cmock_sid_ble_advert_update_IgnoreAndReturn(-ENOENT);
-	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
+	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC,
+			  p_test_ble_ifc->set_adv_data(test_data, sizeof(test_data)));
 }
 
 void test_ble_adapter_start_advertisement(void)
@@ -238,12 +237,15 @@ void test_ble_adapter_adapter_callback_pass(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
 	set_callbacks(&cb);
-	__cmock_sid_ble_adapter_notification_cb_set_ExpectAndReturn(cb.ind_callback, SID_ERROR_NONE);
-	__cmock_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(cb.notify_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_notification_cb_set_ExpectAndReturn(cb.ind_callback,
+								    SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(cb.notify_callback,
+									    SID_ERROR_NONE);
 	__cmock_sid_ble_adapter_data_cb_set_ExpectAndReturn(cb.data_callback, SID_ERROR_NONE);
 	__cmock_sid_ble_adapter_conn_cb_set_ExpectAndReturn(cb.conn_callback, SID_ERROR_NONE);
 	__cmock_sid_ble_adapter_mtu_cb_set_ExpectAndReturn(cb.mtu_callback, SID_ERROR_NONE);
-	__cmock_sid_ble_adapter_adv_start_cb_set_ExpectAndReturn(cb.adv_start_callback, SID_ERROR_NONE);
+	__cmock_sid_ble_adapter_adv_start_cb_set_ExpectAndReturn(cb.adv_start_callback,
+								 SID_ERROR_NONE);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 }
 
@@ -277,7 +279,8 @@ void test_ble_adapter_adapter_callback_fail(void)
 
 	set_callbacks(&cb);
 	cb.notify_callback = NULL;
-	__cmock_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(NULL, SID_ERROR_INVALID_ARGS);
+	__cmock_sid_ble_adapter_notification_changed_cb_set_ExpectAndReturn(NULL,
+									    SID_ERROR_INVALID_ARGS);
 	__cmock_sid_ble_adapter_notification_changed_cb_set_IgnoreAndReturn(SID_ERROR_NONE);
 	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->set_callback(&cb));
 
@@ -325,7 +328,8 @@ void test_ble_adapter_send_data_fail(void)
 	__cmock_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
 	__cmock_sid_ble_send_data_IgnoreAndReturn(-EINVAL);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, p_test_ble_ifc->send(AMA_SERVICE, data, sizeof(data)));
+	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
+			  p_test_ble_ifc->send(AMA_SERVICE, data, sizeof(data)));
 
 	__cmock_sid_ble_send_data_IgnoreAndReturn(-ENOENT);
 
@@ -338,7 +342,8 @@ void test_ble_adapter_send_data_unsupported(void)
 	sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, p_test_ble_ifc->send(FAKE_SERVICE, data, sizeof(data)));
+	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT,
+			  p_test_ble_ifc->send(FAKE_SERVICE, data, sizeof(data)));
 }
 
 void test_ble_adapter_disconnect(void)

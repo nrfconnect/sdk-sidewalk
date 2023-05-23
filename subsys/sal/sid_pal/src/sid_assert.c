@@ -20,7 +20,8 @@ void sid_pal_assert(int line, const char *file)
 	assert_post_action();
 #else
 	assert_post_action(file, line);
-#endif  /* CONFIG_ASSERT_NO_FILE_INFO */
-#endif  /* CONFIG_ASSERT */
-	for (;;);
+#endif /* CONFIG_ASSERT_NO_FILE_INFO */
+#endif /* CONFIG_ASSERT */
+	for (;;)
+		;
 }

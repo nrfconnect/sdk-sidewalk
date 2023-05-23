@@ -7,8 +7,8 @@
 
 #include <sid_pal_swi_ifc.h>
 
-#define CHANGED         (1U)
-#define UNCHANGED       (0U)
+#define CHANGED (1U)
+#define UNCHANGED (0U)
 static volatile uint32_t resources[2];
 
 static void test_cb(void)

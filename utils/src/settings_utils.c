@@ -20,15 +20,13 @@ struct direct_immediate_value {
 	uint8_t fetched;
 };
 
-static int direct_loader_immediate_value(const char *name, size_t len,
-					 settings_read_cb read_cb, void *cb_arg,
-					 void *param)
+static int direct_loader_immediate_value(const char *name, size_t len, settings_read_cb read_cb,
+					 void *cb_arg, void *param)
 {
 	const char *next;
 	size_t name_len;
 	int rc;
-	struct direct_immediate_value *one_value =
-		(struct direct_immediate_value *)param;
+	struct direct_immediate_value *one_value = (struct direct_immediate_value *)param;
 
 	name_len = settings_name_next(name, &next);
 
@@ -63,8 +61,7 @@ int load_immediate_value(const char *name, void *dest, size_t len)
 	dov.len = len;
 	dov.dest = dest;
 
-	rc = settings_load_subtree_direct(name, direct_loader_immediate_value,
-					  (void *)&dov);
+	rc = settings_load_subtree_direct(name, direct_loader_immediate_value, (void *)&dov);
 	if (rc == 0) {
 		if (!dov.fetched) {
 			rc = -ENOENT;
@@ -79,10 +76,10 @@ app_start_t application_to_start()
 	settings_subsys_init();
 	settings_load();
 
-	#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	bool dfu_mode = false;
 
-	(void) load_immediate_value(CONFIG_DFU_FLAG_SETTINGS_KEY, &dfu_mode, sizeof(dfu_mode));
+	(void)load_immediate_value(CONFIG_DFU_FLAG_SETTINGS_KEY, &dfu_mode, sizeof(dfu_mode));
 
 	if (dfu_mode) {
 		dfu_mode = false;
@@ -93,6 +90,6 @@ app_start_t application_to_start()
 		}
 		return DFU_APPLICATION;
 	}
-	#endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
+#endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
 	return SIDEWALK_APPLICATION;
 }

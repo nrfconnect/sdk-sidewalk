@@ -17,13 +17,13 @@
 #include <zephyr/kernel.h>
 
 #ifdef CONFIG_SIDEWALK_THREAD_TIMER
-	#ifndef CONFIG_SIDEWALK_TIMER_PRIORITY
-		#error "CONFIG_SIDEWALK_TIMER_PRIORITY must be defined"
-	#endif
+#ifndef CONFIG_SIDEWALK_TIMER_PRIORITY
+#error "CONFIG_SIDEWALK_TIMER_PRIORITY must be defined"
+#endif
 
-	#ifndef CONFIG_SIDEWALK_TIMER_STACK_SIZE
-		#error "CONFIG_SIDEWALK_SWI_STACK_SIZE must be defined"
-	#endif
+#ifndef CONFIG_SIDEWALK_TIMER_STACK_SIZE
+#error "CONFIG_SIDEWALK_SWI_STACK_SIZE must be defined"
+#endif
 
 static K_SEM_DEFINE(timer_trigger_sem, 0, 1);
 #endif /* CONFIG_SIDEWALK_THREAD_TIMER */
@@ -35,7 +35,9 @@ struct sid_pal_timer_ctx {
 static const struct sid_timespec tolerance_lowpower = { .tv_sec = 1, .tv_nsec = 0 };
 static const struct sid_timespec tolerance_precise = { .tv_sec = 0, .tv_nsec = 0 };
 
-static struct sid_pal_timer_ctx sid_pal_timer_ctx = { .list = SYS_DLIST_STATIC_INIT(&sid_pal_timer_ctx.list), };
+static struct sid_pal_timer_ctx sid_pal_timer_ctx = {
+	.list = SYS_DLIST_STATIC_INIT(&sid_pal_timer_ctx.list),
+};
 
 static void sid_timer_start(const struct sid_timespec *sid_time);
 
@@ -133,7 +135,8 @@ static void sid_pal_timer_list_fetch(struct sid_pal_timer_ctx *ctx,
 	sid_pal_exit_critical_region();
 }
 
-static void sid_pal_timer_list_get_next_schedule(struct sid_pal_timer_ctx *ctx, struct sid_timespec *schedule)
+static void sid_pal_timer_list_get_next_schedule(struct sid_pal_timer_ctx *ctx,
+						 struct sid_timespec *schedule)
 {
 	SID_PAL_ASSERT(ctx && schedule);
 	*schedule = SID_TIME_INFINITY;
@@ -175,10 +178,8 @@ sid_error_t sid_pal_timer_deinit(sid_pal_timer_t *timer_storage)
 	return SID_ERROR_NONE;
 }
 
-sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage,
-			      sid_pal_timer_prio_class_t type,
-			      const struct sid_timespec *when,
-			      const struct sid_timespec *period)
+sid_error_t sid_pal_timer_arm(sid_pal_timer_t *timer_storage, sid_pal_timer_prio_class_t type,
+			      const struct sid_timespec *when, const struct sid_timespec *period)
 {
 	if (!timer_storage || !when) {
 		return SID_ERROR_INVALID_ARGS;
@@ -263,10 +264,9 @@ static void sid_timer_start(const struct sid_timespec *sid_time)
 	k_ticks_t timer_duration;
 
 	timer_duration = (k_ticks_t)k_ns_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_nsec, 0));
-	timer_duration += (k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
-	k_timer_start(&sid_timer,
-		      Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration)),
-		      K_NO_WAIT);
+	timer_duration +=
+		(k_ticks_t)k_ms_to_ticks_ceil64(MAX((uint64_t)sid_time->tv_sec * MSEC_PER_SEC, 0));
+	k_timer_start(&sid_timer, Z_TIMEOUT_TICKS(Z_TICK_ABS(timer_duration)), K_NO_WAIT);
 }
 
 #ifdef CONFIG_SIDEWALK_THREAD_TIMER

@@ -25,7 +25,8 @@ void test_ace_alloc_init_with_allocator_not_supported(void)
 	aceAlloc_allocator_t *p_allocators = NULL;
 	size_t count = 0;
 
-	TEST_ASSERT_EQUAL(ACE_STATUS_NOT_SUPPORTED, aceAlloc_initWithAllocator(p_allocators, count));
+	TEST_ASSERT_EQUAL(ACE_STATUS_NOT_SUPPORTED,
+			  aceAlloc_initWithAllocator(p_allocators, count));
 }
 
 void test_ace_alloc_and_free(void)
@@ -63,7 +64,8 @@ void test_ace_alloc_full(void)
 	int mem_i_max = 0;
 
 	for (mem_i_max = 0; mem_i_max < (CONFIG_SIDEWALK_HEAP_SIZE / chunk_size); mem_i_max++) {
-		mem[mem_i_max] = aceAlloc_alloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunk_size);
+		mem[mem_i_max] =
+			aceAlloc_alloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunk_size);
 		/* Memory heap may end earlier
 		 * due to alignment or metadata gaps. */
 		if (!mem[mem_i_max]) {
@@ -79,7 +81,8 @@ void test_ace_alloc_full(void)
 		}
 
 		for (int j = 0; j <= i; j++) {
-			mem[j] = aceAlloc_alloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunk_size);
+			mem[j] = aceAlloc_alloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC,
+						chunk_size);
 			TEST_ASSERT_NOT_NULL(mem[j]);
 		}
 	}
@@ -133,13 +136,15 @@ void test_ace_calloc_negative(void)
 {
 	size_t chunks_no = 1, chunk_size = 1;
 
-	TEST_ASSERT_NULL(aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, 0, chunk_size));
+	TEST_ASSERT_NULL(
+		aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, 0, chunk_size));
 	TEST_ASSERT_NULL(aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunks_no, 0));
 	TEST_ASSERT_NULL(aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, 0, 0));
 
 	chunk_size = __SIZE_MAX__ - 1;
 	chunks_no = 2;
-	TEST_ASSERT_NULL(aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunk_size, chunks_no));
+	TEST_ASSERT_NULL(
+		aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunk_size, chunks_no));
 }
 
 void test_ace_calloc_full(void)
@@ -154,7 +159,8 @@ void test_ace_calloc_full(void)
 	chunks = aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunks_no, chunk_size);
 	TEST_ASSERT_NOT_NULL(chunks);
 
-	TEST_ASSERT_NULL(aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunks_no, chunk_size));
+	TEST_ASSERT_NULL(
+		aceAlloc_calloc(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunks_no, chunk_size));
 
 	aceAlloc_free(ACE_MODULE_GROUP, ACE_ALLOC_BUFFER_GENERIC, chunks);
 

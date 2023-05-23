@@ -14,7 +14,10 @@
 const char *application_state_name[] = { X_APPLICAITON_STATES };
 #undef X
 
-#define X(name, ...) if (s1->name != s2->name) { action(APPLICATION_STATE_ENUM(name), s2->name); }
+#define X(name, ...)                                                                               \
+	if (s1->name != s2->name) {                                                                \
+		action(APPLICATION_STATE_ENUM(name), s2->name);                                    \
+	}
 void enumerate_differences(const struct notifier_state *s1, const struct notifier_state *s2,
 			   const enumerate_function action)
 {
@@ -40,8 +43,12 @@ static void notify_all(const struct notifier_ctx *ctx)
 	}
 }
 
-#define X(name, ...) void application_state_##name(struct notifier_ctx *ctx, const uint32_t value) \
-	{ ctx->app_state.name = value; notify_all(ctx); }
+#define X(name, ...)                                                                               \
+	void application_state_##name(struct notifier_ctx *ctx, const uint32_t value)              \
+	{                                                                                          \
+		ctx->app_state.name = value;                                                       \
+		notify_all(ctx);                                                                   \
+	}
 X_APPLICAITON_STATES
 #undef X
 

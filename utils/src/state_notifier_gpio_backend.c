@@ -57,8 +57,9 @@ static void gpio_initializer(const enum application_state state_id, const uint32
 void state_watch_init_gpio(struct notifier_ctx *ctx)
 {
 	if (!subscribe_for_state_change(ctx, state_change_handler_gpio)) {
-		__ASSERT(false,
-			 "failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
+		__ASSERT(
+			false,
+			"failed to initialize the state watch, is the CONFIG_STATE_NOTIFIER_HANDLER_MAX too low ?");
 	}
 	enumerate_states(&ctx->app_state, gpio_initializer);
 }

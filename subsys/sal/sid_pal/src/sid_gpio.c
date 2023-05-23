@@ -13,7 +13,7 @@
 #include <sid_gpio_irq_handler.h>
 #include <sid_gpio_utils.h>
 
-#define GPIO_SET_DIRECTION(dir)    ((dir == SID_PAL_GPIO_DIRECTION_INPUT) ? GPIO_INPUT : GPIO_OUTPUT)
+#define GPIO_SET_DIRECTION(dir) ((dir == SID_PAL_GPIO_DIRECTION_INPUT) ? GPIO_INPUT : GPIO_OUTPUT)
 
 static gpio_flags_t gpio_config_flags[MAX_NUMBERS_OF_PINS];
 
@@ -66,12 +66,9 @@ sid_error_t sid_pal_gpio_toggle(uint32_t gpio_number)
 	return sid_error_get(sid_gpio_utils_gpio_toggle(gpio_number));
 }
 
-sid_error_t sid_pal_gpio_set_direction(uint32_t gpio_number,
-				       sid_pal_gpio_direction_t direction)
+sid_error_t sid_pal_gpio_set_direction(uint32_t gpio_number, sid_pal_gpio_direction_t direction)
 {
-	if (!IN_RANGE(direction,
-		      SID_PAL_GPIO_DIRECTION_INPUT,
-		      SID_PAL_GPIO_DIRECTION_OUTPUT)) {
+	if (!IN_RANGE(direction, SID_PAL_GPIO_DIRECTION_INPUT, SID_PAL_GPIO_DIRECTION_OUTPUT)) {
 		return SID_ERROR_INVALID_ARGS;
 	}
 
@@ -81,16 +78,15 @@ sid_error_t sid_pal_gpio_set_direction(uint32_t gpio_number,
 	if (!erc) {
 		gpio_config_flags[gpio_number] &= ~(GPIO_INPUT | GPIO_OUTPUT);
 		gpio_config_flags[gpio_number] |= GPIO_SET_DIRECTION(direction);
-		erc = gpio_pin_configure(port_pin.port, port_pin.pin, gpio_config_flags[gpio_number]);
+		erc = gpio_pin_configure(port_pin.port, port_pin.pin,
+					 gpio_config_flags[gpio_number]);
 	}
 	return sid_error_get(erc);
 }
 
 sid_error_t sid_pal_gpio_input_mode(uint32_t gpio_number, sid_pal_gpio_input_t mode)
 {
-	if (!IN_RANGE(mode,
-		      SID_PAL_GPIO_INPUT_CONNECT,
-		      SID_PAL_GPIO_INPUT_DISCONNECT)) {
+	if (!IN_RANGE(mode, SID_PAL_GPIO_INPUT_CONNECT, SID_PAL_GPIO_INPUT_DISCONNECT)) {
 		return SID_ERROR_INVALID_ARGS;
 	}
 
@@ -105,7 +101,8 @@ sid_error_t sid_pal_gpio_input_mode(uint32_t gpio_number, sid_pal_gpio_input_t m
 		if (SID_PAL_GPIO_INPUT_DISCONNECT == mode) {
 			erc = gpio_pin_configure(port_pin.port, port_pin.pin, GPIO_DISCONNECTED);
 		} else {
-			erc = gpio_pin_configure(port_pin.port, port_pin.pin, gpio_config_flags[gpio_number]);
+			erc = gpio_pin_configure(port_pin.port, port_pin.pin,
+						 gpio_config_flags[gpio_number]);
 		}
 	}
 	return sid_error_get(erc);
@@ -113,9 +110,7 @@ sid_error_t sid_pal_gpio_input_mode(uint32_t gpio_number, sid_pal_gpio_input_t m
 
 sid_error_t sid_pal_gpio_output_mode(uint32_t gpio_number, sid_pal_gpio_output_t mode)
 {
-	if (!IN_RANGE(mode,
-		      SID_PAL_GPIO_OUTPUT_PUSH_PULL,
-		      SID_PAL_GPIO_OUTPUT_OPEN_DRAIN)) {
+	if (!IN_RANGE(mode, SID_PAL_GPIO_OUTPUT_PUSH_PULL, SID_PAL_GPIO_OUTPUT_OPEN_DRAIN)) {
 		return SID_ERROR_INVALID_ARGS;
 	}
 
@@ -134,7 +129,8 @@ sid_error_t sid_pal_gpio_output_mode(uint32_t gpio_number, sid_pal_gpio_output_t
 			gpio_config_flags[gpio_number] &= ~(GPIO_OPEN_DRAIN);
 			gpio_config_flags[gpio_number] |= GPIO_PUSH_PULL;
 		}
-		erc = gpio_pin_configure(port_pin.port, port_pin.pin, gpio_config_flags[gpio_number]);
+		erc = gpio_pin_configure(port_pin.port, port_pin.pin,
+					 gpio_config_flags[gpio_number]);
 	}
 
 	return sid_error_get(erc);
@@ -161,7 +157,8 @@ sid_error_t sid_pal_gpio_pull_mode(uint32_t gpio_number, sid_pal_gpio_pull_t pul
 		default:
 			return SID_ERROR_INVALID_ARGS;
 		}
-		erc = gpio_pin_configure(port_pin.port, port_pin.pin, gpio_config_flags[gpio_number]);
+		erc = gpio_pin_configure(port_pin.port, port_pin.pin,
+					 gpio_config_flags[gpio_number]);
 	}
 
 	return sid_error_get(erc);

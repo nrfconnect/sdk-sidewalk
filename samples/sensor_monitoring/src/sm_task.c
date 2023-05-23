@@ -17,13 +17,14 @@
 LOG_MODULE_REGISTER(sm_task, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define RECEIVE_TASK_STACK_SIZE (4096)
-#define RECEIVE_TASK_PRIORITY   (CONFIG_SIDEWALK_THREAD_PRIORITY + 1)
+#define RECEIVE_TASK_PRIORITY (CONFIG_SIDEWALK_THREAD_PRIORITY + 1)
 
 K_THREAD_STACK_DEFINE(sm_main_task_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 K_THREAD_STACK_DEFINE(sm_receive_task_stack, RECEIVE_TASK_STACK_SIZE);
 
 K_MSGQ_DEFINE(sm_main_task_msgq, sizeof(enum event_type), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
-K_MSGQ_DEFINE(sm_rx_task_msgq, sizeof(struct app_demo_rx_msg), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE, 4);
+K_MSGQ_DEFINE(sm_rx_task_msgq, sizeof(struct app_demo_rx_msg), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE,
+	      4);
 
 static struct k_thread sm_receive_task;
 static struct k_thread sm_main_task;
@@ -34,7 +35,8 @@ static app_context_t g_app_context = {
 	.link_status.time_sync_status = SID_STATUS_NO_TIME,
 };
 
-static int32_t init_and_start_link(app_context_t *context, struct sid_config *config, uint32_t link_mask)
+static int32_t init_and_start_link(app_context_t *context, struct sid_config *config,
+				   uint32_t link_mask)
 {
 	struct sid_handle *sid_handle = NULL;
 
@@ -99,14 +101,13 @@ static void set_device_profile(struct sid_handle *sid_handle)
 		if (!memcmp(&curr_dev_cfg, &target_dev_cfg, sizeof(curr_dev_cfg))) {
 			LOG_INF("Device profile for Link type 2 already set");
 		} else {
-			ret = sid_option(sid_handle,
-					 SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+			ret = sid_option(sid_handle, SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
 					 &target_dev_cfg, sizeof(target_dev_cfg));
 			if (ret != SID_ERROR_NONE) {
-				LOG_ERR(
-					"Device profile configuration for Link type 2 failed ret = %d",
+				LOG_ERR("Device profile configuration for Link type 2 failed ret = %d",
 					ret);
-				sm_device_profile_timer_set_and_run(K_MSEC(PROFILE_CHECK_TIMER_DELAY_MS));
+				sm_device_profile_timer_set_and_run(
+					K_MSEC(PROFILE_CHECK_TIMER_DELAY_MS));
 			} else {
 				LOG_INF("Device profile Link type 2 set success");
 			}
@@ -161,8 +162,7 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 
 		if (!k_msgq_get(&sm_main_task_msgq, &event, K_FOREVER)) {
 			switch (event) {
-			case EVENT_TYPE_SIDEWALK:
-			{
+			case EVENT_TYPE_SIDEWALK: {
 				sid_error_t ret = sid_process(sid_handle);
 				if (ret) {
 					LOG_WRN("Process error (code %d)", ret);
@@ -179,16 +179,21 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 			case EVENT_NOTIFICATION_TIMER_FIRED:
 				if (app_context->sidewalk_state != STATE_SIDEWALK_READY) {
 					if (BUILT_IN_LM == SID_LINK_TYPE_1) {
-						if (!(app_context->link_status.link_mask & SID_LINK_TYPE_1) &&
-						    (app_context->app_state == DEMO_APP_STATE_REGISTERED)
-						    && (app_context->link_status.time_sync_status ==
-							SID_STATUS_TIME_SYNCED)) {
-							sm_main_task_msg_q_write(EVENT_CONNECT_LINK_TYPE_1);
+						if (!(app_context->link_status.link_mask &
+						      SID_LINK_TYPE_1) &&
+						    (app_context->app_state ==
+						     DEMO_APP_STATE_REGISTERED) &&
+						    (app_context->link_status.time_sync_status ==
+						     SID_STATUS_TIME_SYNCED)) {
+							sm_main_task_msg_q_write(
+								EVENT_CONNECT_LINK_TYPE_1);
 						}
 					}
-				} else if (app_context->app_state == DEMO_APP_STATE_NOTIFY_CAPABILITY) {
+				} else if (app_context->app_state ==
+					   DEMO_APP_STATE_NOTIFY_CAPABILITY) {
 					sm_notify_capability(app_context);
-				} else if (app_context->app_state == DEMO_APP_STATE_NOTIFY_SENSOR_DATA) {
+				} else if (app_context->app_state ==
+					   DEMO_APP_STATE_NOTIFY_SENSOR_DATA) {
 					sm_notify_sensor_data(app_context, false);
 				}
 				break;
@@ -199,9 +204,11 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 			case EVENT_CONNECT_LINK_TYPE_1:
 				if (BUILT_IN_LM == SID_LINK_TYPE_1) {
 					LOG_INF("Connecting link type 1");
-					sid_error_t ret = sid_ble_bcn_connection_request(sid_handle, true);
+					sid_error_t ret =
+						sid_ble_bcn_connection_request(sid_handle, true);
 					if (ret != SID_ERROR_NONE) {
-						LOG_ERR("Failed to set connect request on link type 1 %d", ret);
+						LOG_ERR("Failed to set connect request on link type 1 %d",
+							ret);
 					}
 				}
 				break;
@@ -239,21 +246,26 @@ static void sidewalk_receive_task(void *context, void *dummy1, void *dummy2)
 			sid_parse_state_init(&state, rx_msg.rx_payload, rx_msg.pld_size);
 			sid_demo_app_msg_deserialize(&state, &msg_desc, &msg);
 			LOG_INF("opc %d, class %d cmd %d status indicator %d status_code %d paylaod size %d",
-				msg_desc.opc, msg_desc.cmd_class, msg_desc.cmd_id, msg_desc.status_hdr_ind,
-				msg_desc.status_code, msg.payload_size);
+				msg_desc.opc, msg_desc.cmd_class, msg_desc.cmd_id,
+				msg_desc.status_hdr_ind, msg_desc.status_code, msg.payload_size);
 
 			if (state.ret_code != SID_ERROR_NONE) {
 				LOG_ERR("De-serialize demo app msg failed %d", state.ret_code);
 			} else if (msg_desc.cmd_class == SID_DEMO_APP_CLASS) {
-				if (msg_desc.status_hdr_ind && msg_desc.opc == SID_DEMO_MSG_TYPE_RESP &&
+				if (msg_desc.status_hdr_ind &&
+				    msg_desc.opc == SID_DEMO_MSG_TYPE_RESP &&
 				    msg_desc.status_code == SID_ERROR_NONE) {
-					if (msg_desc.cmd_id == SID_DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID
-					    && msg.payload_size == 0) {
+					if (msg_desc.cmd_id ==
+						    SID_DEMO_APP_CLASS_CMD_CAP_DISCOVERY_ID &&
+					    msg.payload_size == 0) {
 						LOG_INF("Capability response received");
-						g_app_context.app_state = DEMO_APP_STATE_NOTIFY_SENSOR_DATA;
-					} else if (msg_desc.cmd_id == SID_DEMO_APP_CLASS_CMD_ACTION) {
+						g_app_context.app_state =
+							DEMO_APP_STATE_NOTIFY_SENSOR_DATA;
+					} else if (msg_desc.cmd_id ==
+						   SID_DEMO_APP_CLASS_CMD_ACTION) {
 						LOG_INF("Action response received");
-						sid_parse_state_init(&state, msg.payload, msg.payload_size);
+						sid_parse_state_init(&state, msg.payload,
+								     msg.payload_size);
 						sm_buttons_action_response_process(&state);
 					}
 				} else if (msg_desc.opc == SID_DEMO_MSG_TYPE_WRITE &&
@@ -296,14 +308,13 @@ enum demo_app_state sm_app_state_get()
 void sm_task_start(void)
 {
 	(void)k_thread_create(&sm_main_task, sm_main_task_stack,
-			      K_THREAD_STACK_SIZEOF(sm_main_task_stack),
-			      sidewalk_main_task, &g_app_context, NULL, NULL,
-			      CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
+			      K_THREAD_STACK_SIZEOF(sm_main_task_stack), sidewalk_main_task,
+			      &g_app_context, NULL, NULL, CONFIG_SIDEWALK_THREAD_PRIORITY, 0,
+			      K_NO_WAIT);
 
 	(void)k_thread_create(&sm_receive_task, sm_receive_task_stack,
-			      K_THREAD_STACK_SIZEOF(sm_receive_task_stack),
-			      sidewalk_receive_task, NULL, NULL, NULL,
-			      RECEIVE_TASK_PRIORITY, 0, K_NO_WAIT);
+			      K_THREAD_STACK_SIZEOF(sm_receive_task_stack), sidewalk_receive_task,
+			      NULL, NULL, NULL, RECEIVE_TASK_PRIORITY, 0, K_NO_WAIT);
 
 	k_thread_name_set(&sm_main_task, "sm_main_task");
 	k_thread_name_set(&sm_receive_task, "sm_receive_task");

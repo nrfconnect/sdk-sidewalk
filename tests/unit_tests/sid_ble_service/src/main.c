@@ -19,38 +19,32 @@
 DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(uint16_t, bt_gatt_get_mtu, struct bt_conn *);
-FAKE_VALUE_FUNC(bool, bt_gatt_is_subscribed, struct bt_conn *,
-		const struct bt_gatt_attr *, uint16_t);
-FAKE_VALUE_FUNC(int, bt_gatt_notify_cb, struct bt_conn *,
-		struct bt_gatt_notify_params *);
-FAKE_VALUE_FUNC(struct bt_gatt_attr *, bt_gatt_find_by_uuid, const struct bt_gatt_attr *,
-		uint16_t,
+FAKE_VALUE_FUNC(bool, bt_gatt_is_subscribed, struct bt_conn *, const struct bt_gatt_attr *,
+		uint16_t);
+FAKE_VALUE_FUNC(int, bt_gatt_notify_cb, struct bt_conn *, struct bt_gatt_notify_params *);
+FAKE_VALUE_FUNC(struct bt_gatt_attr *, bt_gatt_find_by_uuid, const struct bt_gatt_attr *, uint16_t,
 		const struct bt_uuid *);
 
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_service, struct bt_conn *,
-		const struct bt_gatt_attr *,
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_service, struct bt_conn *, const struct bt_gatt_attr *,
 		void *, uint16_t, uint16_t);
 
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_chrc, struct bt_conn *,
-		const struct bt_gatt_attr *, void *,
-		uint16_t, uint16_t);
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_chrc, struct bt_conn *, const struct bt_gatt_attr *,
+		void *, uint16_t, uint16_t);
 
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *,
-		const struct bt_gatt_attr *, void *,
-		uint16_t, uint16_t);
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *, const struct bt_gatt_attr *,
+		void *, uint16_t, uint16_t);
 
-FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *,
-		const struct bt_gatt_attr *, const void *,
-		uint16_t, uint16_t, uint8_t);
+FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct bt_gatt_attr *,
+		const void *, uint16_t, uint16_t, uint8_t);
 
-#define FFF_FAKES_LIST(FAKE)		\
-	FAKE(bt_gatt_get_mtu)		\
-	FAKE(bt_gatt_is_subscribed)	\
-	FAKE(bt_gatt_notify_cb)		\
-	FAKE(bt_gatt_find_by_uuid)	\
-	FAKE(bt_gatt_attr_read_service)	\
-	FAKE(bt_gatt_attr_read_chrc)	\
-	FAKE(bt_gatt_attr_read_ccc)	\
+#define FFF_FAKES_LIST(FAKE)                                                                       \
+	FAKE(bt_gatt_get_mtu)                                                                      \
+	FAKE(bt_gatt_is_subscribed)                                                                \
+	FAKE(bt_gatt_notify_cb)                                                                    \
+	FAKE(bt_gatt_find_by_uuid)                                                                 \
+	FAKE(bt_gatt_attr_read_service)                                                            \
+	FAKE(bt_gatt_attr_read_chrc)                                                               \
+	FAKE(bt_gatt_attr_read_ccc)                                                                \
 	FAKE(bt_gatt_attr_write_ccc)
 
 #define TEST_DATA_CHUNK (128)
