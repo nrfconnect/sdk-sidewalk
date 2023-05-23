@@ -5,6 +5,8 @@
  */
 
 #include "nordic_dfu.h"
+#include <dk_buttons_and_leds.h>
+#include <stdbool.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <zephyr/mgmt/mcumgr/grp/img_mgmt/img_mgmt.h>
@@ -23,6 +25,29 @@ static const struct bt_data ad[] = {
 };
 struct k_work_delayable dfu_not_started_handler;
 struct k_work_delayable failed_to_finish_update;
+struct k_timer LED_timer;
+
+static void toggle_all_leds(struct k_timer *timer_id)
+{
+	static bool toggle_state = false;
+
+	dk_set_leds(toggle_state ? 0 : DK_ALL_LEDS_MSK);
+	toggle_state = !toggle_state;
+}
+
+static void loading_wheel_led(struct k_timer *timer_id)
+{
+	static int led_state = 0;
+	static int led_state_repo[] = {
+		DK_LED1_MSK | DK_LED2_MSK,
+		DK_LED2_MSK | DK_LED4_MSK,
+		DK_LED4_MSK | DK_LED3_MSK,
+		DK_LED3_MSK | DK_LED1_MSK,
+	};
+
+	dk_set_leds(led_state_repo[led_state]);
+	led_state = (led_state + 1) % 4;
+}
 
 static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more, void *data,
 			   size_t data_size)
@@ -30,7 +55,9 @@ static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more, void *d
 	switch (event) {
 	case MGMT_EVT_OP_IMG_MGMT_DFU_STARTED:
 		LOG_INF("DFU Started");
-		k_work_cancel_delayable(&dfu_not_started_handler);
+		k_timer_stop(&LED_timer);
+		k_timer_init(&LED_timer, loading_wheel_led, NULL);
+		k_timer_start(&LED_timer, K_MSEC(150), K_MSEC(150));
 		break;
 	case MGMT_EVT_OP_IMG_MGMT_DFU_STOPPED:
 		LOG_INF("DFU Stopped");
@@ -88,5 +115,8 @@ int nordic_dfu_ble_start(void)
 
 	LOG_INF("Advertising successfully started");
 
+	dk_leds_init();
+	k_timer_init(&LED_timer, toggle_all_leds, NULL);
+	k_timer_start(&LED_timer, K_MSEC(500), K_MSEC(500));
 	return 0;
 }
