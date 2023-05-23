@@ -29,7 +29,9 @@ static struct sid_config sid_cfg_valid;
 static struct app_context app_ctx_invalid;
 static struct sid_config sid_cfg_invalid;
 
+// clang-format off
 #define PARAMETRIZED_TEST(siute, name, test_foo, ...) ZTEST(siute, name){ test_foo(__VA_ARGS__); }
+// clang-format on
 
 // ////////////////////////////////////////////////////////////////////////////
 // sid_dut_shell_api_shell_uninitialized
