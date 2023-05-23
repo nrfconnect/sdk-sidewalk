@@ -5,6 +5,7 @@
  */
 
 #include "nordic_dfu.h"
+#include <dk_buttons_and_leds.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <zephyr/mgmt/mcumgr/grp/img_mgmt/img_mgmt.h>
@@ -12,6 +13,7 @@
 #include <zephyr/mgmt/mcumgr/mgmt/callbacks.h>
 #include <zephyr/sys/reboot.h>
 #include <state_notifier.h>
+#include <flashing_led.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
@@ -24,6 +26,56 @@ static const struct bt_data ad[] = {
 };
 struct k_work_delayable dfu_not_started_handler;
 struct k_work_delayable failed_to_finish_update;
+static pattern_id LED_pattern_id;
+static void DFU_LED_controll(int led_state, void *ctx)
+{
+	ARG_UNUSED(ctx);
+	dk_set_led(DK_LED1, led_state);
+	dk_set_led(DK_LED2, led_state);
+	dk_set_led(DK_LED3, led_state);
+	dk_set_led(DK_LED4, led_state);
+}
+
+static void LED_bar_controll(int led_state, void *ctx)
+{
+	ARG_UNUSED(ctx);
+	static int state = 0;
+
+	switch (state) {
+	case 0:
+		dk_set_led(DK_LED1, true);
+		dk_set_led(DK_LED2, true);
+		dk_set_led(DK_LED4, false);
+		dk_set_led(DK_LED3, false);
+		break;
+	case 1:
+		dk_set_led(DK_LED1, false);
+		dk_set_led(DK_LED2, true);
+		dk_set_led(DK_LED4, true);
+		dk_set_led(DK_LED3, false);
+		break;
+	case 2:
+		dk_set_led(DK_LED1, false);
+		dk_set_led(DK_LED2, false);
+		dk_set_led(DK_LED4, true);
+		dk_set_led(DK_LED3, true);
+		break;
+	case 3:
+		dk_set_led(DK_LED1, true);
+		dk_set_led(DK_LED2, false);
+		dk_set_led(DK_LED4, false);
+		dk_set_led(DK_LED3, true);
+		break;
+	default:
+		break;
+	}
+	state++;
+	state = state % 4;
+}
+
+DEFINE_PATTERN(DFU_mode_pattern, 500);
+
+DEFINE_PATTERN(DFU_transfer_PATTERN, 150);
 
 static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more,
 			   void *data, size_t data_size)
@@ -32,6 +84,10 @@ static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more,
 	case MGMT_EVT_OP_IMG_MGMT_DFU_STARTED:
 		LOG_INF("DFU Started");
 		k_work_cancel_delayable(&dfu_not_started_handler);
+		stop_toggle_pattern(LED_pattern_id);
+		LED_pattern_id = play_toggle_pattern(false, LED_bar_controll, NULL, DFU_transfer_PATTERN, LED_PATTERN_LENGTH(
+							     DFU_transfer_PATTERN), true);
+
 		break;
 	case MGMT_EVT_OP_IMG_MGMT_DFU_STOPPED:
 		LOG_INF("DFU Stopped");
@@ -91,5 +147,10 @@ int nordic_dfu_ble_start(void)
 
 	LOG_INF("Advertising successfully started");
 
+	dk_leds_init();
+	LED_pattern_id =
+		play_toggle_pattern(false, DFU_LED_controll, NULL, DFU_mode_pattern, LED_PATTERN_LENGTH(
+					    DFU_mode_pattern),
+				    true);
 	return 0;
 }

@@ -1,0 +1,7 @@
+tests:
+   sidewalk.unit_tests.flash_led:
+    tags: Sidewalk
+    platform_allow: native_posix nrf52840dk_nrf52840
+       integration_platforms:
+      - native_posix
+      - nrf52840dk_nrf52840
