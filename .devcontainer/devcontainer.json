@@ -38,7 +38,6 @@
 				"twxs.cmake",
 				"ms-vscode.live-server",
 				"GitHub.vscode-pull-request-github",
-				"zachflower.uncrustify",
 				"ms-python.python",
 				"ryanluker.vscode-coverage-gutters"
 			],
@@ -48,7 +47,6 @@
 				"C_Cpp.intelliSenseEngine": "disabled",
 				"nrf-connect.toolchain.path": "PATH",
 				"nrf-connect.welcome.showOnStartup": false,
-				"uncrustify.configPath.linux": "sidewalk/.uncrustify.cfg",
 				"files.insertFinalNewline": true,
 				"coverage-gutters.coverageBaseDir": "sidewalk/scripts/ci/**",
 				"coverage-gutters.coverageFileNames": [

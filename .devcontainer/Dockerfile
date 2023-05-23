@@ -4,7 +4,7 @@ ARG UNAME=vscode
 ARG UNAME_PASSWORD=pass
 
 RUN apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-  clangd ssh nano bash-completion sudo gpg ruby lcov screen uncrustify libfftw3-dev curl python3-venv git-lfs golang-go
+  clangd ssh nano bash-completion sudo gpg ruby lcov screen libfftw3-dev curl python3-venv git-lfs golang-go
 
 RUN go install github.com/apache/mynewt-mcumgr-cli/mcumgr@latest
 RUN cp /root/go/bin/* /usr/local/bin/
