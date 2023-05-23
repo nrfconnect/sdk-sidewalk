@@ -1,0 +1,10 @@
+sample:
+  name: simple bootloader app
+  description: Small footprint application to verify sidewalk dfu
+tests:
+  sidewalk.test.simple_bootloader:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840
+    integration_platforms:
+      - nrf52840dk_nrf52840
+    tags: Sidewalk
