@@ -200,17 +200,19 @@ Testing Device Firmware Update (DFU)
 ************************************
 
 #. To enter the DFU mode, long press **Button 4** on your development kit.
-   This action restarts the device in DFU mode where Sidewalk is not operational, and only `Zephyr SMP Server`_ is running.
-   When application is in DFU mode, all LED's will flash every 500 ms to signal that it is waiting for new image.
+   This action restarts the device in the DFU mode, in which only the `Zephyr SMP Server`_ is running and Sidewalk is not operational.
+   When the application is in the DFU mode, all LEDs flash every 500 ms to signal that the application is waiting for a new image.
 
 #. To perform a firmware update, follow the Bluetooth testing steps from the `DevZone DFU guide`_.
-   When the update starts, the LED's will change the pattern to indicate upload in progress.
+   When the update starts, the LEDs change the pattern to indicate upload in progress.
 
 #. To exit the DFU mode, reset your device.
    The device will restart in the Sidewalk mode.
    If the update completes successfully, the device will start a new image.
-   First boot up after DFU may take more time than usual (usualy about 60 seconds). During the image swap the application is silent, so be paitient and do not reset the device.
-   However, if the update fails, the old image will be started.
+   After using the DFU mode, the first bootup might take up to 60 seconds. 
+   During the image swap the application is silent, meaning that LEDs are not blinking and the console does not output any logs. 
+   The application, however, is running, so do not reset the device.
+   In case the update fails, the old image is started instead.
 
 Testing Power Profiles
 **********************
