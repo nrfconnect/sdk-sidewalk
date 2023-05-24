@@ -18,7 +18,7 @@ Sidewalk samples use sub-GHz radio transceivers to support LoRa and (G)FSK modul
 
 For evaluation, use the `Semtech SX1262MB2CAS`_ Arduino Shield.
 
-.. figure:: /images/nRF52840-Semtech-SX1262.png
+.. figure:: /images/nRF52840-Semtech-SX1262.jpg
 
 .. _setting_up_hardware_semtech_pinout:
 
