@@ -20,4 +20,3 @@ src/application_thread.c
 src/board_events.c
 src/sidewalk_callbacks.c
 )
-

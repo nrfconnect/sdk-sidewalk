@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Nordic Semiconductor ASA
+# Copyright (c) 2023 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
@@ -171,7 +171,7 @@ config SIDEWALK_DFU_SERVICE_USB
 endchoice # SIDEWALK_DFU_SERVICE
 endif # SIDEWALK_DFU
 
-rsource "Kconfig.dependecies"
+rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
 
 endif # SIDEWALK
