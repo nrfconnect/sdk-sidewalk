@@ -20,4 +20,3 @@ target_sources(app PRIVATE
   src/sid_dut_shell.c
   src/sid_thread.c
 )
-

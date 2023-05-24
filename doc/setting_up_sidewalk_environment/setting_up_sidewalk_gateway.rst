@@ -75,4 +75,3 @@ You can link your Ring account to your Amazon account using the Ring app.
 .. _Alexa app: https://www.amazon.com/b?node=18354642011
 .. _App store: https://ring.com/ios
 .. _Play store: https://ring.com/android
-

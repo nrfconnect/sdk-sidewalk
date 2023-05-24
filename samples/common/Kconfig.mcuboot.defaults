@@ -106,4 +106,3 @@ config TIMEOUT_64BIT
 
 config NRF_ENABLE_ICACHE
     default n
-
