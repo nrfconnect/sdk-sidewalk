@@ -29,14 +29,9 @@ jobs:
           west update --narrow -o=--depth=1
           python3 -m pip install -r zephyr/scripts/requirements.txt
   
-      - name: Get artifacts
-        uses: dawidd6/action-download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
-          run_id: ${{ github.event.workflow_run.id }}
-          name_is_regexp: true
-          name: tests-nrf.*
           path: artifacts
-          workflow_conclusion: ""
 
       - name: Combine twister outputs
         run: |
