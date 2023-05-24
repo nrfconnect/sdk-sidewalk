@@ -1,4 +1,4 @@
 tests:
-   sidewalk.unit_tests.sid_dut_shell:
+  sidewalk.unit_tests.sid_dut_shell:
     tags: Sidewalk
     type: unit

@@ -50,7 +50,7 @@ jobs:
         uses: peter-evans/find-comment@v2
         id: fc
         with:
-          issue-number:  ${{ steps.get-pr-number.outputs.pr_number }}
+          issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
           comment-author: 'github-actions[bot]'
           body-includes: "| Sample | | diff | used | total |" 
 
