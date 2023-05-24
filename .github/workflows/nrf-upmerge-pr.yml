@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Change_NRF_revision:
+  change_nrf_revision:
 
     name: Create PR with NRF upmerge
     runs-on: ubuntu-latest

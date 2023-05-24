@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build_samples_and_tests:
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common_build_samples.yml@main
+  build_samples_and_tests:
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build-samples.yml@main
 
-  Run_tests_on_DUT:
+  run_tests_on_dut:
     needs: Build_samples_and_tests
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-ut-on-dut.yml@main
