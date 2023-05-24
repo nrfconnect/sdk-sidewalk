@@ -14,4 +14,3 @@ sidewalk_storage:
 mfg_storage: 
   address: 0xff000
   size: 0x1000
-

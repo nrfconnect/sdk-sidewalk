@@ -45,7 +45,7 @@ jobs:
           name: PR_number
           path: |
             PR_number
-  
-  Run_tests_on_DUT:
+
+  run_tests_on_dut:
     needs: build_samples_and_tests
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-ut-on-dut.yml@main

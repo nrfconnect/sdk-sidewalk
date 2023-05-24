@@ -1,4 +1,3 @@
-
 supported_file_extensions:
 - .*\.py$
 - .*\.c$
@@ -61,4 +60,3 @@ licenses:
   - .*
   search_license_txt: null
   spdx: LicenseRef-Nordic-5-Clause
-
