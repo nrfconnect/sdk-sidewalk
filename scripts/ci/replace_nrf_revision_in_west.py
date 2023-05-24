@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
-import sys
 from ruamel.yaml import YAML
 import argparse
 
