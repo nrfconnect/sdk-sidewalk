@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Nordic Semiconductor ASA
+# Copyright (c) 2023 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
@@ -25,7 +25,7 @@ def convert_unit(value) -> str:
         value = -1 * value
     unit_index = 0
     current_value = value
-    while (current_value > 1024):
+    while current_value > 1024:
         current_value = current_value / 1024
         unit_index = unit_index+1
     if negative:

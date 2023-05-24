@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Nordic Semiconductor ASA
+# Copyright (c) 2023 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
@@ -308,7 +308,7 @@ class TestLicenseVerificator(unittest.TestCase):
         self.assertEqual(2, instance.validate_file_header(
             file_header, expected_license))
 
-    def test_validate_file_header2(self):
+    def test_validate_file_header3(self):
         instance = verify_license.LicenseVerificator(
             self.cfg, "dumy/file.path")
         expected_license = {"spdx": "example",
@@ -322,7 +322,7 @@ class TestLicenseVerificator(unittest.TestCase):
         self.assertEqual(1, instance.validate_file_header(
             file_header, expected_license))
 
-    def test_validate_file_header2(self):
+    def test_validate_file_header4(self):
         instance = verify_license.LicenseVerificator(
             self.cfg, "dumy/file.path")
         expected_license = {"spdx": "LicenseRef-Nordic-5-Clause",
