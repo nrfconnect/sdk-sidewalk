@@ -2,7 +2,7 @@ name: Post Comment to PR
 
 on:
   workflow_run:
-    workflows: ["On PR action"]
+    workflows: ["on PR action"]
     types:
       - completed
 
