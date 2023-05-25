@@ -22,21 +22,21 @@ jobs:
           workflow: on_commit.yml
           dry_run: true
           if_no_artifact_found: ignore
-      
+
       - name: Sleep 15 min to wait for builds
         if: ${{steps.get_artifacts.outputs.dry_run == false}}
         run: |
           sleep 15m
-      
+
       - name: Get artifacts from commit
         uses: dawidd6/action-download-artifact@v2
         with:
           commit: ${{github.sha}}
           workflow: on_commit.yml
-      
+
       - name: Build documentation
         run: cd doc; ./build_local.sh && zip -r documentation.zip build/html/*
-  
+
       - name: Pack build artifacts
         run: |
           zip -r build_artifacts.zip sample*
@@ -50,7 +50,7 @@ jobs:
           asset_name: documentation.zip
           tag: ${{ github.ref }}
           overwrite: true
-      
+
       - name: Upload build binaries to release
         uses: svenstaro/upload-release-action@v2
         with:

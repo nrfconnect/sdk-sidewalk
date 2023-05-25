@@ -18,7 +18,7 @@ jobs:
           echo "/usr/share" >> $GITHUB_PATH
           echo "/snap/bin" >> $GITHUB_PATH
           rm -rf sidewalk artifacts twister-out* .west
-          
+
       - uses: actions/checkout@v3
         with:
           path: sidewalk
@@ -28,7 +28,7 @@ jobs:
           west init -l sidewalk
           west update --narrow -o=--depth=1
           python3 -m pip install -r zephyr/scripts/requirements.txt
-  
+
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
@@ -44,7 +44,7 @@ jobs:
       - name: Run Tests
         run: |
           zephyr/scripts/twister -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2
-      
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -54,7 +54,7 @@ jobs:
             twister-out/twister.xml
             twister-out/**/handler.log
             twister-out/**/device.log
-      
+
       - name: Cleanup
         if: always()
         run: |

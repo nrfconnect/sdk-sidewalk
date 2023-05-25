@@ -1,6 +1,6 @@
 sample:
   name: Sidewalk Bluetooth LE test
-  description: Test Bluetooth with controller (e.g. smartphone with nRF Connect App) 
+  description: Test Bluetooth with controller (e.g. smartphone with nRF Connect App)
 tests:
   sidewalk.test.ble:
     platform_allow: nrf52840dk_nrf52840
