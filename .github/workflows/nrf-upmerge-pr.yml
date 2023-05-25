@@ -3,7 +3,7 @@ name: NRF upmerge
 on:
   schedule:
     - cron: "0 1 * * 0"
-  
+
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
 
     name: Create PR with NRF upmerge
     runs-on: ubuntu-latest
-    env: 
+    env:
       CI_COMMIT_AUTHOR: Continuous Integration
     steps:
       - name: Checkout sidewalk
@@ -19,7 +19,7 @@ jobs:
         with:
           path: sidewalk
           ref: main
-      
+
       - name: Checkout nrf
         uses: actions/checkout@v3
         with:
@@ -31,7 +31,7 @@ jobs:
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
           nrf_hash="$(git -C nrf rev-parse HEAD)"
-          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/west.yml 
+          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/west.yml
       - name: Get Date
         id: date
         run: |

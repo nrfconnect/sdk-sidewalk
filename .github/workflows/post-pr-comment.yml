@@ -14,30 +14,30 @@ jobs:
       pull-requests: write
       contents: read
       checks: write
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      
+
       - name: Get artifacts from PR
         uses: dawidd6/action-download-artifact@v2
         with:
           run_id: ${{github.event.workflow_run.id}}
           path: current
-        
+
       - name: Get artifacts from PR base
         uses: dawidd6/action-download-artifact@v2
         with:
           commit: ${{github.event.workflow_run.event.pull_request.base.sha}}
           workflow: on_commit.yml
           path: old
-        
+
       - name: Unpack PR number
         id: get-pr-number
         run: |
           pr_number="$(cat current/PR_number/PR_number)"
           echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
-              
+
       - name: Generage memory diff
         run: |
           pr_reports=$(ls current/**/twister.json)
@@ -52,12 +52,12 @@ jobs:
         with:
           issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
           comment-author: 'github-actions[bot]'
-          body-includes: "| Sample | | diff | used | total |" 
+          body-includes: "| Sample | | diff | used | total |"
 
       - name: Create or update comment
         uses: peter-evans/create-or-update-comment@v3
         with:
-          comment-id: ${{ steps.fc.outputs.comment-id }} 
+          comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
           body-path: memory_usage.md
           edit-mode: replace
