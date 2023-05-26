@@ -104,12 +104,12 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	}
 
 	if (app_context->sidewalk_state == STATE_SIDEWALK_READY) {
-		k_timeout_t delay = K_MSEC(DEMO_CAPABILITY_PERIOD_MS);
+		k_timeout_t delay = K_MSEC(CONFIG_SM_TIMER_DEMO_CAPABILITY_PERIOD_MS);
 
 		if (app_context->app_state == DEMO_APP_STATE_REGISTERED) {
 			app_context->app_state = DEMO_APP_STATE_NOTIFY_CAPABILITY;
 		} else if (app_context->app_state == DEMO_APP_STATE_NOTIFY_SENSOR_DATA) {
-			delay = K_MSEC(DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS);
+			delay = K_MSEC(CONFIG_SM_TIMER_DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS);
 		}
 		sm_cap_timer_set_and_run(delay);
 	}
@@ -118,12 +118,14 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	    (status->detail.time_sync_status == SID_STATUS_TIME_SYNCED)) {
 		if (BUILT_IN_LM == SID_LINK_TYPE_1 &&
 		    !(status->detail.link_status_mask & SID_LINK_TYPE_1)) {
-			sm_cap_timer_set_and_run(K_MSEC(CONNECT_LINK_TYPE_1_INIT_DELAY_MS));
+			sm_cap_timer_set_and_run(
+				K_MSEC(CONFIG_SM_TIMER_CONNECT_LINK_TYPE_1_INIT_DELAY_MS));
 		}
 
 		if (BUILT_IN_LM == SID_LINK_TYPE_2 &&
 		    status->detail.link_status_mask & SID_LINK_TYPE_2) {
-			sm_device_profile_timer_set_and_run(K_MSEC(PROFILE_CHECK_TIMER_DELAY_MS));
+			sm_device_profile_timer_set_and_run(
+				K_MSEC(CONFIG_SM_TIMER_PROFILE_CHECK_TIMER_DELAY_MS));
 		}
 	}
 }

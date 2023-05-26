@@ -9,13 +9,6 @@
 
 #include <zephyr/kernel.h>
 
-#define DEMO_CAPABILITY_PERIOD_MS 5000
-#define CONNECT_LINK_TYPE_1_DELAY_MS 60000
-#define CONNECT_LINK_TYPE_1_INIT_DELAY_MS 5000
-#define DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS 15000
-#define BUTTON_PRESS_CHECK_PERIOD_SECS 30
-#define PROFILE_CHECK_TIMER_DELAY_MS 60000
-
 /**
  * @brief Set time period and run timer for capability notification.
  *

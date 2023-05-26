@@ -107,14 +107,15 @@ static void set_device_profile(struct sid_handle *sid_handle)
 				LOG_ERR("Device profile configuration for Link type 2 failed ret = %d",
 					ret);
 				sm_device_profile_timer_set_and_run(
-					K_MSEC(PROFILE_CHECK_TIMER_DELAY_MS));
+					K_MSEC(CONFIG_SM_TIMER_PROFILE_CHECK_TIMER_DELAY_MS));
 			} else {
 				LOG_INF("Device profile Link type 2 set success");
 			}
 		}
 	} else {
 		LOG_ERR("Failed to get device profile configuration for Link type 2 ret = %d", ret);
-		sm_device_profile_timer_set_and_run(K_MSEC(PROFILE_CHECK_TIMER_DELAY_MS));
+		sm_device_profile_timer_set_and_run(
+			K_MSEC(CONFIG_SM_TIMER_PROFILE_CHECK_TIMER_DELAY_MS));
 	}
 }
 

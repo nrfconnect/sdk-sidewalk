@@ -106,7 +106,8 @@ void sm_notify_sensor_data(app_context_t *app_context, bool button_pressed)
 				sm_buttons_notify_mask_bit_set(i);
 				sm_buttons_press_time_set(i, curr_time.tv_sec);
 				sm_btn_press_timer_set_and_run(
-					K_SECONDS(BUTTON_PRESS_CHECK_PERIOD_SECS), false);
+					K_SECONDS(CONFIG_SM_TIMER_BUTTON_PRESS_CHECK_PERIOD_SECS),
+					false);
 			}
 		}
 		action_notify.button_action_notify.button_id_arr = temp_button_arr;
@@ -179,7 +180,8 @@ void sm_check_button_press_notify(app_context_t *app_context)
 					curr_time.tv_sec - sm_buttons_press_time_get(i);
 				LOG_INF("Button press timeout pre check: button_notify_mask %x next_timer_schedule_secs %d",
 					sm_buttons_notify_mask_get(), next_timer_schedule_secs);
-				if (next_timer_schedule_secs >= BUTTON_PRESS_CHECK_PERIOD_SECS) {
+				if (next_timer_schedule_secs >=
+				    CONFIG_SM_TIMER_BUTTON_PRESS_CHECK_PERIOD_SECS) {
 					sm_buttons_notify_mask_bit_clear(i);
 					sm_buttons_press_mask_bit_clear(i);
 					sm_buttons_press_time_set(i, 0);
