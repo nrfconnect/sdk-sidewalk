@@ -20,18 +20,18 @@ K_TIMER_DEFINE(device_profile_timer, device_profile_timer_cb, NULL);
 static void cap_timer_cb(struct k_timer *timer_id)
 {
 	ARG_UNUSED(timer_id);
-	k_timeout_t delay = K_MSEC(DEMO_CAPABILITY_PERIOD_MS);
+	k_timeout_t delay = K_MSEC(CONFIG_SM_TIMER_DEMO_CAPABILITY_PERIOD_MS);
 	enum event_type event = EVENT_NOTIFICATION_TIMER_FIRED;
 
 	if (BUILT_IN_LM == SID_LINK_TYPE_1) {
 		if (!sm_is_sidewalk_ready()) {
-			delay = K_MSEC(CONNECT_LINK_TYPE_1_DELAY_MS);
+			delay = K_MSEC(CONFIG_SM_TIMER_CONNECT_LINK_TYPE_1_DELAY_MS);
 			event = EVENT_CONNECT_LINK_TYPE_1;
 		}
 	}
 
 	if (sm_app_state_get() == DEMO_APP_STATE_NOTIFY_SENSOR_DATA && sm_is_sidewalk_ready()) {
-		delay = K_MSEC(DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS);
+		delay = K_MSEC(CONFIG_SM_TIMER_DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS);
 	}
 	k_timer_start(&cap_timer, delay, Z_TIMEOUT_NO_WAIT);
 
