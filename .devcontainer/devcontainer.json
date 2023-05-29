@@ -39,7 +39,9 @@
 				"ms-vscode.live-server",
 				"GitHub.vscode-pull-request-github",
 				"ms-python.python",
-				"ryanluker.vscode-coverage-gutters"
+				"ryanluker.vscode-coverage-gutters",
+				"vadimcn.vscode-lldb",
+				"cschlosser.doxdocgen"
 			],
 			"settings": {
 				"github.gitAuthentication": true,
@@ -53,7 +55,16 @@
 					"coverage.info",
 					"lcov.info"
 				],
-				"editor.tabSize": 8
+				"editor.tabSize": 8,
+				"doxdocgen.file.copyrightTag": [
+					"Copyright (c) {year} Nordic Semiconductor ASA",
+					"",
+					"SPDX-License-Identifier: LicenseRef-Nordic-5-Clause"
+				],
+				"doxdocgen.file.fileOrder": [
+					"copyright",
+					"custom"
+				]
 			}
 		}
 	},
