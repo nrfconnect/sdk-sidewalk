@@ -3,5 +3,5 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
-CONFIG_ZTEST=y
-CONFIG_ZTEST_NEW_API=y
+
+source "Kconfig.zephyr"

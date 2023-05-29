@@ -4,6 +4,3 @@ tests:
     tags: Sidewalk
     integration_platforms:
       - native_posix
-
-#  temporary disable = the upmerge broke the mocking of syscalls
-#
