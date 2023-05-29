@@ -48,3 +48,5 @@ jobs:
           delete-branch: true
           branch: nrf_upmerge-${{steps.date.outputs.date}}
           signoff: true
+          committer: Sidewalk Team <sidewalk@nordicsemi.no>
+          author: Sidewalk Team <sidewalk@nordicsemi.no>
