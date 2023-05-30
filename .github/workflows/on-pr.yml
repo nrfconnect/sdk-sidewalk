@@ -70,3 +70,18 @@ jobs:
   run_tests_on_dut:
     needs: build_samples_and_tests
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-ut-on-dut.yml@main
+
+  publish_test_summary:
+    needs: [run_tests_on_dut, build_samples_and_tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            artifacts/**/twister.xml
