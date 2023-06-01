@@ -3,6 +3,43 @@ on:
   workflow_call:
 
 jobs:
+  run_tests_on_x86:
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: tests-artifacts
+          path: twister-out
+
+      - name: Run Tests
+        run: |
+          chmod +x -R twister-out
+          /workdir/zephyr/scripts/twister -vvv --inline-logs --test-only --platform native_posix --platform unit_testing -T /workdir/sidewalk/tests --retry-failed 2
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+
   run_tests_on_dut:
     runs-on: self-hosted
     steps:
@@ -31,15 +68,8 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          path: artifacts
-
-      - name: Combine twister outputs
-        run: |
-          shopt -s extglob
-          pr_reports=$(ls artifacts/tests-nrf*/twister.json)
-          mkdir twister-out
-          cp -r artifacts/tests-nrf*/!(twister.json) twister-out/
-          python3 sidewalk/scripts/ci/combine_twister_reports.py $pr_reports twister-out/twister.json
+          name: tests-artifacts
+          path: twister-out
 
       - name: Run Tests
         run: |
