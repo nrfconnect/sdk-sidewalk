@@ -6,12 +6,27 @@ on:
     - cron: "0 1 * * 1-6"
 
 jobs:
-
   build_samples_and_tests:
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build-samples.yml@main
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build.yml@main
     with:
       change_nrf_revision: true
 
-  Run_tests_on_DUT:
-    needs: Build_samples_and_tests
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-ut-on-dut.yml@main
+  run_tests:
+    needs: build_samples_and_tests
+    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-tests.yml@main
+
+  publish_test_summary:
+    if: ${{ always() }}
+    needs: run_tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          comment_mode: off
+          files: |
+            artifacts/**/twister.xml
