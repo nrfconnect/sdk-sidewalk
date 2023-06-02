@@ -5,10 +5,11 @@ Known issues
 
 See the list of known issues that are valid for the current state of development.
 
-v1.14.3
+v1.14.4
 -------
-* KRKNWK-16402: DFU failure on unregistered devices.
-    Workaround is to enter the DFU mode when the device is registered.
+* KRKNWK-17035: Sensor monitor uplink messages are lost when the notification period is longer than 30 seconds.
+    If the notification period is set to longer than 30 seconds, the sensor monitor uplink messages are lost. 
+    For this reason, the notification period is set to 15 seconds by default.
 
 * KRKNWK-14583: Bus fault after flash, before the :file:`Nordic_MFG.hex` data flash.
     For sub-GHz samples, when the :file:`Nordic_MFG.hex` file is missing, the device throws a hard fault during initializing the Sidewalk stack.
