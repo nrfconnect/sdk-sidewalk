@@ -160,8 +160,8 @@ jobs:
         run: |
           mkdir twister-out
           shopt -s extglob
-          cp -r artifacts/sample-*/!(twister.json) twister-out/
-          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/sample-*/twister.json) twister-out/twister.json
+          cp -r artifacts/tests-*/!(twister.json) twister-out/
+          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/tests-*/twister.json) twister-out/twister.json
             
       - uses: geekyeggo/delete-artifact@v2
         with:
