@@ -69,11 +69,11 @@ BOARDS = {
 
 
 SAMPLES = [
-    Sample('sidewalk/samples/sensor_monitoring', 'sample.sidewalk.demo',
+    Sample('sensor_monitoring', 'sample.sidewalk.demo',
            ':ref:`Sensor monitoring <sensor_monitoring>`'),
-    Sample('sidewalk/samples/template_subghz', 'sample.sidewalk.template',
+    Sample('template_subghz', 'sample.sidewalk.template',
            ':ref:`Template sub-GHz <template_subghz>`'),
-    Sample('sidewalk/samples/template_ble', 'sample.sidewalk.template_ble',
+    Sample('template_ble', 'sample.sidewalk.template_ble',
            ':ref:`Template Bluetooth LE <template_ble>`'),
 ]
 
