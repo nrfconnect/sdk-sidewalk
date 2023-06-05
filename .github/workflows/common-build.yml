@@ -93,6 +93,51 @@ jobs:
           path: 
             twister-out
 
+  build_ut_x86:
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Build test artifacts for 
+        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --build-only 
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86
+          path: |
+            twister-out/**/CMakeFiles/rules.ninja
+            twister-out/**/CMakeCache.txt
+            twister-out/**/build.log
+            twister-out/**/build.ninja
+            twister-out/**/handler.log
+            twister-out/**/zephyr/.config
+            twister-out/**/zephyr/runners.yaml
+            twister-out/**/zephyr/zephyr.*
+            twister-out/**/zephyr/merged.hex
+            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/dfu_application.zip
+            twister-out/**/testbinary
+            twister-out/twister.json
+
   build_tests:
     strategy:
       matrix:
@@ -123,7 +168,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for 
-        run: /workdir/zephyr/scripts/twister --shuffle-tests --shuffle-tests-seed ${{ env.RANDOM_SEED }} --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --exclude-platform native_posix --exclude-platform unit_testing --shuffle-tests --shuffle-tests-seed ${{ env.RANDOM_SEED }} --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -165,11 +210,11 @@ jobs:
             
       - uses: geekyeggo/delete-artifact@v2
         with:
-          name: tests-*
+          name: tests-*_of_*
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: tests-artifacts
+          name: tests-dut-artifacts
           path: 
             twister-out
