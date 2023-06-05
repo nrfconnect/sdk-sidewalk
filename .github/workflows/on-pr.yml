@@ -48,7 +48,7 @@ jobs:
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir/sidewalk
           python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c origin/${BASE_REF}..
-  
+
   save_pr_number:
     runs-on: ubuntu-latest
     steps:
@@ -86,10 +86,6 @@ jobs:
           comment_mode: off
           files: |
             artifacts/**/twister.xml
-      
-      - name: Save test report
-        run: |
-          echo $GITHUB_STEP_SUMMARY > test_report.md
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -97,4 +93,3 @@ jobs:
           name: test_report
           path: |
             test_report.md
-      
