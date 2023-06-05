@@ -15,6 +15,7 @@ You can browse the content by referring to the following pages:
    about_sidewalk.rst
    setting_up_sidewalk_environment/setting_up_environment.rst
    testing_samples/samples.rst
+   compatibility_matrix.rst
    sidewalk_release_notes.rst
    sidewalk_known_issues.rst
    additional_resources.rst
