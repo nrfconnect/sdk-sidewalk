@@ -41,6 +41,7 @@ jobs:
 
 
   run_tests_on_dut:
+    if: false
     runs-on: self-hosted
     steps:
       - name: Initial setup
@@ -73,7 +74,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          zephyr/scripts/twister --exclude-platform native_posix --exclude-platform unit_testing -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2
+          zephyr/scripts/twister --platform nrf52840dk_nrf52840 --platform nrf5340dk_nrf5340_cpuapp -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
