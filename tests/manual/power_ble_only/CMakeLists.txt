@@ -7,6 +7,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/tests/manual/power_ble_only/child_image/mcuboot/Kconfig.root)
+set(PM_STATIC_YML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/configuration/${BOARD}/pm_static.yml)
 
 include($ENV{ZEPHYR_BASE}/../sidewalk/samples/common/bootloader_version.cmake)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
