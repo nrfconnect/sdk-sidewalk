@@ -6,11 +6,6 @@ mcuboot:
   region: flash_primary
   size: 0x7000
 
-settings_storage:
-  address: 0xf7000
-  region: flash_primary
-  size: 0x2000
-
 sidewalk_storage:
   address: 0xf9000
   region: flash_primary
@@ -18,4 +13,5 @@ sidewalk_storage:
 
 mfg_storage:
   address: 0xff000
+  region: flash_primary
   size: 0x1000
