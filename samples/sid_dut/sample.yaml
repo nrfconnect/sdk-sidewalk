@@ -4,7 +4,8 @@ sample:
 tests:
   sidewalk.sid_dut:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk

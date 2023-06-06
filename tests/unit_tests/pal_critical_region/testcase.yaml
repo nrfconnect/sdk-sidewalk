@@ -1,6 +1,6 @@
 tests:
   sidewalk.unit_tests.critical_region:
-    platform_allow: nrf52840dk_nrf52840 native_posix
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp native_posix
     tags: Sidewalk
     integration_platforms:
       - native_posix

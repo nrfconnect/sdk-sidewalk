@@ -1,6 +1,6 @@
 tests:
   sidewalk.functional.critical_region:
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
     integration_platforms:
       - nrf52840dk

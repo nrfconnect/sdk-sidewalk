@@ -4,29 +4,32 @@ sample:
 tests:
   sidewalk.ble.test.power:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONF_FILE=prj_release.conf
                 OVERLAY_CONFIG=usb_dfu.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
   sidewalk.lora.test.power:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONF_FILE=prj_release.conf
                 OVERLAY_CONFIG=lora.conf
                 OVERLAY_CONFIG=usb_dfu.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
   sidewalk.fsk.test.power:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONF_FILE=prj_release.conf
                 OVERLAY_CONFIG=fsk.conf
                 OVERLAY_CONFIG=usb_dfu.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk

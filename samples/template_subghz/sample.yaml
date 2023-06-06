@@ -4,55 +4,62 @@ sample:
 tests:
   sample.sidewalk.template.lora:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
   sample.sidewalk.template.lora.cli:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONFIG_SIDEWALK_CLI=y
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk_cli
 
   sample.sidewalk.template.lora.release:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONF_FILE=prj_release.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
   sample.sidewalk.template.lora.dfu_usb:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: OVERLAY_CONFIG=usb_dfu.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
   sample.sidewalk.template.fsk:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: OVERLAY_CONFIG=fsk.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
   sample.sidewalk.template.fsk.cli:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: OVERLAY_CONFIG=fsk.conf CONFIG_SIDEWALK_CLI=y
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk_cli
 
   sample.sidewalk.template.fsk.release:
     build_only: true
-    platform_allow: nrf52840dk_nrf52840
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: OVERLAY_CONFIG=fsk.conf CONF_FILE=prj_release.conf
     integration_platforms:
       - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
