@@ -57,6 +57,7 @@ config REBOOT
     default n
 
 config NRF_RTC_TIMER
+    default y if SOC_SERIES_NRF53X
     default n
 
 config CONSOLE
