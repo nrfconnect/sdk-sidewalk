@@ -28,7 +28,7 @@ jobs:
         run: |
           chmod +x -R twister-out
           /workdir/zephyr/scripts/twister -vvv --inline-logs --test-only --platform native_posix --platform unit_testing -T /workdir/sidewalk/tests --retry-failed 2
-      
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
