@@ -96,6 +96,10 @@ void button_event_send_hello(app_ctx_t *application_ctx)
 		.link_mode = SID_LINK_MODE_CLOUD,
 	};
 
+	desc.msg_desc_attr.tx_attr.request_ack = true;
+	desc.msg_desc_attr.tx_attr.num_retries = 3;
+	desc.msg_desc_attr.tx_attr.ttl_in_seconds = 20;
+
 	err = sid_put_msg(application_ctx->handle, &msg, &desc);
 	switch (err) {
 	case SID_ERROR_NONE: {

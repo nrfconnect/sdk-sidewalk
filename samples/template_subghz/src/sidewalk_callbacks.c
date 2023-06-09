@@ -37,8 +37,9 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 #endif
 	application_state_receiving(&global_state_notifier, true);
 	application_state_receiving(&global_state_notifier, false);
-	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
-		(int)msg_desc->link_mode, msg_desc->id, msg->size);
+	LOG_INF("received message(type: %d, link_mode: %d, id: %u size %u is_msg_ack: %u is_dup: %u)", (int)msg_desc->type,
+		(int)msg_desc->link_mode, msg_desc->id, msg->size, msg_desc->msg_desc_attr.rx_attr.is_msg_ack,
+		msg_desc->msg_desc_attr.rx_attr.is_msg_duplicate);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 }
 
@@ -49,6 +50,10 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 	CLI_register_message_send();
 #endif
 	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
+	LOG_INF("sent message attributes: rx_ack_request:%d rx_is_msg_ack:%d tx_request_ack:%d",
+            msg_desc->msg_desc_attr.rx_attr.ack_requested,
+            msg_desc->msg_desc_attr.rx_attr.is_msg_ack,
+            msg_desc->msg_desc_attr.tx_attr.request_ack);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
