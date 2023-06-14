@@ -23,6 +23,8 @@ To meet the software requirements, complete the following:
    * Python3 and python3-pip are required to run the Sidewalk tools.
    * This solution was tested on Ubuntu Linux 20.04 LTS and 22.04 LTS.
 
+.. _hardware_requirements:
+
 Hardware requirements
 *********************
 
