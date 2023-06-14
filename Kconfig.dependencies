@@ -23,6 +23,11 @@ config SIDEWALK_BUILD
 	help
 	  An internal config to build the NCS Sidewalk Sources.
 
+config SIDEWALK_NRF53X_SUPPORT
+	bool "Sidewalk support for nRF53 serires [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	default SOC_SERIES_NRF53X && SIDEWALK
+
 config SIDEWALK_BLE
 	bool
 	default SIDEWALK
@@ -30,7 +35,7 @@ config SIDEWALK_BLE
 	imply SETTINGS
 	imply BT_PERIPHERAL
 	imply BT_GATT_CLIENT
-	help 
+	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
 config SIDEWALK_ASSERT
@@ -98,7 +103,7 @@ config SIDEWALK_GENERATE_VERSION_MINIMAL
 	bool
 	default SIDEWALK
 	help
-	  Generate minimal information of application version (sidewalk, zephyr, nrf). 
+	  Generate minimal information of application version (sidewalk, zephyr, nrf).
 	  In order to generate full version report from all modules set this config to `N`.
 
 config SIDEWALK_MFG_STORAGE
@@ -166,7 +171,7 @@ config SIDEWALK_DELAY
 	default SIDEWALK
 	help
 	  Sidewalk delay module
-	
+
 config SIDEWALK_SPI_BUS
 	bool
 	default SIDEWALK_SUBGHZ
@@ -263,7 +268,7 @@ config USB_REQUEST_BUFFER_SIZE
 
 config USB_DEVICE_INITIALIZE_AT_BOOT
 	default n
-	
+
 endif # SIDEWALK_DFU_SERVICE_USB
 
 config UART_1_NRF_UARTE
