@@ -84,6 +84,14 @@ jobs:
           echo "/snap/bin" >> $GITHUB_PATH
           rm -rf sidewalk artifacts twister-out* .west
 
+      - name: Restart USB
+        run: |
+          numbers=`usbreset | grep J-Link | awk '{print $2}'`
+          for number in $numbers
+          do
+            sudo usbreset $number
+          done
+
       - uses: actions/checkout@v3
         with:
           path: sidewalk
