@@ -12,9 +12,9 @@ jobs:
   build_samples:
     strategy:
       matrix:
-        subset: [1, 2, 3, 4, 5, 6]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     env:
-      MAX_SUBSETS: 6
+      MAX_SUBSETS: 12
       RANDOM_SEED: 123
 
     runs-on: ubuntu-latest
@@ -57,41 +57,12 @@ jobs:
             twister-out/**/handler.log
             twister-out/**/zephyr/.config
             twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/*.elf
+            twister-out/**/zephyr/*.hex
+            twister-out/**/zephyr/*.dts
             twister-out/**/zephyr/dfu_application.zip
             twister-out/**/testbinary
             twister-out/twister.json
-
-  combine_sample_build_artifacts:
-    runs-on: ubuntu-latest
-    needs: build_samples
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-
-      - name: Combine twister outputs
-        run: |
-          mkdir twister-out
-          shopt -s extglob
-          cp -r artifacts/sample-*/!(twister.json) twister-out/
-          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/sample-*/twister.json) twister-out/twister.json
-
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: sample-*
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: sample-artifacts
-          path:
-            twister-out
 
   build_ut_x86:
     runs-on: ubuntu-latest
@@ -131,14 +102,21 @@ jobs:
             twister-out/**/handler.log
             twister-out/**/zephyr/.config
             twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/*.elf
+            twister-out/**/zephyr/*.hex
+            twister-out/**/zephyr/*.dts
             twister-out/**/zephyr/dfu_application.zip
             twister-out/**/testbinary
             twister-out/twister.json
 
   build_manual_tests:
+    strategy:
+      matrix:
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    env:
+      MAX_SUBSETS: 10
+      RANDOM_SEED: 123
+
     runs-on: ubuntu-latest
     container:
       image: nordicplayground/nrfconnect-sdk:main
@@ -161,13 +139,13 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for DUT
-        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only
+        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only --shuffle-tests --shuffle-tests-seed ${{ env.RANDOM_SEED }} --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: tests-manual
+          name: tests-manual-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
             twister-out/**/CMakeFiles/rules.ninja
             twister-out/**/CMakeCache.txt
@@ -176,19 +154,19 @@ jobs:
             twister-out/**/handler.log
             twister-out/**/zephyr/.config
             twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/*.elf
+            twister-out/**/zephyr/*.hex
+            twister-out/**/zephyr/*.dts
             twister-out/**/zephyr/dfu_application.zip
             twister-out/**/testbinary
             twister-out/twister.json
 
-  build_tests:
+  build_dut_tests:
     strategy:
       matrix:
-        subset: [1, 2, 3, 4, 5, 6]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     env:
-      MAX_SUBSETS: 6
+      MAX_SUBSETS: 12
       RANDOM_SEED: 123
 
     runs-on: ubuntu-latest
@@ -228,16 +206,19 @@ jobs:
             twister-out/**/handler.log
             twister-out/**/zephyr/.config
             twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
+            twister-out/**/zephyr/*.elf
+            twister-out/**/zephyr/*.hex
+            twister-out/**/zephyr/*.dts
             twister-out/**/zephyr/dfu_application.zip
             twister-out/**/testbinary
             twister-out/twister.json
 
-  combine_test_build_artifacts:
+  combine_artifacts:
     runs-on: ubuntu-latest
-    needs: build_tests
+    needs:
+      - build_dut_tests
+      - build_manual_tests
+      - build_samples
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -246,12 +227,54 @@ jobs:
         with:
           path: artifacts
 
-      - name: Combine twister outputs
+      - name: Combine twister outputs for samples
         run: |
+          rm -rf twister-out
+          mkdir twister-out
+          shopt -s extglob
+          cp -r artifacts/sample-*/!(twister.json) twister-out/
+          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/sample-*/twister.json) twister-out/twister.json
+          tar -czvf twister-out.tar.xz twister-out
+
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: sample-*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sample-artifacts
+          path:
+            twister-out.tar.xz
+
+      - name: Combine twister outputs for manual tests
+        run: |
+          rm -rf twister-out
+          mkdir twister-out
+          shopt -s extglob
+          cp -r artifacts/tests-manual-*_of_*/!(twister.json) twister-out/
+          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/tests-manual-*_of_*/twister.json) twister-out/twister.json
+          tar -czvf twister-out.tar.xz twister-out
+
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: tests-manual-*_of_*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-manual
+          path:
+            twister-out.tar.xz
+
+      - name: Combine twister outputs for DUT
+        run: |
+          rm -rf twister-out
           mkdir twister-out
           shopt -s extglob
           cp -r artifacts/tests-dut-*_of_*/!(twister.json) twister-out/
-          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/tests-*/twister.json) twister-out/twister.json
+          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/tests-dut-*_of_*/twister.json) twister-out/twister.json
+          tar -czvf twister-out.tar.xz twister-out
 
       - uses: geekyeggo/delete-artifact@v2
         with:
@@ -262,4 +285,4 @@ jobs:
         with:
           name: tests-dut-artifacts
           path:
-            twister-out
+            twister-out.tar.xz

@@ -77,10 +77,11 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: tests-dut-artifacts
-          path: twister-out
+          path: twister-out.tar.gz
 
       - name: Run Tests
         run: |
+          tar -xzvf twister-out.tar.gz
           zephyr/scripts/twister --dry-run -P unit_testing -P native_posix -T sidewalk/tests --filter runnable -n
           mv twister-out/testplan.json twister-out/twister.json
           zephyr/scripts/twister -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2
