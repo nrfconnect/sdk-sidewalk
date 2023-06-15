@@ -67,29 +67,59 @@ jobs:
     needs: [validate_code_compliance, validate_compliance_with_zephyr]
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build.yml@main
 
-  run_tests:
+  run_tests_on_dut:
     needs: build_samples_and_tests
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-run-tests.yml@main
-
-  publish_test_summary:
-    if: ${{ always() }}
-    needs: run_tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
+      - name: Initial setup
+        run: |
+          echo "/home/sidewalk/.local/bin" >> $GITHUB_PATH
+          echo "/usr/local/sbin" >> $GITHUB_PATH
+          echo "/usr/local/bin" >> $GITHUB_PATH
+          echo "/usr/sbin" >> $GITHUB_PATH
+          echo "/usr/bin" >> $GITHUB_PATH
+          echo "/sbin" >> $GITHUB_PATH
+          echo "/bin" >> $GITHUB_PATH
+          echo "/usr/share" >> $GITHUB_PATH
+          echo "/snap/bin" >> $GITHUB_PATH
+          rm -rf sidewalk artifacts twister-out* .west
+
+      - uses: actions/checkout@v3
+        with:
+          path: sidewalk
+
+      - name: Update nrf
+        run: |
+          west init -l sidewalk
+          west update --narrow -o=--depth=1
+          python3 -m pip install -r zephyr/scripts/requirements.txt
+
       - uses: actions/download-artifact@v3
         with:
-          path: artifacts
+          name: tests-dut-artifacts
+          path: twister-out
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          comment_mode: off
-          files: |
-            artifacts/**/twister.xml
+      - name: Run Tests
+        run: |
+          cat /hw_settings/hardware_map.yaml
+          sudo sed -i 's/runner: jlink/runner: nrfjprog/g' /hw_settings/hardware_map.yaml
+          echo "updated version"
+          cat /hw_settings/hardware_map.yaml
+          zephyr/scripts/twister --dry-run -P unit_testing -P native_posix -T sidewalk/tests --filter runnable -n
+          mv twister-out/testplan.json twister-out/twister.json
+          zephyr/scripts/twister -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --west-flash="--recover,--erase"
 
-      - name: Upload build artifacts
+      - name: Upload test results
         uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: test_report
+          name: tests-DUT_result
           path: |
-            test_report.md
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf sidewalk artifacts twister-out* .west
