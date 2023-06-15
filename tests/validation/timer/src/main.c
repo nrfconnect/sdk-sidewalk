@@ -26,6 +26,8 @@
  * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
  */
 
+#include "zephyr/kernel.h"
+#include "zephyr/sys_clock.h"
 #include <sid_pal_timer_ifc.h>
 #include <sid_pal_uptime_ifc.h>
 #include <sid_time_ops.h>
@@ -63,8 +65,7 @@
  * because it is dependant on CPU clock frequency, memory access time etc.
  * It must be set in the relevant application level 'CMakeLists.txt'
  */
-#define PLATFORM_SW_SPIN_DELAY_MILLISEC(_ms) \
-    do { for(volatile uint32_t i = ((_ms) * SID_PAL_PLATFORM_SW_SPIN_COUNT_PER_MS); i != 0; i--) {} } while(0)
+#define PLATFORM_SW_SPIN_DELAY_MILLISEC(_ms) k_sleep(K_MSEC(_ms)) 
 
 // Overall timeout for one-shot testing. Must be longer than max test time in 'test_one_shot_timespecs'
 #define TOTAL_ONE_SHOT_TEST_TIME_MS         2000
