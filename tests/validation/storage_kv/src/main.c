@@ -11,7 +11,7 @@
  * IMPLIED, OR STATUTORY, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
  */
-#include <unity.h>
+#include <zephyr/ztest.h>
 
 #include <sid_pal_storage_kv_ifc.h>
 #include <storage_kv_keys.h>
@@ -24,17 +24,17 @@
 #define DEV_VER_SZ 2
 #define PROT_VER_SZ 2
 
-void setUp(void)
+void setUp(void *fixture)
 {
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_storage_kv_init());
+    zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_init());
 }
 
-void tearDown(void)
+void tearDown(void *fixture)
 {
     sid_error_t ret;
 
     ret = sid_pal_storage_kv_group_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 }
 
 /* Helper function to populate records to test deletion */
@@ -45,7 +45,7 @@ static void set_record()
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, id, DEV_ID_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 }
 
 static uint32_t roundup_to_word(uint32_t v)
@@ -54,7 +54,7 @@ static uint32_t roundup_to_word(uint32_t v)
 }
 
 /* Test basic record set and get */
-void test_record_set_get(void)
+ZTEST(storage, test_record_set_get)
 {
     sid_error_t ret;
     uint8_t dev_id[DEV_ID_SZ] = {0xfe, 0xed, 0xfa, 0xce, 0xa1};
@@ -65,37 +65,37 @@ void test_record_set_get(void)
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, dev_id, DEV_ID_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DEV_VERSION, dev_ver, DEV_VER_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_get_len(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                             STORAGE_KV_DBG_DEV_ID, &len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_GREATER_OR_EQUAL(DEV_ID_SZ, len);
-    TEST_ASSERT_LESS_OR_EQUAL(roundup_to_word(DEV_ID_SZ), len);
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_true(len>=DEV_ID_SZ);
+    zassert_true(len <= roundup_to_word(DEV_ID_SZ));
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, id, len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_EQUAL(0, memcmp(dev_id, id, DEV_ID_SZ));
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_equal(0, memcmp(dev_id, id, DEV_ID_SZ));
 
     ret = sid_pal_storage_kv_record_get_len(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                             STORAGE_KV_DEV_VERSION, &len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_GREATER_OR_EQUAL(DEV_VER_SZ, len);
-    TEST_ASSERT_LESS_OR_EQUAL(roundup_to_word(DEV_VER_SZ), len);
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_true(len>=DEV_VER_SZ);
+    zassert_true(len <= roundup_to_word(DEV_VER_SZ));
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DEV_VERSION, ver, DEV_VER_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_EQUAL(0, memcmp(dev_ver, ver, DEV_VER_SZ));
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_equal(0, memcmp(dev_ver, ver, DEV_VER_SZ));
 }
 
 /* Test setting record twice updates the record */
-void test_record_set_twice(void)
+ZTEST(storage, test_record_set_twice)
 {
     sid_error_t ret;
     uint8_t dev_id[DEV_ID_SZ] = {0xfe, 0xed, 0xfa, 0xce, 0xa1};
@@ -105,27 +105,27 @@ void test_record_set_twice(void)
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, dev_id, DEV_ID_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, dev_id2, DEV_ID_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_get_len(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                             STORAGE_KV_DBG_DEV_ID, &len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_GREATER_OR_EQUAL(DEV_ID_SZ, len);
-    TEST_ASSERT_LESS_OR_EQUAL(roundup_to_word(DEV_ID_SZ), len);
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_true(len>=DEV_ID_SZ);
+    zassert_true(len <= roundup_to_word(DEV_ID_SZ));
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, id, len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_EQUAL(0, memcmp(dev_id2, id, DEV_ID_SZ));
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_equal(0, memcmp(dev_id2, id, DEV_ID_SZ));
 }
 
 
 /* Test re-setting record after a delete */
-void test_record_set_delete_set(void)
+ZTEST(storage, test_record_set_delete_set)
 {
     sid_error_t ret;
     uint8_t dev_id[DEV_ID_SZ] = {0xfe, 0xed, 0xfa, 0xce, 0xa1};
@@ -135,41 +135,41 @@ void test_record_set_delete_set(void)
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, dev_id, DEV_ID_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                            STORAGE_KV_DBG_DEV_ID);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_set(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, dev_id2, DEV_ID_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_get_len(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                             STORAGE_KV_DBG_DEV_ID, &len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_GREATER_OR_EQUAL(DEV_ID_SZ, len);
-    TEST_ASSERT_LESS_OR_EQUAL(roundup_to_word(DEV_ID_SZ), len);
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_true(len>=DEV_ID_SZ);
+    zassert_true(len <= roundup_to_word(DEV_ID_SZ));
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, id, len);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
-    TEST_ASSERT_EQUAL(0, memcmp(dev_id2, id, DEV_ID_SZ));
+    zassert_equal(SID_ERROR_NONE, ret);
+    zassert_equal(0, memcmp(dev_id2, id, DEV_ID_SZ));
 }
 
 /* Test reading non-existent record */
-void test_record_get_error(void)
+ZTEST(storage, test_record_get_error)
 {
     sid_error_t ret;
     uint8_t ver[DEV_VER_SZ];
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_PROTOCOL_VERSION, ver, PROT_VER_SZ);
-    TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND, ret);
+    zassert_equal(SID_ERROR_NOT_FOUND, ret);
 }
 
 /* Test record is properly deleted */
-void test_record_delete(void)
+ZTEST(storage, test_record_delete)
 {
     sid_error_t ret;
     uint8_t id[DEV_ID_SZ];
@@ -178,27 +178,29 @@ void test_record_delete(void)
 
     ret = sid_pal_storage_kv_record_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                            STORAGE_KV_DBG_DEV_ID);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, id, DEV_ID_SZ);
-    TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_not_equal(SID_ERROR_NONE, ret);
 }
 
 /* Test deleting non-existent record */
-void test_record_delete_error(void)
+
+ZTEST(storage, test_record_delete_error)
 {
-    TEST_IGNORE_MESSAGE("There is no error on deleting non-existing record in NVS");
+    ztest_test_skip();
+    // TEST_IGNORE_MESSAGE("There is no error on deleting non-existing record in NVS");
 
     sid_error_t ret;
 
     ret = sid_pal_storage_kv_record_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                            STORAGE_KV_PROTOCOL_VERSION);
-    TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_not_equal(SID_ERROR_NONE, ret);
 }
 
 /* Test deleting a group removes records */
-void test_record_group_delete(void)
+ZTEST(storage, test_record_group_delete)
 {
     sid_error_t ret;
     uint8_t id[DEV_ID_SZ];
@@ -206,30 +208,25 @@ void test_record_group_delete(void)
     set_record();
 
     ret = sid_pal_storage_kv_group_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_record_get(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
                                         STORAGE_KV_DBG_DEV_ID, id, DEV_ID_SZ);
-    TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_not_equal(SID_ERROR_NONE, ret);
 }
 
 /* Test deleting group twice */
-void test_record_group_delete_error(void)
+ZTEST(storage, test_record_group_delete_error)
 {
     sid_error_t ret;
 
     set_record();
 
     ret = sid_pal_storage_kv_group_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 
     ret = sid_pal_storage_kv_group_delete(SID_PAL_STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID);
-    TEST_ASSERT_EQUAL(SID_ERROR_NONE, ret);
+    zassert_equal(SID_ERROR_NONE, ret);
 }
 
-extern int unity_main(void);
-
-int main(void)
-{
-	return unity_main();
-}
+ZTEST_SUITE(storage, NULL, NULL, setUp, tearDown, NULL);

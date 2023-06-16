@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include <unity.h>
+#include <zephyr/ztest.h>
 #include <sid_pal_crypto_ifc.h>
 #include <zephyr/kernel.h>
 #include <string.h>
@@ -89,7 +89,7 @@ static void sid_pal_crypto_aead_test_execute(sid_pal_aead_params_t *params)
 		params->out_size = sizeof(encrypted_data);
 		params->mac_size = mac_len_test_vector[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(params));
 
 		// Key and IV are the same
 		params->mode = SID_PAL_CRYPTO_DECRYPT;
@@ -98,68 +98,68 @@ static void sid_pal_crypto_aead_test_execute(sid_pal_aead_params_t *params)
 		params->out = decrypted_data;
 		params->out_size = sizeof(decrypted_data);
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, sizeof(data_copy));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(params));
+		zassert_equal(0, memcmp(data_copy, decrypted_data, sizeof(data_copy)));
 	}
 }
 
-void test_sid_pal_crypto_no_init(void)
+ZTEST(crypto, test_sid_pal_crypto_no_init)
 {
 	// For any arguments functions shall return the same error code
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_deinit());
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_deinit());
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// And now we expect that error code will be different like SID_ERROR_UNINITIALIZED
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
 }
 
-void test_sid_pal_crypto_deinit(void)
+ZTEST(crypto, test_sid_pal_crypto_deinit)
 {
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// We expect that error code will be different like SID_ERROR_UNINITIALIZED
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
+	zassert_not_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
 
 	// Deinitialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_deinit());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_deinit());
 
 	// For any arguments functions shall return the same error code
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_rand(NULL, 0));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hash(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_hmac(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aes_crypt(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_aead_crypt(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_dsa(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_ecdh(NULL));
+	zassert_equal(SID_ERROR_UNINITIALIZED, sid_pal_crypto_ecc_key_gen(NULL));
 }
 
-void test_sid_pal_crypto_rng(void)
+ZTEST(crypto, test_sid_pal_crypto_rng)
 {
 	uint8_t tmp_buff[RNG_BUFF_MAX_SIZE];
 	uint8_t rng_buff[RNG_BUFF_MAX_SIZE];
@@ -168,30 +168,29 @@ void test_sid_pal_crypto_rng(void)
 	memset(tmp_buff, 0x00, sizeof(tmp_buff));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_rand(NULL, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_rand(NULL, 5));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_rand(NULL, 0));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_rand(NULL, 5));
 
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_rand(rng_buff, 0));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_rand(rng_buff, 0));
 
 	// Check for any length from 1 to RNG_BUFF_MAX_SIZE
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 1));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 1));
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 3));
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, memcmp(rng_buff, tmp_buff, 3),
-				      "Random value can not be 0");
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_rand(tmp_buff, 3));
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, memcmp(rng_buff, tmp_buff, 3),
-				      "two consequent random values can not be the same");
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_rand(rng_buff, 3));
+	zassert_not_equal(0, memcmp(rng_buff, tmp_buff, 3), "Random value can not be 0");
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_rand(tmp_buff, 3));
+	zassert_not_equal(0, memcmp(rng_buff, tmp_buff, 3),
+			  "two consequent random values can not be the same");
 
 	for (int cnt = 0; cnt < ARRAY_SIZE(rng_test_len); cnt++) {
 		memset(tmp_buff, 0x00, sizeof(tmp_buff));
 		// Generate random values and check if those are different in time
 		for (int test_it = 0; test_it < 5; test_it++) {
-			TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-					  sid_pal_crypto_rand(rng_buff, rng_test_len[cnt]));
-			TEST_ASSERT_NOT_EQUAL(0, memcmp(rng_buff, tmp_buff, rng_test_len[cnt]));
+			zassert_equal(SID_ERROR_NONE,
+				      sid_pal_crypto_rand(rng_buff, rng_test_len[cnt]));
+			zassert_not_equal(0, memcmp(rng_buff, tmp_buff, rng_test_len[cnt]));
 			k_sleep(K_NSEC(50)); // additional time for entropy update
 			// Save last random value
 			memcpy(tmp_buff, rng_buff, rng_test_len[cnt]);
@@ -199,7 +198,7 @@ void test_sid_pal_crypto_rng(void)
 	}
 }
 
-void test_sid_pal_crypto_hash(void)
+ZTEST(crypto, test_sid_pal_crypto_hash)
 {
 	sid_pal_hash_params_t params;
 
@@ -271,32 +270,32 @@ void test_sid_pal_crypto_hash(void)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// NULL pointer
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(NULL));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(&params));
 
 	params.data = data_copy;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(&params));
 
 	params.data = NULL;
 	params.digest = digest;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_hash(&params));
 
 	// Invalid arguments
 	params.data = data_copy;
 	params.digest = digest;
 	params.data_size = 0;
 	params.digest_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_hash(&params));
 
 	params.data_size = sizeof(data_copy);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_hash(&params));
 
 	params.data_size = 0;
 	params.digest_size = sizeof(digest);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_hash(&params));
 
 	params.data = data_copy;
 	params.data_size = sizeof(data_copy);
@@ -305,10 +304,10 @@ void test_sid_pal_crypto_hash(void)
 
 	// Unsupported algorithms
 	params.algo = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_hash(&params));
 
 	params.algo = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_hash(&params));
 
 	// Compute SHA2_256
 	params.algo = SID_PAL_HASH_SHA256;
@@ -318,21 +317,20 @@ void test_sid_pal_crypto_hash(void)
 	params.digest_size = SHA256_LEN;
 
 	// Verify test condition
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(test_vector_buf_len), ARRAY_SIZE(test_data_sha_256_computed));
+	zassert_equal(ARRAY_SIZE(test_vector_buf_len), ARRAY_SIZE(test_data_sha_256_computed));
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_buf_len); test_it++) {
 		params.data_size = test_vector_buf_len[test_it];
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data_sha_256_computed[test_it], digest,
-					      SHA256_LEN);
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
+		zassert_equal(0, memcmp(test_data_sha_256_computed[test_it], digest, SHA256_LEN));
 	}
 
 	// Huge (random) data package from RAM
 	params.data_size = 1024;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
 
 	// Too small out buffer
 	params.digest_size = SHA256_LEN / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_hash(&params));
 
 	// Compute SHA2_512
 	params.algo = SID_PAL_HASH_SHA512;
@@ -342,23 +340,22 @@ void test_sid_pal_crypto_hash(void)
 	params.digest_size = SHA512_LEN;
 
 	// Verify test condition
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(test_vector_buf_len), ARRAY_SIZE(test_data_sha_512_computed));
+	zassert_equal(ARRAY_SIZE(test_vector_buf_len), ARRAY_SIZE(test_data_sha_512_computed));
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_buf_len); test_it++) {
 		params.data_size = test_vector_buf_len[test_it];
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data_sha_512_computed[test_it], digest,
-					      SHA512_LEN);
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
+		zassert_equal(0, memcmp(test_data_sha_512_computed[test_it], digest, SHA512_LEN));
 	}
 
 	// Big (random) data package from RAM
 	params.data_size = 1024;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
 }
 
 /**********************************************
 * HMAC
 * ********************************************/
-void test_sid_pal_crypto_hmac_invalid_args(void)
+ZTEST(crypto, test_sid_pal_crypto_hmac_invalid_args)
 {
 	sid_pal_hmac_params_t params;
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
@@ -370,7 +367,7 @@ void test_sid_pal_crypto_hmac_invalid_args(void)
 	memset(digest, 0x00, sizeof(digest));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// SHA2_256
 	params.algo = SID_PAL_HASH_SHA256;
@@ -384,10 +381,10 @@ void test_sid_pal_crypto_hmac_invalid_args(void)
 	params.digest_size = SHA256_LEN / 2;
 
 	// PSA Crypto API returns this error code.
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_hmac(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_hmac(&params));
 }
 
-void test_sid_pal_crypto_hmac_sha256(void)
+ZTEST(crypto, test_sid_pal_crypto_hmac_sha256)
 {
 	sid_pal_hmac_params_t params;
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
@@ -428,7 +425,7 @@ void test_sid_pal_crypto_hmac_sha256(void)
 	memset(digest, 0x00, sizeof(digest));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// SHA2_256
 	params.algo = SID_PAL_HASH_SHA256;
@@ -439,20 +436,20 @@ void test_sid_pal_crypto_hmac_sha256(void)
 	params.digest_size = SHA256_LEN;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_hmac_sha256_vector),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_hmac_sha256_vector),
+		      ARRAY_SIZE(test_vector_data_in_len));
 	// Test algorithm with variable data length
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
 		memset(digest, 0x00, sizeof(digest));
 
 		params.data_size = test_vector_data_in_len[test_it];
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_hmac_sha256_vector[test_it], digest,
-					      SHA256_LEN);
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
+		zassert_equal(0,
+			      memcmp(openssl_test_hmac_sha256_vector[test_it], digest, SHA256_LEN));
 	}
 }
 
-void test_sid_pal_crypto_hmac_sha256_fake_key(void)
+ZTEST(crypto, test_sid_pal_crypto_hmac_sha256_fake_key)
 {
 	sid_pal_hmac_params_t params;
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
@@ -472,7 +469,7 @@ void test_sid_pal_crypto_hmac_sha256_fake_key(void)
 	memset(digest, 0x00, sizeof(digest));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// SHA2_256
 	params.algo = SID_PAL_HASH_SHA256;
@@ -484,17 +481,17 @@ void test_sid_pal_crypto_hmac_sha256_fake_key(void)
 	params.digest_size = SHA256_LEN;
 
 	// With proper key
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_hmac_sha256_vector, digest, SHA256_LEN);
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
+	zassert_equal(0, memcmp(openssl_test_hmac_sha256_vector, digest, SHA256_LEN));
 
 	// The same data with fake key (digest must be different)
 	params.key = hmac_test_fake_key;
 	params.key_size = sizeof(hmac_test_fake_key);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(openssl_test_hmac_sha256_vector, digest, SHA256_LEN));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
+	zassert_not_equal(0, memcmp(openssl_test_hmac_sha256_vector, digest, SHA256_LEN));
 }
 
-void test_sid_pal_crypto_hmac_sha512(void)
+ZTEST(crypto, test_sid_pal_crypto_hmac_sha512)
 {
 	sid_pal_hmac_params_t params;
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
@@ -546,7 +543,7 @@ void test_sid_pal_crypto_hmac_sha512(void)
 	memset(digest, 0x00, sizeof(digest));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// SHA2_512
 	params.algo = SID_PAL_HASH_SHA512;
@@ -557,19 +554,19 @@ void test_sid_pal_crypto_hmac_sha512(void)
 	params.digest_size = SHA512_LEN;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_hmac_sha512_vector),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_hmac_sha512_vector),
+		      ARRAY_SIZE(test_vector_data_in_len));
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
 		memset(digest, 0x00, sizeof(digest));
 
 		params.data_size = test_vector_data_in_len[test_it];
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_hmac_sha512_vector[test_it], digest,
-					      SHA512_LEN);
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
+		zassert_equal(0,
+			      memcmp(openssl_test_hmac_sha512_vector[test_it], digest, SHA512_LEN));
 	}
 }
 
-void test_sid_pal_crypto_hmac_sha512_fake_key(void)
+ZTEST(crypto, test_sid_pal_crypto_hmac_sha512_fake_key)
 {
 	sid_pal_hmac_params_t params;
 	uint8_t data_copy[HMAC_TEST_DATA_BLOCK_SIZE];
@@ -591,7 +588,7 @@ void test_sid_pal_crypto_hmac_sha512_fake_key(void)
 	memset(digest, 0x00, sizeof(digest));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// SHA2_512
 	params.algo = SID_PAL_HASH_SHA512;
@@ -603,21 +600,21 @@ void test_sid_pal_crypto_hmac_sha512_fake_key(void)
 	params.digest_size = SHA512_LEN;
 
 	// With proper key
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_hmac_sha512_vector, digest, SHA512_LEN);
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
+	zassert_equal(0, memcmp(openssl_test_hmac_sha512_vector, digest, SHA512_LEN));
 
 	// The same data with fake key (digest must be different)
 	params.key = hmac_test_fake_key;
 	params.key_size = sizeof(hmac_test_fake_key);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(openssl_test_hmac_sha512_vector, digest, SHA512_LEN));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
+	zassert_not_equal(0, memcmp(openssl_test_hmac_sha512_vector, digest, SHA512_LEN));
 }
 
 /**********************************************
 * END HMAC
 * ********************************************/
 
-void test_sid_pal_crypto_aes_crypt(void)
+ZTEST(crypto, test_sid_pal_crypto_aes_crypt)
 {
 	sid_pal_aes_params_t params;
 
@@ -657,45 +654,45 @@ void test_sid_pal_crypto_aes_crypt(void)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// NULL pointer
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(NULL));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = data_copy;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = NULL;
 	params.out = encrypted_data;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = NULL;
 	params.out = NULL;
 	params.key = aes_128_test_key;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = NULL;
 	params.out = encrypted_data;
 	params.key = aes_128_test_key;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = data_copy;
 	params.out = NULL;
 	params.key = aes_128_test_key;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = data_copy;
 	params.out = encrypted_data;
 	params.key = NULL;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = data_copy;
 	params.out = encrypted_data;
 	params.key = aes_128_test_key;
 	params.algo = SID_PAL_AES_CTR_128;
 	params.iv = NULL;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	params.in = data_copy;
 	params.out = encrypted_data;
@@ -703,40 +700,40 @@ void test_sid_pal_crypto_aes_crypt(void)
 
 	params.algo = SID_PAL_AES_CTR_128;
 	params.iv = iv;
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
+	zassert_not_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_aes_crypt(&params));
 
 	// Invalid arguments
 	params.algo = SID_PAL_AES_CMAC_128;
 	params.in_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
 
 	params.algo = SID_PAL_AES_CMAC_128;
 	params.in_size = sizeof(data_copy);
 	params.key_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
 
 	params.key_size = AES_MAX_BLOCK_SIZE - 5;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
 
 	params.algo = SID_PAL_AES_CTR_128;
 	params.key_size = sizeof(aes_128_test_key) * 8; // bits
 	params.iv_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
 
 	params.algo = SID_PAL_AES_CTR_128;
 	params.key_size = sizeof(aes_128_test_key) * 8; // bits
 	params.iv_size = AES_MAX_BLOCK_SIZE - 5;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aes_crypt(&params));
 
 	params.key_size = sizeof(aes_128_test_key) * 8; // bits
 	params.in_size = sizeof(data_copy);
 
 	// Incorrect algorithm
 	params.algo = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_aes_crypt(&params));
 
 	params.algo = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_aes_crypt(&params));
 
 	// Common IV
 	memset(iv, 0xC1, sizeof(iv));
@@ -756,7 +753,7 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.out = encrypted_data;
 	params.out_size = sizeof(encrypted_data);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	// Key and iv are the same.
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -764,18 +761,18 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.in_size = sizeof(encrypted_data);
 	params.out = decrypted_data;
 	params.out_size = sizeof(decrypted_data);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	// We can check if the data are match with original data content
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, test_string, sizeof(decrypted_data));
+	zassert_equal(0, memcmp(decrypted_data, test_string, sizeof(decrypted_data)));
 
 	// Bad iv
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 	// Key is the same.
 	iv[2] = 0xFF;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 	// data shall be corrupted
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, test_string, sizeof(decrypted_data)));
+	zassert_not_equal(0, memcmp(decrypted_data, test_string, sizeof(decrypted_data)));
 
 	// Untrusted key
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
@@ -784,13 +781,13 @@ void test_sid_pal_crypto_aes_crypt(void)
 
 	params.key = aes_128_test_fake_key;
 	params.key_size = sizeof(aes_128_test_fake_key) * 8;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 	// data shall be corrupted
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, test_string, sizeof(decrypted_data)));
+	zassert_not_equal(0, memcmp(decrypted_data, test_string, sizeof(decrypted_data)));
 
 	// We can provide to small output buffer
 	params.out_size = sizeof(decrypted_data) / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aes_crypt(&params));
 
 	// Common IV
 	memset(iv, 0xC1, sizeof(iv));
@@ -810,7 +807,7 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.out = encrypted_data;
 	params.out_size = 16;
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	// Key and iv are the same.
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -818,10 +815,10 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.in_size = 16;
 	params.out = decrypted_data;
 	params.out_size = 16;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	// We can check if the data are match with part of the original data content
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, test_string, 16);
+	zassert_equal(0, memcmp(decrypted_data, test_string, 16));
 
 	// Data is not aligned to 16 byte.
 	params.in_size = 12;
@@ -832,11 +829,11 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.out_size = 64;
 
 	// The SID_ERROR_INVALID_ARGS error code is generated by PSA library.
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	params.in_size = 34;
 	// The SID_ERROR_INVALID_ARGS error code is generated by PSA library.
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	// Common IV
 	memset(iv, 0xB1, sizeof(iv));
@@ -856,10 +853,10 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.iv = iv;
 	params.iv_size = sizeof(iv);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 
 	// We can check if the data are match with expected data.
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(decrypted_data, external_data, sizeof(external_data));
+	zassert_equal(0, memcmp(decrypted_data, external_data, sizeof(external_data)));
 
 	// CMAC calculation
 	params.algo = SID_PAL_AES_CMAC_128;
@@ -872,20 +869,19 @@ void test_sid_pal_crypto_aes_crypt(void)
 	params.iv = NULL;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_cmac_vector),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_cmac_vector), ARRAY_SIZE(test_vector_data_in_len));
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
 		memset(cmac, 0x00, sizeof(cmac));
 
 		params.in_size = test_vector_data_in_len[test_it];
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aes_crypt(&params));
 	}
 }
 
 /**********************************************
 * AEAD
 * ********************************************/
-void test_sid_pal_crypto_aead_gcm_invalid_args(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_invalid_args)
 {
 	sid_pal_aead_params_t params;
 
@@ -901,7 +897,7 @@ void test_sid_pal_crypto_aead_gcm_invalid_args(void)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128 Encrypt
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -921,15 +917,15 @@ void test_sid_pal_crypto_aead_gcm_invalid_args(void)
 
 	// IV too small
 	params.iv_size = AES_GCM_IV_SIZE / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	// IV too big
 	params.iv_size = AES_GCM_IV_SIZE + 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	params.iv_size = AES_GCM_IV_SIZE;
 	params.out_size = sizeof(encrypted_data) / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
 
 	// GCM_128 Decrypt
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -939,19 +935,19 @@ void test_sid_pal_crypto_aead_gcm_invalid_args(void)
 
 	// Incorrect buffer length, IV too small.
 	params.iv_size = AES_GCM_IV_SIZE / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	// IV too big
 	params.iv_size = AES_GCM_IV_SIZE + 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	// We can provide to small output buffer
 	params.iv_size = AES_GCM_IV_SIZE;
 	params.out_size = sizeof(decrypted_data) / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_aead_crypt(&params));
 }
 
-void test_sid_pal_crypto_aead_ccm_invalid_args(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_invalid_args)
 {
 	sid_pal_aead_params_t params;
 
@@ -967,7 +963,7 @@ void test_sid_pal_crypto_aead_ccm_invalid_args(void)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// CCM_128 Encrypt
 	params.algo = SID_PAL_AEAD_CCM_128;
@@ -986,11 +982,11 @@ void test_sid_pal_crypto_aead_ccm_invalid_args(void)
 
 	// IV too small
 	params.iv_size = AES_CCM_IV_SIZE / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	// IV too big
 	params.iv_size = AES_CCM_IV_SIZE + 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	// CCM_128 Decrypt
 	params.algo = SID_PAL_AEAD_CCM_128;
@@ -1000,17 +996,17 @@ void test_sid_pal_crypto_aead_ccm_invalid_args(void)
 
 	// Incorrect buffer length.
 	params.iv_size = AES_CCM_IV_SIZE / 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	params.iv_size = AES_CCM_IV_SIZE + 2;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_aead_crypt(&params));
 
 	params.iv_size = AES_CCM_IV_SIZE;
 	params.out_size = sizeof(decrypted_data) / 2;
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 }
 
-void test_sid_pal_crypto_aead_gcm_self_test(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_self_test)
 {
 	sid_pal_aead_params_t params;
 	uint8_t iv[AES_GCM_IV_SIZE];
@@ -1020,7 +1016,7 @@ void test_sid_pal_crypto_aead_gcm_self_test(void)
 	memset(iv, 0xCC, AES_GCM_IV_SIZE);
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	params.algo = SID_PAL_AEAD_GCM_128;
 	params.iv = iv;
@@ -1028,7 +1024,7 @@ void test_sid_pal_crypto_aead_gcm_self_test(void)
 	sid_pal_crypto_aead_test_execute(&params);
 }
 
-void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_external_encrypted_data)
 {
 	sid_pal_aead_params_t params;
 	// https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
@@ -1094,7 +1090,7 @@ void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -1107,9 +1103,9 @@ void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
 	params.mac_size = AES_MAX_BLOCK_SIZE;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_mac_vector), ARRAY_SIZE(test_vector_data_in_len));
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_enc_data_vector),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_mac_vector), ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_enc_data_vector),
+		      ARRAY_SIZE(test_vector_data_in_len));
 
 	// Verify data decryption.
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -1122,9 +1118,9 @@ void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
 		params.in = openssl_test_enc_data_vector[test_it];
 		params.in_size = test_vector_data_in_len[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data,
-					      test_vector_data_in_len[test_it]);
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		zassert_equal(0,
+			      memcmp(data_copy, decrypted_data, test_vector_data_in_len[test_it]));
 	}
 
 	// Verify data encryption.
@@ -1139,16 +1135,15 @@ void test_sid_pal_crypto_aead_gcm_external_encrypted_data(void)
 		params.out_size = test_vector_data_in_len[test_it];
 		params.in_size = test_vector_data_in_len[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 		// Encrypted data and mac shall be the same like from external tool
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_mac_vector[test_it], mac,
-					      AES_MAX_BLOCK_SIZE);
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data,
-					      test_vector_data_in_len[test_it]);
+		zassert_equal(0, memcmp(openssl_test_mac_vector[test_it], mac, AES_MAX_BLOCK_SIZE));
+		zassert_equal(0, memcmp(openssl_test_enc_data_vector[test_it], encrypted_data,
+					test_vector_data_in_len[test_it]));
 	}
 }
 
-void test_sid_pal_crypto_aead_gcm_bad_key(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_bad_key)
 {
 	sid_pal_aead_params_t params;
 
@@ -1167,7 +1162,7 @@ void test_sid_pal_crypto_aead_gcm_bad_key(void)
 	memset(iv, 0xCC, AES_GCM_IV_SIZE);
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -1185,17 +1180,17 @@ void test_sid_pal_crypto_aead_gcm_bad_key(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Bad key
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	params.key = aes_128_test_fake_key;
 	params.key_size = sizeof(aes_128_test_fake_key) * 8;
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_gcm_bad_iv(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_bad_iv)
 {
 	sid_pal_aead_params_t params;
 
@@ -1214,7 +1209,7 @@ void test_sid_pal_crypto_aead_gcm_bad_iv(void)
 	memset(iv, 0xB1, AES_GCM_IV_SIZE);
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -1232,16 +1227,16 @@ void test_sid_pal_crypto_aead_gcm_bad_iv(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Incorrect IV
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	memset(iv, 0xCC, AES_GCM_IV_SIZE);
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_gcm_bad_mac(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_bad_mac)
 {
 	sid_pal_aead_params_t params;
 
@@ -1261,7 +1256,7 @@ void test_sid_pal_crypto_aead_gcm_bad_mac(void)
 	memset(iv, 0xB1, AES_GCM_IV_SIZE);
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -1279,7 +1274,7 @@ void test_sid_pal_crypto_aead_gcm_bad_mac(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Broken MAC
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -1288,11 +1283,11 @@ void test_sid_pal_crypto_aead_gcm_bad_mac(void)
 	params.mac = fake_mac;
 	params.mac_size = sizeof(fake_mac);
 	// Verification fail
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_gcm_bad_aad(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_gcm_bad_aad)
 {
 	sid_pal_aead_params_t params;
 
@@ -1312,7 +1307,7 @@ void test_sid_pal_crypto_aead_gcm_bad_aad(void)
 	memset(iv, 0xB1, AES_GCM_IV_SIZE);
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// GCM_128
 	params.algo = SID_PAL_AEAD_GCM_128;
@@ -1330,18 +1325,18 @@ void test_sid_pal_crypto_aead_gcm_bad_aad(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Incorrect additional data
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	params.aad = fake_additional_data;
 	params.aad_size = sizeof(fake_additional_data);
 	// Verification fail
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_ccm_self_test(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_self_test)
 {
 	sid_pal_aead_params_t params;
 
@@ -1359,6 +1354,9 @@ void test_sid_pal_crypto_aead_ccm_self_test(void)
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
+
 	// CCM_128
 	params.algo = SID_PAL_AEAD_CCM_128;
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
@@ -1375,7 +1373,7 @@ void test_sid_pal_crypto_aead_ccm_self_test(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Key and IV are the same
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -1385,11 +1383,11 @@ void test_sid_pal_crypto_aead_ccm_self_test(void)
 	params.out_size = sizeof(decrypted_data);
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data, sizeof(data_copy));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(0, memcmp(data_copy, decrypted_data, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_external_encrypted_data)
 {
 	sid_pal_aead_params_t params;
 	// https://wiki.openssl.org/index.php/EVP_Authenticated_Encryption_and_Decryption
@@ -1459,7 +1457,7 @@ void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// CCM_128
 	params.algo = SID_PAL_AEAD_CCM_128;
@@ -1472,9 +1470,9 @@ void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
 	params.mac_size = AES_MAX_BLOCK_SIZE;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_mac_vector), ARRAY_SIZE(test_vector_data_in_len));
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_enc_data_vector),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_mac_vector), ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_enc_data_vector),
+		      ARRAY_SIZE(test_vector_data_in_len));
 
 	// Verify data decryption.
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -1487,9 +1485,9 @@ void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
 		params.in = openssl_test_enc_data_vector[test_it];
 		params.in_size = test_vector_data_in_len[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(data_copy, decrypted_data,
-					      test_vector_data_in_len[test_it]);
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		zassert_equal(0,
+			      memcmp(data_copy, decrypted_data, test_vector_data_in_len[test_it]));
 	}
 
 	// Verify data encryption.
@@ -1504,16 +1502,15 @@ void test_sid_pal_crypto_aead_ccm_external_encrypted_data(void)
 		params.out_size = test_vector_data_in_len[test_it];
 		params.in_size = test_vector_data_in_len[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 		// Encrypted data and mac shall be the same like from external tool
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_mac_vector[test_it], mac,
-					      AES_MAX_BLOCK_SIZE);
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(openssl_test_enc_data_vector[test_it], encrypted_data,
-					      test_vector_data_in_len[test_it]);
+		zassert_equal(0, memcmp(openssl_test_mac_vector[test_it], mac, AES_MAX_BLOCK_SIZE));
+		zassert_equal(0, memcmp(openssl_test_enc_data_vector[test_it], encrypted_data,
+					test_vector_data_in_len[test_it]));
 	}
 }
 
-void test_sid_pal_crypto_aead_ccm_bad_key(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_bad_key)
 {
 	sid_pal_aead_params_t params;
 
@@ -1531,6 +1528,9 @@ void test_sid_pal_crypto_aead_ccm_bad_key(void)
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
+
 	// CCM_128
 	params.algo = SID_PAL_AEAD_CCM_128;
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
@@ -1547,17 +1547,17 @@ void test_sid_pal_crypto_aead_ccm_bad_key(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Bad key
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	params.key = aes_128_test_fake_key;
 	params.key_size = sizeof(aes_128_test_fake_key) * 8;
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_ccm_bad_iv(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_bad_iv)
 {
 	sid_pal_aead_params_t params;
 
@@ -1575,6 +1575,9 @@ void test_sid_pal_crypto_aead_ccm_bad_iv(void)
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
+
 	// CCM_128
 	params.algo = SID_PAL_AEAD_CCM_128;
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
@@ -1591,16 +1594,16 @@ void test_sid_pal_crypto_aead_ccm_bad_iv(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Incorrect IV
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	memset(iv, 0xCC, AES_CCM_IV_SIZE);
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_ccm_bad_mac(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_bad_mac)
 {
 	sid_pal_aead_params_t params;
 
@@ -1619,6 +1622,9 @@ void test_sid_pal_crypto_aead_ccm_bad_mac(void)
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
+
 	// CCM_128
 	params.algo = SID_PAL_AEAD_CCM_128;
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
@@ -1635,13 +1641,13 @@ void test_sid_pal_crypto_aead_ccm_bad_mac(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Incorrect IV
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	memset(iv, 0xCC, AES_CCM_IV_SIZE);
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 
 	// Broken MAC
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
@@ -1650,11 +1656,11 @@ void test_sid_pal_crypto_aead_ccm_bad_mac(void)
 	params.mac = fake_mac;
 	params.mac_size = sizeof(fake_mac);
 	// Verification fail
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
-void test_sid_pal_crypto_aead_ccm_bad_aad(void)
+ZTEST(crypto, test_sid_pal_crypto_aead_ccm_bad_aad)
 {
 	sid_pal_aead_params_t params;
 
@@ -1673,6 +1679,8 @@ void test_sid_pal_crypto_aead_ccm_bad_aad(void)
 	memset(encrypted_data, 0x00, sizeof(encrypted_data));
 	memset(decrypted_data, 0x00, sizeof(decrypted_data));
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 	// CCM_128
 	params.algo = SID_PAL_AEAD_CCM_128;
 	params.mode = SID_PAL_CRYPTO_ENCRYPT;
@@ -1689,22 +1697,22 @@ void test_sid_pal_crypto_aead_ccm_bad_aad(void)
 	params.mac = mac;
 	params.mac_size = sizeof(mac);
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
 
 	// Incorrect additional data
 	params.mode = SID_PAL_CRYPTO_DECRYPT;
 	params.aad = fake_additional_data;
 	params.aad_size = sizeof(fake_additional_data);
 	// Verification fail
-	TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
-	TEST_ASSERT_NOT_EQUAL(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
+	zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_aead_crypt(&params));
+	zassert_not_equal(0, memcmp(decrypted_data, data_copy, sizeof(data_copy)));
 }
 
 /**********************************************
 * END AEAD
 * ********************************************/
 
-void test_sid_pal_crypto_ecc_dsa(void)
+ZTEST(crypto, test_sid_pal_crypto_ecc_dsa)
 {
 	sid_pal_dsa_params_t params;
 
@@ -1817,45 +1825,42 @@ void test_sid_pal_crypto_ecc_dsa(void)
 		  0x1c, 0x23, 0x10, 0x7b, 0x8b, 0x9b, 0x3a, 0x4e, 0x4b, 0xe3, 0x30, 0x3f, 0xbf,
 		  0x94, 0x21, 0x37, 0xab, 0x02, 0x05, 0xcb, 0xf2, 0x72, 0x70, 0x12, 0x07 },
 	};
-
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 	// Prepare test
 	memset(&params, 0x00, sizeof(params));
 	memset(&signature, 0x00, sizeof(signature));
 	memcpy(data_copy, test_string, sizeof(data_copy));
 	memcpy(fake_public_SECP256R1, public_SECP256R1, EC_SECP256R1_PUB_KEY_LEN - 5);
 	memcpy(fake_public_Ed25519, public_Ed25519, EC_ED25519_PUB_KEY_LEN - 5);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_crypto_rand(fake_signature, sizeof(fake_signature)));
-
-	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_rand(fake_signature, sizeof(fake_signature)));
 
 	// NULL pointer
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(NULL));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key = public_SECP256R1;
 	params.in = data_copy;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key = public_SECP256R1;
 	params.in = data_copy;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key = NULL;
 	params.in = data_copy;
 	params.signature = signature;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key = NULL;
 	params.in = NULL;
 	params.signature = signature;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key = public_SECP256R1;
 	params.in = NULL;
 	params.signature = signature;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_dsa(&params));
 
 	// Incorrect arguments
 	params.algo = SID_PAL_ECDSA_SECP256R1;
@@ -1864,49 +1869,49 @@ void test_sid_pal_crypto_ecc_dsa(void)
 	params.in = data_copy;
 	params.in_size = 0;
 	params.signature = signature;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
 
 	params.in_size = sizeof(data_copy);
 
 	params.mode = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
 
 	params.mode = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
 
 	params.mode = SID_PAL_CRYPTO_VERIFY;
 	params.key_size = 0;
 	params.sig_size = sizeof(signature);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key_size = 1024;
-	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_GENERIC, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key_size = sizeof(public_SECP256R1);
 	params.sig_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_GENERIC, sid_pal_crypto_ecc_dsa(&params));
 
 	params.mode = SID_PAL_CRYPTO_SIGN;
 	params.key_size = 0;
 	params.sig_size = sizeof(signature);
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
 
 	params.key_size = 1024;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_dsa(&params));
 
 	// Too small buffer
 	params.key_size = sizeof(private_SECP256R1);
 	params.sig_size = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_ecc_dsa(&params));
 
 	// Bad algo
 	params.algo = SID_PAL_ECDH_CURVE25519;
 	params.key_size = sizeof(private_SECP256R1);
 	params.sig_size = sizeof(signature);
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_dsa(&params));
 
 	params.algo = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_dsa(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_dsa(&params));
 
 	// SID_PAL_ECDSA_SECP256R1
 	params.algo = SID_PAL_ECDSA_SECP256R1;
@@ -1923,23 +1928,23 @@ void test_sid_pal_crypto_ecc_dsa(void)
 		params.signature = signature;
 		params.sig_size = sizeof(signature);
 		// SID_ERROR_NONE means signature is match
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 
 		// Verify message
 		params.mode = SID_PAL_CRYPTO_VERIFY;
 		params.key = public_SECP256R1;
 		params.key_size = sizeof(public_SECP256R1);
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 
 		// Bad public key
 		params.key = fake_public_SECP256R1;
 		params.key_size = sizeof(fake_public_SECP256R1);
-		TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 
 		// Bad signature
 		params.signature = fake_signature;
 		params.sig_size = sizeof(fake_signature);
-		TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 	}
 
 	// Verify openssl signatures.
@@ -1950,8 +1955,8 @@ void test_sid_pal_crypto_ecc_dsa(void)
 	params.sig_size = ECDSA_SIGNATURE_SIZE;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_sig_vector_SECP256R1),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_sig_vector_SECP256R1),
+		      ARRAY_SIZE(test_vector_data_in_len));
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
 		memset(signature, 0x00, sizeof(signature));
 
@@ -1959,7 +1964,7 @@ void test_sid_pal_crypto_ecc_dsa(void)
 		;
 		params.signature = openssl_test_sig_vector_SECP256R1[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 	}
 
 	// TODO: NOT SUPPORTED YET --> this test will fail when EDDSA be supported
@@ -1978,23 +1983,23 @@ void test_sid_pal_crypto_ecc_dsa(void)
 		params.signature = signature;
 		params.sig_size = sizeof(signature);
 		// SID_ERROR_NONE means signature is match
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 
 		// Verify message
 		params.mode = SID_PAL_CRYPTO_VERIFY;
 		params.key = public_Ed25519;
 		params.key_size = sizeof(public_Ed25519);
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 
 		// Bad public key
 		params.key = fake_public_SECP256R1;
 		params.key_size = sizeof(fake_public_SECP256R1);
-		TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 
 		// Bad signature
 		params.signature = fake_signature;
 		params.sig_size = sizeof(fake_signature);
-		TEST_ASSERT_NOT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_not_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 	}
 
 	// Verify openssl signatures.
@@ -2005,8 +2010,8 @@ void test_sid_pal_crypto_ecc_dsa(void)
 	params.sig_size = ECDSA_SIGNATURE_SIZE;
 
 	// Verify test conditions
-	TEST_ASSERT_EQUAL(ARRAY_SIZE(openssl_test_sig_vector_Ed25519),
-			  ARRAY_SIZE(test_vector_data_in_len));
+	zassert_equal(ARRAY_SIZE(openssl_test_sig_vector_Ed25519),
+		      ARRAY_SIZE(test_vector_data_in_len));
 	for (int test_it = 0; test_it < ARRAY_SIZE(test_vector_data_in_len); test_it++) {
 		memset(signature, 0x00, sizeof(signature));
 
@@ -2014,11 +2019,11 @@ void test_sid_pal_crypto_ecc_dsa(void)
 		;
 		params.signature = openssl_test_sig_vector_Ed25519[test_it];
 
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
+		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 	}
 }
 
-void test_sid_pal_crypto_ecc_key_gen(void)
+ZTEST(crypto, test_sid_pal_crypto_ecc_key_gen)
 {
 	sid_pal_ecc_key_gen_params_t params;
 
@@ -2036,39 +2041,39 @@ void test_sid_pal_crypto_ecc_key_gen(void)
 	memset(public_key, 0x00, sizeof(public_key));
 
 	// Initialize crypto module
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
 	// NULL pointer
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(NULL));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(&params));
 
 	params.prk = private_key;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(&params));
 
 	params.prk = NULL;
 	params.puk = public_key;
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_NULL_POINTER, sid_pal_crypto_ecc_key_gen(&params));
 
 	params.prk = private_key;
 	params.puk = public_key;
 	params.puk_size = EC_SECP256R1_PUB_KEY_LEN;
 	// Incorrect algorithm
 	params.algo = 0;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_key_gen(&params));
 
 	params.algo = 9;
-	TEST_ASSERT_EQUAL(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_NOSUPPORT, sid_pal_crypto_ecc_key_gen(&params));
 
 	// Incorrect arguments
 	params.algo = SID_PAL_ECDSA_SECP256R1;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_ecc_key_gen(&params));
 
 	params.puk_size = EC_SECP256R1_PUB_KEY_LEN;
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_ecc_key_gen(&params));
 
 	params.puk_size = 0;
 	params.prk_size = EC_SECP256R1_PRIV_KEY_LEN;
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_key_gen(&params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_key_gen(&params));
 
 	// Generate key pair few times, next key should be different from last one.
 	for (sid_pal_ecc_algo_t algo = SID_PAL_ECDH_CURVE25519; algo <= SID_PAL_ECDSA_SECP256R1;
@@ -2090,11 +2095,11 @@ void test_sid_pal_crypto_ecc_key_gen(void)
 			memset(private_key, 0x00, sizeof(private_key));
 			memset(public_key, 0x00, sizeof(public_key));
 
-			TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_key_gen(&params));
-			TEST_ASSERT_NOT_EQUAL(0, memcmp(tmp_private_key, private_key,
-							ECC_PRIVATE_KEY_MAX_LEN));
-			TEST_ASSERT_NOT_EQUAL(0, memcmp(tmp_public_key, public_key,
-							ECC_PUBLIC_KEY_MAX_LEN));
+			zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_key_gen(&params));
+			zassert_not_equal(0, memcmp(tmp_private_key, private_key,
+						    ECC_PRIVATE_KEY_MAX_LEN));
+			zassert_not_equal(0, memcmp(tmp_public_key, public_key,
+						    ECC_PUBLIC_KEY_MAX_LEN));
 
 			memcpy(tmp_private_key, private_key, ECC_PRIVATE_KEY_MAX_LEN);
 			memcpy(tmp_public_key, public_key, ECC_PUBLIC_KEY_MAX_LEN);
@@ -2102,7 +2107,7 @@ void test_sid_pal_crypto_ecc_key_gen(void)
 	}
 }
 
-void test_sid_pal_crypto_ecc_ecdh_secp256r1(void)
+ZTEST(crypto, test_sid_pal_crypto_ecc_ecdh_secp256r1)
 {
 	/* Keys generated in the openssl */
 	uint8_t private_secp256r1_a[EC_SECP256R1_PRIV_KEY_LEN] = {
@@ -2143,6 +2148,9 @@ void test_sid_pal_crypto_ecc_ecdh_secp256r1(void)
 
 	sid_pal_ecdh_params_t ecdh_params;
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
+
 	/* Derive and verify secret with private key A and public key B1 */
 	ecdh_params.algo = SID_PAL_ECDH_SECP256R1;
 	ecdh_params.prk = private_secp256r1_a;
@@ -2152,9 +2160,9 @@ void test_sid_pal_crypto_ecc_ecdh_secp256r1(void)
 	ecdh_params.shared_secret = secret_result;
 	ecdh_params.shared_secret_sz = ECDH_SECRET_SIZE;
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(secret_expected_b1, ecdh_params.shared_secret,
-				      ecdh_params.shared_secret_sz);
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
+	zassert_equal(0, memcmp(secret_expected_b1, ecdh_params.shared_secret,
+				ecdh_params.shared_secret_sz));
 
 	/* Derive and verify secret with private key A and public key B2 */
 	memset(secret_result, 0x00, sizeof(secret_result));
@@ -2162,12 +2170,12 @@ void test_sid_pal_crypto_ecc_ecdh_secp256r1(void)
 	ecdh_params.puk = public_secp256r1_b2;
 	ecdh_params.puk_size = EC_SECP256R1_PUB_KEY_LEN;
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(secret_expected_b2, ecdh_params.shared_secret,
-				      ecdh_params.shared_secret_sz);
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
+	zassert_equal(0, memcmp(secret_expected_b2, ecdh_params.shared_secret,
+				ecdh_params.shared_secret_sz));
 }
 
-void test_sid_pal_crypto_ecc_ecdh_secp256r1_negative(void)
+ZTEST(crypto, test_sid_pal_crypto_ecc_ecdh_secp256r1_negative)
 {
 	/* Keys generated in the openssl */
 	uint8_t private_secp256r1_a[EC_SECP256R1_PRIV_KEY_LEN] = {
@@ -2204,26 +2212,29 @@ void test_sid_pal_crypto_ecc_ecdh_secp256r1_negative(void)
 
 	int secret_diff = 0;
 
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
+
 	/* Malfrom peer public key */
 	public_secp256r1_b1[0] = ~public_secp256r1_b1[0];
 
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_ecdh(&ecdh_params));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_crypto_ecc_ecdh(&ecdh_params));
 	secret_diff =
 		memcmp(secret_expected_b1, ecdh_params.shared_secret, ecdh_params.shared_secret_sz);
-	TEST_ASSERT_NOT_EQUAL_INT(0, secret_diff);
+	zassert_not_equal(0, secret_diff);
 
 	public_secp256r1_b1[0] = ~public_secp256r1_b1[0];
 
 	/* Malform private key */
 	private_secp256r1_a[0] = ~private_secp256r1_a[0];
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
 	secret_diff =
 		memcmp(secret_expected_b1, ecdh_params.shared_secret, ecdh_params.shared_secret_sz);
-	TEST_ASSERT_NOT_EQUAL_INT(0, secret_diff);
+	zassert_not_equal(0, secret_diff);
 }
 
-void test_sid_pal_crypto_ecc_ecdh_x25519(void)
+ZTEST(crypto, test_sid_pal_crypto_ecc_ecdh_x25519)
 {
 	/* Keys generated in the openssl */
 	uint8_t private_x25519_a[EC_CURVE25519_PRIV_KEY_LEN] = {
@@ -2257,12 +2268,12 @@ void test_sid_pal_crypto_ecc_ecdh_x25519(void)
 	ecdh_params.shared_secret = secret_result;
 	ecdh_params.shared_secret_sz = ECDH_SECRET_SIZE;
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(secret_expected_b, ecdh_params.shared_secret,
-				      ecdh_params.shared_secret_sz);
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params));
+	zassert_equal(0, memcmp(secret_expected_b, ecdh_params.shared_secret,
+				ecdh_params.shared_secret_sz));
 }
 
-void test_sid_pal_crypto_ecc_ecdh_shared_secret(void)
+ZTEST(crypto, test_sid_pal_crypto_ecc_ecdh_shared_secret)
 {
 	// Keys are generated in the openssl.
 	uint8_t private_secp256r1_a[EC_SECP256R1_PRIV_KEY_LEN] = {
@@ -2305,8 +2316,10 @@ void test_sid_pal_crypto_ecc_ecdh_shared_secret(void)
 		.shared_secret = secret_a,
 		.shared_secret_sz = ECDH_SECRET_SIZE,
 	};
+	// Initialize crypto module
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params_a));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params_a));
 
 	/* Derive shared secret using private key 2 and public key 1 */
 	sid_pal_ecdh_params_t ecdh_params_b = {
@@ -2319,14 +2332,9 @@ void test_sid_pal_crypto_ecc_ecdh_shared_secret(void)
 		.shared_secret_sz = ECDH_SECRET_SIZE,
 	};
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params_b));
+	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_ecdh(&ecdh_params_b));
 	/* Compare secrets */
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(secret_a, secret_b, ECDH_SECRET_SIZE);
+	zassert_equal(0, memcmp(secret_a, secret_b, ECDH_SECRET_SIZE));
 }
 
-extern int unity_main(void);
-
-int main(void)
-{
-	return unity_main();
-}
+ZTEST_SUITE(crypto, NULL, NULL, NULL, NULL, NULL);

@@ -9,8 +9,15 @@ config SIDEWALK_BUILD
 config SIDEWALK_CRYPTO
 	default y
 
+config SIDEWALK_CRYPTO_LOG_LEVEL
+	default 0
+
+config SIDEWALK_LOG_LEVEL
+	default 0
 # Stacks
 config MAIN_STACK_SIZE
+	default 8192
+config ZTEST_STACK_SIZE
 	default 8192
 config HEAP_MEM_POOL_SIZE
 	default 8192
@@ -19,6 +26,7 @@ config MBEDTLS_ENABLE_HEAP
 config MBEDTLS_HEAP_SIZE
 	default 8192
 
+rsource "../../../Kconfig"
 rsource "../../../Kconfig.dependencies"
 
 source "Kconfig.zephyr"
