@@ -84,7 +84,7 @@ jobs:
           tar -xzvf twister-out.tar.gz
           zephyr/scripts/twister --dry-run -P unit_testing -P native_posix -T sidewalk/tests --filter runnable -n
           mv twister-out/testplan.json twister-out/twister.json
-          zephyr/scripts/twister -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2
+          zephyr/scripts/twister -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --west-flash="--recover,--erase"
 
       - name: Upload test results
         uses: actions/upload-artifact@v3

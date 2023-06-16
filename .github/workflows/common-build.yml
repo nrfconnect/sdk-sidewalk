@@ -12,9 +12,9 @@ jobs:
   build_samples:
     strategy:
       matrix:
-        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     env:
-      MAX_SUBSETS: 12
+      MAX_SUBSETS: 15
       RANDOM_SEED: 123
 
     runs-on: ubuntu-latest
@@ -112,9 +112,9 @@ jobs:
   build_manual_tests:
     strategy:
       matrix:
-        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        subset: [1, 2, 3, 4, 5, 6, 7]
     env:
-      MAX_SUBSETS: 10
+      MAX_SUBSETS: 7
       RANDOM_SEED: 123
 
     runs-on: ubuntu-latest
