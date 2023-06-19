@@ -9,13 +9,26 @@ on:
         type: boolean
 
 jobs:
+  prep_matrixes:
+    runs-on: ubuntu-latest
+    steps:
+      - id: nrf52
+        run: |
+          echo "platform=nrf52840dk_nrf52840" >> $GITHUB_OUTPUT
+      - id: nrf53
+        run: |
+          echo "platform=nrf5340dk_nrf5340_cpuapp" >> $GITHUB_OUTPUT
+    outputs:
+      supported_platforms: ${{ toJson(steps.*.outputs.platform)}}
+
   build_samples:
+    needs: prep_matrixes
     strategy:
       matrix:
-        subset: [1, 2, 3, 4, 5, 6]
+        platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms) }}
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     env:
-      MAX_SUBSETS: 6
-      RANDOM_SEED: 123
+      MAX_SUBSETS: 10
 
     runs-on: ubuntu-latest
     container:
@@ -42,31 +55,155 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Twister build samples
-        run: /workdir/zephyr/scripts/twister --shuffle-tests --shuffle-tests-seed ${{ env.RANDOM_SEED }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: sample-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          name: sample-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            twister-out/**/CMakeFiles/rules.ninja
-            twister-out/**/CMakeCache.txt
-            twister-out/**/build.log
-            twister-out/**/build.ninja
-            twister-out/**/handler.log
-            twister-out/**/zephyr/.config
-            twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
-            twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/testbinary
-            twister-out/twister.json
+            twister-out/**/*sidewalk*/build.log
+            twister-out/**/*sidewalk*/zephyr/.config
+            twister-out/**/*sidewalk*/zephyr/runners.yaml
+            twister-out/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/*sidewalk*/zephyr/merged.hex
+            twister-out/**/*sidewalk*/zephyr/merged_domains.hex
+            twister-out/**/*sidewalk*/zephyr/*.dts
+            twister-out/**/*sidewalk*/zephyr/dfu_application.zip
 
-  combine_sample_build_artifacts:
+  build_and_run_ut_x86:
     runs-on: ubuntu-latest
-    needs: build_samples
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Build test artifacts for
+        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+  build_manual_tests:
+    needs: prep_matrixes
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms)}}
+        subset: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      MAX_SUBSETS: 8
+
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Build test artifacts
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-manual-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          path: |
+            twister-out/**/*sidewalk*/build.log
+            twister-out/**/*sidewalk*/zephyr/.config
+            twister-out/**/*sidewalk*/zephyr/runners.yaml
+            twister-out/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/*sidewalk*/zephyr/merged.hex
+            twister-out/**/*sidewalk*/zephyr/merged_domains.hex
+            twister-out/**/*sidewalk*/zephyr/*.dts
+            twister-out/**/*sidewalk*/zephyr/dfu_application.zip
+
+  build_tests:
+    needs: prep_matrixes
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms)}}
+        subset: [1, 2, 3, 4, 5]
+    env:
+      MAX_SUBSETS: 5
+
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
+
+      - name: Build test artifacts for
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }} --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-dut-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          path: |
+            PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}
+
+  combine_artifacts:
+    runs-on: ubuntu-latest
+    needs:
+      - build_samples
+      - build_manual_tests
+      - build_tests
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -75,12 +212,12 @@ jobs:
         with:
           path: artifacts
 
-      - name: Combine twister outputs
+      - name: Combine samples
         run: |
-          mkdir twister-out
+          mkdir samples
           shopt -s extglob
-          cp -r artifacts/sample-*/!(twister.json) twister-out/
-          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/sample-*/twister.json) twister-out/twister.json
+          cp -r artifacts/sample-* samples
+          tar -czvf samples_artifacts.tar.gz samples
 
       - uses: geekyeggo/delete-artifact@v2
         with:
@@ -91,175 +228,40 @@ jobs:
         with:
           name: sample-artifacts
           path:
-            twister-out
+            samples_artifacts.tar.gz
 
-  build_ut_x86:
-    runs-on: ubuntu-latest
-    container:
-      image: nordicplayground/nrfconnect-sdk:main
-      options: --cpus 2
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: change_nrf_revision
-        if: ${{ inputs.change_nrf_revision }}
+      - name: Combine build_tests-manual
         run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
-
-      - name: Reconfigure west
-        run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
-          cd /workdir
-          west config manifest.path sidewalk
-          west update --narrow -o=--depth=1
-
-      - name: Build test artifacts for
-        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --build-only
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: tests-x86
-          path: |
-            twister-out/**/CMakeFiles/rules.ninja
-            twister-out/**/CMakeCache.txt
-            twister-out/**/build.log
-            twister-out/**/build.ninja
-            twister-out/**/handler.log
-            twister-out/**/zephyr/.config
-            twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
-            twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/testbinary
-            twister-out/twister.json
-
-  build_manual_tests:
-    runs-on: ubuntu-latest
-    container:
-      image: nordicplayground/nrfconnect-sdk:main
-      options: --cpus 2
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: change_nrf_revision
-        if: ${{ inputs.change_nrf_revision }}
-        run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
-
-      - name: Reconfigure west
-        run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
-          cd /workdir
-          west config manifest.path sidewalk
-          west update --narrow -o=--depth=1
-
-      - name: Build test artifacts for DUT
-        run: /workdir/zephyr/scripts/twister --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: tests-manual
-          path: |
-            twister-out/**/CMakeFiles/rules.ninja
-            twister-out/**/CMakeCache.txt
-            twister-out/**/build.log
-            twister-out/**/build.ninja
-            twister-out/**/handler.log
-            twister-out/**/zephyr/.config
-            twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
-            twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/testbinary
-            twister-out/twister.json
-
-  build_tests:
-    strategy:
-      matrix:
-        subset: [1, 2, 3, 4, 5, 6]
-    env:
-      MAX_SUBSETS: 6
-      RANDOM_SEED: 123
-
-    runs-on: ubuntu-latest
-    container:
-      image: nordicplayground/nrfconnect-sdk:main
-      options: --cpus 2
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: change_nrf_revision
-        if: ${{ inputs.change_nrf_revision }}
-        run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
-
-      - name: Reconfigure west
-        run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
-          cd /workdir
-          west config manifest.path sidewalk
-          west update --narrow -o=--depth=1
-
-      - name: Build test artifacts for
-        run: /workdir/zephyr/scripts/twister --exclude-platform native_posix --exclude-platform unit_testing --shuffle-tests --shuffle-tests-seed ${{ env.RANDOM_SEED }} --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv --build-only --filter runnable --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: tests-dut-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
-          path: |
-            twister-out/**/CMakeFiles/rules.ninja
-            twister-out/**/CMakeCache.txt
-            twister-out/**/build.log
-            twister-out/**/build.ninja
-            twister-out/**/handler.log
-            twister-out/**/zephyr/.config
-            twister-out/**/zephyr/runners.yaml
-            twister-out/**/zephyr/zephyr.*
-            twister-out/**/zephyr/merged.hex
-            twister-out/**/zephyr/app_update.bin
-            twister-out/**/zephyr/dfu_application.zip
-            twister-out/**/testbinary
-            twister-out/twister.json
-
-  combine_test_build_artifacts:
-    runs-on: ubuntu-latest
-    needs: build_tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-
-      - name: Combine twister outputs
-        run: |
-          mkdir twister-out
+          mkdir tests-manual
           shopt -s extglob
-          cp -r artifacts/tests-dut-*_of_*/!(twister.json) twister-out/
-          python3 scripts/ci/combine_twister_reports.py $(ls artifacts/tests-*/twister.json) twister-out/twister.json
+          cp -r artifacts/tests-manual-* tests-manual
+          tar -czvf tests-manual_artifacts.tar.gz tests-manual
 
       - uses: geekyeggo/delete-artifact@v2
         with:
-          name: tests-dut-*_of_*
+          name: tests-manual-*
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: tests-manual-artifacts
+          path:
+            tests-manual_artifacts.tar.gz
+
+      - name: Combine build_tests-dut
+        run: |
+          mkdir tests-dut
+          shopt -s extglob
+          cp -r artifacts/tests-dut-* tests-dut
+          tar -czvf tests-dut_artifacts.tar.gz tests-dut
+
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: tests-dut-*
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: tests-dut-artifacts
           path:
-            twister-out
+            tests-dut_artifacts.tar.gz
