@@ -25,7 +25,7 @@ jobs:
         run: |
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir/sidewalk
-          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c origin/${BASE_REF}..
+          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity
 
   build_samples_and_tests:
     needs: validate_compliance
