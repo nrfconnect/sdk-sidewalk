@@ -5,13 +5,14 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
 SIDEWALK_PATH=$(git rev-parse --show-toplevel)
-# get list of staged files
-staged_files=$(git diff --name-only --staged --diff-filter=AMR | grep -E '\.(c|h|cpp|hpp|py)$')
-if [ -n "$staged_files" ]; then
-    python3 $SIDEWALK_PATH/scripts/ci/verify_formatting.py -d -c $SIDEWALK_PATH/scripts/ci/formatter_cfg.yml -f $staged_files
-    if [ $? -ne 0 ]; then
-        exit 1
-    fi
+python3 $SIDEWALK_PATH/scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m identity -c HEAD
+if [ $? -ne 0 ]; then
+    exit 1
 fi
 
 python3 $SIDEWALK_PATH/scripts/ci/verify_license.py -c $SIDEWALK_PATH/scripts/ci/license.yml -g
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+exit 0

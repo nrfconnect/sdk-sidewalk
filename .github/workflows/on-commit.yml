@@ -7,7 +7,28 @@ on:
   workflow_dispatch:
 
 jobs:
+  validate_compliance:
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Run Compliance Tests
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir/sidewalk
+          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c origin/${BASE_REF}..
+
   build_samples_and_tests:
+    needs: validate_compliance
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build.yml@main
 
   run_tests:

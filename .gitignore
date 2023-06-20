@@ -40,3 +40,7 @@ ext/lib/bin/libsupl.zip
 ext/BSEC_*
 
 **/version.conf
+
+YAMLLint.txt
+Gitlint.txt
+compliance.xml
