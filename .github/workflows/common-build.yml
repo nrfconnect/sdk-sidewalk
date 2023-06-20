@@ -113,9 +113,9 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms)}}
-        subset: [1, 2, 3, 4, 5, 6, 7, 8]
+        subset: [1, 2]
     env:
-      MAX_SUBSETS: 8
+      MAX_SUBSETS: 2
 
     runs-on: ubuntu-latest
     container:
@@ -139,7 +139,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -211,7 +211,7 @@ jobs:
       - build_tests
 
     env:
-      PLATFORMS: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms) }}
+      PLATFORMS: ${{ needs.prep_matrixes.outputs.supported_platforms }}
 
     steps:
       - name: Checkout
