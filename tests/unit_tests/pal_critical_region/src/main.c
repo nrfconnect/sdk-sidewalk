@@ -30,9 +30,9 @@ void irq_cb(const void *arg)
 
 void test_sid_pal_critical_region(void)
 {
-	static volatile uint32_t call_count = 0;
+	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
-	IRQ_CONNECT(TEST_IRQ, TEST_IRQ_PRIO, irq_cb, &call_count, 0);
+	IRQ_CONNECT(TEST_IRQ, TEST_IRQ_PRIO, irq_cb, (const void *)&call_count, 0);
 	irq_enable(TEST_IRQ);
 
 	trigger_irq(TEST_IRQ);
@@ -58,9 +58,9 @@ void test_sid_pal_critical_region(void)
 
 void test_sid_pal_critical_region_multi_level(void)
 {
-	static volatile uint32_t call_count = 0;
+	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
-	IRQ_CONNECT(TEST_IRQ2, TEST_IRQ_PRIO, irq_cb, &call_count, 0);
+	IRQ_CONNECT(TEST_IRQ2, TEST_IRQ_PRIO, irq_cb, (const void *)&call_count, 0);
 	irq_enable(TEST_IRQ2);
 
 	trigger_irq(TEST_IRQ2);
@@ -86,9 +86,9 @@ void test_sid_pal_critical_region_multi_level(void)
 
 void test_sid_pal_critical_region_max_level(void)
 {
-	static volatile uint32_t call_count = 0;
+	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
-	IRQ_CONNECT(TEST_IRQ3, TEST_IRQ_PRIO, irq_cb, &call_count, 0);
+	IRQ_CONNECT(TEST_IRQ3, TEST_IRQ_PRIO, irq_cb, (const void *)&call_count, 0);
 	irq_enable(TEST_IRQ3);
 
 	trigger_irq(TEST_IRQ3);
@@ -122,9 +122,9 @@ void test_sid_pal_critical_region_max_level(void)
 
 void test_sid_pal_critical_region_multiple_irq_in_CR(void)
 {
-	static volatile uint32_t call_count = 0;
+	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
-	IRQ_CONNECT(TEST_IRQ4, TEST_IRQ_PRIO, irq_cb, &call_count, 0);
+	IRQ_CONNECT(TEST_IRQ4, TEST_IRQ_PRIO, irq_cb, (const void *)&call_count, 0);
 	irq_enable(TEST_IRQ4);
 
 	trigger_irq(TEST_IRQ4);
