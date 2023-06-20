@@ -200,24 +200,70 @@ jobs:
 
   combine_artifacts:
     runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+
     needs:
+      - prep_matrixes
       - build_samples
       - build_manual_tests
       - build_tests
+
+    env:
+      PLATFORMS: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms) }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
+
+      - name: Reconfigure west
+        run: |
+          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cd /workdir
+          west config manifest.path sidewalk
+          west update --narrow -o=--depth=1
 
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
 
-      - name: Combine samples
+      - name: Prepare supported platforms
+        shell: bash
         run: |
-          mkdir samples
+          echo "${{env.PLATFORMS}}" >> platform_tmp
+          cat platform_tmp | sed -e 's/,//g' | head -n -1 | tail -n +2 > platform_tmp2
+          cat platform_tmp2 | sed 's/ //g' > platforms
+
+          rm -rf platform_tmp*
+
+          cat platforms
+
+      - name: Combine samples
+        shell: bash
+        run: |
+          mkdir twister-out
           shopt -s extglob
-          cp -r artifacts/sample-* samples
-          tar -czvf samples_artifacts.tar.gz samples
+          cp -r artifacts/sample-*/!(twister.json) twister-out/
+
+      - name: Create test plan
+        shell: bash
+        run: |
+          echo -n "/workdir/zephyr/scripts/twister --dry-run --no-clean --testsuite-root /workdir/sidewalk/tests/manual " > twister_command.sh
+          cat platforms | while read platform_var; do echo -n " --platform $platform_var" >> twister_command.sh; done
+          echo "" >> twister_command.sh
+
+          cat twister_command.sh
+
+          chmod +x twister_command.sh
+          ./twister_command.sh
+          tar -czvf samples_artifacts.tar.gz twister-out
+          rm -rf twister-out twister_command.sh
 
       - uses: geekyeggo/delete-artifact@v2
         with:
@@ -230,12 +276,23 @@ jobs:
           path:
             samples_artifacts.tar.gz
 
-      - name: Combine build_tests-manual
+      - name: Combine tests-manual
+        shell: bash
         run: |
-          mkdir tests-manual
+          mkdir twister-out
           shopt -s extglob
-          cp -r artifacts/tests-manual-* tests-manual
-          tar -czvf tests-manual_artifacts.tar.gz tests-manual
+          cp -r artifacts/tests-manual-*/!(twister.json) twister-out/
+
+      - name: Create test plan
+        shell: bash
+        run: |
+          echo -n "/workdir/zephyr/scripts/twister --dry-run --no-clean --testsuite-root /workdir/sidewalk/samples/" > twister_command.sh
+          cat platforms | while read platform_var; do echo -n " --platform $platform_var" >> twister_command.sh; done
+          echo "" >> twister_commands.sh
+          chmod +x twister_command.sh
+          ./twister_command.sh
+          tar -czvf tests-manual_artifacts.tar.gz twister-out
+          rm -rf twister-out twister_command.sh
 
       - uses: geekyeggo/delete-artifact@v2
         with:
@@ -248,12 +305,14 @@ jobs:
           path:
             tests-manual_artifacts.tar.gz
 
-      - name: Combine build_tests-dut
+      - name: Combine tests-dut
+        shell: bash
         run: |
-          mkdir tests-dut
+          mkdir package_artifacts
           shopt -s extglob
-          cp -r artifacts/tests-dut-* tests-dut
-          tar -czvf tests-dut_artifacts.tar.gz tests-dut
+          cp -r artifacts/tests-dut-*/* package_artifacts/
+          tar -czvf tests-dut_artifacts.tar.gz package_artifacts
+          rm -rf package_artifacts
 
       - uses: geekyeggo/delete-artifact@v2
         with:
