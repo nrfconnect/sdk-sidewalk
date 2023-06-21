@@ -7,6 +7,13 @@ on:
   workflow_dispatch:
 
 jobs:
+  github_context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Github context
+        run:
+          echo '${{toJson(github)}}'
+
   validate_compliance:
     runs-on: ubuntu-latest
     container:
@@ -20,12 +27,10 @@ jobs:
           fetch-depth: 0
 
       - name: Run Compliance Tests
-        env:
-          BASE_REF: ${{ github.base_ref }}
         run: |
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir/sidewalk
-          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity
+          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c ${{ github.event.before }}..
 
   build_samples_and_tests:
     needs: validate_compliance
