@@ -139,6 +139,17 @@ config SIDEWALK_CRITICAL_REGION
 	help
 	   Sidewalk critical region module
 
+if SIDEWALK_CRITICAL_REGION
+
+config SIDEWALK_CRITICAL_REGION_RE_ENTRY_MAX
+	int
+	default 8
+	help
+	  Maximum nesting level of critical region 
+	  If the nesting level becomes greater than set by this config, assert will be triggered.
+
+endif # SIDEWALK_CRITICAL_REGION
+
 config SIDEWALK_GPIO
 	bool
 	default SIDEWALK_SUBGHZ

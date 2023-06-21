@@ -13,8 +13,6 @@
 
 #include <zephyr/kernel.h>
 
-#define RE_ENTRY_MAX_AMOUNT (8)
-
 static atomic_t count = ATOMIC_INIT(0);
 static unsigned int key = 0;
 
@@ -26,7 +24,7 @@ void sid_pal_enter_critical_region()
 		key = irq_lock();
 	}
 
-	assert(prev_val <= RE_ENTRY_MAX_AMOUNT);
+	assert(prev_val <= CONFIG_SIDEWALK_CRITICAL_REGION_RE_ENTRY_MAX);
 }
 
 void sid_pal_exit_critical_region()
