@@ -10,6 +10,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+staged_files=$(git diff --name-only --staged --diff-filter=AMR | grep -E '\.(c|h|cpp|hpp|py)$')
+if [ -n "$staged_files" ]; then
+    python3 $SIDEWALK_PATH/scripts/ci/verify_formatting.py -d -c $SIDEWALK_PATH/scripts/ci/formatter_cfg.yml -f $staged_files
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
+fi
+
 python3 $SIDEWALK_PATH/scripts/ci/verify_license.py -c $SIDEWALK_PATH/scripts/ci/license.yml -g
 if [ $? -ne 0 ]; then
     exit 1

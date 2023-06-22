@@ -14,7 +14,30 @@ jobs:
         run:
           echo '${{toJson(github)}}'
 
-  validate_compliance:
+  validate_code_compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install requirements
+        run: |
+          python3 -m pip install -r ./scripts/ci/requirements.txt
+
+      - name: Check formatting
+        run: |
+          python3 ./scripts/ci/verify_formatting.py -d -s . -c ./scripts/ci/formatter_cfg.yml
+
+      - name: Check license
+        run: |
+          python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
+
+  validate_compliance_with_zephyr:
     runs-on: ubuntu-latest
     container:
       image: nordicplayground/nrfconnect-sdk:main
@@ -33,5 +56,5 @@ jobs:
           python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c ${{ github.event.before }}..
 
   build_samples_and_tests:
-    needs: validate_compliance
+    needs: [validate_code_compliance, validate_compliance_with_zephyr]
     uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build.yml@main
