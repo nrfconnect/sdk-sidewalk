@@ -88,15 +88,14 @@ void test_send_spi()
 	TEST_ASSERT(interface->xfer);
 	uint8_t tx[] = { 0x1d, 0x08, 0xac, 0, 0 };
 	uint8_t rx[5] = { 0 };
+	uint8_t invalid_rx[5] = { 0 };
 	sid_error_t e = interface->xfer(interface, &client, tx, rx, sizeof(rx));
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, e);
 	for (int i = 0; i < ARRAY_SIZE(rx); i++) {
-		// if shield is connected, rx will have valid response, and there should be no zeros
-		// and in case where shield is not connected rx will be full of 0xff
-		TEST_ASSERT(rx[i]);
-		printf("%x", rx[i]);
+		printf("%x ", rx[i]);
 	}
+	TEST_ASSERT(memcmp(rx, invalid_rx, ARRAY_SIZE(rx)) != 0);
 }
 
 void test_only_tx_spi()
