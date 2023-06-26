@@ -5,8 +5,8 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 function err_trap () {
-	echo "$0: line $1: exit status of last command: $2"
-	exit 1
+    echo "$0: line $1: exit status of last command: $2"
+    exit 1
 }
 
 set -E
@@ -34,68 +34,68 @@ LCOV_EXCLUDE=('/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr
 usage () {
   echo ""
   echo "Twister test case runner"
-	echo "Usage: [-s SIDEWALK_SDK_DIR] [-t TESTCASE_ROOT] [-b] [-u] [-f USERDEV_CONF_FILE] [-a TAG] [-p PLATFORM]"
-	echo ""
+    echo "Usage: [-s SIDEWALK_SDK_DIR] [-t TESTCASE_ROOT] [-b] [-u] [-f USERDEV_CONF_FILE] [-a TAG] [-p PLATFORM]"
+    echo ""
 }
 
 descr () {
-	echo "Input parameters:"
-	echo "    -s  Path to the SIDEWALK SDK. If not passed, CURRENT_DIR/../.. is used"
-	echo "    -t  Overwrite testcase-root to use. If not passed, testcase-root=SIDEWALK_SDK_DIR"
-	echo "    -b build without running any test. Use testcase-root SIDEWALK_SDK_DIR/samples"
-	echo "    -u run unit tests on native_posix. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
-	echo "    -f run unit tests functional on nRF HW. Use testcase-root SIDEWALK_SDK_DIR/tests/functional"
+    echo "Input parameters:"
+    echo "    -s  Path to the SIDEWALK SDK. If not passed, CURRENT_DIR/../.. is used"
+    echo "    -t  Overwrite testcase-root to use. If not passed, testcase-root=SIDEWALK_SDK_DIR"
+    echo "    -b build without running any test. Use testcase-root SIDEWALK_SDK_DIR/samples"
+    echo "    -u run unit tests on native_posix. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
+    echo "    -f run unit tests functional on nRF HW. Use testcase-root SIDEWALK_SDK_DIR/tests/functional"
     echo "    -a run build or tests only for entries with selected tag. It can be passed multiple times, ones per tag. e.g. -a Sidewalk -a Sidewalk_cli"
     echo "    -p run build or tests only for selected platforms. It can be passed multiple times, e.g. -p nrf5340dk_nrf5340_cpuapp"    
-	echo ""
+    echo ""
 }
 
 # Parse opts
 while getopts "s::t::f::a::p::ubh" opt
 do
-	case $opt in
-		s)
-			SIDEWALK_SDK_DIR=$(realpath "$OPTARG")
-			;;
-		t)
-			TESTCASE_ROOT=$(realpath "$OPTARG")
-			;;
-		f)
-		  RUN_ON_HW=true
-		  if [ "${OPTARG}" == "AUTO" ]; then
-		    USERDEV_CONF_FILE=AUTO
-		  else
-			  USERDEV_CONF_FILE=$(realpath "$OPTARG")
-			fi
-			;;
+    case $opt in
+        s)
+            SIDEWALK_SDK_DIR=$(realpath "$OPTARG")
+            ;;
+        t)
+            TESTCASE_ROOT=$(realpath "$OPTARG")
+            ;;
+        f)
+          RUN_ON_HW=true
+          if [ "${OPTARG}" == "AUTO" ]; then
+            USERDEV_CONF_FILE=AUTO
+          else
+              USERDEV_CONF_FILE=$(realpath "$OPTARG")
+            fi
+            ;;
         a)
             TWISTER_TAGS="${TWISTER_TAGS}--tag ${OPTARG} "
             ;;            
         p)
             TWISTER_PLATFORM="${TWISTER_PLATFORM}--platform ${OPTARG} "
             ;;             
-		u)
-			RUN_UT=true
-			;;
-		b)
-			RUN_BUILD=true
-			;;
-		h)
-			usage
-			descr
-			exit 0
-			;;
-		*)
-			usage
-			exit 1
-			;;
-	esac
+        u)
+            RUN_UT=true
+            ;;
+        b)
+            RUN_BUILD=true
+            ;;
+        h)
+            usage
+            descr
+            exit 0
+            ;;
+        *)
+            usage
+            exit 1
+            ;;
+    esac
 done
 #####################
 
 function run_twister ()
 {
-    local cmd="$TWISTER_BIN -vvv -O ${CURRENT_DIR}/twister-out $TWISTER_TAGS $TWISTER_PLATFORM $*"
+    local cmd="$TWISTER_BIN -vvv -O ${CURRENT_DIR}/twister-out $TWISTER_TAGS $*"
     echo "${cmd}"
     ${cmd} || { return $?; }
     return 0
@@ -124,10 +124,10 @@ function run_build ()
         echo "[INFO]: Build test not executed"
         return 0
     fi
-    run_twister --build-only --show-footprint -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/samples)) || { return $?; }
+    run_twister $TWISTER_PLATFORM --build-only --show-footprint -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/samples)) || { return $?; }
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-build"
 
-	python3 ${CURRENT_DIR}/memory_requirements.py --twister-out-dir "${CURRENT_DIR}/twister-out-build" --ncs-dir "${ZEPHYR_BASE}/../" > "${CURRENT_DIR}/twister-out-build/memory_report.rst"
+    python3 ${CURRENT_DIR}/memory_requirements.py --twister-out-dir "${CURRENT_DIR}/twister-out-build" --ncs-dir "${ZEPHYR_BASE}/../" > "${CURRENT_DIR}/twister-out-build/memory_report.rst"
 }
 
 function run_ut ()
@@ -162,7 +162,7 @@ function run_on_hw ()
     fi
     run_twister -v --generate-hardware-map hardware-map.yaml --persistent-hardware-map
     python3 "$CURRENT_DIR/fill_hardware_map.py" --hardware_map_path hardware-map.yaml  --userdev_conf_path "$USERDEV_CONF_FILE"
-    run_twister --platform nrf52840dk_nrf52840 --platform nrf5340dk_nrf5340_cpuapp -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
+    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-on_HW"
     return $?
 }
