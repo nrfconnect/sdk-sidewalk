@@ -18,7 +18,6 @@ set(SID_LIBS
 	${SID_LIB_DIR}/libsid_protocol_dcr.a
 	${SID_LIB_DIR}/libsid_protocol_phy.a
 	${SID_LIB_DIR}/libsid_protocol_metrics.a
-	${SID_LIB_DIR}/libsid_pal_radio_sx126x_impl.a
 	${SID_LIB_DIR}/libsid_protocol_regulatory.a
 	${SID_LIB_DIR}/libsall_link_metrics.a
 	${SID_LIB_DIR}/libsid_rng.a
@@ -44,3 +43,4 @@ set(SID_LIBS
 )
 
 zephyr_link_libraries(${SID_LIBS})
+zephyr_link_libraries_ifndef(CONFIG_SIDEWALK_SEMTECH_FROM_SOURCES ${SID_LIB_DIR}/libsid_pal_radio_sx126x_impl.a)

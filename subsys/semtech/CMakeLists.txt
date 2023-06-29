@@ -5,3 +5,4 @@
 #
 
 zephyr_include_directories(include)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_SEMTECH_FROM_SOURCES sx126x)

@@ -135,7 +135,7 @@ config SIDEWALK_BLE_ADV_INT_FAST
 	int "Fast advertise interval in ms"
 	range 20 10240
 	default 160
-	
+
 config SIDEWALK_BLE_ADV_INT_SLOW
 	int "Slow advertise interval in ms"
 	range 20 10240
@@ -170,6 +170,10 @@ config SIDEWALK_DFU_SERVICE_USB
 
 endchoice # SIDEWALK_DFU_SERVICE
 endif # SIDEWALK_DFU
+
+config SIDEWALK_SEMTECH_FROM_SOURCES
+	bool "Build Semtech driver from sources [EXPERIMENTAL]"
+	select EXPERIMENTAL
 
 rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
