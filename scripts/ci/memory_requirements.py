@@ -65,6 +65,7 @@ SampleVariantStats = namedtuple('SampleVariantStats', [
 
 BOARDS = {
     'nrf52840dk_nrf52840': ':ref:`nRF52840 DK <zephyr:nrf52840dk_nrf52840>`',
+    'nrf5340dk_nrf5340_cpuapp': ':ref:`nRF5340 DK <zephyr:nrf5340dk_nrf5340_cpuapp>`',
 }
 
 
