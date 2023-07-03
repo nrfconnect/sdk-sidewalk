@@ -4,12 +4,7 @@ mcuboot:
     before:
     - mcuboot_primary
   region: flash_primary
-  size: 0xc000
-
-settings_storage:
-  address: 0xf7000
-  region: flash_primary
-  size: 0x2000
+  size: 0x7000
 
 sidewalk_storage:
   address: 0xf9000

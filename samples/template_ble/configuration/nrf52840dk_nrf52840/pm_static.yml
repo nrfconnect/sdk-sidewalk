@@ -1,11 +1,3 @@
-mcuboot:
-  address: 0x0
-  placement:
-    before:
-    - mcuboot_primary
-  region: flash_primary
-  size: 0x7000
-
 sidewalk_storage:
   address: 0xf9000
   region: flash_primary
