@@ -63,5 +63,3 @@ config IPC_SERVICE
 
 config MBOX
     default y
-
-source "Kconfig.zephyr"
