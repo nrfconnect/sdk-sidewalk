@@ -12,11 +12,15 @@ Requirements
 
 The sample supports the following development kits:
 
-+--------------------+----------+----------------------+-------------------------+
-| Hardware platforms | PCA      | Board name           | Build target            |
-+====================+==========+======================+=========================+
-| nRF52840 DK        | PCA10056 | nrf52840dk_nrf52840  | ``nrf52840dk_nrf52840`` |
-+--------------------+----------+----------------------+-------------------------+
++--------------------+----------+------------------------+------------------------------+
+| Hardware platforms | PCA      | Board name             | Build target                 |
++====================+==========+========================+==============================+
+| nRF52840 DK        | PCA10056 | `nrf52840dk_nrf52840`_ | ``nrf52840dk_nrf52840``      |
++--------------------+----------+------------------------+------------------------------+
+| nRF5340 DK ``*``   | PCA10095 | `nrf5340dk_nrf5340`_   | ``nrf5340dk_nrf5340_cpuapp`` |
++--------------------+----------+------------------------+------------------------------+
+
+``*`` - Experimental support
 
 To run the sample with the Bluetooth configuration, you only need the development kit.
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
@@ -83,6 +87,7 @@ You should see the following output:
 
 To start testing the application, you can use the available commands (``sid help``).
 
+.. _nrf5340dk_nrf5340: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf5340dk_nrf5340/doc/index.html#nrf5340dk-nrf5340
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 .. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming
 .. _Testing and debugging an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/testing.html#gs-testing

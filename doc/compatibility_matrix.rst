@@ -3,7 +3,7 @@
 Compatibility matrix
 ====================
 
-In this section, you can check the SDK version dependencies for the nRF52840 SoC.
+In this section, you can check the SDK version dependencies.
 The following table demonstrates the compatibility between the nRF Connect SDK and Sidewalk MCU SDK versions:
 
 +-----------------------------------------+-------------------------+-------------------------------------------------+-----------------------------+

@@ -14,11 +14,15 @@ Requirements
 
 The sample supports the following development kits:
 
-+--------------------+----------+----------------------+-------------------------+
-| Hardware platforms | PCA      | Board name           | Build target            |
-+====================+==========+======================+=========================+
-| nRF52840 DK        | PCA10056 | nrf52840dk_nrf52840  | ``nrf52840dk_nrf52840`` |
-+--------------------+----------+----------------------+-------------------------+
++--------------------+----------+------------------------+------------------------------+
+| Hardware platforms | PCA      | Board name             | Build target                 |
++====================+==========+========================+==============================+
+| nRF52840 DK        | PCA10056 | `nrf52840dk_nrf52840`_ | ``nrf52840dk_nrf52840``      |
++--------------------+----------+------------------------+------------------------------+
+| nRF5340 DK ``*``   | PCA10095 | `nrf5340dk_nrf5340`_   | ``nrf5340dk_nrf5340_cpuapp`` |
++--------------------+----------+------------------------+------------------------------+
+
+``*`` - Experimental support
 
 To run the sample in the Bluetooth LE link mode, you only need the development kit.
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
@@ -61,21 +65,30 @@ To select the build type when building the application from command line, specif
 
 * Build with the default configuration (Bluetooth LE link mode):
 
+   .. parsed-literal::
+      :class: highlight
+
+      $ west build -b *build_target*
+
+   For example:
+
    .. code-block:: console
 
       $ west build -b nrf52840dk_nrf52840
 
 * Build with the FSK link mode:
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
-      $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="fsk.conf"
+      $ west build -b *build_target* -- -DOVERLAY_CONFIG="fsk.conf"
 
 * Build with the LoRa link mode:
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
-      $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="lora.conf"
+      $ west build -b *build_target* -- -DOVERLAY_CONFIG="lora.conf"
 
 Testing
 =======
@@ -105,6 +118,8 @@ Wait for the device to complete the :ref:`automatic_registration_sidewalk_endpoi
 .. note::
    For the full installation guidelines and the application overview, refer to the `Amazon Sidewalk Sample IoT App`_ repository.
 
+.. _nrf52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf52840dk_nrf52840/doc/index.html#nrf52840dk-nrf52840
+.. _nrf5340dk_nrf5340: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf5340dk_nrf5340/doc/index.html#nrf5340dk-nrf5340
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 .. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
 .. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming
