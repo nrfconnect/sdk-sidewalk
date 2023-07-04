@@ -4,10 +4,6 @@ Setting up SDK
 ##############
 
 The Amazon Sidewalk solution from Nordic Semiconductor is based on the `nRF Connect SDK v2.3.0`_.
-In order to create a Sidewalk prototype, you need to use the following devices:
-
-* `nRF52840 DK`_ - for both Bluetooth LE and LoRa or FSK applications.
-* `Semtech SX1262MB2CAS eval board`_ - only for LoRa or FSK applications.
 
 You can set up your development environment by following one of the installation methods below:
 
@@ -75,7 +71,7 @@ Download the Sidewalk application for the nRF Connect SDK:
        |___ zephyr
        |___ ...
 
-#. Clone the Sidewalk application repository from the `sdk-sidewalk repository`_ to the nRF Connect SDK folder, and name it ``sidewalk`` by running the following command: 
+#. Clone the Sidewalk application repository from the `sdk-sidewalk repository`_ to the nRF Connect SDK folder, and name it ``sidewalk`` by running the following command:
 
    .. code-block:: console
 
@@ -109,7 +105,7 @@ Download the Sidewalk application for the nRF Connect SDK:
          $ west update
 
       Depending on your connection, the update might take some time.
-      
+
    #. Verify the new manifest path:
 
      .. code-block:: console

@@ -14,11 +14,15 @@ Requirements
 
 The sample supports the following development kits:
 
-+--------------------+----------+----------------------+-------------------------+
-| Hardware platforms | PCA      | Board name           | Build target            |
-+====================+==========+======================+=========================+
-| nRF52840 DK        | PCA10056 | nrf52840dk_nrf52840  | ``nrf52840dk_nrf52840`` |
-+--------------------+----------+----------------------+-------------------------+
++--------------------+----------+------------------------+------------------------------+
+| Hardware platforms | PCA      | Board name             | Build target                 |
++====================+==========+========================+==============================+
+| nRF52840 DK        | PCA10056 | `nrf52840dk_nrf52840`_ | ``nrf52840dk_nrf52840``      |
++--------------------+----------+------------------------+------------------------------+
+| nRF5340 DK ``*``   | PCA10095 | `nrf5340dk_nrf5340`_   | ``nrf5340dk_nrf5340_cpuapp`` |
++--------------------+----------+------------------------+------------------------------+
+
+``*`` - Experimental support
 
 Besides the development kit, a LoRa radio module is also needed for this sample if you build it with the LoRa or FSK configuration.
 The supported modules are as follows:
@@ -135,7 +139,14 @@ Depending on the selected board, a sample supports the following build types:
 * ``debug`` -- Debug version of the application - can be used to enable additional features, such as logs or command-line shell, to verify the application behavior.
 * ``release`` -- Release version of the application - can be used to enable only the necessary application functionalities to optimize its performance.
 
-You can build the ``release`` firmware for ``nrf52840dk_nrf52840`` by running the following command in the project directory:
+You can build the ``release`` firmware for ``build_target`` by running the following command in the project directory:
+
+.. parsed-literal::
+   :class: highlight
+
+   $ west build -b *build_target* -- -DCONF_FILE=prj_release.conf
+
+For example:
 
 .. code-block:: console
 
@@ -196,7 +207,7 @@ The following table presents how the memory is allocated for the Template sub-GH
 DFU services
 ------------
 
-To test the Device Firmware Update, follow :ref:`sidewalk_testing_dfu`.
+To test the Device Firmware Update, follow the Testing Device Firmware Update (DFU) subsection in :ref:`template_subghz_testing`.
 
 If a new, correct image is found, the bootloader can only start the application that is placed in the first partition and exchange the application from the second partition.
 It may take a few seconds.
@@ -228,27 +239,31 @@ To select the build type when building the application from command line, specif
 
 * Build with the default configuration (LoRa link mode):
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
-      $ west build -b nrf52840dk_nrf52840
+      $ west build -b *build_target*
 
 * Build with the FSK link mode:
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
-      $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="fsk.conf"
+      $ west build -b *build_target* -- -DOVERLAY_CONFIG="fsk.conf"
 
 * Build with the release configuration:
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
-      $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
+      $ west build -b *build_target* -- -DCONF_FILE=prj_release.conf
 
 * Build with the debug configuration with application CLI:
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
-      $ west build -b nrf52840dk_nrf52840 -DCONFIG_SIDEWALK_CLI=y
+      $ west build -b *build_target* -DCONFIG_SIDEWALK_CLI=y
 
 .. _template_subghz_testing:
 
@@ -277,12 +292,13 @@ You should see the following output:
 
 Wait for the device to complete the :ref:`automatic_registration_sidewalk_endpoints`.
 
-To test the device, follow the steps in :ref:`sidewalk_testing`.
-
 .. note::
    If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
    If you need to operate multiple FSK gateways, we recommend setting them up under separate Amazon accounts.
 
+.. include:: testing_sample_include.txt
+
+.. _nrf5340dk_nrf5340: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf5340dk_nrf5340/doc/index.html#nrf5340dk-nrf5340
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 .. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/app_bootloaders.html
 .. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming

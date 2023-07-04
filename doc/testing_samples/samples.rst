@@ -10,7 +10,5 @@ The samples included in this SDK showcase various Sidewalk use cases on Nordic S
    :glob:
    :caption: Subpages:
 
-   samples_overview.rst
    samples_list.rst
    sidewalk_registration.rst
-   sidewalk_testing.rst

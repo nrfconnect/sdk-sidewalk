@@ -28,28 +28,12 @@ To meet the software requirements, complete the following:
 Hardware requirements
 *********************
 
-To meet the hardware requirements, ensure you have the following:
+Ensure you have the following:
 
-* Hardware needed to run a specific sample:
+* A supported Nordic Semiconductor's development kit and, if required, other additional hardware.
+  For the list of the required devices per sample, see :ref:`samples_list`.
 
-   +---------------------------------------------------------------+-------------------------------------------------------------------+
-   | Sample                                                        | Hardware required                                                 |
-   +===============================================================+===================================================================+
-   | Sensor Monitoring                                             | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
-   |                                                               | * `Semtech SX1262MB2CAS`_ (optional) - sub-GHz radio shield       |
-   +---------------------------------------------------------------+-------------------------------------------------------------------+
-   | Template sub-GHz                                              | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
-   |                                                               | * External flash MX25R6435F or similar for dual bank firmware     |
-   |                                                               |   update (included in the DK)                                     |
-   |                                                               | * `Semtech SX1262MB2CAS`_ - sub-GHz radio shield                  |
-   +---------------------------------------------------------------+-------------------------------------------------------------------+
-   | Template Bluetooth LE                                         | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
-   +-----------------------+---------------------------------------+-------------------------------------------------------------------+
-   | Device Under Test (DUT)                                       | * `Nordic nRF52840 DK`_ - nRF52840 MCU development kit            |
-   |                                                               | * `Semtech SX1262MB2CAS`_ (optional) - sub-GHz radio shield       |
-   +---------------------------------------------------------------+-------------------------------------------------------------------+
-
-* Bluetooth wireless interface on your machine or a USB Bluetooth adapter
+* Bluetooth wireless interface on your machine or a USB Bluetooth adapter.
 
    .. note::
       Bluetooth wireless adapter is used during the device registration to connect the machine with the development kit.
@@ -57,7 +41,7 @@ To meet the hardware requirements, ensure you have the following:
 
 * Sidewalk Gateway
 
-   `Echo 4th Gen`_ is used as the Sidewalk Gateway.
+   You can use one of the supported `Amazon Sidewalk Gateways`_, for example, `Echo 4th Gen`_.
    It is configured with the Alexa App on `iOS`_ or `Android`_ and requires an Amazon account for setup.
 
 .. _requirements_memory:
@@ -65,17 +49,13 @@ To meet the hardware requirements, ensure you have the following:
 RAM and flash memory requirements
 *********************************
 
-RAM and flash memory requirement values differ depending on the programmed sample.
-
-The following table lists memory requirement values for the Sidewalk samples ran on the nRF52840 DK.
-
-Values are provided in kilobytes (KB).
+RAM and flash memory requirement values differ depending on the DK and programmed sample.
 
 .. tabs::
 
    .. tab:: nRF52840 DK
 
-      The following table lists memory requirements for samples running on the nRF52840 DK.
+      The following table lists memory requirements for samples running on the `nRF52840 DK`_.
 
       +-------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
       | Sample                                                            |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
@@ -101,7 +81,7 @@ Values are provided in kilobytes (KB).
 
    .. tab:: nRF5340 DK
 
-      The following table lists memory requirements for samples running on the nRF5340 DK.
+      The following table lists memory requirements for samples running on the `nRF5340 DK`_.
 
       +-------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
       | Sample                                                            |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
@@ -125,6 +105,7 @@ Values are provided in kilobytes (KB).
       | :ref:`Template Bluetooth LE <template_ble>` (Release)             |            56 |               270 |                  28 |         354 |          77 |
       +-------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
 
+
 .. _Amazon developer account: https://developer.amazon.com/dashboard
 .. _Amazon Web Service account: https://console.aws.amazon.com/console/home
 .. _AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
@@ -132,6 +113,8 @@ Values are provided in kilobytes (KB).
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
 .. _USB Bluetooth adapter: https://www.amazon.com/Kinivo-USB-Bluetooth-4-0-Compatible/dp/B007Q45EF4
 .. _Echo 4th Gen: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
+.. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id944011620
 .. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
-.. _nrf52840 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.1.0-rc2/nrf/app_boards.html#board-names
+.. _nrf52840 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr
+.. _nrf5340 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr
