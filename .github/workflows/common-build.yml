@@ -55,7 +55,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Twister build samples
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -96,7 +96,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for
-        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs -vvv
+        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -139,7 +139,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -188,7 +188,7 @@ jobs:
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }} --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }} --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3

@@ -95,7 +95,7 @@ done
 
 function run_twister ()
 {
-    local cmd="$TWISTER_BIN -vvv -O ${CURRENT_DIR}/twister-out $TWISTER_TAGS $*"
+    local cmd="$TWISTER_BIN -vvv --overflow-as-errors -O ${CURRENT_DIR}/twister-out $TWISTER_TAGS $*"
     echo "${cmd}"
     ${cmd} || { return $?; }
     return 0
@@ -137,7 +137,7 @@ function run_ut ()
         echo "[INFO]: Run unit tests not executed"
         return 0
     fi
-    run_twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
+    run_twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) || { return $?; }
     echo "[INFO]: Remove files from coverage that are not under test and regenerate html report"
     lcov -q --remove "${CURRENT_DIR}/twister-out/coverage.info" "${LCOV_EXCLUDE[@]}" -o "${CURRENT_DIR}/twister-out/new_coverage.info"
     mv "${CURRENT_DIR}/twister-out/new_coverage.info" "${CURRENT_DIR}/twister-out/coverage.info"
@@ -162,7 +162,7 @@ function run_on_hw ()
     fi
     run_twister -v --generate-hardware-map hardware-map.yaml --persistent-hardware-map
     python3 "$CURRENT_DIR/fill_hardware_map.py" --hardware_map_path hardware-map.yaml  --userdev_conf_path "$USERDEV_CONF_FILE"
-    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
+    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase" || { return $?; }
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-on_HW"
     return $?
 }
