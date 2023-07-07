@@ -9,7 +9,6 @@ cmake_minimum_required(VERSION 3.20.0)
 include(../common/bootloader_version.cmake)
 
 set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/samples/template_subghz/child_image/mcuboot/Kconfig.root)
-set(PM_STATIC_YML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/configuration/${BOARD}/pm_static.yml)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template_subghz)
