@@ -24,10 +24,10 @@
 #define X_APPLICAITON_STATES                                                                       \
 	X(error, gpio1, 8)                                                                         \
 	X(working, gpio1, 6)                                                                       \
-	X(registered, gpio0, 28)                                                                   \
-	X(time_sync, gpio0, 29)                                                                    \
-	X(link, gpio0, 30)                                                                         \
-	X(connected, gpio0, 31)                                                                    \
+	X(registered, gpio0, 29)                                                                   \
+	X(time_sync, gpio0, 30)                                                                    \
+	X(link, gpio0, 31)                                                                         \
+	X(connected, gpio0, 28)                                                                    \
 	X(dfu, gpio1, 0)                                                                           \
 	X(sending, gpio1, 4)                                                                       \
 	X(receiving, gpio1, 1)
