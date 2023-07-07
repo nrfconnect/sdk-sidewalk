@@ -34,6 +34,7 @@ config FPROTECT
     default y
 
 config BOOT_MAX_IMG_SECTORS
+    default 256 if NORDIC_QSPI_NOR
     default 128
 
 config MINIMAL_LIBC_CALLOC

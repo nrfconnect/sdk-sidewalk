@@ -1,0 +1,14 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config NORDIC_QSPI_NOR
+    default y
+
+config NORDIC_QSPI_NOR_FLASH_LAYOUT_PAGE_SIZE
+    default 4096
+
+config NORDIC_QSPI_NOR_STACK_WRITE_BUFFER_SIZE
+    default 16

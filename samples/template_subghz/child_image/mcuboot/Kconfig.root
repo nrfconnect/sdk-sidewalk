@@ -4,8 +4,6 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-# The purpose of this file is to create a wrapper Kconfig file that will be set as
-# mcuboot_KCONFIG_ROOT and processed before any other Kconfig for mcuboot child image.
-
-rsource "../../../common/Kconfig.mcuboot.external_flash.defaults"
+rsource "../../../common/Kconfig.mcuboot.defaults"
+rsource "../../../common/Kconfig.mcuboot.external_flash"
 source "${ZEPHYR_BASE}/../bootloader/mcuboot/boot/zephyr/Kconfig"
