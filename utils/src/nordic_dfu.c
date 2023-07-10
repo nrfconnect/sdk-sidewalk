@@ -48,10 +48,22 @@ static void loading_wheel_led(struct k_timer *timer_id)
 	dk_set_leds(led_state_repo[led_state]);
 	led_state = (led_state + 1) % 4;
 }
-
-static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more, void *data,
-			   size_t data_size)
+/**
+ * @brief Implementation of function callback ``mgmt_cb`` 
+ * see ``include/zephyr/mgmt/mcumgr/mgmt/callbacks.h`` for documentation 
+ * 
+ */
+static enum mgmt_cb_return dfu_mode_cb(uint32_t event, enum mgmt_cb_return prev_status, int32_t *rc,
+				       uint16_t *group, bool *abort_more, void *data,
+				       size_t data_size)
 {
+	ARG_UNUSED(prev_status);
+	ARG_UNUSED(rc);
+	ARG_UNUSED(group);
+	ARG_UNUSED(abort_more);
+	ARG_UNUSED(data);
+	ARG_UNUSED(data_size);
+
 	switch (event) {
 	case MGMT_EVT_OP_IMG_MGMT_DFU_STARTED:
 		LOG_INF("DFU Started");
@@ -72,7 +84,7 @@ static int32_t dfu_mode_cb(uint32_t event, int32_t rc, bool *abort_more, void *d
 		LOG_ERR("Unknown event %d", event);
 		break;
 	}
-	return MGMT_ERR_EOK;
+	return MGMT_CB_OK;
 }
 
 static void exit_dfu_mode(struct k_work *work)
