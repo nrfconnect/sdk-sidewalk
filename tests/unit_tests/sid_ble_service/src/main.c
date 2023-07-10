@@ -12,7 +12,6 @@
 #include <cmock_sid_ble_adapter_callbacks.h>
 
 #include <zephyr/bluetooth/conn.h>
-#include <zephyr/bluetooth/hci_err.h>
 
 #include <stdbool.h>
 
