@@ -1,8 +1,5 @@
-sample:
-  name: Sidewalk spi_bus test
-  description: Test arduino spi bus interface
 tests:
-  sample.test.spi_bus:
+  sidewalk.functional.spi_bus:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     integration_platforms:
       - nrf52840dk_nrf52840
