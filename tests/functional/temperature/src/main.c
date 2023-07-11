@@ -4,38 +4,33 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <zephyr/ztest.h>
+
 #include <zephyr/kernel.h>
 #include <stdint.h>
 #include <string.h>
 
 #include "sid_pal_temperature_ifc.h"
-#include <unity.h>
+
 #include <stdlib.h>
 
 #define MAX_ABS_ERROR 1
 
-void test_initialize()
+static void test_initialize()
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_temperature_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_temperature_init());
+}
+static void validate_temp_reading(int16_t value)
+{
+	zassert_between_inclusive(value, -40, 85);
 }
 
-void test_valid_temperature_range_for_SoC()
+ZTEST(temperature, test_valid_temperature_range_for_SoC)
 {
 	test_initialize();
 	int16_t die_temp = sid_pal_temperature_get();
-
-	TEST_ASSERT_GREATER_OR_EQUAL(-40, die_temp);
-	TEST_ASSERT_LESS_OR_EQUAL(85, die_temp);
-	char message[50];
-
-	sprintf(message, "die temperature = %d", die_temp);
-	TEST_MESSAGE(message);
-}
-
-static void validate_temp_reading(int16_t value)
-{
-	TEST_ASSERT_GREATER_OR_EQUAL(-40, value);
-	TEST_ASSERT_LESS_OR_EQUAL(85, value);
+	validate_temp_reading(die_temp);
+	printk("die temperature = %d", die_temp);
 }
 
 static void analyze_temp_readings(int16_t *values, size_t count, double limit)
@@ -61,16 +56,14 @@ static void analyze_temp_readings(int16_t *values, size_t count, double limit)
 		}
 	}
 
-	TEST_ASSERT_LESS_OR_EQUAL(limit, max_mean_error);
-	char message[50];
+	zassert_true(max_mean_error <= limit);
 
-	sprintf(message, "mean reading= %d.%02d, max deviation = %d.%02d", (uint8_t)mean,
-		(uint8_t)((mean - (uint8_t)mean) * 100), (uint8_t)max_mean_error,
-		(uint8_t)((max_mean_error - (uint8_t)max_mean_error) * 100));
-	TEST_MESSAGE(message);
+	printk("mean reading= %d.%02d, max deviation = %d.%02d", (uint8_t)mean,
+	       (uint8_t)((mean - (uint8_t)mean) * 100), (uint8_t)max_mean_error,
+	       (uint8_t)((max_mean_error - (uint8_t)max_mean_error) * 100));
 }
 
-void test_multiple_fast_readings()
+ZTEST(temperature, test_multiple_fast_readings)
 {
 	test_initialize();
 	int16_t results[50] = { 0 };
@@ -82,7 +75,7 @@ void test_multiple_fast_readings()
 	analyze_temp_readings(results, ARRAY_SIZE(results), MAX_ABS_ERROR);
 }
 
-void test_multiple_slow_readings()
+ZTEST(temperature, test_multiple_slow_readings)
 {
 	test_initialize();
 	int16_t results[20] = { 0 };
@@ -94,9 +87,9 @@ void test_multiple_slow_readings()
 	analyze_temp_readings(results, ARRAY_SIZE(results), MAX_ABS_ERROR);
 }
 
-extern int unity_main(void);
-
-int main(void)
+ZTEST(temperature, test_sanity)
 {
-	return unity_main();
+	zassert_equal(true, true);
 }
+
+ZTEST_SUITE(temperature, NULL, NULL, NULL, NULL, NULL);
