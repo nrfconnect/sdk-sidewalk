@@ -9,3 +9,12 @@ tests:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
+
+  sidewalk.test.simple_bootloader.debug:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONF_FILE=prj_debug.conf
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk
