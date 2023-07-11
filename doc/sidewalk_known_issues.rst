@@ -5,10 +5,24 @@ Known issues
 
 See the list of known issues that are valid for the current state of development.
 
-v1.14.4
--------
+v1.14.5-dev1
+------------
+
+* KRKNWK-17320: Bluetooth LE connection between Gateway and End Node drops within 30 seconds of being idle.
+    The issue occurs only on the nRF5340 development kit (experimental support) and happens due to failing certification test.
+
+* KRKNWK-17321: The device fails after multiple restarts.
+   The issue occurs only on the nRF5340 development kit (experimental support) and happens due to failing certification test.
+
+* KRKNWK-17308: Release version does not boot.
+    The issue occurs only on the nRF5340 development kit (experimental support).
+
+* KRKNWK-17114: Bootloader configuration is not optimized.
+   The issue occurs only on the nRF5340 development kit (experimental support). 
+   Due to large bootloader partition size (48 kB), the DFU always requires an external flash.
+
 * KRKNWK-17035: Sensor monitor uplink messages are lost when the notification period is longer than 30 seconds.
-    If the notification period is set to longer than 30 seconds, the sensor monitor uplink messages are lost. 
+    If the notification period is set to longer than 30 seconds, the sensor monitor uplink messages are lost.
     For this reason, the notification period is set to 15 seconds by default.
 
 * KRKNWK-14583: Bus fault after flash, before the :file:`Nordic_MFG.hex` data flash.

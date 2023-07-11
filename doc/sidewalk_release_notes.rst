@@ -5,6 +5,12 @@ Release notes
 
 See the release notes for the information about specific Sidewalk support releases for nRF Connect SDK.
 
+[v1.14.5-dev1] - 12/07/2023
+---------------------------
+
+* Added experimental support for the nRF5340 development kit.
+* Updated sdk-nrf to v2.4.99 (main).
+
 [v1.14.4] - 06/05/2023
 ----------------------
 
