@@ -21,5 +21,8 @@ config SIDEWALK_GPIO_IRQ_PRIORITY
 
 config SIDEWALK_GPIO_IRQ_STACK_SIZE
 	default 2048
-
+config SIDEWALK_LOG_LEVEL
+	default 0
+config SPI_BUS_LOG_LEVEL
+	default 0
 source "Kconfig.zephyr"
