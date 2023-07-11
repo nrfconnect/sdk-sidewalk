@@ -8,5 +8,8 @@ config SIDEWALK_BUILD
 
 config SIDEWALK_DELAY
 	default y
+	
+config SIDEWALK_LOG_LEVEL
+	default 0
 
 source "Kconfig.zephyr"
