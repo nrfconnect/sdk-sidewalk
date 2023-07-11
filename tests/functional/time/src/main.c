@@ -3,7 +3,9 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include <unity.h>
+
+#include <zephyr/ztest.h>
+
 #include <sid_pal_timer_ifc.h>
 #include <sid_pal_uptime_ifc.h>
 #include <sid_time_ops.h>
@@ -27,120 +29,119 @@ static void relative_time_calculate(struct sid_timespec *when)
 {
 	struct sid_timespec now;
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&now));
+	zassert_equal(SID_ERROR_NONE, sid_pal_uptime_now(&now));
 	sid_time_add(&now, when);
 	*when = now;
 }
 
 static void timer_init(void)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_init(&test_timer, timer_callback, &test_timer_arg));
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(&test_timer_arg, test_timer.callback_arg);
-	TEST_ASSERT_EQUAL(timer_callback, test_timer.callback);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_init(&test_timer, timer_callback, &test_timer_arg));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(&test_timer_arg, test_timer.callback_arg);
+	zassert_equal(timer_callback, test_timer.callback);
 }
 
 static void timer_deinit(void)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
-	TEST_ASSERT_NULL(test_timer.callback_arg);
-	TEST_ASSERT_NULL(test_timer.callback);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
+	zassert_is_null(test_timer.callback_arg);
+	zassert_is_null(test_timer.callback);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 }
 
-void test_sid_pal_timer_init_deinit(void)
+ZTEST(time, test_sid_pal_timer_init_deinit)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_init(NULL, NULL, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_init(&test_timer, NULL, NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_deinit(NULL));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_timer_init(NULL, NULL, NULL));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_timer_init(&test_timer, NULL, NULL));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_timer_deinit(NULL));
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
-	TEST_ASSERT_NULL(test_timer.callback_arg);
-	TEST_ASSERT_EQUAL(timer_callback, test_timer.callback);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
+	zassert_is_null(test_timer.callback_arg);
+	zassert_equal(timer_callback, test_timer.callback);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_callback, NULL));
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
-	TEST_ASSERT_NULL(test_timer.callback_arg);
-	TEST_ASSERT_NULL(test_timer.callback);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
+	zassert_is_null(test_timer.callback_arg);
+	zassert_is_null(test_timer.callback);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_init();
 	timer_deinit();
 }
 
-void test_sid_pal_timer_arm(void)
+ZTEST(time, test_sid_pal_timer_arm)
 {
 	struct sid_timespec when = { .tv_sec = 5 };
 
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
-			  sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL,
-					    NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
-			  sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    NULL));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL,
-					    NULL));
+	zassert_equal(SID_ERROR_INVALID_ARGS,
+		      sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL,
+					NULL));
+	zassert_equal(SID_ERROR_INVALID_ARGS,
+		      sid_pal_timer_arm(p_null_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					NULL));
+	zassert_equal(SID_ERROR_INVALID_ARGS,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, NULL, NULL));
 
 	timer_init();
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    NULL));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    NULL));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					NULL));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_INVALID_ARGS,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					NULL));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_is_armed(void)
+ZTEST(time, test_sid_pal_timer_is_armed)
 {
 	struct sid_timespec when = { .tv_sec = 5 };
 
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(p_null_timer));
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(p_null_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_init();
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    NULL));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					NULL));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_cancel(void)
+ZTEST(time, test_sid_pal_timer_cancel)
 {
 	struct sid_timespec when = { .tv_sec = 5 };
 	struct sid_timespec period = { .tv_sec = 5 };
 
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS, sid_pal_timer_cancel(p_null_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_equal(SID_ERROR_INVALID_ARGS, sid_pal_timer_cancel(p_null_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 
 	timer_init();
 
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    &period));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					&period));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_one_shot_100usec(void)
+ZTEST(time, test_sid_pal_timer_one_shot_100usec)
 {
 	/**
 	 * Scenario 1:
@@ -151,21 +152,21 @@ void test_sid_pal_timer_one_shot_100usec(void)
 	timer_callback_cnt = 0;
 	timer_init();
 
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    NULL));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					NULL));
+	zassert_equal(0, timer_callback_cnt);
 	// It should be enough time
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_EQUAL(1, timer_callback_cnt);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(1, timer_callback_cnt);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_periodically_execute_callback(void)
+ZTEST(time, test_sid_pal_timer_periodically_execute_callback)
 {
 	/**
 	 * Scenario 2:
@@ -178,21 +179,21 @@ void test_sid_pal_timer_periodically_execute_callback(void)
 
 	timer_init();
 
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    &period));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					&period));
+	zassert_equal(0, timer_callback_cnt);
 	// It should be enough time
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_TRUE(10 < timer_callback_cnt);
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
+	zassert_true(10 < timer_callback_cnt);
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_cancel_before_it_expire(void)
+ZTEST(time, test_sid_pal_timer_cancel_before_it_expire)
 {
 	/**
 	 * Scenario 3:
@@ -204,18 +205,18 @@ void test_sid_pal_timer_cancel_before_it_expire(void)
 
 	timer_init();
 
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    NULL));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					NULL));
+	zassert_equal(0, timer_callback_cnt);
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(0, timer_callback_cnt);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	// Arm the timer again, but now with short period
 	struct sid_timespec period = { .tv_nsec = 500 };
@@ -223,21 +224,21 @@ void test_sid_pal_timer_cancel_before_it_expire(void)
 	when.tv_sec = 0;
 	when.tv_nsec = (150 * NSEC_PER_MSEC);
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    &period));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					&period));
+	zassert_equal(0, timer_callback_cnt);
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(0, timer_callback_cnt);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_cancel_after_it_expired(void)
+ZTEST(time, test_sid_pal_timer_cancel_after_it_expired)
 {
 	/**
 	 * Scenario 4:
@@ -250,24 +251,24 @@ void test_sid_pal_timer_cancel_after_it_expired(void)
 
 	timer_init();
 
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    &period));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					&period));
+	zassert_equal(0, timer_callback_cnt);
 	k_sleep(K_MSEC(15));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(1, timer_callback_cnt);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(1, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_cancel(&test_timer));
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_EQUAL(1, timer_callback_cnt);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(1, timer_callback_cnt);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 
 	timer_deinit();
 }
 
-void test_sid_pal_timer_deinit_after_it_expired(void)
+ZTEST(time, test_sid_pal_timer_deinit_after_it_expired)
 {
 	/**
 	 * Scenario 5:
@@ -280,22 +281,22 @@ void test_sid_pal_timer_deinit_after_it_expired(void)
 
 	timer_init();
 
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 	relative_time_calculate(&when);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
-					    &period));
-	TEST_ASSERT_EQUAL(0, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &when,
+					&period));
+	zassert_equal(0, timer_callback_cnt);
 	k_sleep(K_MSEC(15));
-	TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
-	TEST_ASSERT_EQUAL(1, timer_callback_cnt);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
+	zassert_true(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(1, timer_callback_cnt);
+	zassert_equal(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
 	k_sleep(K_MSEC(100));
-	TEST_ASSERT_EQUAL(1, timer_callback_cnt);
-	TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+	zassert_equal(1, timer_callback_cnt);
+	zassert_false(sid_pal_timer_is_armed(&test_timer));
 }
 
-void test_sid_pal_timer_one_shot_few_times(void)
+ZTEST(time, test_sid_pal_timer_one_shot_few_times)
 {
 	/**
 	 * Scenario 6:
@@ -311,19 +312,19 @@ void test_sid_pal_timer_one_shot_few_times(void)
 	for (int cnt = 0; cnt < 8; cnt++) {
 		timer_callback_cnt = 0;
 		test_timer_arg += cnt;
-		TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
+		zassert_false(sid_pal_timer_is_armed(&test_timer));
 		when.tv_sec = 0;
 		when.tv_nsec = (10 * NSEC_PER_MSEC);
 		relative_time_calculate(&when);
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-				  sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE,
-						    &when, NULL));
-		TEST_ASSERT_EQUAL(0, timer_callback_cnt);
-		TEST_ASSERT_TRUE(sid_pal_timer_is_armed(&test_timer));
+		zassert_equal(SID_ERROR_NONE,
+			      sid_pal_timer_arm(&test_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE,
+						&when, NULL));
+		zassert_equal(0, timer_callback_cnt);
+		zassert_true(sid_pal_timer_is_armed(&test_timer));
 		k_sleep(K_MSEC(50));
-		TEST_ASSERT_EQUAL(test_timer_arg, callback_arg);
-		TEST_ASSERT_FALSE(sid_pal_timer_is_armed(&test_timer));
-		TEST_ASSERT_EQUAL(1, timer_callback_cnt);
+		zassert_equal(test_timer_arg, callback_arg);
+		zassert_false(sid_pal_timer_is_armed(&test_timer));
+		zassert_equal(1, timer_callback_cnt);
 	}
 
 	timer_deinit();
@@ -332,24 +333,24 @@ void test_sid_pal_timer_one_shot_few_times(void)
 /******************************************************************
 * sid_pal_uptime_ifc
 * ****************************************************************/
-void test_sid_pal_uptime_get(void)
+ZTEST(time, test_sid_pal_uptime_get)
 {
 	struct sid_timespec sid_time = { 0 };
 	int64_t uptime_msec = k_uptime_get();
 	uint32_t uptime_sec = (uint32_t)(uptime_msec / MSEC_PER_SEC);
 	uint32_t uptime_nsec = (uint32_t)((uptime_msec * NSEC_PER_MSEC) % NSEC_PER_SEC);
 
-	TEST_ASSERT_NOT_EQUAL_MESSAGE(0, uptime_msec, "Test data preparation failed.");
+	zassert_not_equal(0, uptime_msec, "Test data preparation failed.");
 
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
+	zassert_equal(SID_ERROR_NONE, sid_pal_uptime_now(&sid_time));
 
-	TEST_ASSERT_GREATER_OR_EQUAL_UINT32(uptime_sec, sid_time.tv_sec);
-	TEST_ASSERT_GREATER_OR_EQUAL_UINT32(uptime_nsec, sid_time.tv_nsec);
+	zassert_true(sid_time.tv_sec >= uptime_sec);
+	zassert_true(sid_time.tv_nsec >= uptime_nsec);
 }
 
-extern int unity_main(void);
-
-int main(void)
+ZTEST(time, test_sanity)
 {
-	return unity_main();
+	zassert_equal(true, true);
 }
+
+ZTEST_SUITE(time, NULL, NULL, NULL, NULL, NULL);
