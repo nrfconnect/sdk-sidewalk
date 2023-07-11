@@ -3,13 +3,16 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
+#include "zephyr/kernel.h"
+#include "zephyr/ztest_assert.h"
 #include <unity.h>
+#include <zephyr/ztest.h>
 #include <sid_error.h>
 #include <sid_pal_swi_ifc.h>
 #include <string.h>
 
 #define BUFFER_NO 10
-#define BUFFER_SIZE 6
+#define BUFFER_SIZE 10
 
 static char buffer_in[BUFFER_NO][BUFFER_SIZE] = {
 	"test_0", "test_1", "test_2", "test_3", "test_4",
@@ -29,23 +32,15 @@ static void swi_callback(void)
 	}
 }
 
-void test_sid_pal_swi(void)
+ZTEST(interrupts, test_sid_pal_swi)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_swi_init(swi_callback));
+	zassert_equal(SID_ERROR_NONE, sid_pal_swi_init(swi_callback));
 
 	for (int i = 0; i < BUFFER_NO; i++) {
-		TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_swi_trigger());
-		TEST_ASSERT_EQUAL_UINT8_ARRAY(buffer_in[i], buffer_out[i], BUFFER_SIZE);
+		zassert_equal(SID_ERROR_NONE, sid_pal_swi_trigger());
+		zassert_mem_equal(buffer_in[i], buffer_out[i], BUFFER_SIZE, "in %s, out %s",
+				  buffer_in[i], buffer_out[i]);
 	}
 }
 
-/* It is required to be added to each test. That is because unity is using
- * different main signature (returns int) and zephyr expects main which does
- * not return value.
- */
-extern int unity_main(void);
-
-int main(void)
-{
-	return unity_main();
-}
+ZTEST_SUITE(interrupts, NULL, NULL, NULL, NULL, NULL);

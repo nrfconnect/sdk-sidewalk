@@ -36,7 +36,9 @@ sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback)
 sid_error_t sid_pal_swi_trigger(void)
 {
 	k_sem_give(&swi_trigger_sem);
-
+	if (!k_is_in_isr()) {
+		k_yield();
+	}
 	return SID_ERROR_NONE;
 }
 
