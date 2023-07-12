@@ -71,6 +71,7 @@ config SIDEWALK_CRYPTO
 	imply PSA_WANT_KEY_TYPE_AES
 	imply PSA_WANT_KEY_TYPE_ECC_KEY_PAIR
 	imply PSA_WANT_KEY_TYPE_HMAC
+	imply PSA_WANT_GENERATE_RANDOM
 	imply MBEDTLS_ENABLE_HEAP
 	help
 	   Sidewalk security module
