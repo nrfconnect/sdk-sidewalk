@@ -13,6 +13,3 @@ project(sid_validation_timer)
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
 target_include_directories(app PRIVATE src)
-
-# generate runner for the test
-test_runner_generate(${app_sources})
