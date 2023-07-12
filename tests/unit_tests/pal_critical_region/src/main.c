@@ -4,14 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 #include <stdint.h>
-#include <unity.h>
+#include <zephyr/ztest.h>
 
 #include <sid_pal_critical_region_ifc.h>
 
 #include <zephyr/irq.h>
 #include <zephyr/kernel.h>
-
-#include "fix_zassert_macro.h"
 
 #include <zephyr/interrupt_util.h>
 
@@ -28,7 +26,7 @@ void irq_cb(const void *arg)
 	*(uint32_t *)arg += 1;
 }
 
-void test_sid_pal_critical_region(void)
+ZTEST(pal_critical_region, test_sid_pal_critical_region)
 {
 	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
@@ -38,26 +36,26 @@ void test_sid_pal_critical_region(void)
 	trigger_irq(TEST_IRQ);
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 
 	sid_pal_enter_critical_region();
 	{
 		trigger_irq(TEST_IRQ);
 		k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
-		TEST_ASSERT_EQUAL(expected_callcount, call_count);
+		zassert_equal(expected_callcount, call_count);
 	}
 	sid_pal_exit_critical_region();
 
 	expected_callcount++;
-	TEST_ASSERT_EQUAL(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 
 	trigger_irq(TEST_IRQ);
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 }
 
-void test_sid_pal_critical_multiple_entry(void)
+ZTEST(pal_critical_region, test_sid_pal_critical_multiple_entry)
 {
 	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
@@ -67,32 +65,32 @@ void test_sid_pal_critical_multiple_entry(void)
 	trigger_irq(TEST_IRQ3);
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 
 	sid_pal_enter_critical_region();
 	{
 		trigger_irq(TEST_IRQ3);
 		k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
-		TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+		zassert_equal(expected_callcount, call_count);
 
 		sid_pal_enter_critical_region();
 		{
-			TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+			zassert_equal(expected_callcount, call_count);
 		}
 		sid_pal_exit_critical_region();
-		TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+		zassert_equal(expected_callcount, call_count);
 	}
 	sid_pal_exit_critical_region();
 
 	expected_callcount++;
-	TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 	trigger_irq(TEST_IRQ3);
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 }
 
-void test_sid_pal_critical_region_multiple_entry_multiple_irq(void)
+ZTEST(pal_critical_region, test_sid_pal_critical_region_multiple_entry_multiple_irq)
 {
 	static uint32_t call_count = 0;
 	static volatile uint32_t expected_callcount = 0;
@@ -102,39 +100,39 @@ void test_sid_pal_critical_region_multiple_entry_multiple_irq(void)
 	trigger_irq(TEST_IRQ4);
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 
 	sid_pal_enter_critical_region();
 	{
 		trigger_irq(TEST_IRQ4);
 		k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
-		TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+		zassert_equal(expected_callcount, call_count);
 		sid_pal_enter_critical_region();
 		{
 			trigger_irq(TEST_IRQ4);
 			k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
-			TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+			zassert_equal(expected_callcount, call_count);
 		}
 		sid_pal_exit_critical_region();
 		k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
-		TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+		zassert_equal(expected_callcount, call_count);
 	}
 	sid_pal_exit_critical_region();
 
 	// only one IRQ is queued
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 
 	trigger_irq(TEST_IRQ4);
 	k_busy_wait(DELAY_BEFORE_IRQ_CHECK_US);
 	expected_callcount++;
-	TEST_ASSERT_EQUAL_UINT32(expected_callcount, call_count);
+	zassert_equal(expected_callcount, call_count);
 }
 
-extern int unity_main(void);
-
-int main(void)
+ZTEST(pal_critical_region, test_sanity)
 {
-	return unity_main();
+	zassert_true(true);
 }
+
+ZTEST_SUITE(pal_critical_region, NULL, NULL, NULL, NULL, NULL);

@@ -16,6 +16,3 @@ target_sources(app PRIVATE ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_critical_
 
 # add test file
 target_sources(app PRIVATE src/main.c)
-
-# generate runner for the test
-test_runner_generate(src/main.c)
