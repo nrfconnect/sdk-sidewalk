@@ -43,4 +43,4 @@ set(SID_LIBS
 )
 
 zephyr_link_libraries(${SID_LIBS})
-zephyr_link_libraries_ifndef(CONFIG_SIDEWALK_SEMTECH_FROM_SOURCES ${SID_LIB_DIR}/libsid_pal_radio_sx126x_impl.a)
+zephyr_link_libraries_ifndef(CONFIG_SIDEWALK_PAL_RADIO_SOURCE ${SID_LIB_DIR}/libsid_pal_radio_sx126x_impl.a)

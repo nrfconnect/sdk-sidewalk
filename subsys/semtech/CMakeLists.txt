@@ -5,4 +5,4 @@
 #
 
 zephyr_include_directories(include)
-add_subdirectory_ifdef(CONFIG_SIDEWALK_SEMTECH_FROM_SOURCES sx126x)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_PAL_RADIO_SOURCE sx126x)

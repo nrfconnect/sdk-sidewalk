@@ -171,8 +171,8 @@ config SIDEWALK_DFU_SERVICE_USB
 endchoice # SIDEWALK_DFU_SERVICE
 endif # SIDEWALK_DFU
 
-config SIDEWALK_SEMTECH_FROM_SOURCES
-	bool "Build Semtech driver from sources [EXPERIMENTAL]"
+config SIDEWALK_PAL_RADIO_SOURCE
+	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
 	select EXPERIMENTAL
 
 rsource "Kconfig.dependencies"
