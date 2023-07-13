@@ -26,9 +26,9 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms) }}
-        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     env:
-      MAX_SUBSETS: 11
+      MAX_SUBSETS: 12
 
     runs-on: ubuntu-latest
     container:
@@ -63,6 +63,7 @@ jobs:
         with:
           name: sample-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
+            twister-out/twister.json
             twister-out/**/*sidewalk*/build.log
             twister-out/**/*sidewalk*/zephyr/.config
             twister-out/**/*sidewalk*/zephyr/runners.yaml
@@ -113,9 +114,9 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms)}}
-        subset: [1, 2, 3]
+        subset: [1, 2, 3, 4]
     env:
-      MAX_SUBSETS: 3
+      MAX_SUBSETS: 4
 
     runs-on: ubuntu-latest
     container:
@@ -147,6 +148,7 @@ jobs:
         with:
           name: tests-manual-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
+            twister-out/twister.json
             twister-out/**/*sidewalk*/build.log
             twister-out/**/*sidewalk*/zephyr/.config
             twister-out/**/*sidewalk*/zephyr/runners.yaml
