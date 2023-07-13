@@ -123,6 +123,8 @@ config SIDEWALK_STORAGE
 config SIDEWALK_TIMER
 	bool
 	default SIDEWALK
+	imply SIDEWALK_UPTIME
+	imply SIDEWALK_CRITICAL_REGION
 	help
 	  Sidewalk timer module
 

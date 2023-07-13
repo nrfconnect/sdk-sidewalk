@@ -66,3 +66,6 @@ config HEAP_MEM_POOL_SIZE
 
 config SPI_NRFX_RAM_BUFFER_SIZE
 	default 0
+
+config PARTITION_MANAGER_ENABLED
+	default y
