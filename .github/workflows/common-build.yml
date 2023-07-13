@@ -250,6 +250,8 @@ jobs:
           mkdir twister-out
           shopt -s extglob
           cp -r artifacts/sample-*/!(twister.json) twister-out/
+          mkdir -p twister-out/build_reports
+          cp -r artifacts/sample-*/twister.json twister-out/build_reports
 
       - name: Create test plan
         shell: bash
