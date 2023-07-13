@@ -40,9 +40,10 @@ jobs:
 
       - name: Generage memory diff
         run: |
+          shopt -s extglob
           cd current && tar -xzvf samples_artifacts.tar.gz; cd ..;
           cd old && tar -xzvf samples_artifacts.tar.gz; cd ..;
-          pr_reports=$(ls current/**/twister.json)current/**/twister.json)
+          pr_reports=$(ls current/**/twister.json)
           python3 scripts/ci/combine_twister_reports.py $pr_reports new.json
           base_reports=$(ls old/**/twister.json)
           python3 scripts/ci/combine_twister_reports.py $base_reports old.json
