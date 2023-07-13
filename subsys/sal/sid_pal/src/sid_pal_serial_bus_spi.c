@@ -37,11 +37,7 @@ static const struct sid_pal_serial_bus_iface bus_ops = {
 static struct bus_serial_ctx_t bus_serial_ctx = {
 	.iface = &bus_ops,
 	.device = DEVICE_DT_GET(DT_NODELABEL(sid_semtech)),
-	.cfg =
-		(struct spi_config){
-			.operation = SPI_OPTIONS,
-			.cs = NULL,
-		},
+	.cfg = (struct spi_config){ .operation = SPI_OPTIONS },
 };
 
 static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,

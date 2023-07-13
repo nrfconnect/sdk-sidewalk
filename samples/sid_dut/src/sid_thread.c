@@ -29,7 +29,7 @@
 #include <sid_pal_serial_bus_spi_config.h>
 #endif
 
-#if !FLASH_AREA_LABEL_EXISTS(mfg_storage)
+#if !FIXED_PARTITION_EXISTS(mfg_storage)
 #error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
 
