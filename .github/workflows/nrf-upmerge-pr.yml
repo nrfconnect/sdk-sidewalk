@@ -31,7 +31,7 @@ jobs:
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
           nrf_hash="$(git -C nrf rev-parse HEAD)"
-          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/west.yml
+          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/internal_west.yml
       - name: Get Date
         id: date
         run: |
@@ -42,9 +42,9 @@ jobs:
         with:
           token: ${{secrets.NCS_GITHUB_TOKEN}}
           path: sidewalk
-          commit-message: "NRF: upmerge\n\nupdate nrf revision in west.yml"
+          commit-message: "NRF: upmerge\n\nupdate nrf revision in internal_west.yml"
           title: "NRF upmerge ${{steps.date.outputs.date}}"
-          body: "PR created automatically by GitHub actions to change revision of NRF in west.yml"
+          body: "PR created automatically by GitHub actions to change revision of NRF in internal_west.yml"
           delete-branch: true
           branch: nrf_upmerge-${{steps.date.outputs.date}}
           signoff: true

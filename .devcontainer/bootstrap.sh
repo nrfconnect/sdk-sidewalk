@@ -3,7 +3,8 @@ if [ ! -f $HOME/.devcontainer_initalized ]; then
     bash /work/ncs/sidewalk/.devcontainer/git_shell_prompt.sh
 
     cd /work/ncs
-    west init -l sidewalk
+    west init -l --mf internal_west.yml sidewalk 
+    git submodule --init --recursive
     west config update.path-cache /workdir
     west config update.narrow true
     west update

@@ -8,8 +8,6 @@ manifest:
     # nRF Connect SDK base URL.
     - name: ncs
       url-base: https://github.com/nrfconnect
-    - name: aws-samples
-      url-base: https://github.com/aws-samples
 
   projects:
     - name: nrf
@@ -17,12 +15,6 @@ manifest:
       path: nrf
       revision: 93e7fcce23fa8378e1364793a6001db073ea2679
       import: true
-    - name: aws-iot-core-for-sidewalk
-      remote: aws-samples
-      repo-path: aws-iot-core-for-amazon-sidewalk-sample-app
-      path: tools/aws-iot-core-for-sidewalk
-      revision: d3f8bded6018901ef99b3d9c5f2c97227f79bb4c
-
 
   # West-related configuration for the sidewalk repository.
   self:

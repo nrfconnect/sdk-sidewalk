@@ -52,6 +52,8 @@ jobs:
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir
           west config manifest.path sidewalk
+          west config manifest.file internal_west.yml
+          git submodule --update --recursive
           west update --narrow -o=--depth=1
 
       - name: Twister build samples
@@ -94,6 +96,8 @@ jobs:
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir
           west config manifest.path sidewalk
+          west config manifest.file internal_west.yml
+          git submodule --update --recursive
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for
@@ -137,6 +141,8 @@ jobs:
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir
           west config manifest.path sidewalk
+          west config manifest.file internal_west.yml
+          git submodule --update --recursive
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts
@@ -187,6 +193,8 @@ jobs:
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir
           west config manifest.path sidewalk
+          west config manifest.file internal_west.yml
+          git submodule --update --recursive
           west update --narrow -o=--depth=1
 
       - name: Build test artifacts for
@@ -229,6 +237,8 @@ jobs:
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir
           west config manifest.path sidewalk
+          west config manifest.file internal_west.yml
+          git submodule --update --recursive
           west update --narrow -o=--depth=1
 
       - uses: actions/download-artifact@v3
