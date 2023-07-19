@@ -102,7 +102,7 @@ static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu)
 	ARG_UNUSED(rx_mtu);
 
 	if (!conn_params.conn || conn_params.conn == conn) {
-		sid_ble_adapter_mtu_changed(tx_mtu);
+		sid_ble_adapter_mtu_changed(MIN(tx_mtu, rx_mtu));
 	}
 }
 
