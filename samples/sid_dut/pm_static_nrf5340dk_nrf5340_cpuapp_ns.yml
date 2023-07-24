@@ -1,0 +1,115 @@
+app:
+  address: 0x40000
+  end_address: 0xf3000
+  region: flash_primary
+  size: 0xb3000
+mfg_storage:
+  address: 0xf2000
+  region: flash_primary
+  size: 0x1000
+sidewalk_storage:
+  address: 0xf3000
+  region: flash_primary
+  size: 0x5000
+otp:
+  address: 0xff8100
+  end_address: 0xff83fc
+  region: otp
+  size: 0x2fc
+sram_nonsecure:
+  address: 0x20040000
+  end_address: 0x20080000
+  orig_span: &id001
+  - sram_primary
+  region: sram_primary
+  size: 0x40000
+  span: *id001
+sram_primary:
+  address: 0x20040000
+  end_address: 0x20080000
+  region: sram_primary
+  size: 0x40000
+sram_secure:
+  address: 0x20000000
+  end_address: 0x20040000
+  orig_span: &id002
+  - tfm_sram
+  region: sram_primary
+  size: 0x40000
+  span: *id002
+tfm:
+  address: 0x0
+  end_address: 0x40000
+  placement:
+    before:
+    - app
+  region: flash_primary
+  size: 0x40000
+tfm_its:
+  address: 0xf8000
+  end_address: 0xfa000
+  inside:
+  - tfm_storage
+  placement:
+    before:
+    - tfm_otp_nv_counters
+  region: flash_primary
+  size: 0x2000
+tfm_nonsecure:
+  address: 0x40000
+  end_address: 0xf8000
+  orig_span: &id003
+  - app
+  region: flash_primary
+  size: 0xb8000
+  span: *id003
+tfm_otp_nv_counters:
+  address: 0xfa000
+  end_address: 0xfc000
+  inside:
+  - tfm_storage
+  placement:
+    before:
+    - tfm_ps
+  region: flash_primary
+  size: 0x2000
+tfm_ps:
+  address: 0xfc000
+  end_address: 0x100000
+  inside:
+  - tfm_storage
+  placement:
+    align:
+      start: 0x4000
+    before:
+    - end
+  region: flash_primary
+  size: 0x4000
+tfm_secure:
+  address: 0x0
+  end_address: 0x40000
+  orig_span: &id004
+  - tfm
+  region: flash_primary
+  size: 0x40000
+  span: *id004
+tfm_sram:
+  address: 0x20000000
+  end_address: 0x20040000
+  inside:
+  - sram_secure
+  placement:
+    after:
+    - start
+  region: sram_primary
+  size: 0x40000
+tfm_storage:
+  address: 0xf8000
+  end_address: 0x100000
+  orig_span: &id005
+  - tfm_ps
+  - tfm_its
+  - tfm_otp_nv_counters
+  region: flash_primary
+  size: 0x8000
+  span: *id005
