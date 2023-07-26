@@ -28,4 +28,4 @@ set(SID_LIBS
 	${SID_LIB_DIR}/libsid_time_ops.a
 )
 
-zephyr_link_libraries(${SID_LIBS})
+zephyr_library_link_libraries(${SID_LIBS})
