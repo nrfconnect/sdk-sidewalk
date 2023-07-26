@@ -6,7 +6,6 @@
 	"mounts": [
 		"source=/dev,target=/dev,type=bind",
 		"source=/run/udev,target=/run/udev,type=bind,readonly",
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
 	"runArgs": [
 		"--name", "nrf-sidewalk",
