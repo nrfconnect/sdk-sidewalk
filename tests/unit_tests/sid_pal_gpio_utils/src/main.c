@@ -69,7 +69,7 @@ void test_sid_gpio_utils_port_pin_get_pass(void)
 				  sid_gpio_utils_port_pin_get(test_gpio_number[it], &port_pin));
 
 		TEST_ASSERT_EQUAL(test_port_pin[it].pin, port_pin.pin);
-		TEST_ASSERT_EQUAL(test_port_pin[it].port, port_pin.port);
+		TEST_ASSERT_EQUAL_PTR(test_port_pin[it].port, port_pin.port);
 	}
 }
 
