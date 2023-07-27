@@ -26,7 +26,7 @@ config MBEDTLS_ENABLE_HEAP
 config MBEDTLS_HEAP_SIZE
 	default 8192
 
-rsource "../../../Kconfig"
-rsource "../../../Kconfig.dependencies"
 
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig"
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
 source "Kconfig.zephyr"

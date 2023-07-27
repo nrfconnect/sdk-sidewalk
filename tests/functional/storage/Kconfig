@@ -10,6 +10,8 @@ config SIDEWALK_STORAGE
 	default y
 	imply NVS
 	imply FLASH
+
 config SIDEWALK_LOG_LEVEL
 	default 0
+
 source "Kconfig.zephyr"

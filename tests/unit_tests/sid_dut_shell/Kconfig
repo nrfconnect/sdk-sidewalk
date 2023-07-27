@@ -1,4 +1,10 @@
-source "Kconfig.zephyr"
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
 
 config SHELL_CMD_BUFF_SIZE
 	default 1024
+
+source "Kconfig.zephyr"

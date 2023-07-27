@@ -54,6 +54,6 @@ config SM_TIMER_PROFILE_CHECK_TIMER_DELAY_MS
                 In SubGHz configuration, this value determines when the transmition profile will be changed
 endmenu
 
-rsource "../common/Kconfig.defconfig"
+source "${ZEPHYR_BASE}/../sidewalk/samples/common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
