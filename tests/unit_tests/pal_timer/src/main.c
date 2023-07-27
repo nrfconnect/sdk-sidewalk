@@ -33,8 +33,8 @@ static void timer_init(void)
 {
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
 			  sid_pal_timer_init(&test_timer, timer_cb, &test_timer_arg));
-	TEST_ASSERT_EQUAL(&test_timer_arg, test_timer.callback_arg);
-	TEST_ASSERT_EQUAL(timer_cb, test_timer.callback);
+	TEST_ASSERT_EQUAL_PTR(&test_timer_arg, test_timer.callback_arg);
+	TEST_ASSERT_EQUAL_PTR(timer_cb, test_timer.callback);
 }
 
 static void timer_deinit(void)
@@ -55,7 +55,7 @@ void test_sid_pal_timer_init_deinit(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_init(&test_timer, timer_cb, NULL));
 
 	TEST_ASSERT_NULL(test_timer.callback_arg);
-	TEST_ASSERT_EQUAL(timer_cb, test_timer.callback);
+	TEST_ASSERT_EQUAL_PTR(timer_cb, test_timer.callback);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_timer_deinit(&test_timer));
 
