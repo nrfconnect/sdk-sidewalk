@@ -1,5 +1,15 @@
 .. _index:
 
+.. caution::
+   Sidewalk protocol is owned and licensed by Amazon.
+   Before continuing with the nRF Connect SDK for Sidewalk, you must familiarize yourself with the official `Amazon license`_, including all the applicable restrictions.
+   Please note, that redistributing Sidewalk under the nRF Connect SDK is prohibited.
+
+   Be aware, that by downloading and including the Sidewalk repository, you accept the above-mentioned license.
+
+   Due to these restrictions, Sidewalk cannot be automatically fetched through the nRF Connect SDK and will require performing a dedicated setup.
+   All information regarding completing it is included in this guide, so ensure you follow it in order.
+
 Welcome to the nRF Connect SDK - Amazon Sidewalk
 ################################################
 
@@ -37,5 +47,6 @@ Browse the content by referring to the following pages:
    sidewalk_known_issues.rst
    additional_resources.rst
 
+.. _Amazon license: https://raw.githubusercontent.com/nrfconnect/sdk-sidewalk/main/LICENSE.txt
 .. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
 .. _nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/index.html
