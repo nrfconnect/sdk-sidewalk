@@ -18,5 +18,4 @@ manifest:
 
   # West-related configuration for the sidewalk repository.
   self:
-    # This repository should be cloned to ncs/sidewalk.
-    path: sidewalk
+    path: internal_sidewalk

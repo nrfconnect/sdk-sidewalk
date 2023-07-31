@@ -49,11 +49,12 @@ jobs:
 
       - name: Reconfigure west
         run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path sidewalk
+          west config manifest.path internal_sidewalk
           west config manifest.file internal_west.yml
           west update --narrow -o=--depth=1
+          ln -s internal_sidewalk sidewalk
 
       - name: Twister build samples
         run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
@@ -92,11 +93,12 @@ jobs:
 
       - name: Reconfigure west
         run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path sidewalk
+          west config manifest.path internal_sidewalk
           west config manifest.file internal_west.yml
           west update --narrow -o=--depth=1
+          ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts for
         run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
@@ -136,11 +138,12 @@ jobs:
 
       - name: Reconfigure west
         run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path sidewalk
+          west config manifest.path internal_sidewalk
           west config manifest.file internal_west.yml
           west update --narrow -o=--depth=1
+          ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts
         run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
@@ -187,11 +190,12 @@ jobs:
 
       - name: Reconfigure west
         run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path sidewalk
+          west config manifest.path internal_sidewalk
           west config manifest.file internal_west.yml
           west update --narrow -o=--depth=1
+          ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts for
         run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }} --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
@@ -230,11 +234,12 @@ jobs:
 
       - name: Reconfigure west
         run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path sidewalk
+          west config manifest.path internal_sidewalk
           west config manifest.file internal_west.yml
           west update --narrow -o=--depth=1
+          ln -s internal_sidewalk sidewalk
 
       - uses: actions/download-artifact@v3
         with:
