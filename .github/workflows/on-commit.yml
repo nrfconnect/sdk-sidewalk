@@ -52,4 +52,4 @@ jobs:
 
   build_samples_and_tests:
     needs: [validate_code_compliance, validate_compliance_with_zephyr]
-    uses: nrfconnect/sdk-sidewalk/.github/workflows/common-build.yml@main
+    uses: ./.github/workflows/common-build.yml

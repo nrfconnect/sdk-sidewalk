@@ -3,68 +3,84 @@ name: Publish release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
-  build:
+  build_samples_and_tests:
+    uses: ./.github/workflows/common-build.yml
+
+  build_documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build documentation
+        run: cd doc; pip install -r requirements-doc.txt && sphinx-build -M html . build && zip -r documentation.zip build/html/*
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation.zip
+          path: |
+            doc/documentation.zip
+
+  publish_release:
+    needs: [build_documentation, build_samples_and_tests]
     permissions: write-all
     name: Create release page
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Check artifacts from commit
-        id: get_artifacts
-        uses: dawidd6/action-download-artifact@v2
+      - name: Download artifact
+        uses: actions/download-artifact@v3
         with:
-          commit: ${{github.sha}}
-          workflow: on-commit.yml
-          dry_run: true
-          if_no_artifact_found: ignore
+          path: artifacts
 
-      - name: Sleep 15 min to wait for builds
-        if: ${{steps.get_artifacts.outputs.dry_run == false}}
+      - name: Check Tag
+        id: check-tag
         run: |
-          sleep 15m
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+.[0-9]+.[0-9]$ ]]; then
+              echo "prerelease=false" >> $GITHUB_OUTPUT
+          else
+              echo "prerelease=true" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Get artifacts from commit
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          commit: ${{github.sha}}
-          workflow: on-commit.yml
-
-      - name: Build documentation
-        run: cd doc; ./build_local.sh && zip -r documentation.zip build/html/*
-
-      - name: Pack build artifacts
-        run: |
-          zip -r build_artifacts.zip sample*
-          zip -r test_artifacts.zip tests*
-
-      - name: Upload documentation binaries to release
+      - name: Upload documentation to release page
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: doc/documentation.zip
+          file: artifacts/documentation.zip
           asset_name: documentation.zip
           tag: ${{ github.ref }}
           overwrite: true
+          prerelease: ${{ steps.check-tag.outputs.prerelease }}
 
-      - name: Upload build binaries to release
+      - name: Upload build binaries to release page
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build_artifacts.zip
-          asset_name: twister_build_artifacts.zip
+          file: artifacts/sample-artifacts
+          asset_name: sample-artifacts.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+          prerelease: ${{ steps.check-tag.outputs.prerelease }}
 
-      - name: Upload test binaries to release
+      - name: Upload test-dut binaries to release page
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: test_artifacts.zip
-          asset_name: twister_test_artifacts.zip
+          file: artifacts/tests-dut-artifacts
+          asset_name: tests-dut-artifacts.tar.gz
           tag: ${{ github.ref }}
           overwrite: true
+          prerelease: ${{ steps.check-tag.outputs.prerelease }}
+
+      - name: Upload test-dut binaries to release page
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: artifacts/tests-manual-artifacts
+          asset_name: tests-manual-artifacts.tar.gz
+          tag: ${{ github.ref }}
+          overwrite: true
+          prerelease: ${{ steps.check-tag.outputs.prerelease }}
