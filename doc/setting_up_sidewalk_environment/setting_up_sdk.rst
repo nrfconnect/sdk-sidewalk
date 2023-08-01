@@ -77,12 +77,6 @@ Download the Sidewalk application for the nRF Connect SDK:
 
       $ west config manifest.group-filter "+sidewalk"
 
-#. Install Python requirements for Sidewalk.
-
-   .. code-block:: console
-
-      $ pip install -r requirements.txt
-
 #. Set the Sidewalk application manifest and update.
 
    a. Check the current manifest path it should point to ``west.yml`` inside ``nrf`` directory:
@@ -99,6 +93,12 @@ Download the Sidewalk application for the nRF Connect SDK:
          $ west update
 
       Depending on your connection, the update might take some time.
+
+#. Install Python requirements for Sidewalk.
+
+   .. code-block:: console
+
+      $ pip install -r sidewalk/requirements.txt
 
 
 Extracting nRF Command Line Tools
