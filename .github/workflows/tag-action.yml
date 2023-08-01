@@ -39,48 +39,24 @@ jobs:
       - name: Check Tag
         id: check-tag
         run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+.[0-9]+.[0-9]$ ]]; then
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+.[0-9]+.[0-9]+$ ]]; then
               echo "prerelease=false" >> $GITHUB_OUTPUT
           else
               echo "prerelease=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Upload documentation to release page
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: artifacts/documentation.zip
-          asset_name: documentation.zip
-          tag: ${{ github.ref }}
-          overwrite: true
-          prerelease: ${{ steps.check-tag.outputs.prerelease }}
+      - name: prepare artifacts
+        run: |
+          cd artifacts;
+          shopt -s extglob
+          for f in !(*.zip) ; do zip -r $f.zip $f; done
 
-      - name: Upload build binaries to release page
+      - name: Upload artifacts to release page
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: artifacts/sample-artifacts
-          asset_name: sample-artifacts.tar.gz
           tag: ${{ github.ref }}
-          overwrite: true
-          prerelease: ${{ steps.check-tag.outputs.prerelease }}
-
-      - name: Upload test-dut binaries to release page
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: artifacts/tests-dut-artifacts
-          asset_name: tests-dut-artifacts.tar.gz
-          tag: ${{ github.ref }}
-          overwrite: true
-          prerelease: ${{ steps.check-tag.outputs.prerelease }}
-
-      - name: Upload test-dut binaries to release page
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: artifacts/tests-manual-artifacts
-          asset_name: tests-manual-artifacts.tar.gz
-          tag: ${{ github.ref }}
+          file: artifacts/*.zip
+          file_glob: true
           overwrite: true
           prerelease: ${{ steps.check-tag.outputs.prerelease }}

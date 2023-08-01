@@ -198,7 +198,10 @@ jobs:
           ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts for
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }} --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: |
+          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          rm -rf twister-out
+          tar -xf PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
@@ -206,7 +209,7 @@ jobs:
         with:
           name: tests-dut-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           path: |
-            PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}
+            twister-out
 
   combine_artifacts:
     runs-on: ubuntu-latest
@@ -322,11 +325,17 @@ jobs:
       - name: Combine tests-dut
         shell: bash
         run: |
-          mkdir package_artifacts
+          mkdir twister-out
           shopt -s extglob
-          cp -r artifacts/tests-dut-*/* package_artifacts/
-          tar -czvf tests-dut_artifacts.tar.gz package_artifacts
-          rm -rf package_artifacts
+          cp -r artifacts/tests-dut-*/!(*.json) twister-out/
+
+          echo -n "/workdir/zephyr/scripts/twister --dry-run --no-clean --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation" > twister_command.sh
+          cat platforms | while read platform_var; do echo -n " --platform $platform_var" >> twister_command.sh; done
+          echo "" >> twister_commands.sh
+          chmod +x twister_command.sh
+          ./twister_command.sh
+          tar -czvf tests-dut_artifacts.tar.gz twister-out
+          rm -rf twister-out twister_command.sh
 
       - uses: geekyeggo/delete-artifact@v2
         with:
