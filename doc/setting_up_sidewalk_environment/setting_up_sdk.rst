@@ -3,9 +3,8 @@
 Setting up SDK
 ##############
 
-The Amazon Sidewalk solution from Nordic Semiconductor is based on the `nRF Connect SDK v2.3.0`_.
-
-You can set up your development environment by following one of the installation methods below:
+See the compatibility between the versions of Amazon Sidewalk and the nRF Connect SDK by referring to the :ref:`compatibility_matrix`.
+Once confirmed, follow one of the installation methods below:
 
 .. tabs::
 
