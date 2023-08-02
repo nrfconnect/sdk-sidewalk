@@ -15,14 +15,14 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build documentation
-        run: cd doc; pip install -r requirements-doc.txt && sphinx-build -M html . build && zip -r documentation.zip build/html/*
+        run: cd doc; pip install -r requirements-doc.txt && sphinx-build -M html . build
 
       - name: Upload documentation
         uses: actions/upload-artifact@v3
         with:
-          name: documentation.zip
+          name: documentation
           path: |
-            doc/documentation.zip
+            doc/build
 
   publish_release:
     needs: [build_documentation, build_samples_and_tests]
@@ -47,16 +47,17 @@ jobs:
 
       - name: prepare artifacts
         run: |
-          cd artifacts;
+          mkdir package
+          cd artifacts
           shopt -s extglob
-          for f in !(*.zip) ; do zip -r $f.zip $f; done
+          for f in !(*.zip) ; do zip -r $f.zip $f/; mv $f.zip ../package; done
 
       - name: Upload artifacts to release page
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ github.ref }}
-          file: artifacts/*.zip
+          file: package/*.zip
           file_glob: true
           overwrite: true
           prerelease: ${{ steps.check-tag.outputs.prerelease }}
