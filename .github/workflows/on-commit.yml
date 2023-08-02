@@ -44,11 +44,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: get number of commuits pushed
+        id: get_commits
+        run: |
+          apt update && apt install -y jq
+          echo '${{toJson(github.event.commits)}}' > commits.json
+          tr -d '\n' < commits.json > commits_oneline.json
+          LL=$( jq '. | length' commits_oneline.json)
+          echo 'Number of commits pushed: $LL'
+          echo "commit_number=$LL" > $GITHUB_OUTPUT
+
       - name: Run Compliance Tests
         run: |
           cp -r ../sdk-sidewalk /workdir/sidewalk
           cd /workdir/sidewalk
-          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c ${{ github.event.before }}..
+          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c HEAD~${{steps.get_commits.outputs.commit_number}}..
 
   build_samples_and_tests:
     needs: [validate_code_compliance, validate_compliance_with_zephyr]

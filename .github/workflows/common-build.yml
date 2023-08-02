@@ -57,15 +57,18 @@ jobs:
           ln -s internal_sidewalk sidewalk
 
       - name: Twister build samples
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: |
+          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          cp twister-out/twister.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: sample-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          name: sample-artifacts
           path: |
-            twister-out/twister.json
+            subsets
             twister-out/**/*sidewalk*/build.log
             twister-out/**/*sidewalk*/zephyr/.config
             twister-out/**/*sidewalk*/zephyr/runners.yaml
@@ -146,15 +149,18 @@ jobs:
           ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts
-        run: /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+        run: |
+          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          mv twister-out/twister.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: tests-manual-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          name: tests-manual-artifacts
           path: |
-            twister-out/twister.json
+            subsets
             twister-out/**/*sidewalk*/build.log
             twister-out/**/*sidewalk*/zephyr/.config
             twister-out/**/*sidewalk*/zephyr/runners.yaml
@@ -202,148 +208,13 @@ jobs:
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
           rm -rf twister-out
           tar -xf PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2
-
+          mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          mv twister-out/*.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: tests-dut-${{ matrix.platform }}-${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          name: tests-dut-artifacts
           path: |
             twister-out
-
-  combine_artifacts:
-    runs-on: ubuntu-latest
-    container:
-      image: nordicplayground/nrfconnect-sdk:main
-      options: --cpus 2
-
-    needs:
-      - prep_matrixes
-      - build_samples
-      - build_manual_tests
-      - build_tests
-
-    env:
-      PLATFORMS: ${{ needs.prep_matrixes.outputs.supported_platforms }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: change_nrf_revision
-        if: ${{ inputs.change_nrf_revision }}
-        run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
-
-      - name: Reconfigure west
-        run: |
-          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
-          cd /workdir
-          west config manifest.path internal_sidewalk
-          west config manifest.file internal_west.yml
-          west update --narrow -o=--depth=1
-          ln -s internal_sidewalk sidewalk
-
-      - uses: actions/download-artifact@v3
-        with:
-          path: artifacts
-
-      - name: Prepare supported platforms
-        shell: bash
-        run: |
-          echo "${{env.PLATFORMS}}" >> platform_tmp
-          cat platform_tmp | sed -e 's/,//g' | head -n -1 | tail -n +2 > platform_tmp2
-          cat platform_tmp2 | sed 's/ //g' > platforms
-
-          rm -rf platform_tmp*
-
-          cat platforms
-
-      - name: Combine samples
-        shell: bash
-        run: |
-          mkdir twister-out
-          shopt -s extglob
-          cp -r artifacts/sample-*/!(twister.json) twister-out/
-          mkdir -p twister-out/build_reports
-          cp -r --parents artifacts/sample-*/twister.json twister-out/build_reports
-
-      - name: Create test plan
-        shell: bash
-        run: |
-          echo -n "/workdir/zephyr/scripts/twister --dry-run --no-clean --testsuite-root /workdir/sidewalk/tests/manual " > twister_command.sh
-          cat platforms | while read platform_var; do echo -n " --platform $platform_var" >> twister_command.sh; done
-          echo "" >> twister_command.sh
-
-          cat twister_command.sh
-
-          chmod +x twister_command.sh
-          ./twister_command.sh
-          tar -czvf samples_artifacts.tar.gz twister-out
-          rm -rf twister-out twister_command.sh
-
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: sample-*
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: sample-artifacts
-          path:
-            samples_artifacts.tar.gz
-
-      - name: Combine tests-manual
-        shell: bash
-        run: |
-          mkdir twister-out
-          shopt -s extglob
-          cp -r artifacts/tests-manual-*/!(twister.json) twister-out/
-
-      - name: Create test plan
-        shell: bash
-        run: |
-          echo -n "/workdir/zephyr/scripts/twister --dry-run --no-clean --testsuite-root /workdir/sidewalk/samples/" > twister_command.sh
-          cat platforms | while read platform_var; do echo -n " --platform $platform_var" >> twister_command.sh; done
-          echo "" >> twister_commands.sh
-          chmod +x twister_command.sh
-          ./twister_command.sh
-          tar -czvf tests-manual_artifacts.tar.gz twister-out
-          rm -rf twister-out twister_command.sh
-
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: tests-manual-*
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: tests-manual-artifacts
-          path:
-            tests-manual_artifacts.tar.gz
-
-      - name: Combine tests-dut
-        shell: bash
-        run: |
-          mkdir twister-out
-          shopt -s extglob
-          cp -r artifacts/tests-dut-*/!(*.json) twister-out/
-
-          echo -n "/workdir/zephyr/scripts/twister --dry-run --no-clean --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation" > twister_command.sh
-          cat platforms | while read platform_var; do echo -n " --platform $platform_var" >> twister_command.sh; done
-          echo "" >> twister_commands.sh
-          chmod +x twister_command.sh
-          ./twister_command.sh
-          tar -czvf tests-dut_artifacts.tar.gz twister-out
-          rm -rf twister-out twister_command.sh
-
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: tests-dut-*
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: tests-dut-artifacts
-          path:
-            tests-dut_artifacts.tar.gz
+            subsets
