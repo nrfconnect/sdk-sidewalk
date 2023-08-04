@@ -4,28 +4,20 @@ on:
     inputs:
       change_nrf_revision:
         description: 'change revision of nrf in west.yml to `main`'
-        default: false
         required: false
         type: boolean
+        default: false
+      supported_platforms:
+        description: 'platforms to build for'
+        required: false
+        type: string
+        default: '["nrf52840dk_nrf52840", "nrf5340dk_nrf5340_cpuapp"]'
 
 jobs:
-  prep_matrixes:
-    runs-on: ubuntu-latest
-    steps:
-      - id: nrf52
-        run: |
-          echo "platform=nrf52840dk_nrf52840" >> $GITHUB_OUTPUT
-      - id: nrf53
-        run: |
-          echo "platform=nrf5340dk_nrf5340_cpuapp" >> $GITHUB_OUTPUT
-    outputs:
-      supported_platforms: ${{ toJson(steps.*.outputs.platform)}}
-
   build_samples:
-    needs: prep_matrixes
     strategy:
       matrix:
-        platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms) }}
+        platform: ${{ fromJson(inputs.supported_platforms) }}
         subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     env:
       MAX_SUBSETS: 12
@@ -117,10 +109,9 @@ jobs:
             twister-out/**/device.log
 
   build_manual_tests:
-    needs: prep_matrixes
     strategy:
       matrix:
-        platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms)}}
+        platform: ${{ fromJson(inputs.supported_platforms) }}
         subset: [1, 2, 3, 4]
     env:
       MAX_SUBSETS: 4
@@ -172,10 +163,9 @@ jobs:
             twister-out/**/*sidewalk*/zephyr/dfu_application.zip
 
   build_tests:
-    needs: prep_matrixes
     strategy:
       matrix:
-        platform: ${{ fromJSON(needs.prep_matrixes.outputs.supported_platforms)}}
+        platform: ${{ fromJson(inputs.supported_platforms) }}
         subset: [1, 2, 3, 4, 5]
     env:
       MAX_SUBSETS: 5
@@ -205,7 +195,7 @@ jobs:
 
       - name: Build test artifacts for
         run: |
-          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/functional --testsuite-root /workdir/sidewalk/tests/unit_tests --testsuite-root /workdir/sidewalk/tests/validation --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests --filter runnable --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
           rm -rf twister-out
           tar -xf PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2
           mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
