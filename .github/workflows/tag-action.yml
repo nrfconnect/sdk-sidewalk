@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build documentation
-        run: cd doc; pip install -r requirements-doc.txt && sphinx-build -M html . build
+        run: cd doc; bash ./build_local.sh
 
       - name: Upload documentation
         uses: actions/upload-artifact@v3

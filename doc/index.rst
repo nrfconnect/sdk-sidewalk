@@ -47,6 +47,7 @@ Browse the content by referring to the following pages:
    sidewalk_known_issues.rst
    additional_resources.rst
 
+.. include:: ncs_links.rst
+   
 .. _Amazon license: https://raw.githubusercontent.com/nrfconnect/sdk-sidewalk/main/LICENSE.txt
 .. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
-.. _nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/index.html

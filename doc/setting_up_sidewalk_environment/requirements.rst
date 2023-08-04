@@ -105,6 +105,7 @@ RAM and flash memory requirement values differ depending on the DK and programme
       | :ref:`Template Bluetooth LE <template_ble>` (Release)             |            56 |               270 |                  28 |         354 |          77 |
       +-------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
 
+.. include:: ../ncs_links.rst
 
 .. _Amazon developer account: https://developer.amazon.com/dashboard
 .. _Amazon Web Service account: https://console.aws.amazon.com/console/home
@@ -116,5 +117,3 @@ RAM and flash memory requirement values differ depending on the DK and programme
 .. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id944011620
 .. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
-.. _nrf52840 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr
-.. _nrf5340 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr

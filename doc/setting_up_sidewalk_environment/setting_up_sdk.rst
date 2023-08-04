@@ -105,17 +105,13 @@ Extracting nRF Command Line Tools
 
 To download the nRF Command Line, go to the `nRF command line tools`_ page.
 
-.. _nRF Connect SDK v2.3.0: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/index.html
+.. include:: ../ncs_links.rst
+
 .. _Jlink tools: https://www.segger.com/downloads/jlink/
 .. _nrf tools: https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
-.. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/gs_installing.html#install-a-toolchain
-.. _Installing automatically: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/gs_assistant.html#installing-automatically
-.. _Installing manually: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/gs_installing.html#install-the-required-tools
 .. _Docker: https://docs.docker.com/engine/install/ubuntu/
 .. _nRF_command_line_tools: https://infocenter.nordicsemi.com/topic/ug_nrf_cltools/UG/cltools/nrf_installation.html
 .. _sdk-sidewalk repository: https://github.com/nrfconnect/sdk-sidewalk
-.. _nRF Connect SDK Getting started: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started.html
-.. _nRF52840 DK: https://www.nordicsemi.com/Software-and-tools/Development-Kits/nRF52840-DK
 .. _Semtech SX1262MB2CAS eval board: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
 .. _GNU Arm Embedded Toolchain: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
 .. _nRF Command Line Tools: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs

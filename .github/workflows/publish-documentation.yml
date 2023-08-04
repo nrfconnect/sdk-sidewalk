@@ -35,8 +35,7 @@ jobs:
       - name: Build
         run: |
           cd doc
-          pip install -r requirements-doc.txt
-          sphinx-build -M html . build
+          bash ./build_local.sh
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

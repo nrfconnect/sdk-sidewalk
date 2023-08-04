@@ -87,8 +87,6 @@ You should see the following output:
 
 To start testing the application, you can use the available commands (``sid help``).
 
-.. _nrf5340dk_nrf5340: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/boards/arm/nrf5340dk_nrf5340/doc/index.html#nrf5340dk-nrf5340
+.. include:: ../../ncs_links.rst
+
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
-.. _Building and programming an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/programming.html#gs-programming
-.. _Testing and debugging an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/getting_started/testing.html#gs-testing
-.. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/boards/arm/nrf52dk_nrf52832/doc/index.html#nrf52dk-nrf52832

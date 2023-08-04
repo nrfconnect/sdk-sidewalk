@@ -66,5 +66,6 @@ The following table demonstrates configuration for the supported development kit
    sidewalk_application_samples/template_ble.rst
    sidewalk_application_samples/dut.rst
 
-.. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/zephyr/boards/arm/nrf52840dk_nrf52840/doc/index.html
+.. include:: ../ncs_links.rst
+
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas

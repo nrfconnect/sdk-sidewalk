@@ -84,6 +84,6 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     | NRESET        | P0.04       |
     +---------------+-------------+
 
-.. _Getting started with nRF52 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/working_with_nrf/nrf52/gs.html
-.. _Getting started with nRF53 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/working_with_nrf/nrf53/nrf5340_gs.html
+.. include:: ../ncs_links.rst
+
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
