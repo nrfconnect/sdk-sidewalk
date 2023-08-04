@@ -32,6 +32,11 @@ jobs:
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
           nrf_hash="$(git -C nrf rev-parse HEAD)"
           python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/internal_west.yml
+
+      - name: Update nrf links in doc
+        run: |
+          bash sidewalk/doc/update_ncs_links.sh > sidewalk/doc/ncs_links.rst
+
       - name: Get Date
         id: date
         run: |
