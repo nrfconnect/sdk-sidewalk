@@ -26,6 +26,7 @@ jobs:
           repository: nrfconnect/sdk-nrf
           path: nrf
           ref: main
+          fetch-depth: 0
 
       - name: Change nrf revision
         run: |
