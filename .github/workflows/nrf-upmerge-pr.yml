@@ -36,9 +36,12 @@ jobs:
 
       - name: Update nrf links in doc
         shell: bash
+        env:
+          ZEPHYR_BASE: ./zephyr
         run: |
-          ZEPHYR_BASE=${GITHUB_WORKSPACE}/zephyr
+          mkdir -p $ZEPHYR_BASE
           sidewalk/doc/update_ncs_links.sh > sidewalk/doc/ncs_links.rst
+          cat sidewalk/doc/ncs_links.rst
 
       - name: Get Date
         id: date
