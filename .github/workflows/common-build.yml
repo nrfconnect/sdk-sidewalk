@@ -26,6 +26,9 @@ jobs:
     container:
       image: nordicplayground/nrfconnect-sdk:main
       options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
       - name: Checkout
@@ -33,14 +36,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
         run: |
-          python3 -m pip install -r scripts/ci/requirements.txt
           python3 scripts/ci/replace_nrf_revision_in_west.py internal_west.yml
 
       - name: Reconfigure west
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
           west config manifest.path internal_sidewalk
@@ -50,6 +59,7 @@ jobs:
 
       - name: Twister build samples
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
           mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           cp twister-out/twister.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
@@ -76,10 +86,20 @@ jobs:
     container:
       image: nordicplayground/nrfconnect-sdk:main
       options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git gcc g++ gcc-multilib
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -88,6 +108,7 @@ jobs:
 
       - name: Reconfigure west
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
           west config manifest.path internal_sidewalk
@@ -96,7 +117,9 @@ jobs:
           ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts for
-        run: /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -120,10 +143,19 @@ jobs:
     container:
       image: nordicplayground/nrfconnect-sdk:main
       options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -132,6 +164,7 @@ jobs:
 
       - name: Reconfigure west
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
           west config manifest.path internal_sidewalk
@@ -141,6 +174,7 @@ jobs:
 
       - name: Build test artifacts
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
           mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           mv twister-out/twister.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
@@ -174,6 +208,9 @@ jobs:
     container:
       image: nordicplayground/nrfconnect-sdk:main
       options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
       - name: Checkout
@@ -184,8 +221,15 @@ jobs:
         run: |
           python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
 
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git lbzip2
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
       - name: Reconfigure west
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
           west config manifest.path internal_sidewalk
@@ -193,8 +237,9 @@ jobs:
           west update --narrow -o=--depth=1
           ln -s internal_sidewalk sidewalk
 
-      - name: Build test artifacts for
+      - name: Build test artifacts for ${{ matrix.platform }}
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests --filter runnable --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
           rm -rf twister-out
           tar -xf PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2

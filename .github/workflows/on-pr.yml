@@ -33,8 +33,17 @@ jobs:
     container:
       image: nordicplayground/nrfconnect-sdk:main
       options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -45,7 +54,9 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          cp -r ../sdk-sidewalk /workdir/sidewalk
+          source /workdir/zephyr/zephyr-env.sh
+          cp -r ../sdk-sidewalk /workdir/sidewalk_internal
+          ln -s /workdir/sidewalk_internal /workdir/sidewalk
           cd /workdir/sidewalk
           python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c origin/${BASE_REF}..
 
