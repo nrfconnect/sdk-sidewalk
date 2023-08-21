@@ -124,10 +124,12 @@ function run_build ()
         echo "[INFO]: Build test not executed"
         return 0
     fi
-    run_twister $TWISTER_PLATFORM --build-only --show-footprint -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/samples)) || { return $?; }
+    run_twister $TWISTER_PLATFORM --build-only --show-footprint -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/samples))
+    status=$?
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-build"
 
     python3 ${CURRENT_DIR}/memory_requirements.py --twister-out-dir "${CURRENT_DIR}/twister-out-build" --ncs-dir "${ZEPHYR_BASE}/../" > "${CURRENT_DIR}/twister-out-build/memory_report.rst"
+    return $status
 }
 
 function run_ut ()
@@ -137,14 +139,15 @@ function run_ut ()
         echo "[INFO]: Run unit tests not executed"
         return 0
     fi
-    run_twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) || { return $?; }
+    run_twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
+    status=$?
     echo "[INFO]: Remove files from coverage that are not under test and regenerate html report"
     lcov -q --remove "${CURRENT_DIR}/twister-out/coverage.info" "${LCOV_EXCLUDE[@]}" -o "${CURRENT_DIR}/twister-out/new_coverage.info"
     mv "${CURRENT_DIR}/twister-out/new_coverage.info" "${CURRENT_DIR}/twister-out/coverage.info"
     rm -rf "${CURRENT_DIR}/twister-out/coverage"
     genhtml "${CURRENT_DIR}/twister-out/coverage.info" -o "${CURRENT_DIR}/twister-out/coverage" -q --ignore-errors source --branch-coverage --highlight --legend
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-posix"
-    return $?
+    return $status
 }
 
 function run_on_hw ()
@@ -162,9 +165,10 @@ function run_on_hw ()
     fi
     run_twister -v --generate-hardware-map hardware-map.yaml --persistent-hardware-map
     python3 "$CURRENT_DIR/fill_hardware_map.py" --hardware_map_path hardware-map.yaml  --userdev_conf_path "$USERDEV_CONF_FILE"
-    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase" || { return $?; }
+    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
+    status=$?
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-on_HW"
-    return $?
+    return $status
 }
 
 function main ()
