@@ -31,16 +31,16 @@ jobs:
         shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
       - name: Install dependencies
         run: |
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
           python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -91,15 +91,17 @@ jobs:
         shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Install dependencies
         run: |
           source /workdir/zephyr/zephyr-env.sh
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git gcc g++ gcc-multilib
           python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -148,14 +150,16 @@ jobs:
         shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Install dependencies
         run: |
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
           python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -213,19 +217,21 @@ jobs:
         shell: nrfutil toolchain-manager launch bash -- {0}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: change_nrf_revision
-        if: ${{ inputs.change_nrf_revision }}
-        run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
-
       - name: Install dependencies
         run: |
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git lbzip2
           python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
 
       - name: Reconfigure west
         run: |
