@@ -79,7 +79,7 @@ def print_x_macro(ncs_dir_path, essential_modules, west_module_list):
         else:
             version = describe_cmd.stdout.decode("utf-8").strip()
 
-        if id == 0 and re.match("sidewalk", path):
+        if id == 0 and re.search("sidewalk", path):
             path = "sidewalk"
 
         result += f"\\\n\tITEM(\"{path}\", \"{version}\", {len([i for i in essential_modules if re.search(i, path)])})"
