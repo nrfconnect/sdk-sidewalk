@@ -35,12 +35,15 @@ jobs:
         run: |
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -96,12 +99,15 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git gcc g++ gcc-multilib
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -154,12 +160,15 @@ jobs:
         run: |
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -221,12 +230,15 @@ jobs:
         run: |
           apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
           lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git lbzip2
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
