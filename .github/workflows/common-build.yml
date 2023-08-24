@@ -208,6 +208,7 @@ jobs:
             twister-out/**/*sidewalk*/zephyr/merged_domains.hex
             twister-out/**/*sidewalk*/zephyr/*.dts
             twister-out/**/*sidewalk*/zephyr/dfu_application.zip
+            twister-out/**/*sidewalk*/zephyr/sidewalk_version.c
 
   build_tests:
     strategy:

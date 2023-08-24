@@ -82,7 +82,7 @@ def print_x_macro(ncs_dir_path, essential_modules, west_module_list):
         if id == 0 and re.match("sidewalk", path):
             path = "sidewalk"
 
-        result += f"\\\n\tITEM(\"{path}\", \"{version}\", {len([i for i in essential_modules if re.match(i, path)])})"
+        result += f"\\\n\tITEM(\"{path}\", \"{version}\", {len([i for i in essential_modules if re.search(i, path)])})"
     return result + '\n'
 
 
