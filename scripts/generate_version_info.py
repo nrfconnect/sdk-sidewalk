@@ -70,7 +70,7 @@ def print_x_macro(ncs_dir_path, essential_modules, west_module_list):
     result = "// module_path, version, always_raport\n//define macro X(name, version) to operate on Xmacro\n"
     result += "#define SIDEWALK_VERSION_COMPONENTS "
 
-    for path, hash in west_module_list():
+    for id, (path, hash) in enumerate(west_module_list()):
 
         describe_cmd = subprocess.run(["git", "describe", "--always", "--dirty"],
                                       cwd=os.path.join(ncs_dir_path, path),  capture_output=True)
@@ -79,7 +79,9 @@ def print_x_macro(ncs_dir_path, essential_modules, west_module_list):
         else:
             version = describe_cmd.stdout.decode("utf-8").strip()
 
-        # int(path in essential_modules)
+        if id == 0 and re.match("sidewalk", path):
+            path = "sidewalk"
+
         result += f"\\\n\tITEM(\"{path}\", \"{version}\", {len([i for i in essential_modules if re.match(i, path)])})"
     return result + '\n'
 
