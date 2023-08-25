@@ -77,3 +77,7 @@ jobs:
   build_samples_and_tests:
     needs: [validate_code_compliance, validate_compliance_with_zephyr]
     uses: ./.github/workflows/common-build.yml
+
+  run_dut_ut:
+    needs: build_samples_and_tests
+    uses: ./.github/workflows/rpi_runner.yml
