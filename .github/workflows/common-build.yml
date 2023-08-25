@@ -244,7 +244,7 @@ jobs:
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
         run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py west.yml
+          python3 scripts/ci/replace_nrf_revision_in_west.py internal_west.yml
 
       - name: Reconfigure west
         run: |
