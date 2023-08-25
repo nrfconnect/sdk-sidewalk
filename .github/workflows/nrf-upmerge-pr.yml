@@ -61,3 +61,4 @@ jobs:
           signoff: true
           committer: Sidewalk Team <sidewalk@nordicsemi.no>
           author: Sidewalk Team <sidewalk@nordicsemi.no>
+          labels: func-commit
