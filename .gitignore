@@ -23,6 +23,7 @@ tags
 .xxproject
 .envrc
 .vscode
+.devcontainer
 sanity-out*
 twister-out*
 map.yml
