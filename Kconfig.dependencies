@@ -34,7 +34,6 @@ config SIDEWALK_BLE
 	imply BT
 	imply SETTINGS
 	imply BT_PERIPHERAL
-	imply BT_GATT_CLIENT
 	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
@@ -146,7 +145,7 @@ config SIDEWALK_CRITICAL_REGION_RE_ENTRY_MAX
 	int
 	default 8
 	help
-	  Maximum nesting level of critical region 
+	  Maximum nesting level of critical region
 	  If the nesting level becomes greater than set by this config, assert will be triggered.
 
 endif # SIDEWALK_CRITICAL_REGION
