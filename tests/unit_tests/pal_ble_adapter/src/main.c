@@ -27,7 +27,6 @@ FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
 FAKE_VALUE_FUNC(int, bt_disable);
 FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *,
 		size_t, const struct bt_data *, size_t);
-FAKE_VALUE_FUNC(int, bt_gatt_exchange_mtu, struct bt_conn *, struct bt_gatt_exchange_params *);
 
 FAKE_VALUE_FUNC(int, bt_le_adv_stop);
 FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
@@ -48,7 +47,6 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct 
 	FAKE(bt_disable)                                                                           \
 	FAKE(bt_le_adv_start)                                                                      \
 	FAKE(bt_le_adv_stop)                                                                       \
-	FAKE(bt_gatt_exchange_mtu)                                                                 \
 	FAKE(bt_conn_cb_register)                                                                  \
 	FAKE(bt_conn_ref)                                                                          \
 	FAKE(bt_conn_unref)                                                                        \
