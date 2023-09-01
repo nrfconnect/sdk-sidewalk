@@ -21,4 +21,4 @@ if git_describe_cmd.returncode != 0:
 version = git_describe_cmd.stdout.decode("utf-8")
 version_numbers = subtext(version, r"v(\d+\.\d+\.\d+)", "0.0.0") + \
     "+" + subtext(version, r"v[\d\.]+-(\d+)", "0")
-print(f"CONFIG_MCUBOOT_IMAGE_VERSION=\"{version_numbers}\"")
+print(f"CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION=\"{version_numbers}\"")
