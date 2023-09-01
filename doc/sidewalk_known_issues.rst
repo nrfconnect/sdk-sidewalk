@@ -8,6 +8,11 @@ See the list of known issues that are valid for the current state of development
 v1.14.5-dev1
 ------------
 
+* KRKNWK-17374: Zephyr fatal error (assertion in semaphore module) after link down on FSK.
+    The issue occurs in Sidewalk 1.14 libraries, will be fixed in 1.16.
+    It reproduces rarely - once per few days.
+    In release mode device resets automatically, in debug mode it need to be reset manually.
+
 * KRKNWK-17320: Bluetooth LE connection between Gateway and End Node drops within 30 seconds of being idle.
     The issue occurs only on the nRF5340 development kit (experimental support) and happens due to failing certification test.
 
@@ -18,7 +23,7 @@ v1.14.5-dev1
     The issue occurs only on the nRF5340 development kit (experimental support).
 
 * KRKNWK-17114: Bootloader configuration is not optimized.
-   The issue occurs only on the nRF5340 development kit (experimental support). 
+   The issue occurs only on the nRF5340 development kit (experimental support).
    Due to large bootloader partition size (48 kB), the DFU always requires an external flash.
 
 * KRKNWK-17035: Sensor monitor uplink messages are lost when the notification period is longer than 30 seconds.
