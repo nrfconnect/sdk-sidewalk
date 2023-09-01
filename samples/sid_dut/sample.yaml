@@ -2,7 +2,7 @@ sample:
   name: Sidewalk API test applicaiton
   description: Sample that uses shell to invoke sidewalk api functions
 tests:
-  sidewalk.sid_dut:
+  sample.sidewalk.sid_dut:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp nrf5340dk_nrf5340_cpuapp_ns
     integration_platforms:
@@ -10,3 +10,13 @@ tests:
       - nrf5340dk_nrf5340_cpuapp
       - nrf5340dk_nrf5340_cpuapp_ns
     tags: Sidewalk
+
+  functional.sidewalk.sid_dut_functional:
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp nrf5340dk_nrf5340_cpuapp_ns
+    timeout: 6000
+    harness: pytest
+    harness_config:
+      # Sidewalk_dut fixture require Semtech SX12XX module connected to DK,
+      # and working Amazone Echo.
+      fixture: AmazonEcho+Semtech
+      pytest_args: ['--log-level=INFO', '--exitfirst', '-k', 'test_functional.py']

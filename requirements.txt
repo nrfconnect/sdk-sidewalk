@@ -1,1 +1,2 @@
 -r scripts/ci/requirements.txt
+python-dotenv>=1.0.0

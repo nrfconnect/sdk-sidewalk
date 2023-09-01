@@ -85,6 +85,8 @@ def main():
     diff_result = {}
 
     for element in new_report.get("testsuites", dict()):
+        if not ("/sample." in element.get("name", "")):
+            continue
         key = element.get("platform", "") + ":" + \
             element.get("name", "").split("/")[-1]
         if diff_result.get(key, None) is None:
@@ -95,6 +97,8 @@ def main():
         diff_result[key]['available_rom'] = element.get("available_rom", 0)
 
     for element in old_report.get("testsuites", dict()):
+        if not ("/sample." in element.get("name", "")):
+            continue
         key = element.get("platform", "") + ":" + \
             element.get("name", "").split("/")[-1]
         if diff_result.get(key, None) is None:
