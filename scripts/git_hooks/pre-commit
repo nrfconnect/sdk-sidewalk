@@ -3,9 +3,8 @@
 # Copyright (c) 2022 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
-
 SIDEWALK_PATH=$(git rev-parse --show-toplevel)
-python3 $SIDEWALK_PATH/scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m identity -c HEAD
+python3 $SIDEWALK_PATH/scripts/ci/sid_compliance.py --annotate --loglevel 'WARNING' -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m identity -c HEAD
 if [ $? -ne 0 ]; then
     exit 1
 fi

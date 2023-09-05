@@ -10,7 +10,7 @@ import subprocess
 import re
 import argparse
 import sys
-MIN_PYTHON = (3, 10)
+MIN_PYTHON = (3, 8)
 assert sys.version_info >= MIN_PYTHON, f"requires Python {'.'.join([str(n) for n in MIN_PYTHON])} or newer"
 
 
