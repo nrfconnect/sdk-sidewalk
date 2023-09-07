@@ -85,6 +85,14 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 		(status->detail.time_sync_status == SID_STATUS_TIME_SYNCED) ? "Success" : "Fail",
 		status->detail.link_status_mask);
 
+	if ((status->state == SID_STATE_READY) &&
+	    (status->detail.time_sync_status == SID_STATUS_TIME_SYNCED) &&
+	    (status->detail.registration_status == SID_STATUS_REGISTERED) &&
+	    (status->detail.link_status_mask > 0)) {
+		/* When connection to cloud is established send the capability message */
+		app_context->app_state = DEMO_APP_STATE_INIT;
+	}
+
 	app_context->link_status.link_mask = status->detail.link_status_mask;
 	app_context->link_status.time_sync_status = status->detail.time_sync_status;
 
