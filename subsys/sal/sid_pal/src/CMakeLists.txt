@@ -25,6 +25,7 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_BLE
 	sid_ble_adapter_callbacks.c
 	sid_ble_advert.c
 	sid_ble_connection.c
+	hci_utils.c
 )
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_VENDOR_SERVICE sid_ble_vnd_service.c)

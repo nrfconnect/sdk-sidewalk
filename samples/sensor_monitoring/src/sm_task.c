@@ -155,6 +155,7 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 
 	struct sid_handle *sid_handle = app_context->sidewalk_handle;
 	app_context->sidewalk_state = STATE_SIDEWALK_NOT_READY;
+	LOG_INF("sidewalk_state = %s", app_sidewalk_state_to_str(app_context->sidewalk_state));
 
 	LOG_INF("Starting %s ...", __FUNCTION__);
 
@@ -262,6 +263,9 @@ static void sidewalk_receive_task(void *context, void *dummy1, void *dummy2)
 						LOG_INF("Capability response received");
 						g_app_context.app_state =
 							DEMO_APP_STATE_NOTIFY_SENSOR_DATA;
+						LOG_INF("app_state = %s",
+							demo_app_state_to_string(
+								g_app_context.app_state));
 					} else if (msg_desc.cmd_id ==
 						   SID_DEMO_APP_CLASS_CMD_ACTION) {
 						LOG_INF("Action response received");
