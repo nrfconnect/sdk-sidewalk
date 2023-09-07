@@ -68,15 +68,21 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	switch (status->state) {
 	case SID_STATE_READY:
 		app_context->sidewalk_state = STATE_SIDEWALK_READY;
+		LOG_INF("sidewalk_state = %s",
+			app_sidewalk_state_to_str(app_context->sidewalk_state));
 		break;
 	case SID_STATE_NOT_READY:
 		app_context->sidewalk_state = STATE_SIDEWALK_NOT_READY;
+		LOG_INF("sidewalk_state = %s",
+			app_sidewalk_state_to_str(app_context->sidewalk_state));
 		break;
 	case SID_STATE_ERROR:
 		LOG_ERR("Sidewalk error: %d", (int)sid_get_error(app_context->sidewalk_handle));
 		break;
 	case SID_STATE_SECURE_CHANNEL_READY:
 		app_context->sidewalk_state = STATE_SIDEWALK_SECURE_CONNECTION;
+		LOG_INF("sidewalk_state = %s",
+			app_sidewalk_state_to_str(app_context->sidewalk_state));
 		break;
 	}
 
@@ -91,6 +97,7 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	    (status->detail.link_status_mask > 0)) {
 		/* When connection to cloud is established send the capability message */
 		app_context->app_state = DEMO_APP_STATE_INIT;
+		LOG_INF("app_state = %s", demo_app_state_to_string(app_context->app_state));
 	}
 
 	app_context->link_status.link_mask = status->detail.link_status_mask;
@@ -109,6 +116,7 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	if (app_context->app_state == DEMO_APP_STATE_INIT &&
 	    status->detail.registration_status == SID_STATUS_REGISTERED) {
 		app_context->app_state = DEMO_APP_STATE_REGISTERED;
+		LOG_INF("app_state = %s", demo_app_state_to_string(app_context->app_state));
 	}
 
 	if (app_context->sidewalk_state == STATE_SIDEWALK_READY) {
@@ -116,6 +124,7 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 
 		if (app_context->app_state == DEMO_APP_STATE_REGISTERED) {
 			app_context->app_state = DEMO_APP_STATE_NOTIFY_CAPABILITY;
+			LOG_INF("app_state = %s", demo_app_state_to_string(app_context->app_state));
 		} else if (app_context->app_state == DEMO_APP_STATE_NOTIFY_SENSOR_DATA) {
 			delay = K_MSEC(CONFIG_SM_TIMER_DEMO_NOTIFY_SENSOR_DATA_PERIOD_MS);
 		}

@@ -12,6 +12,7 @@
 #include <zephyr/logging/log.h>
 
 #include <errno.h>
+#include <hci_utils.h>
 
 #include <zephyr/kernel.h>
 K_MUTEX_DEFINE(bt_conn_mutex);
@@ -94,7 +95,7 @@ static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 	conn_params.conn = NULL;
 	k_mutex_unlock(&bt_conn_mutex);
 
-	LOG_INF("BT Disconnected Reason: 0x%x", reason);
+	LOG_INF("BT Disconnected Reason: 0x%x = %s", reason, HCI_err_to_str(reason));
 }
 
 static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu)

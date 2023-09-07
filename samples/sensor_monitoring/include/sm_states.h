@@ -14,11 +14,15 @@ enum app_sidewalk_state {
 	STATE_SIDEWALK_SECURE_CONNECTION,
 };
 
+const char *app_sidewalk_state_to_str(const enum app_sidewalk_state state);
+
 enum demo_app_state {
 	DEMO_APP_STATE_INIT,
 	DEMO_APP_STATE_REGISTERED,
 	DEMO_APP_STATE_NOTIFY_CAPABILITY,
 	DEMO_APP_STATE_NOTIFY_SENSOR_DATA,
 };
+
+const char *demo_app_state_to_string(const enum demo_app_state state);
 
 #endif /* SM_STATES_H */
