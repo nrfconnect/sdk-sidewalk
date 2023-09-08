@@ -10,7 +10,7 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_sid_ble_connection)
 set(SIDEAWLK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
-target_sources(app PRIVATE ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_ble_connection.c)
+target_sources(app PRIVATE ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_ble_connection.c ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/hci_utils.c)
 
 cmock_handle(${SIDEAWLK_BASE}/subsys/sal/sid_pal/include/sid_ble_adapter_callbacks.h)
 
