@@ -9,12 +9,20 @@ if len(sys.argv) <= 3:
     print("not enough arguments")
     exit(0)
 
-*files_to_combine, output_file = sys.argv[1:]
+first_file, *files_to_combine, output_file = sys.argv[1:]
 
-combined = {"testsuites": []}
+combined = dict()
+try:
+    print(f"open {first_file}")
+    with open(first_file, "r") as f:
+        combined = json.load(f)
+
+except FileNotFoundError:
+    print(f"Failed to open file {file}")
 
 for file in files_to_combine:
     try:
+        print(f"open {file}")
         with open(file, "r") as f:
             report = json.load(f)
             combined["testsuites"].extend(report.get("testsuites", []))
@@ -22,4 +30,4 @@ for file in files_to_combine:
         print(f"Failed to open file {file}")
 
 with open(output_file, "w") as f:
-    json.dump(combined, f)
+    json.dump(combined, f, indent=4)

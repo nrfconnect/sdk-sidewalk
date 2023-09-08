@@ -1,0 +1,54 @@
+name: Build Sidewalk samples and tests
+on:
+  workflow_call:
+
+jobs:
+  run_dut_ut:
+    runs-on: test-node
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2 --privileged
+      volumes:
+        - /hw_settings/hardware_map.yaml:/hw_settings/hardware_map.yaml
+        - /dev:/dev
+        - /run/udev:/run/udev
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: sidewalk
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: tests-dut-artifacts
+
+      - name: Run Tests
+        run: |
+          connected_DKs=`grep "connected: true" /hw_settings/hardware_map.yaml | wc -l`
+          python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/twister.json twister-out/twister.json
+          python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/testplan.json twister-out/testplan.json
+          /workdir/zephyr/scripts/twister -j $connected_DKs --no-clean -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-dut_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
