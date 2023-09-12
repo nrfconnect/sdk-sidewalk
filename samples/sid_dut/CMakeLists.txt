@@ -6,13 +6,14 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
+include(../common/bootloader_version.cmake)
+
+set(hci_rpmsg_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/hci_rpmsg/Kconfig.root)
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template)
 
-zephyr_include_directories(
-  src/
-  $ENV{ZEPHYR_BASE}/../sidewalk/samples/common/include
-)
+zephyr_include_directories(src)
 
 target_sources(app PRIVATE
   src/main.c
