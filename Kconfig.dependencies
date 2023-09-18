@@ -283,6 +283,3 @@ config USB_DEVICE_INITIALIZE_AT_BOOT
 	default n
 
 endif # SIDEWALK_DFU_SERVICE_USB
-
-config UART_1_NRF_UARTE
-    default n
