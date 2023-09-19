@@ -1,6 +1,12 @@
 name: Build Sidewalk samples and tests
 on:
   workflow_call:
+    inputs:
+      change_nrf_revision:
+        description: 'change revision of nrf in west.yml to `main`'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   run_dut_ut:
@@ -48,6 +54,61 @@ jobs:
         if: always()
         with:
           name: tests-dut_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+  build_and_run_ut_x86:
+    runs-on: ubuntu-latest
+    container:
+      image: nordicplayground/nrfconnect-sdk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch bash -- {0}
+
+    steps:
+      - name: Install dependencies
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
+          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git gcc g++ gcc-multilib
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py internal_west.yml
+
+      - name: Reconfigure west
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
+          cd /workdir
+          west config manifest.path internal_sidewalk
+          west config manifest.file internal_west.yml
+          west update --narrow -o=--depth=1
+          ln -s internal_sidewalk sidewalk
+
+      - name: Build test artifacts for
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86_result
           path: |
             twister-out/twister.xml
             twister-out/**/handler.log

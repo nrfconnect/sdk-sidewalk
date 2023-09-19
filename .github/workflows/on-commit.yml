@@ -80,3 +80,7 @@ jobs:
   run_dut_unit_tests:
     needs: [build_samples_and_tests]
     uses: ./.github/workflows/common_run_dut_ut.yml
+
+  publish_test_results:
+    needs: [run_dut_unit_tests]
+    uses: ./.github/workflows/publish_test_results.yml
