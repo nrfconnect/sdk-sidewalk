@@ -110,7 +110,7 @@ bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t
 	for (size_t i = 0; i < ad_len; i++) {
 		if (ad[i].type == BT_DATA_MANUFACTURER_DATA) {
 			TEST_ASSERT_GREATER_OR_EQUAL_UINT8(BT_COMP_ID_LEN, ad[i].data_len);
-			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA)&0xff), ad[i].data[0]);
+			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA) & 0xff), ad[i].data[0]);
 			TEST_ASSERT_EQUAL_UINT8((((BT_COMP_ID_AMA) >> 8) & 0xff), ad[i].data[1]);
 
 			*result_len = ad[i].data_len - BT_COMP_ID_LEN;
