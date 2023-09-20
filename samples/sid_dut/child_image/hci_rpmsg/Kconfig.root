@@ -7,5 +7,5 @@
 # The purpose of this file is to create a wrapper Kconfig file that will be set as
 # hci_rpmsg_KCONFIG_ROOT and processed before any other Kconfig for hci_rpmsg child image.
 
-rsource "../../../common/Kconfig.hci_rpmsg.defaults"
+rsource "${ZEPHYR_BASE}/../sidewalk/samples/common/Kconfig.hci_rpmsg.defaults"
 source "Kconfig.zephyr"

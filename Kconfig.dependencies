@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+choice LIBC_IMPLEMENTATION
+	default NEWLIB_LIBC
+endchoice
+
 config SIDEWALK_SUBGHZ
 	bool
 	default SIDEWALK && (SIDEWALK_LINK_MASK_FSK || SIDEWALK_LINK_MASK_LORA)
