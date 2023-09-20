@@ -47,13 +47,17 @@ config BOOT_MAX_IMG_SECTORS
 config LOG
     default n
 
-config MINIMAL_LIBC_CALLOC
+choice LIBC_IMPLEMENTATION
+	default MINIMAL_LIBC
+endchoice
+
+config COMMON_LIBC_CALLOC
     default y
 
-config MINIMAL_LIBC_MALLOC
+config COMMON_LIBC_MALLOC
     default y
 
-config MINIMAL_LIBC_REALLOCARRAY
+config COMMON_LIBC_REALLOCARRAY
     default y
 
 config NCS_SAMPLES_DEFAULTS
