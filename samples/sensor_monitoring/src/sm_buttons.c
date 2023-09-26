@@ -41,6 +41,7 @@ static void btn_event_handler(uint32_t event)
 	case BTN_EVENT_KEY_0:
 		BTN_CHECK_AND_SET_MASK(0);
 		break;
+#ifndef CONFIG_BOARD_THINGY53_NRF5340_CPUAPP
 	case BTN_EVENT_KEY_1:
 		BTN_CHECK_AND_SET_MASK(1);
 		break;
@@ -50,6 +51,7 @@ static void btn_event_handler(uint32_t event)
 	case BTN_EVENT_KEY_3:
 		BTN_CHECK_AND_SET_MASK(3);
 		break;
+#endif
 	default:
 		break;
 	}
@@ -166,10 +168,12 @@ int sm_buttons_init()
 {
 	button_set_action_long_press(DK_BTN1, btn_event_handler, BTN_EVENT_RESET_KEY);
 	button_set_action_short_press(DK_BTN1, btn_event_handler, BTN_EVENT_KEY_0);
+#ifndef CONFIG_BOARD_THINGY53_NRF5340_CPUAPP
+	button_set_action_long_press(DK_BTN1, btn_event_handler, BTN_EVENT_RESET_KEY);
 	button_set_action(DK_BTN2, btn_event_handler, BTN_EVENT_KEY_1);
 	button_set_action(DK_BTN3, btn_event_handler, BTN_EVENT_KEY_2);
 	button_set_action(DK_BTN4, btn_event_handler, BTN_EVENT_KEY_3);
-
+#endif
 	for (size_t i = 0; i < DEMO_BUTTONS_MAX; i++) {
 		button_id_arr[i] = i;
 	}

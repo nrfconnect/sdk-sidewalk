@@ -12,6 +12,14 @@
 #include <assert.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+
+#if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
+#include <zephyr/drivers/sensor.h>
+#include <zephyr/device.h>
+
+static const struct device *bme688_sensor_dev = DEVICE_DT_GET_ONE(bosch_bme680);
+#endif
+
 LOG_MODULE_REGISTER(sm_notify, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define SENSOR_NOTIFY_PAYLOAD_SIZE_MAX 32
@@ -92,7 +100,17 @@ void sm_notify_sensor_data(app_context_t *app_context, bool button_pressed)
 
 	if (!button_pressed) {
 		action_notify.temp_sensor = SID_DEMO_TEMPERATURE_SENSOR_UNITS_CELSIUS;
+#if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
+		if (device_is_ready(bme688_sensor_dev)) {
+			struct sensor_value temp;
+			sensor_sample_fetch(bme688_sensor_dev);
+
+			sensor_channel_get(bme688_sensor_dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+			action_notify.temperature = temp.val1;
+		}
+#else
 		action_notify.temperature = sid_pal_temperature_get();
+#endif
 	} else {
 		action_notify.temp_sensor = SID_DEMO_TEMPERATURE_SENSOR_NOT_SUPPORTED;
 		uint8_t temp_button_arr[DEMO_BUTTONS_MAX] = { 0 };

@@ -9,8 +9,11 @@
 #include <dk_buttons_and_leds.h>
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sm_leds, CONFIG_SIDEWALK_LOG_LEVEL);
-
+#if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
+#define DEMO_LEDS_MAX 3
+#else
 #define DEMO_LEDS_MAX 4
+#endif
 #define LED_ACTION_REPONSE_PAYLOAD_SIZE_MAX 32
 
 static int leds_state;

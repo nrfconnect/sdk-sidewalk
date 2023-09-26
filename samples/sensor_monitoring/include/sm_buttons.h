@@ -9,8 +9,11 @@
 
 #include <sm_task.h>
 
+#if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
+#define DEMO_BUTTONS_MAX 1
+#else
 #define DEMO_BUTTONS_MAX 4
-
+#endif
 /**
  * @brief Action response process.
  *
