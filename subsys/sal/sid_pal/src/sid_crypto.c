@@ -829,13 +829,13 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 	switch (params->algo) {
 	case SID_PAL_EDDSA_ED25519:
 		type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS);
-		alg = PSA_ALG_ECDSA_ANY;
+		alg = PSA_ALG_PURE_EDDSA;
 		key_len = ED25519_KEY_LEN_BITS;
 		break;
 	case SID_PAL_ECDSA_SECP256R1:
 	case SID_PAL_ECDH_SECP256R1:
 		type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
-		alg = PSA_ALG_ECDSA_ANY;
+		alg = PSA_ALG_ECDSA(PSA_ALG_SHA_256);
 		key_len = SECP256R1_KEY_LEN_BITS;
 		/* The SECPxxx public key contains additional constatnt byte (prefix) on the buffer beginning,
 		   to backward compatibility this one byte is skipped. */
