@@ -57,6 +57,8 @@ RAM and flash memory requirement values differ depending on the DK and programme
 
       The following table lists memory requirements for samples running on the `nRF52840 DK`_.
 
+      All values are provided in kilobytes (KB).
+
       +-------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
       | Sample                                                            |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
       +===================================================================+===============+===================+=====================+=============+=============+
@@ -82,6 +84,8 @@ RAM and flash memory requirement values differ depending on the DK and programme
    .. tab:: nRF5340 DK
 
       The following table lists memory requirements for samples running on the `nRF5340 DK`_.
+
+      All values are provided in kilobytes (KB).
 
       +-------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
       | Sample                                                            |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
