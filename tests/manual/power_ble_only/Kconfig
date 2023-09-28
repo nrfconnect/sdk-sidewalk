@@ -13,7 +13,7 @@ config DELAY_BETWEN_MESSAGES
 
 config MESSAGES_TO_SEND
     int "number of messages to send during test"
-    default 20
+    default 10
 
 source "${ZEPHYR_BASE}/../sidewalk/samples/common/Kconfig.defconfig"
 source "Kconfig.zephyr"
