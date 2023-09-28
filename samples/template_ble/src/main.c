@@ -36,6 +36,13 @@
 #include <application_thread.h>
 #include <sidewalk_callbacks.h>
 
+#if defined(CONFIG_NORDIC_QSPI_NOR)
+#include <zephyr/device.h>
+#include <zephyr/pm/device.h>
+
+#define EXTERNAL_FLASH DT_CHOSEN(nordic_pm_ext_flash)
+#endif
+
 LOG_MODULE_REGISTER(main, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static app_ctx_t app_context;
@@ -105,6 +112,14 @@ static void app_setup(void)
 		} else {
 			LOG_INF("Marked image as OK");
 		}
+	}
+#endif
+
+#if defined(CONFIG_NORDIC_QSPI_NOR)
+	const struct device *const qspi_dev = DEVICE_DT_GET(EXTERNAL_FLASH);
+
+	if (device_is_ready(qspi_dev)) {
+		pm_device_action_run(qspi_dev, PM_DEVICE_ACTION_SUSPEND);
 	}
 #endif
 }
