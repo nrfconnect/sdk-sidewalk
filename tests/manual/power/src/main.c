@@ -170,18 +170,26 @@ static void state_change_handler_power_test(const struct notifier_state *state)
 	}
 	if (current_app_state.sending == 0) {
 		k_sem_give(&not_sending_sem);
+	} else {
+		k_sem_reset(&not_sending_sem);
 	}
 	if (current_app_state.connected) {
 		k_sem_give(&connected_sem);
+	} else {
+		k_sem_reset(&connected_sem);
 	}
 	if (current_app_state.time_sync) {
 		k_sem_give(&time_sync_sem);
+	} else {
+		k_sem_reset(&time_sync_sem);
 	}
 	if (current_app_state.working) {
 		k_sem_give(&working_sem);
 	}
 	if (current_app_state.link) {
 		k_sem_give(&link_sem);
+	} else {
+		k_sem_reset(&link_sem);
 	}
 }
 
@@ -197,7 +205,8 @@ void wait_for_not_sending()
 {
 	LOG_INF("%s", __func__);
 	if (current_app_state.sending) {
-		k_sem_take(&not_sending_sem, K_FOREVER);
+		while (0 != k_sem_take(&not_sending_sem, K_FOREVER)) {
+		};
 	}
 }
 
@@ -205,7 +214,8 @@ void wait_for_connected()
 {
 	LOG_INF("%s", __func__);
 	if (!current_app_state.connected) {
-		k_sem_take(&connected_sem, K_FOREVER);
+		while (0 != k_sem_take(&connected_sem, K_FOREVER)) {
+		};
 	}
 }
 
@@ -213,7 +223,8 @@ void wait_for_time_sync()
 {
 	LOG_INF("%s", __func__);
 	if (!current_app_state.time_sync) {
-		k_sem_take(&time_sync_sem, K_FOREVER);
+		while (0 != k_sem_take(&time_sync_sem, K_FOREVER)) {
+		};
 	}
 }
 
@@ -221,7 +232,8 @@ void wait_for_link()
 {
 	LOG_INF("%s", __func__);
 	if (!current_app_state.link) {
-		k_sem_take(&link_sem, K_FOREVER);
+		while (0 != k_sem_take(&link_sem, K_FOREVER)) {
+		};
 	}
 }
 
@@ -230,12 +242,7 @@ static inline void perform_power_test(void)
 	LOG_INF("%s", __func__);
 	wait_for_registered();
 	wait_for_time_sync();
-
-#if defined(CONFIG_SIDEWALK_SUBGHZ)
-	app_event_send(BUTTON_EVENT_SEND_HELLO);
-	wait_for_time_sync();
-	wait_for_connected();
-#endif
+	wait_for_not_sending();
 
 	for (int i = 0; i < CONFIG_MESSAGES_TO_SEND; i++) {
 #if !defined(CONFIG_SIDEWALK_SUBGHZ)
@@ -248,8 +255,8 @@ static inline void perform_power_test(void)
 #endif
 		wait_for_connected();
 		wait_for_not_sending();
-		app_event_send(BUTTON_EVENT_SEND_HELLO);
 		k_sleep(K_MSEC(CONFIG_DELAY_BETWEN_MESSAGES));
+		app_event_send(BUTTON_EVENT_SEND_HELLO);
 	}
 }
 
