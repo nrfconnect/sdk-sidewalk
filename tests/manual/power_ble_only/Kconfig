@@ -9,7 +9,7 @@ config STATE_NOTIFIER_HANDLER_MAX
 
 config DELAY_BETWEN_MESSAGES
     int "delay in ms between messages"
-    default 100
+    default 2000
 
 config MESSAGES_TO_SEND
     int "number of messages to send during test"
