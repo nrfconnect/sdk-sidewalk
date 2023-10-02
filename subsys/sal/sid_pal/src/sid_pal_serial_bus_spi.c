@@ -44,7 +44,8 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 				       const struct sid_pal_serial_bus_client *client, uint8_t *tx,
 				       uint8_t *rx, size_t xfer_size)
 {
-	LOG_DBG("%s(%p, %p, %p, %p, %d)", __func__, iface, client, tx, rx, xfer_size);
+	LOG_DBG("%s(%p, %p, %p, %p, %d)", __func__, iface, client, (void *)tx, (void *)rx,
+		xfer_size);
 	if (iface != bus_serial_ctx.iface || (!tx && !rx) || !xfer_size || !client) {
 		return SID_ERROR_INVALID_ARGS;
 	}
@@ -96,6 +97,8 @@ static sid_error_t bus_serial_spi_destroy(const struct sid_pal_serial_bus_iface 
 sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus_iface **iface,
 						 const void *cfg)
 {
+	LOG_WRN("%s", __func__);
+
 	ARG_UNUSED(cfg);
 	if (!iface) {
 		return SID_ERROR_INVALID_ARGS;
