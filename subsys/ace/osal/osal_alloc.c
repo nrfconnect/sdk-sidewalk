@@ -19,7 +19,7 @@ K_HEAP_DEFINE(sid_heap, CONFIG_SIDEWALK_HEAP_SIZE);
 
 static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
 {
-	struct sys_heap_runtime_stats stat;
+	struct sys_memory_stats stat;
 
 	sys_heap_runtime_stats_get(p_heap, &stat);
 	if (mem_to_alloc > stat.free_bytes) {
