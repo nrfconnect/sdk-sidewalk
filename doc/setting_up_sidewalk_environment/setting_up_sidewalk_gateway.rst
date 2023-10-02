@@ -68,6 +68,10 @@ You can link your Ring account to your Amazon account using the Ring app.
 
    .. figure:: /images/sidewalk_ring_image2.png
 
+.. note::
+   If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
+   If you need to operate multiple FSK gateways, we recommend setting them up under separate Amazon accounts.
+
 .. _Echo: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id94401162
 .. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
