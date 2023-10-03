@@ -94,9 +94,9 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path internal_sidewalk
-          west config manifest.file internal_west.yml
-          west update --narrow -o=--depth=1
+          west config manifest.path internal_sidewalk && \
+          west config manifest.file internal_west.yml && \
+          west update --narrow -o=--depth=1 && \
           ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts for

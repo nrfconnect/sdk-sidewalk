@@ -55,15 +55,18 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path internal_sidewalk
-          west config manifest.file internal_west.yml
-          west update --narrow -o=--depth=1
+          west config manifest.path internal_sidewalk && \
+          west config manifest.file internal_west.yml && \
+          west update --narrow -o=--depth=1 && \
           ln -s internal_sidewalk sidewalk
 
       - name: Twister build samples
         run: |
           source /workdir/zephyr/zephyr-env.sh
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+
+      - name: Prepare artifacts for upload
+        run: |
           mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           cp twister-out/twister.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
 
@@ -125,15 +128,18 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path internal_sidewalk
-          west config manifest.file internal_west.yml
-          west update --narrow -o=--depth=1
+          west config manifest.path internal_sidewalk && \
+          west config manifest.file internal_west.yml && \
+          west update --narrow -o=--depth=1 && \
           ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts
         run: |
           source /workdir/zephyr/zephyr-env.sh
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+
+      - name: Prepare artifacts for upload
+        run: |
           mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           mv twister-out/twister.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
 
@@ -196,19 +202,23 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
           cp -r ../sdk-sidewalk /workdir/internal_sidewalk
           cd /workdir
-          west config manifest.path internal_sidewalk
-          west config manifest.file internal_west.yml
-          west update --narrow -o=--depth=1
+          west config manifest.path internal_sidewalk && \
+          west config manifest.file internal_west.yml && \
+          west update --narrow -o=--depth=1 && \
           ln -s internal_sidewalk sidewalk
 
       - name: Build test artifacts for ${{ matrix.platform }}
         run: |
           source /workdir/zephyr/zephyr-env.sh
           /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests --filter runnable --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+
+      - name: Prepare artifacts for ${{ matrix.platform }}
+        run: |
           rm -rf twister-out
           tar -xf PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2
           mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
           mv twister-out/*.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         if: always()
