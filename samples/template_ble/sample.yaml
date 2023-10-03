@@ -27,12 +27,3 @@ tests:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk_cli
-
-  sample.sidewalk.template_ble.dfu_usb:
-    build_only: true
-    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: OVERLAY_CONFIG=usb_dfu.conf
-    integration_platforms:
-      - nrf52840dk_nrf52840
-      - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk_cli
