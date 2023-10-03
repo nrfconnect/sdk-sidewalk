@@ -102,7 +102,7 @@ void sm_notify_sensor_data(app_context_t *app_context, bool button_pressed)
 		action_notify.temp_sensor = SID_DEMO_TEMPERATURE_SENSOR_UNITS_CELSIUS;
 #if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
 		if (device_is_ready(bme688_sensor_dev)) {
-			struct sensor_value temp;
+			struct sensor_value temp = { 0 };
 			sensor_sample_fetch(bme688_sensor_dev);
 
 			sensor_channel_get(bme688_sensor_dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
