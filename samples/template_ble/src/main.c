@@ -21,9 +21,6 @@
 #if defined(CONFIG_BOOTLOADER_MCUBOOT)
 #include <zephyr/dfu/mcuboot.h>
 #endif
-#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
-#include <zephyr/usb/usb_device.h>
-#endif
 #if defined(CONFIG_GPIO)
 #include <state_notifier_gpio_backend.h>
 #endif
@@ -81,13 +78,6 @@ static void app_setup(void)
 #endif
 #if defined(CONFIG_LOG)
 	state_watch_init_log(&global_state_notifier);
-#endif
-
-#if defined(CONFIG_SIDEWALK_DFU_SERVICE_USB)
-	if (usb_enable(NULL)) {
-		LOG_ERR("Failed to enable USB");
-		return;
-	}
 #endif
 
 	if (sidewalk_callbacks_set(&app_context, &app_context.event_callbacks)) {
