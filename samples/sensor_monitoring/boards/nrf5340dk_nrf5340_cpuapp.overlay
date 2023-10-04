@@ -4,6 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <zephyr/dt-bindings/ipc_service/static_vrings.h>
+
+&ipc0 {
+    zephyr,priority = <0 PRIO_COOP>;
+};
+
  sid_semtech: &spi4 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
