@@ -32,8 +32,12 @@
 #include <application_thread.h>
 #include <sidewalk_callbacks.h>
 #include <state_notifier.h>
+#include <zephyr/device.h>
+#include <zephyr/pm/device.h>
 
 #include <zephyr/settings/settings.h>
+
+#define EXTERNAL_FLASH DT_CHOSEN(nordic_pm_ext_flash)
 
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -160,6 +164,12 @@ static void app_setup(void)
 		}
 	}
 #endif
+
+	const struct device *const qspi_dev = DEVICE_DT_GET(EXTERNAL_FLASH);
+
+	if (device_is_ready(qspi_dev)) {
+		pm_device_action_run(qspi_dev, PM_DEVICE_ACTION_SUSPEND);
+	}
 }
 
 static void state_change_handler_power_test(const struct notifier_state *state)
