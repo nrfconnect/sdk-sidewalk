@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <zephyr/dt-bindings/ipc_service/static_vrings.h>
+
+&ipc0 {
+    zephyr,priority = <0 PRIO_COOP>;
+};
+
+/ {
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
+
+/* Disable unused peripherals to reduce power consumption */
+&adc {
+	status = "disabled";
+};
+&i2c1 {
+	status = "disabled";
+};
+&pwm0 {
+	status = "disabled";
+};
+&spi2 {
+	status = "disabled";
+};

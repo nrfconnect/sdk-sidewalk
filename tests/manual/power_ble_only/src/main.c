@@ -34,6 +34,13 @@
 
 #include <zephyr/settings/settings.h>
 
+#if defined(CONFIG_NORDIC_QSPI_NOR)
+#include <zephyr/device.h>
+#include <zephyr/pm/device.h>
+
+#define EXTERNAL_FLASH DT_CHOSEN(nordic_pm_ext_flash)
+#endif
+
 LOG_MODULE_REGISTER(sid_template, CONFIG_SIDEWALK_LOG_LEVEL);
 
 bool factory_reset_bypass = false;
@@ -152,6 +159,14 @@ static void app_setup(void)
 		}
 	}
 #endif
+
+#if defined(CONFIG_NORDIC_QSPI_NOR)
+	const struct device *const qspi_dev = DEVICE_DT_GET(EXTERNAL_FLASH);
+
+	if (device_is_ready(qspi_dev)) {
+		pm_device_action_run(qspi_dev, PM_DEVICE_ACTION_SUSPEND);
+	}
+#endif
 }
 
 static void state_change_handler_power_test(const struct notifier_state *state)
@@ -253,6 +268,8 @@ static inline void perform_power_test(void)
 
 int main(void)
 {
+	PRINT_SIDEWALK_VERSION();
+
 	extern struct notifier_ctx global_state_notifier;
 
 	if (!subscribe_for_state_change(&global_state_notifier, state_change_handler_power_test)) {
