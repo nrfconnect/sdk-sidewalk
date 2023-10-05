@@ -24,7 +24,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: nordicplayground/nrfconnect-sdk:main
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2
     defaults:
       run:
@@ -97,7 +97,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: nordicplayground/nrfconnect-sdk:main
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2
     defaults:
       run:
@@ -171,7 +171,7 @@ jobs:
 
     runs-on: ubuntu-latest
     container:
-      image: nordicplayground/nrfconnect-sdk:main
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2
     defaults:
       run:
