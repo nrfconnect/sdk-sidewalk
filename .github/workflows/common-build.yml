@@ -28,7 +28,7 @@ jobs:
       options: --cpus 2
     defaults:
       run:
-        shell: nrfutil toolchain-manager launch bash -- {0}
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
       - name: Install dependencies
@@ -101,7 +101,7 @@ jobs:
       options: --cpus 2
     defaults:
       run:
-        shell: nrfutil toolchain-manager launch bash -- {0}
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
       - name: Install dependencies
@@ -175,7 +175,7 @@ jobs:
       options: --cpus 2
     defaults:
       run:
-        shell: nrfutil toolchain-manager launch bash -- {0}
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
       - name: Install dependencies
