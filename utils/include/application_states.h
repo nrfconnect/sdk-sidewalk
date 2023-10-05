@@ -28,9 +28,9 @@
 	X(time_sync, gpio0, 30)                                                                    \
 	X(link, gpio0, 31)                                                                         \
 	X(connected, gpio0, 28)                                                                    \
-	X(dfu, gpio1, 0)                                                                           \
+	X(dfu, gpio1, 2)                                                                           \
 	X(sending, gpio1, 4)                                                                       \
-	X(receiving, gpio1, 1)
+	X(receiving, gpio1, 3)
 #else
 #error "Unknow device application states."
 #endif
