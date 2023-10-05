@@ -51,6 +51,7 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_GPIO sid_gpio.c sid_gpio_utils.c si
 
 if(CONFIG_SOC_SERIES_NRF53X)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature_mock.c)
+message("Note: Sidewalk uses MOCK temperature implementation")
 else()
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature.c)
 endif() # CONFIG_SOC_SERIES_NRF53X
