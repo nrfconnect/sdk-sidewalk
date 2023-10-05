@@ -41,12 +41,6 @@ jobs:
       run:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
     steps:
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -55,7 +49,6 @@ jobs:
       - name: get number of commits pushed
         id: get_commits
         run: |
-          apt update && apt install -y jq
           echo '${{toJson(github.event.commits)}}' > commits.json
           tr -d '\n' < commits.json > commits_oneline.json
           LL=$( jq '. | length' commits_oneline.json)

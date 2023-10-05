@@ -1,6 +1,5 @@
 name: verify new ncs version
 
-# The docker images are build at midnight, lets give it some time to build, and update in nordicplayground
 on:
   schedule:
     - cron: "0 1 * * 1-6"
