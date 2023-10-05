@@ -31,11 +31,6 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -43,7 +38,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+          python3 -m pip install -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -63,7 +58,7 @@ jobs:
       - name: Twister build samples
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          west twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Prepare artifacts for upload
         run: |
@@ -104,11 +99,6 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -116,7 +106,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+          python3 -m pip install -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -136,7 +126,7 @@ jobs:
       - name: Build test artifacts
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          west twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests/manual --inline-logs --overflow-as-errors -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Prepare artifacts for upload
         run: |
@@ -178,11 +168,6 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git lbzip2
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -190,7 +175,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+          python3 -m pip install -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -210,7 +195,7 @@ jobs:
       - name: Build test artifacts for ${{ matrix.platform }}
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          /workdir/zephyr/scripts/twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests --filter runnable --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          west twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests --filter runnable --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Prepare artifacts for ${{ matrix.platform }}
         run: |

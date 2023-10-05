@@ -23,11 +23,6 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
-      - name: Install dependencies
-        run: |
-          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -35,7 +30,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
 
       - name: Download build artifacts
         uses: actions/download-artifact@v3
@@ -44,10 +39,11 @@ jobs:
 
       - name: Run Tests
         run: |
+          source /workdir/zephyr/zephyr-env.sh
           connected_DKs=`grep "connected: true" /hw_settings/hardware_map.yaml | wc -l`
           python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/twister.json twister-out/twister.json
           python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/testplan.json twister-out/testplan.json
-          /workdir/zephyr/scripts/twister -j $connected_DKs --no-clean -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
+          west twister -j $connected_DKs --no-clean -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -69,12 +65,6 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
-      - name: Install dependencies
-        run: |
-          source /workdir/zephyr/zephyr-env.sh
-          apt-get update && apt-get upgrade -y; apt-get install --no-install-recommends -y \
-          lcov libfftw3-dev ruby libffi7 libffi-dev curl python3-venv libmagic1 git gcc g++ gcc-multilib
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -82,7 +72,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt -r scripts/ci/requirements.txt
+          python3 -m pip install -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
         if: ${{ inputs.change_nrf_revision }}
@@ -102,7 +92,7 @@ jobs:
       - name: Build test artifacts for
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          /workdir/zephyr/scripts/twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
+          west twister --platform native_posix --platform unit_testing --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
