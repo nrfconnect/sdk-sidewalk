@@ -7,6 +7,7 @@ from pathlib import Path
 import os
 import re
 
+assert False, "I want to test something"
 
 def subtext(text, regex, if_none):
     exp = re.search(regex, text)
