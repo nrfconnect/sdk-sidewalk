@@ -19,10 +19,8 @@ The sample supports the following development kits:
 +====================+==========+========================+==============================+
 | nRF52840 DK        | PCA10056 | `nrf52840dk_nrf52840`_ | ``nrf52840dk_nrf52840``      |
 +--------------------+----------+------------------------+------------------------------+
-| nRF5340 DK ``*``   | PCA10095 | `nrf5340dk_nrf5340`_   | ``nrf5340dk_nrf5340_cpuapp`` |
+| nRF5340 DK         | PCA10095 | `nrf5340dk_nrf5340`_   | ``nrf5340dk_nrf5340_cpuapp`` |
 +--------------------+----------+------------------------+------------------------------+
-
-``*`` - Experimental support
 
 Besides the development kit, a LoRa radio module is also needed for this sample if you build it with the LoRa or FSK configuration.
 The supported modules are as follows:
