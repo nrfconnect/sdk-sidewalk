@@ -21,7 +21,7 @@ The following table demonstrates configuration for the supported development kit
       |                             |                                                                          |                                               | * :file:`lora.conf`           |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | :ref:`template_subghz`      | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * :file:`fsk.conf`            | ``**``                | Supported    | Supported   | Supported   |
+      | :ref:`template_subghz`      | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * :file:`fsk.conf`            | ``*``                 | Supported    | Supported   | Supported   |
       |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
@@ -31,9 +31,9 @@ The following table demonstrates configuration for the supported development kit
       | :ref:`device_under_test`    | * `Semtech SX1262MB2CAS`_ (optional)                                     | --                                            | --                            | Supported             | Supported    | Supported   | --          |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
 
-      ``**`` - Only for DFU and registration in LoRa transport
+      ``*`` - Only for DFU and registration in LoRa transport
 
-   .. tab:: nRF5340 ``*``
+   .. tab:: nRF5340
 
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
       | Sample                      | Additional hardware                                                      | Bootloader                                    | Application overlays          | Bluetooth® LE support | LoRa support | FSK support | DFU support |
@@ -42,7 +42,7 @@ The following table demonstrates configuration for the supported development kit
       |                             |                                                                          |                                               | * :file:`lora.conf`           |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | :ref:`template_subghz`      | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * :file:`fsk.conf`            | ``**``                | Supported    | Supported   | Supported   |
+      | :ref:`template_subghz`      | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * :file:`fsk.conf`            | ``*``                 | Supported    | Supported   | Supported   |
       |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
@@ -52,9 +52,7 @@ The following table demonstrates configuration for the supported development kit
       | :ref:`device_under_test`    | * `Semtech SX1262MB2CAS`_ (optional)                                     | --                                            | --                            | Supported             | Supported    | Supported   | --          |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
 
-      ``*`` - Experimental support
-
-      ``**`` - Only for DFU and registration in LoRa transport
+      ``*`` - Only for DFU and registration in LoRa transport
 
 .. toctree::
    :maxdepth: 1
