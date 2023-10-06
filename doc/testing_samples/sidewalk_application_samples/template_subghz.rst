@@ -100,17 +100,35 @@ LEDs represent the current state of the application:
 Other states are routed to generic GPIO pins.
 When the voltage drops to 0, entering low logic state, it means that one of the following states is active:
 
-   * P1.1:
-      ``DFU`` state.
+.. tabs::
 
-   * P1.2:
-      ``ERROR`` has occured.
+   .. tab:: nRF52840
 
-   * P1.3:
-      ``Sending`` pin is active when the packet is being transmitted.
+      * P1.1:
+         ``DFU`` state.
 
-   * P1.4:
-      The ``Received`` pin is toggled ``on`` and immediately ``off`` when the packet has been received.
+      * P1.2:
+         ``ERROR`` has occured.
+
+      * P1.3:
+         ``Sending`` pin is active when the packet is being transmitted.
+
+      * P1.4:
+         The ``Received`` pin is toggled ``on`` and immediately ``off`` when the packet has been received.
+
+   .. tab:: nRF5340
+
+      * P1.2:
+         ``DFU`` state.
+
+      * P1.3:
+         The ``Received`` pin is toggled ``on`` and immediately ``off`` when the packet has been received.
+
+      * P1.4:
+         ``Sending`` pin is active when the packet is being transmitted.
+
+      * P1.8:
+         ``ERROR`` has occured.
 
 .. _template_subghz_config:
 
