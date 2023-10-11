@@ -26,4 +26,5 @@ target_include_directories(testbinary PRIVATE
         ${SIDEAWLK_BASE}/subsys/sal/common/sid_time_ops
         ${SIDEAWLK_BASE}/subsys/sal/common/sid_pal_ifc
         ${SIDEAWLK_BASE}/utils/include
+        ${SIDEAWLK_BASE}/utils
 )
