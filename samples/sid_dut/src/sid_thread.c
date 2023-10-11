@@ -5,6 +5,7 @@
  */
 
 #include "sid_error.h"
+#include <stdbool.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/storage/flash_map.h>
@@ -19,9 +20,10 @@
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_crypto_ifc.h>
 #include <app_ble_config.h>
+#include <json_printer.h>
+
 #if defined(CONFIG_SIDEWALK_SUBGHZ)
 #include <app_subGHz_config.h>
-
 #include <sx126x_config.h>
 #include <sid_pal_gpio_ifc.h>
 #include <sid_900_cfg.h>
@@ -92,21 +94,83 @@ static void on_sidewalk_event(bool in_isr, void *context)
 	k_work_submit_to_queue(&sidewalk_dut_work_q, &ctx->sidewalk_event_work);
 }
 
+#define sid_msg_type_str(val)                                                                      \
+	((char *[]){ "SID_MSG_TYPE_GET", "SID_MSG_TYPE_SET", "SID_MSG_TYPE_NOTIFY",                \
+		     "SID_MSG_TYPE_RESPONSE" }[(val)])
+#define sid_link_mode_str(val)                                                                     \
+	(val) == SID_LINK_MODE_CLOUD  ? "SID_LINK_MODE_CLOUD" :                                    \
+	(val) == SID_LINK_MODE_MOBILE ? "SID_LINK_MODE_MOBILE" :                                   \
+					"SID_LINK_MODE_INVALID"
+
+void sid_msg_desc_to_JSON(const struct shell *shell, const char *caller,
+			  const struct sid_msg_desc *msg_desc)
+{
+	// clang-format off
+	JSON_DICT(caller, true,	{
+		JSON_VAL_DICT("sid_msg_desc", 
+		{
+			JSON_VAL("link_type", msg_desc->link_type, JSON_NEXT); 
+			JSON_VAL("type", msg_desc->type, JSON_NEXT); 
+			JSON_VAL_STR("type_str", sid_msg_type_str(msg_desc->type), JSON_NEXT); 
+			JSON_VAL("link_mode", msg_desc->link_mode, JSON_NEXT); 
+			JSON_VAL_STR("link_mode_str", (sid_link_mode_str(msg_desc->link_mode)), JSON_NEXT); 
+			JSON_VAL("id", msg_desc->id, JSON_NEXT); 
+			JSON_VAL_DICT("msg_desc_attr", 
+			{ 
+				JSON_VAL_DICT("rx_attr", 
+				{
+					JSON_VAL_STR("is_msg_ack", msg_desc->msg_desc_attr.rx_attr.is_msg_ack? "true": "false", JSON_NEXT); 
+					JSON_VAL_STR("is_msg_duplicate", msg_desc->msg_desc_attr.rx_attr.is_msg_duplicate? "true": "false", JSON_NEXT);
+					JSON_VAL_STR("ack_requested", msg_desc->msg_desc_attr.rx_attr.ack_requested? "true": "false", JSON_NEXT); 
+					JSON_VAL("rssi", msg_desc->msg_desc_attr.rx_attr.rssi, JSON_NEXT); 
+					JSON_VAL("snr", msg_desc->msg_desc_attr.rx_attr.snr, JSON_LAST); 
+				} 
+				, JSON_NEXT); 
+				JSON_VAL_DICT("tx_attr", 
+				{
+					JSON_VAL_STR("request_ack", msg_desc->msg_desc_attr.tx_attr.request_ack? "True": "False", JSON_NEXT); 
+					JSON_VAL("num_retries", msg_desc->msg_desc_attr.tx_attr.num_retries, JSON_NEXT); 
+					JSON_VAL("ttl_in_seconds", msg_desc->msg_desc_attr.tx_attr.ttl_in_seconds, JSON_LAST); 
+				}
+				, JSON_LAST);
+			}
+			, JSON_LAST);
+		}
+		, JSON_LAST);
+	});
+	// clang-format on
+}
+
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
 				     void *context)
 {
+	struct app_context *ctx = (struct app_context *)context;
+	if (ctx->shell) {
+		sid_msg_desc_to_JSON(ctx->shell, "on_msg_received", msg_desc);
+	}
+
 	LOG_DBG("Sidewalk -> App");
 	LOG_HEXDUMP_INF(msg->data, msg->size, "");
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
+	struct app_context *ctx = (struct app_context *)context;
+	if (ctx->shell) {
+		sid_msg_desc_to_JSON(ctx->shell, "on_msg_sent", msg_desc);
+	}
+
 	LOG_DBG("Sidewalk -> App");
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
 				   void *context)
 {
+	struct app_context *ctx = (struct app_context *)context;
+	if (ctx->shell) {
+		sid_msg_desc_to_JSON(ctx->shell, "on_send_error", msg_desc);
+	}
+
 	LOG_DBG("Sidewalk -> App: error %d", error);
 }
 
