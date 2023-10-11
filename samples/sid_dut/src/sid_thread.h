@@ -8,12 +8,14 @@
 
 #include <zephyr/kernel.h>
 #include <sid_error.h>
+#include <zephyr/shell/shell.h>
 
 #define SIDEWALK_DUT_WORK_Q_STACK_SIZE KB(10)
 
 struct app_context {
 	struct sid_handle **sidewalk_handle;
 	struct k_work sidewalk_event_work;
+	const struct shell *shell;
 };
 
 sid_error_t sid_thread_init(void);

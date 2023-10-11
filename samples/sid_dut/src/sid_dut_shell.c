@@ -261,6 +261,8 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_INIT_ARG_REQUIRED, CMD_SID_INIT_ARG_OPTIONAL);
 
+	cli_cfg.app_cxt->shell = shell;
+
 	const char *connection_type_arg = argv[1];
 	uint8_t connection_type = atoi(connection_type_arg);
 
