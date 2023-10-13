@@ -8,21 +8,27 @@ See the list of known issues that are valid for the current state of development
 v1.14.5-dev1
 ------------
 
+* KRKNWK-17860: QSPI assert occurs when performing DFU in the Sidewalk application mode
+    The DFU should be performed only in the DFU mode.
+    The DFU Bluetooth service can be used in the Sidewalk mode, however, using it leads to assertion failure, resulting in a Zephyr fatal error.
+
+* KRKNWK-17800: After reconnecting to network, the end device cannot find the route to its host
+    After the device disconnects from Sidewalk servers, the Sensor monitoring app over Bluetooth LE shows an error ``-38 (SID_ERROR_NO_ROUTE_AVAILABLE)``.
+    To fix the error, the device needs to be reset manually.
+
+* KRKNWK-17750: Error occurs when sending multiple messages in a short period of time
+    When sending multiple Sidewalk messages in a short period of time, the internal queues might become full, showing misleading error messages, such as ``-12 (SID_ERROR_INCOMPATIBLE_PARAMS)``.
+    The message should resend after some time needed for protocol to empty the queues.
+
+* KRKNWK-17244:  CMake warnings when building the Sidewalk samples
+    CMake warnings (``No SOURCES given to Zephyr library``) show in the build log of Sidewalk application. 
+    Application builds successfully, but the error may obfuscate other important warnings.
+
 * KRKNWK-17374: Sporadic Zephyr fatal error after disconnecting on FSK
-    After disconnecting on FSK, Zephyr fatal error occurrs due to assertion in semaphore module.
+    After disconnecting on FSK, Zephyr fatal error occurs due to assertion in semaphore module.
     The error reproduces rarely - once per few days.
-    In the release mode the device resets automatically, however, in the debug mode it need to be reset manually.
+    The device resets automatically in the release mode, however, in the debug mode it needs to be reset manually.
     Currently, this issue occurs for Sidewalk 1.14 libraries and it will be fixed in the version 1.16.
-
-* KRKNWK-17321: The device fails after multiple restarts on the nRF5340 DK.
-   The issue happens due to failing certification test.
-
-   **Affected platforms:** nRF5340
-
-* KRKNWK-17114: Bootloader configuration is not optimized on the nRF5340 DK.
-   Due to large bootloader partition size (48 kB), the DFU always requires an external flash.
-
-   **Affected platforms:** nRF5340
 
 * KRKNWK-17035: Sensor monitor uplink messages are lost when the notification period is longer than 30 seconds
     If the notification period is set to longer than 30 seconds, the sensor monitor uplink messages are lost.
