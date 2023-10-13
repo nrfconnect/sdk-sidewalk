@@ -7,14 +7,14 @@ Application overview
 This is a simple application to be updated via sidewalk dfu process.
 It is significantly smaller then any Sidewalk sample.
 
-Maintenace notes
+Maintenance notes
 ================
 .. note::
-   This appclication is designed to wrok with sidewalk template_ble sample
+   This appclication is designed to work with sidewalk template_ble sample
 
 Configuration:
    * prj.conf - From Kconfig.dependencies config SIDEWALK_DFU_BOOTLOADER
-   * pm_static.yaml - coppied from template_ble. Setting storage added as static partition (values from ninja partition_manager_report) to keep application footprint small.
+   * pm_static.yaml - copied from template_ble. Setting storage added as static partition (values from ninja partition_manager_report) to keep application footprint small.
 
 Requirements
 ************
@@ -33,7 +33,7 @@ Testing
 
 Precondition
 #. Build and flash Sidewalk template_ble sample
-#. Flash MFG.hex (provisoing data)
+#. Flash MFG.hex (provisioning data)
 #. Enter DFU mode (button action)
 
 Testing sample bootloder application
