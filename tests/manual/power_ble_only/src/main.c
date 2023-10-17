@@ -160,7 +160,7 @@ static void app_setup(void)
 	}
 #endif
 
-#if defined(CONFIG_NORDIC_QSPI_NOR)
+#if (defined(CONFIG_NORDIC_QSPI_NOR) && defined(NRF5340_XXAA))
 	const struct device *const qspi_dev = DEVICE_DT_GET(EXTERNAL_FLASH);
 
 	if (device_is_ready(qspi_dev)) {

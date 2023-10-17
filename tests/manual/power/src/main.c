@@ -165,11 +165,13 @@ static void app_setup(void)
 	}
 #endif
 
+#if defined(NRF5340_XXAA)
 	const struct device *const qspi_dev = DEVICE_DT_GET(EXTERNAL_FLASH);
 
 	if (device_is_ready(qspi_dev)) {
 		pm_device_action_run(qspi_dev, PM_DEVICE_ACTION_SUSPEND);
 	}
+#endif
 }
 
 static void state_change_handler_power_test(const struct notifier_state *state)
