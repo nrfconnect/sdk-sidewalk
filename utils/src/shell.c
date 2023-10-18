@@ -355,34 +355,28 @@ static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 
 	JSON_DICT("SIDEWALK_CLI", in_line, {
 		JSON_VAL_STR("state", state, JSON_NEXT);
-		JSON_VAL("registered",
-			 (CLI_status->detail.registration_status == SID_STATUS_REGISTERED),
-			 JSON_NEXT);
-		JSON_VAL("time_synced",
-			 (CLI_status->detail.time_sync_status == SID_STATUS_TIME_SYNCED),
-			 JSON_NEXT);
-		JSON_VAL("link_up", (CLI_status->detail.link_status_mask), JSON_NEXT);
-		JSON_VAL_DICT(
-			"link_modes",
-			{
-				JSON_VAL(
-					"ble",
-					CLI_status->detail.supported_link_modes[SID_LINK_TYPE_1_IDX],
-					JSON_NEXT);
-				JSON_VAL(
-					"fsk",
-					CLI_status->detail.supported_link_modes[SID_LINK_TYPE_2_IDX],
-					JSON_NEXT);
-				JSON_VAL(
-					"lora",
-					CLI_status->detail.supported_link_modes[SID_LINK_TYPE_3_IDX],
-					JSON_LAST);
-			},
-			JSON_NEXT);
-		JSON_VAL("tx_successfull", sidewalk_messages.tx_successfull, JSON_NEXT);
-		JSON_VAL("tx_failed", sidewalk_messages.tx_failed, JSON_NEXT);
-		JSON_VAL("rx_successfull", sidewalk_messages.rx_successfull, JSON_NEXT);
-		JSON_VAL("response_id", sidewalk_messages.resp_id, JSON_LAST);
+		JSON_VAL_INT("registered",
+			     (CLI_status->detail.registration_status == SID_STATUS_REGISTERED),
+			     JSON_NEXT);
+		JSON_VAL_INT("time_synced",
+			     (CLI_status->detail.time_sync_status == SID_STATUS_TIME_SYNCED),
+			     JSON_NEXT);
+		JSON_VAL_INT("link_up", (CLI_status->detail.link_status_mask), JSON_NEXT);
+		JSON_VAL_DICT("link_modes", JSON_NEXT, {
+			JSON_VAL_INT("ble",
+				     CLI_status->detail.supported_link_modes[SID_LINK_TYPE_1_IDX],
+				     JSON_NEXT);
+			JSON_VAL_INT("fsk",
+				     CLI_status->detail.supported_link_modes[SID_LINK_TYPE_2_IDX],
+				     JSON_NEXT);
+			JSON_VAL_INT("lora",
+				     CLI_status->detail.supported_link_modes[SID_LINK_TYPE_3_IDX],
+				     JSON_LAST);
+		});
+		JSON_VAL_INT("tx_successfull", sidewalk_messages.tx_successfull, JSON_NEXT);
+		JSON_VAL_INT("tx_failed", sidewalk_messages.tx_failed, JSON_NEXT);
+		JSON_VAL_INT("rx_successfull", sidewalk_messages.rx_successfull, JSON_NEXT);
+		JSON_VAL_INT("response_id", sidewalk_messages.resp_id, JSON_LAST);
 	});
 	return CMD_RETURN_OK;
 }
@@ -394,14 +388,11 @@ void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
 	JSON_DICT("COMPONENTS_VERSION", in_line, {
 		JSON_VAL_STR("sidewalk_fork_point", sidewalk_version_common_commit, JSON_NEXT);
 		JSON_VAL_STR("build_time", build_time_stamp, JSON_NEXT);
-		JSON_VAL_DICT(
-			"modules",
-			{
-				JSON_VAL_STR_ENUMERATE(sidewalk_version_component_name,
-						       sidewalk_version_component,
-						       sidewalk_version_component_count, JSON_LAST);
-			},
-			JSON_LAST);
+		JSON_VAL_DICT("modules", JSON_LAST, {
+			JSON_VAL_STR_ENUMERATE(sidewalk_version_component_name,
+					       sidewalk_version_component,
+					       sidewalk_version_component_count, JSON_LAST);
+		});
 	});
 }
 
