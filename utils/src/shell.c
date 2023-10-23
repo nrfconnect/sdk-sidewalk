@@ -351,49 +351,69 @@ static int cmd_report(const struct shell *shell, size_t argc, char **argv)
 				     "SID_STATE_SECURE_CHANNEL_READY" };
 	const char *state = state_repo[CLI_status->state];
 
-	bool in_line = (argc == 2 && strcmp("--oneline", argv[1]) == 0);
+	if (argc == 2 && strcmp("--oneline", argv[1]) == 0) {
+		shell_info(shell, "parameter `--oneline` is deprecated.");
+	}
 
-	JSON_DICT("SIDEWALK_CLI", in_line, {
-		JSON_VAL_STR("state", state, JSON_NEXT);
-		JSON_VAL_INT("registered",
-			     (CLI_status->detail.registration_status == SID_STATUS_REGISTERED),
-			     JSON_NEXT);
-		JSON_VAL_INT("time_synced",
-			     (CLI_status->detail.time_sync_status == SID_STATUS_TIME_SYNCED),
-			     JSON_NEXT);
-		JSON_VAL_INT("link_up", (CLI_status->detail.link_status_mask), JSON_NEXT);
-		JSON_VAL_DICT("link_modes", JSON_NEXT, {
-			JSON_VAL_INT("ble",
-				     CLI_status->detail.supported_link_modes[SID_LINK_TYPE_1_IDX],
-				     JSON_NEXT);
-			JSON_VAL_INT("fsk",
-				     CLI_status->detail.supported_link_modes[SID_LINK_TYPE_2_IDX],
-				     JSON_NEXT);
-			JSON_VAL_INT("lora",
-				     CLI_status->detail.supported_link_modes[SID_LINK_TYPE_3_IDX],
-				     JSON_LAST);
-		});
-		JSON_VAL_INT("tx_successfull", sidewalk_messages.tx_successfull, JSON_NEXT);
-		JSON_VAL_INT("tx_failed", sidewalk_messages.tx_failed, JSON_NEXT);
-		JSON_VAL_INT("rx_successfull", sidewalk_messages.rx_successfull, JSON_NEXT);
-		JSON_VAL_INT("response_id", sidewalk_messages.resp_id, JSON_LAST);
-	});
+	shell_fprintf(
+		shell, SHELL_NORMAL,
+		JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+			"SIDEWALK_CLI",
+			JSON_OBJ(JSON_LIST_9(
+				JSON_NAME("state", JSON_STR(state)),
+				JSON_NAME("registered",
+					  JSON_INT(CLI_status->detail.registration_status ==
+						   SID_STATUS_REGISTERED)),
+				JSON_NAME("time_synced",
+					  JSON_INT(CLI_status->detail.time_sync_status ==
+						   SID_STATUS_TIME_SYNCED)),
+				JSON_NAME("link_up", JSON_INT(CLI_status->detail.link_status_mask)),
+				JSON_NAME(
+					"link_modes",
+					JSON_OBJ(JSON_LIST_3(
+						JSON_NAME("ble",
+							  JSON_INT(CLI_status->detail.supported_link_modes
+									   [SID_LINK_TYPE_1_IDX])),
+						JSON_NAME("fsk",
+							  JSON_INT(CLI_status->detail.supported_link_modes
+									   [SID_LINK_TYPE_2_IDX])),
+						JSON_NAME(
+							"lora",
+							JSON_INT(CLI_status->detail.supported_link_modes
+									 [SID_LINK_TYPE_3_IDX]))))),
+				JSON_NAME("tx_successfull",
+					  JSON_INT(sidewalk_messages.tx_successfull)),
+				JSON_NAME("tx_failed", JSON_INT(sidewalk_messages.tx_failed)),
+				JSON_NAME("rx_successfull",
+					  JSON_INT(sidewalk_messages.rx_successfull)),
+				JSON_NAME("response_id", JSON_INT(sidewalk_messages.resp_id))))))));
+
 	return CMD_RETURN_OK;
 }
 
 void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
 {
-	bool in_line = (argc == 2 && strcmp("--oneline", argv[1]) == 0);
+	shell_fprintf(
+		shell, SHELL_NORMAL,
+		JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+			"COMPONENTS_VERSION",
+			JSON_OBJ(JSON_LIST_3(
+				JSON_NAME("sidewalk_fork_point",
+					  JSON_STR(sidewalk_version_common_commit)),
+				JSON_NAME("build_time", JSON_STR(build_time_stamp)),
+				JSON_NAME("modules",
+					  JSON_OBJ(JSON_LIST_3(
+						  JSON_NAME(sidewalk_version_component_name[0],
+							    JSON_STR(sidewalk_version_component[0])),
+						  JSON_NAME(sidewalk_version_component_name[1],
+							    JSON_STR(sidewalk_version_component[1])),
+						  JSON_NAME(sidewalk_version_component_name[2],
+							    JSON_STR(sidewalk_version_component
+									     [2])))))))))));
 
-	JSON_DICT("COMPONENTS_VERSION", in_line, {
-		JSON_VAL_STR("sidewalk_fork_point", sidewalk_version_common_commit, JSON_NEXT);
-		JSON_VAL_STR("build_time", build_time_stamp, JSON_NEXT);
-		JSON_VAL_DICT("modules", JSON_LAST, {
-			JSON_VAL_STR_ENUMERATE(sidewalk_version_component_name,
-					       sidewalk_version_component,
-					       sidewalk_version_component_count, JSON_LAST);
-		});
-	});
+	if (argc == 2 && strcmp("--oneline", argv[1]) == 0) {
+		shell_info(shell, "parameter `--oneline` is deprecated.");
+	}
 }
 
 static void cmd_fatory_reset_work(struct k_work *item)
