@@ -5,6 +5,7 @@
  */
 
 #include "sid_error.h"
+#include "zephyr/sys/printk.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <zephyr/kernel.h>
@@ -34,19 +35,6 @@
 #include <zephyr/shell/shell.h>
 #include <json_printer.h>
 #include <sidTypes2Json.h>
-
-#undef JSON_RAW_PRINT
-#define JSON_MESSAGE_CAPACITY 512
-char JSON_MESSAGE[JSON_MESSAGE_CAPACITY + 1] = { 0 };
-size_t JSON_CHARS_WRITTEN = 0;
-#define JSON_PREPARE memset(JSON_MESSAGE, 0, JSON_MESSAGE_CAPACITY)
-
-#define JSON_SEND                                                                                  \
-	LOG_RAW("%s", JSON_MESSAGE);                                                               \
-	JSON_CHARS_WRITTEN = 0
-#define JSON_RAW_PRINT(format, ...)                                                                \
-	JSON_RAW_PRINTER_STRING(JSON_MESSAGE, JSON_CHARS_WRITTEN, JSON_MESSAGE_CAPACITY,           \
-				format __VA_OPT__(, ) __VA_ARGS__)
 
 #if !FIXED_PARTITION_EXISTS(mfg_storage)
 #error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
@@ -114,32 +102,35 @@ static void on_sidewalk_event(bool in_isr, void *context)
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
 				     void *context)
 {
-	JSON_PREPARE;
-	JSON_DICT("on_msg_received", true,
-		  { JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, true, JSON_LAST); });
-	JSON_SEND;
+	struct app_context *ctx = (struct app_context *)context;
+	shell_fprintf(ctx->shell, SHELL_NORMAL,
+		      JSON_NEW_LINE(JSON_OBJ(
+			      JSON_NAME("on_msg_received",
+					JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 1)))));
 	LOG_DBG("Sidewalk -> App");
 	LOG_HEXDUMP_INF(msg->data, msg->size, "");
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
-	JSON_PREPARE;
-	JSON_DICT("on_msg_sent", true,
-		  { JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, false, JSON_LAST); });
-	JSON_SEND;
+	struct app_context *ctx = (struct app_context *)context;
+	shell_fprintf(ctx->shell, SHELL_NORMAL,
+		      JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+			      "on_msg_sent",
+			      JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
 	LOG_DBG("Sidewalk -> App");
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
 				   void *context)
 {
-	JSON_PREPARE;
-	JSON_DICT("on_send_error", true, {
-		JSON_VAL_sid_error_t("error", error, JSON_NEXT);
-		JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, false, JSON_LAST);
-	});
-	JSON_SEND;
+	struct app_context *ctx = (struct app_context *)context;
+	shell_fprintf(ctx->shell, SHELL_NORMAL,
+		      JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+			      "on_send_error",
+			      JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
+						   JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc,
+									 0)))))));
 	LOG_DBG("Sidewalk -> App: error %d", error);
 }
 

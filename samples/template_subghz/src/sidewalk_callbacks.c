@@ -25,6 +25,7 @@ static const uint8_t *link_mode_idx_name[] = { "ble", "fsk", "lora" };
 
 #include <json_printer.h>
 #include <sidTypes2Json.h>
+
 #undef JSON_RAW_PRINT
 #define JSON_RAW_PRINT(format, ...) LOG_RAW(format __VA_OPT__(, ) __VA_ARGS__)
 
@@ -45,8 +46,8 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
 		(int)msg_desc->link_mode, msg_desc->id, msg->size);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
-	JSON_DICT("on_msg_received", true,
-		  { JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, true, JSON_LAST); });
+	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+		"on_msg_received", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 1))))));
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
@@ -56,8 +57,8 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 	CLI_register_message_send();
 #endif
 	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
-	JSON_DICT("on_msg_sent", true,
-		  { JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, false, JSON_LAST); });
+	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+		"on_msg_sent", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
@@ -69,10 +70,10 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 #endif
 	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type,
 		msg_desc->id, (int)error);
-	JSON_DICT("on_send_error", true, {
-		JSON_VAL_sid_error_t("error", error, JSON_NEXT);
-		JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, false, JSON_LAST);
-	});
+	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+		"on_send_error",
+		JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
+				     JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0)))))));
 }
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
