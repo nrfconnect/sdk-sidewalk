@@ -96,7 +96,7 @@ jobs:
 
       - name: Fix coverage report
         run: |
-          lcov -q --remove "twister-out/coverage.info" '/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr/*' -o "/twister-out/new_coverage.info"
+          lcov -q --remove "twister-out/coverage.info" '/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr/*' -o "coverage.info"
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -112,6 +112,6 @@ jobs:
         run: |
           echo "#Coverage" >> $GITHUB_STEP_SUMMARY
           echo "##Summary" >> $GITHUB_STEP_SUMMARY
-          lcov --summary twister-out/new_coverage.info >> $GITHUB_STEP_SUMMARY
+          lcov --summary coverage.info >> $GITHUB_STEP_SUMMARY
           echo "#File coverage" >> $GITHUB_STEP_SUMMARY
-          lcov --list twister-out/new_coverage.info` >> $GITHUB_STEP_SUMMARY
+          lcov --list coverage.info` >> $GITHUB_STEP_SUMMARY
