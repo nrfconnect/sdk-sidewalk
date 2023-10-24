@@ -110,8 +110,9 @@ jobs:
 
       - name: Upload Coverage report
         run: |
-          echo "#Coverage" >> $GITHUB_STEP_SUMMARY
-          echo "##Summary" >> $GITHUB_STEP_SUMMARY
-          lcov --summary coverage.info >> $GITHUB_STEP_SUMMARY
-          echo "#File coverage" >> $GITHUB_STEP_SUMMARY
-          lcov --list coverage.info` >> $GITHUB_STEP_SUMMARY
+          echo "#Coverage" >> summary
+          echo "##Summary" >> summary
+          lcov --summary coverage.info >> summary
+          echo "#File coverage" >> summary
+          lcov --list coverage.info` >> summary
+          cat summary >> $GITHUB_STEP_SUMMARY
