@@ -114,5 +114,5 @@ jobs:
           echo "##Summary" >> summary
           lcov --summary coverage.info >> summary
           echo "#File coverage" >> summary
-          lcov --list coverage.info` >> summary
+          lcov --list coverage.info >> summary
           cat summary >> $GITHUB_STEP_SUMMARY
