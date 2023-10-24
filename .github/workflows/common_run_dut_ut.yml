@@ -110,14 +110,14 @@ jobs:
 
       - name: Upload Coverage report
         run: |
-          echo "#Coverage" >> summary
+          echo "# Coverage" >> summary
           echo "" >> summary
-          echo "##Summary" >> summary
+          echo "## Summary" >> summary
           echo "" >> summary
           echo "```" >> summary
           lcov --summary coverage.info >> summary
           echo "```" >> summary
-          echo "#File coverage" >> summary
+          echo "# File coverage" >> summary
           echp "">> summary
           echo "```" >> summary
           lcov --list coverage.info >> summary
