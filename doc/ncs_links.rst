@@ -2,7 +2,7 @@
 .. _nrf52840 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr
 .. _nrf5340 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr
 .. _Getting started with nRF52 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/working_with_nrf/nrf52/gs.html
-.. _Getting started with nRF53 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/working_with_nrf/nrf53/nrf5340_gs.html
+.. _Getting started with nRF53 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/device_guides/working_with_nrf/nrf53/nrf5340_gs.html
 .. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/gs_installing.html#install-a-toolchain
 .. _Installing automatically: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/gs_assistant.html#installing-automatically
 .. _Installing manually: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0-rc2/nrf/gs_installing.html#install-the-required-tools
