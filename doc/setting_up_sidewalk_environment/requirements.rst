@@ -33,12 +33,6 @@ Ensure you have the following:
 * A supported Nordic Semiconductor's development kit and, if required, other additional hardware.
   For the list of the required devices per sample, see :ref:`samples_list`.
 
-* Bluetooth wireless interface on your machine or a USB Bluetooth adapter.
-
-   .. note::
-      Bluetooth wireless adapter is used during the device registration to connect the machine with the development kit.
-      For example, you can use a `USB Bluetooth adapter`_ recommended by Amazon.
-
 * Sidewalk Gateway
 
    You can use one of the supported `Amazon Sidewalk Gateways`_, for example, `Echo 4th Gen`_.
@@ -113,7 +107,6 @@ All values are provided in kilobytes (KB).
 .. _AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html
 .. _Nordic nRF52840 DK: https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
-.. _USB Bluetooth adapter: https://www.amazon.com/Kinivo-USB-Bluetooth-4-0-Compatible/dp/B007Q45EF4
 .. _Echo 4th Gen: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
 .. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id944011620
