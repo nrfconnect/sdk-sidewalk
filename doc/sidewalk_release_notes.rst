@@ -3,40 +3,23 @@
 Release notes
 #############
 
-See the release notes for the information about specific Sidewalk support releases for nRF Connect SDK.
+For more information about the current Amazon Sidewalk release, refer to the links in the following sections.
 
-[v1.14.5-dev1] - 12/07/2023
----------------------------
+Changelog
+*********
 
-* Added experimental support for the nRF5340 development kit.
-* Updated sdk-nrf to v2.4.99 (main).
+See the `Release notes for the nRF Connect SDK`_ for a detailed changelog for this release.
 
-[v1.14.4] - 06/05/2023
-----------------------
+Limitations
+***********
 
-* Released Sidewalk based on the nRF Connect SDK v2.4.0.
-* Moved the Semtech pins configuration to DTS.
-* Changed the DFU mode behavior.
-  The device now resets before entering the DFU mode.
-* Added notifying through LEDs whenever the device enters the DFU mode.
-* Automated the repository maintenance with GitHub Actions.
-* Added a link status for every transport in the serial log.
-* Added the `AWS IoT Core tools repository`_ to the west manifest file.
+Dynamic FSK-WAN Profile switching from 2 to 1 is prohibited.
+  The issue is a limitation of the 1.14 Sidewalk release.
+  Currently there is no workaround for this issue.
 
-[v1.14.3] - 03/22/2023
-----------------------
+Known issues
+************
 
-* Released the nRF Connect SDK platform support for Sidewalk over Bluetooth LE, LoRa and FSK.
+See `Known issues for the nRF Connect SDK`_.
 
-[v1.14.2] - 02/23/2023
-----------------------
-
-* Release candidate based on the nRF Connect SDK v2.3.0-rc1.
-
-[v1.14.1] - 02/15/2023
-----------------------
-
-* Committed Sidewalk libraries v1.14.
-* Added documentation preview for development.
-
-.. _AWS IoT Core tools repository: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
+.. include:: ncs_links.rst

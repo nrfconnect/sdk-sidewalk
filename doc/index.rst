@@ -44,10 +44,9 @@ Browse the content by referring to the following pages:
    testing_samples/samples.rst
    compatibility_matrix.rst
    sidewalk_release_notes.rst
-   sidewalk_known_issues.rst
    additional_resources.rst
 
 .. include:: ncs_links.rst
-   
+
 .. _Amazon license: https://raw.githubusercontent.com/nrfconnect/sdk-sidewalk/main/LICENSE.txt
 .. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
