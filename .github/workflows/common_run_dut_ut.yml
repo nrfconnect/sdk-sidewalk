@@ -28,6 +28,12 @@ jobs:
         with:
           path: sidewalk
 
+      - name: check hw_settings
+        run: |
+          ls -lah /hw_settings
+          file /hw_settings/hardware_map.yaml
+          cat /hw_settings/hardware_map.yaml
+
       - name: Install Python dependencies
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
