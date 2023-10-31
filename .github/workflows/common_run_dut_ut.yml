@@ -15,7 +15,7 @@ jobs:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2 --privileged
       volumes:
-        - /hw_settings/hardware_map.yaml:/hw_settings/hardware_map.yaml
+        - /hw_settings:/hw_settings
         - /dev:/dev
         - /run/udev:/run/udev
     defaults:
