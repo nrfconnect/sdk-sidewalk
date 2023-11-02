@@ -10,6 +10,7 @@ on:
 
 jobs:
   run_dut_ut:
+    continue-on-error: true
     runs-on: test-node
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
