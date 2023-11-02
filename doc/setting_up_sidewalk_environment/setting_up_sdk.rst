@@ -61,25 +61,16 @@ Follow these steps to download the Sidewalk application for the nRF Connect SDK:
        |___ zephyr
        |___ ...
 
-#. Check out the branch that contains the west manifest file with the Sidewalk group filter:
+#. If you have worked with the Sidewalk application in a previous distribution model (as a manifest repository), check the manifest file.
 
-   .. code-block:: console
-
-      $ cd nrf
-      $ git checkout main
-      $ git pull
-      $ cd ..
-
-#. Set the Sidewalk application manifest and update.
-
-   Check the current manifest path and make sure it points to :file:`west.yml` inside the :file:`nrf` directory:
+   Make sure the manifest path points to :file:`west.yml` inside the :file:`nrf` directory:
 
       .. code-block:: console
 
          $ west manifest --path
          /path-to-ncs-folder/nrf/west.yml
 
-   If not, set manifest path using:
+   In case your manifest path points to a different file, use the following command:
 
       .. code-block:: console
 
