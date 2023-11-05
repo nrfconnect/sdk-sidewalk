@@ -14,5 +14,3 @@
 .. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/app_bootloaders.html
 .. _Zephyr SMP Server: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/zephyr/services/device_mgmt/ota.html#smp-server
 .. _NCS testing applications: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/gs_testing.html
-.. _Known issues for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/releases_and_maturity/known_issues.html
-.. _Release notes for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/releases_and_maturity/releases/release-notes-2.5.0.html
