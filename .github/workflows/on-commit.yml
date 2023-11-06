@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print Github context
-        run:
-          echo '${{toJson(github)}}'
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
 
   validate_code_compliance:
     runs-on: ubuntu-latest
@@ -48,8 +49,10 @@ jobs:
 
       - name: get number of commits pushed
         id: get_commits
+        env:
+          EVENT_COMMITS: ${{toJson(github.event.commits)}
         run: |
-          echo '${{toJson(github.event.commits)}}' > commits.json
+          echo "$EVENT_COMMITS" > commits.json
           tr -d '\n' < commits.json > commits_oneline.json
           LL=$( jq '. | length' commits_oneline.json)
           echo 'Number of commits pushed: $LL'
