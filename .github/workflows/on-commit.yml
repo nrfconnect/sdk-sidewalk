@@ -50,7 +50,7 @@ jobs:
       - name: get number of commits pushed
         id: get_commits
         env:
-          EVENT_COMMITS: ${{toJson(github.event.commits)}
+          EVENT_COMMITS: ${{toJson(github.event.commits)}}
         run: |
           echo "$EVENT_COMMITS" > commits.json
           tr -d '\n' < commits.json > commits_oneline.json
