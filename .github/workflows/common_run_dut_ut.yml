@@ -16,7 +16,7 @@ jobs:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2 --privileged
       volumes:
-        - /hw_settings:/hw_settings
+        - /home/tester/hw_settings:/hw_settings
         - /dev:/dev
         - /run/udev:/run/udev
     defaults:
