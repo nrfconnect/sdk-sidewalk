@@ -136,26 +136,25 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 const radio_sx126x_device_config_t *get_radio_cfg(void)
 {
 	radio_sx1262_cfg.gpio_power =
-		sid_gpio_utils_get_gpio_number_dt(
+		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_reset_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_int1 =
-		sid_gpio_utils_get_gpio_number_dt(
+		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_dio1_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_radio_busy =
-		sid_gpio_utils_get_gpio_number_dt(
+		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_busy_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_rf_sw_ena =
-		sid_gpio_utils_get_gpio_number_dt(
+		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_antenna_enable_gpios),
 							      gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.client_selector =
-		sid_gpio_utils_get_gpio_number_dt(
+		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.speed_hz = DT_PROP_OR(DT_NODELABEL(sid_semtech), clock_frequency, SPI_FREQUENCY_DEFAULT);
 
-	radio_sx1262_cfg.gpio_tx_bypass = sid_gpio_utils_get_gpio_number_dt(
+	radio_sx1262_cfg.gpio_tx_bypass = sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_tx_bypass), gpios, INVALID_DT_GPIO));
-
 	return &radio_sx1262_cfg;
 }
 

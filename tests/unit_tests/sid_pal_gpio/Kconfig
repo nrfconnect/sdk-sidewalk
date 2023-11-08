@@ -1,16 +1,14 @@
 #
-# Copyright (c) 2022 Nordic Semiconductor ASA
+# Copyright (c) 2023 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
-config SIDEWALK_BUILD
-	default y
 
-config SIDEWALK_LOG_LEVEL
-	default 0
+config MAIN_THREAD_PRIORITY
+    default 14
 
-config SIDEWALK_BLE_ADAPTER_LOG_LEVEL
-	default 0
+config SIDEWALK_GPIO_MAX
+    default 2
 
 config SIDEWALK_GPIO_IRQ_PRIORITY
 	default 1

@@ -28,4 +28,7 @@ config SIDEWALK_LOG_LEVEL
 config SPI_BUS_LOG_LEVEL
 	default 0
 
+config SIDEWALK_GPIO_MAX
+    default 6
+
 source "Kconfig.zephyr"
