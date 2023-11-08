@@ -80,4 +80,23 @@ v1.14.4
         The non-resolvable private address (NRPA) cannot be set in the connectable mode for Bluetooth LE.
         Currently there is no workaround for this issue.
 
+
+v1.14.3
+=======
+
+.. toggle::
+
+    * KRKNWK-16402: DFU failure on unregistered devices.
+        DFU fails on a device that is not registered.
+
+        **Workaround:** Enter the DFU mode when the device is registered.
+
+    * KRKNWK-14583: Bus fault after flash, before the :file:`Nordic_MFG.hex` data flash.
+        For sub-GHz samples, when the :file:`Nordic_MFG.hex` file is missing, the device throws a hard fault during initializing the Sidewalk stack.
+        Proper error handling will be implemented, but the temporary solution is to write manufacturing hex to the device and reset it.
+
+    * KRKNWK-14299: NRPA MAC address cannot be set in Zephyr.
+        The non-resolvable private address (NRPA) cannot be set in the connectable mode for Bluetooth LE.
+        Currently there is no workaround for this issue.
+
 .. include:: ncs_links.rst
