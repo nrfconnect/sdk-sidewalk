@@ -4,23 +4,7 @@ Setting up the SDK
 ##################
 
 See the compatibility between the versions of Amazon Sidewalk and the nRF Connect SDK by referring to the :ref:`compatibility_matrix`.
-Once confirmed, follow one of the installation methods below:
-
-.. tabs::
-
-   .. tab:: Automatic installation (Toolchain Manager)
-
-      Follow the steps in `Installing automatically`_ to perform automatic installation using the Toolchain Manager.
-
-   .. tab:: Manual installation
-
-      Follow the steps in `Installing manually`_ to perform a manual installation.
-
-   .. tab:: VSCode Dev Container (deprecated)
-
-         .. note::
-            Dev Container is not supported any more since the Sidewalk distribution model has changed.
-            See :ref:`dk_building_app_in_nrf_manifest` for more details.
+Once confirmed, follow the `Installing the nRF Connect SDK`_ instructions.
 
 .. _dk_building_sample_app:
 
@@ -30,10 +14,8 @@ Downloading the Sidewalk repository
 The Sidewalk distribution model supports the following download methods.
 Choose the right download method depending on the version of sdk-sidewalk that you are using.
 
-  * For sdk-sidewalk ``v1.14.5-dev1`` (and before) and sdk-nrf ``v2.4.1`` (and before), follow the steps in :ref:`dk_building_app_with_manifest`.
+  * If you are using the sdk-sidewalk ``v1.14.5-dev1`` (with sdk-nrf ``v2.4.1``) or earlier versions, follow the steps in :ref:`dk_building_app_with_manifest`.
   * For any later releases of sdk-sidewalk and sdk-nrf, follow the steps in :ref:`dk_building_app_in_nrf_manifest`.
-  * For sdk-sidewalk ``main`` and sdk-nrf ``main``, follow the steps in :ref:`dk_building_app_in_nrf_manifest`.
-
 
 .. _dk_building_app_in_nrf_manifest:
 
@@ -43,11 +25,6 @@ Sidewalk as an nRF Connect SDK repository
 Follow these steps to download the Sidewalk application for the nRF Connect SDK:
 
 1. Open a terminal window.
-
-   If you have installed the nRF Connect SDK through the automatic installation (using the Toolchain Manager), click the down arrow next to the version you installed, and select :guilabel:`Open bash`.
-
-   .. figure:: /images/toolchain_manager.png
-
    Your directory structure should look as follows:
 
    .. code-block:: console
@@ -111,11 +88,6 @@ Sidewalk as an application with manifest repository
 Follow these steps to download the Sidewalk application for the nRF Connect SDK:
 
 1. Open a terminal window.
-
-   If you have installed the nRF Connect SDK through the automatic installation (using the Toolchain Manager), click the down arrow next to the version you installed, and select :guilabel:`Open bash`.
-
-   .. figure:: /images/toolchain_manager.png
-
    Your directory structure should look as follows:
 
    .. code-block:: console

@@ -12,13 +12,13 @@ This repository contains an Amazon Sidewalk platform abstraction layer for the N
 Documentation
 *************
 
-Browse the official Sidewalk documentation: 
+Browse the official Sidewalk documentation:
 
 * Sidewalk for the nRF Connect SDK: https://nrfconnect.github.io/sdk-sidewalk
 
 * Amazon Sidewalk: https://docs.sidewalk.amazon
 
-To see the official nRF Connect SDK documentation, go to https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.3.0/nrf/index.html.
+To see the official nRF Connect SDK documentation, go to https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/index.html.
 
 
 Support

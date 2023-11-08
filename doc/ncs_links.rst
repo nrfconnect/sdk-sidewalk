@@ -4,8 +4,6 @@
 .. _Getting started with nRF52 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/working_with_nrf/nrf52/gs.html
 .. _Getting started with nRF53 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/working_with_nrf/nrf53/nrf5340_gs.html
 .. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/gs_installing.html#install-a-toolchain
-.. _Installing automatically: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/gs_assistant.html#installing-automatically
-.. _Installing manually: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/gs_installing.html#install-the-required-tools
 .. _nRF Connect SDK Getting started: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/getting_started.html
 .. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/zephyr/boards/arm/nrf52840dk_nrf52840/doc/index.html
 .. _nrf5340dk_nrf5340: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/zephyr/boards/arm/nrf5340dk_nrf5340/doc/index.html#nrf5340dk-nrf5340
@@ -16,3 +14,4 @@
 .. _NCS testing applications: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/gs_testing.html
 .. _Known issues for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/releases_and_maturity/known_issues.html
 .. _Release notes for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/releases_and_maturity/releases/release-notes-2.5.0.html
+.. _Installing the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/install_ncs.html
