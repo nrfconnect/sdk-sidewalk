@@ -195,8 +195,12 @@ static StrToHexRet convert_hex_str_to_data(uint8_t *out, size_t out_limit, char 
 		if (hi.result == Err || lo.result == Err) {
 			return (StrToHexRet)Result_Err(ARG_NOT_HEX);
 		}
-		out[payload_size] = (hi.val_or_err.val << 4) + lo.val_or_err.val;
-		payload_size++;
+		if (payload_size < out_limit) {
+			out[payload_size] = (hi.val_or_err.val << 4) + lo.val_or_err.val;
+			payload_size++;
+		} else {
+			return (StrToHexRet)Result_Err(OUT_TOO_SMALL);
+		}
 	}
 	return (StrToHexRet)Result_Val(payload_size);
 }
