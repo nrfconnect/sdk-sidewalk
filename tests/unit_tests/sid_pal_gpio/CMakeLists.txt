@@ -13,14 +13,8 @@ project(sidewalk_test_gpio)
 add_definitions(-DNRF52840_XXAA)
 
 cmock_handle($ENV{ZEPHYR_BASE}/include/zephyr/drivers/gpio.h zephyr/drivers)
-cmock_handle($ENV{ZEPHYR_BASE}/../modules/hal/nordic/nrfx/mdk/nrf52840_peripherals.h)
-cmock_handle($ENV{ZEPHYR_BASE}/../modules/hal/nordic/nrfx/mdk/nrf_peripherals.h)
-cmock_handle(${SIDEAWLK_BASE}/subsys/sal/sid_pal/include/sid_gpio_utils.h zephyr/drivers)
-cmock_handle(${SIDEAWLK_BASE}/subsys/sal/sid_pal/include/sid_gpio_irq.h)
-cmock_handle(${SIDEAWLK_BASE}/subsys/sal/sid_pal/include/sid_gpio_irq_handler.h)
 
-
-FILE(GLOB app_sources src/*.c ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_gpio.c)
+FILE(GLOB app_sources src/*.c ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_gpio.c ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_gpio_utils.c)
 set(SOURCES ${app_sources})
 
 target_include_directories(app PRIVATE ${SIDEAWLK_BASE}/subsys/sal/common/sid_pal_ifc)

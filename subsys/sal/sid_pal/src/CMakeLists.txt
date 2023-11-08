@@ -47,7 +47,7 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_UPTIME
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_CRITICAL_REGION sid_critical_region.c)
 
-zephyr_library_sources_ifdef(CONFIG_SIDEWALK_GPIO sid_gpio.c sid_gpio_utils.c sid_gpio_irq.c sid_gpio_irq_handler.c)
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_GPIO sid_gpio.c sid_gpio_utils.c)
 
 if(CONFIG_SOC_SERIES_NRF53X)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature_mock.c)

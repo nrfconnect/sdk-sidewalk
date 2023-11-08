@@ -162,6 +162,13 @@ config SIDEWALK_GPIO
 	help
 	  Sidewalk GPIO module
 
+config SIDEWALK_GPIO_MAX
+	int
+	default 6 if SIDEWALK_SUBGHZ
+	default 0
+	help
+	  Maximum number of GPIO assigned for use with Sidewalk GPIO API
+
 config SIDEWALK_ACE_OSAL_ZEPHYR
 	bool
 	default SIDEWALK

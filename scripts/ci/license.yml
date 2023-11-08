@@ -28,27 +28,27 @@ licenses:
 # evaluate licenses from top to bottom
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
-  - sidewalk/subsys/semtech/include/sx126x_config.h$
+  - sidewalk.*/subsys/semtech/include/sx126x_config.h$
   search_license_txt:
   - This file is exposed to each procuct configuration to customize the driver behavior
   spdx: null
 
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
   file_regexp:
-  - sidewalk/subsys/ace(/.*)+h$
-  - sidewalk/subsys/config(/.*)+(c|h)$
-  - sidewalk/subsys/config/common/.*(c|h)$
-  - sidewalk/subsys/config/common/src/.*(c|h)$
-  - sidewalk/subsys/hal(/.*)+h$
-  - sidewalk/subsys/hal/src/memory.c$
-  - sidewalk/subsys/sal/common(/.*)+h$
-  - sidewalk/subsys/semtech/include/semtech_radio_ifc.h$
-  - sidewalk/tools/.*
-  - sidewalk/tests/validation/storage_kv/.*(c|h)$
-  - sidewalk/tests/validation/timer/.*(c|h)$
-  - sidewalk/.*/sensor_monitoring/ext/.*$
-  - sidewalk/.*/sensor_monitoring/config/app_900_config.*$
-  - sidewalk/.*/sensor_monitoring/config/app_ble_config.h$
+  - sidewalk.*/subsys/ace(/.*)+h$
+  - sidewalk.*/subsys/config(/.*)+(c|h)$
+  - sidewalk.*/subsys/config/common/.*(c|h)$
+  - sidewalk.*/subsys/config/common/src/.*(c|h)$
+  - sidewalk.*/subsys/hal(/.*)+h$
+  - sidewalk.*/subsys/hal/src/memory.c$
+  - sidewalk.*/subsys/sal/common(/.*)+h$
+  - sidewalk.*/subsys/semtech/include/semtech_radio_ifc.h$
+  - sidewalk.*/tools/.*
+  - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
+  - sidewalk.*/tests/validation/timer/.*(c|h)$
+  - sidewalk.*/.*/sensor_monitoring/ext/.*$
+  - sidewalk.*/.*/sensor_monitoring/config/app_900_config.*$
+  - sidewalk.*/.*/sensor_monitoring/config/app_ble_config.h$
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
