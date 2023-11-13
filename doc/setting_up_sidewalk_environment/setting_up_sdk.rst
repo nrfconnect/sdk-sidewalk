@@ -162,12 +162,6 @@ To download the nRF Command Line, go to the `nRF command line tools`_ page.
 
 .. include:: ../ncs_links.rst
 
-.. _Jlink tools: https://www.segger.com/downloads/jlink/
-.. _nrf tools: https://www.nordicsemi.com/Products/Development-tools/nrf-command-line-tools/download
-.. _Docker: https://docs.docker.com/engine/install/ubuntu/
-.. _nRF_command_line_tools: https://infocenter.nordicsemi.com/topic/ug_nrf_cltools/UG/cltools/nrf_installation.html
 .. _sdk-sidewalk repository: https://github.com/nrfconnect/sdk-sidewalk
-.. _Semtech SX1262MB2CAS eval board: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
-.. _GNU Arm Embedded Toolchain: https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
 .. _nRF Command Line Tools: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs
-.. _Makefile.posix: ../../components/toolchain/gcc/Makefile.posix
+.. _Installing the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/install_ncs.html
