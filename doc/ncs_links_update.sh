@@ -1,17 +1,19 @@
+#!/bin/bash
+
+# Get NCS tag
 current_dir=$(pwd)
 cd $ZEPHYR_BASE/../nrf;
 last_tag=$(git describe --tags --abbrev=0)
 last_tag="${last_tag:1}"
 cd $current_dir
 
+# Links with NCS tag
 links=( ".. _nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/index.html"
         ".. _nrf52840 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr"
         ".. _nrf5340 DK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/config_and_build/board_support.html#boards-included-in-sdk-zephyr"
         ".. _Getting started with nRF52 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/working_with_nrf/nrf52/gs.html"
         ".. _Getting started with nRF53 Series: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/working_with_nrf/nrf53/nrf5340_gs.html"
         ".. _Zephyr toolchain: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/gs_installing.html#install-a-toolchain"
-        ".. _Installing automatically: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/gs_assistant.html#installing-automatically"
-        ".. _Installing manually: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/gs_installing.html#install-the-required-tools"
         ".. _nRF Connect SDK Getting started: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/getting_started.html"
         ".. _nRF52840dk_nrf52840: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/zephyr/boards/arm/nrf52840dk_nrf52840/doc/index.html"
         ".. _nrf5340dk_nrf5340: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/zephyr/boards/arm/nrf5340dk_nrf5340/doc/index.html#nrf5340dk-nrf5340"
@@ -23,6 +25,9 @@ links=( ".. _nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/d
         ".. _Known issues for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/<NCS_TAG>/nrf/releases_and_maturity/known_issues.html"
         ".. _Release notes for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/releases_and_maturity/releases/release-notes-<NCS_TAG>.html"
 )
+
+# Print ncs links with the proper tag
+echo -e "..\n\tNote: This file was automatically generated.\n\tPlease modify in script file: $(basename "$0")\n"
 
 for link in "${links[@]}"; do echo "${link/<NCS_TAG>/"$last_tag"}"; done
 
