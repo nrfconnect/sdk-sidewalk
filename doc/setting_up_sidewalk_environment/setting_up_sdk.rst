@@ -14,8 +14,8 @@ Downloading the Sidewalk repository
 The Sidewalk distribution model supports the following download methods.
 Choose the right download method depending on the version of sdk-sidewalk that you are using.
 
-  * If you are using the sdk-sidewalk ``v1.14.5-dev1`` (with sdk-nrf ``v2.4.1``) or earlier versions, follow the steps in :ref:`dk_building_app_with_manifest`.
-  * For any later releases of sdk-sidewalk and sdk-nrf, follow the steps in :ref:`dk_building_app_in_nrf_manifest`.
+  * If you are using ``v2.5.0`` or later releases of sdk-sidewalk and sdk-nrf, follow the steps in :ref:`dk_building_app_in_nrf_manifest`.
+  * If you are using the sdk-sidewalk ``v1.14.5-dev1`` release (with sdk-nrf ``v2.4.1``), or earlier versions, follow the steps in :ref:`dk_building_app_with_manifest`.
 
 .. _dk_building_app_in_nrf_manifest:
 
