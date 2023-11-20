@@ -26,6 +26,7 @@ extern const char *const sidewalk_version_component[];
 	LOG_PRINTK("----------------------------------------------------------------\n");          \
 	LOG_PRINTK("sidewalk_fork_point = %s\n", sidewalk_version_common_commit);                  \
 	LOG_PRINTK("build time          = %s\n", build_time_stamp);                                \
+	LOG_PRINTK("board               = %s\n", CONFIG_BOARD);                                    \
 	LOG_PRINTK("----------------------------------------------------------------\n")
 #else
 #define PRINT_SIDEWALK_VERSION()
