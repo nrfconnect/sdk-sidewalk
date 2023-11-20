@@ -12,14 +12,10 @@
 
 #include <stdlib.h>
 
+#include <sid_gpio_utils.h>
+#include <sid_pal_gpio_ifc.h>
 #include <sid_pal_serial_bus_ifc.h>
 #include <sid_pal_serial_bus_spi_config.h>
-
-// Real pin number for sx1262 NSS for nrf52840
-#define NSS_PIN_NUMBER 40
-
-struct sid_pal_serial_bus_client client =
-	(struct sid_pal_serial_bus_client){ .client_selector = NSS_PIN_NUMBER };
 
 ZTEST(spi_bus, test_init_spi)
 {
@@ -83,7 +79,11 @@ ZTEST(spi_bus, test_xfer_wrong_interface)
 ZTEST(spi_bus, test_send_spi)
 {
 	const struct sid_pal_serial_bus_iface *interface = NULL;
-
+	struct sid_pal_serial_bus_client client;
+	client.client_selector =
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
+	sid_pal_gpio_set_direction(client.client_selector, SID_PAL_GPIO_DIRECTION_OUTPUT);
 	zassert_equal(SID_ERROR_NONE, sid_pal_serial_bus_nordic_spi_create(&interface, NULL));
 	zassert_not_null(interface);
 	zassert_not_null(interface->xfer);
@@ -102,6 +102,11 @@ ZTEST(spi_bus, test_send_spi)
 ZTEST(spi_bus, test_only_tx_spi)
 {
 	const struct sid_pal_serial_bus_iface *interface = NULL;
+	struct sid_pal_serial_bus_client client;
+	client.client_selector =
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
+	sid_pal_gpio_set_direction(client.client_selector, SID_PAL_GPIO_DIRECTION_OUTPUT);
 
 	zassert_equal(SID_ERROR_NONE, sid_pal_serial_bus_nordic_spi_create(&interface, NULL));
 	zassert_not_null(interface);
