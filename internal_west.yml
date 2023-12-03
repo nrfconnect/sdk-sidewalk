@@ -13,7 +13,7 @@ manifest:
     - name: nrf
       repo-path: sdk-nrf
       path: nrf
-      revision: ee6ce1a02cd4ede2d57997ee3e744113ae0f0464
+      revision: eaa0b49d48a4956d2af3abdaa7aabfef27d5d126
       import: true
 
   # West-related configuration for the sidewalk repository.
