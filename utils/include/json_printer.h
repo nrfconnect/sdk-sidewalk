@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
+#include <stdio.h>
 /**
   * @brief This module is a zero cost abstraction to prepare JSON string representation of objects.
   * It works by generating list of arguments for printf function.
@@ -38,6 +38,19 @@
   * > {"array": [3, 3.14], "dictionary": {"JSON_is_great": true}}
   * 
   */
+
+/**
+ * @brief Write JSON to log module
+ * 
+ * Because the LOG module can take only 9 arguments, it is necessary to format the message first
+ * external buffer is used to hold formatted message.
+ * LOG module creates a copy of the message, so after calling this macro the original buffer can be modified or released.
+ */
+#define JSON_WRITE_LOG(_level, buff, buff_size, JSON)                                              \
+	if (Z_LOG_CONST_LEVEL_CHECK(_level)) {                                                     \
+		snprintf(buff, buff_size, _JSON_FORMAT(JSON) _JSON_ARGS(JSON));                    \
+		Z_LOG(_level, "%s", buff);                                                         \
+	}
 
 /**
  * @brief prepare printf formater and arguments to print variable

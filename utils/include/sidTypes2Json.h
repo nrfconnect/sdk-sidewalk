@@ -104,3 +104,28 @@
 #define JSON_VAL_sid_error_t(name, error)                                                          \
 	JSON_NAME(name, JSON_OBJ(JSON_LIST_2(JSON_NAME("value", JSON_INT(error)),                  \
 					     JSON_NAME("str", JSON_STR(SID_ERROR_T_STR(error))))))
+
+#define JSON_VAL_sid_state(state) JSON_STR(SID_STATE_TYPE_STR(state))
+#define JSON_VAL_sid_status_detail(detail)                                                          \
+	JSON_OBJ(JSON_LIST_4(                                                                       \
+		JSON_NAME("registration_status",                                                    \
+			  JSON_STR(SID_REGISTRATION_STATUS_TYPE_STR(detail.registration_status))),  \
+		JSON_NAME("time_sync_status",                                                       \
+			  JSON_STR(SID_TIME_SYNC_STATUS_TYPE_STR(detail.time_sync_status))),        \
+		JSON_NAME("link_status_mask",                                                       \
+			  JSON_LIST_3(                                                              \
+				  JSON_NAME("BLE",                                                  \
+					    JSON_BOOL(detail.link_status_mask &SID_LINK_TYPE_1)),   \
+				  JSON_NAME("FSK",                                                  \
+					    JSON_BOOL(detail.link_status_mask &SID_LINK_TYPE_2)),   \
+				  JSON_NAME("LoRa",                                                 \
+					    JSON_BOOL(detail.link_status_mask &SID_LINK_TYPE_3)))), \
+		JSON_NAME("registration_status",                                                    \
+			  JSON_LIST_3(JSON_NAME("BLE", JSON_INT(detail.supported_link_modes[0])),   \
+				      JSON_NAME("FSK", JSON_INT(detail.supported_link_modes[1])),   \
+				      JSON_NAME("LoRa",                                             \
+						JSON_INT(detail.supported_link_modes[2]))))))
+
+#define JSON_VAL_sid_status(status)                                                                \
+	JSON_OBJ(JSON_LIST_2(JSON_NAME("state", JSON_VAL_sid_state(status->state)),                \
+			     JSON_NAME("detail", JSON_VAL_sid_status_detail(status->detail))))

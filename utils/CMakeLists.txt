@@ -6,3 +6,5 @@
 
 zephyr_include_directories(include)
 add_subdirectory(src)
+
+zephyr_library_sources(sid_api_delegated.c)

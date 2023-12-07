@@ -19,6 +19,7 @@
  */
 
 #include <app_ble_config.h>
+#include <zephyr/kernel.h>
 
 static const sid_ble_link_config_t ble_config = {
 	.create_ble_adapter = sid_pal_ble_adapter_create,
@@ -27,4 +28,8 @@ static const sid_ble_link_config_t ble_config = {
 const sid_ble_link_config_t *app_get_ble_config(void)
 {
 	return &ble_config;
+}
+
+__weak const struct sid_sub_ghz_links_config *app_get_sub_ghz_config(void){
+	return NULL;
 }

@@ -60,3 +60,13 @@
 	(val) == SID_LINK_MODE_MOBILE  ? "SID_LINK_MODE_MOBILE" :                                  \
 	(val) == SID_LINK_MODE_INVALID ? "SID_LINK_MODE_INVALID" :                                 \
 					 "UNKNOWN"
+
+#define SID_STATE_TYPE_STR(val)                                                                    \
+	((char *[]){ "SID_STATE_READY", "SID_STATE_NOT_READY", "SID_STATE_ERROR",                  \
+		     "SID_STATE_SECURE_CHANNEL_READY" }[(val)])
+
+#define SID_REGISTRATION_STATUS_TYPE_STR(val)                                                      \
+	((char *[]){ "SID_STATUS_REGISTERED", "SID_STATUS_NOT_REGISTERED" }[(val)])
+
+#define SID_TIME_SYNC_STATUS_TYPE_STR(val)                                                         \
+	((char *[]){ "SID_STATUS_TIME_SYNCED", "SID_STATUS_NO_TIME" }[(val)])
