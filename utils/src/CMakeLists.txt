@@ -20,8 +20,6 @@ endif() # CONFIG_SIDEWALK_BUTTONS
 
 if (CONFIG_SIDEWALK_CLI)
     zephyr_library_sources(shell.c)
-    zephyr_include_directories(${ZEPHYR_BASE}/../sidewalk/lib/include/)
-    zephyr_include_directories(${ZEPHYR_BASE}/../sidewalk/samples/template/include)
 endif() # CONFIG_SIDEWALK_CLI
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DFU_SERVICE_BLE nordic_dfu.c)
