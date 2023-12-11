@@ -1,0 +1,22 @@
+@startuml
+[*] --> Unregistered
+[*] --> [*]: EventReboot
+[*] --> [*] : EventDFU
+
+Unregistered --> Registered : EVENT_REGISTERED
+Registered --> TimeSync : EVENT_TIME_SYNC
+TimeSync --> Registered : EVENT_TIME_SYNC_DROP
+TimeSync --> InterfaceUp : EVENT_BLE_LINK_UP
+TimeSync --> InterfaceUp : EVENT_FSK_LINK_UP
+TimeSync --> InterfaceUp : EVENT_LORA_LINK_UP
+InterfaceUp --> InterfaceUp : EVENT_BLE_LINK_DOWN
+InterfaceUp --> InterfaceUp : EVENT_FSK_LINK_DOWN
+InterfaceUp --> InterfaceUp : EVENT_LORA_LINK_DOWN
+InterfaceUp --> TimeSync
+TimeSync --> MSG_received : EVENT_MSG_RCV
+MSG_received --> InterfaceUp
+InterfaceUp --> MSG_received : EVENT_MSG_RCV
+InterfaceUp --> SendHello : EVENT_SEND_MSG
+SendHello --> InterfaceUp : EVENT_MSG_SEND
+SendHello --> InterfaceUp : EVENT_MSG_SEND_ERROR
+@enduml

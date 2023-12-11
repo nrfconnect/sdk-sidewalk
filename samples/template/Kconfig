@@ -34,6 +34,12 @@ config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
+config SMF
+	default y
+
+config EVENTS
+	default y
+
 source "${ZEPHYR_BASE}/../sidewalk/samples/common/Kconfig.defconfig"
 
 source "Kconfig.zephyr"
