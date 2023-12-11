@@ -12,15 +12,20 @@ on:
         required: false
         type: string
         default: '["nrf52840dk_nrf52840", "nrf5340dk_nrf5340_cpuapp"]'
+      run_tests:
+        description: 'run tests on HW after building'
+        type: boolean
+        required: false
+        default: true
 
 jobs:
   build_samples:
     strategy:
       matrix:
         platform: ${{ fromJson(inputs.supported_platforms) }}
-        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
     env:
-      MAX_SUBSETS: 12
+      MAX_SUBSETS: 13
 
     runs-on: ubuntu-latest
     container:
@@ -86,9 +91,9 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJson(inputs.supported_platforms) }}
-        subset: [1, 2, 3, 4]
+        subset: [1, 2, 3, 4, 5, 6, 7]
     env:
-      MAX_SUBSETS: 4
+      MAX_SUBSETS: 7
 
     runs-on: ubuntu-latest
     container:
@@ -155,9 +160,9 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJson(inputs.supported_platforms) }}
-        subset: [1, 2, 3, 4, 5]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     env:
-      MAX_SUBSETS: 5
+      MAX_SUBSETS: 10
 
     runs-on: ubuntu-latest
     container:
@@ -212,3 +217,125 @@ jobs:
           path: |
             twister-out
             subsets
+
+  run_dut_ut:
+    needs: [build_tests]
+    if: ${{ fromJson(inputs.run_tests) }}
+    continue-on-error: true
+    runs-on: test-node
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2 --privileged
+      volumes:
+        - /home/tester/hw_settings:/hw_settings
+        - /dev:/dev
+        - /run/udev:/run/udev
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: sidewalk
+
+      - name: check hw_settings
+        run: |
+          ls -lah /hw_settings
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: tests-dut-artifacts
+
+      - name: Run Tests
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          connected_DKs=`grep "connected: true" /hw_settings/hardware_map.yaml | wc -l`
+          python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/twister.json twister-out/twister.json
+          python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/testplan.json twister-out/testplan.json
+          west twister -j $connected_DKs --no-clean -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-dut_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+  build_and_run_ut_x86:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r scripts/ci/requirements.txt
+
+      - name: change_nrf_revision
+        if: ${{ inputs.change_nrf_revision }}
+        run: |
+          python3 scripts/ci/replace_nrf_revision_in_west.py internal_west.yml
+
+      - name: Reconfigure west
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
+          cd /workdir
+          west config manifest.path internal_sidewalk && \
+          west config manifest.file internal_west.yml && \
+          west update --narrow -o=--depth=1 && \
+          ln -s internal_sidewalk sidewalk
+
+      - name: Build test artifacts
+        run: |
+          source /workdir/zephyr/zephyr-env.sh
+          west twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
+
+      - name: Fix coverage report
+        run: |
+          lcov -q --remove "twister-out/coverage.info" '/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr/*' -o "coverage.info"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: tests-x86_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+      - name: Upload Coverage report
+        run: |
+          echo "# Coverage" >> summary
+          echo "" >> summary
+          echo "## Summary" >> summary
+          echo "" >> summary
+          echo "\`\`\`" >> summary
+          lcov --summary coverage.info --rc lcov_branch_coverage=1 >> summary
+          echo "\`\`\`" >> summary
+          echo "## File coverage" >> summary
+          echp "">> summary
+          echo "\`\`\`" >> summary
+          lcov --list coverage.info --rc lcov_branch_coverage=1 >> summary
+          echo "\`\`\`" >> summary
+          cat summary >> $GITHUB_STEP_SUMMARY

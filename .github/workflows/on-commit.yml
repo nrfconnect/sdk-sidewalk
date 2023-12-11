@@ -71,12 +71,8 @@ jobs:
 
   build_samples_and_tests:
     needs: [validate_code_compliance, validate_compliance_with_zephyr]
-    uses: ./.github/workflows/common-build.yml
-
-  run_dut_unit_tests:
-    needs: [build_samples_and_tests]
-    uses: ./.github/workflows/common_run_dut_ut.yml
+    uses: ./.github/workflows/common-build_and_run.yml
 
   publish_test_results:
-    needs: [run_dut_unit_tests]
+    needs: [build_samples_and_tests]
     uses: ./.github/workflows/publish_test_results.yml
