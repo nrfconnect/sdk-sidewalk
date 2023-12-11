@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_samples_and_tests:
-    uses: ./.github/workflows/common-build.yml
+    uses: ./.github/workflows/common-build_and_run.yml
 
   build_documentation:
     runs-on: ubuntu-latest
