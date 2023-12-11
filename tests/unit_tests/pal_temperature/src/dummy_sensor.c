@@ -24,5 +24,5 @@ int dummy_sensor_init(const struct device *dev)
 	return 0;
 }
 
-DEVICE_DEFINE(dummy_sensor, DUMMY_SENSOR_NAME, &dummy_sensor_init, NULL, NULL, NULL, APPLICATION,
+DEVICE_DEFINE(dummy_sensor, DUMMY_SENSOR_NAME, &dummy_sensor_init, NULL, NULL, NULL, POST_KERNEL,
 	      CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &dummy_sensor_api);
