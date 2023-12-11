@@ -328,31 +328,35 @@ static sid_error_t application_setup(void)
 
 static void application_main_loop(void)
 {
-	k_sleep(K_MSEC(100));
+	LOG_DBG("START LOOP");
 	int ret = smf_run_state(SMF_CTX(&app_ctx.application_state_machine));
-	while (ret) {
-		app_ctx.application_state_machine.events = k_event_wait(
-			&app_ctx.application_state_machine.event, UINT32_MAX, false, K_FOREVER);
-
+	LOG_INF("smf state return %d", ret);
+	while (ret == 0) {
+		LOG_INF("wait for event");
+		app_ctx.application_state_machine.events |= k_event_wait(
+			&app_ctx.application_state_machine.event, UINT32_MAX, true, K_FOREVER);
+		LOG_INF("event received");
 #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 		if (app_ctx.application_state_machine.events & BIT(EVENT_DFU)) {
 			bool DFU_mode = true;
 			(void)settings_save_one(CONFIG_DFU_FLAG_SETTINGS_KEY,
 						(const void *)&DFU_mode, sizeof(DFU_mode));
-			k_event_clear(&app_ctx.application_state_machine.event, BIT(EVENT_DFU));
+
+			WRITE_BIT(app_ctx.application_state_machine.events, EVENT_DFU, 0);
 			LOG_DBG("event post");
 			k_event_post(&app_ctx.application_state_machine.event, BIT(EVENT_REBOOT));
 		}
 #endif
 		if (app_ctx.application_state_machine.events & BIT(EVENT_REBOOT)) {
-			k_event_clear(&app_ctx.application_state_machine.event, BIT(EVENT_REBOOT));
+			WRITE_BIT(app_ctx.application_state_machine.events, EVENT_REBOOT, 0);
 			sys_reboot(SYS_REBOOT_COLD);
 		}
-
+		LOG_INF("Run State machine");
 		// some event has been generated, run the state machine to handle the event
 		// state handlers should cancel events that has been handled
 		ret = smf_run_state(SMF_CTX(&app_ctx.application_state_machine));
 	}
+	LOG_ERR("Exited the state machine");
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -446,7 +450,7 @@ static void s2_run(void *o)
 
 	if (sm->events & BIT(CUSTOM_EVENT_SEND_HELLO) &&
 	    ctx->last_status.detail.time_sync_status == SID_STATUS_TIME_SYNCED &&
-	    ctx->last_status.detail.link_status_mask & SID_LINK_TYPE_1_IDX) {
+	    ctx->config.link_mask & SID_LINK_TYPE_1_IDX) {
 		// TODO make separate state for connection request
 		sid_error_t e = sid_ble_bcn_connection_request(ctx->sid_handle, true);
 		if (e != SID_ERROR_NONE) {
@@ -459,9 +463,10 @@ static void s2_run(void *o)
 	}
 	if (sm->events & BIT(EVENT_BLE_LINK_UP) || sm->events & BIT(EVENT_FSK_LINK_UP) ||
 	    sm->events & BIT(EVENT_LORA_LINK_UP)) {
-		k_event_clear(&sm->event,
-			      sm->events & (BIT(EVENT_BLE_LINK_UP) | BIT(EVENT_BLE_LINK_UP) |
-					    BIT(EVENT_BLE_LINK_UP)));
+		WRITE_BIT(app_ctx.application_state_machine.events, EVENT_BLE_LINK_UP, 0);
+		WRITE_BIT(app_ctx.application_state_machine.events, EVENT_FSK_LINK_UP, 0);
+		WRITE_BIT(app_ctx.application_state_machine.events, EVENT_LORA_LINK_UP, 0);
+
 		smf_set_state(SMF_CTX(sm), &application_states[Connected]);
 	}
 }
@@ -472,6 +477,24 @@ static void s3_run(void *o)
 	struct s_object *sm = (struct s_object *)o;
 	struct application_context *ctx =
 		CONTAINER_OF(sm, struct application_context, application_state_machine);
+
+	if ((sm->events & BIT(CUSTOM_EVENT_SEND_HELLO)) &&
+	    (sm->events & BIT(EVENT_BLE_LINK_DOWN))) {
+		sid_error_t e = sid_ble_bcn_connection_request(ctx->sid_handle, true);
+		if (e != SID_ERROR_NONE) {
+			LOG_ERR("can not conn_req");
+		}
+
+		WRITE_BIT(app_ctx.application_state_machine.events, EVENT_BLE_LINK_DOWN, 0);
+		smf_set_state(SMF_CTX(sm), &application_states[Connecting]);
+		return;
+	}
+
+	if (sm->events & BIT(EVENT_BLE_LINK_DOWN)) {
+		WRITE_BIT(app_ctx.application_state_machine.events, EVENT_BLE_LINK_DOWN, 0);
+		smf_set_state(SMF_CTX(sm), &application_states[Connecting]);
+		return;
+	}
 
 	if (sm->events & BIT(CUSTOM_EVENT_SEND_HELLO)) {
 		static struct sid_msg msg;
@@ -486,7 +509,10 @@ static void s3_run(void *o)
 		LOG_ERR("put message@@@@@@@@@@@");
 		sid_error_t e = sid_put_msg_delegated(ctx->sid_handle, &msg, &desc);
 		if (e == SID_ERROR_NONE) {
-			k_event_clear(&sm->event, BIT(CUSTOM_EVENT_SEND_HELLO));
+			WRITE_BIT(app_ctx.application_state_machine.events, CUSTOM_EVENT_SEND_HELLO,
+				  0);
+		} else {
+			LOG_ERR("put message return err %s", SID_ERROR_T_STR(e));
 		}
 	}
 
@@ -502,11 +528,8 @@ static void s3_run(void *o)
 			sid_put_msg_delegated(ctx->sid_handle, &msg, &desc);
 			k_free(msg.data); // important to free memory
 		}
-		k_event_clear(&sm->event, BIT(EVENT_MSG_RCV));
-	}
-	if (sm->events & BIT(EVENT_BLE_LINK_DOWN)) {
-		k_event_clear(&sm->event, BIT(EVENT_BLE_LINK_DOWN));
-		smf_set_state(SMF_CTX(sm), &application_states[Connecting]);
+
+		WRITE_BIT(app_ctx.application_state_machine.events, EVENT_MSG_RCV, 0);
 	}
 }
 
