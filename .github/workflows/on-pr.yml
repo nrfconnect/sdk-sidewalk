@@ -69,7 +69,6 @@ jobs:
             PR_number
 
   build_samples_and_tests:
-    needs: [validate_code_compliance, validate_compliance_with_zephyr]
     uses: ./.github/workflows/common-build_and_run.yml
 
   publish_test_results:

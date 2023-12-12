@@ -46,7 +46,7 @@ jobs:
           apt install -y sudo
 
       - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.1
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: build_samples-${{ matrix.platform }}-${{ matrix.subset }}
 
@@ -123,7 +123,7 @@ jobs:
           apt install -y sudo
 
       - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.1
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: build_manual_tests-${{ matrix.platform }}-${{ matrix.subset }}
 
@@ -174,129 +174,18 @@ jobs:
             twister-out/**/*sidewalk*/zephyr/dfu_application.zip
             twister-out/**/*sidewalk*/zephyr/sidewalk_version.c
 
-  build_tests:
+
+  build-and-test_DUT:
     strategy:
+      fail-fast: true
       matrix:
-        platform: ${{ fromJson(inputs.supported_platforms) }}
-        subset: [1, 2, 3, 4, 5, 6, 7, 8]
-    env:
-      MAX_SUBSETS: 8
-
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2
-    defaults:
-      run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Install Python dependencies
-        run: |
-          apt install -y sudo
-
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.1
-        with:
-          key: build_tests-${{ matrix.platform }}-${{ matrix.subset }}
-
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install -r scripts/ci/requirements.txt
-
-      - name: change_nrf_revision
-        if: ${{ inputs.change_nrf_revision }}
-        run: |
-          python3 scripts/ci/replace_nrf_revision_in_west.py internal_west.yml
-
-      - name: Reconfigure west
-        run: |
-          source /workdir/zephyr/zephyr-env.sh
-          cp -r ../sdk-sidewalk /workdir/internal_sidewalk
-          cd /workdir
-          west config manifest.path internal_sidewalk && \
-          west config manifest.file internal_west.yml && \
-          west update --narrow -o=--depth=1 && \
-          ln -s internal_sidewalk sidewalk
-
-      - name: Build test artifacts for ${{ matrix.platform }}
-        run: |
-          source /workdir/zephyr/zephyr-env.sh
-          west twister --platform ${{ matrix.platform }} --testsuite-root /workdir/sidewalk/tests --filter runnable --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2 --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
-
-      - name: Prepare artifacts for ${{ matrix.platform }}
-        run: |
-          rm -rf twister-out
-          tar -xf PACKAGE_ARTIFACTS_${{ matrix.platform }}_${{ matrix.subset }}.tar.bz2
-          mkdir -p subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
-          mv twister-out/*.json subsets/${{ matrix.platform }}_${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: tests-dut-artifacts
-          path: |
-            twister-out
-            subsets
-
-  run_dut_ut:
-    needs: [build_tests]
-    if: ${{ fromJson(inputs.run_tests) }}
-    continue-on-error: true
-    runs-on: test-node
-    container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2 --privileged
-      volumes:
-        - /home/tester/hw_settings:/hw_settings
-        - /dev:/dev
-        - /run/udev:/run/udev
-    defaults:
-      run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          path: sidewalk
-
-      - name: check hw_settings
-        run: |
-          ls -lah /hw_settings
-
-      - name: Install Python dependencies
-        run: |
-          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: tests-dut-artifacts
-
-      - name: Run Tests
-        run: |
-          source /workdir/zephyr/zephyr-env.sh
-          connected_DKs=`grep "connected: true" /hw_settings/hardware_map.yaml | wc -l`
-          python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/twister.json twister-out/twister.json
-          python3 sidewalk/scripts/ci/combine_twister_reports.py subsets/**/testplan.json twister-out/testplan.json
-          west twister -j $connected_DKs --no-clean -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: tests-dut_result
-          path: |
-            twister-out/twister.xml
-            twister-out/**/handler.log
-            twister-out/**/device.log
+        subset: [1, 2, 3, 4, 5]
+    uses: ./.github/workflows/DUT_tests.yml
+    with:
+      change_nrf_revision: ${{ inputs.change_nrf_revision }}
+      subset: ${{ matrix.subset }}
+      max_subsets: 5
+      run_tests: true
 
   build_and_run_ut_x86:
     runs-on: ubuntu-latest
@@ -318,7 +207,7 @@ jobs:
           apt install -y sudo
 
       - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.1
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
           key: build_and_run_ut_x86
 
