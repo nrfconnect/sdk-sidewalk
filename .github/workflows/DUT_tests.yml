@@ -68,16 +68,13 @@ jobs:
       - name: Build test artifacts
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          west twister --testsuite-root /workdir/sidewalk/tests --shuffle-tests --filter runnable -P native_posix -P unit_testing --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
+          west twister --testsuite-root /workdir/sidewalk/tests --shuffle-tests --shuffle-tests-seed 123 --filter runnable -P native_posix -P unit_testing --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
 
-#  TODO use cache
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
+      - name: save build artifacts
+        uses: actions/cache@v3
         with:
-          name: tests-dut-artifacts_${{ inputs.subset }}
-          path: |
-            PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
+          path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
+          key: DUT_artifacts_${{ inputs.subset }}_${{ github.sha }}
 
   run_dut_ut:
     needs: [build_tests]
@@ -109,10 +106,17 @@ jobs:
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
+      - name: Get build artifacts
+        uses: actions/cache/restore@v3
+        id: cache
         with:
-          name: tests-dut-artifacts_${{ inputs.subset }}
+          path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
+          key: DUT_artifacts_${{ inputs.subset }}_${{ github.sha }}
+          fail-on-cache-miss: true
+
+      - name: Fail on missing artifacts
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: exit 1
 
       - name: Unwrap artifacts
         run: |
