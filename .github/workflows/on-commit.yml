@@ -70,7 +70,6 @@ jobs:
           python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c HEAD~${{steps.get_commits.outputs.commit_number}}..
 
   build_samples_and_tests:
-    needs: [validate_code_compliance, validate_compliance_with_zephyr]
     uses: ./.github/workflows/common-build_and_run.yml
 
   publish_test_results:
