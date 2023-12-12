@@ -38,5 +38,5 @@ jobs:
         if: always()
         with:
           check_name: Unit Test Results
-          files: "**/twister.xml"
+          files: "**/*twister.xml"
           comment_mode: off
