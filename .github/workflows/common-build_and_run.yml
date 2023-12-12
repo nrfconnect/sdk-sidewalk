@@ -43,6 +43,15 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          apt install -y sudo
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.1
+        with:
+          key: build_samples-${{ matrix.platform }}-${{ matrix.subset }}
+
+      - name: Install Python dependencies
+        run: |
           python3 -m pip install -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
@@ -111,6 +120,15 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          apt install -y sudo
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.1
+        with:
+          key: build_manual_tests-${{ matrix.platform }}-${{ matrix.subset }}
+
+      - name: Install Python dependencies
+        run: |
           python3 -m pip install -r scripts/ci/requirements.txt
 
       - name: change_nrf_revision
@@ -160,9 +178,9 @@ jobs:
     strategy:
       matrix:
         platform: ${{ fromJson(inputs.supported_platforms) }}
-        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        subset: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
-      MAX_SUBSETS: 10
+      MAX_SUBSETS: 8
 
     runs-on: ubuntu-latest
     container:
@@ -177,6 +195,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          apt install -y sudo
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.1
+        with:
+          key: build_tests-${{ matrix.platform }}-${{ matrix.subset }}
 
       - name: Install Python dependencies
         run: |
@@ -285,6 +312,15 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install Python dependencies
+        run: |
+          apt install -y sudo
+
+      - name: ccache
+        uses: hendrikmuhs/ccache-action@v1.1
+        with:
+          key: build_and_run_ut_x86
 
       - name: Install Python dependencies
         run: |
