@@ -42,16 +42,16 @@ Follow these steps to download the Sidewalk application for the nRF Connect SDK:
 
    Make sure the manifest path points to :file:`west.yml` inside the :file:`nrf` directory:
 
-      .. code-block:: console
+   .. code-block:: console
 
-         $ west manifest --path
-         /path-to-ncs-folder/nrf/west.yml
+      $ west manifest --path
+      /path-to-ncs-folder/nrf/west.yml
 
    In case your manifest path points to a different file, use the following command:
 
-      .. code-block:: console
+   .. code-block:: console
 
-         $ west config manifest.path nrf
+      $ west config manifest.path nrf
 
 #. Enable the Sidewalk group filter for west.
 
@@ -63,7 +63,7 @@ Follow these steps to download the Sidewalk application for the nRF Connect SDK:
 
    .. code-block:: console
 
-      $ west list | grep sidewalk
+      $ west list sidewalk
       sidewalk     sidewalk                     <sidewalk_revision> https://github.com/nrfconnect/sdk-sidewalk
 
 #. Update all repositories:
@@ -112,11 +112,6 @@ Follow these steps to download the Sidewalk application for the nRF Connect SDK:
    .. code-block:: console
 
       $ git clone --branch v1.14.4 https://github.com/nrfconnect/sdk-sidewalk.git sidewalk
-
-   .. note::
-
-      This method works for Sidewalk revisions up to ``v1.14.5-dev1``.
-      For later versions and for the ``main`` branch, follow the steps in :ref:`dk_building_app_in_nrf_manifest`.
 
 #. Install Python requirements for Sidewalk.
 
