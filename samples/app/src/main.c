@@ -15,85 +15,64 @@
 
 LOG_MODULE_REGISTER(app, CONFIG_LOG_DEFAULT_LEVEL);
 
-/* Sidewalk Thread*/
-K_THREAD_STACK_DEFINE(sidewalk_work_q_stack, KB(10));
+static struct k_thread app_thread;
+K_THREAD_STACK_DEFINE(app_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
+
+typedef enum app_events {
+	APP_EVENT_SIDEWALK,
+	APP_EVENT_START,
+	APP_EVENT_SEND_HELLO,
+	APP_EVENT_FACTORY_RESET,
+	APP_EVENT_FSK_CSS_SWITCH,
+	APP_EVENT_SET_DEVICE_PROFILE
+} app_event_t;
+
+enum app_state {
+	STATE_INIT,
+	STATE_SIDEWALK_READY,
+	STATE_SIDEWALK_NOT_READY,
+	STATE_SIDEWALK_SECURE_CONNECTION
+};
+
+struct app_sm {
+	struct smf_ctx ctx;
+	struct k_msgq app_msgq;
+	app_event_t app_event;
+};
 
 struct sid_ctx_s {
-	struct k_work sid_event_work;
-	struct k_work_q sid_work_q;
-	struct sid_handle *sid_handle;
+	struct app_sm sm_obj;
+	struct sid_handle *handle;
 	struct sid_config config;
 };
 
-static struct sid_ctx_s sid_ctx = { 0 };
+static void state_init_run(void *o);
+static void state_ready_run(void *o);
+static void state_not_ready_run(void *o);
+static void state_secure_connection_run(void *o);
 
-static void on_sidewalk_event(bool in_isr, void *context);
-static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
-				     void *context);
-static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context);
-static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
-				   void *context);
-static void on_sidewalk_factory_reset(void *context);
-static void on_sidewalk_status_changed(const struct sid_status *status, void *context);
-
-static struct sid_event_callbacks event_callbacks = {
-	.context = &sid_ctx,
-	.on_event = on_sidewalk_event,
-	.on_msg_received = on_sidewalk_msg_received,
-	.on_msg_sent = on_sidewalk_msg_sent,
-	.on_send_error = on_sidewalk_send_error,
-	.on_status_changed = on_sidewalk_status_changed,
-	.on_factory_reset = on_sidewalk_factory_reset,
+static const struct smf_state app_states[] = {
+	[STATE_INIT] = SMF_CREATE_STATE(NULL, state_init_run, NULL),
+	[STATE_SIDEWALK_READY] = SMF_CREATE_STATE(NULL, state_ready_run, NULL),
+	[STATE_SIDEWALK_NOT_READY] = SMF_CREATE_STATE(NULL, state_not_ready_run, NULL),
+	[STATE_SIDEWALK_SECURE_CONNECTION] =
+		SMF_CREATE_STATE(NULL, state_secure_connection_run, NULL),
 };
 
-static void sidewalk_event_worker(struct k_work *work)
-{
-	struct sid_ctx_s *sid_ctx = CONTAINER_OF(work, struct sid_ctx_s, sid_event_work);
-
-	sid_error_t e = sid_process(sid_ctx->sid_handle);
-
-	if (e) {
-		LOG_ERR("sid process error %d", e);
-	}
-}
+uint8_t __aligned(4) app_msgq_buffer[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
+	LOG_INF("%s", __func__);
+
 	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
 
-	int e = k_work_submit_to_queue(&ctx->sid_work_q, &ctx->sid_event_work);
-
-	if (e) {
-		LOG_ERR("sid process queue error %d", e);
+	static app_event_t sidewalk_event = APP_EVENT_SIDEWALK;
+	if (k_msgq_put(&ctx->sm_obj.app_msgq, (void *)&sidewalk_event, K_NO_WAIT)) {
+		LOG_ERR("Cannot put message");
 	}
 }
 
-int sidewalk_thread_init(void *context)
-{
-	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
-
-	k_work_queue_init(&ctx->sid_work_q);
-	k_work_queue_start(&ctx->sid_work_q, sidewalk_work_q_stack,
-			   K_THREAD_STACK_SIZEOF(sidewalk_work_q_stack),
-			   CONFIG_SIDEWALK_THREAD_PRIORITY, NULL);
-	k_work_init(&ctx->sid_event_work, sidewalk_event_worker);
-
-	ctx->config = (struct sid_config){
-		.callbacks = &event_callbacks,
-		.time_sync_periodicity_seconds = 7200,
-		.link_config = app_get_ble_config(),
-		.sub_ghz_link_config = app_get_sub_ghz_config(),
-	};
-
-	sid_error_t e = application_pal_init();
-	if (e) {
-		LOG_ERR("sid pal init error %d", e);
-	}
-
-	return e;
-}
-
-/* Sidewalk Events */
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
 				     void *context)
 {
@@ -119,71 +98,109 @@ static void on_sidewalk_factory_reset(void *context)
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	LOG_INF("%s", __func__);
+
+	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
+
+	switch (status->state) {
+	case SID_STATE_READY:
+		smf_set_state(SMF_CTX(&ctx->sm_obj), &app_states[STATE_SIDEWALK_READY]);
+		break;
+	case SID_STATE_NOT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm_obj), &app_states[STATE_SIDEWALK_NOT_READY]);
+		break;
+	case SID_STATE_ERROR:
+		LOG_ERR("sidewalk error: %d", (int)sid_get_error(ctx->handle));
+		break;
+	case SID_STATE_SECURE_CHANNEL_READY:
+		smf_set_state(SMF_CTX(&ctx->sm_obj), &app_states[STATE_SIDEWALK_SECURE_CONNECTION]);
+		break;
+	default:
+		LOG_ERR("sidewalk unknow state: %d", status->state);
+		break;
+	}
 }
 
-/* Application State Machine */
-#define EVENT_BTN_PRESS BIT(0)
-
-static void state_unregistered_run(void *o);
-static void state_registered_run(void *o);
-static void state_time_synced_run(void *o);
-static void state_ready_run(void *o);
-
-enum app_state { STATE_UNREGISTERED, STATE_REGISTERED, STATE_TIME_SYNCED, STATE_READY };
-
-static const struct smf_state app_states[] = {
-	[STATE_UNREGISTERED] = SMF_CREATE_STATE(NULL, state_unregistered_run, NULL),
-	[STATE_REGISTERED] = SMF_CREATE_STATE(NULL, state_registered_run, NULL),
-	[STATE_TIME_SYNCED] = SMF_CREATE_STATE(NULL, state_time_synced_run, NULL),
-	[STATE_READY] = SMF_CREATE_STATE(NULL, state_ready_run, NULL),
-};
-
-struct s_object {
-	struct smf_ctx ctx;
-	struct k_event smf_event;
-	int32_t events;
-} s_obj;
-
-static void state_unregistered_run(void *o)
+static void state_init_run(void *o)
 {
-	struct s_object *s = (struct s_object *)o;
+	LOG_INF("state: init");
 
-	LOG_INF("state: unregistered");
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm_obj);
+	sid_error_t e = SID_ERROR_NONE;
 
-	smf_set_state(SMF_CTX(s), &app_states[STATE_REGISTERED]);
-}
+	switch (ctx->sm_obj.app_event) {
+	case APP_EVENT_SIDEWALK:
+		LOG_INF("event: sidewalk");
+		e = sid_process(ctx->handle);
+		if (e) {
+			LOG_ERR("sid process err %d", (int)e);
+		}
+		break;
+	case APP_EVENT_START:
+		LOG_INF("event: start");
 
-static void state_registered_run(void *o)
-{
-	struct s_object *s = (struct s_object *)o;
+		e = sid_init(&ctx->config, &ctx->handle);
+		if (e) {
+			LOG_ERR("sid init err %d", (int)e);
+		}
+		e = sid_start(ctx->handle, SID_LINK_TYPE_1);
+		if (e) {
+			LOG_ERR("sid start err %d", (int)e);
+		}
+		break;
 
-	LOG_INF("state: registered");
-
-	smf_set_state(SMF_CTX(s), &app_states[STATE_TIME_SYNCED]);
-}
-
-static void state_time_synced_run(void *o)
-{
-	struct s_object *s = (struct s_object *)o;
-
-	LOG_INF("state: time synced");
-
-	if (s->events & EVENT_BTN_PRESS) {
-		smf_set_state(SMF_CTX(s), &app_states[STATE_READY]);
-		k_event_clear(&s->smf_event, EVENT_BTN_PRESS);
+	default:
+		LOG_ERR("event: unsupported");
+		break;
 	}
 }
 
 static void state_ready_run(void *o)
 {
-	struct s_object *s = (struct s_object *)o;
-
 	LOG_INF("state: ready");
 
-	if (s->events & EVENT_BTN_PRESS) {
-		LOG_INF("Success!");
-		k_event_clear(&s->smf_event, EVENT_BTN_PRESS);
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm_obj);
+	sid_error_t e = SID_ERROR_NONE;
+
+	switch (ctx->sm_obj.app_event) {
+	case APP_EVENT_SIDEWALK:
+		LOG_INF("event: sidewalk");
+		e = sid_process(ctx->handle);
+		if (e) {
+			LOG_ERR("sid process err %d", (int)e);
+		}
+		break;
+
+	default:
+		LOG_ERR("event: unsupported");
+		break;
 	}
+}
+
+static void state_not_ready_run(void *o)
+{
+	LOG_INF("state: not ready");
+
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm_obj);
+	sid_error_t e = SID_ERROR_NONE;
+
+	switch (ctx->sm_obj.app_event) {
+	case APP_EVENT_SIDEWALK:
+		LOG_INF("event: sidewalk");
+		e = sid_process(ctx->handle);
+		if (e) {
+			LOG_ERR("sid process err %d", (int)e);
+		}
+		break;
+
+	default:
+		LOG_ERR("event: unsupported");
+		break;
+	}
+}
+
+static void state_secure_connection_run(void *o)
+{
+	LOG_INF("state: secure connection");
 }
 
 static void button_changed(uint32_t button_state, uint32_t has_changed)
@@ -192,30 +209,78 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 
 	if (buttons & DK_BTN1_MSK) {
 		LOG_INF("button 1");
-		k_event_post(&s_obj.smf_event, EVENT_BTN_PRESS);
 	}
+}
+
+static void app_thread_entry(void *context, void *unused, void *unused2)
+{
+	LOG_INF("App");
+
+	ARG_UNUSED(unused);
+	ARG_UNUSED(unused2);
+
+	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
+
+	struct sid_event_callbacks event_callbacks = {
+		.context = &ctx,
+		.on_event = on_sidewalk_event,
+		.on_msg_received = on_sidewalk_msg_received,
+		.on_msg_sent = on_sidewalk_msg_sent,
+		.on_send_error = on_sidewalk_send_error,
+		.on_status_changed = on_sidewalk_status_changed,
+		.on_factory_reset = on_sidewalk_factory_reset,
+	};
+
+	ctx->config = (struct sid_config){
+		.link_mask = SID_LINK_TYPE_1,
+		.callbacks = &event_callbacks,
+		.time_sync_periodicity_seconds = 7200,
+		.link_config = app_get_ble_config(),
+		.sub_ghz_link_config = app_get_sub_ghz_config(),
+	};
+
+	if (application_pal_init()) {
+		LOG_ERR("Cannot init pal");
+	}
+
+	k_msgq_init(&ctx->sm_obj.app_msgq, app_msgq_buffer, sizeof(app_event_t),
+		    CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
+
+	app_event_t start_event = APP_EVENT_START;
+	if (k_msgq_put(&ctx->sm_obj.app_msgq, (void *)&start_event, K_NO_WAIT)) {
+		LOG_ERR("Cannot put message");
+	}
+
+	smf_set_initial(SMF_CTX(&ctx->sm_obj), &app_states[STATE_INIT]);
+	while (1) {
+		LOG_INF("waiting for event...");
+		int err = k_msgq_get(&ctx->sm_obj.app_msgq, &ctx->sm_obj.app_event, K_FOREVER);
+		if (!err) {
+			if (smf_run_state(SMF_CTX(&ctx->sm_obj))) {
+				break;
+			}
+		} else {
+			LOG_ERR("msgq err %d", err);
+		}
+	}
+
+	LOG_ERR("Application failed. You should never see this message.");
 }
 
 int main(void)
 {
-	LOG_INF("Hello World! %s", CONFIG_BOARD);
+	LOG_INF("Main");
 
 	if (dk_buttons_init(button_changed)) {
 		LOG_ERR("Cannot init buttons");
 	}
 
-	if (sidewalk_thread_init(&sid_ctx)) {
-		LOG_ERR("Cannot init sid thread");
-	}
+	struct sid_ctx_s sid_ctx = { 0 };
 
-	k_event_init(&s_obj.smf_event);
-	smf_set_initial(SMF_CTX(&s_obj), &app_states[STATE_UNREGISTERED]);
-	while (1) {
-		s_obj.events = k_event_wait(&s_obj.smf_event, EVENT_BTN_PRESS, false, K_MSEC(1000));
-		if (smf_run_state(SMF_CTX(&s_obj))) {
-			break;
-		}
-	}
+	(void)k_thread_create(&app_thread, app_thread_stack,
+			      K_THREAD_STACK_SIZEOF(app_thread_stack), app_thread_entry, &sid_ctx,
+			      NULL, NULL, CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
+	k_thread_name_set(&app_thread, "app");
 
 	return 0;
 }
