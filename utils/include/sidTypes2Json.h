@@ -30,7 +30,7 @@
  * @result result of this function can be passed to printf like function, or other JSON macro
  */
 #define JSON_VAL_sid_msg_desc(name, msg_desc, msg_desc_attr_rx)                                                  \
-	JSON_OBJ(JSON_NAME(                                                                                      \
+	JSON_NAME(                                                                                               \
 		name,                                                                                            \
 		JSON_OBJ(JSON_LIST_7(                                                                            \
 			JSON_NAME("link_type", JSON_INT(msg_desc->link_type)),                                   \
@@ -91,7 +91,7 @@
 										 JSON_INT(                       \
 											 msg_desc->msg_desc_attr \
 												 .tx_attr        \
-												 .ttl_in_seconds))))))))))))
+												 .ttl_in_seconds)))))))))))
 
 /**
  * @brief prepare printf formater and arguments to print sid_error_t object
