@@ -8,13 +8,12 @@ To complete the set up of your Sidewalk product, you have to generate provisioni
 Preconditions
 *************
 
-Before creating a Sidewalk provisioning file, you have to:
+Before you create a Sidewalk provisioning file, you need to complete the `Amazon Sidewalk IoT Prerequisites`_ chapter.
+The instructions include:
 
- * Create an AWS account
- * Set up an AWS user with permissions to create resources
- * Set up user's AWS credentials file on your local machine
- * Complete the `Amazon Sidewalk IoT Prerequisites`_ instructions
-
+ * Creating an AWS account
+ * Setting up an AWS user with permissions to create resources
+ * Setting up user's AWS credentials file on your local machine
 
 Provisioning generation
 ***********************
@@ -46,53 +45,77 @@ Provisioning generation
 
 #. Run device provisioning scripts:
 
-   a. Set up Python virtual environment for the provisioning tools:
-
       .. tabs::
 
          .. tab:: Linux
 
-            .. code-block:: console
+            a. Set up Python virtual environment for the provisioning tools:
 
-               python3 -m pip install --user virtualenv
-               python3 -m virtualenv sample-app-env
-               source sample-app-env/bin/activate
-               python3 -m pip install --upgrade pip
-               python3 -m pip install -r requirements.txt
-               python3 -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
+               .. code-block:: console
+
+                  python3 -m pip install --user virtualenv
+                  python3 -m virtualenv sample-app-env
+                  source sample-app-env/bin/activate
+                  python3 -m pip install --upgrade pip
+                  python3 -m pip install -r requirements.txt
+                  python3 -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
+
+            #. Run the device provisioning scripts:
+
+               .. code-block:: console
+
+                  python3 EdgeDeviceProvisioning/provision_sidewalk_end_device.py
+
+               You should see the following output:
+
+               .. code-block:: console
+
+                  INFO:root:Status: 200
+                  INFO:root:Saving wireless device to file
+                  INFO:root:Generating MFG by calling provision.py
+                  INFO:root:  Generating MFG.hex for Nordic
+                  INFO:root:Done!
+
+            #. Exit the Python virtual environment:
+
+               .. code-block:: console
+
+                  deactivate
 
          .. tab:: Windows
-      
-            .. code-block:: console
 
-               py -m pip install --user virtualenv
-               py -m virtualenv sample-app-env
-               sample-app-env\Scripts\activate.bat
-               py -m pip install --upgrade pip
-               py -m pip install -r requirements.txt
-               py -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
+            a. Set up Python virtual environment for the provisioning tools:
 
-   #. Run the device provisioning scripts:
+               .. code-block:: console
 
-      .. code-block:: console
-   
-         python3 EdgeDeviceProvisioning/provision_sidewalk_end_device.py
+                  py -m pip install --user virtualenv
+                  py -m virtualenv sample-app-env
+                  sample-app-env\Scripts\activate.bat
+                  py -m pip install --upgrade pip
+                  py -m pip install -r requirements.txt
+                  py -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
 
-      You should see the following output:
+            #. Run the device provisioning scripts:
 
-      .. code-block:: console
+               .. code-block:: console
 
-         INFO:root:Status: 200
-         INFO:root:Saving wireless device to file
-         INFO:root:Generating MFG by calling provision.py
-         INFO:root:  Generating MFG.hex for Nordic
-         INFO:root:Done!
+                  py EdgeDeviceProvisioning/provision_sidewalk_end_device.py
 
-   #. Exit the Python virtual environment:
+               You should see the following output:
 
-      .. code-block:: console
+               .. code-block:: console
 
-         deactivate
+                  INFO:root:Status: 200
+                  INFO:root:Saving wireless device to file
+                  INFO:root:Generating MFG by calling provision.py
+                  INFO:root:  Generating MFG.hex for Nordic
+                  INFO:root:Done!
+
+            #. Exit the Python virtual environment:
+
+               .. code-block:: console
+
+                  deactivate
 
 #. Flash the :file:`Nordic_MFG.hex` file.
 
@@ -121,7 +144,7 @@ Provisioning generation
 
          cd EdgeDeviceProvisioning/DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9/WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911
 
-   #. Flash the :file:`Nordic_MFG.hex` file with the provisioning data: 
+   #. Flash the :file:`Nordic_MFG.hex` file with the provisioning data:
 
       .. code-block:: console
 
