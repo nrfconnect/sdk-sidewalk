@@ -23,8 +23,7 @@ typedef enum app_events {
 	APP_EVENT_SIDEWALK,
 	APP_EVENT_SEND_HELLO,
 	APP_EVENT_FACTORY_RESET,
-	APP_EVENT_FSK_CSS_SWITCH,
-	APP_EVENT_SET_DEVICE_PROFILE
+	APP_EVENT_LINK_SWITCH
 } app_event_t;
 
 enum app_state {
@@ -216,6 +215,43 @@ static void state_running_run(void *o)
 			LOG_ERR("sid process err %d", (int)e);
 		}
 		break;
+	case APP_EVENT_LINK_SWITCH:
+		sid_error_t e = SID_ERROR_NONE;
+
+		static uint32_t link_mask = SID_LINK_TYPE_1;
+
+		switch (link_mask) {
+		case SID_LINK_TYPE_1:
+			link_mask = SID_LINK_TYPE_2;
+			break;
+		case SID_LINK_TYPE_2:
+			link_mask = SID_LINK_TYPE_3;
+			break;
+		default:
+			link_mask = SID_LINK_TYPE_1;
+			break;
+		}
+
+		LOG_INF("Sidewalk link switch to 0x%x", link_mask);
+		ctx->config.link_mask = link_mask;
+
+		if (ctx->handle != NULL) {
+			e = sid_deinit(ctx->handle);
+			if (e) {
+				LOG_ERR("sid deinit err %d", (int)e);
+			}
+		}
+
+		e = sid_init(&ctx->config, &ctx->handle);
+		if (e) {
+			LOG_ERR("sid init err %d", (int)e);
+		}
+
+		e = sid_start(ctx->handle, link_mask);
+		if (e) {
+			LOG_ERR("sid start err %d", (int)e);
+		}
+		break;
 	default:
 		LOG_ERR("event: unknow %d", ctx->sm.event);
 		break;
@@ -338,6 +374,13 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 		LOG_INF("button 1");
 		static app_event_t hello_event = APP_EVENT_SEND_HELLO;
 		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&hello_event, K_NO_WAIT)) {
+			LOG_ERR("Cannot put message");
+		}
+	}
+	if (buttons & DK_BTN2_MSK) {
+		LOG_INF("button 2");
+		static app_event_t link_event = APP_EVENT_LINK_SWITCH;
+		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&link_event, K_NO_WAIT)) {
 			LOG_ERR("Cannot put message");
 		}
 	}
