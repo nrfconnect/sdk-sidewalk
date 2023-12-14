@@ -5,6 +5,7 @@
  */
 
 #include <sid_api.h>
+#include <sid_hal_reset_ifc.h>
 #include <pal_init.h>
 #include <app_ble_config.h>
 #include <app_subGHz_config.h>
@@ -20,7 +21,6 @@ K_THREAD_STACK_DEFINE(app_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
 typedef enum app_events {
 	APP_EVENT_SIDEWALK,
-	APP_EVENT_START,
 	APP_EVENT_SEND_HELLO,
 	APP_EVENT_FACTORY_RESET,
 	APP_EVENT_FSK_CSS_SWITCH,
@@ -87,22 +87,36 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 				     void *context)
 {
 	LOG_INF("%s", __func__);
+
+	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
+		(int)msg_desc->link_mode, msg_desc->id, msg->size);
+	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
 	LOG_INF("%s", __func__);
+	LOG_INF("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
 				   void *context)
 {
 	LOG_INF("%s", __func__);
+	LOG_ERR("failed to send message(type: %d, id: %u), err:%d", (int)msg_desc->type,
+		msg_desc->id, (int)error);
 }
 
 static void on_sidewalk_factory_reset(void *context)
 {
 	LOG_INF("%s", __func__);
+
+	ARG_UNUSED(context);
+
+	LOG_INF("factory reset notification received from sid api");
+	if (sid_hal_reset(SID_HAL_RESET_NORMAL)) {
+		LOG_WRN("Reboot type not supported");
+	}
 }
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
@@ -190,6 +204,14 @@ static void state_running_run(void *o)
 		LOG_INF("event: sidewalk");
 
 		e = sid_process(ctx->handle);
+		if (e) {
+			LOG_ERR("sid process err %d", (int)e);
+		}
+		break;
+	case APP_EVENT_FACTORY_RESET:
+		LOG_INF("event: factory reset");
+
+		e = sid_set_factory_reset(ctx->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
@@ -316,6 +338,13 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 		LOG_INF("button 1");
 		static app_event_t hello_event = APP_EVENT_SEND_HELLO;
 		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&hello_event, K_NO_WAIT)) {
+			LOG_ERR("Cannot put message");
+		}
+	}
+	if (buttons & DK_BTN4_MSK) {
+		LOG_INF("button 4");
+		static app_event_t reset_event = APP_EVENT_FACTORY_RESET;
+		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&reset_event, K_NO_WAIT)) {
 			LOG_ERR("Cannot put message");
 		}
 	}
