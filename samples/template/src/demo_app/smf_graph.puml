@@ -2,24 +2,14 @@
 
 [*] --> Running
 state Running{
-[*] --> Unregistered
-Unregistered --> Started : on_status_changed(REGISTERED, NO_TIME)
-Started --> Unregistered : on_status_changed(NOT_REGISTERED)
-Started --> TimeSync : on_status_changed(REGISTERED, TIME_SYNCED)
-TimeSync --> Started : on_status_changed(REGISTERED, NO_TIME)
-TimeSync --> Ready : on_status_changed(REGISTERED, TIME_SYNCED)
-TimeSync --> Ready : on_status_changed(REGISTERED, TIME_SYNCED)
-TimeSync --> Ready : on_status_changed(REGISTERED, TIME_SYNCED)
-Ready --> TimeSync : EVENT_BLE_LINK_DOWN
-Ready --> TimeSync : EVENT_FSK_LINK_DOWN
-Ready --> TimeSync : EVENT_LORA_LINK_DOWN
-Ready --> Ready : EVENT_MSG_RCV
-Ready --> SendHello : EVENT_SEND_MSG
-SendHello --> Ready : EVENT_MSG_SEND
-SendHello --> Ready : EVENT_MSG_SEND_ERROR
+[*] --> Init
+Init --> NotReady : on_status_changed(not_ready)
+Ready --> NotReady : on_status_changed(not_ready)
+NotReady --> Ready : on_status_changed(ready)
+Ready --> Ready : event_send_hello
 }
-Running --> FirmwareUpdate
-FirmwareUpdate --> [*]
-Running --> FactoryReset
-FactoryReset --> [*]
+Running --> [*] : event_factory_reset
+Running --> Running : event_link_switch
+Running --> FirmwareUpdate : event_dfu
+FirmwareUpdate --> Running : ?
 @enduml
