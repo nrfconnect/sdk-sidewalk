@@ -104,9 +104,9 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 {
 	struct app_context *ctx = (struct app_context *)context;
 	shell_fprintf(ctx->shell, SHELL_NORMAL,
-		      JSON_NEW_LINE(JSON_OBJ(
-			      JSON_NAME("on_msg_received",
-					JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 1)))));
+		      JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+			      "on_msg_received",
+			      JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 1))))));
 	LOG_DBG("Sidewalk -> App");
 	LOG_HEXDUMP_INF(msg->data, msg->size, "");
 }

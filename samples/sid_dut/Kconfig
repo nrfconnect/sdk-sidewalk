@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+config MAIN_STACK_SIZE
+    default 2048
+
 config SIDEWALK_DUT_CLI
 	bool "Enable sidewalk CLI"
   	default y
