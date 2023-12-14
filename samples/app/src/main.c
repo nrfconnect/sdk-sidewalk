@@ -18,15 +18,14 @@ LOG_MODULE_REGISTER(app, CONFIG_LOG_DEFAULT_LEVEL);
 static struct k_thread app_thread;
 K_THREAD_STACK_DEFINE(app_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
-#define APP_EVENT_SIDEWALK BIT(0)
-#define APP_EVENT_STATE_UPDATE BIT(1)
-#define APP_EVENT_SEND_HELLO BIT(2)
-#define APP_EVENT_FACTORY_RESET BIT(3)
-#define APP_EVENT_FSK_CSS_SWITCH BIT(4)
-#define APP_EVENT_SET_DEVICE_PROFILE BIT(5)
-#define APP_EVENT_ALL                                                                              \
-	(APP_EVENT_SIDEWALK | APP_EVENT_STATE_UPDATE | APP_EVENT_SEND_HELLO |                      \
-	 APP_EVENT_FACTORY_RESET | APP_EVENT_FSK_CSS_SWITCH | APP_EVENT_SET_DEVICE_PROFILE)
+typedef enum app_events {
+	APP_EVENT_SIDEWALK,
+	APP_EVENT_START,
+	APP_EVENT_SEND_HELLO,
+	APP_EVENT_FACTORY_RESET,
+	APP_EVENT_FSK_CSS_SWITCH,
+	APP_EVENT_SET_DEVICE_PROFILE
+} app_event_t;
 
 enum app_state {
 	STATE_INIT,
@@ -37,8 +36,8 @@ enum app_state {
 
 struct app_sm {
 	struct smf_ctx ctx;
-	struct k_event app_event;
-	int32_t events;
+	struct k_msgq msgq;
+	app_event_t event;
 };
 
 struct sid_ctx_s {
@@ -60,6 +59,8 @@ static const struct smf_state app_states[] = {
 		SMF_CREATE_STATE(NULL, state_secure_connection_run, NULL),
 };
 
+uint8_t __aligned(4) msgq_buffer[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
+
 static struct sid_ctx_s sid_ctx;
 
 static void on_sidewalk_event(bool in_isr, void *context)
@@ -67,8 +68,11 @@ static void on_sidewalk_event(bool in_isr, void *context)
 	LOG_INF("%s", __func__);
 
 	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
+	static app_event_t sid_event = APP_EVENT_SIDEWALK;
 
-	(void)k_event_post(&ctx->sm.app_event, APP_EVENT_SIDEWALK);
+	if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_event, K_NO_WAIT)) {
+		LOG_ERR("Cannot put message");
+	}
 }
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
@@ -98,10 +102,11 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	LOG_INF("%s", __func__);
 
 	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
+	static app_event_t sid_status_event = APP_EVENT_SIDEWALK;
 
 	switch (status->state) {
 	case SID_STATE_READY:
-		smf_set_state(SMF_CTX(&ctx->sm), &app_states[SID_STATE_READY]);
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
 		break;
 	case SID_STATE_NOT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
@@ -117,7 +122,31 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		break;
 	}
 
-	(void)k_event_post(&ctx->sm.app_event, APP_EVENT_STATE_UPDATE);
+	if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_status_event, K_NO_WAIT)) {
+		LOG_ERR("Cannot put message");
+	}
+
+	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
+		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
+		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
+		(status->detail.link_status_mask & SID_LINK_TYPE_1) ? "Up" : "Down",
+		(status->detail.link_status_mask & SID_LINK_TYPE_2) ? "Up" : "Down",
+		(status->detail.link_status_mask & SID_LINK_TYPE_3) ? "Up" : "Down");
+
+	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
+		enum sid_link_mode mode =
+			(enum sid_link_mode)status->detail.supported_link_modes[i];
+
+		if (mode) {
+			LOG_INF("Link mode on %s = {Cloud: %s, Mobile: %s}",
+				(SID_LINK_TYPE_1_IDX == i) ? "BLE" :
+				(SID_LINK_TYPE_2_IDX == i) ? "FSK" :
+				(SID_LINK_TYPE_3_IDX == i) ? "LoRa" :
+							     "unknow",
+				(mode & SID_LINK_MODE_CLOUD) ? "True" : "False",
+				(mode & SID_LINK_MODE_MOBILE) ? "True" : "False");
+		}
+	}
 }
 
 static void state_init_run(void *o)
@@ -127,30 +156,21 @@ static void state_init_run(void *o)
 	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
 	sid_error_t e = SID_ERROR_NONE;
 
-	if (ctx->sm.events & APP_EVENT_SEND_HELLO) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_SEND_HELLO);
-		ctx->sm.events &= !APP_EVENT_SEND_HELLO;
-
+	switch (ctx->sm.event) {
+	case APP_EVENT_SEND_HELLO:
 		LOG_INF("event: hello");
-	}
-
-	if (ctx->sm.events & APP_EVENT_SIDEWALK) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_SIDEWALK);
-		ctx->sm.events &= !APP_EVENT_SIDEWALK;
-
+		break;
+	case APP_EVENT_SIDEWALK:
 		LOG_INF("event: sidewalk");
 
 		e = sid_process(ctx->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
-	}
-
-	if (ctx->sm.events & APP_EVENT_STATE_UPDATE) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_STATE_UPDATE);
-		ctx->sm.events &= !APP_EVENT_STATE_UPDATE;
-
-		LOG_INF("event: state update");
+		break;
+	default:
+		LOG_ERR("event: unknow %d", ctx->sm.event);
+		break;
 	}
 }
 
@@ -161,23 +181,35 @@ static void state_ready_run(void *o)
 	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
 	sid_error_t e = SID_ERROR_NONE;
 
-	if (ctx->sm.events & APP_EVENT_SIDEWALK) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_SIDEWALK);
-		ctx->sm.events &= !APP_EVENT_SIDEWALK;
-
+	switch (ctx->sm.event) {
+	case APP_EVENT_SIDEWALK:
 		LOG_INF("event: sidewalk");
 
 		e = sid_process(ctx->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
-	}
+		break;
+	case APP_EVENT_SEND_HELLO:
+		LOG_INF("event: hello");
 
-	if (ctx->sm.events & APP_EVENT_STATE_UPDATE) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_STATE_UPDATE);
-		ctx->sm.events &= !APP_EVENT_STATE_UPDATE;
+		static uint8_t counter = 0;
+		static struct sid_msg msg =
+			(struct sid_msg){ .data = (uint8_t *)&counter, .size = sizeof(uint8_t) };
+		static struct sid_msg_desc desc = (struct sid_msg_desc){
+			.type = SID_MSG_TYPE_NOTIFY,
+			.link_type = SID_LINK_TYPE_ANY,
+			.link_mode = SID_LINK_MODE_CLOUD,
+		};
 
-		LOG_INF("event: state update");
+		e = sid_put_msg(ctx->handle, &msg, &desc);
+		if (e) {
+			LOG_ERR("sid send err %d", (int)e);
+		}
+		break;
+	default:
+		LOG_ERR("event: unknow %d", ctx->sm.event);
+		break;
 	}
 }
 
@@ -188,30 +220,26 @@ static void state_not_ready_run(void *o)
 	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
 	sid_error_t e = SID_ERROR_NONE;
 
-	if (ctx->sm.events & APP_EVENT_SIDEWALK) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_SIDEWALK);
-		ctx->sm.events &= !APP_EVENT_SIDEWALK;
+	switch (ctx->sm.event) {
+	case APP_EVENT_SEND_HELLO:
+		LOG_INF("event: hello");
 
+		e = sid_ble_bcn_connection_request(ctx->handle, true);
+		if (e) {
+			LOG_ERR("conn req err %d", (int)e);
+		}
+		break;
+	case APP_EVENT_SIDEWALK:
 		LOG_INF("event: sidewalk");
 
 		e = sid_process(ctx->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
-	}
-
-	if (ctx->sm.events & APP_EVENT_STATE_UPDATE) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_STATE_UPDATE);
-		ctx->sm.events &= !APP_EVENT_STATE_UPDATE;
-
-		LOG_INF("event: state update");
-	}
-
-	if (ctx->sm.events & APP_EVENT_SEND_HELLO) {
-		k_event_clear(&ctx->sm.app_event, APP_EVENT_SEND_HELLO);
-		ctx->sm.events &= !APP_EVENT_SEND_HELLO;
-
-		LOG_INF("event: hello");
+		break;
+	default:
+		LOG_ERR("event: unknow %d", ctx->sm.event);
+		break;
 	}
 }
 
@@ -226,7 +254,10 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 
 	if (buttons & DK_BTN1_MSK) {
 		LOG_INF("button 1");
-		(void)k_event_post(&sid_ctx.sm.app_event, APP_EVENT_SEND_HELLO);
+		static app_event_t hello_event = APP_EVENT_SEND_HELLO;
+		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&hello_event, K_NO_WAIT)) {
+			LOG_ERR("Cannot put message");
+		}
 	}
 }
 
@@ -257,7 +288,8 @@ static void app_thread_entry(void *context, void *unused, void *unused2)
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
 
-	k_event_init(&ctx->sm.app_event);
+	k_msgq_init(&ctx->sm.msgq, msgq_buffer, sizeof(app_event_t),
+		    CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
 	smf_set_initial(SMF_CTX(&ctx->sm), &app_states[STATE_INIT]);
 
 	sid_error_t e = SID_ERROR_NONE;
@@ -275,12 +307,14 @@ static void app_thread_entry(void *context, void *unused, void *unused2)
 	}
 
 	while (1) {
-		LOG_INF("waiting for event 0x%x...", ctx->sm.events);
-		ctx->sm.events = k_event_wait(&ctx->sm.app_event, APP_EVENT_ALL, false, K_FOREVER);
-		LOG_INF("processing event 0x%x", ctx->sm.events);
-
-		if (smf_run_state(SMF_CTX(&ctx->sm))) {
-			break;
+		LOG_INF("waiting for event...");
+		int err = k_msgq_get(&ctx->sm.msgq, &ctx->sm.event, K_FOREVER);
+		if (!err) {
+			if (smf_run_state(SMF_CTX(&ctx->sm))) {
+				break;
+			}
+		} else {
+			LOG_ERR("msgq err %d", err);
 		}
 	}
 
