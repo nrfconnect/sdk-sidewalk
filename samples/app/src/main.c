@@ -21,6 +21,7 @@ K_THREAD_STACK_DEFINE(app_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
 typedef enum app_events {
 	APP_EVENT_SIDEWALK,
+	APP_EVENT_ERROR,
 	APP_EVENT_READY,
 	APP_EVENT_NOT_READY,
 	APP_EVENT_SEND_HELLO,
@@ -47,6 +48,8 @@ struct sid_ctx_s {
 	struct sid_config config;
 };
 
+static int app_event_send(app_event_t event);
+
 static void state_running_run(void *o);
 static void state_init_entry(void *o);
 static void state_init_run(void *o);
@@ -71,12 +74,7 @@ static void on_sidewalk_event(bool in_isr, void *context)
 {
 	LOG_INF("%s", __func__);
 
-	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
-	static app_event_t sid_event = APP_EVENT_SIDEWALK;
-
-	if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_event, K_NO_WAIT)) {
-		LOG_ERR("Cannot put message");
-	}
+	app_event_send(APP_EVENT_SIDEWALK);
 }
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
@@ -119,33 +117,20 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 {
 	LOG_INF("%s", __func__);
 
-	struct sid_ctx_s *ctx = (struct sid_ctx_s *)context;
-	static app_event_t sid_status_event = APP_EVENT_SIDEWALK;
-
 	switch (status->state) {
 	case SID_STATE_READY:
 	case SID_STATE_SECURE_CHANNEL_READY:
-		sid_status_event = APP_EVENT_READY;
-		if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_status_event, K_NO_WAIT)) {
-			LOG_ERR("Cannot put message");
-		}
+		app_event_send(APP_EVENT_READY);
 		break;
 	case SID_STATE_NOT_READY:
-		sid_status_event = APP_EVENT_NOT_READY;
-		if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_status_event, K_NO_WAIT)) {
-			LOG_ERR("Cannot put message");
-		}
+		app_event_send(APP_EVENT_NOT_READY);
 		break;
 	case SID_STATE_ERROR:
-		LOG_ERR("sidewalk error: %d", (int)sid_get_error(ctx->handle));
+		app_event_send(APP_EVENT_ERROR);
 		break;
 	default:
 		LOG_ERR("sidewalk unknow state: %d", status->state);
 		break;
-	}
-
-	if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_status_event, K_NO_WAIT)) {
-		LOG_ERR("Cannot put message");
 	}
 
 	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
@@ -194,6 +179,9 @@ static void state_running_run(void *o)
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
+		break;
+	case APP_EVENT_ERROR:
+		LOG_ERR("sid state err %d", (int)sid_get_error(ctx->handle));
 		break;
 	case APP_EVENT_LINK_SWITCH:
 		sid_error_t e = SID_ERROR_NONE;
@@ -269,13 +257,14 @@ static void state_init_run(void *o)
 	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
 
 	switch (ctx->sm.event) {
+	case APP_EVENT_SIDEWALK:
+	case APP_EVENT_ERROR:
+		break;
 	case APP_EVENT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
 		break;
 	case APP_EVENT_NOT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
-		break;
-	case APP_EVENT_SIDEWALK:
 		break;
 	default:
 		LOG_ERR("event: unknow %d", ctx->sm.event);
@@ -293,6 +282,7 @@ static void state_ready_run(void *o)
 	switch (ctx->sm.event) {
 	case APP_EVENT_SIDEWALK:
 	case APP_EVENT_READY:
+	case APP_EVENT_ERROR:
 		break;
 	case APP_EVENT_NOT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
@@ -330,6 +320,7 @@ static void state_not_ready_run(void *o)
 	switch (ctx->sm.event) {
 	case APP_EVENT_SIDEWALK:
 	case APP_EVENT_NOT_READY:
+	case APP_EVENT_ERROR:
 		break;
 	case APP_EVENT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
@@ -354,25 +345,28 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 
 	if (buttons & DK_BTN1_MSK) {
 		LOG_INF("button 1");
-		static app_event_t hello_event = APP_EVENT_SEND_HELLO;
-		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&hello_event, K_NO_WAIT)) {
-			LOG_ERR("Cannot put message");
-		}
+		app_event_send(APP_EVENT_SEND_HELLO);
 	}
 	if (buttons & DK_BTN2_MSK) {
 		LOG_INF("button 2");
-		static app_event_t link_event = APP_EVENT_LINK_SWITCH;
-		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&link_event, K_NO_WAIT)) {
-			LOG_ERR("Cannot put message");
-		}
+		app_event_send(APP_EVENT_LINK_SWITCH);
+	}
+	if (buttons & DK_BTN3_MSK) {
+		LOG_INF("button 3");
 	}
 	if (buttons & DK_BTN4_MSK) {
 		LOG_INF("button 4");
-		static app_event_t reset_event = APP_EVENT_FACTORY_RESET;
-		if (k_msgq_put(&sid_ctx.sm.msgq, (void *)&reset_event, K_NO_WAIT)) {
-			LOG_ERR("Cannot put message");
-		}
+		app_event_send(APP_EVENT_FACTORY_RESET);
 	}
+}
+
+static int app_event_send(app_event_t event)
+{
+	int e = k_msgq_put(&sid_ctx.sm.msgq, (void *)&event, K_NO_WAIT);
+	if (e) {
+		LOG_ERR("msg put err: %d", e);
+	}
+	return e;
 }
 
 static void app_thread_entry(void *context, void *unused, void *unused2)
