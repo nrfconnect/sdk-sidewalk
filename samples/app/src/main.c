@@ -21,6 +21,8 @@ K_THREAD_STACK_DEFINE(app_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
 typedef enum app_events {
 	APP_EVENT_SIDEWALK,
+	APP_EVENT_READY,
+	APP_EVENT_NOT_READY,
 	APP_EVENT_SEND_HELLO,
 	APP_EVENT_FACTORY_RESET,
 	APP_EVENT_LINK_SWITCH
@@ -31,7 +33,6 @@ enum app_state {
 	STATE_INIT,
 	STATE_SIDEWALK_READY,
 	STATE_SIDEWALK_NOT_READY,
-	STATE_SIDEWALK_SECURE_CONNECTION
 };
 
 struct app_sm {
@@ -46,24 +47,20 @@ struct sid_ctx_s {
 	struct sid_config config;
 };
 
+static void state_running_run(void *o);
+static void state_init_entry(void *o);
 static void state_init_run(void *o);
 static void state_ready_run(void *o);
 static void state_not_ready_run(void *o);
-static void state_secure_connection_run(void *o);
-static void state_running_entry(void *o);
-static void state_running_run(void *o);
-static void state_running_exit(void *o);
 
 static const struct smf_state app_states[] = {
-	[STATE_RUNNING] =
-		SMF_CREATE_STATE(state_running_entry, state_running_run, state_running_exit, NULL),
-	[STATE_INIT] = SMF_CREATE_STATE(NULL, state_init_run, NULL, &app_states[STATE_RUNNING]),
+	[STATE_RUNNING] = SMF_CREATE_STATE(NULL, state_running_run, NULL, NULL),
+	[STATE_INIT] = SMF_CREATE_STATE(state_init_entry, state_init_run, NULL,
+					&app_states[STATE_RUNNING]),
 	[STATE_SIDEWALK_READY] =
 		SMF_CREATE_STATE(NULL, state_ready_run, NULL, &app_states[STATE_RUNNING]),
 	[STATE_SIDEWALK_NOT_READY] =
-		SMF_CREATE_STATE(NULL, state_not_ready_run, NULL, &app_states[STATE_RUNNING]),
-	[STATE_SIDEWALK_SECURE_CONNECTION] = SMF_CREATE_STATE(NULL, state_secure_connection_run,
-							      NULL, &app_states[STATE_RUNNING]),
+		SMF_CREATE_STATE(NULL, state_not_ready_run, NULL, &app_states[STATE_RUNNING])
 };
 
 uint8_t __aligned(4) msgq_buffer[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
@@ -127,16 +124,20 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 	switch (status->state) {
 	case SID_STATE_READY:
-		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
+	case SID_STATE_SECURE_CHANNEL_READY:
+		sid_status_event = APP_EVENT_READY;
+		if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_status_event, K_NO_WAIT)) {
+			LOG_ERR("Cannot put message");
+		}
 		break;
 	case SID_STATE_NOT_READY:
-		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
+		sid_status_event = APP_EVENT_NOT_READY;
+		if (k_msgq_put(&ctx->sm.msgq, (void *)&sid_status_event, K_NO_WAIT)) {
+			LOG_ERR("Cannot put message");
+		}
 		break;
 	case SID_STATE_ERROR:
 		LOG_ERR("sidewalk error: %d", (int)sid_get_error(ctx->handle));
-		break;
-	case SID_STATE_SECURE_CHANNEL_READY:
-		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_SECURE_CONNECTION]);
 		break;
 	default:
 		LOG_ERR("sidewalk unknow state: %d", status->state);
@@ -167,27 +168,6 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 				(mode & SID_LINK_MODE_CLOUD) ? "True" : "False",
 				(mode & SID_LINK_MODE_MOBILE) ? "True" : "False");
 		}
-	}
-}
-
-static void state_running_entry(void *o)
-{
-	LOG_INF("state: running (entry)");
-
-	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
-	sid_error_t e = SID_ERROR_NONE;
-
-	e = application_pal_init();
-	if (e) {
-		LOG_ERR("pal init err %d", (int)e);
-	}
-	e = sid_init(&ctx->config, &ctx->handle);
-	if (e) {
-		LOG_ERR("sid init err %d", (int)e);
-	}
-	e = sid_start(ctx->handle, SID_LINK_TYPE_1);
-	if (e) {
-		LOG_ERR("sid start err %d", (int)e);
 	}
 }
 
@@ -252,28 +232,55 @@ static void state_running_run(void *o)
 			LOG_ERR("sid start err %d", (int)e);
 		}
 		break;
+	case APP_EVENT_READY:
+	case APP_EVENT_NOT_READY:
+		break;
 	default:
 		LOG_ERR("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
 
-static void state_running_exit(void *o)
+static void state_init_entry(void *o)
 {
-	LOG_INF("state: running (exit)");
+	LOG_INF("state: init (entry)");
 
 	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
 	sid_error_t e = SID_ERROR_NONE;
 
-	e = sid_deinit(ctx->handle);
+	e = application_pal_init();
 	if (e) {
-		LOG_ERR("sid deinit err %d", (int)e);
+		LOG_ERR("pal init err %d", (int)e);
+	}
+	e = sid_init(&ctx->config, &ctx->handle);
+	if (e) {
+		LOG_ERR("sid init err %d", (int)e);
+	}
+	e = sid_start(ctx->handle, SID_LINK_TYPE_1);
+	if (e) {
+		LOG_ERR("sid start err %d", (int)e);
 	}
 }
 
 static void state_init_run(void *o)
 {
 	LOG_INF("state: init");
+
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
+
+	switch (ctx->sm.event) {
+	case APP_EVENT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
+		break;
+	case APP_EVENT_NOT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
+		break;
+	case APP_EVENT_SIDEWALK:
+		break;
+	default:
+		LOG_ERR("event: unknow %d", ctx->sm.event);
+		break;
+	}
 }
 
 static void state_ready_run(void *o)
@@ -285,6 +292,10 @@ static void state_ready_run(void *o)
 
 	switch (ctx->sm.event) {
 	case APP_EVENT_SIDEWALK:
+	case APP_EVENT_READY:
+		break;
+	case APP_EVENT_NOT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
 		break;
 	case APP_EVENT_SEND_HELLO:
 		LOG_INF("event: hello");
@@ -318,6 +329,10 @@ static void state_not_ready_run(void *o)
 
 	switch (ctx->sm.event) {
 	case APP_EVENT_SIDEWALK:
+	case APP_EVENT_NOT_READY:
+		break;
+	case APP_EVENT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
 		break;
 	case APP_EVENT_SEND_HELLO:
 		LOG_INF("event: hello");
@@ -325,39 +340,6 @@ static void state_not_ready_run(void *o)
 		e = sid_ble_bcn_connection_request(ctx->handle, true);
 		if (e) {
 			LOG_ERR("conn req err %d", (int)e);
-		}
-		break;
-	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
-		break;
-	}
-}
-
-static void state_secure_connection_run(void *o)
-{
-	LOG_INF("state: secure connection");
-
-	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
-	sid_error_t e = SID_ERROR_NONE;
-
-	switch (ctx->sm.event) {
-	case APP_EVENT_SIDEWALK:
-		break;
-	case APP_EVENT_SEND_HELLO:
-		LOG_INF("event: hello");
-
-		static uint8_t counter = 0;
-		static struct sid_msg msg =
-			(struct sid_msg){ .data = (uint8_t *)&counter, .size = sizeof(uint8_t) };
-		static struct sid_msg_desc desc = (struct sid_msg_desc){
-			.type = SID_MSG_TYPE_NOTIFY,
-			.link_type = SID_LINK_TYPE_ANY,
-			.link_mode = SID_LINK_MODE_CLOUD,
-		};
-
-		e = sid_put_msg(ctx->handle, &msg, &desc);
-		if (e) {
-			LOG_ERR("sid send err %d", (int)e);
 		}
 		break;
 	default:
