@@ -1,0 +1,17 @@
+@startuml template state machine
+
+[*] --> Running
+state Running{
+[*] --> Init
+Init --> NotReady : event_not_ready
+NotReady --> Ready : event_ready
+NotReady --> Connecting : event_send_hello
+Connecting -> Ready : event_ready
+Ready --> NotReady : event_not_ready
+Ready --> Ready : event_send_hello
+}
+Running --> [*] : event_factory_reset
+Running --> Running : event_link_switch
+Running --> FirmwareUpdate : event_dfu
+FirmwareUpdate --> Running : ?
+@enduml
