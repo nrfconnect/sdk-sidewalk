@@ -357,9 +357,9 @@ static void state_ready_run(void *o)
 	case APP_EVENT_SEND_HELLO:
 		LOG_INF("event: hello");
 
-		static uint8_t counter = 0;
+		static uint8_t msg_data[] = "hello";
 		static struct sid_msg msg =
-			(struct sid_msg){ .data = (uint8_t *)&counter, .size = sizeof(uint8_t) };
+			(struct sid_msg){ .data = msg_data, .size = sizeof(msg_data) };
 		static struct sid_msg_desc desc = (struct sid_msg_desc){
 			.type = SID_MSG_TYPE_NOTIFY,
 			.link_type = SID_LINK_TYPE_ANY,
