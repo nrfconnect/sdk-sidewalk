@@ -34,6 +34,7 @@ enum app_state {
 	STATE_INIT,
 	STATE_SIDEWALK_READY,
 	STATE_SIDEWALK_NOT_READY,
+	STATE_SIDEWALK_CONNECTING,
 };
 
 struct app_sm {
@@ -55,6 +56,8 @@ static void state_init_entry(void *o);
 static void state_init_run(void *o);
 static void state_ready_run(void *o);
 static void state_not_ready_run(void *o);
+static void state_connecting_entry(void *o);
+static void state_connecting_run(void *o);
 
 static const struct smf_state app_states[] = {
 	[STATE_RUNNING] = SMF_CREATE_STATE(NULL, state_running_run, NULL, NULL),
@@ -63,7 +66,9 @@ static const struct smf_state app_states[] = {
 	[STATE_SIDEWALK_READY] =
 		SMF_CREATE_STATE(NULL, state_ready_run, NULL, &app_states[STATE_RUNNING]),
 	[STATE_SIDEWALK_NOT_READY] =
-		SMF_CREATE_STATE(NULL, state_not_ready_run, NULL, &app_states[STATE_RUNNING])
+		SMF_CREATE_STATE(NULL, state_not_ready_run, NULL, &app_states[STATE_RUNNING]),
+	[STATE_SIDEWALK_CONNECTING] = SMF_CREATE_STATE(state_connecting_entry, state_connecting_run,
+						       NULL, &app_states[STATE_RUNNING]),
 };
 
 uint8_t __aligned(4) msgq_buffer[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
@@ -224,7 +229,7 @@ static void state_running_run(void *o)
 	case APP_EVENT_NOT_READY:
 		break;
 	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
+		LOG_DBG("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
@@ -272,6 +277,68 @@ static void state_init_run(void *o)
 	}
 }
 
+static void state_not_ready_run(void *o)
+{
+	LOG_INF("state: not ready");
+
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
+
+	switch (ctx->sm.event) {
+	case APP_EVENT_SIDEWALK:
+	case APP_EVENT_NOT_READY:
+	case APP_EVENT_ERROR:
+		break;
+	case APP_EVENT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
+		break;
+	case APP_EVENT_SEND_HELLO:
+		LOG_INF("event: hello");
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_CONNECTING]);
+		break;
+	default:
+		LOG_ERR("event: unknow %d", ctx->sm.event);
+		break;
+	}
+}
+
+static void state_connecting_entry(void *o)
+{
+	LOG_INF("state: connecting (entry)");
+
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
+	sid_error_t e = SID_ERROR_NONE;
+
+	e = sid_ble_bcn_connection_request(ctx->handle, true);
+	if (e) {
+		LOG_ERR("conn req err %d", (int)e);
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
+	}
+}
+
+static void state_connecting_run(void *o)
+{
+	LOG_INF("state: connecting");
+
+	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
+
+	switch (ctx->sm.event) {
+	case APP_EVENT_SIDEWALK:
+	case APP_EVENT_ERROR:
+		break;
+	case APP_EVENT_NOT_READY:
+		LOG_ERR("Connecting failed");
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
+		break;
+	case APP_EVENT_READY:
+		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
+		app_event_send(APP_EVENT_SEND_HELLO);
+		break;
+	default:
+		LOG_ERR("event: unknow %d", ctx->sm.event);
+		break;
+	}
+}
+
 static void state_ready_run(void *o)
 {
 	LOG_INF("state: ready");
@@ -302,35 +369,6 @@ static void state_ready_run(void *o)
 		e = sid_put_msg(ctx->handle, &msg, &desc);
 		if (e) {
 			LOG_ERR("sid send err %d", (int)e);
-		}
-		break;
-	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
-		break;
-	}
-}
-
-static void state_not_ready_run(void *o)
-{
-	LOG_INF("state: not ready");
-
-	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
-	sid_error_t e = SID_ERROR_NONE;
-
-	switch (ctx->sm.event) {
-	case APP_EVENT_SIDEWALK:
-	case APP_EVENT_NOT_READY:
-	case APP_EVENT_ERROR:
-		break;
-	case APP_EVENT_READY:
-		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
-		break;
-	case APP_EVENT_SEND_HELLO:
-		LOG_INF("event: hello");
-
-		e = sid_ble_bcn_connection_request(ctx->handle, true);
-		if (e) {
-			LOG_ERR("conn req err %d", (int)e);
 		}
 		break;
 	default:
