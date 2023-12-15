@@ -24,7 +24,7 @@ typedef enum app_events {
 	APP_EVENT_ERROR,
 	APP_EVENT_READY,
 	APP_EVENT_NOT_READY,
-	APP_EVENT_SEND_HELLO,
+	APP_EVENT_SEND,
 	APP_EVENT_FACTORY_RESET,
 	APP_EVENT_LINK_SWITCH
 } app_event_t;
@@ -32,9 +32,9 @@ typedef enum app_events {
 enum app_state {
 	STATE_RUNNING,
 	STATE_INIT,
-	STATE_SIDEWALK_READY,
 	STATE_SIDEWALK_NOT_READY,
 	STATE_SIDEWALK_CONNECTING,
+	STATE_SIDEWALK_READY,
 };
 
 struct app_sm {
@@ -47,6 +47,11 @@ struct sid_ctx_s {
 	struct app_sm sm;
 	struct sid_handle *handle;
 	struct sid_config config;
+};
+
+struct app_msg {
+	struct sid_msg msg;
+	struct sid_msg_desc desc;
 };
 
 static int app_event_send(app_event_t event);
@@ -71,6 +76,9 @@ static const struct smf_state app_states[] = {
 						       NULL, &app_states[STATE_RUNNING]),
 };
 
+static uint8_t echo_payload[255];
+struct app_msg app_send_buffer;
+
 uint8_t __aligned(4) msgq_buffer[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
 
 static struct sid_ctx_s sid_ctx;
@@ -90,6 +98,20 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 	LOG_DBG("received message(type: %d, link_mode: %d, id: %u size %u)", (int)msg_desc->type,
 		(int)msg_desc->link_mode, msg_desc->id, msg->size);
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message data: ");
+
+	memcpy(echo_payload, msg->data, msg->size);
+	app_send_buffer = (struct app_msg) {
+			.msg = {
+				.data = echo_payload,
+				.size = msg->size,
+			},
+			.desc = {
+				.type = SID_MSG_TYPE_NOTIFY,
+				.link_type = SID_LINK_TYPE_ANY,
+				.link_mode = SID_LINK_MODE_CLOUD,
+			},
+		};
+	app_event_send(APP_EVENT_SEND);
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
@@ -163,23 +185,17 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 static void state_running_run(void *o)
 {
-	LOG_INF("state: running");
-
 	struct sid_ctx_s *ctx = CONTAINER_OF(o, struct sid_ctx_s, sm);
 	sid_error_t e = SID_ERROR_NONE;
 
 	switch (ctx->sm.event) {
 	case APP_EVENT_SIDEWALK:
-		LOG_INF("event: sidewalk");
-
 		e = sid_process(ctx->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
 		break;
 	case APP_EVENT_FACTORY_RESET:
-		LOG_INF("event: factory reset");
-
 		e = sid_set_factory_reset(ctx->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
@@ -229,7 +245,7 @@ static void state_running_run(void *o)
 	case APP_EVENT_NOT_READY:
 		break;
 	default:
-		LOG_DBG("event: unknow %d", ctx->sm.event);
+		LOG_WRN("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
@@ -272,7 +288,7 @@ static void state_init_run(void *o)
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
 		break;
 	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
+		LOG_WRN("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
@@ -291,12 +307,11 @@ static void state_not_ready_run(void *o)
 	case APP_EVENT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
 		break;
-	case APP_EVENT_SEND_HELLO:
-		LOG_INF("event: hello");
+	case APP_EVENT_SEND:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_CONNECTING]);
 		break;
 	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
+		LOG_WRN("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
@@ -331,10 +346,10 @@ static void state_connecting_run(void *o)
 		break;
 	case APP_EVENT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
-		app_event_send(APP_EVENT_SEND_HELLO);
+		app_event_send(APP_EVENT_SEND);
 		break;
 	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
+		LOG_WRN("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
@@ -354,25 +369,16 @@ static void state_ready_run(void *o)
 	case APP_EVENT_NOT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_NOT_READY]);
 		break;
-	case APP_EVENT_SEND_HELLO:
-		LOG_INF("event: hello");
-
-		static uint8_t msg_data[] = "hello";
-		static struct sid_msg msg =
-			(struct sid_msg){ .data = msg_data, .size = sizeof(msg_data) };
-		static struct sid_msg_desc desc = (struct sid_msg_desc){
-			.type = SID_MSG_TYPE_NOTIFY,
-			.link_type = SID_LINK_TYPE_ANY,
-			.link_mode = SID_LINK_MODE_CLOUD,
-		};
-
-		e = sid_put_msg(ctx->handle, &msg, &desc);
+	case APP_EVENT_SEND:
+		e = sid_put_msg(ctx->handle, &app_send_buffer.msg, &app_send_buffer.desc);
 		if (e) {
 			LOG_ERR("sid send err %d", (int)e);
 		}
+		LOG_INF("sid send (type: %d, id: %u)", (int)app_send_buffer.desc.type,
+			app_send_buffer.desc.id);
 		break;
 	default:
-		LOG_ERR("event: unknow %d", ctx->sm.event);
+		LOG_WRN("event: unknow %d", ctx->sm.event);
 		break;
 	}
 }
@@ -383,7 +389,20 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 
 	if (buttons & DK_BTN1_MSK) {
 		LOG_INF("button 1");
-		app_event_send(APP_EVENT_SEND_HELLO);
+
+		static char payload[] = "hello";
+		app_send_buffer = (struct app_msg){
+			.msg = {
+				.data = payload,
+				.size = sizeof(payload),
+			},
+			.desc = {
+				.type = SID_MSG_TYPE_NOTIFY,
+				.link_type = SID_LINK_TYPE_ANY,
+				.link_mode = SID_LINK_MODE_CLOUD,
+			},
+		};
+		app_event_send(APP_EVENT_SEND);
 	}
 	if (buttons & DK_BTN2_MSK) {
 		LOG_INF("button 2");
