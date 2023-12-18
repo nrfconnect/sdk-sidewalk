@@ -1,0 +1,20 @@
+app:
+  address: 0x0
+  end_address: 0xf9000
+  region: flash_primary
+  size: 0xf9000
+mfg_storage:
+  address: 0xff000
+  end_address: 0x100000
+  region: flash_primary
+  size: 0x1000
+sidewalk_storage:
+  address: 0xf9000
+  end_address: 0xff000
+  region: flash_primary
+  size: 0x6000
+sram_primary:
+  address: 0x20000000
+  end_address: 0x20040000
+  region: sram_primary
+  size: 0x40000

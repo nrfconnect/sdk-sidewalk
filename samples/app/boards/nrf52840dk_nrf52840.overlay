@@ -41,6 +41,10 @@ sid_semtech: &spi2 {
 			label = "semtech_sx1262 DIO1";
 		};
 	};
+
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
 };
 
 &spi2_default {
@@ -57,18 +61,5 @@ sid_semtech: &spi2 {
 		        <NRF_PSEL(SPIM_MISO, 1, 14)>,
 		        <NRF_PSEL(SPIM_MOSI, 1, 13)>;
 		low-power-enable;
-	};
-};
-
-&flash0 {
-	partitions {
-		sidewalk_storage: partition@f8000 {
-			label = "sidewalk_storage";
-			reg = <0x000f8000 0x00007000>;
-		};
-		mfg_storage: partition@ff000 {
-			label = "mfg_storage";
-			reg = <0x000ff000 0x00001000>;
-		};
 	};
 };
