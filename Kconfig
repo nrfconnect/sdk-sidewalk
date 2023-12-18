@@ -13,7 +13,7 @@ if SIDEWALK
 # General
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type"
-	default SIDEWALK_LINK_MASK_BLE
+	default SIDEWALK_LINK_MASK_LORA
 	help
 	  Select the physical link type for Sidewalk connection.
 
