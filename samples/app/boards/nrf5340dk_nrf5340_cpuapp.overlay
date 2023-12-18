@@ -1,0 +1,67 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <zephyr/dt-bindings/ipc_service/static_vrings.h>
+
+&ipc0 {
+    zephyr,priority = <0 PRIO_COOP>;
+};
+
+ sid_semtech: &spi4 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	pinctrl-0 = <&spi4_default>;
+	pinctrl-1 = <&spi4_sleep>;
+	pinctrl-names = "default", "sleep";
+	clock-frequency = <DT_FREQ_M(8)>;
+};
+
+/{
+	semtech_sx1262_gpios{
+		compatible = "gpio-keys";
+	   semtech_sx1262_cs: cs {
+		   gpios = <&gpio1 0x9 GPIO_ACTIVE_LOW>;
+		   label = "semtech_sx1262 CS";
+	   };
+		semtech_sx1262_reset_gpios: reset {
+		   gpios = <&gpio0 0x4 GPIO_ACTIVE_LOW>;
+		   label = "semtech_sx1262 Reset";
+	   };
+	   semtech_sx1262_busy_gpios: busy {
+		   gpios = <&gpio1 0x5 GPIO_ACTIVE_HIGH>;
+		   label = "semtech_sx1262 Busy";
+	   };
+	   semtech_sx1262_antenna_enable_gpios: antena_enable {
+		   gpios = <&gpio1 0xa GPIO_ACTIVE_HIGH>;
+		   label = "semtech_sx1262 Antena Enable";
+	   };
+	   semtech_sx1262_dio1_gpios: dio1 {
+		   gpios = <&gpio1 0x7 GPIO_ACTIVE_HIGH>;
+		   label = "semtech_sx1262 DIO1";
+	   };
+	};
+
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
+
+/* Disable unused peripherals to reduce power consumption */
+&adc {
+	status = "disabled";
+};
+&i2c1 {
+	status = "disabled";
+};
+&pwm0 {
+	status = "disabled";
+};
+&spi2 {
+	status = "disabled";
+};
+&usbd {
+	status = "disabled";
+};
