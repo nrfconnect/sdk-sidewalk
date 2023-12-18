@@ -87,7 +87,10 @@ static void on_sidewalk_event(bool in_isr, void *context)
 {
 	LOG_INF("%s", __func__);
 
-	app_event_send(APP_EVENT_SIDEWALK);
+	int err = app_event_send(APP_EVENT_SIDEWALK);
+	if (err) {
+		LOG_ERR("send event err %d", err);
+	};
 }
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
@@ -111,7 +114,11 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 				.link_mode = SID_LINK_MODE_CLOUD,
 			},
 		};
-	app_event_send(APP_EVENT_SEND);
+
+	int err = app_event_send(APP_EVENT_SEND);
+	if (err) {
+		LOG_ERR("send event err %d", err);
+	};
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
@@ -143,21 +150,34 @@ static void on_sidewalk_factory_reset(void *context)
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	LOG_INF("%s", __func__);
+	int err_event = 0;
+	int err_led = 0;
 
 	switch (status->state) {
 	case SID_STATE_READY:
 	case SID_STATE_SECURE_CHANNEL_READY:
-		app_event_send(APP_EVENT_READY);
+		err_event = app_event_send(APP_EVENT_READY);
+		err_led = dk_set_leds_state(DK_LED1_MSK | DK_LED2_MSK, DK_ALL_LEDS_MSK);
 		break;
 	case SID_STATE_NOT_READY:
-		app_event_send(APP_EVENT_NOT_READY);
+		err_event = app_event_send(APP_EVENT_NOT_READY);
+		err_led = dk_set_leds_state(DK_LED1_MSK, DK_ALL_LEDS_MSK);
 		break;
 	case SID_STATE_ERROR:
-		app_event_send(APP_EVENT_ERROR);
+		err_event = app_event_send(APP_EVENT_ERROR);
+		err_led = dk_set_leds_state(DK_ALL_LEDS_MSK, 0);
 		break;
 	default:
 		LOG_ERR("sidewalk unknow state: %d", status->state);
 		break;
+	}
+
+	if (err_event) {
+		LOG_ERR("send event err %d", err_event);
+	}
+
+	if (err_led) {
+		LOG_ERR("send led state err %d", err_led);
 	}
 
 	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
@@ -346,7 +366,10 @@ static void state_connecting_run(void *o)
 		break;
 	case APP_EVENT_READY:
 		smf_set_state(SMF_CTX(&ctx->sm), &app_states[STATE_SIDEWALK_READY]);
-		app_event_send(APP_EVENT_SEND);
+		int err = app_event_send(APP_EVENT_SEND);
+		if (err) {
+			LOG_ERR("send event err %d", err);
+		};
 		break;
 	default:
 		LOG_WRN("event: unknow %d", ctx->sm.event);
@@ -386,6 +409,7 @@ static void state_ready_run(void *o)
 static void button_changed(uint32_t button_state, uint32_t has_changed)
 {
 	uint32_t buttons = button_state & has_changed;
+	int err = 0;
 
 	if (buttons & DK_BTN1_MSK) {
 		LOG_INF("button 1");
@@ -402,28 +426,28 @@ static void button_changed(uint32_t button_state, uint32_t has_changed)
 				.link_mode = SID_LINK_MODE_CLOUD,
 			},
 		};
-		app_event_send(APP_EVENT_SEND);
+		err = app_event_send(APP_EVENT_SEND);
 	}
 	if (buttons & DK_BTN2_MSK) {
 		LOG_INF("button 2");
-		app_event_send(APP_EVENT_LINK_SWITCH);
+		err = app_event_send(APP_EVENT_LINK_SWITCH);
 	}
 	if (buttons & DK_BTN3_MSK) {
 		LOG_INF("button 3");
 	}
 	if (buttons & DK_BTN4_MSK) {
 		LOG_INF("button 4");
-		app_event_send(APP_EVENT_FACTORY_RESET);
+		err = app_event_send(APP_EVENT_FACTORY_RESET);
 	}
+
+	if (err) {
+		LOG_ERR("send event err %d", err);
+	};
 }
 
 static int app_event_send(app_event_t event)
 {
-	int e = k_msgq_put(&sid_ctx.sm.msgq, (void *)&event, K_NO_WAIT);
-	if (e) {
-		LOG_ERR("msg put err: %d", e);
-	}
-	return e;
+	return k_msgq_put(&sid_ctx.sm.msgq, (void *)&event, K_NO_WAIT);
 }
 
 static void app_thread_entry(void *context, void *unused, void *unused2)
@@ -478,6 +502,10 @@ int main(void)
 
 	if (dk_buttons_init(button_changed)) {
 		LOG_ERR("Cannot init buttons");
+	}
+
+	if (dk_leds_init()) {
+		LOG_ERR("Cannot init leds");
 	}
 
 	(void)k_thread_create(&app_thread, app_thread_stack,
