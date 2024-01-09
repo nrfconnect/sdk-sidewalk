@@ -3,156 +3,45 @@
 Setting up your Sidewalk product
 ################################
 
-To complete the set up of your Sidewalk product, you have to generate provisioning and add MQTT to destination.
-
-Preconditions
-*************
-
-Before you create a Sidewalk provisioning file, you need to complete the `Amazon Sidewalk IoT Prerequisites`_ chapter.
-The instructions include:
-
- * Creating an AWS account
- * Setting up an AWS user with permissions to create resources
- * Setting up user's AWS credentials file on your local machine
+To create Sidewalk device follow the Amazon Sidewalk documentation: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-gs-workflow.html
 
 Provisioning generation
 ***********************
 
-#. Go to AWS IoT Core for Sidewalk tools:
+Tools for provisioning are included in the NCS repository in :file:`sidewalk/tools/provision`
 
-   .. code-block:: console
+Usage of the tool is described at https://docs.sidewalk.amazon/provisioning/iot-sidewalk-provision-endpoint.html
 
-      cd tools/aws-iot-core-for-sidewalk
+.. note::
+   The default address of the mfg.hex in the Amazon instruction is incompatible with NCS applications.
+   Add '--addr 0xFF000' argument to the provision.py script to generate mfg.hex compatible with NCS memory map.
 
-#. Populate the :file:`config.yaml` configuration file.
-   Set `NORDIC` hardware platform:
+If you're using the combined device JSON file that you obtained from the AWS IoT console, use the certificate_json parameter to specify this file as input when running the provisioning script.
 
-   .. code-block:: yaml
+python3 provision.py aws --output_bin mfg.bin --certificate_json certificate.json \ 
+    --config config/[device_vendor]/[device]_dk/config.yaml --addr 0xFF000
 
-      Config:
-        AWS_PROFILE: default  # Name of your AWS profile from .aws/credentials
-        DESTINATION_NAME: TemplateAppDestination  # Sidewalk destination used for uplink traffic routing
-        HARDWARE_PLATFORM: NORDIC  # Available values: NORDIC, TI, SILABS or ALL
-        USERNAME: null
-        PASSWORD: null
-        INTERACTIVE_MODE: True
-      Outputs:
-          DEVICE_PROFILE_ID: null
-          WEB_APP_URL: null
-      _Paths:
-          PROVISION_SCRIPT_DIR: tools/provision
-          SILABS_COMMANDER_TOOLS_DIR: null  # Not needed if Silabs Commander is already in system Path. Only needed for SILABS.
+If you're using the separate device JSON files that you obtained as responses from the GetDeviceProfile and GetWirelessDevice API operations, use the wireless_device_json and device_profile_json parameters to specify these files as input when running the provisioning script.
 
-#. Run device provisioning scripts:
+python3 provision.py aws --output_bin mfg.bin \  
+    --wireless_device_json wireless_device.json \
+    --device_profile_json device_profile.json \ 
+    --config config/[device_vendor]/[device]_dk/config.yaml --addr 0xFF000
 
-      .. tabs::
 
-         .. tab:: Linux
-
-            a. Set up Python virtual environment for the provisioning tools:
-
-               .. code-block:: console
-
-                  python3 -m pip install --user virtualenv
-                  python3 -m virtualenv sample-app-env
-                  source sample-app-env/bin/activate
-                  python3 -m pip install --upgrade pip
-                  python3 -m pip install -r requirements.txt
-                  python3 -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
-
-            #. Run the device provisioning scripts:
-
-               .. code-block:: console
-
-                  python3 EdgeDeviceProvisioning/provision_sidewalk_end_device.py
-
-               You should see the following output:
-
-               .. code-block:: console
-
-                  INFO:root:Status: 200
-                  INFO:root:Saving wireless device to file
-                  INFO:root:Generating MFG by calling provision.py
-                  INFO:root:  Generating MFG.hex for Nordic
-                  INFO:root:Done!
-
-            #. Exit the Python virtual environment:
-
-               .. code-block:: console
-
-                  deactivate
-
-         .. tab:: Windows
-
-            a. Set up Python virtual environment for the provisioning tools:
-
-               .. code-block:: console
-
-                  py -m pip install --user virtualenv
-                  py -m virtualenv sample-app-env
-                  sample-app-env\Scripts\activate.bat
-                  py -m pip install --upgrade pip
-                  py -m pip install -r requirements.txt
-                  py -m pip install pyjwt -t ./ApplicationServerDeployment/lambda/authLibs
-
-            #. Run the device provisioning scripts:
-
-               .. code-block:: console
-
-                  py EdgeDeviceProvisioning/provision_sidewalk_end_device.py
-
-               You should see the following output:
-
-               .. code-block:: console
-
-                  INFO:root:Status: 200
-                  INFO:root:Saving wireless device to file
-                  INFO:root:Generating MFG by calling provision.py
-                  INFO:root:  Generating MFG.hex for Nordic
-                  INFO:root:Done!
-
-            #. Exit the Python virtual environment:
-
-               .. code-block:: console
-
-                  deactivate
-
-#. Flash the :file:`Nordic_MFG.hex` file.
-
-   Your provisioning file is located in the :file:`EdgeDeviceProvisioning` directory.
-   Devices are grouped in the device profile's subdirectory as shown in the structure below:
-
-   .. code-block:: console
-
-      EdgeDeviceProvisioning \
-      - DeviceProfile_<profile-id> \
-         - DeviceProfile.json
-         - WirelessDevice_<device-id>\
-             --  Nordic_MFG.bin
-             --  Nordic_MFG.hex
-             --  WirelessDevice.json
-
-   a. Go to the device subdirectory:
+Flash the generated :file:`nordic_aws_nrf52840.hex` file with the provisioning data:
 
       .. code-block:: console
 
-         cd EdgeDeviceProvisioning/DeviceProfile_<profile-id>/WirelessDevice_<device-id>
-
-      For example:
-
-      .. code-block:: console
-
-         cd EdgeDeviceProvisioning/DeviceProfile_102d750c-e4d0-4e10-8742-ea3698429ca9/WirelessDevice_5153dd3a-c78f-4e9e-9d8c-3d84fabb8911
-
-   #. Flash the :file:`Nordic_MFG.hex` file with the provisioning data:
-
-      .. code-block:: console
-
-         $ nrfjprog --sectorerase --program Nordic_MFG.hex --reset
+         $ nrfjprog --sectorerase --program nordic_aws_nrf52840.hex --reset
 
       .. note::
-         If you reflashed the :file:`Nordic_MFG.hex` file on an already working device, make sure to perform a factory reset (**Button 1** long press) to deregister the previously flashed device.
-         This will allow you to register a new product (new :file:`Nordic_MFG.hex`) in the Sidewalk network.
+         If you reflashed the :file:`nordic_aws_nrf52840.hex` file on an already working device, make sure to perform a factory reset (**Button 1** long press) to deregister the previously flashed device.
+         This will allow you to register a new product (new :file:`nordic_aws_nrf52840.hex`) in the Sidewalk network.
+
+      .. note::
+         The mfg.hex generated from the provision.py is compatible with all supported boards, even tho the name sugests only nrf52840.
+
 
 Add MQTT to destination
 ***********************

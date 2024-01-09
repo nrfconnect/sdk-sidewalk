@@ -13,6 +13,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
  */
 
+#include "zephyr/sys/byteorder.h"
 #include "zephyr/sys/util.h"
 #include <sid_pal_log_ifc.h>
 #include <sid_pal_crypto_ifc.h>
@@ -23,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/_stdint.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
@@ -142,18 +144,11 @@ static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial)
      * Note: Standard 4-byte Certificate Serial Number is transmitted as little-endian byte sequence.
      * So, the Extended Certificate Serial Number must also have the first 4 bytes as little-endian.
      */
-	if ((serial[3] & 0xF0) == 0xB0) {
-		// Type of certificate = 2 (Cloud), Certificate intermediate chain = 0b11 (extended certificate chain)
-		uint16_t length = serial[2] & 0x7F;
-		length += 2; // get full serial length
-		if (length < SID_ODC_CA_SERIAL_MIN_SIZE || length > SID_ODC_CA_SERIAL_MAX_SIZE) {
-			LOG_ERR("CA Serial format error [%d][%d][%d][%d]", serial[0], serial[1],
-				serial[2], serial[3]);
-			return 0;
-		} else {
-			return length;
-		}
+	uint16_t head = sys_get_be16(serial);
+	if ((head & 0x3000) == 0x3000) {
+		return (head & 0x007f) + 4;
 	}
+
 	return SID_ODC_CA_SERIAL_MIN_SIZE;
 }
 
