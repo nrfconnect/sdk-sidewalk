@@ -52,9 +52,23 @@ LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define MFG_WORD_SIZE_VER_1 (8)
 
+static const uint32_t MFG_WORD_SIZE = 4; // in bytes
+
+#define MFG_STORE_TLV_HEADER_SIZE 4
+#define MFG_STORE_TLV_TAG_EMPTY 0xFFFF
+#define EXPAND_TO_MULTIPLE_WORD(_VALUE_) (((_VALUE_ + 3) / 4) * 4)
+
+struct sid_pal_mfg_store_tlv_info {
+	uint16_t tag;
+	uint16_t length;
+	/** TLV offset from mfg_store_region.addr_start in bytes */
+	size_t offset;
+};
+
 struct sid_pal_mfg_store_value_to_address_offset {
 	sid_pal_mfg_store_value_t value;
-	off_t offset;
+	uint16_t size;
+	uint32_t offset;
 };
 
 static void ntoh_buff(uint8_t *buffer, size_t buff_len);
@@ -65,44 +79,44 @@ static off_t value_to_offset(sid_pal_mfg_store_value_t value, uintptr_t start_ad
 
 // clang-format off
 struct sid_pal_mfg_store_value_to_address_offset sid_pal_mfg_store_app_value_to_offset_table[] = {
-	{ SID_PAL_MFG_STORE_VERSION,                      SID_PAL_MFG_STORE_OFFSET_VERSION },
-	{ SID_PAL_MFG_STORE_DEVID,                        SID_PAL_MFG_STORE_OFFSET_DEVID },
-	{ SID_PAL_MFG_STORE_SERIAL_NUM,                   SID_PAL_MFG_STORE_OFFSET_SERIAL_NUM },
-	{ SID_PAL_MFG_STORE_SMSN,                         SID_PAL_MFG_STORE_OFFSET_SMSN },
-	{ SID_PAL_MFG_STORE_APID,                         SID_PAL_MFG_STORE_OFFSET_APID },
-	{ SID_PAL_MFG_STORE_APP_PUB_ED25519,              SID_PAL_MFG_STORE_OFFSET_APP_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,          SID_PAL_MFG_STORE_OFFSET_DEVICE_PRIV_ED25519 },
-	{ SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,           SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE, SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_ED25519_SIGNATURE },
-	{ SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,           SID_PAL_MFG_STORE_OFFSET_DEVICE_PRIV_P256R1 },
-	{ SID_PAL_MFG_STORE_DEVICE_PUB_P256R1,            SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_P256R1 },
-	{ SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,  SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_P256R1_SIGNATURE },
-	{ SID_PAL_MFG_STORE_DAK_PUB_ED25519,              SID_PAL_MFG_STORE_OFFSET_DAK_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE,    SID_PAL_MFG_STORE_OFFSET_DAK_PUB_ED25519_SIGNATURE },
-	{ SID_PAL_MFG_STORE_DAK_ED25519_SERIAL,           SID_PAL_MFG_STORE_OFFSET_DAK_ED25519_SERIAL },
-	{ SID_PAL_MFG_STORE_DAK_PUB_P256R1,               SID_PAL_MFG_STORE_OFFSET_DAK_PUB_P256R1 },
-	{ SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE,     SID_PAL_MFG_STORE_OFFSET_DAK_PUB_P256R1_SIGNATURE },
-	{ SID_PAL_MFG_STORE_DAK_P256R1_SERIAL,            SID_PAL_MFG_STORE_OFFSET_DAK_P256R1_SERIAL },
-	{ SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519,          SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIGNATURE, SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_ED25519_SIGNATURE },
-	{ SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL,       SID_PAL_MFG_STORE_OFFSET_PRODUCT_ED25519_SERIAL },
-	{ SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1,           SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_P256R1 },
-	{ SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIGNATURE, SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_P256R1_SIGNATURE },
-	{ SID_PAL_MFG_STORE_PRODUCT_P256R1_SERIAL,        SID_PAL_MFG_STORE_OFFSET_PRODUCT_P256R1_SERIAL },
-	{ SID_PAL_MFG_STORE_MAN_PUB_ED25519,              SID_PAL_MFG_STORE_OFFSET_MAN_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE,    SID_PAL_MFG_STORE_OFFSET_MAN_PUB_ED25519_SIGNATURE },
-	{ SID_PAL_MFG_STORE_MAN_ED25519_SERIAL,           SID_PAL_MFG_STORE_OFFSET_MAN_ED25519_SERIAL },
-	{ SID_PAL_MFG_STORE_MAN_PUB_P256R1,               SID_PAL_MFG_STORE_OFFSET_MAN_PUB_P256R1 },
-	{ SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE,     SID_PAL_MFG_STORE_OFFSET_MAN_PUB_P256R1_SIGNATURE },
-	{ SID_PAL_MFG_STORE_MAN_P256R1_SERIAL,            SID_PAL_MFG_STORE_OFFSET_MAN_P256R1_SERIAL },
-	{ SID_PAL_MFG_STORE_SW_PUB_ED25519,               SID_PAL_MFG_STORE_OFFSET_SW_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE,     SID_PAL_MFG_STORE_OFFSET_SW_PUB_ED25519_SIGNATURE },
-	{ SID_PAL_MFG_STORE_SW_ED25519_SERIAL,            SID_PAL_MFG_STORE_OFFSET_SW_ED25519_SERIAL },
-	{ SID_PAL_MFG_STORE_SW_PUB_P256R1,                SID_PAL_MFG_STORE_OFFSET_SW_PUB_P256R1 },
-	{ SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE,      SID_PAL_MFG_STORE_OFFSET_SW_PUB_P256R1_SIGNATURE },
-	{ SID_PAL_MFG_STORE_SW_P256R1_SERIAL,             SID_PAL_MFG_STORE_OFFSET_SW_P256R1_SERIAL },
-	{ SID_PAL_MFG_STORE_AMZN_PUB_ED25519,             SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_ED25519 },
-	{ SID_PAL_MFG_STORE_AMZN_PUB_P256R1,              SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_P256R1 },
+    {SID_PAL_MFG_STORE_VERSION,                      SID_PAL_MFG_STORE_VERSION_SIZE,                      SID_PAL_MFG_STORE_OFFSET_VERSION},
+    {SID_PAL_MFG_STORE_DEVID,                        SID_PAL_MFG_STORE_DEVID_SIZE,                        SID_PAL_MFG_STORE_OFFSET_DEVID},
+    {SID_PAL_MFG_STORE_SERIAL_NUM,                   SID_PAL_MFG_STORE_SERIAL_NUM_SIZE,                   SID_PAL_MFG_STORE_OFFSET_SERIAL_NUM},
+    {SID_PAL_MFG_STORE_SMSN,                         SID_PAL_MFG_STORE_SMSN_SIZE,                         SID_PAL_MFG_STORE_OFFSET_SMSN},
+    {SID_PAL_MFG_STORE_APID,                         SID_PAL_MFG_STORE_APID_SIZE,                         SID_PAL_MFG_STORE_OFFSET_APID},
+    {SID_PAL_MFG_STORE_APP_PUB_ED25519,              SID_PAL_MFG_STORE_APP_PUB_ED25519_SIZE,              SID_PAL_MFG_STORE_OFFSET_APP_PUB_ED25519},
+    {SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,          SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_SIZE,          SID_PAL_MFG_STORE_OFFSET_DEVICE_PRIV_ED25519},
+    {SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,           SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIZE,           SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_ED25519},
+    {SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE, SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE_SIZE, SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_ED25519_SIGNATURE},
+    {SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,           SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_SIZE,           SID_PAL_MFG_STORE_OFFSET_DEVICE_PRIV_P256R1},
+    {SID_PAL_MFG_STORE_DEVICE_PUB_P256R1,            SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIZE,            SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_P256R1},
+    {SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,  SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE_SIZE,  SID_PAL_MFG_STORE_OFFSET_DEVICE_PUB_P256R1_SIGNATURE},
+    {SID_PAL_MFG_STORE_DAK_PUB_ED25519,              SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIZE,              SID_PAL_MFG_STORE_OFFSET_DAK_PUB_ED25519},
+    {SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE,    SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE_SIZE,    SID_PAL_MFG_STORE_OFFSET_DAK_PUB_ED25519_SIGNATURE},
+    {SID_PAL_MFG_STORE_DAK_ED25519_SERIAL,           SID_PAL_MFG_STORE_DAK_ED25519_SERIAL_SIZE,           SID_PAL_MFG_STORE_OFFSET_DAK_ED25519_SERIAL},
+    {SID_PAL_MFG_STORE_DAK_PUB_P256R1,               SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIZE,               SID_PAL_MFG_STORE_OFFSET_DAK_PUB_P256R1},
+    {SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE,     SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE_SIZE,     SID_PAL_MFG_STORE_OFFSET_DAK_PUB_P256R1_SIGNATURE},
+    {SID_PAL_MFG_STORE_DAK_P256R1_SERIAL,            SID_PAL_MFG_STORE_DAK_P256R1_SERIAL_SIZE,            SID_PAL_MFG_STORE_OFFSET_DAK_P256R1_SERIAL},
+    {SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519,          SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIZE,          SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_ED25519},
+    {SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIGNATURE,SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIGNATURE_SIZE,SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_ED25519_SIGNATURE},
+    {SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL,       SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL_SIZE,       SID_PAL_MFG_STORE_OFFSET_PRODUCT_ED25519_SERIAL},
+    {SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1,           SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIZE,           SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_P256R1},
+    {SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIGNATURE, SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIGNATURE_SIZE, SID_PAL_MFG_STORE_OFFSET_PRODUCT_PUB_P256R1_SIGNATURE},
+    {SID_PAL_MFG_STORE_PRODUCT_P256R1_SERIAL,        SID_PAL_MFG_STORE_PRODUCT_P256R1_SERIAL_SIZE,        SID_PAL_MFG_STORE_OFFSET_PRODUCT_P256R1_SERIAL},
+    {SID_PAL_MFG_STORE_MAN_PUB_ED25519,              SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIZE,              SID_PAL_MFG_STORE_OFFSET_MAN_PUB_ED25519},
+    {SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE,    SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE_SIZE,    SID_PAL_MFG_STORE_OFFSET_MAN_PUB_ED25519_SIGNATURE},
+    {SID_PAL_MFG_STORE_MAN_ED25519_SERIAL,           SID_PAL_MFG_STORE_MAN_ED25519_SERIAL_SIZE,           SID_PAL_MFG_STORE_OFFSET_MAN_ED25519_SERIAL},
+    {SID_PAL_MFG_STORE_MAN_PUB_P256R1,               SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIZE,               SID_PAL_MFG_STORE_OFFSET_MAN_PUB_P256R1},
+    {SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE,     SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE_SIZE,     SID_PAL_MFG_STORE_OFFSET_MAN_PUB_P256R1_SIGNATURE},
+    {SID_PAL_MFG_STORE_MAN_P256R1_SERIAL,            SID_PAL_MFG_STORE_MAN_P256R1_SERIAL_SIZE,            SID_PAL_MFG_STORE_OFFSET_MAN_P256R1_SERIAL},
+    {SID_PAL_MFG_STORE_SW_PUB_ED25519,               SID_PAL_MFG_STORE_SW_PUB_ED25519_SIZE,               SID_PAL_MFG_STORE_OFFSET_SW_PUB_ED25519},
+    {SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE,     SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE_SIZE,     SID_PAL_MFG_STORE_OFFSET_SW_PUB_ED25519_SIGNATURE},
+    {SID_PAL_MFG_STORE_SW_ED25519_SERIAL,            SID_PAL_MFG_STORE_SW_ED25519_SERIAL_SIZE,            SID_PAL_MFG_STORE_OFFSET_SW_ED25519_SERIAL},
+    {SID_PAL_MFG_STORE_SW_PUB_P256R1,                SID_PAL_MFG_STORE_SW_PUB_P256R1_SIZE,                SID_PAL_MFG_STORE_OFFSET_SW_PUB_P256R1},
+    {SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE,      SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE_SIZE,      SID_PAL_MFG_STORE_OFFSET_SW_PUB_P256R1_SIGNATURE},
+    {SID_PAL_MFG_STORE_SW_P256R1_SERIAL,             SID_PAL_MFG_STORE_SW_P256R1_SERIAL_SIZE,             SID_PAL_MFG_STORE_OFFSET_SW_P256R1_SERIAL},
+    {SID_PAL_MFG_STORE_AMZN_PUB_ED25519,             SID_PAL_MFG_STORE_AMZN_PUB_ED25519_SIZE,             SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_ED25519},
+    {SID_PAL_MFG_STORE_AMZN_PUB_P256R1,              SID_PAL_MFG_STORE_AMZN_PUB_P256R1_SIZE,              SID_PAL_MFG_STORE_OFFSET_AMZN_PUB_P256R1},
 };
 // clang-format on
 
@@ -111,6 +125,50 @@ static sid_pal_mfg_store_region_t nrf_mfg_store_region = {
 };
 
 static const struct device *flash_dev;
+
+static bool sid_pal_mfg_store_search_for_tag(uint16_t tag,
+					     struct sid_pal_mfg_store_tlv_info *tlv_info)
+{
+	off_t address = (off_t)(nrf_mfg_store_region.addr_start +
+				SID_PAL_MFG_STORE_OFFSET_VERSION * MFG_WORD_SIZE +
+				SID_PAL_MFG_STORE_VERSION_SIZE);
+
+	uint16_t current_tag, length;
+	uint8_t type_length_raw[MFG_STORE_TLV_HEADER_SIZE] = { 0 };
+
+	while (1) {
+		int rc = flash_read(flash_dev, address, type_length_raw, MFG_STORE_TLV_HEADER_SIZE);
+		if (0 != rc) {
+			LOG_ERR("Flash read fail %d", rc);
+			return false;
+		}
+		current_tag = (type_length_raw[0] << 8) + type_length_raw[1];
+		length = (type_length_raw[2] << 8) + type_length_raw[3];
+
+		if (current_tag == tag) {
+			tlv_info->tag = tag;
+			tlv_info->length = length;
+			tlv_info->offset = address;
+			return true;
+		} else {
+			if (current_tag == MFG_STORE_TLV_TAG_EMPTY) {
+				break;
+			}
+			/*
+             * Go to the next TLV.
+             * Since data is written to flash with data aligned to 4, we must take this
+             * into account if the data length is not a multiple of 4.
+             */
+			address += (MFG_STORE_TLV_HEADER_SIZE + EXPAND_TO_MULTIPLE_WORD(length));
+			// Check that we have not reached the end of the storage
+			if ((uintptr_t)(address + MFG_STORE_TLV_HEADER_SIZE + MFG_WORD_SIZE) >
+			    nrf_mfg_store_region.addr_end) {
+				break;
+			}
+		}
+	}
+	return false;
+}
 
 /**
  * @brief The function converts network byte order to host byte order on the whole buffer.
@@ -225,41 +283,108 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	}
 }
 
+void sid_pal_mfg_store_deinit(void)
+{
+	memset(&nrf_mfg_store_region, 0, sizeof(sid_pal_mfg_store_region_t));
+}
+
 int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t length)
 {
 #if CONFIG_SIDEWALK_MFG_STORAGE_WRITE
+	uint32_t ret_code = 0;
 	uint8_t __aligned(4) wr_array[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN];
 
-	if (0u == length) {
+	if (length == 0 || value == MFG_STORE_TLV_TAG_EMPTY || buffer == NULL) {
 		return (int32_t)SID_ERROR_INVALID_ARGS;
 	}
 
-	if (length > sizeof(wr_array)) {
-		return (int32_t)SID_ERROR_OUT_OF_RESOURCES;
+	uint32_t version = sid_pal_mfg_store_get_version();
+	if (value == SID_PAL_MFG_STORE_VERSION) {
+		version = SID_PAL_MFG_STORE_VERSION;
 	}
+	if (version == SID_PAL_MFG_STORE_TLV_VERSION) {
+		struct sid_pal_mfg_store_tlv_info tlv_info = {};
 
-	if (length % sizeof(uint32_t)) {
-		LOG_WRN("Length is not word-aligned.");
-		return (int32_t)SID_ERROR_INCOMPATIBLE_PARAMS;
+		if (sid_pal_mfg_store_search_for_tag(value, &tlv_info)) {
+			// The tag value already exists. We can't write duplicate
+			return -1;
+		}
+
+		// Search for the end of data
+		if (!sid_pal_mfg_store_search_for_tag(MFG_STORE_TLV_TAG_EMPTY, &tlv_info)) {
+			LOG_ERR("MFG storage is full");
+			return -1;
+		}
+
+		uint16_t wr_length;
+		// The length sholud be a multiple of the program unit
+		uint16_t full_length = EXPAND_TO_MULTIPLE_WORD(length);
+		uintptr_t address = tlv_info.offset;
+
+		// Check the remaining storage size
+		if (address + MFG_STORE_TLV_HEADER_SIZE + full_length >
+		    nrf_mfg_store_region.addr_end) {
+			LOG_ERR("Not enough space to store: %d", value);
+			return -1;
+		}
+
+		wr_array[0] = value >> 8;
+		wr_array[1] = value;
+		wr_array[2] = full_length >> 8;
+		wr_array[3] = full_length;
+
+		ret_code = (int32_t)flash_write(flash_dev, address, wr_array,
+						MFG_STORE_TLV_HEADER_SIZE);
+		if (ret_code != 0) {
+			return ret_code;
+		}
+		address += MFG_STORE_TLV_HEADER_SIZE;
+
+		while (full_length) {
+			wr_length = full_length > sizeof(wr_array) ? sizeof(wr_array) : full_length;
+			memset(wr_array, 0xFF, sizeof(wr_array));
+			memcpy(wr_array, buffer, wr_length > length ? length : wr_length);
+
+			ret_code = (int32_t)flash_write(flash_dev, address, wr_array, wr_length);
+
+			if (ret_code != 0) {
+				return ret_code;
+			}
+			address += wr_length;
+			buffer += wr_length;
+			full_length -= wr_length;
+		};
+
+		return 0;
+
+	} else {
+		if (length > sizeof(wr_array)) {
+			return (int32_t)SID_ERROR_OUT_OF_RESOURCES;
+		}
+
+		if (length % sizeof(uint32_t)) {
+			LOG_WRN("Length is not word-aligned.");
+			return (int32_t)SID_ERROR_INCOMPATIBLE_PARAMS;
+		}
+
+		const off_t value_offset = value_to_offset(value, nrf_mfg_store_region.addr_start,
+							   nrf_mfg_store_region.addr_end);
+
+		if (SID_PAL_MFG_STORE_INVALID_OFFSET == value_offset) {
+			return (int32_t)SID_ERROR_NOT_FOUND;
+		}
+
+		if (NULL == buffer) {
+			return (int32_t)SID_ERROR_NULL_POINTER;
+		}
+
+		memcpy(wr_array, buffer, length);
+		if (flash_dev) {
+			return (int32_t)flash_write(flash_dev, value_offset, wr_array, length);
+		}
+
+		return (int32_t)SID_ERROR_UNINITIALIZED;
 	}
-
-	const off_t value_offset = value_to_offset(value, nrf_mfg_store_region.addr_start,
-						   nrf_mfg_store_region.addr_end);
-
-	if (SID_PAL_MFG_STORE_INVALID_OFFSET == value_offset) {
-		return (int32_t)SID_ERROR_NOT_FOUND;
-	}
-
-	if (NULL == buffer) {
-		return (int32_t)SID_ERROR_NULL_POINTER;
-	}
-
-	memcpy(wr_array, buffer, length);
-	if (flash_dev) {
-		return (int32_t)flash_write(flash_dev, value_offset, wr_array, length);
-	}
-
-	return (int32_t)SID_ERROR_UNINITIALIZED;
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
 #endif
@@ -267,25 +392,91 @@ int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t 
 
 void sid_pal_mfg_store_read(uint16_t value, uint8_t *buffer, uint16_t length)
 {
-	const off_t value_offset =
-		value_to_offset((sid_pal_mfg_store_value_t)value, nrf_mfg_store_region.addr_start,
-				nrf_mfg_store_region.addr_end);
+	uint32_t version = sid_pal_mfg_store_get_version();
+	if (version == SID_PAL_MFG_STORE_TLV_VERSION) {
+		// The SID_PAL_MFG_STORE_VERSION we should read as fixed offset
+		if (value == SID_PAL_MFG_STORE_VERSION) {
+			memcpy(buffer, &version, sizeof(version));
+			return;
+		}
 
-	if (!buffer) {
-		LOG_ERR("Null pointer provided.");
-		return;
-	}
-
-	if (SID_PAL_MFG_STORE_INVALID_OFFSET != value_offset) {
-		if (flash_dev) {
-			int rc = flash_read(flash_dev, value_offset, buffer, length);
+		struct sid_pal_mfg_store_tlv_info tlv_info;
+		if (sid_pal_mfg_store_search_for_tag(value, &tlv_info)) {
+			if (length > tlv_info.length) {
+				LOG_ERR("invalid length of the value");
+				return;
+			}
+			int rc = flash_read(flash_dev, tlv_info.offset + MFG_STORE_TLV_HEADER_SIZE,
+					    buffer, length);
 			if (0 != rc) {
 				LOG_ERR("Flash read fail %d", rc);
+				return;
 			}
 		} else {
-			LOG_ERR("MFG store is not initialized.");
+			/*
+             * For backwards compatibility with MFG version with fixed offsets,
+             * we must fill the buffer with empty data.
+             */
+			memset(buffer, 0xFF, length);
+		}
+	} else {
+		const off_t value_offset = value_to_offset((sid_pal_mfg_store_value_t)value,
+							   nrf_mfg_store_region.addr_start,
+							   nrf_mfg_store_region.addr_end);
+
+		if (!buffer) {
+			LOG_ERR("Null pointer provided.");
+			return;
+		}
+
+		if (SID_PAL_MFG_STORE_INVALID_OFFSET != value_offset) {
+			if (flash_dev) {
+				int rc = flash_read(flash_dev, value_offset, buffer, length);
+				if (0 != rc) {
+					LOG_ERR("Flash read fail %d", rc);
+				}
+			} else {
+				LOG_ERR("MFG store is not initialized.");
+			}
 		}
 	}
+}
+
+static bool is_valid_value_offset(uint32_t offset)
+{
+	return offset != SID_PAL_MFG_STORE_INVALID_OFFSET;
+}
+
+static uint16_t value_to_size(sid_pal_mfg_store_value_t value)
+{
+	const size_t table_count = sizeof(sid_pal_mfg_store_app_value_to_offset_table) /
+				   sizeof(sid_pal_mfg_store_app_value_to_offset_table[0]);
+
+	for (uint32_t i = 0; i < table_count; i++) {
+		if (value == sid_pal_mfg_store_app_value_to_offset_table[i].value) {
+			return is_valid_value_offset(
+				       sid_pal_mfg_store_app_value_to_offset_table[i].offset) ?
+				       sid_pal_mfg_store_app_value_to_offset_table[i].size :
+				       0;
+		}
+	}
+
+	// NOTE: Getting size for App values >= SID_PAL_MFG_STORE_CORE_VALUE_MAX is not supported
+	return 0;
+}
+
+uint16_t sid_pal_mfg_store_get_length_for_value(uint16_t value)
+{
+	uint16_t length = 0;
+	if (sid_pal_mfg_store_get_version() == SID_PAL_MFG_STORE_TLV_VERSION) {
+		struct sid_pal_mfg_store_tlv_info tlv_info;
+		if (sid_pal_mfg_store_search_for_tag(value, &tlv_info)) {
+			length = tlv_info.length;
+		}
+	} else {
+		length = value_to_size(value);
+	}
+	return length;
 }
 
 int32_t sid_pal_mfg_store_erase(void)
@@ -341,16 +532,25 @@ bool sid_pal_mfg_store_is_empty(void)
 
 bool sid_pal_mfg_store_is_tlv_support(void)
 {
-	return false;
+	return true;
 }
 
 uint32_t sid_pal_mfg_store_get_version(void)
 {
 	uint32_t version = 0;
+#define MFG_VERSION_OFFSET_BYTES 4
 
-	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_VERSION, (uint8_t *)&version,
-			       SID_PAL_MFG_STORE_VERSION_SIZE);
-	// Assuming that we keep this behavior for both 1P & 3P
+	if (flash_dev) {
+		int rc = flash_read(flash_dev,
+				    nrf_mfg_store_region.addr_start + MFG_VERSION_OFFSET_BYTES,
+				    (uint8_t *)&version, SID_PAL_MFG_STORE_VERSION_SIZE);
+		if (0 != rc) {
+			LOG_ERR("Flash read fail %d", rc);
+		}
+	} else {
+		LOG_ERR("MFG store is not initialized.");
+	}
+
 	return sys_be32_to_cpu(version);
 }
 
@@ -418,4 +618,20 @@ bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIA
 		ntoh_buff(serial_num, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 	}
 	return true;
+}
+
+static const uint8_t product_apid[] = { 0x76, 0x43, 0x74, 0x32 };
+static const uint8_t app_server_public_key[] = { 0xb2, 0x40, 0xbf, 0x98, 0xc6, 0x5c, 0xdf, 0x84,
+						 0xbf, 0x2a, 0xa1, 0xac, 0x29, 0x11, 0x14, 0x1f,
+						 0xb4, 0x80, 0x7c, 0xbc, 0xb6, 0x6e, 0xcf, 0x09,
+						 0x1c, 0x20, 0x04, 0xb3, 0x37, 0xb4, 0x06, 0x47 };
+
+void sid_pal_mfg_store_apid_get(uint8_t apid[SID_PAL_MFG_STORE_APID_SIZE])
+{
+	memcpy(apid, product_apid, sizeof(product_apid));
+}
+
+void sid_pal_mfg_store_app_pub_key_get(uint8_t app_pub[SID_PAL_MFG_STORE_APP_PUB_ED25519_SIZE])
+{
+	memcpy(app_pub, app_server_public_key, sizeof(app_server_public_key));
 }
