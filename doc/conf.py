@@ -17,8 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Sidewalk'
-copyright = '2023, Nordic Semiconductor'
+project = 'nRF Connect SDK - Amazon Sidewalk'
+copyright = '2024, Nordic Semiconductor'
 author = 'Nordic Semiconductor'
 
 # -- General configuration ---------------------------------------------------
