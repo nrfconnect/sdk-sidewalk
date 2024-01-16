@@ -15,6 +15,10 @@ on:
         description: ""
         type: number
         required: true
+      target_board:
+        description: "target board for tests"
+        type: string
+        required: true
       run_tests:
         description: ""
         required: false
@@ -68,24 +72,23 @@ jobs:
       - name: Build test artifacts
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          west twister --testsuite-root /workdir/sidewalk/tests --shuffle-tests --shuffle-tests-seed 123 --filter runnable -P native_posix -P unit_testing --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
+          west twister --platform ${{inputs.target_board}} --testsuite-root /workdir/sidewalk/tests --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
 
       - name: save build artifacts
         uses: actions/cache@v3
         with:
           path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
-          key: DUT_artifacts_${{ inputs.subset }}_${{ github.sha }}
+          key: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}_${{ github.sha }}
 
   run_dut_ut:
     needs: [build_tests]
     if: ${{ fromJson(inputs.run_tests) }}
     continue-on-error: true
-    runs-on: test-node
+    runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}"]
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2 --privileged
       volumes:
-        - /home/tester/hw_settings:/hw_settings
         - /dev:/dev
         - /run/udev:/run/udev
     defaults:
@@ -98,10 +101,6 @@ jobs:
         with:
           path: sidewalk
 
-      - name: check hw_settings
-        run: |
-          ls -lah /hw_settings
-
       - name: Install Python dependencies
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
@@ -111,7 +110,7 @@ jobs:
         id: cache
         with:
           path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
-          key: DUT_artifacts_${{ inputs.subset }}_${{ github.sha }}
+          key: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}_${{ github.sha }}
           fail-on-cache-miss: true
 
       - name: Fail on missing artifacts
@@ -126,11 +125,11 @@ jobs:
       - name: Run Tests
         run: |
           source /workdir/zephyr/zephyr-env.sh
-          west twister --no-clean -vvv --inline-logs --test-only --hardware-map /hw_settings/hardware_map.yaml --device-testing -T /workdir/sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
+          west twister --no-clean -vvv --inline-logs --test-only --hardware-map /__w/hardware_map.yaml --device-testing -T /workdir/sidewalk/tests --retry-failed 2 --west-flash="--recover,--erase"
 
       - name: rename_twister_xml_report
         run: |
-          mv twister-out/twister.xml twister-out/${{ inputs.subset }}_twister.xml
+          mv twister-out/twister.xml twister-out/${{inputs.target_board}}_${{ inputs.subset }}_twister.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -138,6 +137,6 @@ jobs:
         with:
           name: tests-dut_result
           path: |
-            twister-out/${{ inputs.subset }}_twister.xml
+            twister-out/${{inputs.target_board}}_${{ inputs.subset }}_twister.xml
             twister-out/**/handler.log
             twister-out/**/device.log
