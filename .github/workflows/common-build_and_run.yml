@@ -179,13 +179,15 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        subset: [1, 2, 3, 4]
+        subset: [1, 2, 3]
+        board: ${{ fromJson(inputs.supported_platforms) }}
     uses: ./.github/workflows/DUT_tests.yml
     with:
       change_nrf_revision: ${{ inputs.change_nrf_revision }}
       subset: ${{ matrix.subset }}
-      max_subsets: 4
+      max_subsets: 3
       run_tests: true
+      target_board: ${{ matrix.board }}
 
   build_and_run_ut_x86:
     runs-on: ubuntu-latest
