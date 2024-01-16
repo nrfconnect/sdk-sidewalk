@@ -13,7 +13,7 @@ int main(void)
 	LOG_INF("Hello world!");
 
 	dk_leds_init();
-	dk_set_led_on(DK_LED2);
+	dk_set_led_on(DK_LED1);
 
 	return 0;
 }

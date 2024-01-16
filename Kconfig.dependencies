@@ -38,6 +38,8 @@ config SIDEWALK_BLE
 	imply BT
 	imply SETTINGS
 	imply BT_PERIPHERAL
+	imply BT_SMP
+	imply BT_PRIVACY
 	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
@@ -271,25 +273,3 @@ config MCUMGR_TRANSPORT_BT_AUTHEN
 	default n
 
 endif # SIDEWALK_DFU_SERVICE_BLE
-
-if SIDEWALK_DFU_SERVICE_USB
-
-config SIDEWALK_DFU_SERVICE_USB_DEFAULTS
-	bool
-	default SIDEWALK_DFU_SERVICE_USB
-	imply USB_DFU_CLASS
-	imply USB_DEVICE_STACK
-	imply USB_DFU_ENABLE_UPLOAD
-	imply USB_DFU_REBOOT
-	imply USB_DC_HAS_HS_SUPPORT
-
-config USB_DEVICE_PRODUCT
-	default "DFU for Sidewalk"
-
-config USB_REQUEST_BUFFER_SIZE
-	default 8192
-
-config USB_DEVICE_INITIALIZE_AT_BOOT
-	default n
-
-endif # SIDEWALK_DFU_SERVICE_USB

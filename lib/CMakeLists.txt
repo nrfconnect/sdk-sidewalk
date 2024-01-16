@@ -5,7 +5,7 @@
 #
 
 if (CONFIG_SIDEWALK)
-	if (CONFIG_SIDEWALK_LINK_MASK_FSK OR CONFIG_SIDEWALK_LINK_MASK_LORA)
+	if (CONFIG_SIDEWALK_SUBGHZ)
 		add_subdirectory(lora_fsk)
 	else()
 		add_subdirectory(ble_only)

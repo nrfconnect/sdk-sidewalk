@@ -21,12 +21,9 @@ The following table demonstrates configuration for the supported development kit
       |                             |                                                                          |                                               | * :file:`lora.conf`           |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | :ref:`template_subghz`      | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * :file:`fsk.conf`            | ``*``                 | Supported    | Supported   | Supported   |
+      | :ref:`sidewalk_template`    | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | --                            | Supported             | Supported    | Supported   | Supported   |
       |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
-      +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | :ref:`template_ble`         | --                                                                       | * MCUboot - DFU partition in internal flash   | --                            | Supported             | --           | --          | Supported   |
-      |                             |                                                                          | * Application partition size = 480 kB         |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
       | :ref:`device_under_test`    | * `Semtech SX1262MB2CAS`_ (optional)                                     | --                                            | --                            | Supported             | Supported    | Supported   | --          |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
@@ -42,12 +39,9 @@ The following table demonstrates configuration for the supported development kit
       |                             |                                                                          |                                               | * :file:`lora.conf`           |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | :ref:`template_subghz`      | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * :file:`fsk.conf`            | ``*``                 | Supported    | Supported   | Supported   |
+      | :ref:`sidewalk_template`    | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | --                            | Supported             | Supported    | Supported   | Supported   |
       |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |                       |              |             |             |
       |                             |                                                                          |                                               |                               |                       |              |             |             |
-      +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | :ref:`template_ble`         | --                                                                       | * MCUboot - DFU partition in internal flash   | --                            | Supported             | --           | --          | Supported   |
-      |                             |                                                                          | * Application partition size = 480 kB         |                               |                       |              |             |             |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
       | :ref:`device_under_test`    | * `Semtech SX1262MB2CAS`_ (optional)                                     | --                                            | --                            | Supported             | Supported    | Supported   | --          |
       +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
@@ -60,8 +54,7 @@ The following table demonstrates configuration for the supported development kit
    :caption: List of samples:
 
    sidewalk_application_samples/sensor_monitoring.rst
-   sidewalk_application_samples/template_subghz.rst
-   sidewalk_application_samples/template_ble.rst
+   sidewalk_application_samples/template.rst
    sidewalk_application_samples/dut.rst
 
 .. include:: ../ncs_links.rst

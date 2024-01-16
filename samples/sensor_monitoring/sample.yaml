@@ -2,7 +2,7 @@ sample:
   description: Amazon Sidewalk demo app
   name: Sensor monitoring app
 tests:
-  sample.sidewalk.demo.ble:
+  sample.sidewalk.demo.ble_only:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp thingy53_nrf5340_cpuapp
     integration_platforms:

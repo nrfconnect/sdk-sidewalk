@@ -23,4 +23,4 @@ if (CONFIG_SIDEWALK_CLI)
 endif() # CONFIG_SIDEWALK_CLI
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DFU_SERVICE_BLE nordic_dfu.c)
-zephyr_library_sources(settings_utils.c)
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SETTINGS_UTILS settings_utils.c)

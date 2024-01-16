@@ -12,10 +12,9 @@
 #if defined(NRF52840_XXAA)
 #define X_APPLICAITON_STATES                                                                       \
 	X(error, gpio1, 7)                                                                         \
-	X(working, gpio1, 5)                                                                       \
-	X(registered, gpio0, 14)                                                                   \
-	X(time_sync, gpio0, 15)                                                                    \
-	X(link, gpio0, 16)                                                                         \
+	X(working, gpio0, 16)                                                                      \
+	X(registered, gpio0, 15)                                                                   \
+	X(time_sync, gpio0, 14)                                                                    \
 	X(connected, gpio0, 13)                                                                    \
 	X(dfu, gpio1, 1)                                                                           \
 	X(sending, gpio1, 3)                                                                       \
@@ -23,10 +22,9 @@
 #elif defined(NRF5340_XXAA)
 #define X_APPLICAITON_STATES                                                                       \
 	X(error, gpio1, 8)                                                                         \
-	X(working, gpio1, 6)                                                                       \
-	X(registered, gpio0, 29)                                                                   \
-	X(time_sync, gpio0, 30)                                                                    \
-	X(link, gpio0, 31)                                                                         \
+	X(working, gpio0, 31)                                                                      \
+	X(registered, gpio0, 30)                                                                   \
+	X(time_sync, gpio0, 29)                                                                    \
 	X(connected, gpio0, 28)                                                                    \
 	X(dfu, gpio1, 2)                                                                           \
 	X(sending, gpio1, 4)                                                                       \
