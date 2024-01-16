@@ -8,6 +8,7 @@
 #define BUTTONS_H
 
 #include <stdint.h>
+#include <dk_buttons_and_leds.h>
 
 #define BUTTONS_LONG_PRESS_TIMEOUT_SEC (2UL)
 

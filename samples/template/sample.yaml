@@ -1,0 +1,50 @@
+sample:
+  name: Sidewalk template sample
+  description: Sample implementing Amazon Sidewalk End Device
+tests:
+  sample.sidewalk.template:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONFIG_APP_PERSISTENT_LINK_MASK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk
+
+  sample.sidewalk.template.release:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONF_FILE=prj_release.conf CONFIG_APP_PERSISTENT_LINK_MASK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk
+
+  sample.sidewalk.template.no_dfu:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONF_FILE=prj_no_dfu.conf CONFIG_APP_PERSISTENT_LINK_MASK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk_cli
+
+  sample.sidewalk.template.ble_only:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONFIG_APP_BLE_ONLY=y CONFIG_APP_PERSISTENT_LINK_MASK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk
+
+  sample.sidewalk.template.ble_only.release:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONF_FILE=prj_release.conf
+      CONFIG_APP_BLE_ONLY=y
+      CONFIG_APP_PERSISTENT_LINK_MASK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk

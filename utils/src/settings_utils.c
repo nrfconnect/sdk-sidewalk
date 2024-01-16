@@ -52,7 +52,7 @@ static int direct_loader_immediate_value(const char *name, size_t len, settings_
 	return 0;
 }
 
-int load_immediate_value(const char *name, void *dest, size_t len)
+static int load_immediate_value(const char *name, void *dest, size_t len)
 {
 	int rc;
 	struct direct_immediate_value dov;
@@ -71,7 +71,8 @@ int load_immediate_value(const char *name, void *dest, size_t len)
 	return rc;
 }
 
-app_start_t application_to_start()
+#if defined(DEPRECATED_DFU_FLAG_SETTINGS_KEY)
+app_start_t application_to_start(void)
 {
 	settings_subsys_init();
 	settings_load();
@@ -79,12 +80,13 @@ app_start_t application_to_start()
 #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	bool dfu_mode = false;
 
-	(void)load_immediate_value(CONFIG_DFU_FLAG_SETTINGS_KEY, &dfu_mode, sizeof(dfu_mode));
+	(void)load_immediate_value(CONFIG_DEPRECATED_DFU_FLAG_SETTINGS_KEY, &dfu_mode,
+				   sizeof(dfu_mode));
 
 	if (dfu_mode) {
 		dfu_mode = false;
-		int rc = settings_save_one(CONFIG_DFU_FLAG_SETTINGS_KEY, (const void *)&dfu_mode,
-					   sizeof(dfu_mode));
+		int rc = settings_save_one(CONFIG_DEPRECATED_DFU_FLAG_SETTINGS_KEY,
+					   (const void *)&dfu_mode, sizeof(dfu_mode));
 		if (rc) {
 			LOG_ERR("Failed to erase DFU flag from persistant storage, Err = %d", rc);
 		}
@@ -92,4 +94,20 @@ app_start_t application_to_start()
 	}
 #endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
 	return SIDEWALK_APPLICATION;
+}
+#endif /* DEPRECATED_DFU_FLAG_SETTINGS_KEY */
+
+int settings_utils_link_mask_get(uint32_t *link_mask)
+{
+	settings_subsys_init();
+	settings_load();
+
+	return load_immediate_value(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY, link_mask,
+				    sizeof(link_mask));
+}
+
+int settings_utils_link_mask_set(uint32_t link_mask)
+{
+	return settings_save_one(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY, (const void *)&link_mask,
+				 sizeof(link_mask));
 }

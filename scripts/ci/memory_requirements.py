@@ -64,27 +64,25 @@ SampleVariantStats = namedtuple('SampleVariantStats', [
 
 
 BOARDS = {
-    'nrf52840dk_nrf52840': '`nRF52840 DK`_',
-    'nrf5340dk_nrf5340_cpuapp': '`nRF5340 DK`_',
+    'nrf52840dk_nrf52840': 'nRF52840 DK',
+    'nrf5340dk_nrf5340_cpuapp': 'nRF5340 DK',
 }
 
 
 SAMPLES = [
     Sample('sensor_monitoring', 'sample.sidewalk.demo',
            ':ref:`Sensor monitoring <sensor_monitoring>`'),
-    Sample('template_subghz', 'sample.sidewalk.template',
-           ':ref:`Template sub-GHz <template_subghz>`'),
-    Sample('template_ble', 'sample.sidewalk.template_ble',
-           ':ref:`Template Bluetooth LE <template_ble>`'),
+    Sample('template', 'sample.sidewalk.template',
+           ':ref:`Sidewalk template <sidewalk_template>`'),
 ]
 
 VARIANTS = {
     '': 'Debug',
     '.release': 'Release',
-    '.ble': 'Bluetooth LE Debug',
+    '.ble_only': 'Bluetooth LE Debug',
     '.fsk': 'FSK Debug',
     '.lora': 'LoRa Debug',
-    '.ble.release': 'Bluetooth LE Release',
+    '.ble_only.release': 'Bluetooth LE Release',
     '.fsk.release': 'FSK Release',
     '.lora.release': 'LoRa Release',
 }
@@ -151,7 +149,7 @@ class ReportGenerator:
         print(f'   .. tab:: {tab_title}')
         print()
         print(
-            f'      The following table lists memory requirements for samples running on the {BOARDS[board]}.')
+            f'      The following table lists memory requirements for samples running on the `{BOARDS[board]}`_.')
 
     def add_variant(self, stats: SampleVariantStats) -> None:
         """

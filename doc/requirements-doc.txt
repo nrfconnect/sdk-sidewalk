@@ -20,3 +20,4 @@ sphinxcontrib-serializinghtml==1.1.5
 sphinxcontrib-svg2pdfconverter==1.1.1
 sphinxcontrib-websupport==1.2.2
 sphinx-markdown-builder==0.5.5
+sphinxcontrib-plantuml
