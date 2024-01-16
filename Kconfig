@@ -56,11 +56,6 @@ config SIDEWALK_HEAP_SIZE
 	help
 	  Set the heap size for dynamic memory alocation in Sidewalk.
 
-# CLI
-config SIDEWALK_CLI
-	bool "Enable sidewalk CLI"
-	imply SHELL
-
 # Log
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
@@ -85,6 +80,13 @@ module-str = Sidewalk spi bus interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
 # BLE
+config DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE
+	bool "Enable depricated Sidewalk BLE MAC addres type choice"
+	help
+	  The BLE MAC address type can be set using NCS configs.
+	  By default Sidewalk will use private random address.
+
+if DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE
 choice SIDEWALK_BLE_MAC_ADDR_TYPE
 	prompt "BLE MAC address type"
 	default MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
@@ -126,6 +128,8 @@ config SID_BT_PUB_ADDR
 	  six hex 8-bit chars separated by colons (e.g.:AA:BB:CC:DD:EE:FF).
 endif # MAC_ADDRESS_TYPE_PUBLIC
 
+endif # DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE
+
 config SIDEWALK_BLE_ADV_INT_PRECISION
 	int "Precision of advertisement interval in ms"
 	range 1 1000
@@ -164,9 +168,6 @@ choice SIDEWALK_DFU_SERVICE
 
 config SIDEWALK_DFU_SERVICE_BLE
 	bool "Upload image over BLE"
-
-config SIDEWALK_DFU_SERVICE_USB
-	bool "Upload image over USB. Test only!"
 
 endchoice # SIDEWALK_DFU_SERVICE
 endif # SIDEWALK_DFU

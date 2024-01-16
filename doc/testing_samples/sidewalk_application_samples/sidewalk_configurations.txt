@@ -1,0 +1,12 @@
+Configuration options for Sidewalk
+==================================
+
+* ``CONFIG_SIDEWALK`` -- Enables support for the Sidewalk protocol and its dependencies.
+
+* ``CONFIG_SIDEWALK_DFU`` -- Enables the nRF Connect SDK DFU service over Bluetooth LE.
+
+* ``CONFIG_SIDEWALK_LINK_MASK`` -- Sets the Sidewalk link mask that the application starts with. The available options are:
+
+	* ``CONFIG_SIDEWALK_LINK_MASK_BLE`` -- Allows connection over Bluetooth LE. It provides maximal throughput but has minimal range. This Configuration is a default choice.
+	* ``CONFIG_SIDEWALK_LINK_MASK_FSK`` --  Allows connection over sub-GHz radio using Frequency-Shift Keying. It offers medium throughput and medium range.
+	* ``CONFIG_SIDEWALK_LINK_MASK_LORA`` -- Allows connection over sub-GHz radio using the LoRa protocol. It has minimal throughput but offers maximal range.
