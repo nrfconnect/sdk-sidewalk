@@ -156,6 +156,9 @@ config SIDEWALK_VENDOR_SERVICE
 config SIDEWALK_LOGGING_SERVICE
 	bool "Enable Sidewalk BLE logging service"
 
+config SIDEWALK_DEMO_PARSER
+	bool "Parser for Sidewalk sensor monitoring demo application"
+
 # DFU
 menuconfig SIDEWALK_DFU
 	bool "DFU service in Sidewalk sample"

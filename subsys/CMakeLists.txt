@@ -9,3 +9,5 @@ add_subdirectory(config)
 add_subdirectory(hal)
 add_subdirectory(sal)
 add_subdirectory(semtech)
+
+add_subdirectory_ifdef(CONFIG_SIDEWALK_DEMO_PARSER demo)

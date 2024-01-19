@@ -18,9 +18,5 @@ if(CONFIG_SIDEWALK_BUTTONS)
 	zephyr_compile_definitions(HAL_BUTTONS_LOG_LEVEL=${CONFIG_SIDEWALK_LOG_LEVEL})
 endif() # CONFIG_SIDEWALK_BUTTONS
 
-if (CONFIG_SIDEWALK_CLI)
-    zephyr_library_sources(shell.c)
-endif() # CONFIG_SIDEWALK_CLI
-
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DFU_SERVICE_BLE nordic_dfu.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SETTINGS_UTILS settings_utils.c)

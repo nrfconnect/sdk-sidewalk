@@ -5,7 +5,7 @@ tests:
   sample.sidewalk.template:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args: CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -14,7 +14,7 @@ tests:
   sample.sidewalk.template.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONF_FILE=prj_release.conf CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args: CONF_FILE=prj_release.conf CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -23,7 +23,7 @@ tests:
   sample.sidewalk.template.no_dfu:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONF_FILE=prj_no_dfu.conf CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args: CONF_FILE=prj_no_dfu.conf CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -32,7 +32,7 @@ tests:
   sample.sidewalk.template.ble_only:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_APP_BLE_ONLY=y CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args: CONFIG_TEMPLATE_APP_BLE_ONLY=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -42,9 +42,54 @@ tests:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONF_FILE=prj_release.conf
-      CONFIG_APP_BLE_ONLY=y
-      CONFIG_APP_PERSISTENT_LINK_MASK=y
+      CONFIG_TEMPLATE_APP_BLE_ONLY=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk
+
+  sample.sidewalk.demo.ble_only:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp thingy53_nrf5340_cpuapp
+    extra_args:
+      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      CONFIG_SIDEWALK_LINK_MASK_BLE=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk BLE
+
+  sample.sidewalk.demo.fsk:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args:
+      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      CONFIG_SIDEWALK_LINK_MASK_FSK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk FSK
+
+  sample.sidewalk.demo.lora:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args:
+      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      CONFIG_SIDEWALK_LINK_MASK_LORA=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk LoRa
+
+  sidewalk.sid_dut:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp nrf5340dk_nrf5340_cpuapp_ns
+    extra_args:
+      CONFIG_TEMPLATE_APP_CLI=y
+      CONFIG_SIDEWALK_AUTO_START=n
+      CONFIG_SIDEWALK_AUTO_CONN_REQ=n
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+      - nrf5340dk_nrf5340_cpuapp_ns
     tags: Sidewalk
