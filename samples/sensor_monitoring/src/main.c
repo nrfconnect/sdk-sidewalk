@@ -7,12 +7,11 @@
 #include <sm_task.h>
 #include <sm_buttons.h>
 #include <sm_leds.h>
-#include <pal_init.h>
 #include <sidewalk_version.h>
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sm_main, CONFIG_SIDEWALK_LOG_LEVEL);
 
-static int init_leds_and_buttons()
+static int init_leds_and_buttons(void)
 {
 	int err = sm_buttons_init();
 
@@ -38,12 +37,6 @@ int main(void)
 	err = init_leds_and_buttons();
 	if (err) {
 		LOG_INF("Buttons or LEDs faild to initialize.");
-		return err;
-	}
-
-	err = application_pal_init();
-	if (err) {
-		LOG_INF("Failed to initialize PAL layer.");
 		return err;
 	}
 

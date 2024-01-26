@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <app_mfg_config.h>
 #include <app_ble_config.h>
 #include <app_subGHz_config.h>
 #include <sm_task.h>
@@ -12,6 +13,7 @@
 #include <sm_timers.h>
 #include <sm_callbacks.h>
 #include <sm_notifications.h>
+#include <sid_pal_common_ifc.h>
 #include <assert.h>
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sm_task, CONFIG_SIDEWALK_LOG_LEVEL);
@@ -126,9 +128,7 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 
 	const struct sid_sub_ghz_links_config *sub_ghz_lc = NULL;
 
-#ifdef CONFIG_SIDEWALK_LINK_MASK_FSK
-	sub_ghz_lc = app_get_sub_ghz_config();
-#elif CONFIG_SIDEWALK_LINK_MASK_LORA
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
 	sub_ghz_lc = app_get_sub_ghz_config();
 #endif
 
@@ -143,11 +143,33 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 
 	struct sid_config config = {
 		.link_mask = 0,
-		.time_sync_periodicity_seconds = 7200,
 		.callbacks = &event_callbacks,
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = sub_ghz_lc,
 	};
+
+	platform_parameters_t platform_parameters = {
+		.mfg_store_region.addr_start = APP_MFG_CFG_FLASH_START,
+		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
+		.platform_init_parameters.radio_cfg =
+			(radio_sx126x_device_config_t *)get_radio_cfg(),
+#endif
+	};
+
+	ret_code = sid_platform_init(&platform_parameters);
+	if (SID_ERROR_NONE != ret_code) {
+		LOG_ERR("Sidewalk Platform Init err: %d", ret_code);
+		return;
+	}
+
+	if (app_mfg_cfg_is_valid()) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", APP_MFG_CFG_FLASH_START);
+		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
+		return;
+	}
 
 	if (init_and_start_link(app_context, &config, SID_LINK_TYPE_1 | BUILT_IN_LM)) {
 		return;
