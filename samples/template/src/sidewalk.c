@@ -4,13 +4,17 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <app_mfg_config.h>
+#include <sid_pal_common_ifc.h>
 #include <sidewalk.h>
-#include <pal_init.h>
 #include <nordic_dfu.h>
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
 #include <zephyr/sys/atomic.h>
 #include <zephyr/logging/log.h>
+#if !defined(CONFIG_APP_BLE_ONLY)
+#include <app_subGHz_config.h>
+#endif
 
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)
@@ -157,10 +161,29 @@ static void state_init_entry(void *o)
 		(SID_LINK_TYPE_2 & sm->sid->config.link_mask) ? "FSK" :
 								"BLE");
 
-	e = application_pal_init();
-	if (e) {
-		LOG_ERR("pal init err %d", (int)e);
+	platform_parameters_t platform_parameters = {
+		.mfg_store_region.addr_start = APP_MFG_CFG_FLASH_START,
+		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
+#if !defined(CONFIG_APP_BLE_ONLY)
+		.platform_init_parameters.radio_cfg =
+			(radio_sx126x_device_config_t *)get_radio_cfg(),
+#endif
+	};
+
+	e = sid_platform_init(&platform_parameters);
+	if (SID_ERROR_NONE != e) {
+		LOG_ERR("Sidewalk Platform Init err: %d", e);
+		return;
 	}
+
+	if (app_mfg_cfg_is_valid()) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", APP_MFG_CFG_FLASH_START);
+		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
+		return;
+	}
+
 	e = sid_init(&sm->sid->config, &sm->sid->handle);
 	if (e) {
 		LOG_ERR("sid init err %d", (int)e);
@@ -347,7 +370,7 @@ void sidewalk_start(sidewalk_ctx_t *context)
 int sidewalk_msg_set(sidewalk_msg_t *msg_in)
 {
 	atomic_t busy = atomic_set(&send_msg_buffer_busy, true);
-	if(busy){
+	if (busy) {
 		return -EBUSY;
 	}
 

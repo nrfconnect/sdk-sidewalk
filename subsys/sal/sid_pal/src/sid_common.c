@@ -11,6 +11,10 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #endif /* defined(CONFIG_SOC_SERIES_NRF53X) && defined(CONFIG_SIDEWALK_SUBGHZ) */
 
+#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#include <sx126x_config.h>
+#endif
+
 #include <zephyr/kernel.h>
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/logging/log.h>
