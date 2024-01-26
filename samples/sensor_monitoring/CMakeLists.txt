@@ -21,4 +21,5 @@ target_sources(app PRIVATE ${app_sources})
 zephyr_include_directories(
     include
     ext
+    ../common/include
 )
