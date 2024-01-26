@@ -27,6 +27,7 @@ LOG_MODULE_REGISTER(sid_board_init, CONFIG_SIDEWALK_LOG_LEVEL);
 
 sid_error_t application_pal_init(void)
 {
+	LOG_WRN("This function is deprecated use `sid_platform_init` instead");
 	sid_error_t ret_code;
 
 	ret_code = sid_pal_storage_kv_init();

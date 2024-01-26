@@ -256,7 +256,7 @@ int main(void)
 	sid_ctx.config = (struct sid_config)
 	{
 		.link_mask = persistent_link_mask, .callbacks = &event_callbacks,
-		.time_sync_periodicity_seconds = 7200, .link_config = app_get_ble_config(),
+		.link_config = app_get_ble_config(),
 #if !defined(CONFIG_APP_BLE_ONLY)
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 #else
