@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -61,6 +61,9 @@ uint32_t sid_timespec_to_ms(const struct sid_timespec * tm);
 /* Convert millseconds to timespec representation */
 void sid_ms_to_timespec(uint32_t msec, struct sid_timespec *tm);
 
+/* Convert ms to timespec and return */
+struct sid_timespec sid_ms_to_timespec_ret(uint32_t msec);
+
 /* Convert timespec to millisecond representation of size 8 bytes */
 uint64_t sid_timespec_to_ms_64(const struct sid_timespec * tm);
 
@@ -78,6 +81,15 @@ uint32_t sid_timespec_to_us(const struct sid_timespec *tm);
 
 /* Convert timespec to microseconds representation of size 8 bytes*/
 uint64_t sid_timespec_to_us_64(const struct sid_timespec *tm);
+
+/* Add ms to timespec and return updated timespec */
+struct sid_timespec sid_add_ms_to_timespec_ret(struct sid_timespec ts, uint32_t ms);
+
+/* Sub ms to timespec */
+void sid_sub_ms_from_timespec(struct sid_timespec *ts, uint32_t ms);
+
+/* Add ms to timespec */
+void sid_add_ms_to_timespec(struct sid_timespec *ts, uint32_t ms);
 
 #ifdef __cplusplus
 }

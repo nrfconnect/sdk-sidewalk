@@ -147,6 +147,11 @@ static void cd_sid_status_changed(const struct sid_status *status, void *context
 	}
 }
 
+static void on_control_event_notify(const struct sid_control_event_data *data, void *context)
+{
+	LOG_INF("on_control_event_notify called");
+}
+
 static void cb_sid_factory_reset(void *context)
 {
 	ARG_UNUSED(context);
@@ -170,6 +175,7 @@ sid_error_t sm_callbacks_set(void *ctx, struct sid_event_callbacks *cb)
 	cb->on_send_error = cb_sid_send_error; /* Called from sid_process() */
 	cb->on_status_changed = cd_sid_status_changed; /* Called from sid_process() */
 	cb->on_factory_reset = cb_sid_factory_reset; /* Called from sid_process() */
+	cb->on_control_event_notify = on_control_event_notify;
 
 	return SID_ERROR_NONE;
 }

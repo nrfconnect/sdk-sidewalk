@@ -102,11 +102,32 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_init_5, test_sid_init,
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_6, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "6" },
+						 .return_code = 0,
+						 .expected_link_type = SID_LINK_TYPE_2 |
+								       SID_LINK_TYPE_3 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_7, test_sid_init,
+		  (struct test_init_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "init", "7" },
+						 .return_code = 0,
+						 .expected_link_type = SID_LINK_TYPE_1 |
+								       SID_LINK_TYPE_2 |
+								       SID_LINK_TYPE_3 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_8, test_sid_init,
+		  (struct test_init_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "init", "8" },
+						 .return_code = 0,
+						 .expected_link_type = SID_LINK_TYPE_ANY })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_9, test_sid_init,
+		  (struct test_init_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "init", "9" },
 						 .return_code = -EINVAL })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_init_6_1, test_sid_init,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_9_1, test_sid_init,
 		  (struct test_init_parameters){ .argc = 3,
-						 .argv = (const char *[]){ "init", "6", "1" },
+						 .argv = (const char *[]){ "init", "9", "1" },
 						 .return_code = -EINVAL })
 // ////////////////////////////////////////////////////////////////////////////
 
@@ -198,11 +219,32 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_5, test_sid_start,
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_6, test_sid_start,
 		  (struct test_start_parameters){ .argc = 2,
 						  .argv = (const char *[]){ "start", "6" },
+						  .return_code = 0,
+						  .expected_link_type = SID_LINK_TYPE_2 |
+									SID_LINK_TYPE_3 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_7, test_sid_start,
+		  (struct test_start_parameters){ .argc = 2,
+						  .argv = (const char *[]){ "start", "7" },
+						  .return_code = 0,
+						  .expected_link_type = SID_LINK_TYPE_1 |
+									SID_LINK_TYPE_2 |
+									SID_LINK_TYPE_3 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_8, test_sid_start,
+		  (struct test_start_parameters){ .argc = 2,
+						  .argv = (const char *[]){ "start", "8" },
+						  .return_code = 0,
+						  .expected_link_type = SID_LINK_TYPE_ANY })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_9, test_sid_start,
+		  (struct test_start_parameters){ .argc = 2,
+						  .argv = (const char *[]){ "start", "9" },
 						  .return_code = -EINVAL })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_6_1, test_sid_start,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_8_1, test_sid_start,
 		  (struct test_start_parameters){ .argc = 3,
-						  .argv = (const char *[]){ "start", "6", "1" },
+						  .argv = (const char *[]){ "start", "8", "1" },
 						  .return_code = -EINVAL })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -270,11 +312,32 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_5, test_sid_stop,
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_6, test_sid_stop,
 		  (struct test_stop_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "stop", "6" },
+						 .return_code = 0,
+						 .expected_link_type = SID_LINK_TYPE_2 |
+								       SID_LINK_TYPE_3 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_7, test_sid_stop,
+		  (struct test_stop_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "stop", "7" },
+						 .return_code = 0,
+						 .expected_link_type = SID_LINK_TYPE_1 |
+								       SID_LINK_TYPE_2 |
+								       SID_LINK_TYPE_3 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_8, test_sid_stop,
+		  (struct test_stop_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "stop", "8" },
+						 .return_code = 0,
+						 .expected_link_type = SID_LINK_TYPE_ANY })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_9, test_sid_stop,
+		  (struct test_stop_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "stop", "9" },
 						 .return_code = -EINVAL })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_6_1, test_sid_stop,
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_8_1, test_sid_stop,
 		  (struct test_stop_parameters){ .argc = 3,
-						 .argv = (const char *[]){ "stop", "6", "1" },
+						 .argv = (const char *[]){ "stop", "8", "1" },
 						 .return_code = -EINVAL })
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -534,6 +597,41 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_6_with_ascii, test_sid_
 		  (struct test_send_parameters){
 			  .argc = 4,
 			  .argv = (const char *[]){ "send", "-l", "6", "ASCII_text_as_data" },
+			  .return_code = 0,
+			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
+						   .size = strlen("ASCII_text_as_data") },
+			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_2 |
+								      SID_LINK_TYPE_3,
+							 .type = SID_MSG_TYPE_NOTIFY,
+							 .link_mode = SID_LINK_MODE_CLOUD } })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_7_with_ascii, test_sid_send,
+		  (struct test_send_parameters){
+			  .argc = 4,
+			  .argv = (const char *[]){ "send", "-l", "7", "ASCII_text_as_data" },
+			  .return_code = 0,
+			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
+						   .size = strlen("ASCII_text_as_data") },
+			  .desc = (struct sid_msg_desc){
+				  .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2 | SID_LINK_TYPE_3,
+				  .type = SID_MSG_TYPE_NOTIFY,
+				  .link_mode = SID_LINK_MODE_CLOUD } })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_8_with_ascii, test_sid_send,
+		  (struct test_send_parameters){
+			  .argc = 4,
+			  .argv = (const char *[]){ "send", "-l", "7", "ASCII_text_as_data" },
+			  .return_code = 0,
+			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
+						   .size = strlen("ASCII_text_as_data") },
+			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_ANY,
+							 .type = SID_MSG_TYPE_NOTIFY,
+							 .link_mode = SID_LINK_MODE_CLOUD } })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_9_with_ascii, test_sid_send,
+		  (struct test_send_parameters){
+			  .argc = 4,
+			  .argv = (const char *[]){ "send", "-l", "9", "ASCII_text_as_data" },
 			  .return_code = -EINVAL })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_0_with_ascii, test_sid_send,
@@ -929,18 +1027,6 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_0, test_sid_get_time,
 						     .return_code = 0,
 						     .type = SID_GET_GPS_TIME })
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_1, test_sid_get_time,
-		  (struct test_sid_get_time_params){ .argc = 2,
-						     .argv = (const char *[]){ "get_time", "1" },
-						     .return_code = 0,
-						     .type = SID_GET_UTC_TIME })
-
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_2, test_sid_get_time,
-		  (struct test_sid_get_time_params){ .argc = 2,
-						     .argv = (const char *[]){ "get_time", "2" },
-						     .return_code = 0,
-						     .type = SID_GET_LOCAL_TIME })
-
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_3, test_sid_get_time,
 		  (struct test_sid_get_time_params){ .argc = 2,
 						     .argv = (const char *[]){ "get_time", "3" },
@@ -1089,6 +1175,62 @@ void test_sid_set_option_d(struct test_sid_set_option_params params)
 void test_sid_set_option_gd(struct test_sid_set_option_params params)
 {
 	int ret = cmd_sid_option_gd(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_gm(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_gm(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_gml(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_gml(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_st_get(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_st_get(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_st_clear(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_st_clear(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_m(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_m(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_c(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_c(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_ml(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_ml(NULL, params.argc, params.argv);
+
+	verify_sid_option_asserts(params, ret);
+}
+
+void test_sid_set_option_gc(struct test_sid_set_option_params params)
+{
+	int ret = cmd_sid_option_gc(NULL, params.argc, params.argv);
 
 	verify_sid_option_asserts(params, ret);
 }
@@ -1742,6 +1884,259 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_lp_set_0, test_sid_set_
 		  (struct test_sid_set_option_params){ .argc = 2,
 						       .argv = (const char *[]){ "-lp_set", "0" },
 						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gm, test_sid_set_option_gm,
+		  (struct test_sid_set_option_params){
+			  .argc = 1,
+			  .argv = (const char *[]){ "-gm" },
+			  .return_code = 0,
+			  .option = SID_OPTION_GET_LINK_CONNECTION_POLICY,
+			  .data = &(uint8_t){ 0 },
+			  .len = sizeof(uint8_t) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gml, test_sid_set_option_gml,
+		  (struct test_sid_set_option_params){
+			  .argc = 1,
+			  .argv = (const char *[]){ "-gml" },
+			  .return_code = 0,
+			  .option = SID_OPTION_GET_LINK_POLICY_MULTI_LINK_POLICY,
+			  .data = &(uint8_t){ 0 },
+			  .len = sizeof(uint8_t) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_st_get, test_sid_set_option_st_get,
+		  (struct test_sid_set_option_params){ .argc = 1,
+						       .argv = (const char *[]){ "-st_get" },
+						       .return_code = 0,
+						       .option = SID_OPTION_GET_STATISTICS,
+						       .data = &(struct sid_statistics){ { 0 } },
+						       .len = sizeof(struct sid_statistics) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_st_clear, test_sid_set_option_st_clear,
+		  (struct test_sid_set_option_params){ .argc = 1,
+						       .argv = (const char *[]){ "-st_clear" },
+						       .return_code = 0,
+						       .option = SID_OPTION_CLEAR_STATISTICS,
+						       .data = NULL,
+						       .len = 0 })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_m, test_sid_set_option_m,
+		  (struct test_sid_set_option_params){
+			  .argc = 1,
+			  .argv = (const char *[]){ "-m" },
+			  .return_code = -EINVAL,
+		  })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_m_3, test_sid_set_option_m,
+		  (struct test_sid_set_option_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "-m", "3" },
+			  .return_code = -EINVAL,
+		  })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_m_2, test_sid_set_option_m,
+		  (struct test_sid_set_option_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "-m", "2" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_CONNECTION_POLICY,
+			  .data = &(uint8_t){ 2 },
+			  .len = sizeof(uint8_t) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_m_0, test_sid_set_option_m,
+		  (struct test_sid_set_option_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "-m", "0" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_CONNECTION_POLICY,
+			  .data = &(uint8_t){ 0 },
+			  .len = sizeof(uint8_t) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_arg1, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){ .argc = 1,
+						       .argv = (const char *[]){ "-c" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_arg2, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){ .argc = 2,
+						       .argv = (const char *[]){ "-c", "1" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_0_1, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){ .argc = 3,
+						       .argv = (const char *[]){ "-c", "0", "1" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_9_1, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){ .argc = 3,
+						       .argv = (const char *[]){ "-c", "9", "1" },
+						       .return_code = -EINVAL })
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_0_2, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){ .argc = 3,
+						       .argv = (const char *[]){ "-c", "0", "2" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 3,
+			  .argv = (const char *[]){ "-c", "1", "0" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+			  .data =
+				  &(struct sid_link_auto_connect_params){
+					  .link_type = SID_LINK_TYPE_1,
+					  .enable = 0,
+					  .connection_attempt_timeout_seconds = UINT16_MAX,
+					  .priority = UINT8_MAX },
+			  .len = sizeof(struct sid_link_auto_connect_params) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_256, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 4,
+			  .argv = (const char *[]){ "-c", "1", "0", "256" },
+			  .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_n1, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 4,
+			  .argv = (const char *[]){ "-c", "1", "0", "-1" },
+			  .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_255, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 4,
+			  .argv = (const char *[]){ "-c", "1", "0", "255" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+			  .data =
+				  &(struct sid_link_auto_connect_params){
+					  .link_type = SID_LINK_TYPE_1,
+					  .enable = 0,
+					  .connection_attempt_timeout_seconds = UINT16_MAX,
+					  .priority = UINT8_MAX },
+			  .len = sizeof(struct sid_link_auto_connect_params) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_0, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 4,
+			  .argv = (const char *[]){ "-c", "1", "0", "0" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+			  .data =
+				  &(struct sid_link_auto_connect_params){
+					  .link_type = SID_LINK_TYPE_1,
+					  .enable = 0,
+					  .connection_attempt_timeout_seconds = UINT16_MAX,
+					  .priority = 0 },
+			  .len = sizeof(struct sid_link_auto_connect_params) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_0_n1, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 5,
+			  .argv = (const char *[]){ "-c", "1", "0", "0", "-1" },
+			  .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_0_65536, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 5,
+			  .argv = (const char *[]){ "-c", "1", "0", "0", "65536" },
+			  .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_0_65535, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 5,
+			  .argv = (const char *[]){ "-c", "1", "0", "0", "65535" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+			  .data =
+				  &(struct sid_link_auto_connect_params){
+					  .link_type = SID_LINK_TYPE_1,
+					  .enable = 0,
+					  .connection_attempt_timeout_seconds = UINT16_MAX,
+					  .priority = 0 },
+			  .len = sizeof(struct sid_link_auto_connect_params) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_c_1_0_0_0, test_sid_set_option_c,
+		  (struct test_sid_set_option_params){
+			  .argc = 5,
+			  .argv = (const char *[]){ "-c", "1", "0", "0", "0" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+			  .data =
+				  &(struct sid_link_auto_connect_params){
+					  .link_type = SID_LINK_TYPE_1,
+					  .enable = 0,
+					  .connection_attempt_timeout_seconds = 0,
+					  .priority = 0 },
+			  .len = sizeof(struct sid_link_auto_connect_params) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_ml, test_sid_set_option_ml,
+		  (struct test_sid_set_option_params){ .argc = 1,
+						       .argv = (const char *[]){ "-ml" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_ml_5, test_sid_set_option_ml,
+		  (struct test_sid_set_option_params){ .argc = 2,
+						       .argv = (const char *[]){ "-ml", "5" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_ml_n1, test_sid_set_option_ml,
+		  (struct test_sid_set_option_params){ .argc = 2,
+						       .argv = (const char *[]){ "-ml", "-1" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_ml_4, test_sid_set_option_ml,
+		  (struct test_sid_set_option_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "-ml", "4" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_MULTI_LINK_POLICY,
+			  .data = &(uint8_t){ 4 },
+			  .len = sizeof(uint8_t) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_ml_0, test_sid_set_option_ml,
+		  (struct test_sid_set_option_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "-ml", "0" },
+			  .return_code = 0,
+			  .option = SID_OPTION_SET_LINK_POLICY_MULTI_LINK_POLICY,
+			  .data = &(uint8_t){ 0 },
+			  .len = sizeof(uint8_t) })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gc, test_sid_set_option_gc,
+		  (struct test_sid_set_option_params){ .argc = 1,
+						       .argv = (const char *[]){ "-gc" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gc_9, test_sid_set_option_gc,
+		  (struct test_sid_set_option_params){ .argc = 2,
+						       .argv = (const char *[]){ "-gc", "9" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gc_n1, test_sid_set_option_gc,
+		  (struct test_sid_set_option_params){ .argc = 2,
+						       .argv = (const char *[]){ "-gc", "-1" },
+						       .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_gc_1, test_sid_set_option_gc,
+	(struct test_sid_set_option_params){
+		.argc = 2,
+		.argv = (const char *[]){ "-gc", "1" },
+		.return_code = 0,
+		.option = SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+		.data = &(struct sid_link_auto_connect_params){ .link_type = SID_LINK_TYPE_1 },
+		.len = sizeof(struct sid_link_auto_connect_params) })
+
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_gc_6, test_sid_set_option_gc,
+	(struct test_sid_set_option_params){
+		.argc = 2,
+		.argv = (const char *[]){ "-gc", "6" },
+		.return_code = 0,
+		.option = SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+		.data = &(struct sid_link_auto_connect_params){ .link_type = SID_LINK_TYPE_2 |
+									     SID_LINK_TYPE_3 },
+		.len = sizeof(struct sid_link_auto_connect_params) })
 
 // ////////////////////////////////////////////////////////////////////////////
 // sid_dut_shell_api_shell_uninitialized

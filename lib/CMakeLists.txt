@@ -5,9 +5,9 @@
 #
 
 if (CONFIG_SIDEWALK)
-	if (CONFIG_SIDEWALK_SUBGHZ)
-		add_subdirectory(lora_fsk)
-	else()
-		add_subdirectory(ble_only)
-	endif()
+    if(CONFIG_SOC_SERIES_NRF52X)
+        add_subdirectory(cortex-m4)
+    else()
+        add_subdirectory(cortex-m33)
+    endif()
 endif(CONFIG_SIDEWALK)

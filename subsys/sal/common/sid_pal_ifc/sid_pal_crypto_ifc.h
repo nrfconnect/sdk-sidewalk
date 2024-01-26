@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,12 +17,13 @@
 
 /** @file
  *
- * @defgroup sid_pal_lib_crypto sid_pal Cryptography Interface
+ * @defgroup sid_pal_crypto_ifc SID Cryptography Interface
  * @{
  * @ingroup sid_pal_ifc
  *
- * @details     Provides cryptography interface to be implemented by platform
+ * @details Provides cryptography interface to be implemented by platform
  */
+
 #include <sid_error.h>
 
 #include <stddef.h>
@@ -251,4 +252,4 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params);
 
 /** @} */
 
-#endif
+#endif /* SID_PAL_CRYPTO_IFC_H */

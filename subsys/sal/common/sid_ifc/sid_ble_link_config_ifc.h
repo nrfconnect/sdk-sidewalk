@@ -15,6 +15,16 @@
 #ifndef SID_BLE_LINK_CONFIG_IFC_H
 #define SID_BLE_LINK_CONFIG_IFC_H
 
+/// @cond sid_ifc_ep_en
+
+/** @file
+ *
+ * @defgroup SIDEWALK_API Sidewalk API
+ * @brief API for communicating with the Sidewalk network
+ * @{
+ * @ingroup  SIDEWALK_API
+ */
+
 #include <sid_ble_config_ifc.h>
 #include <sid_error.h>
 #include <sid_pal_ble_adapter_ifc.h>
@@ -23,5 +33,9 @@ typedef struct sid_ble_link_config {
     sid_error_t (*create_ble_adapter)(struct sid_pal_ble_adapter_interface **handle);
     const struct sid_ble_config *config;
 } sid_ble_link_config_t;
+
+/** @} */
+
+/// @endcond
 
 #endif

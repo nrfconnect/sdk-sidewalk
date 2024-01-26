@@ -94,6 +94,15 @@ static void on_sidewalk_factory_reset(void *context)
 	}
 }
 
+static void on_control_event_notify(const struct sid_control_event_data *data, void *context)
+{
+	if (data == NULL || data->event_data == NULL) {
+		LOG_ERR("on_control_event_notify called with invalid data");
+		return;
+	}
+	LOG_INF("on_control_event_notify called");
+}
+
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	int err = 0;
@@ -241,6 +250,7 @@ int main(void)
 		.on_send_error = on_sidewalk_send_error,
 		.on_status_changed = on_sidewalk_status_changed,
 		.on_factory_reset = on_sidewalk_factory_reset,
+		.on_control_event_notify = on_control_event_notify,
 	};
 
 	sid_ctx.config = (struct sid_config)

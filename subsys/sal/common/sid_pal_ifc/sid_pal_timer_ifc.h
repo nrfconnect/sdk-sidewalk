@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2019-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,21 +17,22 @@
 
 /** @file
  *
- * @defgroup sid_pal_timers SID Timer API
+ * @defgroup sid_pal_timer_ifc SID Timer API
  * @{
  *
  * @details Interface for timers for sidewalk SDK
  */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include <sid_error.h>
 #include <sid_pal_timer_types.h>
 #include <sid_time_types.h>
 
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 typedef enum {
     SID_PAL_TIMER_PRIO_CLASS_PRECISE,  //< Events to be generated with the maximum supported on this platform precision

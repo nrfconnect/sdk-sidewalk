@@ -158,7 +158,7 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 	return &radio_sx1262_cfg;
 }
 
-const struct sid_sub_ghz_links_config sub_ghz_link_config = {
+struct sid_sub_ghz_links_config sub_ghz_link_config = {
 	.enable_link_metrics = true,
 	.registration_config = {
 		.enable = true,
@@ -166,7 +166,7 @@ const struct sid_sub_ghz_links_config sub_ghz_link_config = {
 	},
 };
 
-const struct sid_sub_ghz_links_config *app_get_sub_ghz_config(void)
+struct sid_sub_ghz_links_config *app_get_sub_ghz_config(void)
 {
 	return &sub_ghz_link_config;
 }

@@ -18,9 +18,9 @@ ignore_license_in_files:
 - __pycache__
 - __init__.py
 - version.conf$
-- tools/sid_pc_link/.*
-- tools/application_server_cert/.*
+- tools/.*
 - twister-out.*
+
 
 license_header_size: 30
 
@@ -49,6 +49,8 @@ licenses:
   - sidewalk.*/.*/sensor_monitoring/ext/.*$
   - sidewalk.*/.*/sensor_monitoring/config/app_900_config.*$
   - sidewalk.*/.*/sensor_monitoring/config/app_ble_config.h$
+  - sidewalk.*/utils/src/sid_on_dev_cert.c$
+  - sidewalk.*/utils/include/sid_.*\.h$
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions

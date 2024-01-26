@@ -7,7 +7,6 @@
 config SIDEWALK_BUTTONS
 	bool
 	default SIDEWALK
-	imply DK_LIBRARY
 	help
 	  Button long and short press detection for Sidewalk application.
 
@@ -23,38 +22,14 @@ config STATE_NOTIFIER_HANDLER_MAX
 	default 1
 	help
 	  Maximum number of the notifier listeners.
+if SIDEWALK_DFU_SERVICE_BLE
 
-config SIDEWALK_SETTINGS_UTILS
-	bool
-	default SIDEWALK
-	help
-		Enables Sidewalk settings utils module.
-		This module allows samples to keep data in non-volatile storage.
-
-if SIDEWALK_SETTINGS_UTILS
-
-config PERSISTENT_LINK_MASK_SETTINGS_KEY
-	string
-	default "application/settings/link_mask"
-	help
-	  Key for settings to store last Sidewalk link mode in flash for next reboot
-
-config DEPRECATED_DFU_FLAG_SETTINGS_KEY
-	bool "Enable depricated Key for settings to store DFU flag in flash for next reboot"
-
-if DEPRECATED_DFU_FLAG_SETTINGS_KEY
 config DFU_FLAG_SETTINGS_KEY
-	string
+	string 
 	default "application/settings/DFU_mode"
 	help
 	  Key for settings to store DFU flag in flash for next reboot
 	  If value is set to True, the applicaiton will start in DFU mode after reset
-	  Deprecated in favor of DFU state in Sidewalk samples application.
-
-endif # DEPRECATED_DFU_FLAG_SETTINGS_KEY
-endif # SIDEWALK_SETTINGS_UTILS
-
-if SIDEWALK_DFU_SERVICE_BLE
 
 config DFU_UPLOAD_START_TIMEOUT
 	int
@@ -63,10 +38,15 @@ config DFU_UPLOAD_START_TIMEOUT
 	  Time in minutes in which the DFU has to start, after this time the device will reboot and exit DFU mode
 
 config DFU_UPLOAD_COMPLETE_TIMEOUT
-	int
+	int 
 	default 60
 	help
 	  Time in minutes in which the DFU has to complete (starting from entering to DFU mode)
-	  if it do not complete in this time, the device will reboot and exit DFU mode
+	  if it do not complete in this time, the device will reboot and exit DFU mode 
 
 endif # SIDEWALK_DFU_SERVICE_BLE
+
+config SIDEWALK_ON_DEV_CERT
+	bool "On device certification"
+	depends on SHELL
+	select EXPERIMENTAL

@@ -3,9 +3,8 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include "zephyr/kernel.h"
-#include "zephyr/ztest_assert.h"
-#include <unity.h>
+#include <zephyr/kernel.h>
+#include <zephyr/ztest_assert.h>
 #include <zephyr/ztest.h>
 #include <sid_error.h>
 #include <sid_pal_swi_ifc.h>
@@ -34,13 +33,17 @@ static void swi_callback(void)
 
 ZTEST(interrupts, test_sid_pal_swi)
 {
-	zassert_equal(SID_ERROR_NONE, sid_pal_swi_init(swi_callback));
+	zassert_equal(SID_ERROR_NONE, sid_pal_swi_init());
+	zassert_equal(SID_ERROR_NONE, sid_pal_swi_start(swi_callback));
 
 	for (int i = 0; i < BUFFER_NO; i++) {
 		zassert_equal(SID_ERROR_NONE, sid_pal_swi_trigger());
 		zassert_mem_equal(buffer_in[i], buffer_out[i], BUFFER_SIZE, "in %s, out %s",
 				  buffer_in[i], buffer_out[i]);
 	}
+
+	zassert_equal(SID_ERROR_NONE, sid_pal_swi_stop());
+	zassert_equal(SID_ERROR_NONE, sid_pal_swi_deinit());
 }
 
 ZTEST_SUITE(interrupts, NULL, NULL, NULL, NULL, NULL);

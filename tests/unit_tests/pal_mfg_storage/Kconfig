@@ -3,11 +3,15 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
-config SIDEWALK_BUILD
-	default y
+
+# config SIDEWALK_BUILD
+# 	default y
 
 config SIDEWALK_MFG_STORAGE
 	default y
 	imply FLASH
+
+config SIDEWALK_MFG_STORAGE_WRITE
+	default y
 
 source "Kconfig.zephyr"

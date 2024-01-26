@@ -6,15 +6,26 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(BOARD unit_testing)
 project(sidewalk_test_critical_region)
-set(SIDEAWLK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
+find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
-# add test file
-target_include_directories(app PRIVATE src)
-target_include_directories(app PRIVATE ${SIDEAWLK_BASE}/subsys/sal/common/sid_pal_ifc)
-target_sources(app PRIVATE src/main.c)
-target_sources(app PRIVATE ${SIDEAWLK_BASE}/subsys/sal/sid_pal/src/sid_sw_interrupts.c)
+set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
-# generate runner for the test
-test_runner_generate(src/main.c)
+add_definitions(--include ztest.h)
+
+target_include_directories(testbinary PRIVATE
+    src
+    ${SIDEWALK_BASE}/subsys/sal/common/sid_pal_ifc
+    ${SIDEWALK_BASE}/subsys/sal/common/sid_ifc
+)
+
+target_compile_definitions(testbinary PRIVATE CONFIG_SIDEWALK_SWI_PRIORITY=1 CONFIG_SIDEWALK_SWI_STACK_SIZE=2048)
+
+target_sources(testbinary PRIVATE ${SIDEWALK_BASE}/subsys/sal/sid_pal/src/sid_sw_interrupts.c)
+
+target_sources(testbinary PRIVATE
+    src/main.c
+    src/mock_zephyr.c
+)

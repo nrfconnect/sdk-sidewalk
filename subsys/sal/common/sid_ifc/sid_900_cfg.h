@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -14,6 +14,16 @@
 
 #ifndef SID_900_CFG_H
 #define SID_900_CFG_H
+
+/// @cond sid_ifc_ep_en
+
+/** @file
+ *
+ * @defgroup SIDEWALK_API Sidewalk API
+ * @brief API for communicating with the Sidewalk network
+ * @{
+ * @ingroup  SIDEWALK_API
+ */
 
 /**
  * Describes the profile type of the device
@@ -72,6 +82,14 @@ enum sid_link2_rx_window_separation_ms {
     X <= SID_LINK2_RX_WINDOW_SEPARATION_7 && X >= SID_LINK2_RX_WINDOW_SEPARATION_1 && \
     (X == SID_LINK2_RX_WINDOW_SEPARATION_1 || X % (SID_LINK2_RX_WINDOW_SEPARATION_2) == 0))
 
+
+/**
+ * Describes the Link Allocation Duration for FSK-WAN Link Profile 2 (Allocated)
+ */
+enum sid_link2_allocation_duration {
+    SID_LINK2_ALLOCATION_DURATION_1HOUR = 0
+};
+
 /**
  * Describes the frequency of RX windows opened by the device (in ms) in asynchronous mode
  */
@@ -114,11 +132,47 @@ struct sid_device_profile_unicast_params {
 };
 
 /**
+ * Describes the LINK3 low latency configuration options
+ */
+enum sid_link3_low_latency {
+    /** Used to indicate low latency feature is disabled */
+    SID_LINK3_LOW_LATENCY_DISABLE = 0,
+    /** Used to indicate low latency feature is enabled */
+    SID_LINK3_LOW_LATENCY_ENABLE = 1,
+    /** Delimiter to enum sid_link3_low_latency */
+    SID_LINK3_LOW_LATENCY_LAST,
+};
+
+/**
+ * Describes the LINK3 low latency attributes
+ * These attributes are notified to the developer when there is a change in the attributes pertaining to
+ * low latency.
+ * There is no provision to set these attributes by the developer
+ */
+struct sid_link3_low_latency_config {
+    /** Used to indicate the low latency feature status */
+    bool enabled;
+    /** latency index the Sidewalk stack uses to schedule the message */
+    uint8_t latency;
+    /** Number of repetitions the Sidewalk stack performs on a low latency message */
+    uint8_t repetitions;
+    /** Maximum number of low latency messages within one downlink separation */
+    uint8_t rate_limit;
+};
+
+/**
  * Describes the configuration attributes of the device's profile
  */
 struct sid_device_profile {
     /** Describes the unicast attributes of the device's synchronous configuration */
     struct sid_device_profile_unicast_params unicast_params;
+    /** Describes the miscellaneous configuration for the two links supported */
+    union sid_device_profile_misc_config {
+        /** Describes the miscellaneous configuration for link3 */
+        struct sid_link3_misc_config {
+            enum sid_link3_low_latency low_latency;
+        } link3_misc_config;
+    } profile_misc_config;
 };
 
 /**
@@ -134,7 +188,17 @@ struct sid_link_type_2_registration_config {
 struct sid_sub_ghz_links_config {
     /** Enable transmission of Sub-Ghz link metrics to Sidewalk cloud services */
     bool enable_link_metrics;
+    /** Number of retries that Sub-Ghz metrics message can be retried by Sidewalk stack
+     * configuring to 0 will disable the retries of the message
+     */
+    uint8_t metrics_msg_retries;
+    /** sar dcr config*/
+    uint8_t sar_dcr;
     struct sid_link_type_2_registration_config registration_config;
 };
+
+/** @} */
+
+/// @endcond
 
 #endif /* SID_900_CFG_H */

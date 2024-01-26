@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,19 +17,20 @@
 
 /** @file sid_pal_radio_lora_defs.h
  *
- * @defgroup sid_pal_lib_radio sid Radio interface
+ * @defgroup sid_pal_radio_ifc SID Sub-Ghz Radio interface
  * @{
  * @ingroup sid_pal_ifc
  *
- * @details     LORA modulation defines for Sidewalk
+ * @details LoRa modulation defines for Sidewalk
  *
  */
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdint.h>
 
 // Spreading Factor
 #define SID_PAL_RADIO_LORA_SF5 0x05
@@ -175,4 +176,4 @@ typedef struct sid_pal_radio_lora_phy_settings {
 
 /** @} */
 
-#endif
+#endif /* SID_PAL_RADIO_LORA_DEFS_H */

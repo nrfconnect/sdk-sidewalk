@@ -3,47 +3,61 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include <unity.h>
-
+#include <zephyr/ztest.h>
 #include <sid_pal_swi_ifc.h>
 
-#define CHANGED (1U)
-#define UNCHANGED (0U)
-static volatile uint32_t resources[2];
-
-static void test_cb(void)
+void mock_callback(void)
 {
-	resources[0] = CHANGED;
+	/* Intentionally left blanc. */
 }
 
-static void test_cb_2(void)
+static void swi_init_start(void *fixture)
 {
-	resources[1] = CHANGED;
+	ARG_UNUSED(fixture);
+	zassert_equal(sid_pal_swi_init(), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_start(mock_callback), SID_ERROR_NONE);
 }
 
-void test_sid_pal_swi_init_negative(void)
+static void swi_stop_deinit(void *fixture)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER, sid_pal_swi_init(NULL));
+	ARG_UNUSED(fixture);
+	zassert_equal(sid_pal_swi_stop(), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_deinit(), SID_ERROR_NONE);
 }
 
-void test_sid_pal_swi_trigger(void)
+ZTEST(swi_tests, test_swi_reinit)
 {
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_swi_init(test_cb));
-	resources[0] = UNCHANGED;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_swi_trigger());
-	TEST_ASSERT_EQUAL(CHANGED, resources[0]);
-
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_swi_init(test_cb_2));
-	resources[0] = UNCHANGED;
-	resources[1] = UNCHANGED;
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_swi_trigger());
-	TEST_ASSERT_EQUAL(CHANGED, resources[1]);
-	TEST_ASSERT_EQUAL(UNCHANGED, resources[0]);
+	zassert_equal(sid_pal_swi_deinit(), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_deinit(), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_init(), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_init(), SID_ERROR_NONE);
 }
 
-extern int unity_main(void);
-
-int main(void)
+ZTEST(swi_tests, test_swi_start_with_null)
 {
-	return unity_main();
+	zassert_equal(sid_pal_swi_start(NULL), SID_ERROR_NULL_POINTER);
 }
+
+ZTEST(swi_tests, test_swi_trigger_positive)
+{
+	zassert_equal(sid_pal_swi_trigger(), SID_ERROR_NONE);
+}
+
+ZTEST(swi_tests, test_swi_trigger_negative)
+{
+	/* stop - fail, restart - ok */
+	zassert_equal(sid_pal_swi_stop(), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_trigger(), SID_ERROR_INVALID_STATE);
+
+	zassert_equal(sid_pal_swi_start(mock_callback), SID_ERROR_NONE);
+	zassert_equal(sid_pal_swi_trigger(), SID_ERROR_NONE);
+
+	/* deinit - fail, reinit -ok */
+	swi_stop_deinit(NULL);
+	zassert_equal(sid_pal_swi_trigger(), SID_ERROR_INVALID_STATE);
+
+	swi_init_start(NULL);
+	zassert_equal(sid_pal_swi_trigger(), SID_ERROR_NONE);
+}
+
+ZTEST_SUITE(swi_tests, NULL, NULL, swi_init_start, swi_stop_deinit, NULL);

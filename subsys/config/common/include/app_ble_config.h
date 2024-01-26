@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -18,6 +18,6 @@
 
 #include <sid_ble_link_config_ifc.h>
 
-const sid_ble_link_config_t *app_get_ble_config(void);
+const sid_ble_link_config_t* app_get_ble_config(void);
 
-#endif // APP_BLE_CONFIG_H
+#endif //APP_BLE_CONFIG_H

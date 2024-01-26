@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,11 +17,11 @@
 
 /** @file
  *
- * @defgroup sid_pal_lib_swi sid Software Interrupt (SWI) interface
+ * @defgroup sid_pal_swi_ifc SID Software Interrupt (SWI) interface
  * @{
  * @ingroup sid_pal_ifc
  *
- * @details     Provides SWI interface to be implemented by platform
+ * @details  Provides SWI interface to be implemented by platform
  */
 #include <sid_error.h>
 
@@ -39,13 +39,11 @@ typedef void(*sid_pal_swi_cb_t)(void);
 /**
  * Init the SWI handler for protocol processing
  *
- * @param[in]   event_callback      Pointer to the callback function the SWI will trigger
- *
  * @retval SID_ERROR_NONE in case of success
  *
  * Function initializes SWI for triggering events.
  */
-sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback);
+sid_error_t sid_pal_swi_init(void);
 
 /**
  * Trigger the SWI to run
@@ -55,6 +53,38 @@ sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback);
  * Function triggers SWI to run.
  */
 sid_error_t sid_pal_swi_trigger(void);
+
+/**
+ * Start the SWI
+ *
+ * @param[in]   event_callback      Pointer to the callback function the SWI will trigger
+ *
+ * @retval SID_ERROR_NONE in case of success
+ *
+ * Function triggers SWI to run.
+ */
+
+sid_error_t sid_pal_swi_start(sid_pal_swi_cb_t event_callback);
+
+/**
+ * Stop the SWI
+ *
+ * @retval SID_ERROR_NONE in case of success
+ *
+ * Function triggers SWI to run.
+ */
+
+sid_error_t sid_pal_swi_stop(void);
+
+/**
+ * Init the SWI handler for protocol processing
+ *
+ * @retval SID_ERROR_NONE in case of success
+ *
+ * Function initializes SWI for triggering events.
+ */
+
+sid_error_t sid_pal_swi_deinit(void);
 
 #ifdef __cplusplus
 }

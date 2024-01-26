@@ -60,3 +60,18 @@
 	(val) == SID_LINK_MODE_MOBILE  ? "SID_LINK_MODE_MOBILE" :                                  \
 	(val) == SID_LINK_MODE_INVALID ? "SID_LINK_MODE_INVALID" :                                 \
 					 "UNKNOWN"
+
+#define SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_STR(val)                                             \
+	(val) == SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_NONE ?                                      \
+		"SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_NONE" :                                     \
+	(val) == SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_LORA_LOW_LATENCY ?                          \
+		"SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_LORA_LOW_LATENCY" :                         \
+	(val) == SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_LAST ?                                      \
+		"SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_LAST" :                                     \
+		"UNKNOWN"
+
+#define SID_CONTROL_EVENT_TYPE_STR(val)                                                            \
+	(val) == SID_CONTROL_EVENT_LOW_LATENCY_CONFIG_UPDATE ?                                     \
+		"SID_CONTROL_EVENT_LOW_LATENCY_CONFIG_UPDATE" :                                    \
+	(val) == SID_CONTROL_EVENT_LAST ? "SID_CONTROL_EVENT_LAST" :                               \
+					  "UNKNOWN"

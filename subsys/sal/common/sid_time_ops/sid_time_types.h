@@ -41,7 +41,7 @@ struct sid_timespec {
 };
 
 static const struct sid_timespec SID_TIME_INFINITY = { .tv_sec = UINT32_MAX, .tv_nsec = UINT32_MAX};
-static const struct sid_timespec SID_TIME_ZERO     = {};
+static const struct sid_timespec SID_TIME_ZERO = {.tv_sec = 0, .tv_nsec = 0};
 
 #ifdef __cplusplus
 }

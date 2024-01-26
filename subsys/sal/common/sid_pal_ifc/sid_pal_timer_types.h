@@ -15,7 +15,6 @@
 #ifndef SID_PAL_TIMER_TYPES_H
 #define SID_PAL_TIMER_TYPES_H
 
-#include <zephyr/kernel.h>
 #include <zephyr/sys/dlist.h>
 #include <sid_time_types.h>
 

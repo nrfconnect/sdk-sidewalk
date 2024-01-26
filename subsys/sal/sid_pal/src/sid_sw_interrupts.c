@@ -22,8 +22,28 @@
 static K_SEM_DEFINE(swi_trigger_sem, 0, 1);
 
 static sid_pal_swi_cb_t swi_cb;
+static bool is_init = false;
 
-sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback)
+sid_error_t sid_pal_swi_init(void)
+{
+	if (is_init) {
+		return SID_ERROR_NONE;
+	}
+	is_init = true;
+	return SID_ERROR_NONE;
+}
+
+sid_error_t sid_pal_swi_deinit(void)
+{
+	if (!is_init) {
+		return SID_ERROR_NONE;
+	}
+	sid_pal_swi_stop();
+	is_init = false;
+	return SID_ERROR_NONE;
+}
+
+sid_error_t sid_pal_swi_start(sid_pal_swi_cb_t event_callback)
 {
 	if (!event_callback) {
 		return SID_ERROR_NULL_POINTER;
@@ -33,8 +53,18 @@ sid_error_t sid_pal_swi_init(sid_pal_swi_cb_t event_callback)
 	return SID_ERROR_NONE;
 }
 
+sid_error_t sid_pal_swi_stop(void)
+{
+	swi_cb = NULL;
+	return SID_ERROR_NONE;
+}
+
 sid_error_t sid_pal_swi_trigger(void)
 {
+	if (!(is_init && swi_cb)) {
+		return SID_ERROR_INVALID_STATE;
+	}
+
 	k_sem_give(&swi_trigger_sem);
 	return SID_ERROR_NONE;
 }

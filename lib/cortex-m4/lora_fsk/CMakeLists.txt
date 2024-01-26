@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib/lora_fsk)
+set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib/cortex-m4/lora_fsk)
 
 set(GCC_LIB_DIR ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/lib/gcc/arm-zephyr-eabi)
 find_library(LIB_GCC NAMES gcc libgcc.a HINTS ${GCC_LIB_DIR}/* REQUIRED)

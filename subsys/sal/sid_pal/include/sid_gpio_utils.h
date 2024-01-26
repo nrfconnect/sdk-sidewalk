@@ -11,7 +11,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <sid_pal_gpio_ifc.h>
 
-#define GPIO_UNUSED_PIN (uint32_t)(-1)
+#define GPIO_UNUSED_PIN 128
 
 typedef struct {
 	const struct device *port;

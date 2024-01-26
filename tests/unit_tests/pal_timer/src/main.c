@@ -163,8 +163,8 @@ void test_sid_pal_timer_is_armed_deinit(void)
 
 void test_sid_pal_timer_one_shot(void)
 {
-	struct sid_timespec when = { .tv_nsec = 50 * NSEC_PER_USEC, .tv_sec = 0 };
-	struct sid_timespec fake_time_low = { .tv_nsec = 40 * NSEC_PER_USEC, .tv_sec = 0 };
+	struct sid_timespec when = { .tv_nsec = 50 * SID_TIME_NSEC_PER_USEC, .tv_sec = 0 };
+	struct sid_timespec fake_time_low = { .tv_nsec = 40 * SID_TIME_NSEC_PER_USEC, .tv_sec = 0 };
 	struct sid_timespec fake_time_expected = when;
 
 	timer_init();
@@ -190,9 +190,9 @@ void test_sid_pal_timer_one_shot(void)
 
 void test_sid_pal_timer_two_timers(void)
 {
-	struct sid_timespec when_1 = { .tv_nsec = 50 * NSEC_PER_USEC, .tv_sec = 0 };
-	struct sid_timespec when_2 = { .tv_nsec = 80 * NSEC_PER_USEC, .tv_sec = 0 };
-	struct sid_timespec fake_time_low = { .tv_nsec = 40 * NSEC_PER_USEC, .tv_sec = 0 };
+	struct sid_timespec when_1 = { .tv_nsec = 50 * SID_TIME_NSEC_PER_USEC, .tv_sec = 0 };
+	struct sid_timespec when_2 = { .tv_nsec = 80 * SID_TIME_NSEC_PER_USEC, .tv_sec = 0 };
+	struct sid_timespec fake_time_low = { .tv_nsec = 40 * SID_TIME_NSEC_PER_USEC, .tv_sec = 0 };
 	struct sid_timespec fake_time_expected = when_1;
 
 	timer_init();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -18,7 +18,7 @@
 
 /** @file
  *
- * @defgroup sid_pal_assert_ifc sid assert interface
+ * @defgroup sid_pal_assert_ifc SID assert interface
  * @{
  * @ingroup sid_pal_ifc
  *
@@ -51,6 +51,14 @@ void sid_assert_test_throw_assert(void);
         ((void)0) : \
         sid_pal_assert(__LINE__, __FILE__))
 
+/**
+ * @brief Implements platform specific assertion.
+ *
+ * @param[in]  line line number of the file that the assertion occured
+ * @param[in]  file pointer to the file name
+ *
+ */
+
 void sid_pal_assert(int line, const char * file) __attribute__((__noreturn__));
 
 #endif
@@ -61,4 +69,4 @@ void sid_pal_assert(int line, const char * file) __attribute__((__noreturn__));
 
 /** @} */
 
-#endif // SID_PAL_ASSERT_IFC_H
+#endif /* SID_PAL_ASSERT_IFC_H */
