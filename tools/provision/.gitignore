@@ -1,0 +1,5 @@
+.coverage
+app-server-ed25519.public.bin
+__pycache__/
+certificate_*
+*.s37

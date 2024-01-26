@@ -6,6 +6,7 @@
 
 #include "buttons.h"
 #include "buttons_internal.h"
+#include <dk_buttons_and_leds.h>
 #include <zephyr/kernel.h>
 #include <errno.h>
 

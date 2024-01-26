@@ -16,7 +16,14 @@ cmock_handle(${ZEPHYR_BASE}/include/zephyr/drivers/flash.h zephyr/drivers)
 
 # add test file
 FILE(GLOB app_sources src/*.c)
-target_sources(app PRIVATE ${app_sources})
+target_sources(app PRIVATE 
+        ${app_sources} 
+        ${ZEPHYR_BASE}/../sidewalk/subsys/sal/sid_pal/src/sid_mfg_storage.c
+)
+
+target_include_directories(app PRIVATE ${ZEPHYR_BASE}/../sidewalk/subsys/sal/common/sid_pal_ifc
+        ${ZEPHYR_BASE}/../sidewalk/subsys/sal/common/sid_ifc
+        ${ZEPHYR_BASE}/../sidewalk/subsys/config/common/include/)
 
 # generate runner for the test
 test_runner_generate(${app_sources})

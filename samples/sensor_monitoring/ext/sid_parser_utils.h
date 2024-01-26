@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -19,10 +19,22 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define SID_SET_BIT(val, pos) ((val) | (1 << (pos)))
+#define SID_CLEAR_BIT(val, pos) ((val) & ~(1 << (pos)))
+#define SID_IS_BIT(val, pos) ((val) & (1 << pos))
+
+typedef enum {
+    SET_BIT,
+    CLR_BIT,
+    CHK_BIT,
+} bit_opt_t;
 
 enum tlv_mask {
     TLV_SIZE_OFFSET = 6,
@@ -36,7 +48,7 @@ enum tlv_mask {
 };
 
 struct tl_in_tlv {
-    size_t len;
+    uint8_t len;
     uint8_t tag;
 };
 
@@ -72,7 +84,7 @@ sid_error_t get_and_shift_tl_from_tlv(const uint8_t **buf, struct tl_in_tlv *tl,
  *
  * @retval SID_ERROR_NONE
  */
-sid_error_t get_bit_from_field(const uint8_t* buf, uint8_t *ret, uint8_t mask, uint8_t offset);
+sid_error_t get_bit_from_field(const uint8_t *buf, uint8_t *ret, uint8_t mask, uint8_t offset);
 
 /**
  * Retrieve bit field from uint16_t value by mask and offset
@@ -300,8 +312,11 @@ sid_error_t set_and_shift_block(const uint8_t *block, const size_t len, uint8_t 
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data to process
  */
-sid_error_t get_and_shift_array_prefix_size_uint8(const uint8_t **rover, const uint8_t *end, const size_t max_len,
-                                                  uint8_t *array_size, uint8_t *array);
+sid_error_t get_and_shift_array_prefix_size_uint8(const uint8_t **rover,
+                                                  const uint8_t *end,
+                                                  const size_t max_len,
+                                                  uint8_t *array_size,
+                                                  uint8_t *array);
 
 /**
  * Store uint8_t value in the TLV format with user defined tag
@@ -386,6 +401,11 @@ struct sid_parse_state {
      */
     size_t offset;
 };
+
+#define SID_PARSE_STATE_INIT(buffer_, buffer_len_)                                             \
+    {                                                                                          \
+        .ret_code = SID_ERROR_NONE, .buffer = buffer_, .buffer_len = buffer_len_, .offset = 0, \
+    }
 
 /**
  * Initialie sid_parse_state structure
@@ -520,8 +540,10 @@ void sid_write_entry_tlv_uint32(struct sid_parse_state *const state, const struc
  * @param[in] val buffer that needs to be stored into buffer within state
  * @param[in] len Leng of the buffer that needs to be written
  */
-void sid_write_entry_tlv_nbytes(struct sid_parse_state *const state,  const struct tl_in_tlv *tl,
-                                const uint8_t *const val, size_t len);
+void sid_write_entry_tlv_nbytes(struct sid_parse_state *const state,
+                                const struct tl_in_tlv *tl,
+                                const uint8_t *const val,
+                                size_t len);
 
 /**
  * Retrieve uint8_t value from buffer stored in state
@@ -565,16 +587,229 @@ void sid_read_entry_uint32(struct sid_parse_state *const state, uint32_t *const 
 void sid_read_entry_nbytes(struct sid_parse_state *const state, uint8_t *const val, size_t len);
 
 /**
- * Parse TLV header structure into user defined buffer
- * Retrieve uint8_t value from buffer stored in state
+ * Parse prefix sized array of uint8_t value into user array
  *
  * @param[in,out] state A pointer to the sid_parse_state
- * @param[out] tl - TLV record to store parsed result
+ * @param array - user array
+ * @param max_len - capacity of user array
+ * @param array_size - parsed array size
  */
-void sid_read_tl_from_tlv(struct sid_parse_state *const state, struct tl_in_tlv *const tl);
+void sid_read_array_prefix_size_uint8(struct sid_parse_state *const state,
+                                      uint8_t *array,
+                                      const size_t max_len,
+                                      uint8_t *array_size);
+
+/**
+ * Store TLV header structure into user defined buffer
+ *
+ * @param tl - TLV record to store
+ * @param[in,out] state A pointer to the sid_parse_state*
+ */
+void sid_write_tl_to_tlv(struct sid_parse_state *const state, const struct tl_in_tlv *tl);
+
+/**
+ * Parse TLV header structure into user defined buffer
+ *
+ * @param[in,out] state A pointer to the sid_parse_state
+ * @param tl - TLV record to store parsed result
+ */
+void sid_read_tl_from_tlv(struct sid_parse_state *const state, struct tl_in_tlv *tl);
+
+/**
+ * Store uint8_t value in the TLV format with user defined tag
+ *
+ * @param[in,out] state A pointer to the sid_parse_state
+ * @param tag - value tag
+ * @param val - value
+ */
+void sid_write_uint8_tlv(struct sid_parse_state *const state, uint8_t tag, uint8_t val);
+
+/**
+ * Store uint16_t value in the TLV format with user defined tag
+ *
+ * @param[in,out] state A pointer to the sid_parse_state
+ * @param tag - value tag
+ * @param val - value
+ */
+void sid_write_uint16_tlv(struct sid_parse_state *const state, uint8_t tag, uint16_t val);
+
+/**
+ * Store uint32_t value in the TLV format with user defined tag
+ *
+ * @param[in,out] state A pointer to the sid_parse_state
+ * @param tag - value tag
+ * @param val - value
+ */
+void sid_write_uint32_tlv(struct sid_parse_state *const state, uint8_t tag, uint32_t val);
+
+/**
+ * Store user defined block in the TLV format with user defined tag
+ *
+ * @param[in,out] state A pointer to the sid_parse_state
+ * @param tag - value tag
+ * @param val - value
+ * @param len - length of the value
+ */
+void sid_write_nbytes_tlv(struct sid_parse_state *const state, uint8_t tag, const uint8_t *val, size_t len);
+
+/**
+ * Get the lenght of bytes left in the buffer to read
+ *
+ * @param[in] state A pointer to the sid_parse_state
+ */
+size_t sid_get_length_from_parse_state(const struct sid_parse_state *const state);
+
+/**
+ * Get the read buffer in current state
+ *
+ * @param[in] state A pointer to the sid_parse_state
+ */
+const uint8_t *sid_get_buf_from_parse_state(const struct sid_parse_state *const state);
+
+/**
+ * Drop date in the state
+ *
+ * @param[in,out] state A pointer to the sid_parse_state
+ */
+void sid_drop_nbyte_from_parse_state(struct sid_parse_state *const state, size_t len);
+
+/** @brief Convert unsigned integer to ascii c-style string in specified base
+ *
+ *  @param unsigned integer to convert to ascii string
+ *  @param pointer to buffer to store result
+ *  @param base to convert to (2 to 16)
+ *  @return string containing number converted to ascii base
+ */
+uint8_t *utils_uint_to_str(uint32_t value, uint8_t *result, uint8_t base);
+
+/** @brief Convert unsigned integer to ascii c-style string in specified base
+ *
+ *  Skips over characters that are not numbers which helps
+ *  to automatically convert NMEA float values to binary integers.
+ *  @param string to convert to int
+ *  @param base to convert from (2 to 16)
+ *  @return unsigned integer value of numeric string
+ */
+uint32_t utils_str_to_uint(uint8_t *str, uint8_t base);
+
+/** @brief Convert integer to ascii c-style string in specified base
+ *
+ *  Skips over characters that are not numbers which helps
+ *  to automatically convert NMEA float values to binary integers.
+ *
+ *  @param string to convert to int
+ *  @param base to convert from (2 to 16)
+ *  @return integer value of numeric string
+ */
+int32_t utils_str_to_int(uint8_t *str, uint8_t base);
+
+/** @brief Print buffer in hexadecimal
+ *
+ *  @param pointer to buffer
+ *  @param size of the buffer
+ *  @return none
+ */
+void utils_print_hex(uint8_t *buf, uint8_t len);
+
+/** @brief parse integer in the passed string buffer
+ *
+ *  @param pointer to buffer
+ *  @return integer present in the buffer
+ */
+int32_t utils_parse_input_num(uint8_t *buf);
+
+/** @brief convert buffer in hex string format to
+ *  string format
+ *
+ *  @param pointer to hex string buffer
+ *  @param pointer to buffer
+ *  @return number of bytes filled in output buffer
+ */
+int16_t utils_parse_hex_in_str(uint8_t *out_buf, uint8_t *buf);
+
+/** @brief convert buffer in hex string format to
+ *  decimal string format
+ *
+ *  @param pointer to hex string buffer
+ *  @param output buffer pointer to decimal string
+ *  @return number of bytes filled in output buffer
+ */
+int8_t utils_hex_str_to_bin(uint8_t *str, uint8_t *dst);
+
+/** @brief convert buffer in decimal string format to
+ *  hex string format
+ *
+ *  @param pointer to decimal string buffer
+ *  @param output buffer pointer to hex string
+ *  @return number of bytes filled in output buffer
+ */
+void utils_bin_to_hex_str(uint8_t *dst, uint8_t *src, uint16_t len);
+
+/** @brief switch endianess of the buffer
+ *
+ *  @param pointer to the buffer
+ *  @param size of the buffer
+ *  @return none
+ */
+void utils_flip_bytes(uint8_t *ptr, uint8_t sz);
+
+/** @brief Performs bitwise operations on passed uint32_t
+ *
+ *  Sets the nth bit (n>=0)
+ *  Clears the nth bit (n>=0)
+ *  Returns if the nth bit (n>=0) is 1 or not
+ *
+ *  @param pointer to the uint32_t
+ *  @param bit position to check or alter
+ *  @param desired operation on the bit position
+ *  @return always true for set and clear, for check
+ *  operation the result whether the bit is set or not
+ */
+bool utils_set_clr_chk_bit(uint32_t *val, int n, bit_opt_t opr);
+
+/**
+ * @brief Convert formatted ASCII char mac string to byte buffer using format string
+ *
+ * @param str Formatted ascii char null-terminated string: "11:22:33:44:AA:bb" e.g.
+ * @param out Output byte buffer
+ * @return 0-0xF if hex ascii param is valid or 0xFF if param is invalid
+ */
+uint8_t utils_parse_mac_str(const uint8_t *str, uint8_t *out);
+
+/** @brief Read 2 bytes from a buffer
+ *
+ *  @param pointer to the buffer
+ *  @param position in the buffer to read from
+ *  @return unsigned short value
+ */
+uint16_t utils_read_word(uint8_t *buf, uint32_t pos);
+
+/** @brief Read 4 bytes to a buffer
+ *
+ *  @param pointer to the buffer
+ *  @param position in the buffer to write
+ *  @return unsigned int
+ */
+uint32_t utils_read_dword(uint8_t *buf, uint32_t pos);
+
+/** @brief Write 2 bytes to a buffer
+ *
+ *  @param pointer to the buffer
+ *  @param value to write
+ *  @return none
+ */
+void utils_write_word(uint8_t *buf, uint16_t val);
+
+/** @brief Write 4 bytes to a buffer
+ *
+ *  @param pointer to the buffer
+ *  @param value to write
+ *  @return none
+ */
+void utils_write_dword(uint8_t *buf, uint32_t val);
 
 #ifdef __cplusplus
-} // extern "C" {
+}   // extern "C" {
 #endif
 
 #endif /* SID_PARSER_UTILS_H_ */

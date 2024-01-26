@@ -225,9 +225,9 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	}
 }
 
-int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length)
+int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t length)
 {
-#if defined(HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_MFG_STORAGE_WRITE
 	uint8_t __aligned(4) wr_array[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN];
 
 	if (0u == length) {
@@ -265,7 +265,7 @@ int32_t sid_pal_mfg_store_write(int value, const uint8_t *buffer, uint8_t length
 #endif
 }
 
-void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
+void sid_pal_mfg_store_read(uint16_t value, uint8_t *buffer, uint16_t length)
 {
 	const off_t value_offset =
 		value_to_offset((sid_pal_mfg_store_value_t)value, nrf_mfg_store_region.addr_start,
@@ -290,7 +290,7 @@ void sid_pal_mfg_store_read(int value, uint8_t *buffer, uint8_t length)
 
 int32_t sid_pal_mfg_store_erase(void)
 {
-#if defined(HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_MFG_STORAGE_WRITE
 	const size_t mfg_size = nrf_mfg_store_region.addr_end - nrf_mfg_store_region.addr_start;
 	if (flash_dev) {
 		return (int32_t)flash_erase(flash_dev, nrf_mfg_store_region.addr_start, mfg_size);
@@ -304,7 +304,7 @@ int32_t sid_pal_mfg_store_erase(void)
 
 bool sid_pal_mfg_store_is_empty(void)
 {
-#if defined(HALO_ENABLE_DIAGNOSTICS) && HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_MFG_STORAGE_WRITE
 	uint8_t empty_flash_mem[FLASH_MEM_CHUNK];
 	uint8_t tmp_buff[FLASH_MEM_CHUNK];
 	size_t length = sizeof(tmp_buff);
@@ -336,6 +336,11 @@ bool sid_pal_mfg_store_is_empty(void)
 #else
 	LOG_WRN("The sid_pal_mfg_store_is_empty function is not enabled.");
 #endif
+	return false;
+}
+
+bool sid_pal_mfg_store_is_tlv_support(void)
+{
 	return false;
 }
 

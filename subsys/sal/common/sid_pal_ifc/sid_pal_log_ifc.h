@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,18 +17,18 @@
 
 /** @file
  *
- * @defgroup sid_pal_timers SID Timer API
+ * @defgroup sid_pal_log_ifc SID log Interface
  * @{
  *
- * @details Interface for timers for sidewalk SDK
+ * @details Interface for log for sidewalk SDK
  */
+
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include <stdint.h>
-#include <stdbool.h>
 
 typedef enum
 {
@@ -58,11 +58,15 @@ void sid_pal_log(sid_pal_log_severity_t severity, uint32_t num_args, const char*
 /**
  * The function returns current logging level. Implemented in sid_log_control
  *
+ * @retval log severity level
+ *
  */
-sid_pal_log_severity_t sid_log_control_get_current_log_level();
+sid_pal_log_severity_t sid_log_control_get_current_log_level(void);
 
 /**
  * Flush log function
+ *
+ * The function flushes the log buffers to the output interface
  */
 void sid_pal_log_flush(void);
 
@@ -72,6 +76,8 @@ void sid_pal_log_flush(void);
  * copied correctly in order for pushing then at a later time.
  *
  * For platforms that do not use deferred logging, this can remain unimplemented.
+ *
+ * @retval string pointer to the string that has to be copied
  */
 char const *sid_pal_log_push_str(char *string);
 
@@ -104,9 +110,25 @@ struct sid_pal_log_buffer {
  *
  * @param[in] log_buffer Pointer to log buffer descriptor
  *
- * @return true if log strings were copied into log_buffer, false otherwise
+ * @retval true if log strings were copied into log_buffer, false otherwise
  */
 bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
+
+/**
+ * Define the maximum number of bytes per single line of sid_pal_hexdump() logging.
+ * When the caller requests more bytes then the output will be split into multiple lines
+ * using SID_PAL_HEXDUMP_MAX bytes per line, plus eventual remainder in the last line.
+ */
+#define SID_PAL_HEXDUMP_MAX (8)
+
+/**
+ * Log raw data bytes.
+ *
+ * @param[in] severity Severity of the log
+ * @param[in] address Pointer to data to be logged
+ * @param[in] length The length of data to be logged (in bytes)
+ */
+void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int length);
 
 #define SID_PAL_VA_NARG(...) \
         (SID_PAL_VA_NARG_(_0, ## __VA_ARGS__, SID_PAL_RSEQ_N()))
@@ -143,28 +165,7 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
         }                                                                                       \
     } while(0)
 
-#define SID_PAL_HEXDUMP_MAX           (8)
-#define SID_PAL_HEXDUMP(level, data, len)                                     \
-    do {                                                                      \
-        if (level <= SID_PAL_LOG_LEVEL) {                                     \
-            char const digit[16] = "0123456789ABCDEF";                        \
-            uint8_t idx=0;                                                    \
-            char hex_buf[SID_PAL_HEXDUMP_MAX*3 + 1] = {0};                    \
-            for (int i=0; i<len; i++) {                                       \
-                if (idx && ((i % SID_PAL_HEXDUMP_MAX) == 0)) {                \
-                    SID_PAL_LOG(level, "%s", SID_PAL_LOG_PUSH_STR(hex_buf));  \
-                    idx = 0;                                                  \
-                }                                                             \
-                hex_buf[idx++] = digit[(data[i] >> 4) & 0x0f];                \
-                hex_buf[idx++] = digit[(data[i] >> 0) & 0x0f];                \
-                hex_buf[idx++] = ' ';                                         \
-                hex_buf[idx] = '\0';                                          \
-            }                                                                 \
-            if (idx) {                                                        \
-                SID_PAL_LOG(level, "%s", SID_PAL_LOG_PUSH_STR(hex_buf));      \
-            }                                                                 \
-        }                                                                     \
-    } while(0)
+#define SID_PAL_HEXDUMP(level_, data_, len_) sid_pal_hexdump(level_, data_, len_)
 
 #else
 #define SID_PAL_LOG_HIGHEST_SEVIRITY(level, fmt_, ...)
@@ -193,4 +194,6 @@ bool sid_pal_log_get_log_buffer(struct sid_pal_log_buffer *const log_buffer);
 }
 #endif
 
-#endif
+/** @} */
+
+#endif /* SID_PAL_LOG_IFC_H */

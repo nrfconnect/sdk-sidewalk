@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,7 +17,7 @@
 
 /** @file
  *
- * @defgroup sid_pal_uptime_ifc sid clock interface
+ * @defgroup sid_pal_uptime_ifc SID clock interface
  * @{
  * @ingroup sid_pal_ifc
  *
@@ -63,5 +63,7 @@ int16_t sid_pal_uptime_get_xtal_ppm(void);
 #ifdef __cplusplus
 }
 #endif
+
+/** @} */
 
 #endif

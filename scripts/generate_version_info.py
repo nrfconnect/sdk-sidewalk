@@ -18,14 +18,6 @@ def west_module_list():
     return [x.split()[1:3] for x in west_list_lines.split("\n")]
 
 
-def get_last_common_commit_with_upstream(dir):
-    merge_base_cmd = subprocess.run(["git", "merge-base", "--fork-point", "origin/main",
-                                    "HEAD"], cwd=dir,  capture_output=True)
-    if merge_base_cmd.returncode != 0:
-        return "0000000000000000000000000000000000000000"
-    return merge_base_cmd.stdout.decode("utf-8").strip()
-
-
 def print_warning_header():
     return """
 /*
@@ -104,9 +96,8 @@ const char * const sidewalk_version_component[] = {SIDEWALK_VERSION_COMPONENTS};
 """
 
 
-def helper_variables(dir_path, get_last_common_commit_with_upstream):
-    return "const size_t sidewalk_version_component_count = sizeof(sidewalk_version_component)/sizeof(*sidewalk_version_component);\n" + \
-        f"const char * const sidewalk_version_common_commit = \"{get_last_common_commit_with_upstream(dir_path)}\";\n"
+def helper_variables():
+    return "const size_t sidewalk_version_component_count = sizeof(sidewalk_version_component)/sizeof(*sidewalk_version_component);\n"
 
 
 def build_time():
@@ -121,7 +112,6 @@ file_output += x_macro_always_raport_swith()
 file_output += print_x_macro(NCS_DIR, ESSENTIAL_MODULES, west_module_list)
 file_output += component_name_repo()
 file_output += versions_repo()
-file_output += helper_variables(SIDEWALK_DIR,
-                                get_last_common_commit_with_upstream)
+file_output += helper_variables()
 file_output += build_time()
 print(file_output)

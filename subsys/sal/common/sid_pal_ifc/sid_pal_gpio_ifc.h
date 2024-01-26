@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,11 +17,11 @@
 
 /** @file
  *
- * @defgroup sid_pal_lib_gpio sid gpio interface
+ * @defgroup sid_pal_gpio_ifc SID gpio interface
  * @{
  * @ingroup sid_pal_ifc
  *
- * @details  Provides gpio interface to be implemented by platform
+ * @details Provides gpio interface to be implemented by platform
  */
 #include <sid_error.h>
 
@@ -193,4 +193,4 @@ sid_error_t sid_pal_gpio_pull_mode(uint32_t gpio_number, sid_pal_gpio_pull_t pul
 
 /** @} */
 
-#endif
+#endif /* SID_PAL_GPIO_IFC_H */

@@ -4,6 +4,6 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib/ble_only)
+set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib/cortex-m4/ble_only)
 
 zephyr_library_link_libraries(${SID_LIB_DIR}/libsid_protocol_ble.a)

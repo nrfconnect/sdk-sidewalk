@@ -401,9 +401,7 @@ void cmd_print_version(const struct shell *shell, size_t argc, char **argv)
 		shell, SHELL_NORMAL,
 		JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 			"COMPONENTS_VERSION",
-			JSON_OBJ(JSON_LIST_3(
-				JSON_NAME("sidewalk_fork_point",
-					  JSON_STR(sidewalk_version_common_commit)),
+			JSON_OBJ(JSON_LIST_2(
 				JSON_NAME("build_time", JSON_STR(build_time_stamp)),
 				JSON_NAME("modules",
 					  JSON_OBJ(JSON_LIST_3(

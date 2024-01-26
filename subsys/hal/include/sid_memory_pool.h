@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -111,6 +111,15 @@ size_t sid_memory_pool_get_free_size(struct sid_memory_pool *const memory_pool);
  * @attention Use only for debug builds, will return 0 for release builds
  */
 size_t sid_memory_pool_get_free_bytes_initial_size(struct sid_memory_pool *const memory_pool);
+
+/**
+ * Function returns the initial buffer size (in bytes) of memory that was given at init time
+ *
+ *  @param[in] memory_pool A pointer to the handle returned by sid_memory_pool_init()
+ *
+ *  @return size of the initial buffer size
+ */
+size_t sid_memory_pool_get_initial_buffer_size(struct sid_memory_pool *const memory_pool);
 
 #ifdef __cplusplus
 }   // extern "C"

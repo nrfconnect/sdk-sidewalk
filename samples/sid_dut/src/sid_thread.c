@@ -53,6 +53,7 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 				   void *context);
 static void on_sidewalk_factory_reset(void *context);
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context);
+static void on_control_event_notify(const struct sid_control_event_data *data, void *context);
 
 // ////////////////////////////////////////////////////////////////////////////
 
@@ -72,6 +73,7 @@ static struct sid_event_callbacks event_callbacks = {
 	.on_send_error = on_sidewalk_send_error, /* Called from sid_process() */
 	.on_status_changed = on_sidewalk_status_changed, /* Called from sid_process() */
 	.on_factory_reset = on_sidewalk_factory_reset, /* Called from sid_process */
+	.on_control_event_notify = on_control_event_notify,
 };
 
 static struct sid_config config;
@@ -169,6 +171,20 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	LOG_INF("EVENT SID STATUS LINK MODE: LORA: %x, FSK: %x, BLE: %x",
 		status->detail.supported_link_modes[2], status->detail.supported_link_modes[1],
 		status->detail.supported_link_modes[0]);
+}
+
+static void on_control_event_notify(const struct sid_control_event_data *data, void *context)
+{
+	struct app_context *app_context = (struct app_context *)context;
+	if (data == NULL || data->event_data == NULL) {
+		shell_fprintf(app_context->shell, SHELL_NORMAL,
+			      "on_control_event_notify called with invalid data");
+		return;
+	}
+	shell_fprintf(app_context->shell, SHELL_NORMAL,
+		      JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
+			      "on_control_event_notify",
+			      JSON_OBJ(JSON_VAL_sid_control_event_data_t("data", data))))));
 }
 
 sid_error_t sid_thread_init(void)

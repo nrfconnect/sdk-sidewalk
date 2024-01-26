@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,11 +17,11 @@
 
 /** @file
  *
- * @defgroup sid_pal_lib_temperature sid temperature interface
+ * @defgroup sid_pal_temperature_ifc SID temperature interface
  * @{
  * @ingroup sid_pal_ifc
  *
- * @details     Provides temperature interface to be implemented by platform
+ * @details Provides temperature interface to be implemented by platform
  */
 #include <sid_error.h>
 #include <stdint.h>
@@ -50,4 +50,4 @@ int16_t sid_pal_temperature_get(void);
 
 /** @} */
 
-#endif
+#endif /* SID_PAL_TEMPERATURE_IFC_H */

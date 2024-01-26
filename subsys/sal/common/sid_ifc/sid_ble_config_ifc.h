@@ -15,6 +15,16 @@
 #ifndef SID_BLE_CONFIG_IFC_H
 #define SID_BLE_CONFIG_IFC_H
 
+/// @cond sid_ifc_ep_en
+
+/** @file
+ *
+ * @defgroup SIDEWALK_API Sidewalk API
+ * @brief API for communicating with the Sidewalk network
+ * @{
+ * @ingroup  SIDEWALK_API
+ */
+
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -117,5 +127,9 @@ typedef struct sid_ble_config {
     uint8_t num_profile;
     const sid_ble_cfg_gatt_profile_t *profile;
 } sid_ble_config_t;
+
+/** @} */
+
+/// @endcond
 
 #endif

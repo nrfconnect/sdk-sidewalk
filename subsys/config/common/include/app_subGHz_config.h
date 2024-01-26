@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2022 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -20,7 +20,7 @@
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_900_cfg.h>
 
-const radio_sx126x_device_config_t *get_radio_cfg(void);
-const sid_pal_mfg_store_region_t *get_mfg_cfg(void);
-const struct sid_sub_ghz_links_config *app_get_sub_ghz_config(void);
+const radio_sx126x_device_config_t* get_radio_cfg(void);
+const sid_pal_mfg_store_region_t* get_mfg_cfg(void);
+struct sid_sub_ghz_links_config* app_get_sub_ghz_config(void);
 #endif

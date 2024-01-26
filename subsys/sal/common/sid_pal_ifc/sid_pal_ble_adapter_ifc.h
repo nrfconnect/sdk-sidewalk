@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -15,20 +15,90 @@
 #ifndef SID_PAL_BLE_ADAPTER_IFC_H
 #define SID_PAL_BLE_ADAPTER_IFC_H
 
+/** @file
+ *
+ * @defgroup sid_pal_ble_adapter_ifc SID BLE adapter interface
+ * @{
+ * @ingroup sid_pal_ifc
+ *
+ * @details  Provides ble adapter interface to be implemented by the platform.
+ */
+
 #include <sid_ble_config_ifc.h>
 #include <sid_error.h>
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct sid_pal_ble_adapter_interface * sid_pal_ble_adapter_interface_t;
 
+/**
+ * This callback should be defined outside a module which defines implementation.
+ * Data callback is triggered when RX data is received over the link.
+ *
+ * @param [out] id     - provides the information on which service data
+ *                       is received.
+ * @param [out] data   - received RX data.
+ * @param [out] length - size of received buffer in bytes.
+ */
 typedef void (* sid_pal_ble_data_callback_t)(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
+
+/**
+ * This callback should be defined outside a module which defines implementation.
+ * Notification callback is triggered when a notification is received over a
+ * particular service.
+ *
+ * @param [out] id    - provides the information on which service the
+ *                      notification is received.
+ * @param [out] state - provides state of the notification(Enabled/Disabled).
+ */
 typedef void (* sid_pal_ble_notify_callback_t)(sid_ble_cfg_service_identifier_t id, bool state);
+
+/**
+ * This callback should be defined outside a module which defines implementation.
+ * Connection callback is triggered to indicate the state of the link.
+ *
+ * @param [out] state - indicates the state of the link (Connected/Disconnected).
+ * @param [out] addr  - provides the peer BLE mac address.
+ */
 typedef void (* sid_pal_ble_connection_callback_t)(bool state, uint8_t *addr);
+
+/**
+ * This callback should be defined outside a module which defines implementation.
+ * Indication callback is triggered to indicate the transmission status.
+ *
+ * @param [out] status - indicates the transmission state.
+ *                       true - success, false - failure.
+ */
 typedef void (* sid_pal_ble_indication_callback_t)(bool status);
+
+/**
+ * This callback should be defined outside a module which defines implementation.
+ * Mtu callback provides the negotiated mtu with peer over the link.
+ *
+ * @param [out] size - negotiated mtu size.
+ */
 typedef void (* sid_pal_ble_mtu_callback_t)(uint16_t size);
+
+/**
+ * This callback should be defined outside a module which defines implementation.
+ * Callback is triggered to notify that advertisement is started.
+ *
+ * @param [out] size - negotiated mtu size.
+ */
 typedef void (* sid_pal_ble_adv_start_callback_t)(void);
 
+/**
+ * @struct sid_pal_ble_adapter_callbacks_t
+ * @brief Defines types of callbacks.
+ *
+ * These callbacks are set from the Network Interface using set_callback.
+ * When specific runtime events occur, the callbacks are triggered for BLE
+ * network interface to take appropriate actions.
+ */
 typedef struct
 {
     sid_pal_ble_data_callback_t       data_callback;
@@ -40,17 +110,105 @@ typedef struct
 } sid_pal_ble_adapter_callbacks_t;
 
 struct sid_pal_ble_adapter_interface {
+    /**
+     * Initialize the BLE stack with the BLE configuration.
+     *
+     * @param [in] cfg - contains BLE configuration.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*init)          (const sid_ble_config_t *cfg);
+
+    /**
+     * Start the service using the configuration.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*start_service) (void);
+
+    /**
+     * Set the advertisement data provided by Network Interface to BLE stack.
+     *
+     * @param [in] data   - advertisement payload.
+     * @param [in] length - size of advertisement payload.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*set_adv_data)  (uint8_t *data, uint8_t length);
+
+    /**
+     * Start advertisement.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*start_adv)     (void);
+
+    /**
+     * Stop advertisement.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*stop_adv)      (void);
+
+    /**
+     * Sends the data provided by the Network Interface over the air.
+     *
+     * @param [in] id     - service id on which data to be sent.
+     * @param [in] data   - data packet to be sent.
+     * @param [in] length - size of data packet.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*send)          (sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
+
+    /**
+     * Used to set the defined callbacks from the Network Interface.
+     *
+     * @param [in] cb - callbacks set by Network Interface.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*set_callback)  (const sid_pal_ble_adapter_callbacks_t *cb);
+
+    /**
+     * Disconnect the link.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*disconnect)    (void);
+
+    /**
+     * Deinitialize underneath BLE stack.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
     sid_error_t (*deinit)        (void);
 };
 
+/**
+ * Provides the sid_pal_ble_adapter_interface interface handle to Network
+ * Interface for calling the interface function.
+ *
+ * @param [in] handle - interface handle.
+ *
+ * @return SID_ERROR_NONE - in case method finished with success.
+ *         In case of error, the error type depend upon implementation.
+ */
 sid_error_t sid_pal_ble_adapter_create(sid_pal_ble_adapter_interface_t *handle);
+
+#ifdef __cplusplus
+}
+#endif
+
+/** @} */
 
 #endif /* SID_PAL_BLE_ADAPTER_IFC_H */

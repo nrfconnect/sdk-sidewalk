@@ -42,6 +42,8 @@ void test_sid_pal_mfg_storage_init(void)
 	};
 
 	sid_pal_mfg_store_init(mfg_store_region);
+	__cmock_flash_erase_ExpectAndReturn(
+		DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_flash_controller)), 0, 0x1000, 0);
 	TEST_ASSERT_EQUAL(0, sid_pal_mfg_store_erase());
 }
 
@@ -84,8 +86,16 @@ void test_sid_pal_mfg_storage_dev_id_get(void)
 void test_sid_pal_mfg_storage_sn_get(void)
 {
 	uint8_t serial_num[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE] = { 0 };
+	uint8_t empty_serial[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE] = { 0 };
+	memset(empty_serial, 0xFF, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 
 	// No serial number.
+	__cmock_flash_read_ExpectAndReturn(
+		DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_flash_controller)), 0, NULL,
+		SID_PAL_MFG_STORE_SERIAL_NUM_SIZE, 0);
+	__cmock_flash_read_IgnoreArg_data();
+	__cmock_flash_read_IgnoreArg_offset();
+	__cmock_flash_read_ReturnMemThruPtr_data(empty_serial, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 	TEST_ASSERT_FALSE(sid_pal_mfg_store_serial_num_get(serial_num));
 }
 

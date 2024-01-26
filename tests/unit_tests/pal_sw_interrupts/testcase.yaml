@@ -1,6 +1,4 @@
 tests:
   unity.sidewalk.unit_tests.interrupts:
     tags: Sidewalk
-    platform_allow: native_posix
-    integration_platforms:
-      - native_posix
+    type: unit

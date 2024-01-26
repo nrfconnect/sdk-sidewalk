@@ -14,7 +14,7 @@ import check_compliance as cc
 # autopep8: on
 
 sidewalk_specials = [
-    r"tools/sid_pc_link.*",
+    r"tools/.*",
     r"subsys/ace(/.*)+h",
     r"subsys/config(/.*)+(c|h)",
     r"subsys/config/common/.*(c|h)",

@@ -21,41 +21,65 @@ LOG_MODULE_REGISTER(sidewalk, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define MSG_LENGTH_MAX (CONFIG_SIDEWALK_LOG_MSG_LENGTH_MAX)
 
+#if CONFIG_LOG
+#define LOG_VALIST(_level, fmt, valist)                                                            \
+	do {                                                                                       \
+		LOG_RAW("%c: ", z_log_minimal_level_to_char(_level));                              \
+		z_log_vprintk(fmt, valist);                                                        \
+		LOG_RAW("\n");                                                                     \
+	} while (false)
+#else
+#define LOG_VALIST(_level, fmt, valist)
+#endif
+
 void sid_pal_log(sid_pal_log_severity_t severity, uint32_t num_args, const char *fmt, ...)
 {
 	ARG_UNUSED(num_args);
 
 	va_list args;
-	int print_len = 0;
-	char msg_buff[MSG_LENGTH_MAX] = "";
-
 	va_start(args, fmt);
-	print_len = vsnprintk(msg_buff, sizeof(msg_buff), fmt, args);
-	va_end(args);
-
-	const char *msg = msg_buff;
 
 	switch (severity) {
 	case SID_PAL_LOG_SEVERITY_ERROR:
-		LOG_ERR("%s", msg);
+		LOG_VALIST(LOG_LEVEL_ERR, fmt, args);
 		break;
 	case SID_PAL_LOG_SEVERITY_WARNING:
-		LOG_WRN("%s", msg);
+		LOG_VALIST(LOG_LEVEL_WRN, fmt, args);
 		break;
 	case SID_PAL_LOG_SEVERITY_INFO:
-		LOG_INF("%s", msg);
+		LOG_VALIST(LOG_LEVEL_INF, fmt, args);
 		break;
 	case SID_PAL_LOG_SEVERITY_DEBUG:
-		LOG_DBG("%s", msg);
+		LOG_VALIST(LOG_LEVEL_DBG, fmt, args);
 		break;
 	default:
-		LOG_DBG("%s", msg);
+		LOG_VALIST(LOG_LEVEL_DBG, fmt, args);
 		LOG_WRN("sid pal log unknow severity %d", severity);
 		break;
 	}
 
-	if (print_len > MSG_LENGTH_MAX) {
-		LOG_WRN("sid pal log dropped %d bytes", (print_len - MSG_LENGTH_MAX));
+	va_end(args);
+}
+
+void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int length)
+{
+	switch (severity) {
+	case SID_PAL_LOG_SEVERITY_ERROR:
+		LOG_HEXDUMP_ERR(address, length, "");
+		break;
+	case SID_PAL_LOG_SEVERITY_WARNING:
+		LOG_HEXDUMP_WRN(address, length, "");
+		break;
+	case SID_PAL_LOG_SEVERITY_INFO:
+		LOG_HEXDUMP_INF(address, length, "");
+		break;
+	case SID_PAL_LOG_SEVERITY_DEBUG:
+		LOG_HEXDUMP_DBG(address, length, "");
+		break;
+	default:
+		LOG_WRN("sid pal log unknow severity %d", severity);
+		LOG_HEXDUMP_DBG(address, length, "");
+		break;
 	}
 }
 

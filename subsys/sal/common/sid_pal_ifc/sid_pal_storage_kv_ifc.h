@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -17,7 +17,7 @@
 
 /** @file
  *
- * @defgroup sid_pal_storage_kv sid persistent storage interface for key mapped values
+ * @defgroup sid_pal_storage_kv_ifc SID persistent storage interface for key mapped values
  * @{
  * @ingroup sid_pal_ifc
  *
@@ -39,12 +39,21 @@
 extern "C" {
 #endif
 
+#define SID_PAL_KV_STORE_MAX_LENGTH_BYTES 48
+
 /**
  * Initialize the key value storage subsystem
  *
  * @retval SID_ERROR_NONE in case of success
  */
 sid_error_t sid_pal_storage_kv_init(void);
+
+/**
+ * Deinitialize the key value storage subsystem
+ *
+ * @retval SID_ERROR_NONE in any case
+ */
+sid_error_t sid_pal_storage_kv_deinit(void);
 
 
 /**

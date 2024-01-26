@@ -6,8 +6,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <sid_sdk_version.h>
 
-extern const char *const sidewalk_version_common_commit;
 extern const size_t sidewalk_version_component_count;
 extern const char *const build_time_stamp;
 
@@ -24,7 +24,8 @@ extern const char *const sidewalk_version_component[];
 			   sidewalk_version_component[i]);                                         \
 	}                                                                                          \
 	LOG_PRINTK("----------------------------------------------------------------\n");          \
-	LOG_PRINTK("sidewalk_fork_point = %s\n", sidewalk_version_common_commit);                  \
+	LOG_PRINTK("Sidewalk SDK        = %d.%d.%d.%d\n", SID_SDK_MAJOR_VERSION,                   \
+		   SID_SDK_MINOR_VERSION, SID_SDK_PATCH_VERSION, SID_SDK_BUILD_VERSION);           \
 	LOG_PRINTK("build time          = %s\n", build_time_stamp);                                \
 	LOG_PRINTK("board               = %s\n", CONFIG_BOARD);                                    \
 	LOG_PRINTK("----------------------------------------------------------------\n")
