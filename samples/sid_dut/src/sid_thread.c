@@ -4,40 +4,23 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include "sid_error.h"
-#include "zephyr/sys/printk.h"
 #include <stdbool.h>
-#include <stdio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/shell/shell.h>
 #include <zephyr/logging/log.h>
-#include <zephyr/storage/flash_map.h>
 
+#include <sid_api.h>
+#include <sid_error.h>
+#include <sid_pal_common_ifc.h>
 #include <sid_thread.h>
 #include <sid_api_delegated.h>
+#include <sidTypes2Json.h>
+#include <json_printer.h>
 
-#include <pal_init.h>
-#include <sid_api.h>
-#include <sid_ble_link_config_ifc.h>
-#include <sid_pal_mfg_store_ifc.h>
-#include <sid_pal_storage_kv_ifc.h>
-#include <sid_pal_crypto_ifc.h>
+#include <app_mfg_config.h>
 #include <app_ble_config.h>
-
 #if defined(CONFIG_SIDEWALK_SUBGHZ)
 #include <app_subGHz_config.h>
-#include <sx126x_config.h>
-#include <sid_pal_gpio_ifc.h>
-#include <sid_900_cfg.h>
-#include <sid_pal_serial_bus_ifc.h>
-#include <sid_pal_serial_bus_spi_config.h>
-#endif
-
-#include <zephyr/shell/shell.h>
-#include <json_printer.h>
-#include <sidTypes2Json.h>
-
-#if !FIXED_PARTITION_EXISTS(mfg_storage)
-#error "Flash partition is not defined for the Sidewalk manufacturing storage!!"
 #endif
 
 LOG_MODULE_REGISTER(sid_thread, LOG_LEVEL_DBG);
@@ -197,18 +180,41 @@ sid_error_t sid_thread_init(void)
 			   CONFIG_SIDEWALK_THREAD_PRIORITY, &cfg);
 	sid_api_delegated(&sidewalk_dut_work_q);
 
-	config = (struct sid_config)
-	{
-		.callbacks = &event_callbacks, .link_config = app_get_ble_config(),
-		.time_sync_periodicity_seconds = 7200,
+	const struct sid_sub_ghz_links_config *sub_ghz_lc = NULL;
+
 #if defined(CONFIG_SIDEWALK_SUBGHZ)
-		.sub_ghz_link_config = app_get_sub_ghz_config(),
-#else
-		.sub_ghz_link_config = NULL,
+	sub_ghz_lc = app_get_sub_ghz_config();
 #endif
+
+	config = (struct sid_config){
+		.link_mask = 0,
+		.callbacks = &event_callbacks,
+		.link_config = app_get_ble_config(),
+		.sub_ghz_link_config = sub_ghz_lc,
 	};
 
-	return application_pal_init();
+	platform_parameters_t platform_parameters = {
+		.mfg_store_region.addr_start = APP_MFG_CFG_FLASH_START,
+		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
+		.platform_init_parameters.radio_cfg =
+			(radio_sx126x_device_config_t *)get_radio_cfg(),
+	};
+
+	sid_error_t ret_code = sid_platform_init(&platform_parameters);
+	if (ret_code != SID_ERROR_NONE) {
+		LOG_ERR("Sidewalk Platform Init err: %d", ret_code);
+		return SID_ERROR_GENERIC;
+	}
+
+	if (app_mfg_cfg_is_valid()) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", APP_MFG_CFG_FLASH_START);
+		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
+		return SID_ERROR_NOT_FOUND;
+	}
+
+	return SID_ERROR_NONE;
 }
 
 struct sid_config *sid_thread_get_config()
