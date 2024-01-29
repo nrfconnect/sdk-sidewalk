@@ -26,8 +26,11 @@
 #define CLI_CMD_OPT_LINK_BLE 1
 #define CLI_CMD_OPT_LINK_FSK 2
 #define CLI_CMD_OPT_LINK_LORA 3
-#define CLI_CMD_OPT_LINK_LORA_BLE 4
-#define CLI_CMD_OPT_LINK_FSK_BLE 5
+#define CLI_CMD_OPT_LINK_BLE_LORA 4
+#define CLI_CMD_OPT_LINK_BLE_FSK 5
+#define CLI_CMD_OPT_LINK_FSK_LORA 6
+#define CLI_CMD_OPT_LINK_BLE_FSK_LORA 7
+#define CLI_CMD_OPT_LINK_ANY 8
 
 #define CLI_MAX_DATA_LEN (CONFIG_SHELL_CMD_BUFF_SIZE / 2)
 #define CLI_MAX_HEX_STR_LEN CONFIG_SHELL_CMD_BUFF_SIZE
@@ -46,15 +49,38 @@
 static uint8_t send_cmd_buf[CLI_MAX_DATA_LEN];
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
-	sub_sid_option, SHELL_CMD_ARG(-b, NULL, "battery_level", cmd_sid_option_battery, 2, 0),
-	SHELL_CMD_ARG(
-		-lp_set, NULL,
-		"profile(hex) <val2>\nprofiles: 0x80, 0x81, 0x83, 0x01,0x02\n<val2> - uint16_t value",
-		cmd_sid_option_lp_set, 2, 1),
-	SHELL_CMD_ARG(-lp_get_l2, NULL, "", cmd_sid_option_lp_get_l2, 1, 0),
-	SHELL_CMD_ARG(-lp_get_l3, NULL, "", cmd_sid_option_lp_get_l3, 1, 0),
-	SHELL_CMD_ARG(-d, NULL, "<0,1>", cmd_sid_option_d, 2, 0),
-	SHELL_CMD_ARG(-gd, NULL, "", cmd_sid_option_gd, 1, 0), SHELL_SUBCMD_SET_END);
+	sub_sid_option,
+	SHELL_CMD_ARG(-lp_get_l2, NULL,
+		      "Gets link profile and associated parameters for SID_LINK_TYPE_2",
+		      cmd_sid_option_lp_get_l2, 1, 0),
+	SHELL_CMD_ARG(-lp_get_l3, NULL,
+		      "Gets link profile and associated parameters for SID_LINK_TYPE_3",
+		      cmd_sid_option_lp_get_l3, 1, 0),
+	SHELL_CMD_ARG(-gd, NULL, "Get filter duplicates configuration.", cmd_sid_option_gd, 1, 0),
+	SHELL_CMD_ARG(-gm, NULL, "Get current link connection policy", cmd_sid_option_gm, 1, 0),
+	SHELL_CMD_ARG(-gml, NULL, "Get current configured Multi link policy.", cmd_sid_option_gml,
+		      1, 0),
+	SHELL_CMD_ARG(-st_get, NULL, CMD_SID_SET_OPTION_ST_GET_DESCRIPTION, cmd_sid_option_st_get,
+		      1, 0),
+	SHELL_CMD_ARG(-st_clear, NULL, "Clear statistics", cmd_sid_option_st_clear, 1, 0),
+
+	SHELL_CMD_ARG(-lp_set, NULL, CMD_SID_SET_OPTION_LP_SET_DESCRIPTION, cmd_sid_option_lp_set,
+		      CMD_SID_SET_OPTION_LP_SET_ARG_REQUIRED,
+		      CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-b, NULL, CMD_SID_SET_OPTION_B_DESCRIPTION, cmd_sid_option_battery,
+		      CMD_SID_SET_OPTION_B_ARG_REQUIRED, CMD_SID_SET_OPTION_B_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-d, NULL, CMD_SID_SET_OPTION_D_DESCRIPTION, cmd_sid_option_d,
+		      CMD_SID_SET_OPTION_D_ARG_REQUIRED, CMD_SID_SET_OPTION_D_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-m, NULL, CMD_SID_SET_OPTION_M_DESCRIPTION, cmd_sid_option_m,
+		      CMD_SID_SET_OPTION_M_ARG_REQUIRED, CMD_SID_SET_OPTION_M_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-c, NULL, CMD_SID_SET_OPION_C_DESCRIPTION, cmd_sid_option_c,
+		      CMD_SID_SET_OPTION_C_ARG_REQUIRED, CMD_SID_SET_OPTION_C_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-ml, NULL, CMD_SID_SET_OPTION_ML_DESCRIPTION, cmd_sid_option_ml,
+		      CMD_SID_SET_OPTION_ML_ARG_REQUIRED, CMD_SID_SET_OPTION_ML_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-gc, NULL, CMD_SID_SET_OPTION_GC_DESCRIPTION, cmd_sid_option_gc,
+		      CMD_SID_SET_OPTION_GC_ARG_REQUIRED, CMD_SID_SET_OPTION_GC_ARG_OPTIONAL),
+
+	SHELL_SUBCMD_SET_END);
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
@@ -126,11 +152,20 @@ static bool cli_parse_link_mask_opt(uint8_t arg, uint32_t *link_mask)
 	case CLI_CMD_OPT_LINK_LORA:
 		*link_mask = SID_LINK_TYPE_3;
 		break;
-	case CLI_CMD_OPT_LINK_LORA_BLE:
+	case CLI_CMD_OPT_LINK_BLE_LORA:
 		*link_mask = SID_LINK_TYPE_1 | SID_LINK_TYPE_3;
 		break;
-	case CLI_CMD_OPT_LINK_FSK_BLE:
+	case CLI_CMD_OPT_LINK_BLE_FSK:
 		*link_mask = SID_LINK_TYPE_1 | SID_LINK_TYPE_2;
+		break;
+	case CLI_CMD_OPT_LINK_FSK_LORA:
+		*link_mask = SID_LINK_TYPE_2 | SID_LINK_TYPE_3;
+		break;
+	case CLI_CMD_OPT_LINK_BLE_FSK_LORA:
+		*link_mask = SID_LINK_TYPE_1 | SID_LINK_TYPE_2 | SID_LINK_TYPE_3;
+		break;
+	case CLI_CMD_OPT_LINK_ANY:
+		*link_mask = SID_LINK_TYPE_ANY;
 		break;
 	default:
 		return false;
@@ -266,7 +301,7 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 	const char *connection_type_arg = argv[1];
 	uint8_t connection_type = atoi(connection_type_arg);
 
-	if (!IN_RANGE(connection_type, 1, 5)) {
+	if (!IN_RANGE(connection_type, CLI_CMD_OPT_LINK_BLE, CLI_CMD_OPT_LINK_ANY)) {
 		return -EINVAL;
 	}
 	if (!cli_parse_link_mask_opt(connection_type, &cli_cfg.sid_cfg->link_mask)) {
@@ -529,7 +564,8 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	CHECK_ARGUMENT_COUNT(argc, 2, 0);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_B_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_B_ARG_OPTIONAL);
 
 	long data_raw = 0l;
 	static uint8_t data = 0;
@@ -557,7 +593,8 @@ int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char *
 int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	CHECK_ARGUMENT_COUNT(argc, 2, 1);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_LP_SET_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL);
 
 	long data_raw = 0l;
 	static enum sid_device_profile_id dev_profile = SID_LINK3_PROFILE_LAST;
@@ -661,7 +698,8 @@ int cmd_sid_option_lp_get_l3(const struct shell *shell, int32_t argc, const char
 int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
-	CHECK_ARGUMENT_COUNT(argc, 2, 0);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_D_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_D_ARG_OPTIONAL);
 
 	long data_raw = 0l;
 	static uint8_t data = 0;
@@ -694,6 +732,185 @@ int cmd_sid_option_gd(const struct shell *shell, int32_t argc, const char **argv
 					       sizeof(data));
 
 	shell_info(shell, "sid_option returned %d; Filter Duplicates: %d", ret, data);
+	return 0;
+}
+
+int cmd_sid_option_gm(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+
+	static uint8_t data = 0;
+	sid_error_t ret =
+		sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+				     SID_OPTION_GET_LINK_CONNECTION_POLICY, &data, sizeof(data));
+	shell_info(shell, "sid_option returned %d; Link Connect Policy: %d", ret, data);
+	return 0;
+}
+
+int cmd_sid_option_gml(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+
+	static uint8_t data = 0;
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_GET_LINK_POLICY_MULTI_LINK_POLICY, &data,
+					       sizeof(data));
+	shell_info(shell, "sid_option returned %d; Link Multi Link Policy: %d", ret, data);
+
+	return 0;
+}
+
+int cmd_sid_option_st_get(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+
+	static struct sid_statistics stats = { 0 };
+	memset(&stats, 0, sizeof(stats));
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_GET_STATISTICS, &stats, sizeof(stats));
+	shell_info(
+		shell,
+		"sid_option returned %d; tx: %d, acks_sent %d, tx_fail: %d, retries: %d, dups: %d, acks_recv: %d rx: %d",
+		ret, stats.msg_stats.tx, stats.msg_stats.acks_sent, stats.msg_stats.tx_fail,
+		stats.msg_stats.retries, stats.msg_stats.duplicates, stats.msg_stats.acks_recv,
+		stats.msg_stats.rx);
+	return 0;
+}
+
+int cmd_sid_option_st_clear(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_CLEAR_STATISTICS, NULL, 0);
+	shell_info(shell, "sid_option returned %d", ret);
+	return 0;
+}
+
+int cmd_sid_option_m(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_M_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_M_ARG_OPTIONAL);
+	long data_raw = 0l;
+	static uint8_t data = 0;
+	char *end = NULL;
+
+	data_raw = strtol(argv[1], &end, 0);
+	if (end == argv[1] || !IN_RANGE(data_raw, 0, 2)) {
+		shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
+			    argv[1] == NULL ? "NULL" : argv[1], (unsigned int)2);
+		return -EINVAL;
+	}
+	data = (uint8_t)data_raw;
+	sid_error_t ret =
+		sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+				     SID_OPTION_SET_LINK_CONNECTION_POLICY, &data, sizeof(data));
+	shell_info(shell, "sid_option returned %d", ret);
+	return 0;
+}
+
+int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_C_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_C_ARG_OPTIONAL);
+	static struct sid_link_auto_connect_params params = {};
+	params.priority = UINT8_MAX;
+	params.connection_attempt_timeout_seconds = UINT16_MAX;
+
+	long link_type = 0l;
+	char *end = NULL;
+	link_type = strtol(argv[1], &end, 0);
+	if (end == argv[1] || !IN_RANGE(link_type, CLI_CMD_OPT_LINK_BLE, CLI_CMD_OPT_LINK_ANY)) {
+		shell_error(shell, "parameter link type invalid");
+		return -EINVAL;
+	}
+	cli_parse_link_mask_opt((uint8_t)link_type, (uint32_t *)&params.link_type);
+
+	long enable = strtol(argv[2], &end, 0);
+	if (end == argv[2] || !IN_RANGE(enable, 0, 1)) {
+		shell_error(shell, "parameter enable invalid");
+		return -EINVAL;
+	}
+	params.enable = enable;
+	if (argc >= 4) {
+		long priority = strtol(argv[3], &end, 0);
+		if (end == argv[3] || !IN_RANGE(priority, 0, 255)) {
+			shell_error(shell, "parameter priority invalid");
+			return -EINVAL;
+		}
+		params.priority = priority;
+	}
+
+	if (argc >= 5) {
+		long timeout = strtol(argv[4], &end, 0);
+		if (end == argv[4] || !IN_RANGE(timeout, 0, UINT16_MAX)) {
+			shell_error(shell, "parameter timeout invalid");
+			return -EINVAL;
+		}
+		params.connection_attempt_timeout_seconds = timeout;
+	}
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+					       &params, sizeof(params));
+	shell_info(
+		shell,
+		"sid_option returned %d; AC Policy set , link %d, enable %d priority %d timeout %d",
+		ret, params.link_type, params.enable, params.priority,
+		params.connection_attempt_timeout_seconds);
+	return 0;
+}
+
+int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_ML_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_ML_ARG_OPTIONAL);
+	long policy_raw = 0l;
+	static uint8_t policy;
+	char *end = NULL;
+	policy_raw = strtol(argv[1], &end, 0);
+	if (end == argv[1] || !IN_RANGE(policy_raw, 0, 4)) {
+		shell_error(shell, "parameter policy invalid");
+		return -EINVAL;
+	}
+	policy = policy_raw;
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_SET_LINK_POLICY_MULTI_LINK_POLICY,
+					       &policy, sizeof(policy));
+	shell_info(shell, "sid_option returned %d", ret);
+
+	return 0;
+}
+
+int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_SHELL_INITIALIZED(shell, cli_cfg);
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_GC_ARG_REQUIRED,
+			     CMD_SID_SET_OPTION_GC_ARG_OPTIONAL);
+	long link_type = 0l;
+	char *end = NULL;
+	link_type = strtol(argv[1], &end, 0);
+	if (end == argv[1] || !IN_RANGE(link_type, CLI_CMD_OPT_LINK_BLE, CLI_CMD_OPT_LINK_ANY)) {
+		shell_error(shell, "parameter link type invalid");
+		return -EINVAL;
+	}
+	uint32_t link_mask;
+	cli_parse_link_mask_opt((uint8_t)link_type, &link_mask);
+	static struct sid_link_auto_connect_params params = {};
+	params.link_type = link_mask;
+
+	sid_error_t ret = sid_option_delegated(*cli_cfg.app_cxt->sidewalk_handle,
+					       SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+					       &params, sizeof(params));
+	shell_info(shell,
+		   "sid_option returned %d; AC Policy, link %d, enable %d priority %d timeout %d",
+		   ret, params.link_type, params.enable, params.priority,
+		   params.connection_attempt_timeout_seconds);
 	return 0;
 }
 
@@ -760,14 +977,6 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 	switch (argv[1][0]) {
 	case '0': {
 		type = SID_GET_GPS_TIME;
-		break;
-	}
-	case '1': {
-		type = SID_GET_UTC_TIME;
-		break;
-	}
-	case '2': {
-		type = SID_GET_LOCAL_TIME;
 		break;
 	}
 	default: {

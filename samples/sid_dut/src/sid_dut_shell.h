@@ -12,9 +12,16 @@
 #include <sid_thread.h>
 #include <sid_api.h>
 
-#define CMD_SID_INIT_DESCRIPTION                                                                                                                                                                                                         \
-	"<1,2,3,4,5>\n"                                                                                                                                                                                                                  \
-	"initialize the sidewalk stack, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA) 4 is SID_LINK_TYPE_1 | SID_LINK_TYPE_3 (BLE + LORA),  5 is SID_LINK_TYPE_1 | SID_LINK_TYPE_2 (BLE + FSK).\n" \
+#define CMD_SID_INIT_DESCRIPTION                                                                   \
+	"<1,2,3,4,5,6,7,8>\n"                                                                      \
+	"initialize the sidewalk stack, 1 is SID_LINK_TYPE_1 (BLE)\n"                              \
+	"2 is SID_LINK_TYPE_2 (FSK)\n"                                                             \
+	"3 is SID_LINK_TYPE_3 (LoRa)\n"                                                            \
+	"4 is SID_LINK_TYPE_1|SID_LINK_TYPE_3 (BLE+LoRa)\n"                                        \
+	"5 is SID_LINK_TYPE_1|SID_LINK_TYPE_2 (BLE+FSK)\n"                                         \
+	"6 is SID_LINK_TYPE_2|SID_LINK_TYPE_3 (FSK+LoRa)\n"                                        \
+	"7 is SID_LINK_TYPE_1|SID_LINK_TYPE_2|SID_LINK_TYPE_3 (BLE+FSK+LoRa)\n"                    \
+	"8 is SID_LINK_TYPE_ANY\n"                                                                 \
 	"This calls the sid_init() API."
 
 #define CMD_SID_DEINIT_DESCRIPTION                                                                 \
@@ -71,25 +78,73 @@
 	"<1,2,3>\n"                                                                                \
 	"get the MTU for the selected link type, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA). This calls the sid_get_mtu() API."
 
-#define CMD_SID_SET_OPTION_DESCRIPTION                                                                                                                                      \
-	"<option> <val1>...<valN>\n"                                                                                                                                        \
-	"Set link options. This calls the sid_option() API. Possible inputs for  \"<option> <val1>...<valN>\" are as follows:\n"                                            \
-	"\"-b <batlevel>\" - for setting battery level for SID_LINK_TYPE_1. Not supported for other link types.\n"                                                          \
-	"	<batlevel> - (uint8) battery level.\n"                                                                                                                            \
-	"\"-lp_set <val1> .. <valN>\" -  sets SID_LINK_TYPE_2 and SID_LINK_TYPE_3 (900 MHz) link profile and related parameters.\n"                                         \
-	"\"-lp_set 1\" - for SID_LINK2_PROFILE_1\".\n"                                                                                                                      \
-	"\"-lp_set 2 <rx_int>\" - for SID_LINK2_PROFILE_2 with optional rx_int parameter\".\n"                                                                              \
-	"	<rx_int> Specifies DL interval between rx opportunities in units of ms. The value must be a multiple of 63ms. When ommitted the default value of 63ms is used.\n" \
-	"\"-lp_set 0x80 <rxwc>\" - for SID_LINK3_PROFILE_A, where <rxwc> is the rx_window count parameter.\n"                                                               \
-	"\"-lp_set 0x81 <rxwc>\" - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter.\n"                                                               \
-	"\"-lp_set 0x83 <rxwc>\" - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter.\n"                                                               \
-	"	<rxwc> - (uint8) rx window count. 0 represents infinite windows.\n"                                                                                               \
-	"\"-lp_get_l2\" - Gets link profile and associated parameters for SID_LINK_TYPE_2. Ex: \"app: CMD: ERR: 0 Link_profile ID: 1 Wndw_cnt: 0\".\n"                      \
-	"\"-lp_get_l3\" - Gets link profile and associated parameters for SID_LINK_TYPE_3. Ex: \"app: CMD: ERR: 0 Link_profile ID: 128 Wndw_cnt: 5\"."                      \
-	"\"-d <0,1>\" - filter duplicate message.\n"                                                                                                                        \
-	"   0 - filter duplicate message.\n"                                                                                                                                \
-	"   1 - don't filter duplicate message and notify to user."                                                                                                         \
-	"\"-gd\" - Get filter duplicates configuration. Ex: \"app: CMD: ERR: 0 Filter Duplicates: 0\""
+#define CMD_SID_SET_OPTION_DESCRIPTION                                                             \
+	"<option> <val1>...<valN>\n"                                                               \
+	"Set link options. This calls the sid_option() API.\n"
+
+#define CMD_SID_SET_OPTION_B_DESCRIPTION                                                           \
+	"<batlevel>\n"                                                                             \
+	"for setting battery level for SID_LINK_TYPE_1. Not supported for other link types.\n"     \
+	"<batlevel> - (uint8) battery level.\n"
+
+#define CMD_SID_SET_OPTION_D_DESCRIPTION                                                           \
+	"<0,1>\n"                                                                                  \
+	"filter duplicate message.\n"                                                              \
+	"   0 - filter duplicate message.\n"                                                       \
+	"   1 - don't filter duplicate message and notify to user."
+
+#define CMD_SID_SET_OPTION_M_DESCRIPTION                                                           \
+	"<policy>\n"                                                                               \
+	"Set link connection policy\n"                                                             \
+	"<policy> value of the link connection policy\n"                                           \
+	"   0 - SID_LINK_CONNECTION_POLICY_NONE\n"                                                 \
+	"   1 - SID_LINK_CONNECTION_POLICY_AUTO_CONNECT\n"                                         \
+	"   2 - SID_LINK_CONNECTION_POLICY_MLM\n"
+
+#define CMD_SID_SET_OPION_C_DESCRIPTION                                                                                  \
+	"<link> <enable> [<priority> <timeout>]\n"                                                                       \
+	"Set Auto connect policy parameters per link\n"                                                                  \
+	"<link_type> - link on which the auto connect parameters need to be applied. valid values are only (1,2,3)\n"    \
+	"   1 - SID_LINK_TYPE_1 (BLE)\n"                                                                                 \
+	"   2 - SID_LINK_TYPE_2 (FSK)\n"                                                                                 \
+	"   3 - SID_LINK_TYPE_3 (LoRa)\n"                                                                                \
+	"<enable> - enable/disable auto connect for the link type\n"                                                     \
+	"   0 - Disable auto connect\n"                                                                                  \
+	"   1 - Enable auto connect\n"                                                                                   \
+	"<priority> - priority per link, valid values 0(Highest) to 255(Lowest), optional when disabling auto connect\n" \
+	"<timeout> - total seconds the stack attempts to establish a connection on the link, optional when disabling auto connect <0;65535>\n"
+
+#define CMD_SID_SET_OPTION_ML_DESCRIPTION                                                                \
+	"<policy>\n"                                                                                     \
+	"Set Multi link policy parameters\n"                                                             \
+	"<policy> - The multi link policy that needs to be applied. valid values are only (0,1,2,3,4)\n" \
+	"   0 - SID_LINK_MULTI_LINK_POLICY_ACTIVE\n"                                                     \
+	"   1 - SID_LINK_MULTI_LINK_POLICY_POWER_SAVE\n"                                                 \
+	"   2 - SID_LINK_MULTI_LINK_POLICY_PERFORMANCE\n"                                                \
+	"   3 - SID_LINK_MULTI_LINK_POLICY_LATENCY\n"                                                    \
+	"   4 - SID_LINK_MULTI_LINK_POLICY_RELIABILITY\n"
+
+#define CMD_SID_SET_OPTION_GC_DESCRIPTION                                                          \
+	"<link_type>\n"                                                                            \
+	"Get Auto connect policy per link. Ex: \"app: CMD: ERR: 0 AC Policy, link 1, enable 1 priority 0 timeout 30\"\n"
+
+#define CMD_SID_SET_OPTION_ST_GET_DESCRIPTION                                                      \
+	"Get statistics, ex:\n"                                                                    \
+	"\"app: CMD: ERR: 0 tx: 3, acks_sent 8, tx_fail: 0, retries: 4, dups: 6, acks_recv: 7 rx: 8\"\n"
+
+#define CMD_SID_SET_OPTION_LP_SET_DESCRIPTION                                                                                                                              \
+	"<val1> .. <valN>\n"                                                                                                                                               \
+	"sets SID_LINK_TYPE_2 and SID_LINK_TYPE_3 (900 MHz) link profile and related parameters.\n"                                                                        \
+	"This API requires the device having network time (GCS) and returns an error code otherwise.\n"                                                                    \
+	"This API can be exercised only when the link is started otherwise, an error code is returned\n"                                                                   \
+	"At bootup time the API returns an error code prior to obtaining GCS.\n"                                                                                           \
+	"-lp_set 1 - for SID_LINK2_PROFILE_1\n"                                                                                                                            \
+	"-lp_set 2 <rx_int> - for SID_LINK2_PROFILE_2 with optional rx_int parameter\n"                                                                                    \
+	"<rx_int> Specifies DL interval between rx opportunities in units of ms. The value must be a multiple of 63ms. When ommitted the default value of 63ms is used.\n" \
+	"-lp_set 0x80 <rxwc> - for SID_LINK3_PROFILE_A, where <rxwc> is the rx_window count parameter\n"                                                                   \
+	"-lp_set 0x81 <rxwc> - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter\n"                                                                   \
+	"-lp_set 0x83 <rxwc> - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter\n"                                                                   \
+	"<rxwc> - (uint8) rx window count. 0 represents infinite windows\n"
 
 #define CMD_SID_LAST_STATUS_DESCRIPTION                                                            \
 	"\n"                                                                                       \
@@ -98,16 +153,14 @@
 #define CMD_SID_CONN_REQUEST_DESCRIPTION                                                           \
 	"<0,1>\n"                                                                                  \
 	"set the connection request bit in BLE beacon,\n"                                          \
-	"1 - set connection request bit\n"                                                         \
-	"0 - clear connection request bit\n"                                                       \
+	"   1 - set connection request bit\n"                                                      \
+	"   0 - clear connection request bit\n"                                                    \
 	"This calls the sid_ble_bcn_connection_request() API.\n"
 
 #define CMD_SID_GET_TIME_DESCRIPTION                                                               \
-	"<0-2>\n"                                                                                  \
+	"<0>\n"                                                                                    \
 	"get time from Sidewalk library,\n"                                                        \
-	"0 - GPS time\n"                                                                           \
-	"1 - UTC time (not supported by sid api)\n"                                                \
-	"2 - Local time (not supported by sid api)\n"                                              \
+	"   0 - GPS time\n"                                                                        \
 	"This calls the sid_get_time() API."
 
 #define CMD_SID_SET_DST_ID_DESCRIPTION                                                             \
@@ -117,14 +170,14 @@
 #define CMD_SID_SET_SEND_LINK_DESCRIPTION                                                                                             \
 	"<link type>\n"                                                                                                               \
 	"set the link type that the message should be sent over. This is optional and only applies when multiple links are enabled\n" \
-	"0 - SID_LINK_TYPE_ANY\n"                                                                                                     \
-	"1 - SID_LINK_TYPE_1 (BLE)\n"                                                                                                 \
-	"2 - SID_LINK_TYPE_2 (FSK)\n"                                                                                                 \
-	"3 - SID_LINK_TYPE_3 (LORA)"
+	"   0 - SID_LINK_TYPE_ANY\n"                                                                                                  \
+	"   1 - SID_LINK_TYPE_1 (BLE)\n"                                                                                              \
+	"   2 - SID_LINK_TYPE_2 (FSK)\n"                                                                                              \
+	"   3 - SID_LINK_TYPE_3 (LORA)"
 
 #define CMD_SID_SET_RSP_ID_DESCRIPTION                                                             \
 	"<value>\n"                                                                                \
-	"allow the set ID for RESPONSE type message, this can be use before calling sid send command with message type set as RESPONSE."
+	"allow the set ID for RESPONSE type message, this can be use before calling sid send command with message type set as RESPONSE. <0;65535>"
 
 #define CMD_SID_SDK_VERSION_DESCRIPTION "Print sid sdk version"
 
@@ -146,6 +199,20 @@
 #define CMD_SID_GET_MTU_ARG_OPTIONAL 0
 #define CMD_SID_SET_OPTION_ARG_REQUIRED 2
 #define CMD_SID_SET_OPTION_ARG_OPTIONAL 2
+#define CMD_SID_SET_OPTION_M_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_M_ARG_OPTIONAL 0
+#define CMD_SID_SET_OPTION_B_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_B_ARG_OPTIONAL 0
+#define CMD_SID_SET_OPTION_D_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_D_ARG_OPTIONAL 0
+#define CMD_SID_SET_OPTION_ML_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_ML_ARG_OPTIONAL 0
+#define CMD_SID_SET_OPTION_GC_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_GC_ARG_OPTIONAL 0
+#define CMD_SID_SET_OPTION_C_ARG_REQUIRED 3
+#define CMD_SID_SET_OPTION_C_ARG_OPTIONAL 2
+#define CMD_SID_SET_OPTION_LP_SET_ARG_REQUIRED 2
+#define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 1
 #define CMD_SID_LAST_STATUS_ARG_REQUIRED 1
 #define CMD_SID_LAST_STATUS_ARG_OPTIONAL 0
 #define CMD_SID_CONN_REQUEST_ARG_REQUIRED 2
@@ -177,6 +244,14 @@ int cmd_sid_option_lp_get_l2(const struct shell *shell, int32_t argc, const char
 int cmd_sid_option_lp_get_l3(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_gd(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_gm(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_gml(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_st_get(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_st_clear(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_m(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv);

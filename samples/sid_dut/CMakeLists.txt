@@ -11,12 +11,15 @@ set(hci_rpmsg_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/hci_rpmsg/Kco
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_template)
 
+set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
+
 zephyr_include_directories(src)
-zephyr_include_directories($ENV{ZEPHYR_BASE}/../sidewalk/utils)
+zephyr_include_directories(${SIDEWALK_BASE}/samples/common/include)
+zephyr_include_directories(${SIDEWALK_BASE}/utils)
 
 target_sources(app PRIVATE
   src/main.c
-  $ENV{ZEPHYR_BASE}/../sidewalk/utils/sid_api_delegated.c
   src/sid_dut_shell.c
   src/sid_thread.c
+  ${SIDEWALK_BASE}/utils/sid_api_delegated.c
 )
