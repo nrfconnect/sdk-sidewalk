@@ -1,3 +1,0 @@
-[submodule "tools/aws-iot-core-for-sidewalk"]
-	path = tools/aws-iot-core-for-sidewalk
-	url = https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
