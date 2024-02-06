@@ -63,3 +63,5 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DELAY sid_delay.c)
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SPI_BUS sid_pal_serial_bus_spi.c)
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK sid_common.c)
+
+zephyr_library_sources_ifdef(DEPRECATED_SIDEWALK_PAL_INIT pal_init.c)

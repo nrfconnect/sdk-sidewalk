@@ -11,114 +11,160 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <zephyr/ztest.h>
 
 /* header under test */
-#include <sid_dut_shell.h>
+#include <cli/app_shell.h>
 #include <sid_900_cfg.h>
 
 /* mocks and dummy headers */
-#include <mock/sid_api_delegated_mock.h>
 #include <mock/shell_mock.h>
-#include <sid_thread.h>
+#include <mock/sidewalk_mock.h>
 
-// sidewalk handle pointer used in valid initialization
-static struct sid_handle *sidewalk_handle = NULL;
-static struct app_context app_ctx_valid;
 static struct sid_config sid_cfg_valid;
-static struct app_context app_ctx_invalid;
-static struct sid_config sid_cfg_invalid;
 
 // clang-format off
 #define PARAMETRIZED_TEST(siute, name, test_foo, ...) ZTEST(siute, name){ test_foo(__VA_ARGS__); }
 // clang-format on
 
 // ////////////////////////////////////////////////////////////////////////////
-// sid_dut_shell_api_shell_uninitialized
+// sid_dut_shell_api
 // ////////////////////////////////////////////////////////////////////////////
+
+struct test_sidewalk_parameters {
+	bool alloc_ok;
+	bool send_ok;
+};
+
+struct test_sidewalk_parameters params_sid_ok = { .alloc_ok = true, .send_ok = true };
+
+static void sidewalk_parameters_set(struct test_sidewalk_parameters params)
+{
+	if (params.alloc_ok) {
+		sidewalk_data_alloc_fake.custom_fake = malloc;
+		sidewalk_data_free_fake.custom_fake = free;
+	} else {
+		sidewalk_data_alloc_fake.return_val = NULL;
+	}
+
+	sidewalk_event_send_fake.return_val = (params.send_ok) ? 0 : -EAGAIN;
+}
+
+static void sidewalk_parameters_assert(int ret)
+{
+	if (ret == 0) {
+		zassert_equal(1, sidewalk_event_send_fake.call_count);
+	}
+
+	if (sidewalk_event_send_fake.call_count > 0 && sidewalk_event_send_fake.return_val != 0) {
+		zassert_equal(sidewalk_data_alloc_fake.call_count,
+			      sidewalk_data_free_fake.call_count);
+	} else {
+		zassert_equal(0, sidewalk_data_free_fake.call_count);
+	}
+}
 
 struct test_init_parameters {
 	int argc;
 	const char **argv;
 	int return_code;
 	enum sid_link_type expected_link_type;
+	struct test_sidewalk_parameters sid;
 };
 
 void test_sid_init(struct test_init_parameters parameters)
 {
+	sidewalk_parameters_set(parameters.sid);
+
 	int ret = cmd_sid_init(NULL, parameters.argc, parameters.argv);
 
 	zassert_equal(parameters.return_code, ret, "Returned error code %d", ret);
+
 	if (parameters.return_code == 0) {
-		zassert_equal(1, sid_init_delegated_fake.call_count);
-		zassert_equal_ptr(&sid_cfg_valid, sid_init_delegated_fake.arg0_val,
-				  "Invalid sid_config passed");
-		zassert_equal(parameters.expected_link_type, sid_cfg_valid.link_mask,
+		zassert_equal(parameters.expected_link_type,
+			      *((uint32_t *)sidewalk_event_send_fake.arg1_val),
 			      "Invalid link mask has been set");
-		zassert_equal_ptr(&sidewalk_handle, sid_init_delegated_fake.arg1_val,
-				  "Invalid sidewalk_handle passed");
-	} else {
-		zassert_equal(0, sid_init_delegated_fake.call_count);
 	}
+
+	sidewalk_parameters_assert(parameters.return_code);
 }
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_0_args, test_sid_init,
 		  (struct test_init_parameters){ .argc = 1,
 						 .argv = (const char *[]){ "init" },
-						 .return_code = -EINVAL })
+						 .return_code = -EINVAL,
+						 .sid.alloc_ok = false,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_1, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "1" },
 						 .return_code = 0,
-						 .expected_link_type = SID_LINK_TYPE_1 })
+						 .expected_link_type = SID_LINK_TYPE_1,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_2, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "2" },
 						 .return_code = 0,
-						 .expected_link_type = SID_LINK_TYPE_2 })
+						 .expected_link_type = SID_LINK_TYPE_2,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_3, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "3" },
 						 .return_code = 0,
-						 .expected_link_type = SID_LINK_TYPE_3 })
+						 .expected_link_type = SID_LINK_TYPE_3,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_4, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "4" },
 						 .return_code = 0,
 						 .expected_link_type = SID_LINK_TYPE_1 |
-								       SID_LINK_TYPE_3 })
+								       SID_LINK_TYPE_3,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_5, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "5" },
 						 .return_code = 0,
 						 .expected_link_type = SID_LINK_TYPE_1 |
-								       SID_LINK_TYPE_2 })
+								       SID_LINK_TYPE_2,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_6, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "6" },
 						 .return_code = 0,
 						 .expected_link_type = SID_LINK_TYPE_2 |
-								       SID_LINK_TYPE_3 })
+								       SID_LINK_TYPE_3,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_7, test_sid_init,
-		  (struct test_init_parameters){ .argc = 2,
-						 .argv = (const char *[]){ "init", "7" },
-						 .return_code = 0,
-						 .expected_link_type = SID_LINK_TYPE_1 |
-								       SID_LINK_TYPE_2 |
-								       SID_LINK_TYPE_3 })
+		  (struct test_init_parameters){
+			  .argc = 2,
+			  .argv = (const char *[]){ "init", "7" },
+			  .return_code = 0,
+			  .expected_link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2 | SID_LINK_TYPE_3,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_8, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
 						 .argv = (const char *[]){ "init", "8" },
 						 .return_code = 0,
-						 .expected_link_type = SID_LINK_TYPE_ANY })
+						 .expected_link_type = SID_LINK_TYPE_ANY,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = true })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_init_9, test_sid_init,
 		  (struct test_init_parameters){ .argc = 2,
@@ -129,6 +175,22 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_init_9_1, test_sid_init,
 		  (struct test_init_parameters){ .argc = 3,
 						 .argv = (const char *[]){ "init", "9", "1" },
 						 .return_code = -EINVAL })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_nomem, test_sid_init,
+		  (struct test_init_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "init", "1" },
+						 .expected_link_type = SID_LINK_TYPE_1,
+						 .return_code = -ENOMEM,
+						 .sid.alloc_ok = false,
+						 .sid.send_ok = false })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_init_send_err, test_sid_init,
+		  (struct test_init_parameters){ .argc = 2,
+						 .argv = (const char *[]){ "init", "1" },
+						 .expected_link_type = SID_LINK_TYPE_1,
+						 .return_code = -ENOMSG,
+						 .sid.alloc_ok = true,
+						 .sid.send_ok = false })
 // ////////////////////////////////////////////////////////////////////////////
 
 ZTEST(sid_dut_shell_api, test_sid_deinit)
@@ -139,7 +201,6 @@ ZTEST(sid_dut_shell_api, test_sid_deinit)
 	int ret = cmd_sid_deinit(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_deinit_delegated_fake.call_count);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_deinit_1)
@@ -150,7 +211,6 @@ ZTEST(sid_dut_shell_api, test_sid_deinit_1)
 	int ret = cmd_sid_deinit(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_deinit_delegated_fake.call_count);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -164,18 +224,11 @@ struct test_start_parameters {
 
 void test_sid_start(struct test_start_parameters parameters)
 {
+	sidewalk_parameters_set(params_sid_ok);
 	int ret = cmd_sid_start(NULL, parameters.argc, parameters.argv);
 
 	zassert_equal(parameters.return_code, ret, "Returned error code %d", ret);
-	if (parameters.return_code == 0) {
-		zassert_equal(1, sid_start_delegated_fake.call_count);
-		zassert_equal_ptr(sidewalk_handle, sid_start_delegated_fake.arg0_val,
-				  "Invalid sidewalk handle");
-		zassert_equal(parameters.expected_link_type, sid_start_delegated_fake.arg1_val,
-			      "Invalid link_mask");
-	} else {
-		zassert_equal(0, sid_start_delegated_fake.call_count);
-	}
+	sidewalk_parameters_assert(ret);
 }
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_start_no_argument, test_sid_start,
@@ -257,18 +310,12 @@ struct test_stop_parameters {
 
 void test_sid_stop(struct test_stop_parameters parameters)
 {
+	sidewalk_parameters_set(params_sid_ok);
+
 	int ret = cmd_sid_stop(NULL, parameters.argc, parameters.argv);
 
 	zassert_equal(parameters.return_code, ret, "Returned error code %d", ret);
-	if (parameters.return_code == 0) {
-		zassert_equal(1, sid_stop_delegated_fake.call_count);
-		zassert_equal_ptr(sidewalk_handle, sid_stop_delegated_fake.arg0_val,
-				  "Invalid sidewalk handle");
-		zassert_equal(parameters.expected_link_type, sid_stop_delegated_fake.arg1_val,
-			      "Invalid link_mask");
-	} else {
-		zassert_equal(0, sid_stop_delegated_fake.call_count);
-	}
+	sidewalk_parameters_assert(ret);
 }
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_stop_no_argument, test_sid_stop,
@@ -347,42 +394,42 @@ struct test_send_parameters {
 	int return_code;
 	struct sid_msg msg;
 	struct sid_msg_desc desc;
+	struct test_sidewalk_parameters sid;
 };
 
 void test_sid_send(struct test_send_parameters parameters)
 {
+	sidewalk_parameters_set(parameters.sid);
+
 	int ret = cmd_sid_send(NULL, parameters.argc, parameters.argv);
 
 	zassert_equal(parameters.return_code, ret, "Returned error code %d", ret);
 	if (parameters.return_code == 0) {
-		zassert_equal(1, sid_put_msg_delegated_fake.call_count);
-		zassert_equal_ptr(sid_put_msg_delegated_fake.arg0_val, sidewalk_handle,
-				  "Invalid sidewalk handle");
-		zassert_equal(sid_put_msg_delegated_fake.arg1_val->size, parameters.msg.size,
-			      "Invalid message size");
-		zassert_mem_equal(sid_put_msg_delegated_fake.arg1_val->data, parameters.msg.data,
-				  parameters.msg.size, "Invalid message");
-		zassert_equal(sid_put_msg_delegated_fake.arg2_val->type, parameters.desc.type,
-			      "Invalid link type");
-		zassert_equal(sid_put_msg_delegated_fake.arg2_val->link_mode,
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)->msg.size,
+			      parameters.msg.size, "Invalid message size");
+		zassert_mem_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)->msg.data,
+				  parameters.msg.data, parameters.msg.size, "Invalid message");
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)->desc.type,
+			      parameters.desc.type, "Invalid link type");
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)->desc.link_mode,
 			      parameters.desc.link_mode, "Invalid link mode type");
-		zassert_equal(sid_put_msg_delegated_fake.arg2_val->id, parameters.desc.id,
-			      "Invalid desc.id");
-		zassert_equal(
-			sid_put_msg_delegated_fake.arg2_val->msg_desc_attr.tx_attr.request_ack,
-			parameters.desc.msg_desc_attr.tx_attr.request_ack,
-			"Invalid desc.msg_desc_attr.tx_attr.request_ack");
-		zassert_equal(
-			sid_put_msg_delegated_fake.arg2_val->msg_desc_attr.tx_attr.num_retries,
-			parameters.desc.msg_desc_attr.tx_attr.num_retries,
-			"Invalid desc.msg_desc_attr.tx_attr.num_retries");
-		zassert_equal(
-			sid_put_msg_delegated_fake.arg2_val->msg_desc_attr.tx_attr.ttl_in_seconds,
-			parameters.desc.msg_desc_attr.tx_attr.ttl_in_seconds,
-			"Invalid desc.msg_desc_attr.tx_attr.ttl_in_seconds");
-	} else {
-		zassert_equal(0, sid_put_msg_delegated_fake.call_count);
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)->desc.id,
+			      parameters.desc.id, "Invalid desc.id");
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)
+				      ->desc.msg_desc_attr.tx_attr.request_ack,
+			      parameters.desc.msg_desc_attr.tx_attr.request_ack,
+			      "Invalid desc.msg_desc_attr.tx_attr.request_ack");
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)
+				      ->desc.msg_desc_attr.tx_attr.num_retries,
+			      parameters.desc.msg_desc_attr.tx_attr.num_retries,
+			      "Invalid desc.msg_desc_attr.tx_attr.num_retries");
+		zassert_equal(((sidewalk_msg_t *)sidewalk_event_send_fake.arg1_val)
+				      ->desc.msg_desc_attr.tx_attr.ttl_in_seconds,
+			      parameters.desc.msg_desc_attr.tx_attr.ttl_in_seconds,
+			      "Invalid desc.msg_desc_attr.tx_attr.ttl_in_seconds");
 	}
+
+	sidewalk_parameters_assert(ret);
 }
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_plain, test_sid_send,
@@ -393,7 +440,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_plain, test_sid_send,
 			  .msg = (struct sid_msg){ .size = strlen("ASCII_text_as_data"),
 						   .data = "ASCII_text_as_data" },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t0, test_sid_send,
 		  (struct test_send_parameters){
@@ -403,7 +453,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t0, test_sid_send,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_GET,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t1, test_sid_send,
 		  (struct test_send_parameters){
@@ -413,7 +466,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t1, test_sid_send,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_SET,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t2, test_sid_send,
 		  (struct test_send_parameters){
@@ -423,7 +479,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t2, test_sid_send,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t3, test_sid_send,
 		  (struct test_send_parameters){
@@ -433,13 +492,19 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t3, test_sid_send,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_RESPONSE,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t4, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 4,
 			  .argv = (const char *[]){ "send", "-t", "4", "ASCII_text_as_data" },
 			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+
 		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t_missing, test_sid_send,
@@ -447,6 +512,9 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t_missing, test_sid_sen
 			  .argc = 3,
 			  .argv = (const char *[]){ "send", "-t", "ASCII_text_as_data" },
 			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+
 		  })
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t_missing2, test_sid_send,
 		  (struct test_send_parameters){
@@ -457,6 +525,9 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_t_missing2, test_sid_se
 					  "-t",
 				  },
 			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+
 		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d1, test_sid_send,
@@ -467,7 +538,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d1, test_sid_send,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d2, test_sid_send,
 		  (struct test_send_parameters){
@@ -477,7 +551,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d2, test_sid_send,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_MOBILE } })
+							 .link_mode = SID_LINK_MODE_MOBILE },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d0, test_sid_send,
 		  (struct test_send_parameters){
@@ -489,13 +566,19 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d3, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 4,
 			  .argv = (const char *[]){ "send", "-d", "3", "ASCII_text_as_data" },
-			  .return_code = -EINVAL })
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d_missing, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 3,
 			  .argv = (const char *[]){ "send", "-d", "ASCII_text_as_data" },
 			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+
 		  })
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d_missing2, test_sid_send,
 		  (struct test_send_parameters){
@@ -506,6 +589,9 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_ascii_d_missing2, test_sid_se
 					  "-d",
 				  },
 			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+
 		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r1b, test_sid_send,
@@ -515,7 +601,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r1b, test_sid_send,
 			  .return_code = 0,
 			  .msg = (struct sid_msg){ .data = (char[]){ 0xff }, .size = 1 },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r2b, test_sid_send,
 		  (struct test_send_parameters){
@@ -524,7 +613,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r2b, test_sid_send,
 			  .return_code = 0,
 			  .msg = (struct sid_msg){ .data = (char[]){ 0xff, 0xab }, .size = 2 },
 			  .desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_r_with_ascii, test_sid_send,
@@ -534,7 +626,10 @@ PARAMETRIZED_TEST(
 		.return_code = 0,
 		.msg = (struct sid_msg){ .data = (char[]){ 0xde, 0xad, 0xbe, 0xef }, .size = 4 },
 		.desc = (struct sid_msg_desc){ .type = SID_MSG_TYPE_NOTIFY,
-					       .link_mode = SID_LINK_MODE_CLOUD } })
+					       .link_mode = SID_LINK_MODE_CLOUD },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_1_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -545,7 +640,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_1_with_ascii, test_sid_
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_2_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -556,7 +654,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_2_with_ascii, test_sid_
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_2,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_3_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -567,7 +668,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_3_with_ascii, test_sid_
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_3,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_4_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -579,7 +683,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_4_with_ascii, test_sid_
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 |
 								      SID_LINK_TYPE_3,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_5_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -591,7 +698,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_5_with_ascii, test_sid_
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 |
 								      SID_LINK_TYPE_2,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_6_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -603,7 +713,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_6_with_ascii, test_sid_
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_2 |
 								      SID_LINK_TYPE_3,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_7_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -612,10 +725,14 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_7_with_ascii, test_sid_
 			  .return_code = 0,
 			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
 						   .size = strlen("ASCII_text_as_data") },
-			  .desc = (struct sid_msg_desc){
-				  .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2 | SID_LINK_TYPE_3,
-				  .type = SID_MSG_TYPE_NOTIFY,
-				  .link_mode = SID_LINK_MODE_CLOUD } })
+			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 |
+								      SID_LINK_TYPE_2 |
+								      SID_LINK_TYPE_3,
+							 .type = SID_MSG_TYPE_NOTIFY,
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_8_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
@@ -626,25 +743,37 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_8_with_ascii, test_sid_
 						   .size = strlen("ASCII_text_as_data") },
 			  .desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_ANY,
 							 .type = SID_MSG_TYPE_NOTIFY,
-							 .link_mode = SID_LINK_MODE_CLOUD } })
+							 .link_mode = SID_LINK_MODE_CLOUD },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_9_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 4,
 			  .argv = (const char *[]){ "send", "-l", "9", "ASCII_text_as_data" },
-			  .return_code = -EINVAL })
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_0_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 4,
 			  .argv = (const char *[]){ "send", "-l", "0", "ASCII_text_as_data" },
-			  .return_code = -EINVAL })
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_l_no_arg_with_ascii, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 3,
 			  .argv = (const char *[]){ "send", "-l", "ASCII_text_as_data" },
-			  .return_code = -EINVAL })
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_i_123_not_response, test_sid_send,
 		  (struct test_send_parameters){
@@ -657,7 +786,10 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_i_123_not_response, test_
 								      SID_LINK_TYPE_2,
 							 .type = SID_MSG_TYPE_NOTIFY,
 							 .link_mode = SID_LINK_MODE_CLOUD,
-							 .id = 0 } })
+							 .id = 0 },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_i_123_response, test_sid_send,
@@ -670,7 +802,10 @@ PARAMETRIZED_TEST(
 		.desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
 					       .type = SID_MSG_TYPE_RESPONSE,
 					       .link_mode = SID_LINK_MODE_CLOUD,
-					       .id = 123 } })
+					       .id = 123 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_i_0_response, test_sid_send,
@@ -683,7 +818,10 @@ PARAMETRIZED_TEST(
 		.desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
 					       .type = SID_MSG_TYPE_RESPONSE,
 					       .link_mode = SID_LINK_MODE_CLOUD,
-					       .id = 0 } })
+					       .id = 0 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_i_UINT16_MAX_response, test_sid_send,
@@ -696,20 +834,29 @@ PARAMETRIZED_TEST(
 		.desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
 					       .type = SID_MSG_TYPE_RESPONSE,
 					       .link_mode = SID_LINK_MODE_CLOUD,
-					       .id = UINT16_MAX } })
+					       .id = UINT16_MAX },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_i_UINT16_MAX1_response, test_sid_send,
-		  (struct test_send_parameters){ .argc = 6,
-						 .argv = (const char *[]){ "send", "-i", "0x10000",
-									   "-t", "3",
-									   "ASCII_text_as_data" },
-						 .return_code = -EINVAL })
+		  (struct test_send_parameters){
+			  .argc = 6,
+			  .argv = (const char *[]){ "send", "-i", "0x10000", "-t", "3",
+						    "ASCII_text_as_data" },
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_i_no_arg_response, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 5,
 			  .argv = (const char *[]){ "send", "-i", "-t", "3", "ASCII_text_as_data" },
-			  .return_code = -EINVAL })
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_0_0_0_with_ascii, test_sid_send,
@@ -724,7 +871,10 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 0,
 					       .msg_desc_attr.tx_attr.num_retries = 0,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_1_0_0_with_ascii, test_sid_send,
@@ -739,7 +889,10 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 1,
 					       .msg_desc_attr.tx_attr.num_retries = 0,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_0_123_0_with_ascii, test_sid_send,
@@ -754,7 +907,10 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 0,
 					       .msg_desc_attr.tx_attr.num_retries = 123,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_0_255_0_with_ascii, test_sid_send,
@@ -769,7 +925,10 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 0,
 					       .msg_desc_attr.tx_attr.num_retries = 255,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_0_ff_0_with_ascii, test_sid_send,
@@ -784,7 +943,10 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 0,
 					       .msg_desc_attr.tx_attr.num_retries = 255,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 0 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_0_255_123_with_ascii, test_sid_send,
@@ -799,7 +961,10 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 0,
 					       .msg_desc_attr.tx_attr.num_retries = 255,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 123 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 123 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_send_hex_a_0_255_u16_max_with_ascii, test_sid_send,
@@ -814,39 +979,86 @@ PARAMETRIZED_TEST(
 					       .link_mode = SID_LINK_MODE_CLOUD,
 					       .msg_desc_attr.tx_attr.request_ack = 0,
 					       .msg_desc_attr.tx_attr.num_retries = 255,
-					       .msg_desc_attr.tx_attr.ttl_in_seconds = 65535 } })
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 65535 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
-PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_a_0_255_u16_max_hex_with_ascii,
-		  test_sid_send,
-		  (struct test_send_parameters){
-			  .argc = 6,
-			  .argv = (const char *[]){ "send", "-a", "0", "255", "0xffff",
-						    "ASCII_text_as_data" },
-			  .return_code = 0,
-			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
-						   .size = strlen("ASCII_text_as_data") },
-			  .desc = (struct sid_msg_desc){
-				  .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
-				  .type = SID_MSG_TYPE_NOTIFY,
-				  .link_mode = SID_LINK_MODE_CLOUD,
-				  .msg_desc_attr.tx_attr.request_ack = 0,
-				  .msg_desc_attr.tx_attr.num_retries = 255,
-				  .msg_desc_attr.tx_attr.ttl_in_seconds = 65535 } })
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_send_hex_a_0_255_u16_max_hex_with_ascii, test_sid_send,
+	(struct test_send_parameters){
+		.argc = 6,
+		.argv = (const char *[]){ "send", "-a", "0", "255", "0xffff",
+					  "ASCII_text_as_data" },
+		.return_code = 0,
+		.msg = (struct sid_msg){ .data = "ASCII_text_as_data",
+					 .size = strlen("ASCII_text_as_data") },
+		.desc = (struct sid_msg_desc){ .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
+					       .type = SID_MSG_TYPE_NOTIFY,
+					       .link_mode = SID_LINK_MODE_CLOUD,
+					       .msg_desc_attr.tx_attr.request_ack = 0,
+					       .msg_desc_attr.tx_attr.num_retries = 255,
+					       .msg_desc_attr.tx_attr.ttl_in_seconds = 65535 },
+		.sid.alloc_ok = true,
+		.sid.send_ok = true,
+	})
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_hex_r_0_255_missing_ttl_max_with_ascii,
 		  test_sid_send,
-		  (struct test_send_parameters){ .argc = 5,
-						 .argv = (const char *[]){ "send", "-r", "0", "123",
-									   "ASCII_text_as_data" },
-						 .return_code = -EINVAL })
+		  (struct test_send_parameters){
+			  .argc = 5,
+			  .argv = (const char *[]){ "send", "-r", "0", "123",
+						    "ASCII_text_as_data" },
+			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_no_arg, test_sid_send,
 		  (struct test_send_parameters){
 			  .argc = 1,
 			  .argv = (const char *[]){ "send" },
 			  .return_code = -EINVAL,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+
 		  })
 
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_nomem, test_sid_send,
+		  (struct test_send_parameters){
+			  .argc = 6,
+			  .argv = (const char *[]){ "send", "-a", "0", "255", "0xffff",
+						    "ASCII_text_as_data" },
+			  .return_code = -ENOMEM,
+			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
+						   .size = strlen("ASCII_text_as_data") },
+			  .desc =
+				  (struct sid_msg_desc){
+					  .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
+					  .type = SID_MSG_TYPE_NOTIFY,
+					  .link_mode = SID_LINK_MODE_CLOUD,
+				  },
+			  .sid.alloc_ok = false,
+			  .sid.send_ok = false,
+		  })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_send_send_err, test_sid_send,
+		  (struct test_send_parameters){
+			  .argc = 6,
+			  .argv = (const char *[]){ "send", "-a", "0", "255", "0xffff",
+						    "ASCII_text_as_data" },
+			  .return_code = -ENOMSG,
+			  .msg = (struct sid_msg){ .data = "ASCII_text_as_data",
+						   .size = strlen("ASCII_text_as_data") },
+			  .desc =
+				  (struct sid_msg_desc){
+					  .link_type = SID_LINK_TYPE_1 | SID_LINK_TYPE_2,
+					  .type = SID_MSG_TYPE_NOTIFY,
+					  .link_mode = SID_LINK_MODE_CLOUD,
+				  },
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = false,
+		  })
 // ////////////////////////////////////////////////////////////////////////////
 ZTEST(sid_dut_shell_api, test_sid_factory_reset)
 {
@@ -856,7 +1068,6 @@ ZTEST(sid_dut_shell_api, test_sid_factory_reset)
 	int ret = cmd_sid_factory_reset(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_set_factory_reset_delegated_fake.call_count);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_factory_reset_1)
@@ -867,7 +1078,6 @@ ZTEST(sid_dut_shell_api, test_sid_factory_reset_1)
 	int ret = cmd_sid_factory_reset(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_set_factory_reset_delegated_fake.call_count);
 }
 // ////////////////////////////////////////////////////////////////////////////
 
@@ -876,41 +1086,47 @@ struct test_get_mtu_params {
 	const char **argv;
 	int return_code;
 	enum sid_link_type expected_link_type;
+	struct test_sidewalk_parameters sid;
 };
 
 void test_sid_get_mtu(struct test_get_mtu_params params)
 {
+	sidewalk_parameters_set(params.sid);
 	int ret = cmd_sid_get_mtu(NULL, params.argc, params.argv);
 
 	zassert_equal(params.return_code, ret, "Returned error code %d", ret);
-	if (params.return_code == 0) {
-		zassert_equal(1, sid_get_mtu_delegated_fake.call_count);
-		zassert_equal_ptr(sidewalk_handle, sid_get_mtu_delegated_fake.arg0_val,
-				  "Invalid sidewalk handle");
-		zassert_equal(params.expected_link_type, sid_get_mtu_delegated_fake.arg1_val,
-			      "Invalid Link type");
-	} else {
-		zassert_equal(0, sid_get_mtu_delegated_fake.call_count);
-	}
+	sidewalk_parameters_assert(ret);
 }
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_1, test_sid_get_mtu,
-		  (struct test_get_mtu_params){ .argc = 2,
-						.argv = (const char *[]){ "get_mtu", "1" },
-						.return_code = 0,
-						.expected_link_type = SID_LINK_TYPE_1 })
+		  (struct test_get_mtu_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_mtu", "1" },
+			  .return_code = 0,
+			  .expected_link_type = SID_LINK_TYPE_1,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_2, test_sid_get_mtu,
-		  (struct test_get_mtu_params){ .argc = 2,
-						.argv = (const char *[]){ "get_mtu", "2" },
-						.return_code = 0,
-						.expected_link_type = SID_LINK_TYPE_2 })
+		  (struct test_get_mtu_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_mtu", "2" },
+			  .return_code = 0,
+			  .expected_link_type = SID_LINK_TYPE_2,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_3, test_sid_get_mtu,
-		  (struct test_get_mtu_params){ .argc = 2,
-						.argv = (const char *[]){ "get_mtu", "3" },
-						.return_code = 0,
-						.expected_link_type = SID_LINK_TYPE_3 })
+		  (struct test_get_mtu_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_mtu", "3" },
+			  .return_code = 0,
+			  .expected_link_type = SID_LINK_TYPE_3,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_0, test_sid_get_mtu,
 		  (struct test_get_mtu_params){ .argc = 2,
@@ -927,6 +1143,25 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_no_arg, test_sid_get_mtu,
 						.argv = (const char *[]){ "get_mtu" },
 						.return_code = -EINVAL })
 
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_nomem, test_sid_get_mtu,
+		  (struct test_get_mtu_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_mtu", "3" },
+			  .return_code = -ENOMEM,
+			  .expected_link_type = SID_LINK_TYPE_3,
+			  .sid.alloc_ok = false,
+			  .sid.send_ok = false,
+		  })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_mtu_send_err, test_sid_get_mtu,
+		  (struct test_get_mtu_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_mtu", "3" },
+			  .return_code = -ENOMSG,
+			  .expected_link_type = SID_LINK_TYPE_3,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = false,
+		  })
 // ////////////////////////////////////////////////////////////////////////////
 
 ZTEST(sid_dut_shell_api, test_sid_last_status)
@@ -937,9 +1172,6 @@ ZTEST(sid_dut_shell_api, test_sid_last_status)
 	int ret = cmd_sid_last_status(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal_ptr(sidewalk_handle, sid_get_status_delegated_fake.arg0_val,
-			  "Invalid sidewalk handle");
-	zassert_equal(1, sid_get_status_delegated_fake.call_count);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_last_status_arg)
@@ -950,7 +1182,6 @@ ZTEST(sid_dut_shell_api, test_sid_last_status_arg)
 	int ret = cmd_sid_last_status(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_get_status_delegated_fake.call_count);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -963,37 +1194,34 @@ ZTEST(sid_dut_shell_api, test_sid_conn_request_invalid)
 	int ret = cmd_sid_conn_request(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_ble_bcn_connection_request_delegated_fake.call_count);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_conn_request_0)
 {
 	const char *argv[] = { "conn_request", "0" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_conn_request(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_ble_bcn_connection_request_delegated_fake.call_count);
-	zassert_equal_ptr(sidewalk_handle, sid_ble_bcn_connection_request_delegated_fake.arg0_val,
-			  "Invalid sidewalk handle");
-	zassert_equal(false, sid_ble_bcn_connection_request_delegated_fake.arg1_val,
-		      "Invalid reqiest value");
+	zassert_equal(0U, *((uint32_t *)sidewalk_event_send_fake.arg1_val),
+		      "Invalid conn req has been set");
+	sidewalk_parameters_assert(ret);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_conn_request_1)
 {
 	const char *argv[] = { "conn_request", "1" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_conn_request(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_ble_bcn_connection_request_delegated_fake.call_count);
-	zassert_equal_ptr(sidewalk_handle, sid_ble_bcn_connection_request_delegated_fake.arg0_val,
-			  "Invalid sidewalk handle");
-	zassert_equal(true, sid_ble_bcn_connection_request_delegated_fake.arg1_val,
-		      "Invalid reqiest value");
+	zassert_equal(1U, *((uint32_t *)sidewalk_event_send_fake.arg1_val),
+		      "Invalid conn req has been set");
+	sidewalk_parameters_assert(ret);
 }
 
 // ////////////////////////////////////////////////////////////////////////////
@@ -1003,29 +1231,27 @@ struct test_sid_get_time_params {
 	const char **argv;
 	int return_code;
 	enum sid_time_format type;
+	struct test_sidewalk_parameters sid;
 };
 
 void test_sid_get_time(struct test_sid_get_time_params params)
 {
+	sidewalk_parameters_set(params.sid);
 	int ret = cmd_sid_get_time(NULL, params.argc, params.argv);
 
 	zassert_equal(params.return_code, ret, "Returned error code %d", ret);
-	if (params.return_code == 0) {
-		zassert_equal(1, sid_get_time_delegated_fake.call_count);
-		zassert_equal_ptr(sidewalk_handle, sid_get_time_delegated_fake.arg0_val,
-				  "Invalid sidewalk handle");
-		zassert_equal(params.type, sid_get_time_delegated_fake.arg1_val,
-			      "Invalid Link type");
-	} else {
-		zassert_equal(0, sid_get_time_delegated_fake.call_count);
-	}
+	sidewalk_parameters_assert(ret);
 }
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_0, test_sid_get_time,
-		  (struct test_sid_get_time_params){ .argc = 2,
-						     .argv = (const char *[]){ "get_time", "0" },
-						     .return_code = 0,
-						     .type = SID_GET_GPS_TIME })
+		  (struct test_sid_get_time_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_time", "0" },
+			  .return_code = 0,
+			  .type = SID_GET_GPS_TIME,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = true,
+		  })
 
 PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_3, test_sid_get_time,
 		  (struct test_sid_get_time_params){ .argc = 2,
@@ -1043,70 +1269,86 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_invalid_argument_number, 
 			  .argv = (const char *[]){ "get_time", "1", "2" },
 			  .return_code = -EINVAL })
 
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_nomem, test_sid_get_time,
+		  (struct test_sid_get_time_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_time", "0" },
+			  .return_code = -ENOMEM,
+			  .type = SID_GET_GPS_TIME,
+			  .sid.alloc_ok = false,
+			  .sid.send_ok = false,
+		  })
+
+PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_get_time_send_err, test_sid_get_time,
+		  (struct test_sid_get_time_params){
+			  .argc = 2,
+			  .argv = (const char *[]){ "get_time", "0" },
+			  .return_code = -ENOMSG,
+			  .type = SID_GET_GPS_TIME,
+			  .sid.alloc_ok = true,
+			  .sid.send_ok = false,
+		  })
+
 // ////////////////////////////////////////////////////////////////////////////
 
 ZTEST(sid_dut_shell_api, test_sid_set_dst_id_0)
 {
 	const char *argv[] = { "set_dst_id", "0" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_set_msg_dest_id_delegated_fake.call_count);
-	zassert_equal_ptr(sidewalk_handle, sid_set_msg_dest_id_delegated_fake.arg0_val,
-			  "Invalid sidewalk handle");
-	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.arg1_val, "Invalid Link type");
+	sidewalk_parameters_assert(ret);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_set_dst_id_1)
 {
 	const char *argv[] = { "set_dst_id", "1" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_set_msg_dest_id_delegated_fake.call_count);
-	zassert_equal_ptr(sidewalk_handle, sid_set_msg_dest_id_delegated_fake.arg0_val,
-			  "Invalid sidewalk handle");
-	zassert_equal(1, sid_set_msg_dest_id_delegated_fake.arg1_val, "Invalid Link type");
+	sidewalk_parameters_assert(ret);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_set_dst_id_max)
 {
 	const char *argv[] = { "set_dst_id", "2147483647" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
 	zassert_equal(0, ret, "Returned error code %d", ret);
-	zassert_equal(1, sid_set_msg_dest_id_delegated_fake.call_count);
-	zassert_equal_ptr(sidewalk_handle, sid_set_msg_dest_id_delegated_fake.arg0_val,
-			  "Invalid sidewalk handle");
-	zassert_equal(2147483647, sid_set_msg_dest_id_delegated_fake.arg1_val, "Invalid Link type");
+	sidewalk_parameters_assert(ret);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_set_dst_id_invalid_argument)
 {
 	const char *argv[] = { "set_dst_id" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
+	sidewalk_parameters_assert(ret);
 }
 
 ZTEST(sid_dut_shell_api, test_sid_set_dst_id_invalid_argument_2)
 {
 	const char *argv[] = { "set_dst_id", "1", "2" };
 	int argc = sizeof(argv) / sizeof(argv[0]);
+	sidewalk_parameters_set(params_sid_ok);
 
 	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
 
 	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
+	sidewalk_parameters_assert(ret);
 }
 // ////////////////////////////////////////////////////////////////////////////
 
@@ -1122,19 +1364,6 @@ struct test_sid_set_option_params {
 static void verify_sid_option_asserts(struct test_sid_set_option_params params, int ret)
 {
 	zassert_equal(params.return_code, ret, "Returned error code %d", ret);
-	if (params.return_code == 0) {
-		zassert_equal(1, sid_option_delegated_fake.call_count);
-		zassert_equal_ptr(sidewalk_handle, sid_option_delegated_fake.arg0_val,
-				  "Invalid sidewalk handle");
-		zassert_equal(params.option, sid_option_delegated_fake.arg1_val,
-			      "Invalid option parameter");
-		zassert_equal(params.len, sid_option_delegated_fake.arg3_val,
-			      "Invalid size parameter");
-		zassert_mem_equal(params.data, sid_option_delegated_fake.arg2_val, params.len,
-				  "Invalid data parameter");
-	} else {
-		zassert_equal(0, sid_option_delegated_fake.call_count);
-	}
 }
 
 void test_sid_set_option_b(struct test_sid_set_option_params params)
@@ -2139,181 +2368,13 @@ PARAMETRIZED_TEST(
 		.len = sizeof(struct sid_link_auto_connect_params) })
 
 // ////////////////////////////////////////////////////////////////////////////
-// sid_dut_shell_api_shell_uninitialized
-// ////////////////////////////////////////////////////////////////////////////
-
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_init)
-{
-	const char *argv[] = { "init", "1" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_init(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_init_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_deinit)
-{
-	const char *argv[] = { "deinit" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_deinit(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_deinit_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_start)
-{
-	const char *argv[] = { "start", "1" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_start(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_start_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_stop)
-{
-	const char *argv[] = { "stop" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_stop(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_stop_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_send)
-{
-	const char *argv[] = { "send", "ASCII_text_as_data" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_send(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_put_msg_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_factory_reset)
-{
-	const char *argv[] = { "factory_reset" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_factory_reset(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_set_factory_reset_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_get_mtu)
-{
-	const char *argv[] = { "get_mtu", "1" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_get_mtu(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_get_mtu_delegated_fake.call_count);
-}
-
-// ////////////////////////////////////////////////////////////////////////////
-
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_last_status)
-{
-	const char *argv[] = { "last_status" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_last_status(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_get_status_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_conn_request)
-{
-	const char *argv[] = { "conn_request", "1" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_conn_request(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_ble_bcn_connection_request_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_get_time)
-{
-	const char *argv[] = { "get_time", "0" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_get_time(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_get_time_delegated_fake.call_count);
-}
-
-// ////////////////////////////////////////////////////////////////////////////
-
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_set_dst_id)
-{
-	const char *argv[] = { "set_dst_id", "1" };
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_set_dst_id(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_set_msg_dest_id_delegated_fake.call_count);
-}
-// ////////////////////////////////////////////////////////////////////////////
-ZTEST(sid_dut_shell_api_shell_uninitialized, test_sid_option_lp_get_l3)
-{
-	const char *argv[] = {
-		"-lp_get_l3",
-	};
-	int argc = sizeof(argv) / sizeof(argv[0]);
-
-	int ret = cmd_sid_option_lp_get_l3(NULL, argc, argv);
-
-	zassert_equal(-EINVAL, ret, "Returned error code %d", ret);
-	zassert_equal(0, sid_option_delegated_fake.call_count);
-}
-
-static void *correct_initialize(void)
-{
-	app_ctx_valid = (struct app_context){ .sidewalk_handle = &sidewalk_handle };
-	memset(&sid_cfg_valid, 0, sizeof(sid_cfg_valid));
-	initialize_sidewalk_shell(&sid_cfg_valid, &app_ctx_valid);
-	return NULL;
-}
-
-static void *NULL_initialize(void)
-{
-	memset(&app_ctx_invalid, 0, sizeof(app_ctx_invalid));
-	memset(&sid_cfg_invalid, 0, sizeof(sid_cfg_invalid));
-	initialize_sidewalk_shell(&sid_cfg_invalid, &app_ctx_invalid);
-	return NULL;
-}
 
 void setup(void *fixture)
 {
 	ARG_UNUSED(fixture);
 	// Register resets
-	RESET_FAKE(sid_init_delegated);
-	RESET_FAKE(sid_deinit_delegated);
-	RESET_FAKE(sid_start_delegated);
-	RESET_FAKE(sid_stop_delegated);
-	RESET_FAKE(sid_put_msg_delegated);
-	RESET_FAKE(sid_set_factory_reset_delegated);
-	RESET_FAKE(sid_get_mtu_delegated);
-	RESET_FAKE(sid_get_status_delegated);
-	RESET_FAKE(sid_ble_bcn_connection_request_delegated);
-	RESET_FAKE(sid_get_time_delegated);
-	RESET_FAKE(sid_set_msg_dest_id_delegated);
-	RESET_FAKE(sid_option_delegated);
+	SIDEWALK_FAKES_LIST(RESET_FAKE);
 	FFF_RESET_HISTORY();
 }
 
-ZTEST_SUITE(sid_dut_shell_api, NULL, correct_initialize, setup, NULL, NULL);
-ZTEST_SUITE(sid_dut_shell_api_shell_uninitialized, NULL, NULL_initialize, setup, NULL, NULL);
+ZTEST_SUITE(sid_dut_shell_api, NULL, NULL, setup, NULL, NULL);

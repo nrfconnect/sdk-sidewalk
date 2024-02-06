@@ -40,13 +40,14 @@ config PERSISTENT_LINK_MASK_SETTINGS_KEY
 	  Key for settings to store last Sidewalk link mode in flash for next reboot
 
 config DEPRECATED_DFU_FLAG_SETTINGS_KEY
-	bool "Enable depricated Key for settings to store DFU flag in flash for next reboot"
+	bool "Enable Key for settings to store DFU flag in flash for next reboot [DEPRICATED]"
 
 if DEPRECATED_DFU_FLAG_SETTINGS_KEY
 config DFU_FLAG_SETTINGS_KEY
 	string
 	default "application/settings/DFU_mode"
 	help
+	  Note: [DEPRICATED]
 	  Key for settings to store DFU flag in flash for next reboot
 	  If value is set to True, the applicaiton will start in DFU mode after reset
 	  Deprecated in favor of DFU state in Sidewalk samples application.
@@ -73,6 +74,6 @@ endif # SIDEWALK_DFU_SERVICE_BLE
 
 
 config SIDEWALK_ON_DEV_CERT
-	bool "On device certification"
+	bool "Enable on device certification [EXPERIMENTAL]"
 	depends on SHELL
 	select EXPERIMENTAL

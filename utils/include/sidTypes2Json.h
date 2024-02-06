@@ -19,7 +19,7 @@
 #include <sidTypes2str.h>
 #include <json_printer.h>
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
 #include <sid_900_cfg.h>
 #endif
 
@@ -105,7 +105,7 @@
 
 /**
  * @brief prepare printf formater and arguments to print sid_error_t object
- * 
+ *
  * @arg name: name of the JSON object to print
  * @arg error: object of sid_error_t to print
  *

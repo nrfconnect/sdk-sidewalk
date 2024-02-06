@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-include($ENV{ZEPHYR_BASE}/../sidewalk/samples/common/bootloader_version.cmake)
+include($ENV{ZEPHYR_BASE}/../sidewalk/samples/template/bootloader_version.cmake)
 
 set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/samples/template/child_image/mcuboot/Kconfig.root)
 

@@ -10,12 +10,12 @@
 
 #include <pal_init.h>
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
 #include <app_subGHz_config.h>
 #if defined(CONFIG_SOC_SERIES_NRF53X)
 #include <zephyr/bluetooth/bluetooth.h>
 #endif /* defined(CONFIG_SOC_SERIES_NRF53X) */
-#endif /* defined(CONFIG_SIDEWALK_SUBGHZ) */
+#endif /* defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 #include <sid_pal_crypto_ifc.h>
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
@@ -63,13 +63,13 @@ sid_error_t application_pal_init(void)
 		return SID_ERROR_NOT_FOUND;
 	}
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
 	set_radio_sx126x_device_config(get_radio_cfg());
 #if defined(CONFIG_SOC_SERIES_NRF53X)
 	(void)bt_enable(NULL);
 	(void)bt_disable();
 #endif /* defined(CONFIG_SOC_SERIES_NRF53X) */
-#endif /* defined(CONFIG_SIDEWALK_SUBGHZ) */
+#endif /* defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
 	return SID_ERROR_NONE;
 }
