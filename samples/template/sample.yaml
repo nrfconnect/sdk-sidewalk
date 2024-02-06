@@ -5,7 +5,7 @@ tests:
   sample.sidewalk.template:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args: CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -14,7 +14,9 @@ tests:
   sample.sidewalk.template.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONF_FILE=prj_release.conf CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args:
+      CONF_FILE=prj_release.conf
+      CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -23,27 +25,61 @@ tests:
   sample.sidewalk.template.no_dfu:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONF_FILE=prj_no_dfu.conf CONFIG_APP_PERSISTENT_LINK_MASK=y
-    integration_platforms:
-      - nrf52840dk_nrf52840
-      - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk_cli
-
-  sample.sidewalk.template.ble_only:
-    build_only: true
-    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_APP_BLE_ONLY=y CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args:
+      CONF_FILE=prj_no_dfu.conf
+      CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
 
+  sample.sidewalk.template.ble_only:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args: CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk BLE
+
   sample.sidewalk.template.ble_only.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONF_FILE=prj_release.conf
-      CONFIG_APP_BLE_ONLY=y
-      CONFIG_APP_PERSISTENT_LINK_MASK=y
+    extra_args:
+      CONF_FILE=prj_release.conf
+      CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk BLE
+
+  sample.sidewalk.demo:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args:
+      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk BLE
+
+  sample.sidewalk.demo.ble_only:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp thingy53_nrf5340_cpuapp
+    extra_args:
+      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+    integration_platforms:
+      - nrf52840dk_nrf52840
+      - nrf5340dk_nrf5340_cpuapp
+    tags: Sidewalk BLE
+
+  sidewalk.sid_dut:
+    build_only: true
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    extra_args:
+        OVERLAY_CONFIG="overlay-dut.conf"
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp

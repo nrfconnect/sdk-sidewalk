@@ -1,0 +1,88 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+# Bluetooth
+config BT_REMOTE_VERSION
+	default y
+
+config BT_BUF_ACL_TX_SIZE
+	default 251
+	default 502 if SIDEWALK_DFU_BLE_FAST
+
+config BT_BUF_ACL_TX_COUNT
+	default 3
+
+config BT_BUF_ACL_RX_SIZE
+	default 251
+	default 502 if SIDEWALK_DFU_BLE_FAST
+
+config BT_BUF_ACL_RX_COUNT
+	default 6
+
+config BT_L2CAP_TX_MTU
+	default 247
+	default 498 if SIDEWALK_DFU_BLE_FAST
+
+config BT_CTLR_DATA_LENGTH_MAX
+	default 247
+	default 251 if SIDEWALK_DFU_BLE_FAST
+
+config BT_PERIPHERAL_PREF_MIN_INT
+	default 16
+
+config BT_PERIPHERAL_PREF_MAX_INT
+	default 60
+
+config BT_PERIPHERAL_PREF_LATENCY
+	default 0
+
+config BT_PERIPHERAL_PREF_TIMEOUT
+	default 400
+
+# NVM
+config NVS_LOOKUP_CACHE
+	default y
+
+config NVS_LOOKUP_CACHE_SIZE
+	default 1024
+
+# Stack and Heap
+config SYSTEM_WORKQUEUE_STACK_SIZE
+	default 4096
+
+config LOG_PROCESS_THREAD_STARTUP_DELAY_MS
+	default 50 if SHELL
+
+config SHELL_STACK_SIZE
+	default 8192 if TEMPLATE_APP_CLI
+
+config HEAP_MEM_POOL_SIZE
+	default 8192 if SIDEWALK_ON_DEV_CERT
+	default 1024
+
+config SPI_NRFX_RAM_BUFFER_SIZE
+	default 0
+
+# CLI
+if TEMPLATE_APP_CLI
+
+config SHELL_CMD_BUFF_SIZE
+	default 1024
+
+config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
+	default 128
+
+config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
+	default 1024
+
+endif # TEMPLATE_APP_CLI
+
+# Others
+config SPIN_VALIDATE
+    default n
+
+config PARTITION_MANAGER_ENABLED
+	default y

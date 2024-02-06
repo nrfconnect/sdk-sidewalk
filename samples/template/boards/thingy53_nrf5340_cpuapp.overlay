@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <zephyr/dt-bindings/ipc_service/static_vrings.h>
+
+&ipc0 {
+	zephyr,priority = <0 PRIO_COOP>;
+};
+
+&i2c1 {
+	status = "okay";
+
+	bme688@76 {
+		compatible = "bosch,bme680";
+		reg = <0x76>;
+		status = "okay";
+	};
+};
+
+/{
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};

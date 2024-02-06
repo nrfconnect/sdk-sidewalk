@@ -8,12 +8,6 @@ choice LIBC_IMPLEMENTATION
 	default NEWLIB_LIBC
 endchoice
 
-config SIDEWALK_SUBGHZ
-	bool
-	default SIDEWALK && (SIDEWALK_LINK_MASK_FSK || SIDEWALK_LINK_MASK_LORA)
-	help
-	  Use Sidewalk with support for BLE, LoRa and FSK
-
 config SIDEWALK_DEFAULTS
 	bool
 	default SIDEWALK
@@ -55,7 +49,8 @@ config SIDEWALK_CRYPTO
 	bool
 	default SIDEWALK
 	imply NRF_SECURITY
-	imply PSA_CRYPTO_DRIVER_OBERON
+	imply HW_CC3XX
+	imply PSA_CRYPTO_DRIVER_CC3XX
 	imply PSA_WANT_ALG_HMAC
 	imply PSA_WANT_ALG_CTR
 	imply PSA_WANT_ALG_GCM
@@ -83,6 +78,7 @@ config SIDEWALK_CRYPTO
 	   Sidewalk security module
 
 if SIDEWALK_CRYPTO
+
 config PSA_WANT_ALG_CHACHA20_POLY1305
 	default n
 config PSA_WANT_ALG_SHA_224
@@ -95,6 +91,10 @@ config PSA_WANT_ALG_CBC_PKCS7
 	default n
 config PSA_WANT_ALG_HKDF
 	default n
+config MBEDTLS_HEAP_SIZE
+	default 8192 if SIDEWALK_ON_DEV_CERT
+	default 1024
+
 endif #SIDEWALK_CRYPTO
 
 config SIDEWALK_LOG
@@ -166,14 +166,14 @@ endif # SIDEWALK_CRITICAL_REGION
 
 config SIDEWALK_GPIO
 	bool
-	default SIDEWALK_SUBGHZ
+	default SIDEWALK_SUBGHZ_SUPPORT
 	imply SIDEWALK_LOG
 	help
 	  Sidewalk GPIO module
 
 config SIDEWALK_GPIO_MAX
 	int
-	default 6 if SIDEWALK_SUBGHZ
+	default 6 if SIDEWALK_SUBGHZ_SUPPORT
 	default 0
 	help
 	  Maximum number of GPIO assigned for use with Sidewalk GPIO API
@@ -185,8 +185,8 @@ config SIDEWALK_ACE_OSAL_ZEPHYR
 	  Zephyr RTOS abstraction layer for Sidewalk
 
 config SIDEWALK_TEMPERATURE
-	bool "Sidewalk temperature module"
-	default SIDEWALK_SUBGHZ
+	bool
+	default SIDEWALK_SUBGHZ_SUPPORT
 	imply SENSOR
 	imply TEMP_NRF5
 	help
@@ -206,7 +206,7 @@ config SIDEWALK_DELAY
 
 config SIDEWALK_SPI_BUS
 	bool
-	default SIDEWALK_SUBGHZ
+	default SIDEWALK_SUBGHZ_SUPPORT
 	imply SPI
 	imply SIDEWALK_GPIO
 	imply PM

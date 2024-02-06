@@ -16,13 +16,13 @@
 #ifndef SID_PAL_PLATFORM_INIT_TYPES_H
 #define SID_PAL_PLATFORM_INIT_TYPES_H
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
 #include <sx126x_config.h>
 #endif
 
 typedef struct {
 //place holder for platform specific init parameters
-#if defined(CONFIG_SIDEWALK_SUBGHZ)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
     radio_sx126x_device_config_t * radio_cfg;
 #endif
 } platform_specific_init_parameters_t;

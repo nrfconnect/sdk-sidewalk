@@ -6,6 +6,9 @@
 config SIDEWALK_BUILD
 	default y
 
+config SIDEWALK_SUBGHZ_SUPPORT
+	default y
+
 config SIDEWALK_SPI_BUS
 	default y
 	imply SPI

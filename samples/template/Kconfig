@@ -4,20 +4,64 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-config APP_PERSISTENT_LINK_MASK
+mainmenu "Sidewalk nRF Connect Application"
+
+choice TEMPLATE_APP
+	prompt "Select template application to run"
+    default TEMPLATE_APP_HELLO
+config TEMPLATE_APP_HELLO
+    bool "Sidewalk hello world application"
+config TEMPLATE_APP_SENSOR_MONITORING
+    bool "Demo sensor monitoring application"
+    imply SIDEWALK_DEMO_PARSER
+    imply SENSOR
+	imply TEMP_NRF5
+endchoice #TEMPLATE_APP
+
+if TEMPLATE_APP_HELLO
+
+config TEMPLATE_APP_ECHO_MSGS
+    bool "Eable message echo feature"
+    default y
+    help
+      Echo received messages back to Sidewlak cloud.
+      Works with GET and SET messages types.
+
+endif #TEMPLATE_APP_HELLO
+
+if TEMPLATE_APP_SENSOR_MONITORING
+
+rsource "Kconfig.sensor_monitoring"
+
+endif #TEMPLATE_APP_SENSOR_MONITORING
+
+config TEMPLATE_APP_CLI
+    bool "Enable Sidewalk CLI (DUT)"
+    imply SHELL
+    help
+      Enables Sidewalk command line interface.
+      The interface commands are compatilbe with former dut sample.
+
+config SIDEWALK_AUTO_START
+    default y
+    bool "Enable automatic Sidewalk initlization and start"
+
+config SIDEWALK_AUTO_CONN_REQ
+    default y
+    bool "Enable automatic connection request before message send"
+
+config SIDEWALK_PERSISTENT_LINK_MASK
 	select EXPERIMENTAL
-    bool "Remeber last link mask over device resets"
+    bool "Enable persitent link mask"
     help
       The Sidewalk link mask persists after a device reset
       but defaults after a factory reset.
       This could affect the flash lifespan.
 
-config APP_BLE_ONLY
-    bool "Use smaller Sidewalk libraries witch supports only BLE"
+config TEMPLATE_APP_EVENT_HEAP_SIZE
+    int "Heap for Sidewalk event contexts"
+    default 2048
 
-config SIDEWALK_SUBGHZ
-    default !APP_BLE_ONLY
-
-source "${ZEPHYR_BASE}/../sidewalk/samples/common/Kconfig.defconfig"
+rsource "Kconfig.defconfig"
 
 source "Kconfig.zephyr"
