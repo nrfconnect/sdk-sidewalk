@@ -111,7 +111,14 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
+		// Use this one for RAK4631 board 
+		#ifdef CONFIG_BOARD_RAK4631_NRF52840
+		.ctrl = SX126X_TCXO_CTRL_DIO3,
+		.voltage = RADIO_SX126X_TCXO_CTRL_3_3V,
+		.timeout = 320
+		#else
 		.ctrl = SX126X_TCXO_CTRL_NONE,
+		#endif
 	},
 
 	.regional_config = {
