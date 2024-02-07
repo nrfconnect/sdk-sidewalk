@@ -149,7 +149,8 @@ static void sidewalk_main_task(void *context, void *dummy1, void *dummy2)
 		.sub_ghz_link_config = sub_ghz_lc,
 	};
 
-	if (init_and_start_link(app_context, &config, SID_LINK_TYPE_1 | BUILT_IN_LM)) {
+	if (init_and_start_link(app_context, &config, SID_LINK_TYPE_3)) {
+	//if (init_and_start_link(app_context, &config, SID_LINK_TYPE_1 | BUILT_IN_LM)) {
 		return;
 	}
 
