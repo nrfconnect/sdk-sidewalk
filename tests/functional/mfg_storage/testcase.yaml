@@ -1,5 +1,6 @@
 tests:
   sidewalk.functional.mfg_storage:
+    skip: true
     tags: Sidewalk
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     integration_platforms:

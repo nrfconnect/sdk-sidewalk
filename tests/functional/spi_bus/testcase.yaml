@@ -5,3 +5,6 @@ tests:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
     tags: Sidewalk
+    harness: ztest
+    harness_config:
+      fixture: semtech_shield
