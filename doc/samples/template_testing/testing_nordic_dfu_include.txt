@@ -1,0 +1,28 @@
+Testing Device Firmware Update (DFU)
+------------------------------------
+
+#. To enter the DFU mode, long press **Button 1** on your development kit.
+   This action sets the device in the DFU mode, in which only the `Zephyr SMP Server`_ is running and Sidewalk is not operational.
+   When the application is in the DFU mode, all LEDs flash every 500 ms to signal that the application is waiting for a new image.
+
+#. To perform a firmware update, follow the Bluetooth testing steps from the `DevZone DFU guide`_.
+   When the update starts, the LEDs change the pattern to indicate upload in progress.
+
+#. To exit the DFU mode, long press **Button 1** again when device is in DFU mode.
+   The device will set the device in the Sidewalk mode.
+   If the update completes successfully, the device will start a new image.
+   After using the DFU mode, the first bootup might take up to 60 seconds.
+   During the image swap the application is silent, meaning that LEDs are not blinking and the console does not output any logs.
+   The application, however, is running, so do not reset the device.
+   In case the update fails, the old image is started instead.
+
+.. include:: ../../ncs_links.rst
+
+.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
+.. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+.. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
+.. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
+.. _Sidewalk Protocol Specification: https://docs.sidewalk.amazon/specifications/
+.. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
+.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
+.. _CloudShell: https://console.aws.amazon.com/cloudshell

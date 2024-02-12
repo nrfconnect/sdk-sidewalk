@@ -17,8 +17,22 @@ Button 1-4 (short press):
 LED 1-4:
    Notify LED action message. This action works after application successfully sends capability message.
 
+For common sidewalk template user interface description see ::ref:`sidewalk_template_user_interface`
+
+Configuration
+*************
+
+.. note::
+    To build Sidewalk template as sensor monitoring application
+    the ``CONFIG_TEMPLATE_APP_SENSOR_MONITORING`` must be enabled in sample configuration.
+
+The Sidewalk sensor monitoring demo application supports the following configurations:
+
+* ``CONFIG_TEMPLATE_APP_NOTIFY_DATA_PERIOD_MS`` -- Notify period of sensor monitoring template app in milliseconds.
+
+
 Testing
-=======
+*******
 
 See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
 
@@ -40,10 +54,12 @@ You should see the following output:
 
       [00:00:00.006,225] <inf> sid_template: Sidewalk example started!
 
-Wait for the device to complete the :ref:`automatic_registration_sidewalk_endpoints`.
+Wait for the device to complete the automatic registration.
 
 .. note::
    For the full installation guidelines and the application overview, refer to the `Amazon Sidewalk Sample IoT App`_ repository.
+
+.. include:: testing_nordic_dfu_include.txt
 
 .. include:: ../../ncs_links.rst
 
