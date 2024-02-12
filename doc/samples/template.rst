@@ -1,4 +1,4 @@
-.. _samples_list:
+.. _sidewalk_template:
 
 Sidewalk Template
 #################
@@ -31,9 +31,8 @@ The supported modules are as follows:
 +------------+---------------+------------+
 
 .. note::
-   The LoRa radio module shield must be connected to the development kit header, and the antenna must be connected to the radio module.
+   To use sub-GHz radio, the Semtech shield must be connected to the development kit header, and the antenna must be connected to the radio module.
    For the exact pin assignment, refer to the :ref:`setting_up_hardware_semtech_pinout` section.
-
 
 Overview
 ********
@@ -41,34 +40,12 @@ Overview
 You can use this sample as a starting point to implement a Sidewalk device.
 The Sidewalk Template demonstrates a simple Sidewalk application that allows you to send and receive messages, as well as update firmware.
 
-In the Sidewalk repository, all samples are placed in the :file:`samples` directory.
-
-The following table demonstrates configuration for the supported development kits and differences between samples:
-
-.. tabs::
-
-   .. tab:: nRF52840
-
-      +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | Sample                      | Additional hardware                                                      | Bootloader (in release and debug configs)     | Application overlays          | Bluetooth® LE support | LoRa support | FSK support | DFU support |
-      +=============================+==========================================================================+===============================================+===============================+=======================+==============+=============+=============+
-      | :ref:`sidewalk_template`    | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * `overlay-dut.conf`          | Supported             | Supported    | Supported   | Supported   |
-      |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |                       |              |             |             |
-      |                             |                                                                          |                                               |                               |                       |              |             |             |
-      +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-
-   .. tab:: nRF5340
-
-      +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-      | Sample                      | Additional hardware                                                      | Bootloader (in release and debug configs)     | Application overlays          | Bluetooth® LE support | LoRa support | FSK support | DFU support |
-      +=============================+==========================================================================+===============================================+===============================+=======================+==============+=============+=============+
-      | :ref:`sidewalk_template`    | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * `overlay-dut.conf`          | Supported             | Supported    | Supported   | Supported   |
-      |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |                       |              |             |             |
-      |                             |                                                                          |                                               |                               |                       |              |             |             |
-      +-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
+.. _sidewalk_template_user_interface:
 
 User Interface
 **************
+
+Common button actions for all template configurations:
 
 Button 1 (short press):
    Sends a message to the cloud. The type of message depends on sample configuration.
@@ -86,8 +63,6 @@ Button 2 (long press):
 Button 3 (long press):
    Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
    A log message informs about the link mask switch and the status of the operation.
-
-Buttons short press actions and LEDs behavior depends on selected sample configuration and is described in the next part of the documentation.
 
 Configuration
 *************
@@ -145,12 +120,9 @@ Configuration options for Sidewalk
 
 * ``CONFIG_SIDEWALK_DFU`` -- Enables the nRF Connect SDK bootloader and DFU service over Bluetooth LE.
 
-Configuration options for sample
-================================
-
 * ``CONFIG_TEMPLATE_APP`` -- Switch between different application types.
 
-   * ``CONFIG_TEMPLATE_APP_HELLO`` -- Enables simple Sidewalk hello world application. This is default option. See :ref:`sidewalk_template` for more information.
+   * ``CONFIG_TEMPLATE_APP_HELLO`` -- Enables simple Sidewalk hello world application. This is default option. See :ref:`sidewalk_hello` for more information.
    * ``CONFIG_TEMPLATE_APP_SENSOR_MONITORING`` -- Enables Sidewalk Sensor monitoring application. See :ref:`sensor_monitoring` for more information.
 
 * ``CONFIG_TEMPLATE_APP_CLI`` -- Enables Sidewalk CLI. To see the list of available commands, flash sample and type ``sid help``.
@@ -159,10 +131,60 @@ Configuration options for sample
 
 * ``CONFIG_SIDEWALK_AUTO_CONN_REQ`` -- Enable automatic connection request before message send. The Bluetooth LE connection request action is performed automatically if needed.
 
+You can build the ``sensor_monitoring`` template application, with Bluetooth LE only libraries for ``build_target`` by running the following command in the project directory:
+
+.. parsed-literal::
+   :class: highlight
+
+   $ west build -b *build_target* -- -DCONFIG_TEMPLATE_APP_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+
+For example:
+
+.. code-block:: console
+
+   $ west build -b nrf5340dk_nrf5340_cpuapp -- -DCONFIG_TEMPLATE_APP_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+
 Configuration overlays
 ======================
 
 * ``overlay-dut`` -- Sidewalk Device Under Test configuration. Enables CLI, disables sample automation.
+
+You can build the template application with Sidewalk DUT configuration overlay for ``build_target`` by running the following command in the project directory:
+
+.. parsed-literal::
+   :class: highlight
+
+   $ west build -b *build_target* -- -DOVERLAY_CONFIG="overlay-dut.conf"
+
+For example:
+
+.. code-block:: console
+
+   $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
+
+
+Source file setup
+*****************
+
+The application consists of two source files:
+
+* :file:`main.c` -- The main source file. Starts Sidewalk application.
+* :file:`app.c` (:file:`app.h`) -- The application specific file.
+  It communicates to the sidewalk thread using events defined in :file:`sidewalk.h`, and receives Sidewalk callbacks defined in :file:`sid_api.h`.
+  An application may consist of multiple `app_*` files, to define user interface and realize application logic.
+* :file:`sidewalk.c` (:file:`sidewalk.h`) -- Sidewalk thread file.
+  This is a common source file for all sample configuration.
+  It implements a separate thread where the Sidewalk API is called.
+  The file also includes the support for the DFU state.
+  See the behavior of the state machine outlined in the following diagram:
+
+   .. uml::
+      :caption: Sidewalk thread state machine
+
+      [*] --> Sidewalk
+      Sidewalk --> [*] : event_factory_reset
+      Sidewalk --> FirmwareUpdate : event_dfu
+      FirmwareUpdate --> Sidewalk : event_dfu
 
 .. _sidewalk_template_building_and_running:
 
@@ -182,15 +204,41 @@ This sample can be found under :file:`samples/template`.
 
 To build the sample, follow the steps in the `Building and programming an application`_ documentation.
 
+.. _registering_sidewalk:
+
+Registering Sidewalk Endpoint
+*****************************
+
+You can complete Sidewalk registration in one of the two ways:
+
+ * Through an automatic touchless mode that uses Sidewalk Frustration-Free Networking (FFN) where no user interaction is required.
+
+   .. note::
+      There are advantages of using automatic FFN registration:
+
+       * There is no association between a user and the Sidewalk Endpoint.
+         The Endpoint is allowed to connect to network without being associated to any user.
+       * No Login with Amazon (LWA) is needed.
+
+ * Through a manual process by using a local machine to run a registration script and to connect to the Endpoint over Bluetooth LE.
+
+For the exact instructions on both of these methods, refer to the `Registering and testing your Sidewalk endpoint`_ documentation.
+
+.. _Registering and testing your Sidewalk endpoint: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-register-endpoint.html
+
 .. _sidewalk_template_testing:
+
+Testing
+*******
+
+Testing application scenarios are different dependent of the Sidewalk configuration was chosen.
 
 .. toctree::
    :maxdepth: 1
    :glob:
-   :caption: Testing:
 
-   sidewalk_application_samples/sensor_monitoring.rst
-   sidewalk_application_samples/template.rst
+   template_testing/hello_sidewalk.rst
+   template_testing/sensor_monitoring.rst
 
 .. include:: ../ncs_links.rst
 
