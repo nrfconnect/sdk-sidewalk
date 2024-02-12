@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
 #include <sensor_monitoring/app_tx.h>
 #include <sensor_monitoring/app_buttons.h>
 #include <sensor_monitoring/app_leds.h>

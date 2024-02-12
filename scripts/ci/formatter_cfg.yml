@@ -10,9 +10,8 @@ ignored_files_regexp:
 - tools/.*
 - tests/validation/storage_kv/.*(c|h)$
 - tests/validation/timer/.*(c|h)$
-- .*/sensor_monitoring/ext/.*$
-- .*/sensor_monitoring/config/app_900_config.*$
-- .*/sensor_monitoring/config/app_ble_config.h$
+- subsys/demo/include/.*(c|h)$
+- subsys/demo/.*(c|h)$
 - venv/.*
 - site-packages/.*
 - twister-out.*

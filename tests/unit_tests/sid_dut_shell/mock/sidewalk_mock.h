@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
 #ifndef SIDEWALK_MOCK_H
 #define SIDEWALK_MOCK_H
 

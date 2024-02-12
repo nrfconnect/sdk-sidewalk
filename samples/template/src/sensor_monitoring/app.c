@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Nordic Semiconductor ASA
+ * Copyright (c) 2024 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
@@ -200,9 +200,10 @@ void app_start(void)
 		.on_factory_reset = on_sidewalk_factory_reset,
 	};
 
-	sid_ctx.config = (struct sid_config)
-	{
-		.link_mask = 0, .callbacks = &event_callbacks, .link_config = app_get_ble_config(),
+	sid_ctx.config = (struct sid_config){
+		.link_mask = 0,
+		.callbacks = &event_callbacks,
+		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
 

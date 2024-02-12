@@ -46,9 +46,7 @@ licenses:
   - sidewalk.*/tools/.*
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
   - sidewalk.*/tests/validation/timer/.*(c|h)$
-  - sidewalk.*/.*/sensor_monitoring/ext/.*$
-  - sidewalk.*/.*/sensor_monitoring/config/app_900_config.*$
-  - sidewalk.*/.*/sensor_monitoring/config/app_ble_config.h$
+  - sidewalk.*/subsys/demo(/.*)+(c|h)$
   - sidewalk.*/utils/src/sid_on_dev_cert.c$
   - sidewalk.*/utils/include/sid_.*\.h$
   search_license_txt:

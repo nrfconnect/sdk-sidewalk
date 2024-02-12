@@ -25,7 +25,7 @@ sidewalk_specials = [
     r"subsys/semtech/include/semtech_radio_ifc.h",
     r"tests/validation/storage_kv/.*(c|h)",
     r"tests/validation/timer/.*(c|h)",
-    r".*/sensor_monitoring/ext/.*",
+    r"subsys/demo(/.*)+(c|h)",
     r"subsys/semtech/include/sx126x_config.h"
 ]
 

@@ -55,12 +55,12 @@ def get_output_string(options, diff_result) -> str:
 
             diff_ram = convert_unit(diff_ram)
 
-            used_ram = convert_unit(element.get("new_used_ram", None))
-            avaliable_ram = convert_unit(element.get("available_ram", None))
+            used_ram = convert_unit(element.get("new_used_ram", 0))
+            avaliable_ram = convert_unit(element.get("available_ram", 0))
             diff_rom = convert_unit(diff_rom)
 
-            used_rom = convert_unit(element.get("new_used_rom", None))
-            avaliable_rom = convert_unit(element.get("available_rom", None))
+            used_rom = convert_unit(element.get("new_used_rom", 0))
+            avaliable_rom = convert_unit(element.get("available_rom", 0))
             output += f"|{key}|RAM|{diff_ram}|{used_ram}|{avaliable_ram}|\n"
             output += f"| |ROM|{diff_rom}|{used_rom}|{avaliable_rom}|\n"
         if any_change is False:
@@ -84,6 +84,16 @@ def main():
 
     diff_result = {}
 
+    for element in old_report.get("testsuites", dict()):
+        key = element.get("platform", "") + ":" + \
+            element.get("name", "").split("/")[-1]
+        if diff_result.get(key, None) is None:
+            diff_result[key] = {}
+        diff_result[key]['old_used_ram'] = element.get("used_ram", 0)
+        diff_result[key]['old_used_rom'] = element.get("used_rom", 0)
+        diff_result[key]['available_ram'] = element.get("available_ram", 0)
+        diff_result[key]['available_rom'] = element.get("available_rom", 0)
+
     for element in new_report.get("testsuites", dict()):
         key = element.get("platform", "") + ":" + \
             element.get("name", "").split("/")[-1]
@@ -93,14 +103,6 @@ def main():
         diff_result[key]['new_used_rom'] = element.get("used_rom", 0)
         diff_result[key]['available_ram'] = element.get("available_ram", 0)
         diff_result[key]['available_rom'] = element.get("available_rom", 0)
-
-    for element in old_report.get("testsuites", dict()):
-        key = element.get("platform", "") + ":" + \
-            element.get("name", "").split("/")[-1]
-        if diff_result.get(key, None) is None:
-            diff_result[key] = {}
-        diff_result[key]["old_used_ram"] = element.get("used_ram", 0)
-        diff_result[key]["old_used_rom"] = element.get("used_rom", 0)
 
     message = get_output_string(options, diff_result)
     print(message)
