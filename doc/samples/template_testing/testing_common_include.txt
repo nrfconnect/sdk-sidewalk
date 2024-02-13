@@ -16,13 +16,14 @@ Testing Device Firmware Update (DFU)
    The application, however, is running, so do not reset the device.
    In case the update fails, the old image is started instead.
 
-.. include:: ../../ncs_links.rst
+Testing Command Line Interface
+------------------------------
 
-.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
-.. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-.. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
-.. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
-.. _Sidewalk Protocol Specification: https://docs.sidewalk.amazon/specifications/
-.. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
-.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
-.. _CloudShell: https://console.aws.amazon.com/cloudshell
+#. After successfully building the sample with ``CONFIG_TEMPLATE_APP_CLI`` enabled and flashing manufacturing data, the sample is ready to use. You should see the command line prompt:
+
+   .. code-block:: console
+
+       uart$
+
+#. To start testing the application, you can use the Sidewalk CLI (DUT).
+   Type ``sid help`` and press enter to get list of supported commands.

@@ -1,5 +1,8 @@
 .. _why_new_sidewalk_template:
 
+New samples migration guide
+###########################
+
 Why samples changes?
 ********************
 
@@ -55,6 +58,60 @@ All below commands assumes you are in :file:`{NCS_PATH}/sidewalk/samples` and bu
 +---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | Device under test (CLI)   |``west build -b nrf52840dk_nrf52840 sid_dut``            | ``west build -b nrf52840dk_nrf52840 template -- -DOVERLAY_CONFIG="overlay-dut.conf"``        |
 +---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
+
+User interface
+--------------
+
+The user interface was changed in Sidewalk template, to better support board with smaller amount of buttons and leds.
+
+**Buttons** changes:
+
++--------------------------------+--------------------------+-------------------------+
+| Description                    | Old                      | New                     |
++================================+==========================+=========================+
+| Send Hello                     | ``Button 3 (short)``     | ``Button 1 (short)``    |
++--------------------------------+--------------------------+-------------------------+
+| Enter DFU mode                 | ``Button4 (long)``       | ``Button 1 (long)``     |
++--------------------------------+--------------------------+-------------------------+
+| Factory Reset                  | ``Button1 (long)``       | ``Button 2 (long)``     |
++--------------------------------+--------------------------+-------------------------+
+| Board support                  | ``board_events.c``       | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Set fake battery level         | ``Button 4 (short)``     | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Get current Device Profiles    | ``Button 2 (short)``     | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Switch between Device Profiles | ``Button 2 (long)``      | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Sensor Monitoring button press | ``Buttons 1-4 (short)``  | ``Buttons 1-4 (short)`` |
++--------------------------------+--------------------------+-------------------------+
+| Switch Link Mask               | N/A                      | ``Buttons 3 (long)``    |
++--------------------------------+--------------------------+-------------------------+
+
+
+**LEDs** changes:
+
++--------------------------------+--------------+--------------+
+| Description                    | Old          | New          |
++================================+==============+==============+
+| Application Link and Connected | ``LED 1``,   | ``LED 1``    |
+|                                | ``LED 4``    |              |
++--------------------------------+--------------+--------------+
+| Application time sync          | ``LED 3``    | ``LED 2``    |
++--------------------------------+--------------+--------------+
+| Application Registered         | ``LED 2``    | ``LED 3``    |
++--------------------------------+--------------+--------------+
+| Application woke up            | N/A          | ``LED 4``    |
++--------------------------------+--------------+--------------+
+| Sensor Monitoring led          | ``LEDs 1-4`` | ``LEDs 1-4`` |
++--------------------------------+--------------+--------------+
+
+
+**CLI** changes:
+
+* All Sidewalk Device Under Test application (``sid_dut``) commands are available when ``CONFIG_TEMPLATE_APP_CLI`` is enabled.
+* Old ``CONFIG_SIDEWALK_CLI`` was removed.
+
 
 Source files
 ------------

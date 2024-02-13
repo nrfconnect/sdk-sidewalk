@@ -55,7 +55,7 @@ The hello Sidewalk application supports the following configurations:
 
 * ``CONFIG_TEMPLATE_APP_ECHO_MSGS`` -- The sample echoes received Sidewalk messages of type GET and SET to the Sidewalk cloud.
 
-.. _sidewalk_template_source_files:
+.. _sidewalk_template_hello_testing:
 
 Testing
 =======
@@ -246,8 +246,16 @@ Receiving message from AWS MQTT
                                      21                                               |!
 
 
-.. include:: testing_nordic_dfu_include.txt
+.. include:: testing_common_include.txt
 
-.. include:: ../ncs_links.rst
+.. include:: ../../ncs_links.rst
 
+.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
+.. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+.. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
+.. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
+.. _Sidewalk Protocol Specification: https://docs.sidewalk.amazon/specifications/
+.. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
+.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
+.. _CloudShell: https://console.aws.amazon.com/cloudshell
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/

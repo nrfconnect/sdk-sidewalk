@@ -163,6 +163,8 @@ For example:
    $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
 
 
+.. _sidewalk_template_source_files:
+
 Source file setup
 *****************
 

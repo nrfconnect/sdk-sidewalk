@@ -17,7 +17,7 @@ Button 1-4 (short press):
 LED 1-4:
    Notify LED action message. This action works after application successfully sends capability message.
 
-For common sidewalk template user interface description see ::ref:`sidewalk_template_user_interface`
+For common sidewalk template user interface description see :ref:`sidewalk_template_user_interface`
 
 Configuration
 *************
@@ -30,6 +30,27 @@ The Sidewalk sensor monitoring demo application supports the following configura
 
 * ``CONFIG_TEMPLATE_APP_NOTIFY_DATA_PERIOD_MS`` -- Notify period of sensor monitoring template app in milliseconds.
 
+Source file setup
+*****************
+
+The application consists of two source files:
+
+* :file:`app.c` (:file:`app.h`) -- The main application file, starts tx and rx thread. Assigns button actions to board buttons. Adds received messages to receive message queue.
+* :file:`app_sensor.c`,  :file:`app_button.c`,  :file:`app_led.c` -- Those files implements interface between hardware and sample application.
+* :file:`app_rx.c` (:file:`app.h`) -- Rx thread reads messages form received messages queue, deserializes them and triggers actions.
+* :file:`app_tx.c` (:file:`app.h`) -- Tx thread sends messages from device to cloud. Depends on actual state it sends capability message or sensor data notifications.
+
+   .. uml::
+      :caption: Application TX thread state machine
+
+      [*] -> Init
+      Init --> Notify_Capacity : time_syc_success
+      Notify_Capacity --> Notify_Data : capacity_success
+      Notify_Data --> Notify_Capacity : time_syc_fail
+      Notify_Data --> Notify_Data : action_response
+      Notify_Data --> Notify_Data : action_notify
+
+For common sidewalk template source files description see :ref:`sidewalk_template_source_files`
 
 Testing
 *******
@@ -58,8 +79,9 @@ Wait for the device to complete the automatic registration.
 
 .. note::
    For the full installation guidelines and the application overview, refer to the `Amazon Sidewalk Sample IoT App`_ repository.
+   Flash Nordic device with the template sensor monitoring application instead of prebuilt hex file provided from cloud application repository.
 
-.. include:: testing_nordic_dfu_include.txt
+.. include:: testing_common_include.txt
 
 .. include:: ../../ncs_links.rst
 
