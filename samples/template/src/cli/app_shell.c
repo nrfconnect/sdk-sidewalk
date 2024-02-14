@@ -395,6 +395,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 				return -EINVAL;
 			}
 			uint8_t msg_buffer[strlen(argv[opt]) / 2];
+			memset(msg_buffer, 0, sizeof(msg_buffer));
 			msg.size = hex2bin(argv[opt], strlen(argv[opt]), msg_buffer,
 					   sizeof(msg_buffer));
 			if (!msg.size) {

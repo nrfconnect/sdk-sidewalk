@@ -100,7 +100,7 @@ void app_rx_task(void *dummy1, void *dummy2, void *dummy3)
 	ARG_UNUSED(dummy3);
 
 	while (1) {
-		struct app_rx_msg rx_msg;
+		struct app_rx_msg rx_msg = { 0 };
 		int err = k_msgq_get(&rx_msgq, &rx_msg, K_FOREVER);
 		if (!err) {
 			// Deserialize message
