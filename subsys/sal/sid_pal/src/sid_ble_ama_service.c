@@ -7,6 +7,10 @@
 /** @file sid_ble_ama_service.c
  *  @brief Bluetooth low energy Amazon service implementation.
  */
+#include <zephyr/kernel.h>
+
+#include <zephyr/bluetooth/hci.h>
+#include <sdc_hci_vs.h>
 
 #include <sid_ble_ama_service.h>
 #include <sid_ble_adapter_callbacks.h>
@@ -48,6 +52,21 @@ static ssize_t ama_srv_on_write(struct bt_conn *conn, const struct bt_gatt_attr 
 	ARG_UNUSED(offset);
 	ARG_UNUSED(flags);
 
+	// avg[n] = gamma * avg[n - 1] + (1 - gamma) * rssi[n]
+	// Here, gamma equals beta/4096, and rssi[n] equals the current RSSI.
+	// leave only the last rssi in the average.
+	const sdc_hci_cmd_vs_set_power_control_request_params_t parameters_for_rssi_calculation = {
+		.beta = 4096
+	};
+	sdc_hci_cmd_vs_set_power_control_request_params(&parameters_for_rssi_calculation);
+
+	uint16_t conn_handle = 0;
+	bt_hci_get_conn_handle(conn, &conn_handle);
+	const sdc_hci_cmd_vs_read_average_rssi_t p_params = { .conn_handle = conn_handle };
+	sdc_hci_cmd_vs_read_average_rssi_return_t p_return;
+	sdc_hci_cmd_vs_read_average_rssi(&p_params, &p_return);
+
+	LOG_DBG("BLE RSSI = %d", p_return.avg_rssi);
 	LOG_DBG("Data received for AMA_SERVICE [len=%d].", len);
 
 	sid_ble_adapter_data_write(AMA_SERVICE, (uint8_t *)buf, len);
