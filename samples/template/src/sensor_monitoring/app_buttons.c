@@ -8,7 +8,7 @@
 #include <zephyr/sys/atomic.h>
 
 static uint8_t button_id_arr[] = { 0, 1, 2, 3 };
-static atomic_t button_press_mask = ATOMIC_INIT(0);
+ATOMIC_DEFINE(button_press_mask, sizeof(button_id_arr));
 static uint32_t button_notify_mask;
 static uint32_t button_press_time_in_sec_id_arr[APP_BUTTONS_MAX];
 static atomic_t button_event_pending_processing = ATOMIC_INIT(false);
@@ -19,8 +19,8 @@ void app_btn_event_handler(uint32_t btn_id)
 		return;
 	}
 
-	if (!atomic_test_bit(&button_press_mask, button_id_arr[btn_id])) {
-		atomic_set_bit(&button_press_mask, button_id_arr[btn_id]);
+	if (!atomic_test_bit(button_press_mask, button_id_arr[btn_id])) {
+		atomic_set_bit(button_press_mask, button_id_arr[btn_id]);
 	}
 
 	atomic_set(&button_event_pending_processing, true);
@@ -61,14 +61,14 @@ bool app_btn_notify_mask_bit_is_set(uint8_t btn_id)
 void app_btn_press_mask_bit_clear(uint8_t btn_id)
 {
 	if (btn_id < APP_BUTTONS_MAX) {
-		atomic_clear_bit(&button_press_mask, button_id_arr[btn_id]);
+		atomic_clear_bit(button_press_mask, button_id_arr[btn_id]);
 	}
 }
 
 bool app_btn_press_mask_bit_is_set(uint8_t btn_id)
 {
 	if (btn_id < APP_BUTTONS_MAX) {
-		return atomic_test_bit(&button_press_mask, button_id_arr[btn_id]);
+		return atomic_test_bit(button_press_mask, button_id_arr[btn_id]);
 	}
 	return false;
 }
