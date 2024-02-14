@@ -43,6 +43,7 @@ Browse the content by referring to the following pages:
    setting_up_sidewalk_environment/setting_up_environment.rst
    samples/samples_list.rst
    compatibility_matrix.rst
+   migration_guide.rst
    sidewalk_release_notes.rst
    additional_resources.rst
 
