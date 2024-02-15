@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install requirements
+        run: |
+          sudo apt-get update
+          sudo apt-get install default-jre graphviz -y
+          curl -sSL https://github.com/plantuml/plantuml/releases/download/v1.2023.13/plantuml-1.2023.13.jar --output /usr/local/bin/plantuml.jar
+
       - name: Build documentation
         run: cd doc; bash ./build_local.sh
 
