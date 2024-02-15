@@ -131,7 +131,9 @@ config SIDEWALK_STORAGE
 	bool
 	default SIDEWALK
 	imply NVS
+	imply FLASH_MAP
 	imply FLASH
+	imply SETTINGS
 	help
 	  Sidewalk storage module
 

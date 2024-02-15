@@ -129,3 +129,17 @@
 			  JSON_VAL_sid_link3_low_latency_config_t(                                 \
 				  "event_data",                                                    \
 				  ((struct sid_link3_low_latency_config *)val->event_data)))))
+
+#define JSON_VAL_sid_bulk_data_transfer_desc(name, desc)                                           \
+	JSON_NAME(name,                                                                            \
+		  JSON_OBJ(JSON_LIST_3(JSON_NAME("link_type", JSON_INT(desc->link_type)),          \
+				       JSON_NAME("file_id", JSON_INT(desc->file_id)),              \
+				       JSON_NAME("file_offset", JSON_INT(desc->file_offset)))))
+
+#define JSON_VAL_sid_bulk_data_transfer_request(name, req)                                         \
+	JSON_NAME(name,                                                                            \
+		  JSON_OBJ(JSON_LIST_4(JSON_NAME("fragment_size", JSON_INT(req->fragment_size)),   \
+				       JSON_NAME("file_id", JSON_INT(req->file_id)),               \
+				       JSON_NAME("file_size", JSON_INT(req->file_size)),           \
+				       JSON_NAME("minimum_scratch_buffer_size",                    \
+						 JSON_INT(req->minimum_scratch_buffer_size)))))

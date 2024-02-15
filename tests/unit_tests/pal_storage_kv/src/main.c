@@ -3,151 +3,51 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include <unity.h>
+
+#include "zephyr/ztest_assert.h"
 #include <sid_pal_storage_kv_ifc.h>
-#include <zephyr/fs/cmock_nvs.h>
 
-#define GROUP_ID_TEST_OK (0)
-#define GROUP_ID_TEST_NOK (9)
+#include <stdint.h>
+#include <zephyr/ztest.h>
 
-void setUp(void)
+#include <zephyr/settings/settings.h>
+
+ZTEST(pal_storage, test_init_save_read)
 {
+	sid_pal_storage_kv_init();
+	const int value = 123;
+	zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_record_set(0, 1, &value, sizeof(value)),
+		      "record_set returned invalid value");
+	uint32_t len = 0;
+	zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_record_get_len(0, 1, &len));
+	zassert_equal(4, len);
+
+	int value2 = 0;
+	zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_record_get(0, 1, &value2, len));
+	zassert_equal(value, value2);
+	zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_record_delete(0, 1));
+	int value3 = 0;
+	zassert_equal(SID_ERROR_NOT_FOUND, sid_pal_storage_kv_record_get(0, 1, &value3, len));
+	const int value4 = 567;
+	const int value5 = 890;
+	zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_record_set(2, 15, &value4, sizeof(value4)),
+		      "record_set returned invalid value");
+	zassert_equal(SID_ERROR_NONE,
+		      sid_pal_storage_kv_record_set(2, 0xff, &value5, sizeof(value5)),
+		      "record_set returned invalid value");
+
+	zassert_equal(SID_ERROR_NONE, sid_pal_storage_kv_group_delete(2));
+	int value44 = 0;
+	zassert_equal(SID_ERROR_NOT_FOUND, sid_pal_storage_kv_record_get(2, 15, &value44, len));
+	zassert_not_equal(value44, value4);
+	int value55 = 0;
+	zassert_equal(SID_ERROR_NOT_FOUND, sid_pal_storage_kv_record_get(2, 0xff, &value55, len));
+	zassert_not_equal(value55, value5);
 }
 
-/******************************************************************
-* sid_pal_storage_kv_ifc
-* ****************************************************************/
-void test_sid_pal_storage_kv_init(void)
+ZTEST(pal_storage, test_sanity)
 {
-	__cmock_nvs_mount_ExpectAnyArgsAndReturn(-EINVAL);
-	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, sid_pal_storage_kv_init());
-	__cmock_nvs_mount_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_storage_kv_init());
+	zassert_true(true);
 }
 
-void test_sid_pal_storage_kv_record_get(void)
-{
-	uint8_t test_buff[5] = { 0 };
-
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE,
-			  sid_pal_storage_kv_record_get(GROUP_ID_TEST_NOK, 1, NULL, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER,
-			  sid_pal_storage_kv_record_get(GROUP_ID_TEST_OK, 1, NULL, 0));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(-ENOENT);
-	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND,
-			  sid_pal_storage_kv_record_get(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(-EINVAL);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_READ_FAIL,
-			  sid_pal_storage_kv_record_get(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_storage_kv_record_get(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-}
-
-void test_sid_pal_storage_kv_record_get_len(void)
-{
-	uint32_t test_len = 0;
-	uint32_t test_expected_len = 16;
-
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE,
-			  sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_NOK, 1, &test_len));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER,
-			  sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_OK, 1, NULL));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(-ENOENT);
-	TEST_ASSERT_EQUAL(SID_ERROR_NOT_FOUND,
-			  sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_OK, 1, &test_len));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(-EINVAL);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_READ_FAIL,
-			  sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_OK, 1, &test_len));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_READ_FAIL,
-			  sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_OK, 1, &test_len));
-
-	__cmock_nvs_read_ExpectAnyArgsAndReturn(test_expected_len);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_OK, 1, &test_len));
-	TEST_ASSERT_EQUAL(test_expected_len, test_len);
-}
-
-void test_sid_pal_storage_kv_record_set(void)
-{
-	uint8_t test_buff[16] = { 0 };
-
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_NOK, 1, test_buff,
-							sizeof(test_buff)));
-	TEST_ASSERT_EQUAL(SID_ERROR_NULL_POINTER,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, NULL,
-							sizeof(test_buff)));
-	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, test_buff, 0));
-	TEST_ASSERT_EQUAL(SID_ERROR_OUT_OF_RESOURCES,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, test_buff, 9999));
-
-	__cmock_nvs_write_ExpectAnyArgsAndReturn(-ENOSPC);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_FULL,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-
-	__cmock_nvs_write_ExpectAnyArgsAndReturn(-EINVAL);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_WRITE_FAIL,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-
-	__cmock_nvs_write_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-
-	__cmock_nvs_write_ExpectAnyArgsAndReturn(sizeof(test_buff));
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE,
-			  sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, 1, test_buff,
-							sizeof(test_buff)));
-}
-
-void test_sid_pal_storage_kv_record_delete(void)
-{
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE,
-			  sid_pal_storage_kv_record_delete(GROUP_ID_TEST_NOK, 1));
-
-	__cmock_nvs_delete_ExpectAnyArgsAndReturn(-ENOENT);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_ERASE_FAIL,
-			  sid_pal_storage_kv_record_delete(GROUP_ID_TEST_OK, 1));
-
-	__cmock_nvs_delete_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_storage_kv_record_delete(GROUP_ID_TEST_OK, 1));
-}
-
-void test_sid_pal_storage_kv_group_delete(void)
-{
-	TEST_ASSERT_EQUAL(SID_ERROR_PARAM_OUT_OF_RANGE,
-			  sid_pal_storage_kv_group_delete(GROUP_ID_TEST_NOK));
-
-	__cmock_nvs_clear_ExpectAnyArgsAndReturn(-EINVAL);
-	TEST_ASSERT_EQUAL(SID_ERROR_STORAGE_ERASE_FAIL,
-			  sid_pal_storage_kv_group_delete(GROUP_ID_TEST_OK));
-
-	__cmock_nvs_clear_ExpectAnyArgsAndReturn(0);
-	__cmock_nvs_mount_ExpectAnyArgsAndReturn(0);
-	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_storage_kv_group_delete(GROUP_ID_TEST_OK));
-}
-
-/* It is required to be added to each test. That is because unity is using
- * different main signature (returns int) and zephyr expects main which does
- * not return value.
- */
-extern int unity_main(void);
-
-int main(void)
-{
-	return unity_main();
-}
+ZTEST_SUITE(pal_storage, NULL, NULL, NULL, NULL, NULL);

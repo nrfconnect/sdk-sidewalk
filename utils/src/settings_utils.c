@@ -14,10 +14,16 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(settings_utils, CONFIG_SIDEWALK_LOG_LEVEL);
 
+/**
+ * Structure for immediate request from settings
+ * 
+ */
 struct direct_immediate_value {
-	size_t len;
-	void *dest;
-	uint8_t fetched;
+	size_t dest_capacity; /**< IN */
+	void *dest; /**< IN, OUT */
+
+	size_t len; /**< OUT*/
+	uint8_t fetched; /**< OUT*/
 };
 
 static int direct_loader_immediate_value(const char *name, size_t len, settings_read_cb read_cb,
@@ -31,18 +37,21 @@ static int direct_loader_immediate_value(const char *name, size_t len, settings_
 	name_len = settings_name_next(name, &next);
 
 	if (name_len == 0) {
-		if (len == one_value->len) {
-			rc = read_cb(cb_arg, one_value->dest, len);
-			if (rc >= 0) {
-				one_value->fetched = 1;
-				LOG_INF("immediate load: OK.\n");
-				return 0;
-			}
-
-			LOG_ERR("fail (err %d)\n", rc);
-			return rc;
+		if (one_value->dest == NULL) {
+			// do not read value, just check its length
+			one_value->len = len;
+			return 0;
 		}
-		return -EINVAL;
+
+		rc = read_cb(cb_arg, one_value->dest, one_value->dest_capacity);
+		if (rc >= 0) {
+			one_value->fetched = 1;
+			one_value->len = rc;
+			return 0;
+		}
+
+		LOG_ERR("fail (err %d)\n", rc);
+		return rc;
 	}
 
 	/* Other keys aren't served by the callback.
@@ -52,13 +61,13 @@ static int direct_loader_immediate_value(const char *name, size_t len, settings_
 	return 0;
 }
 
-static int load_immediate_value(const char *name, void *dest, size_t len)
+int settings_utils_load_immediate_value(const char *name, void *dest, size_t len)
 {
 	int rc;
-	struct direct_immediate_value dov;
+	struct direct_immediate_value dov = { 0 };
 
 	dov.fetched = 0;
-	dov.len = len;
+	dov.dest_capacity = len;
 	dov.dest = dest;
 
 	rc = settings_load_subtree_direct(name, direct_loader_immediate_value, (void *)&dov);
@@ -66,6 +75,20 @@ static int load_immediate_value(const char *name, void *dest, size_t len)
 		if (!dov.fetched) {
 			rc = -ENOENT;
 		}
+		LOG_DBG("loaded %s key", name);
+	}
+
+	return dov.len;
+}
+
+int settings_utils_get_value_size(const char *name, size_t *len)
+{
+	int rc;
+	struct direct_immediate_value dov = { 0 };
+
+	rc = settings_load_subtree_direct(name, direct_loader_immediate_value, (void *)&dov);
+	if (rc == 0) {
+		*len = dov.len;
 	}
 
 	return rc;
@@ -80,8 +103,8 @@ app_start_t application_to_start(void)
 #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	bool dfu_mode = false;
 
-	(void)load_immediate_value(CONFIG_DEPRECATED_DFU_FLAG_SETTINGS_KEY, &dfu_mode,
-				   sizeof(dfu_mode));
+	(void)settings_utils_load_immediate_value(CONFIG_DEPRECATED_DFU_FLAG_SETTINGS_KEY,
+						  &dfu_mode, sizeof(dfu_mode));
 
 	if (dfu_mode) {
 		dfu_mode = false;
@@ -97,17 +120,22 @@ app_start_t application_to_start(void)
 }
 #endif /* DEPRECATED_DFU_FLAG_SETTINGS_KEY */
 
+#ifdef CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY
+
 int settings_utils_link_mask_get(uint32_t *link_mask)
 {
 	settings_subsys_init();
 	settings_load();
 
-	return load_immediate_value(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY, link_mask,
-				    sizeof(link_mask));
+	return settings_utils_load_immediate_value(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY,
+						   link_mask, sizeof(link_mask));
 }
 
 int settings_utils_link_mask_set(uint32_t link_mask)
 {
-	return settings_save_one(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY, (const void *)&link_mask,
-				 sizeof(link_mask));
+	int ret = settings_save_one(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY,
+				    (const void *)&link_mask, sizeof(link_mask));
+	settings_commit();
+	return ret;
 }
+#endif /* CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY */
