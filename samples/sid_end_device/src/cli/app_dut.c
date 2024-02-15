@@ -10,6 +10,7 @@
 #include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <file_transfer.h>
 
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -122,12 +123,18 @@ void app_dut_event_process(sidewalk_ctx_event_t event, sidewalk_ctx_t *sid)
 		sid->config.link_mask = dut_ctx_get_uint32(event.ctx);
 		sid_error_t e = sid_init(&sid->config, &sid->handle);
 		LOG_INF("sid_init returned %d", e);
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+		app_file_transfer_demo_init(sid->handle);
+#endif
 	} break;
 	case DUT_EVENT_DEINIT: {
 		if (event.ctx) {
 			sid_hal_free(event.ctx);
 			LOG_WRN("Unexpected context on event %d", event.id);
 		};
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+		app_file_transfer_demo_deinit(sid->handle);
+#endif
 		sid_error_t e = sid_deinit(sid->handle);
 		LOG_INF("sid_deinit returned %d", e);
 	} break;
