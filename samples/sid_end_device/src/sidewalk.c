@@ -97,7 +97,7 @@ static void state_sidewalk_entry(void *o)
 
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	int err = settings_utils_link_mask_get(&sm->sid->config.link_mask);
-	if (err) {
+	if (err <= 0) {
 		LOG_WRN("Link mask get failed %d", err);
 		sm->sid->config.link_mask = 0;
 		settings_utils_link_mask_set(DEFAULT_LM);

@@ -9,7 +9,9 @@ config SIDEWALK_BUILD
 config SIDEWALK_STORAGE
 	default y
 	imply NVS
+	imply FLASH_MAP
 	imply FLASH
+	imply SETTINGS
 
 config SIDEWALK_LOG_LEVEL
 	default 0

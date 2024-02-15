@@ -11,5 +11,5 @@ project(sidewalk_functional_test)
 
 # add test file
 FILE(GLOB app_sources src/*.c)
-target_sources(app PRIVATE ${app_sources})
-target_include_directories(app PRIVATE .)
+target_sources(app PRIVATE ${app_sources} $ENV{ZEPHYR_BASE}/../sidewalk/utils/src/settings_utils.c)
+target_include_directories(app PRIVATE .  $ENV{ZEPHYR_BASE}/../sidewalk/utils/include)
