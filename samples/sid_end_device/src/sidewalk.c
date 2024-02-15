@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <sid_pal_crypto_ifc.h>
+#include <stdio.h>
+
 #include <app_mfg_config.h>
 #include <sid_pal_common_ifc.h>
 #include <sidewalk.h>
@@ -17,9 +20,11 @@
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
 #include <zephyr/logging/log.h>
+#include <sidTypes2str.h>
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 #include <app_subGHz_config.h>
 #endif
+#include <file_transfer.h>
 
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)
@@ -117,6 +122,9 @@ static void state_sidewalk_entry(void *o)
 	if (e) {
 		LOG_ERR("sid init err %d", (int)e);
 	}
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+	app_file_transfer_demo_init(sm->sid->handle);
+#endif
 	e = sid_start(sm->sid->handle, sm->sid->config.link_mask);
 	if (e) {
 		LOG_ERR("sid start err %d", (int)e);
@@ -172,6 +180,9 @@ static void state_sidewalk_run(void *o)
 #endif /* CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK */
 
 		if (sm->sid->handle != NULL) {
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+			app_file_transfer_demo_deinit(sm->sid->handle);
+#endif
 			e = sid_deinit(sm->sid->handle);
 			if (e) {
 				LOG_ERR("sid deinit err %d", (int)e);
@@ -182,13 +193,18 @@ static void state_sidewalk_run(void *o)
 		if (e) {
 			LOG_ERR("sid init err %d", (int)e);
 		}
-
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+		app_file_transfer_demo_init(sm->sid->handle);
+#endif
 		e = sid_start(sm->sid->handle, sm->sid->config.link_mask);
 		if (e) {
 			LOG_ERR("sid start err %d", (int)e);
 		}
 		break;
 	case SID_EVENT_NORDIC_DFU:
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+		app_file_transfer_demo_deinit(sm->sid->handle);
+#endif
 		e = sid_deinit(sm->sid->handle);
 		if (e) {
 			LOG_ERR("sid deinit err %d", (int)e);
@@ -247,6 +263,40 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid conn req err %d", (int)e);
 		}
 		break;
+	case SID_EVENT_FILE_TRANSFER: {
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+		struct data_received_args *args = (struct data_received_args *)sm->event.ctx;
+		LOG_INF("Received file Id %d; buffer size %d; file offset %d", args->desc->file_id,
+			args->buffer->size, args->desc->file_offset);
+		uint8_t hash_out[32];
+		sid_pal_hash_params_t params = { .algo = SID_PAL_HASH_SHA256,
+						 .data = args->buffer->data,
+						 .data_size = args->buffer->size,
+						 .digest = hash_out,
+						 .digest_size = sizeof(hash_out) };
+
+		sid_error_t e = sid_pal_crypto_hash(&params);
+		if (e != SID_ERROR_NONE) {
+			LOG_ERR("Failed to hash received file transfer with error %s",
+				SID_ERROR_T_STR(e));
+		} else {
+#define HEX_PRINTER(a, ...) "%02X"
+#define HEX_PRINTER_ARG(a, ...) hash_out[a]
+			char hex_str[sizeof(hash_out) * 2 + 1] = { 0 };
+			snprintf(hex_str, sizeof(hex_str), LISTIFY(32, HEX_PRINTER, ()),
+				 LISTIFY(32, HEX_PRINTER_ARG, (, )));
+			LOG_INF("SHA256: %s", hex_str);
+		}
+
+		sid_error_t ret = sid_bulk_data_transfer_release_buffer(
+			sm->sid->handle, args->desc->file_id, args->buffer);
+		if (ret != SID_ERROR_NONE) {
+			LOG_ERR("sid_bulk_data_transfer_release_buffer returned %s",
+				SID_ERROR_T_STR(ret));
+		}
+		sidewalk_data_free(args);
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER */
+	} break;
 	case SID_EVENT_LAST:
 		break;
 	}
@@ -296,6 +346,7 @@ static void state_dfu_run(void *o)
 	case SID_EVENT_FACTORY_RESET:
 	case SID_EVENT_LINK_SWITCH:
 	case SID_EVENT_SIDEWALK:
+	case SID_EVENT_FILE_TRANSFER:
 		LOG_INF("Operation not supported in DFU mode");
 		break;
 	case SID_EVENT_LAST:

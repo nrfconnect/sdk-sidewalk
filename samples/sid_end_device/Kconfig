@@ -64,6 +64,12 @@ config SID_END_DEVICE_EVENT_HEAP_SIZE
     int "Heap for Sidewalk event contexts"
     default 2048
 
+config SIDEWALK_FILE_TRANSFER
+    select EXPERIMENTAL
+    bool "Add File transfer capability to the application"
+    help
+      Include the callbacks necesary to handle file transfer
+
 rsource "Kconfig.defconfig"
 
 source "Kconfig.zephyr"

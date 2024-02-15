@@ -35,6 +35,8 @@ target_sources(app PRIVATE
     src/sidewalk.c
 )
 
+target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE src/file_transfer.c)
+
 if(CONFIG_SID_END_DEVICE_SENSOR_MONITORING)
     target_sources(app PRIVATE
         src/sensor_monitoring/app_buttons.c

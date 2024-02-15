@@ -5,7 +5,8 @@ tests:
   sample.sidewalk.hello:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -16,7 +17,8 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       CONF_FILE=prj_release.conf
-      CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -27,7 +29,8 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       CONF_FILE=prj_no_dfu.conf
-      CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -36,7 +39,8 @@ tests:
   sample.sidewalk.hello.ble_only:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+    extra_configs:
+      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -47,7 +51,8 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       CONF_FILE=prj_release.conf
-      CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+    extra_configs:
+      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -58,7 +63,8 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       OVERLAY_CONFIG="overlay-demo.conf"
-      CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -69,7 +75,8 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp thingy53_nrf5340_cpuapp
     extra_args:
       OVERLAY_CONFIG="overlay-demo.conf"
-      CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+    extra_configs:
+      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -80,6 +87,8 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       OVERLAY_CONFIG="overlay-dut.conf"
+    extra_configs:
+      - CONFIG_SIDEWALK_FILE_TRANSFER=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
