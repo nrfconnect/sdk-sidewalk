@@ -44,6 +44,10 @@ if(CONFIG_TEMPLATE_APP_SENSOR_MONITORING)
         src/sensor_monitoring/app_rx.c
         src/sensor_monitoring/app.c
     )
+elseif(CONFIG_TEMPLATE_APP_DUT)
+    target_sources(app PRIVATE
+        src/cli/app.c
+    )
 else()
     target_sources(app PRIVATE
         src/hello/app.c

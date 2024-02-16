@@ -1,17 +1,17 @@
 sample:
-  name: Sidewalk template sample
+  name: Sidewalk end device sample
   description: Sample implementing Amazon Sidewalk End Device
 tests:
-  sample.sidewalk.template:
+  sample.sidewalk.hello:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk
+    tags: Sidewalk hello
 
-  sample.sidewalk.template.release:
+  sample.sidewalk.hello.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
@@ -20,9 +20,9 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk
+    tags: Sidewalk hello
 
-  sample.sidewalk.template.no_dfu:
+  sample.sidewalk.hello.no_dfu:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
@@ -31,18 +31,18 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk
+    tags: Sidewalk hello
 
-  sample.sidewalk.template.ble_only:
+  sample.sidewalk.hello.ble_only:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args: CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk BLE
+    tags: Sidewalk hello BLE
 
-  sample.sidewalk.template.ble_only.release:
+  sample.sidewalk.hello.ble_only.release:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
@@ -51,31 +51,31 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk BLE
+    tags: Sidewalk hello BLE
 
   sample.sidewalk.demo:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
-      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      OVERLAY_CONFIG="overlay-demo.conf"
       CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk BLE
+    tags: Sidewalk demo
 
   sample.sidewalk.demo.ble_only:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp thingy53_nrf5340_cpuapp
     extra_args:
-      CONFIG_TEMPLATE_APP_SENSOR_MONITORING=y
+      OVERLAY_CONFIG="overlay-demo.conf"
       CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk BLE
+    tags: Sidewalk demo BLE
 
-  sidewalk.sid_dut:
+  sample.sidewalk.dut:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
@@ -83,4 +83,4 @@ tests:
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
-    tags: Sidewalk
+    tags: Sidewalk cli

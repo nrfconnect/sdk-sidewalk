@@ -148,6 +148,8 @@ Configuration overlays
 ======================
 
 * ``overlay-dut`` -- Sidewalk Device Under Test configuration. Enables CLI, disables sample automation.
+* ``overlay-demo`` -- Sidewalk sensor monitoring configuration.
+* ``overlay-hello`` -- Sidewalk hello sample configuration. This is default configuration.
 
 You can build the template application with Sidewalk DUT configuration overlay for ``build_target`` by running the following command in the project directory:
 
