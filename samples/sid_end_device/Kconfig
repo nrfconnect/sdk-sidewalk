@@ -15,7 +15,9 @@ config TEMPLATE_APP_SENSOR_MONITORING
     bool "Demo sensor monitoring application"
     imply SIDEWALK_DEMO_PARSER
     imply SENSOR
-	imply TEMP_NRF5
+    imply TEMP_NRF5
+config TEMPLATE_APP_DUT
+    bool "Device under test application"
 endchoice #TEMPLATE_APP
 
 if TEMPLATE_APP_HELLO
