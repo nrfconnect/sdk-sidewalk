@@ -69,7 +69,7 @@ static bool is_initialized = false;
 /* Prefix for uncompressed public key */
 static const uint8_t secpxxx_key_prefix[SECPxxx_KEY_PREFIX_LEN] = { 0x04 };
 
-static sid_error_t get_error(psa_status_t psa_erc);
+static sid_error_t get_error(psa_status_t psa_erc, const char *func_name);
 static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t key_bits,
 				psa_key_usage_t usage_flags, psa_algorithm_t alg,
 				psa_key_type_t type, psa_key_handle_t *key_handle);
@@ -88,12 +88,12 @@ static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_param
  * @param psa_erc - psa error code.
  * @return sidewalk error code.
  */
-static sid_error_t get_error(psa_status_t psa_erc)
+static sid_error_t get_error(psa_status_t psa_erc, const char *func_name)
 {
 	sid_error_t sid_erc = SID_ERROR_NONE;
 
 	if (PSA_SUCCESS != psa_erc) {
-		LOG_ERR("PSA Error code: %d", psa_erc);
+		LOG_ERR("PSA Error code: %d in %s", psa_erc, func_name);
 	}
 
 	switch (psa_erc) {
@@ -374,7 +374,7 @@ sid_error_t sid_pal_crypto_init(void)
 		LOG_ERR("Init failed! (sts: %d)", status);
 	}
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_deinit(void)
@@ -397,7 +397,7 @@ sid_error_t sid_pal_crypto_rand(uint8_t *rand, size_t size)
 		return SID_ERROR_INVALID_ARGS;
 	}
 
-	return get_error(psa_generate_random(rand, size));
+	return get_error(psa_generate_random(rand, size), __func__);
 }
 
 sid_error_t sid_pal_crypto_hash(sid_pal_hash_params_t *params)
@@ -429,7 +429,8 @@ sid_error_t sid_pal_crypto_hash(sid_pal_hash_params_t *params)
 	}
 
 	return get_error(psa_hash_compute(alg_sha, params->data, params->data_size, params->digest,
-					  params->digest_size, &hash_length));
+					  params->digest_size, &hash_length),
+			 __func__);
 }
 
 sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
@@ -503,7 +504,7 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 		}
 	}
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
@@ -580,7 +581,7 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 		}
 	}
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
@@ -653,7 +654,7 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 		}
 	}
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
@@ -737,7 +738,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 		}
 	}
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
@@ -801,7 +802,7 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		LOG_WRN("Destroy key failed!");
 	}
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
@@ -882,5 +883,5 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 	}
 	psa_reset_key_attributes(&key_attributes);
 
-	return get_error(status);
+	return get_error(status, __func__);
 }
