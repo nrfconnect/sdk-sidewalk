@@ -81,19 +81,21 @@ if SIDEWALK_CRYPTO
 
 config PSA_WANT_ALG_CHACHA20_POLY1305
 	default n
+
 config PSA_WANT_ALG_SHA_224
 	default n
+
 config PSA_WANT_ALG_SHA_384
 	default n
+
 config PSA_WANT_ALG_CBC_NO_PADDING
 	default n
+
 config PSA_WANT_ALG_CBC_PKCS7
 	default n
+
 config PSA_WANT_ALG_HKDF
 	default n
-config MBEDTLS_HEAP_SIZE
-	default 8192 if SIDEWALK_ON_DEV_CERT
-	default 1024
 
 endif #SIDEWALK_CRYPTO
 

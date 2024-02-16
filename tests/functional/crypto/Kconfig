@@ -14,18 +14,22 @@ config SIDEWALK_CRYPTO_LOG_LEVEL
 
 config SIDEWALK_LOG_LEVEL
 	default 0
+
 # Stacks
 config MAIN_STACK_SIZE
 	default 8192
+
 config ZTEST_STACK_SIZE
 	default 8192
+
 config HEAP_MEM_POOL_SIZE
-	default 8192
+	default 4096
+
 config MBEDTLS_ENABLE_HEAP
 	default y
-config MBEDTLS_HEAP_SIZE
-	default 8192
 
+config MBEDTLS_HEAP_SIZE
+	default 4096
 
 source "${ZEPHYR_BASE}/../sidewalk/Kconfig"
 source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
