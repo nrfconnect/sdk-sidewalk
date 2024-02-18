@@ -15,7 +15,7 @@
 .. _Testing and debugging an application: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/nrf/getting_started/testing.html#gs-testing
 .. _Bootloader and DFU solutions for NCS: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/nrf/app_bootloaders.html
 .. _Zephyr SMP Server: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/zephyr/services/device_mgmt/ota.html#smp-server
-.. _Zephyr SMP Server sample: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/zephyr/samples/subsys/mgmt/mcumgr/smp_svr/README.html
+.. _Zephyr SMP Server sample: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/zephyr/samples/subsys/mgmt/mcumgr/smp_svr/README.html#smp-svr
 .. _Zephyr State Machine Framework: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/zephyr/services/smf/index.html
 .. _NCS testing applications: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/nrf/gs_testing.html
 .. _Known issues for the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.99-dev1/nrf/releases_and_maturity/known_issues.html
