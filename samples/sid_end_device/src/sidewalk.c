@@ -55,10 +55,6 @@ enum state {
 	STATE_DFU,
 };
 
-#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
-static void *pending_msg_ctx;
-#endif
-
 static void state_sidewalk_run(void *o);
 static void state_sidewalk_entry(void *o);
 static void state_dfu_entry(void *o);
@@ -130,7 +126,34 @@ static void state_sidewalk_entry(void *o)
 	if (e) {
 		LOG_ERR("sid start err %d", (int)e);
 	}
-#endif /* CONFIG_SID_END_DEVICE_AUTO_START */
+
+#if CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
+	if (sm->sid->config.link_mask & SID_LINK_TYPE_1) {
+		enum sid_link_connection_policy set_policy =
+			SID_LINK_CONNECTION_POLICY_AUTO_CONNECT;
+
+		e = sid_option(sm->sid->handle, SID_OPTION_SET_LINK_CONNECTION_POLICY, &set_policy,
+			       sizeof(set_policy));
+		if (e) {
+			LOG_ERR("sid option multi link manager err %d", (int)e);
+		}
+
+		struct sid_link_auto_connect_params ac_params = {
+			.link_type = SID_LINK_TYPE_1,
+			.enable = true,
+			.priority = 0,
+			.connection_attempt_timeout_seconds = 30
+		};
+
+		e = sid_option(sm->sid->handle, SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
+			       &ac_params, sizeof(ac_params));
+		if (e) {
+			LOG_ERR("sid option multi link policy err %d", (int)e);
+		}
+	}
+#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
+
+#endif /* CONFIG_SIDEWALK_AUTO_START */
 }
 
 static void state_sidewalk_run(void *o)
@@ -148,7 +171,7 @@ static void state_sidewalk_run(void *o)
 	case SID_EVENT_FACTORY_RESET:
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 		(void)settings_utils_link_mask_set(0);
-#endif
+#endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
 		e = sid_set_factory_reset(sm->sid->handle);
 		if (e) {
 			LOG_ERR("sid factory reset err %d", (int)e);
@@ -201,6 +224,32 @@ static void state_sidewalk_run(void *o)
 		if (e) {
 			LOG_ERR("sid start err %d", (int)e);
 		}
+#if CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
+		if (sm->sid->config.link_mask & SID_LINK_TYPE_1) {
+			enum sid_link_connection_policy set_policy =
+				SID_LINK_CONNECTION_POLICY_AUTO_CONNECT;
+
+			e = sid_option(sm->sid->handle, SID_OPTION_SET_LINK_CONNECTION_POLICY,
+				       &set_policy, sizeof(set_policy));
+			if (e) {
+				LOG_ERR("sid option multi link manager err %d", (int)e);
+			}
+
+			struct sid_link_auto_connect_params ac_params = {
+				.link_type = SID_LINK_TYPE_1,
+				.enable = true,
+				.priority = 0,
+				.connection_attempt_timeout_seconds = 30
+			};
+
+			e = sid_option(sm->sid->handle,
+				       SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS, &ac_params,
+				       sizeof(ac_params));
+			if (e) {
+				LOG_ERR("sid option multi link policy err %d", (int)e);
+			}
+		}
+#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 		break;
 	case SID_EVENT_NORDIC_DFU:
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
@@ -222,11 +271,6 @@ static void state_sidewalk_run(void *o)
 		memcpy(&sm->sid->last_status, p_status, sizeof(struct sid_status));
 		sid_hal_free(p_status);
 
-#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
-		if (pending_msg_ctx) {
-			sidewalk_event_send(SID_EVENT_SEND_MSG, pending_msg_ctx);
-		}
-#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 		break;
 	case SID_EVENT_SEND_MSG:
 		sidewalk_msg_t *p_msg = (sidewalk_msg_t *)sm->event.ctx;
@@ -234,15 +278,6 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid send msg is NULL");
 			break;
 		}
-
-#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
-		bool is_link_up = sm->sid->last_status.detail.link_status_mask & SID_LINK_TYPE_ANY;
-		if (!is_link_up && !pending_msg_ctx) {
-			pending_msg_ctx = p_msg;
-			sidewalk_event_send(SID_EVENT_CONNECT, NULL);
-			break;
-		}
-#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 
 		e = sid_put_msg(sm->sid->handle, &p_msg->msg, &p_msg->desc);
 		if (e) {
@@ -252,13 +287,12 @@ static void state_sidewalk_run(void *o)
 		sid_hal_free(p_msg->msg.data);
 		sid_hal_free(p_msg);
 
-#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
-		if (is_link_up && pending_msg_ctx) {
-			pending_msg_ctx = NULL;
-		}
-#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 		break;
 	case SID_EVENT_CONNECT:
+		if (!(sm->sid->config.link_mask & SID_LINK_TYPE_1)) {
+			LOG_ERR("Can not request connection - BLE not enabled");
+			return;
+		}
 		sid_error_t e = sid_ble_bcn_connection_request(sm->sid->handle, true);
 		if (e) {
 			LOG_ERR("sid conn req err %d", (int)e);
