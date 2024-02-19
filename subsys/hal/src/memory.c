@@ -51,7 +51,7 @@ static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
 
 	if(max_usage < stat.max_allocated_bytes + mem_to_alloc){
 		max_usage = stat.max_allocated_bytes + mem_to_alloc;
-		LOG_WRN("Max heap usage %u / %u", max_usage, HEAP_SIZE);
+		LOG_DBG("New max heap usage %u / %u", max_usage, HEAP_SIZE);
 	}
 }
 #endif
