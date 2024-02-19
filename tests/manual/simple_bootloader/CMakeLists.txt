@@ -6,9 +6,9 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-include($ENV{ZEPHYR_BASE}/../sidewalk/samples/template/bootloader_version.cmake)
+include($ENV{ZEPHYR_BASE}/../sidewalk/samples/sid_end_device/bootloader_version.cmake)
 
-set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/samples/template/child_image/mcuboot/Kconfig.root)
+set(mcuboot_KCONFIG_ROOT $ENV{ZEPHYR_BASE}/../sidewalk/samples/sid_end_device/child_image/mcuboot/Kconfig.root)
 
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(simple_bootloader)

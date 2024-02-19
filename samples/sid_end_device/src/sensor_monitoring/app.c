@@ -22,8 +22,8 @@ LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define NOTIFY_TIMER_DURATION_MS (500)
 
-K_THREAD_STACK_DEFINE(app_tx_stack, CONFIG_TEMPLATE_APP_TX_THREAD_STACK_SIZE);
-K_THREAD_STACK_DEFINE(app_rx_stack, CONFIG_TEMPLATE_APP_RX_THREAD_STACK_SIZE);
+K_THREAD_STACK_DEFINE(app_tx_stack, CONFIG_SID_END_DEVICE_TX_THREAD_STACK_SIZE);
+K_THREAD_STACK_DEFINE(app_rx_stack, CONFIG_SID_END_DEVICE_RX_THREAD_STACK_SIZE);
 
 static struct k_thread app_main;
 static struct k_thread app_rx;
@@ -169,12 +169,12 @@ static int app_buttons_init(void)
 void app_start_tasks(void)
 {
 	(void)k_thread_create(&app_main, app_tx_stack, K_THREAD_STACK_SIZEOF(app_tx_stack),
-			      app_tx_task, NULL, NULL, NULL, CONFIG_TEMPLATE_APP_TX_THREAD_PRIORITY,
-			      0, K_NO_WAIT);
+			      app_tx_task, NULL, NULL, NULL,
+			      CONFIG_SID_END_DEVICE_TX_THREAD_PRIORITY, 0, K_NO_WAIT);
 
 	(void)k_thread_create(&app_rx, app_rx_stack, K_THREAD_STACK_SIZEOF(app_rx_stack),
-			      app_rx_task, NULL, NULL, NULL, CONFIG_TEMPLATE_APP_RX_THREAD_PRIORITY,
-			      0, K_NO_WAIT);
+			      app_rx_task, NULL, NULL, NULL,
+			      CONFIG_SID_END_DEVICE_RX_THREAD_PRIORITY, 0, K_NO_WAIT);
 
 	k_thread_name_set(&app_main, "app_main");
 	k_thread_name_set(&app_rx, "app_rx");
@@ -211,5 +211,5 @@ void app_start(void)
 	app_start_tasks();
 
 	k_timer_start(&notify_timer, K_MSEC(NOTIFY_TIMER_DURATION_MS),
-		      K_MSEC(CONFIG_TEMPLATE_APP_NOTIFY_DATA_PERIOD_MS));
+		      K_MSEC(CONFIG_SID_END_DEVICE_NOTIFY_DATA_PERIOD_MS));
 }

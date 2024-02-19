@@ -5,7 +5,7 @@ tests:
   sample.sidewalk.hello:
     build_only: true
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
-    extra_args: CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
+    extra_args: CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -16,7 +16,7 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       CONF_FILE=prj_release.conf
-      CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
+      CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -27,7 +27,7 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       CONF_FILE=prj_no_dfu.conf
-      CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
+      CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
@@ -58,7 +58,7 @@ tests:
     platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
     extra_args:
       OVERLAY_CONFIG="overlay-demo.conf"
-      CONFIG_SIDEWALK_PERSISTENT_LINK_MASK=y
+      CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp

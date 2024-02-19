@@ -17,7 +17,7 @@ LOG_MODULE_REGISTER(app_rx, CONFIG_SIDEWALK_LOG_LEVEL);
 #define ACTION_RESP_BTN_ALL (0xFF)
 #define ACTION_REQ_LED_ALL (0xFF)
 
-K_MSGQ_DEFINE(rx_msgq, sizeof(struct app_rx_msg), CONFIG_TEMPLATE_APP_RX_THREAD_QUEUE_SIZE, 4);
+K_MSGQ_DEFINE(rx_msgq, sizeof(struct app_rx_msg), CONFIG_SID_END_DEVICE_RX_THREAD_QUEUE_SIZE, 4);
 
 static void app_rx_button_resp_process(struct sid_demo_msg *msg)
 {

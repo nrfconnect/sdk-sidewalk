@@ -26,7 +26,7 @@ endif()
 
 # Zephyr CMake project
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(sidewalk_template)
+project(sidewalk_sid_end_device)
 
 # Source files
 target_include_directories(app PRIVATE include)
@@ -35,7 +35,7 @@ target_sources(app PRIVATE
     src/sidewalk.c
 )
 
-if(CONFIG_TEMPLATE_APP_SENSOR_MONITORING)
+if(CONFIG_SID_END_DEVICE_SENSOR_MONITORING)
     target_sources(app PRIVATE
         src/sensor_monitoring/app_buttons.c
         src/sensor_monitoring/app_leds.c
@@ -44,7 +44,7 @@ if(CONFIG_TEMPLATE_APP_SENSOR_MONITORING)
         src/sensor_monitoring/app_rx.c
         src/sensor_monitoring/app.c
     )
-elseif(CONFIG_TEMPLATE_APP_DUT)
+elseif(CONFIG_SID_END_DEVICE_DUT)
     target_sources(app PRIVATE
         src/cli/app.c
     )
@@ -54,7 +54,7 @@ else()
     )
 endif()
 
-if(CONFIG_TEMPLATE_APP_CLI)
+if(CONFIG_SID_END_DEVICE_CLI)
     target_sources(app PRIVATE
         src/cli/app_dut.c
         src/cli/app_shell.c

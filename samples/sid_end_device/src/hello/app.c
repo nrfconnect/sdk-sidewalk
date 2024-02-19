@@ -45,7 +45,7 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 	application_state_receiving(&global_state_notifier, true);
 	application_state_receiving(&global_state_notifier, false);
 
-#ifdef CONFIG_TEMPLATE_APP_ECHO_MSGS
+#ifdef CONFIG_SID_END_DEVICE_ECHO_MSGS
 	if (msg_desc->type == SID_MSG_TYPE_GET || msg_desc->type == SID_MSG_TYPE_SET) {
 		LOG_INF("Send echo message");
 		sidewalk_msg_t *echo = sidewalk_data_alloc(sizeof(sidewalk_msg_t));
@@ -70,7 +70,7 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 			application_state_sending(&global_state_notifier, true);
 		}
 	};
-#endif /* CONFIG_TEMPLATE_APP_ECHO_MSGS */
+#endif /* CONFIG_SID_END_DEVICE_ECHO_MSGS */
 }
 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
@@ -97,7 +97,7 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 static void on_sidewalk_factory_reset(void *context)
 {
 	ARG_UNUSED(context);
-#ifndef CONFIG_TEMPLATE_APP_CLI
+#ifndef CONFIG_SID_END_DEVICE_CLI
 	LOG_INF("Factory reset notification received from sid api");
 	if (sid_hal_reset(SID_HAL_RESET_NORMAL)) {
 		LOG_WRN("Cannot reboot");
