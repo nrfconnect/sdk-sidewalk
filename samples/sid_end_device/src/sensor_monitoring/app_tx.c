@@ -50,8 +50,8 @@ static const struct smf_state app_states[] = {
 	[STATE_APP_NOTIFY_DATA] = SMF_CREATE_STATE(NULL, state_notify_data, NULL),
 };
 
-static uint8_t
-	__aligned(4) app_msgq_buff[CONFIG_TEMPLATE_APP_TX_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
+static uint8_t __aligned(4)
+	app_msgq_buff[CONFIG_SID_END_DEVICE_TX_THREAD_QUEUE_SIZE * sizeof(app_event_t)];
 
 K_TIMER_DEFINE(button_timer, button_timer_cb, NULL);
 
@@ -421,7 +421,7 @@ void app_tx_task(void *dummy1, void *dummy2, void *dummy3)
 		      K_MSEC(APP_NOTIFY_BUTTON_PERIOD_MS));
 
 	k_msgq_init(&app_sm.msgq, app_msgq_buff, sizeof(app_event_t),
-		    CONFIG_TEMPLATE_APP_TX_THREAD_QUEUE_SIZE);
+		    CONFIG_SID_END_DEVICE_TX_THREAD_QUEUE_SIZE);
 	smf_set_initial(SMF_CTX(&app_sm), &app_states[STATE_APP_INIT]);
 
 	while (1) {

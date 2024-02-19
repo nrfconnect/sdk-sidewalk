@@ -20,14 +20,14 @@ The samples' model was changed to allow users to easily:
 * Understand how the application works.
 
 The old Amazon Sidewalk samples model in the nRF Connect SDK was divided into four different samples: Template sub-GHz, Template Bluetooth® LE, Sensor monitor and Device under test (dut).
-The new approach allows to present the same functionalities through one, unified, and configurable :ref:`Sidewalk_Template`.
+The new approach allows to present the same functionalities through one, unified, and configurable :ref:`sidewalk_end_device`.
 
 .. tabs::
     .. tab:: New model for samples
 
         Introduces common, configurable code base:
 
-        .. figure:: images/unify_sample_new.png
+        .. figure:: images/unify_sample_new.svg
            :scale: 100 %
            :alt: New samples model
 
@@ -35,7 +35,7 @@ The new approach allows to present the same functionalities through one, unified
 
         Samples are separate for each configuration:
 
-        .. figure:: images/unify_sample_old.png
+        .. figure:: images/unify_sample_old.svg
            :scale: 100 %
            :alt: Old samples model
 
@@ -54,17 +54,64 @@ Building
 
 The following table is an example of the new commands used for the `nRF52840 DK`_ with the :file:`{NCS_PATH}/sidewalk/samples` path.
 
-+---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Sample                    | Old commands                                            | New commands                                                                                 |
-+===========================+=========================================================+==============================================================================================+
-| Template sub-GHz          | ``west build -b nrf52840dk_nrf52840 template_subghz``   | ``west build -b nrf52840dk_nrf52840 template``                                               |
-+---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Template Bluetooth LE only| ``west build -b nrf52840dk_nrf52840 template_ble``      | ``west build -b nrf52840dk_nrf52840 template -- -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=y``         |
-+---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Sensor monitoring demo    | ``west build -b nrf52840dk_nrf52840 sensor_monitoring`` | ``west build -b nrf52840dk_nrf52840 template -- -DCONFIG_TEMPLATE_APP_SENSOR_MONITORING=y``  |
-+---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Device under test (CLI)   |``west build -b nrf52840dk_nrf52840 sid_dut``            | ``west build -b nrf52840dk_nrf52840 template -- -DOVERLAY_CONFIG="overlay-dut.conf"``        |
-+---------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
++----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
+| Sample                     | Old commands                                            | New commands                                                                                 |
++============================+=========================================================+==============================================================================================+
+| Template sub-GHz           | ``west build -b nrf52840dk_nrf52840 template_subghz``   | ``west build -b nrf52840dk_nrf52840 sid_end_device``                                         |
++----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
+| Template Bluetooth LE only | ``west build -b nrf52840dk_nrf52840 template_ble``      | ``west build -b nrf52840dk_nrf52840 sid_end_device -- -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=y``   |
++----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
+| Sensor monitoring demo     | ``west build -b nrf52840dk_nrf52840 sensor_monitoring`` | ``west build -b nrf52840dk_nrf52840 sid_end_device -- -DOVERLAY_CONFIG="overlay-demo.conf"`` |
++----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
+| Device under test          | ``west build -b nrf52840dk_nrf52840 sid_dut``           | ``west build -b nrf52840dk_nrf52840 sid_end_device -- -DOVERLAY_CONFIG="overlay-dut.conf"``  |
++----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
+
+User interface
+--------------
+
+The user interface was changed to better support boards with a smaller amount of buttons and LEDs.
+
+The following table shows button action differences between the old template samples and new :ref:`sidewalk_end_device` application in the :ref:`sidewalk_hello` variant:
+
++--------------------------------+--------------------------+-------------------------+
+| Button action                  | Old mapping              | New mapping             |
++================================+==========================+=========================+
+| Send Hello                     | ``Button 3 (short)``     | ``Button 1 (short)``    |
++--------------------------------+--------------------------+-------------------------+
+| Enter DFU mode                 | ``Button4 (long)``       | ``Button 1 (long)``     |
++--------------------------------+--------------------------+-------------------------+
+| Factory Reset                  | ``Button1 (long)``       | ``Button 2 (long)``     |
++--------------------------------+--------------------------+-------------------------+
+| Board support                  | ``board_events.c``       | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Set fake battery level         | ``Button 4 (short)``     | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Get current Device Profiles    | ``Button 2 (short)``     | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Switch between Device Profiles | ``Button 2 (long)``      | N/A (use CLI command)   |
++--------------------------------+--------------------------+-------------------------+
+| Switch Link Mask               | N/A                      | ``Buttons 3 (long)``    |
++--------------------------------+--------------------------+-------------------------+
+
+The following table shows LED assignment differences between the old template samples and new :ref:`sidewalk_end_device` application in the :ref:`sidewalk_hello` variant:
+
++--------------------------------+--------------+--------------+
+| LED status                     | Old          | New          |
++================================+==============+==============+
+| Application Link and Connected | ``LED 1``,   | ``LED 1``    |
+|                                | ``LED 4``    |              |
++--------------------------------+--------------+--------------+
+| Application time sync          | ``LED 3``    | ``LED 2``    |
++--------------------------------+--------------+--------------+
+| Application Registered         | ``LED 2``    | ``LED 3``    |
++--------------------------------+--------------+--------------+
+| Application woke up            | N/A          | ``LED 4``    |
++--------------------------------+--------------+--------------+
+
+Additionally, the following CLI changes have been made:
+
+* All Sidewalk Device Under Test application (``sid_dut``) commands are available when the ``CONFIG_SID_END_DEVICE_CLI`` option is enabled.
+* The old ``CONFIG_SIDEWALK_CLI`` option was removed.
 
 Source files
 ------------
@@ -73,7 +120,7 @@ The file structure was refactored for the sample unification purposes.
 The following table shows the relocation of most of the components:
 
 +--------------------------------+------------------------------+------------------------+
-| Sample                         | Old location                 | New location           |
+| Component                      | Old location                 | New location           |
 +================================+==============================+========================+
 | Sidewalk thread implementation | :file:`application_thread.c` | :file:`sidewalk.c`     |
 +--------------------------------+------------------------------+------------------------+
@@ -305,7 +352,7 @@ The following examples show code differences for selected events:
 Sidewalk and custom Bluetooth Service
 -------------------------------------
 
-:ref:`Sidewalk_Template` uses the `Zephyr State Machine Framework`_.
+:ref:`sidewalk_end_device` uses the `Zephyr State Machine Framework`_.
 The :file:`sidewalk.c` file uses the state machine to demonstrate how the application can switch between Sidewalk and the `Zephyr SMP Server sample`_.
 You can use this as a reference design for switching between Sidewalk mode and another Bluetooth LE service-based application.
 
@@ -321,7 +368,7 @@ To use the deprecated functionalities, you have to enable the relevant Kconfig o
 * ``DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE`` -- The option switches the Bluetooth LE Mac address type for the Sidewalk application.
   These configurations are redundant to the nRF Connect SDK Bluetooth configurations.
 * ``DEPRECATED_DFU_FLAG_SETTINGS_KEY`` -- The option saves the DFU mode after reset.
-  The new template uses the :ref:`migration_guide_dfu_mode`.
+  The new sample uses the :ref:`migration_guide_dfu_mode`.
 * ``CONFIG_SIDEWALK_LINK_MASK`` -- The option chooses sidewalk link mask to start with.
   New Sidewalk libraries support link switch in runtime.
   To switch between the full link mask support libraries and Bluetooth LE only libraries, use the ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` option.

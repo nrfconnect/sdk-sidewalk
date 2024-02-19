@@ -70,23 +70,17 @@ BOARDS = {
 
 
 SAMPLES = [
-    Sample('sensor_monitoring', 'sample.sidewalk.demo',
-           ':ref:`Sensor monitoring <sensor_monitoring>`'),
-    Sample('template_subghz', 'sample.sidewalk.template',
-           ':ref:`Template sub-GHz <template_subghz>`'),
-    Sample('template_ble', 'sample.sidewalk.template_ble',
-           ':ref:`Template Bluetooth LE <template_ble>`'),
+    Sample('sid_end_device', 'sample.sidewalk.demo',
+           ':ref:`Sensor monitoring <sidewalk_demo>`'),
+    Sample('sid_end_device', 'sample.sidewalk.hello',
+           ':ref:`End device Bluetooth LE and sub-GHz <sidewalk_hello>`'),
+    Sample('sid_end_device', 'sample.sidewalk.hello.ble_only',
+           ':ref:`End device Bluetooth LE <sidewalk_hello>`'),
 ]
 
 VARIANTS = {
     '': 'Debug',
     '.release': 'Release',
-    '.ble': 'Bluetooth LE Debug',
-    '.fsk': 'FSK Debug',
-    '.lora': 'LoRa Debug',
-    '.ble.release': 'Bluetooth LE Release',
-    '.fsk.release': 'FSK Release',
-    '.lora.release': 'LoRa Release',
 }
 
 

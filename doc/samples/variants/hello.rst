@@ -5,20 +5,13 @@ Hello Sidewalk
 
 This sample demonstrates a simple Sidewalk End Node application.
 It can send Hello message to Sidewalk cloud on button press, as well as represent the Sidewalk status by LED state.
-It supports Bluetooth LE, LoRa, and FSK link modes.
-External QSPI Flash is used for firmware updates.
-
-Overview
-********
-
-The Sidewalk status is indicated by LEDs state and is also printed in the device logs.
-It supports actions, such as sending messages, performing factory reset, and entering the DFU state.
-
 
 .. _sidewalk_hello_user_interface:
 
 User Interface
 **************
+
+.. include:: include_user_interface_common.txt
 
 Button 1 (short press):
    Send Hello -  This action queues a message to the cloud.
@@ -46,19 +39,22 @@ LED 3:
 LED 4:
    Application woke up successfully.
 
-For common sidewalk template user interface description see ::ref:`sidewalk_template_user_interface`
-
 Configuration
 *************
 
 The hello Sidewalk application supports the following configurations:
 
-* ``CONFIG_TEMPLATE_APP_ECHO_MSGS`` -- The sample echoes received Sidewalk messages of type GET and SET to the Sidewalk cloud.
+* ``CONFIG_SID_END_DEVICE_ECHO_MSGS`` -- The sample echoes the received Sidewalk messages (``GET`` and ``SET`` type) to the Sidewalk cloud.
 
-.. _sidewalk_template_source_files:
+For more configuration options, see :ref:`sidewalk_end_device_configuration`.
+
+Building and running
+********************
+
+.. include:: include_building_and_running.txt
 
 Testing
-=======
+*******
 
 See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
 
@@ -148,7 +144,7 @@ Follow the outlined steps:
    .. code-block:: console
 
       # Logs from DK after pressing "Button 1"
-      [00:04:57.461,029] <inf> sid_template: Pressed button 1
+      [00:04:57.461,029] <inf> sid_end device: Pressed button 1
       [00:04:57.461,120] <inf> sid_thread: sending counter update: 0
       [00:04:57.461,456] <inf> sid_thread: queued data message id:3
 
@@ -246,8 +242,14 @@ Receiving message from AWS MQTT
                                      21                                               |!
 
 
-.. include:: testing_nordic_dfu_include.txt
+.. include:: include_testing_nordic_dfu.txt
 
-.. include:: ../ncs_links.rst
-
+.. include:: ../../ncs_links.rst
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
+.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
+.. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+.. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
+.. _Sidewalk Protocol Specification: https://docs.sidewalk.amazon/specifications/
+.. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
+.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
+.. _CloudShell: https://console.aws.amazon.com/cloudshell

@@ -5,7 +5,7 @@
  */
 
 /**
- * @brief Start template application
+ * @brief Start Sidewalk end device application.
  *
  * @note This function should never return.
  */

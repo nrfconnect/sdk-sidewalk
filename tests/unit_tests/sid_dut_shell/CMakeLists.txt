@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O0")
 
 target_sources(testbinary PRIVATE
         src/main.c
-        ${SIDEWALK_BASE}/samples/template/src/cli/app_shell.c
+        ${SIDEWALK_BASE}/samples/sid_end_device/src/cli/app_shell.c
         $ENV{ZEPHYR_BASE}/lib/os/hex.c
         mock/sidewalk_version.c
 )
@@ -24,7 +24,7 @@ target_sources(testbinary PRIVATE
 add_definitions(--include ztest.h)
 
 target_include_directories(testbinary PRIVATE
-        ${SIDEWALK_BASE}/samples/template/include
+        ${SIDEWALK_BASE}/samples/sid_end_device/include
         ${SIDEWALK_BASE}/subsys/sal/common/sid_ifc
         ${SIDEWALK_BASE}/subsys/sal/common/sid_time_ops
         ${SIDEWALK_BASE}/subsys/sal/common/sid_pal_ifc

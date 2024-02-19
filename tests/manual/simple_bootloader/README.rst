@@ -10,11 +10,11 @@ It is significantly smaller then any Sidewalk sample.
 Maintenance notes
 ================
 .. note::
-   This appclication is designed to work with sidewalk template_ble sample
+   This appclication is designed to work with sidewalk sid_end_device sample
 
 Configuration:
    * prj.conf - From Kconfig.dependencies config SIDEWALK_DFU_BOOTLOADER
-   * pm_static.yaml - copied from template_ble. Setting storage added as static partition (values from ninja partition_manager_report) to keep application footprint small.
+   * pm_static.yaml - copied from sid_end_device. Setting storage added as static partition (values from ninja partition_manager_report) to keep application footprint small.
 
 Requirements
 ************
@@ -32,7 +32,7 @@ Testing
 =======
 
 Precondition
-#. Build and flash Sidewalk template_ble sample
+#. Build and flash Sidewalk sid_end_device sample
 #. Flash MFG.hex (provisioning data)
 #. Enter DFU mode (button action)
 

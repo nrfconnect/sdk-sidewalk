@@ -7,14 +7,18 @@ In the Sidewalk repository, all samples are placed in the :file:`samples` direct
 
 The following table demonstrates configuration for the supported development kits:
 
-+-----------------------------+-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-| Development kit             | Sample                      | Additional hardware                                                      | Bootloader (in release and debug configs)     | Application overlays          | Bluetooth® LE support | LoRa support | FSK support | DFU support |
-+=============================+=============================+==========================================================================+===============================================+===============================+=======================+==============+=============+=============+
-|  * `nRF52840 DK`_           | :ref:`sidewalk_template`    | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * ``overlay-dut.conf``        | Supported             | Supported    | Supported   | Supported   |
-|  * `nRF5340 DK`_            |                             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         | * ``overlay-demo.conf``       |                       |              |             |             |
-|                             |                             |                                                                          |                                               | * ``overlay-hello.conf``      |                       |              |             |             |
-+-----------------------------+-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+-----------------------+--------------+-------------+-------------+
-
++-----------------------------+------------------------------------------+-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+
+| Sample variant              | Description                              | Development kit             | Additional hardware                                                      | Bootloader (in release and debug configs)     | Application overlays          |
++=============================+==========================================+=============================+==========================================================================+===============================================+===============================+
+| :ref:`sidewalk_hello`       | Sample application showing communication | * `nRF52840 DK`_            | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * ``overlay-hello.conf``      |
+|                             | over Sidewalk network.                   | * `nRF5340 DK`_             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |
++-----------------------------+------------------------------------------+-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+
+| :ref:`sidewalk_demo`        | Demo application of Sidewalk protocol    | * `nRF52840 DK`_            | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * ``overlay-demo.conf``       |
+|                             | with  temperature sensor monitoring.     | * `nRF5340 DK`_             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |
++-----------------------------+------------------------------------------+-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+
+| :ref:`sidewalk_dut`         | Device under test generic application    | * `nRF52840 DK`_            | * External flash (included in the DK)                                    | * MCUboot - DFU partition in external flash   | * ``overlay-dut.conf``        |
+|                             | having activated CLI.                    | * `nRF5340 DK`_             | * `Semtech SX1262MB2CAS`_ (only for the configurations with LoRa or FSK) | * Application partition size = 956 kB         |                               |
++-----------------------------+------------------------------------------+-----------------------------+--------------------------------------------------------------------------+-----------------------------------------------+-------------------------------+
 
 .. note::
 
@@ -26,7 +30,7 @@ The following table demonstrates configuration for the supported development kit
    :glob:
    :caption: List of samples:
 
-   template.rst
+   sid_end_device.rst
 
 .. include:: ../ncs_links.rst
 

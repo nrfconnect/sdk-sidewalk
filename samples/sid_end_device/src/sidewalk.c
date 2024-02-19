@@ -8,10 +8,10 @@
 #include <sid_pal_common_ifc.h>
 #include <sidewalk.h>
 #include <nordic_dfu.h>
-#ifdef CONFIG_TEMPLATE_APP_CLI
+#ifdef CONFIG_SID_END_DEVICE_CLI
 #include <cli/app_dut.h>
 #endif
-#ifdef CONFIG_SIDEWALK_PERSISTENT_LINK_MASK
+#ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 #include <settings_utils.h>
 #endif
 #include <zephyr/kernel.h>
@@ -35,7 +35,7 @@ LOG_MODULE_REGISTER(sidewalk_app, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static struct k_thread sid_thread;
 K_THREAD_STACK_DEFINE(sid_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
-K_HEAP_DEFINE(data_heap, CONFIG_TEMPLATE_APP_EVENT_HEAP_SIZE);
+K_HEAP_DEFINE(data_heap, CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE);
 
 typedef struct sm_s {
 	struct smf_ctx ctx;
@@ -49,7 +49,7 @@ enum state {
 	STATE_DFU,
 };
 
-#ifdef CONFIG_SIDEWALK_AUTO_CONN_REQ
+#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 static void *pending_msg_ctx;
 #endif
 
@@ -92,17 +92,17 @@ static void state_sidewalk_entry(void *o)
 		return;
 	}
 
-#ifdef CONFIG_SIDEWALK_AUTO_START
+#ifdef CONFIG_SID_END_DEVICE_AUTO_START
 	sm_t *sm = (sm_t *)o;
 
-#ifdef CONFIG_SIDEWALK_PERSISTENT_LINK_MASK
+#ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	int err = settings_utils_link_mask_get(&sm->sid->config.link_mask);
 	if (err) {
 		LOG_WRN("Link mask get failed %d", err);
 		sm->sid->config.link_mask = 0;
 		settings_utils_link_mask_set(DEFAULT_LM);
 	}
-#endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
+#endif /* CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK */
 
 	if (!sm->sid->config.link_mask) {
 		sm->sid->config.link_mask = DEFAULT_LM;
@@ -121,7 +121,7 @@ static void state_sidewalk_entry(void *o)
 	if (e) {
 		LOG_ERR("sid start err %d", (int)e);
 	}
-#endif /* CONFIG_SIDEWALK_AUTO_START */
+#endif /* CONFIG_SID_END_DEVICE_AUTO_START */
 }
 
 static void state_sidewalk_run(void *o)
@@ -137,7 +137,7 @@ static void state_sidewalk_run(void *o)
 		}
 		break;
 	case SID_EVENT_FACTORY_RESET:
-#ifdef CONFIG_SIDEWALK_PERSISTENT_LINK_MASK
+#ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 		(void)settings_utils_link_mask_set(0);
 #endif
 		e = sid_set_factory_reset(sm->sid->handle);
@@ -164,12 +164,12 @@ static void state_sidewalk_run(void *o)
 		LOG_INF("Sidewalk link switch to %s", (SID_LINK_TYPE_3 & new_link_mask) ? "LoRa" :
 						      (SID_LINK_TYPE_2 & new_link_mask) ? "FSK" :
 											  "BLE");
-#ifdef CONFIG_SIDEWALK_PERSISTENT_LINK_MASK
+#ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 		int err = settings_utils_link_mask_set(new_link_mask);
 		if (err) {
 			LOG_ERR("New link mask set err %d", err);
 		}
-#endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
+#endif /* CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK */
 
 		if (sm->sid->handle != NULL) {
 			e = sid_deinit(sm->sid->handle);
@@ -205,11 +205,11 @@ static void state_sidewalk_run(void *o)
 		memcpy(&sm->sid->last_status, p_status, sizeof(struct sid_status));
 		sidewalk_data_free(p_status);
 
-#ifdef CONFIG_SIDEWALK_AUTO_CONN_REQ
+#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 		if (pending_msg_ctx) {
 			sidewalk_event_send(SID_EVENT_SEND_MSG, pending_msg_ctx);
 		}
-#endif /* CONFIG_SIDEWALK_AUTO_CONN_REQ */
+#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 		break;
 	case SID_EVENT_SEND_MSG:
 		sidewalk_msg_t *p_msg = (sidewalk_msg_t *)sm->event.ctx;
@@ -218,14 +218,14 @@ static void state_sidewalk_run(void *o)
 			break;
 		}
 
-#ifdef CONFIG_SIDEWALK_AUTO_CONN_REQ
+#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 		bool is_link_up = sm->sid->last_status.detail.link_status_mask & SID_LINK_TYPE_ANY;
 		if (!is_link_up && !pending_msg_ctx) {
 			pending_msg_ctx = p_msg;
 			sidewalk_event_send(SID_EVENT_CONNECT, NULL);
 			break;
 		}
-#endif /* CONFIG_SIDEWALK_AUTO_CONN_REQ */
+#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 
 		e = sid_put_msg(sm->sid->handle, &p_msg->msg, &p_msg->desc);
 		if (e) {
@@ -235,11 +235,11 @@ static void state_sidewalk_run(void *o)
 		sidewalk_data_free(p_msg->msg.data);
 		sidewalk_data_free(p_msg);
 
-#ifdef CONFIG_SIDEWALK_AUTO_CONN_REQ
+#ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 		if (is_link_up && pending_msg_ctx) {
 			pending_msg_ctx = NULL;
 		}
-#endif /* CONFIG_SIDEWALK_AUTO_CONN_REQ */
+#endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 		break;
 	case SID_EVENT_CONNECT:
 		sid_error_t e = sid_ble_bcn_connection_request(sm->sid->handle, true);
@@ -251,11 +251,11 @@ static void state_sidewalk_run(void *o)
 		break;
 	}
 
-#ifdef CONFIG_TEMPLATE_APP_CLI
+#ifdef CONFIG_SID_END_DEVICE_CLI
 	if (sm->event.id >= SID_EVENT_LAST) {
 		app_dut_event_process(sm->event, sm->sid);
 	}
-#endif /* CONFIG_TEMPLATE_APP_CLI */
+#endif /* CONFIG_SID_END_DEVICE_CLI */
 }
 
 static void state_dfu_entry(void *o)

@@ -4,33 +4,33 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-config TEMPLATE_APP_NOTIFY_DATA_PERIOD_MS
-    int "Notify period of sensor monitoring template app"
+config SID_END_DEVICE_NOTIFY_DATA_PERIOD_MS
+    int "Notify period of sensor monitoring demo app"
     default 10000
 
 config SIDEWALK_THREAD_PRIORITY
     default 12
 
-config TEMPLATE_APP_TX_THREAD_PRIORITY
+config SID_END_DEVICE_TX_THREAD_PRIORITY
     int
     default 13
 
-config TEMPLATE_APP_RX_THREAD_PRIORITY
+config SID_END_DEVICE_RX_THREAD_PRIORITY
     int
     default 14
 
-config TEMPLATE_APP_TX_THREAD_STACK_SIZE
+config SID_END_DEVICE_TX_THREAD_STACK_SIZE
     int
     default 4096
 
-config TEMPLATE_APP_RX_THREAD_STACK_SIZE
+config SID_END_DEVICE_RX_THREAD_STACK_SIZE
     int
     default 4096
 
-config TEMPLATE_APP_TX_THREAD_QUEUE_SIZE
+config SID_END_DEVICE_TX_THREAD_QUEUE_SIZE
     int
     default 10
 
-config TEMPLATE_APP_RX_THREAD_QUEUE_SIZE
+config SID_END_DEVICE_RX_THREAD_QUEUE_SIZE
     int
     default 4

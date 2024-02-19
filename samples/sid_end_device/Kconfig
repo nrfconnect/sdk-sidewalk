@@ -4,55 +4,55 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-mainmenu "Sidewalk nRF Connect Application"
+mainmenu "Sidewalk End Device nRF Connect Application"
 
-choice TEMPLATE_APP
-	prompt "Select template application to run"
-    default TEMPLATE_APP_HELLO
-config TEMPLATE_APP_HELLO
+choice SID_END_DEVICE
+	prompt "Select application variant to run"
+    default SID_END_DEVICE_HELLO
+config SID_END_DEVICE_HELLO
     bool "Sidewalk hello world application"
-config TEMPLATE_APP_SENSOR_MONITORING
+config SID_END_DEVICE_SENSOR_MONITORING
     bool "Demo sensor monitoring application"
     imply SIDEWALK_DEMO_PARSER
     imply SENSOR
     imply TEMP_NRF5
-config TEMPLATE_APP_DUT
+config SID_END_DEVICE_DUT
     bool "Device under test application"
-endchoice #TEMPLATE_APP
+endchoice #SID_END_DEVICE
 
-if TEMPLATE_APP_HELLO
+if SID_END_DEVICE_HELLO
 
-config TEMPLATE_APP_ECHO_MSGS
+config SID_END_DEVICE_ECHO_MSGS
     bool "Eable message echo feature"
     default y
     help
       Echo received messages back to Sidewlak cloud.
       Works with GET and SET messages types.
 
-endif #TEMPLATE_APP_HELLO
+endif #SID_END_DEVICE_HELLO
 
-if TEMPLATE_APP_SENSOR_MONITORING
+if SID_END_DEVICE_SENSOR_MONITORING
 
 rsource "Kconfig.sensor_monitoring"
 
-endif #TEMPLATE_APP_SENSOR_MONITORING
+endif #SID_END_DEVICE_SENSOR_MONITORING
 
-config TEMPLATE_APP_CLI
+config SID_END_DEVICE_CLI
     bool "Enable Sidewalk CLI (DUT)"
     imply SHELL
     help
       Enables Sidewalk command line interface.
       The interface commands are compatilbe with former dut sample.
 
-config SIDEWALK_AUTO_START
+config SID_END_DEVICE_AUTO_START
     default y
     bool "Enable automatic Sidewalk initlization and start"
 
-config SIDEWALK_AUTO_CONN_REQ
+config SID_END_DEVICE_AUTO_CONN_REQ
     default y
     bool "Enable automatic connection request before message send"
 
-config SIDEWALK_PERSISTENT_LINK_MASK
+config SID_END_DEVICE_PERSISTENT_LINK_MASK
 	select EXPERIMENTAL
     bool "Enable persitent link mask"
     help
@@ -60,7 +60,7 @@ config SIDEWALK_PERSISTENT_LINK_MASK
       but defaults after a factory reset.
       This could affect the flash lifespan.
 
-config TEMPLATE_APP_EVENT_HEAP_SIZE
+config SID_END_DEVICE_EVENT_HEAP_SIZE
     int "Heap for Sidewalk event contexts"
     default 2048
 

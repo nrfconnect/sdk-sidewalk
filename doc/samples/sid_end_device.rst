@@ -1,9 +1,9 @@
-.. _sidewalk_template:
+.. _sidewalk_end_device:
 
-Sidewalk Template
-#################
+Sidewalk end device
+###################
 
-This sample demonstrates a template for the Sidewalk End Node application.
+This sample demonstrates how to implement an end device for the Sidewalk End Device application.
 It supports Bluetooth LE, LoRa, and FSK link modes.
 External QSPI Flash is used for firmware updates.
 
@@ -38,38 +38,51 @@ Overview
 ********
 
 You can use this sample as a starting point to implement a Sidewalk device.
-The Sidewalk Template demonstrates a simple Sidewalk application that allows you to send and receive messages, as well as update firmware.
+The Sidewalk end device demonstrates a simple Sidewalk application that allows you to send and receive messages, as well as update firmware.
 
-.. _sidewalk_template_user_interface:
+Sample variants
+***************
 
-User Interface
-**************
+Testing application scenarios are different dependent of the Sidewalk configuration was chosen.
 
-Common button actions for all template configurations:
+.. toctree::
+   :maxdepth: 1
+   :glob:
 
-Button 1 (short press):
-   Sends a message to the cloud. The type of message depends on sample configuration.
+   variants/hello.rst
+   variants/demo.rst
+   variants/dut.rst
 
-Button 1 (long press):
-   Enter DFU state - This action disables the Sidewalk stack and starts the Bluetooth LE SMP Server.
-   You can update the firmware image using the nRF Connect for mobile application.
-   To exit the DFU state, long press **Button 1**.
-
-Button 2 (long press):
-   Factory reset - The application informs the Sidewalk stack about the factory reset event.
-   The Sidewalk library clears its configuration from the non-volatile storage.
-   After a successful reset, the device needs to be registered with the cloud services again.
-
-Button 3 (long press):
-   Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
-   A log message informs about the link mask switch and the status of the operation.
+.. _sidewalk_end_device_configuration:
 
 Configuration
 *************
 
 When running the sample, you can use different configuration files depending on the supported features.
 
-.. _sidewalk_template_build_type:
+Configuration overlays
+======================
+
+* ``overlay-hello`` -- Configuration for the Hello Sidewalk variant.
+  It is also a default configuration. 
+* ``overlay-demo`` -- Configuration for the Sensor monitoring variant.
+* ``overlay-dut`` -- Configuration for the Device under test (DUT) variant.
+  The overlay enables CLI and disables sample automation.
+
+You can build the end device application with the Sidewalk DUT configuration overlay by running the following command in the project directory:
+
+.. parsed-literal::
+   :class: highlight
+
+   $ west build -b *build_target* -- -DOVERLAY_CONFIG="overlay-dut.conf"
+
+For example:
+
+.. code-block:: console
+
+   $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
+
+
 
 Configuration files
 ===================
@@ -109,7 +122,7 @@ For example:
     Selecting a build type is optional.
     However, if the build type is not selected, the ``debug`` build type is used by default.
 
-.. _sidewalk_template_config_options:
+.. _sidewalk_end_device_config_options:
 
 Configuration options for Sidewalk
 ==================================
@@ -120,50 +133,36 @@ Configuration options for Sidewalk
 
 * ``CONFIG_SIDEWALK_DFU`` -- Enables the nRF Connect SDK bootloader and DFU service over Bluetooth LE.
 
-* ``CONFIG_TEMPLATE_APP`` -- Switch between different application types.
+* ``CONFIG_SID_END_DEVICE`` -- Switches between the application variants.
 
-   * ``CONFIG_TEMPLATE_APP_HELLO`` -- Enables simple Sidewalk hello world application. This is default option. See :ref:`sidewalk_hello` for more information.
-   * ``CONFIG_TEMPLATE_APP_SENSOR_MONITORING`` -- Enables Sidewalk Sensor monitoring application. See :ref:`sensor_monitoring` for more information.
+   * ``CONFIG_SID_END_DEVICE_HELLO`` -- Enables the Hello Sidewalk application. 
+     This is the default option. 
+     For more details, see the :ref:`sidewalk_hello` page.
+   * ``CONFIG_SID_END_DEVICE_SENSOR_MONITORING`` -- Enables the Sidewalk Sensor monitoring application. 
+     For more details, see the :ref:`sidewalk_demo` page.
+   * ``CONFIG_SID_END_DEVICE_DUT`` -- Enables the Sidewalk device under test application. 
+     For more details, see the :ref:`sidewalk_dut` page.
 
-* ``CONFIG_TEMPLATE_APP_CLI`` -- Enables Sidewalk CLI. To see the list of available commands, flash sample and type ``sid help``.
+* ``CONFIG_SID_END_DEVICE_CLI`` -- Enables Sidewalk CLI. 
+  To see the list of available commands, flash the sample and type ``sid help``.
 
-* ``CONFIG_SIDEWALK_AUTO_START`` -- Enable automatic Sidewalk initialization and start.
+* ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
 
-* ``CONFIG_SIDEWALK_AUTO_CONN_REQ`` -- Enable automatic connection request before message send. The Bluetooth LE connection request action is performed automatically if needed.
+* ``CONFIG_SID_END_DEVICE_AUTO_CONN_REQ`` -- Enables an automatic connection request before sending a message. 
+  If needed, the Bluetooth LE connection request is sent automatically.
 
-You can build the ``sensor_monitoring`` template application, with Bluetooth LE only libraries for ``build_target`` by running the following command in the project directory:
+You can build the ``sensor_monitoring`` end device application with Bluetooth LE only libraries by running the following command in the project directory:
 
 .. parsed-literal::
    :class: highlight
 
-   $ west build -b *build_target* -- -DCONFIG_TEMPLATE_APP_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+   $ west build -b *build_target* -- -DCONFIG_SID_END_DEVICE_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
 
 For example:
 
 .. code-block:: console
 
-   $ west build -b nrf5340dk_nrf5340_cpuapp -- -DCONFIG_TEMPLATE_APP_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
-
-Configuration overlays
-======================
-
-* ``overlay-dut`` -- Sidewalk Device Under Test configuration. Enables CLI, disables sample automation.
-* ``overlay-demo`` -- Sidewalk sensor monitoring configuration.
-* ``overlay-hello`` -- Sidewalk hello sample configuration. This is default configuration.
-
-You can build the template application with Sidewalk DUT configuration overlay for ``build_target`` by running the following command in the project directory:
-
-.. parsed-literal::
-   :class: highlight
-
-   $ west build -b *build_target* -- -DOVERLAY_CONFIG="overlay-dut.conf"
-
-For example:
-
-.. code-block:: console
-
-   $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
-
+   $ west build -b nrf5340dk_nrf5340_cpuapp -- -DCONFIG_SID_END_DEVICE_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
 
 Source file setup
 *****************
@@ -188,24 +187,6 @@ The application consists of two source files:
       Sidewalk --> FirmwareUpdate : event_dfu
       FirmwareUpdate --> Sidewalk : event_dfu
 
-.. _sidewalk_template_building_and_running:
-
-Building and Running
-********************
-
-This sample can be found under :file:`samples/template`.
-
-.. note::
-   Before you flash your Sidewalk sample, make sure you have completed the following:
-
-      * You downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
-      * You provisioned your device during the :ref:`setting_up_sidewalk_product`.
-
-   This step needs to be completed only once.
-   You do not have to repeat it for every sample rebuild.
-
-To build the sample, follow the steps in the `Building and programming an application`_ documentation.
-
 .. _registering_sidewalk:
 
 Registering Sidewalk Endpoint
@@ -228,22 +209,6 @@ For the exact instructions on both of these methods, refer to the `Registering a
 
 .. _Registering and testing your Sidewalk endpoint: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-register-endpoint.html
 
-.. _sidewalk_template_testing:
-
-Testing
-*******
-
-Testing application scenarios are different dependent of the Sidewalk configuration was chosen.
-
-.. toctree::
-   :maxdepth: 1
-   :glob:
-
-   template_testing/hello_sidewalk.rst
-   template_testing/sensor_monitoring.rst
 
 .. include:: ../ncs_links.rst
-
-.. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
-
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
