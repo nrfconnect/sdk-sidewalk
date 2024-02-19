@@ -41,6 +41,7 @@
 #define RADIO_SX1262_HP_MAX                                        0x07
 #define RADIO_SX1262_DEVICE_SEL                                    0x00
 #define RADIO_SX1262_PA_LUT                                        0x01
+#define RADIO_SX1262_DEFAULT_TRIM_CAP_VAL 			   0x1212
 
 #define RADIO_RX_LNA_GAIN                                          0
 #define RADIO_MAX_CAD_SYMBOL                                       SID_PAL_RADIO_LORA_CAD_04_SYMBOL
@@ -79,6 +80,12 @@ static int32_t radio_sx1262_pa_cfg(int8_t tx_power, radio_sx126x_pa_cfg_t *pa_cf
 	return 0;
 }
 
+static int32_t radio_sx1262_trim_val (uint16_t* trim_val)
+{
+	*trim_val = RADIO_SX1262_DEFAULT_TRIM_CAP_VAL;
+	return 0;
+}
+
 const radio_sx126x_regional_param_t radio_sx126x_regional_param[] =
 {
     #if defined (REGION_ALL) || defined (REGION_US915)
@@ -113,6 +120,8 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.tcxo = {
 		.ctrl = SX126X_TCXO_CTRL_NONE,
 	},
+
+	.trim_cap_val_callback = radio_sx1262_trim_val,
 
 	.regional_config = {
 		.radio_region = RADIO_REGION,
