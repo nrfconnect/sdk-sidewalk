@@ -12,6 +12,7 @@
 #include <app_ble_config.h>
 #include <app_subGHz_config.h>
 #include <sid_hal_reset_ifc.h>
+#include <sid_hal_memory_ifc.h>
 #include <buttons.h>
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
@@ -91,7 +92,7 @@ static void on_sidewalk_factory_reset(void *context)
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
-	struct sid_status *new_status = sidewalk_data_alloc(sizeof(struct sid_status));
+	struct sid_status *new_status = sid_hal_malloc(sizeof(struct sid_status));
 	memcpy(new_status, status, sizeof(struct sid_status));
 	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
 

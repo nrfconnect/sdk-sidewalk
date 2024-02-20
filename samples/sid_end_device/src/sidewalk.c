@@ -21,6 +21,8 @@
 #include <app_subGHz_config.h>
 #endif
 
+#include <sid_hal_memory_ifc.h>
+
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)
 #elif CONFIG_SIDEWALK_LINK_MASK_FSK
@@ -35,7 +37,6 @@ LOG_MODULE_REGISTER(sidewalk_app, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static struct k_thread sid_thread;
 K_THREAD_STACK_DEFINE(sid_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
-K_HEAP_DEFINE(data_heap, CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE);
 
 typedef struct sm_s {
 	struct smf_ctx ctx;
@@ -203,7 +204,7 @@ static void state_sidewalk_run(void *o)
 		}
 
 		memcpy(&sm->sid->last_status, p_status, sizeof(struct sid_status));
-		sidewalk_data_free(p_status);
+		sid_hal_free(p_status);
 
 #ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 		if (pending_msg_ctx) {
@@ -232,8 +233,8 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid send err %d", (int)e);
 		}
 		LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
-		sidewalk_data_free(p_msg->msg.data);
-		sidewalk_data_free(p_msg);
+		sid_hal_free(p_msg->msg.data);
+		sid_hal_free(p_msg);
 
 #ifdef CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 		if (is_link_up && pending_msg_ctx) {
@@ -335,16 +336,6 @@ void sidewalk_start(sidewalk_ctx_t *context)
 			      K_THREAD_STACK_SIZEOF(sid_thread_stack), sid_thread_entry, context,
 			      NULL, NULL, CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
 	(void)k_thread_name_set(&sid_thread, "sidewalk");
-}
-
-void *sidewalk_data_alloc(size_t ctx_size)
-{
-	return k_heap_alloc(&data_heap, ctx_size, K_NO_WAIT);
-}
-
-void sidewalk_data_free(void *ctx)
-{
-	k_heap_free(&data_heap, ctx);
 }
 
 int sidewalk_event_send(sidewalk_event_t event, void *ctx)

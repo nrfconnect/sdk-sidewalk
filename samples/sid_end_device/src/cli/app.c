@@ -9,6 +9,7 @@
 #include <app_ble_config.h>
 #include <app_subGHz_config.h>
 #include <sid_hal_reset_ifc.h>
+#include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <json_printer.h>
 #include <sidTypes2Json.h>
@@ -61,7 +62,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 {
 	int err = 0;
 	uint32_t new_link_mask = status->detail.link_status_mask;
-	struct sid_status *new_status = sidewalk_data_alloc(sizeof(struct sid_status));
+	struct sid_status *new_status = sid_hal_malloc(sizeof(struct sid_status));
 	memcpy(new_status, status, sizeof(struct sid_status));
 	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
 

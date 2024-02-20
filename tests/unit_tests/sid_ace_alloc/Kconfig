@@ -16,4 +16,7 @@ config SIDEWALK_HEAP_SIZE
 config SIDEWALK_LOG_LEVEL
 	default 0
 
+config SID_HAL_PROTOCOL_MEMORY_SZ
+	default 0
+
 source "Kconfig.zephyr"

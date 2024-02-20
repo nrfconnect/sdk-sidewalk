@@ -14,39 +14,55 @@
  */
 
 #include <sid_hal_memory_ifc.h>
-#include <sid_pal_critical_region_ifc.h>
-#include <sid_memory_pool.h>
-#include <sid_pal_log_ifc.h>
 
 #include <zephyr/logging/log.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/sys_heap.h>
+
 LOG_MODULE_REGISTER(hal_memory, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#ifndef SID_HAL_PROTOCOL_MEMORY_SZ
-#if GW_SUPPORT
-#define SID_HAL_PROTOCOL_MEMORY_SZ 5120
-#else
-#define SID_HAL_PROTOCOL_MEMORY_SZ 1024
-#endif // GW_SUPPORT
-#endif // SID_HAL_PROTOCOL_MEMORY_SZ
+#ifndef CONFIG_SID_HAL_PROTOCOL_MEMORY_SZ
+#define CONFIG_SID_HAL_PROTOCOL_MEMORY_SZ 0
+#endif
 
-static uint8_t mem_pool[SID_HAL_PROTOCOL_MEMORY_SZ] __attribute__((aligned));
-struct sid_memory_pool *mem_pool_handle = NULL;
+#ifndef CONFIG_SIDEWALK_HEAP_SIZE
+#define CONFIG_SIDEWALK_HEAP_SIZE 0
+#endif
+
+#ifndef CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE
+#define CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE 0
+#endif
+
+#define HEAP_SIZE CONFIG_SID_HAL_PROTOCOL_MEMORY_SZ + CONFIG_SIDEWALK_HEAP_SIZE + CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE
+
+K_HEAP_DEFINE(sid_heap, HEAP_SIZE);
+
+#ifdef CONFIG_SYS_HEAP_RUNTIME_STATS
+static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
+{
+	static size_t max_usage = 0;
+	struct sys_memory_stats stat = {};
+
+	sys_heap_runtime_stats_get(p_heap, &stat);
+	if (mem_to_alloc > stat.free_bytes) {
+		LOG_ERR("Not heap left. Alloc size: %u, free: %u", mem_to_alloc, stat.free_bytes);
+		return;
+	}
+
+	if(max_usage < stat.max_allocated_bytes + mem_to_alloc){
+		max_usage = stat.max_allocated_bytes + mem_to_alloc;
+		LOG_WRN("Max heap usage %u / %u", max_usage, HEAP_SIZE);
+	}
+}
+#endif
 
 void *sid_hal_malloc(size_t size)
 {
-    if (mem_pool_handle == NULL) {
-        struct sid_memory_pool_config mem_config = {.size = sizeof(mem_pool), .buffer = mem_pool};
-        int rv = 0;
-        if ((rv = sid_memory_pool_init(&mem_pool_handle, &mem_config)) != SID_ERROR_NONE) {
-            LOG_INF("%s: pool init failed (%d)", __func__, rv);
-            return NULL;
-        }
-    }
-    void *ptr = NULL;
-    sid_pal_enter_critical_region();
-    ptr = sid_memory_pool_allocate(mem_pool_handle, size);
-    sid_pal_exit_critical_region();
-    return ptr;
+    #ifdef CONFIG_SYS_HEAP_RUNTIME_STATS
+	heap_alloc_stats(&sid_heap.heap, size);
+    #endif
+
+	return k_heap_alloc(&sid_heap, size, K_NO_WAIT);
 }
 
 void sid_hal_free(void *ptr)
@@ -54,7 +70,5 @@ void sid_hal_free(void *ptr)
     if (!ptr) {
         return;
     }
-    sid_pal_enter_critical_region();
-    sid_memory_pool_free(mem_pool_handle, ptr);
-    sid_pal_exit_critical_region();
+    k_heap_free(&sid_heap, ptr);
 }
