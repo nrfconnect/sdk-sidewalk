@@ -43,10 +43,10 @@ struct test_sidewalk_parameters params_sid_ok = { .alloc_ok = true, .send_ok = t
 static void sidewalk_parameters_set(struct test_sidewalk_parameters params)
 {
 	if (params.alloc_ok) {
-		sidewalk_data_alloc_fake.custom_fake = malloc;
-		sidewalk_data_free_fake.custom_fake = free;
+		sid_hal_malloc_fake.custom_fake = malloc;
+		sid_hal_free_fake.custom_fake = free;
 	} else {
-		sidewalk_data_alloc_fake.return_val = NULL;
+		sid_hal_malloc_fake.return_val = NULL;
 	}
 
 	sidewalk_event_send_fake.return_val = (params.send_ok) ? 0 : -EAGAIN;
@@ -59,10 +59,9 @@ static void sidewalk_parameters_assert(int ret)
 	}
 
 	if (sidewalk_event_send_fake.call_count > 0 && sidewalk_event_send_fake.return_val != 0) {
-		zassert_equal(sidewalk_data_alloc_fake.call_count,
-			      sidewalk_data_free_fake.call_count);
+		zassert_equal(sid_hal_malloc_fake.call_count, sid_hal_free_fake.call_count);
 	} else {
-		zassert_equal(0, sidewalk_data_free_fake.call_count);
+		zassert_equal(0, sid_hal_free_fake.call_count);
 	}
 }
 

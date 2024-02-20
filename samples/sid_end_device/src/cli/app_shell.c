@@ -16,6 +16,7 @@
 
 #include <sid_api.h>
 #include <sid_900_cfg.h>
+#include <sid_hal_memory_ifc.h>
 
 #include <cli/app_shell.h>
 #include <cli/app_dut.h>
@@ -209,14 +210,14 @@ static int cmd_sid_option_handle_set_link3_profile(const char *value,
 
 static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data, size_t len)
 {
-	sidewalk_option_t *p_opt = sidewalk_data_alloc(sizeof(sidewalk_option_t));
+	sidewalk_option_t *p_opt = sid_hal_malloc(sizeof(sidewalk_option_t));
 	if (!p_opt) {
 		return -ENOMEM;
 	}
 	p_opt->option = option;
 	p_opt->data_len = len;
 	if (data) {
-		p_opt->data = sidewalk_data_alloc(p_opt->data_len);
+		p_opt->data = sid_hal_malloc(p_opt->data_len);
 		if (!p_opt->data) {
 			return -ENOMEM;
 		}
@@ -228,9 +229,9 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 	int err = sidewalk_event_send(event, p_opt);
 	if (err) {
 		if (p_opt->data) {
-			sidewalk_data_free(p_opt->data);
+			sid_hal_free(p_opt->data);
 		}
-		sidewalk_data_free(p_opt);
+		sid_hal_free(p_opt);
 		err = -ENOMSG;
 	}
 
@@ -254,7 +255,7 @@ static int cmd_sid_option_get_input_data(enum sid_option option, void *data, siz
 
 static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
 {
-	uint32_t *event_ctx = sidewalk_data_alloc(sizeof(uint32_t));
+	uint32_t *event_ctx = sid_hal_malloc(sizeof(uint32_t));
 	if (!event_ctx) {
 		return -ENOMEM;
 	}
@@ -262,7 +263,7 @@ static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
 
 	int err = sidewalk_event_send(event, event_ctx);
 	if (err) {
-		sidewalk_data_free(event_ctx);
+		sid_hal_free(event_ctx);
 		return -ENOMSG;
 	}
 	return 0;
@@ -402,7 +403,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 				shell_error(shell, "failed to parse value as hexstring");
 				return -EINVAL;
 			}
-			msg.data = sidewalk_data_alloc(msg.size);
+			msg.data = sid_hal_malloc(msg.size);
 			if (!msg.data) {
 				return -ENOMEM;
 			}
@@ -480,21 +481,21 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 
 	if (!msg.data) {
 		msg.size = strlen(argv[argc - 1]);
-		msg.data = sidewalk_data_alloc(msg.size);
+		msg.data = sid_hal_malloc(msg.size);
 		if (!msg.data) {
 			return -ENOMEM;
 		}
 		memcpy(msg.data, argv[argc - 1], msg.size);
 	}
 
-	sidewalk_msg_t *send = sidewalk_data_alloc(sizeof(sidewalk_msg_t));
+	sidewalk_msg_t *send = sid_hal_malloc(sizeof(sidewalk_msg_t));
 	memcpy(&send->msg, &msg, sizeof(struct sid_msg));
 	memcpy(&send->desc, &desc, sizeof(struct sid_msg_desc));
 
 	int err = sidewalk_event_send(SID_EVENT_SEND_MSG, send);
 	if (err) {
-		sidewalk_data_free(send->msg.data);
-		sidewalk_data_free(send);
+		sid_hal_free(send->msg.data);
+		sid_hal_free(send);
 		return -ENOMSG;
 	}
 
@@ -873,7 +874,7 @@ int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv
 		shell_error(shell, "parameter link type invalid");
 		return -EINVAL;
 	}
-	uint32_t *p_link_mask = sidewalk_data_alloc(sizeof(uint32_t));
+	uint32_t *p_link_mask = sid_hal_malloc(sizeof(uint32_t));
 	cli_parse_link_mask_opt((uint8_t)link_type, p_link_mask);
 
 	int err = cmd_sid_option_get_input_data(SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,

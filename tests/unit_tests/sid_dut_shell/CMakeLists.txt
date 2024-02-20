@@ -28,6 +28,7 @@ target_include_directories(testbinary PRIVATE
         ${SIDEWALK_BASE}/subsys/sal/common/sid_ifc
         ${SIDEWALK_BASE}/subsys/sal/common/sid_time_ops
         ${SIDEWALK_BASE}/subsys/sal/common/sid_pal_ifc
+        ${SIDEWALK_BASE}/subsys/hal/include
         ${SIDEWALK_BASE}/utils/include
         ${SIDEWALK_BASE}/utils
         .

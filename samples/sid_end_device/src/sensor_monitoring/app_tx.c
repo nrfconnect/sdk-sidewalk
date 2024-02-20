@@ -11,6 +11,7 @@
 #include <sidewalk.h>
 #include <sid_demo_parser.h>
 #include <sid_pal_uptime_ifc.h>
+#include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
 #include <zephyr/logging/log.h>
@@ -93,16 +94,16 @@ static int app_tx_demo_msg_send(struct sid_parse_state *state, uint8_t *buffer,
 	}
 
 	// Send sidewalk message
-	sidewalk_msg_t *sid_msg = sidewalk_data_alloc(sizeof(sidewalk_msg_t));
+	sidewalk_msg_t *sid_msg = sid_hal_malloc(sizeof(sidewalk_msg_t));
 	sid_msg->msg.size = state->offset;
-	sid_msg->msg.data = sidewalk_data_alloc(sid_msg->msg.size);
+	sid_msg->msg.data = sid_hal_malloc(sid_msg->msg.size);
 	memcpy(sid_msg->msg.data, msg_buffer, sid_msg->msg.size);
 	memcpy(&sid_msg->desc, sid_desc, sizeof(struct sid_msg_desc));
 
 	int err = sidewalk_event_send(SID_EVENT_SEND_MSG, sid_msg);
 	if (err) {
-		sidewalk_data_free(sid_msg->msg.data);
-		sidewalk_data_free(sid_msg);
+		sid_hal_free(sid_msg->msg.data);
+		sid_hal_free(sid_msg);
 		LOG_ERR("Event send err %d", err);
 		return -EIO;
 	};

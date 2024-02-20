@@ -7,6 +7,7 @@
 #include <cli/app_dut.h>
 #include <sidewalk.h>
 #include <sid_900_cfg.h>
+#include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
@@ -19,7 +20,7 @@ static uint32_t dut_ctx_get_uint32(void *ctx)
 		return 0;
 	}
 	uint32_t ctx_val = *((uint32_t *)ctx);
-	sidewalk_data_free(ctx);
+	sid_hal_free(ctx);
 	return ctx_val;
 }
 
@@ -32,9 +33,9 @@ static void dut_option_set(sidewalk_option_t *p_option, struct sid_handle *handl
 
 	sid_error_t e = sid_option(handle, p_option->option, p_option->data, p_option->data_len);
 	if (p_option->data) {
-		sidewalk_data_free(p_option->data);
+		sid_hal_free(p_option->data);
 	}
-	sidewalk_data_free(p_option);
+	sid_hal_free(p_option);
 
 	LOG_INF("sid_option returned %d", e);
 }
@@ -109,9 +110,9 @@ static void dut_option_get(sidewalk_option_t *p_option, struct sid_handle *handl
 	}
 
 	if (p_option->data) {
-		sidewalk_data_free(p_option->data);
+		sid_hal_free(p_option->data);
 	}
-	sidewalk_data_free(p_option);
+	sid_hal_free(p_option);
 }
 
 void app_dut_event_process(sidewalk_ctx_event_t event, sidewalk_ctx_t *sid)
@@ -124,7 +125,7 @@ void app_dut_event_process(sidewalk_ctx_event_t event, sidewalk_ctx_t *sid)
 	} break;
 	case DUT_EVENT_DEINIT: {
 		if (event.ctx) {
-			sidewalk_data_free(event.ctx);
+			sid_hal_free(event.ctx);
 			LOG_WRN("Unexpected context on event %d", event.id);
 		};
 		sid_error_t e = sid_deinit(sid->handle);
