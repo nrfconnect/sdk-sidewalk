@@ -3,6 +3,10 @@
 Requirements
 ############
 
+.. contents::
+   :local:
+   :depth: 2
+
 This page outlines the requirements that you need to meet before you start working with the Amazon Sidewalk environment.
 
 .. note::
@@ -33,10 +37,9 @@ Ensure you have the following:
 * A supported Nordic Semiconductor's development kit and, if required, other additional hardware.
   For the list of the required devices per sample, see :ref:`samples_list`.
 
-* Sidewalk Gateway
-
-   You can use one of the supported `Amazon Sidewalk Gateways`_, for example, `Echo 4th Gen`_.
-   It is configured with the Alexa App on `iOS`_ or `Android`_ and requires an Amazon account for setup.
+* Sidewalk Gateway.
+  You can use one of the supported `Amazon Sidewalk Gateways`_, for example, `Echo 4th Gen`_.
+  It is configured with the Alexa App on `iOS`_ or `Android`_ and requires an Amazon account for setup.
 
 .. _requirements_memory:
 
@@ -49,41 +52,41 @@ All values are provided in kilobytes (KB).
 
 .. tabs::
 
-   .. tab:: `nRF52840 DK`_
+   .. tab:: nRF52840 DK
 
-      The following table lists memory requirements for samples running on the `nRF52840 DK`_.
+      The following table lists memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF52840 DK`_.
 
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | Sample                                                                |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
-      +=======================================================================+===============+===================+=====================+=============+=============+
-      | :ref:`Sensor monitoring <sidewalk_demo>` (Debug)                      |            36 |               494 |                  28 |         558 |         119 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE and sub-GHz <sidewalk_hello>` (Debug)   |            36 |               494 |                  28 |         558 |         109 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE <sidewalk_hello>` (Debug)               |            36 |               409 |                  28 |         473 |          89 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE <sidewalk_hello>` (Release)             |            36 |               350 |                  28 |         414 |          84 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE and sub-GHz <sidewalk_hello>` (Release) |            36 |               431 |                  28 |         495 |         104 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | Sample                                                                           |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
+      +==================================================================================+===============+===================+=====================+=============+=============+
+      | :ref:`Hello Sidewalk Bluetooth LE and sub-GHz <variant_sidewalk_hello>` (Debug)  |            36 |               494 |                  28 |         558 |         109 |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | :ref:`Hello Sidewalk Bluetooth LE <variant_sidewalk_hello>`                      |            36 |               409 |                  28 |         473 |          89 |
+      | (``CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n``, Debug)                                    |               |                   |                     |             |             |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | :ref:`Hello Sidewalk Bluetooth LE <variant_sidewalk_hello>`                      |            36 |               350 |                  28 |         414 |          84 |
+      | (``CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n``, Release)                                  |               |                   |                     |             |             |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | :ref:`Hello Sidewalk Bluetooth LE and sub-GHz <variant_sidewalk_hello>` (Release)|            36 |               431 |                  28 |         495 |         104 |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
 
-   .. tab:: `nRF5340 DK`_
+   .. tab:: nRF5340 DK
 
-      The following table lists memory requirements for samples running on the `nRF5340 DK`_.
+      The following table lists memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF5340 DK`_.
 
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | Sample                                                                |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
-      +=======================================================================+===============+===================+=====================+=============+=============+
-      | :ref:`Sensor monitoring <sidewalk_demo>` (Debug)                      |            40 |               430 |                  28 |         498 |         109 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE and sub-GHz <sidewalk_hello>` (Debug)   |            40 |               429 |                  28 |         497 |          99 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE <sidewalk_hello>` (Debug)               |            40 |               348 |                  28 |         416 |          80 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE <sidewalk_hello>` (Release)             |            40 |               286 |                  28 |         354 |          75 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
-      | :ref:`End device Bluetooth LE and sub-GHz <sidewalk_hello>` (Release) |            40 |               364 |                  28 |         432 |          94 |
-      +-----------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | Sample                                                                           |   MCUboot ROM |   Application ROM |   Sidewalk Settings |   Total ROM |   Total RAM |
+      +==================================================================================+===============+===================+=====================+=============+=============+
+      | :ref:`Hello Sidewalk Bluetooth LE and sub-GHz <variant_sidewalk_hello>` (Debug)  |            40 |               429 |                  28 |         497 |          99 |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | :ref:`Hello Sidewalk Bluetooth LE <variant_sidewalk_hello>`                      |            40 |               348 |                  28 |         416 |          80 |
+      | (``CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n``, Debug)                                    |               |                   |                     |             |             |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | :ref:`Hello Sidewalk Bluetooth LE <variant_sidewalk_hello>`                      |            40 |               286 |                  28 |         354 |          75 |
+      | (``CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n``, Release)                                  |               |                   |                     |             |             |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
+      | :ref:`Hello Sidewalk Bluetooth LE and sub-GHz <variant_sidewalk_hello>` (Release)|            40 |               364 |                  28 |         432 |          94 |
+      +----------------------------------------------------------------------------------+---------------+-------------------+---------------------+-------------+-------------+
 
 .. include:: ../ncs_links.rst
 

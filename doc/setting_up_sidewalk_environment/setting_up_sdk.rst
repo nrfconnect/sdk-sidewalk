@@ -3,6 +3,10 @@
 Setting up the SDK
 ##################
 
+.. contents::
+   :local:
+   :depth: 2
+
 See the compatibility between the versions of Amazon Sidewalk and the nRF Connect SDK by referring to the :ref:`compatibility_matrix`.
 Once confirmed, follow the `Installing the nRF Connect SDK`_ instructions.
 

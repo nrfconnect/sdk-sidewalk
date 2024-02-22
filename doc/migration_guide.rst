@@ -13,7 +13,7 @@ For an overview of changes, read the following sections.
 Reasons for change
 ==================
 
-The samples' model was changed to allow users to easily:
+The new sample model allows users to easily:
 
 * Adopt new features from the Amazon Sidewalk and nRF Connect SDK.
 * Maintain samples codebase.
@@ -47,12 +47,12 @@ The new approach allows to present the same functionalities through one, unified
 Aligning your application to the new model
 ==========================================
 
-To understand how your application might be affected by the new samples' model, see the following list of changes.
+To understand how your application might be affected by the new sample model, see the following list of changes.
 
 Building
 --------
 
-The following table is an example of the new commands used for the `nRF52840 DK`_ with the :file:`{NCS_PATH}/sidewalk/samples` path.
+The following table is an example of the new build commands used for the `nRF52840 DK`_ with the :file:`{NCS_PATH}/sidewalk/samples` path.
 
 +----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | Sample                     | Old commands                                            | New commands                                                                                 |
@@ -71,7 +71,7 @@ User interface
 
 The user interface was changed to better support boards with a smaller amount of buttons and LEDs.
 
-The following table shows button action differences between the old template samples and new :ref:`sidewalk_end_device` application in the :ref:`sidewalk_hello` variant:
+The following table shows button action differences between the old template samples and new :ref:`sidewalk_end_device` application in the :ref:`variant_sidewalk_hello` variant:
 
 +--------------------------------+--------------------------+-------------------------+
 | Button action                  | Old mapping              | New mapping             |
@@ -93,7 +93,7 @@ The following table shows button action differences between the old template sam
 | Switch Link Mask               | N/A                      | ``Buttons 3 (long)``    |
 +--------------------------------+--------------------------+-------------------------+
 
-The following table shows LED assignment differences between the old template samples and new :ref:`sidewalk_end_device` application in the :ref:`sidewalk_hello` variant:
+The following table shows LED assignment differences between the old template samples and new :ref:`sidewalk_end_device` application in the :ref:`variant_sidewalk_hello` variant:
 
 +--------------------------------+--------------+--------------+
 | LED status                     | Old          | New          |
@@ -137,7 +137,7 @@ Events
 ------
 
 In the nRF Connect SDK, you must make all Sidewalk API calls form the same thread where ``sid_process()`` is called.
-In case of both old and new samples, communication with the Sidewalk thread was handled by the user-defined events.
+In case of both old and new samples, communication with the Sidewalk thread is handled by the user-defined events.
 To cover all scenarios, the following updates have been made:
 
 * Added more events.
