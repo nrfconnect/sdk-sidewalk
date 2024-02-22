@@ -3,18 +3,8 @@
 Setting up the Sidewalk environment
 ###################################
 
-The documentation will guide you through:
-
-#. Connecting and setting up your hardware development kit (HDK) to develop and debug embedded applications.
-#. Designing your Sidewalk product.
-#. Configuring your cloud services and managing your Sidewalk Endpoints.
-#. Setting up your Sidewalk Gateway.
-#. Provisioning and configuring your Sidewalk Endpoints.
-#. Registering and associating with your Sidewalk Endpoints.
-
+The documentation will guide you through the setup of your Sidewalk environment.
 Once completed, you will be able to run a sample application and test it with Sidewalk.
-
-For the exact steps on setting up your environment, follow the below documentation:
 
 .. toctree::
    :maxdepth: 1

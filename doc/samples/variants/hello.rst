@@ -1,22 +1,32 @@
-.. _sidewalk_hello:
+.. _variant_sidewalk_hello:
 
 Hello Sidewalk
 ##############
 
-This sample demonstrates a simple Sidewalk End Node application.
-It can send Hello message to Sidewalk cloud on button press, as well as represent the Sidewalk status by LED state.
+This sample demonstrates a simple Sidewalk end node application.
+It can send the ``hello`` message to Sidewalk cloud on button press, as well as represent the Sidewalk status through LEDs.
+
+Configuration options
+*********************
+
+The Hello Sidewalk application variant uses the ``OVERLAY_CONFIG="overlay-hello.conf"`` configuration, which is applied by default.
+The sample variant supports the following Kconfig options:
+
+.. include:: ../../includes/include_kconfig_common.txt
+
+* ``CONFIG_SID_END_DEVICE_ECHO_MSGS`` -- The sample echoes the received Sidewalk messages (``GET`` and ``SET`` type) to the Sidewalk cloud.
 
 .. _sidewalk_hello_user_interface:
 
 User Interface
 **************
 
-.. include:: include_user_interface_common.txt
+.. include:: ../../includes/include_user_interface_common.txt
 
 Button 1 (short press):
    Send Hello -  This action queues a message to the cloud.
    If Sidewalk is not ready, it displays an error without sending the message.
-   On Bluetooth LE, the application performs Connection Requests before sending.
+   On Bluetooth LE, the application performs Connection Requests before sending the message.
 
 Button 2 (short press):
    Set Connection Request - The device requests the Sidewalk Gateway to initiate a connection while the device advertises through Bluetooth LE.
@@ -27,41 +37,30 @@ Button 3 (short press):
    A log message informs about the link mask switch and the status of the operation.
 
 LED 1:
-   Application established a link and connected successfully.
-   It is ready to send and receive Sidewalk messages.
+   Indicates that the application established a link and connected successfully.
+   The application is ready to send and receive Sidewalk messages.
 
 LED 2:
-   Application time synced successfully.
+   Indicates that the application time synced successfully.
 
 LED 3:
-   Application registered successfully.
+   Indicates that the application registered successfully.
 
 LED 4:
-   Application woke up successfully.
-
-Configuration
-*************
-
-The hello Sidewalk application supports the following configurations:
-
-* ``CONFIG_SID_END_DEVICE_ECHO_MSGS`` -- The sample echoes the received Sidewalk messages (``GET`` and ``SET`` type) to the Sidewalk cloud.
-
-For more configuration options, see :ref:`sidewalk_end_device_configuration`.
+   Indicates that the application woke up successfully.
 
 Building and running
 ********************
 
-.. include:: include_building_and_running.txt
+.. include:: ../../includes/include_building_and_running.txt
 
 Testing
-*******
+=======
 
 See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
 
 After successfully building the sample and flashing manufacturing data, the sample is ready to use.
 To refresh the logs, restart the program by pressing the :guilabel:`RESET` button on your development kit.
-
-Wait for the device to complete the automatic registration.
 
 .. note::
    If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
@@ -73,9 +72,9 @@ Starting Sidewalk
 To start Sidewalk, do the following:
 
 #. Connect your Nordic device to the PC through USB.
-   Set the power switch on the device to **ON**.
+   Set the device's power switch to **ON**.
 
-#. Flash the sample application with the manufacturing data as described in the Building and running section of the respective sample.
+#. Flash the sample application with the manufacturing data as described in the building and running section of the respective sample.
 
    You should see the following logs:
 
@@ -96,7 +95,7 @@ To start Sidewalk, do the following:
 
    When Sidewalk sample starts, **LED 4** turns on.
 
-#. Wait for the device to register, or perform registration manually as described in the :ref:`registering_sidewalk` documentation.
+#. Wait for the device to complete the registration.
 
    You should see the following logs:
 
@@ -117,11 +116,11 @@ To start Sidewalk, do the following:
 
    When Sidewalk gets Time Sync, **LED 2** turns on.
 
-#. Wait for status change.
+#. Wait for the status change.
 
-   a. For a Bluetooth LE device, status change occurs on request. Gateway connects over Bluetooth LE before sending down-link message, and device sends connection request before up-link message. Sidewalk automatically disconnects Bluetooth LE after some inactivity period.
+   * For a Bluetooth LE device, status change occurs on request. Gateway connects over Bluetooth LE before sending down-link message, and device sends connection request before up-link message. Sidewalk automatically disconnects Bluetooth LE after some inactivity period.
 
-   #. For a LoRa and FSK device, the following messages appear in the log:
+   * For a LoRa and FSK device, the following messages appear in the log:
 
       .. code-block:: console
 
@@ -134,7 +133,6 @@ Sending message to AWS MQTT
 ---------------------------
 
 You can use `AWS IoT MQTT client`_ to view the received and republished messages from the device.
-Follow the outlined steps:
 
 #. Enter ``#`` and click :guilabel:`Subscribe to topic`.
    You are now subscribed to the republished device messages.
@@ -187,12 +185,10 @@ Receiving message from AWS MQTT
 
       aws iotwireless send-data-to-wireless-device --id=<wireless-device-id> --transmit-mode 0 --payload-data="<payload-data>" --wireless-metadata "Sidewalk={Seq=<sequence-number>}"
 
-
    * ``<wireless-device-id>`` is the Wireless Device ID of your Sidewalk Device.
 
       You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_product`.
-
-      You can also find your Wireless Device ID in the message sent form the device to AWS, it you have sent it before.
+      If you have sent a message before, you can also find your Wireless Device ID in the messages sent from your device to AWS.
 
    * ``<payload-data>`` is base64 encoded.
 
@@ -223,15 +219,15 @@ Receiving message from AWS MQTT
           "MessageId": "eabea2c7-a818-4680-8421-7a5fa322460e"
       }
 
-   In case you run into the following error, ensure your IAM user or role has permissions to send data to your wireless device:
+   * Ensure your IAM user or role has permissions to send data to your wireless device in case you see the following error:
 
-   .. code-block:: console
+      .. code-block:: console
 
-      {
-         "Message": "User: arn:aws:iam::[AWS Account ID]:user/console_user is not authorized to perform:
-         iotwireless:SendDataToWirelessDevice on resource: arn:aws:iotwireless:us-east-1:[AWS Account ID]:
-         WirelessDevice/[Wireless Device ID]"
-      }
+         {
+            "Message": "User: arn:aws:iam::[AWS Account ID]:user/console_user is not authorized to perform:
+            iotwireless:SendDataToWirelessDevice on resource: arn:aws:iotwireless:us-east-1:[AWS Account ID]:
+            WirelessDevice/[Wireless Device ID]"
+         }
 
    Data will be received in Sidewalk logs:
 
@@ -242,7 +238,7 @@ Receiving message from AWS MQTT
                                      21                                               |!
 
 
-.. include:: include_testing_nordic_dfu.txt
+.. include:: ../../includes/include_testing_nordic_dfu.txt
 
 .. include:: ../../ncs_links.rst
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/

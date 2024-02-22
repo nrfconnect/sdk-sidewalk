@@ -3,6 +3,10 @@
 Setting up hardware
 ###################
 
+.. contents::
+   :local:
+   :depth: 2
+
 Before setting up the Sidewalk environment, make sure you have correctly set up the required hardware.
 
 Development kit

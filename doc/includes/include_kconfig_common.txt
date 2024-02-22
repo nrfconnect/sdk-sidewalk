@@ -1,0 +1,25 @@
+* ``CONFIG_SIDEWALK`` -- Enables support for the Sidewalk protocol and its dependencies.
+
+* ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` -- Enables using Sidewalk libraries with Bluetooth LE, LoRa and FSK support.
+  Disabling this option results in using Sidewalk libraries with only Bluetooth LE support.
+  While this results in a smaller memory footprint for the application, it also limits its functionality, as connectivity over LoRa or FSK is not available.
+
+* ``CONFIG_SIDEWALK_DFU`` -- Enables the nRF Connect SDK bootloader and DFU service over Bluetooth LE.
+
+* ``CONFIG_SID_END_DEVICE`` -- Switches between the application variants.
+
+   * ``CONFIG_SID_END_DEVICE_HELLO`` -- Enables the Hello Sidewalk application.
+     This is the default option.
+     For more details, see the :ref:`variant_sidewalk_hello` page.
+   * ``CONFIG_SID_END_DEVICE_SENSOR_MONITORING`` -- Enables the Sidewalk Sensor monitoring application.
+     For more details, see the :ref:`variant_sensor_monitoring` page.
+   * ``CONFIG_SID_END_DEVICE_DUT`` -- Enables the Sidewalk device under test application.
+     For more details, see the :ref:`variant_sidewalk_dut` page.
+
+* ``CONFIG_SID_END_DEVICE_CLI`` -- Enables Sidewalk CLI.
+  To see the list of available commands, flash the sample and type ``sid help``.
+
+* ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
+
+* ``CONFIG_SID_END_DEVICE_AUTO_CONN_REQ`` -- Enables an automatic connection request before sending a message.
+  If needed, the Bluetooth LE connection request is sent automatically.
