@@ -18,6 +18,17 @@ config SIDEWALK_SUBGHZ_SUPPORT
 	help
 	  Use Sidewalk with support for BLE, LoRa and FSK
 
+if SIDEWALK_SUBGHZ_SUPPORT
+
+config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
+	hex "value for trim cap used by subGHz radio"
+	range 0x0 0xFFFF
+	default 0x1212
+	help
+	  The value of the trim cap. Default value works for Semtech SX1262 shield 
+
+endif 
+
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type [DEPRICATED]"
 	default SIDEWALK_LINK_MASK_BLE
