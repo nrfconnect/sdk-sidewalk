@@ -10,7 +10,7 @@ You can find an application server (cloud backend with web UI) compatible with t
 Source file setup
 *****************
 
-The application consists of two source files:
+The application consists of the following source files:
 
 * :file:`app.c` (:file:`app.h`) -- The main application file starts the TX and RX thread, assigns button actions to the buttons on the board, and adds received messages to the received message queue.
 * :file:`app_sensor.c`, :file:`app_button.c`, :file:`app_led.c` -- The files implement interface between the hardware and sample application.

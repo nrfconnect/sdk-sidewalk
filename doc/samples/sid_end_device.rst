@@ -25,6 +25,8 @@ This sample supports the following development kits:
 +--------------------+----------+------------------------+------------------------------+
 | nRF5340 DK         | PCA10095 | `nrf5340dk_nrf5340`_   | ``nrf5340dk_nrf5340_cpuapp`` |
 +--------------------+----------+------------------------+------------------------------+
+| Thingy53           | PCA20053 | `thingy53_nrf5340`_    | ``thingy53_nrf5340_cpuapp``  |
++--------------------+----------+------------------------+------------------------------+
 
 To run the sample in the Bluetooth LE link mode, you only need the development kit.
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
@@ -53,9 +55,6 @@ Source file setup
 The application consists of two source files:
 
 * :file:`main.c` -- The main source file. Starts Sidewalk application.
-* :file:`app.c` (:file:`app.h`) -- Variant-specific file.
-  It communicates to the Sidewalk thread using events defined in the :file:`sidewalk.h` file, and receives Sidewalk callbacks defined in the :file:`sid_api.h` file.
-  An application may consist of multiple ``app_*`` files that are used to define user interface and realize application logic.
 * :file:`sidewalk.c` (:file:`sidewalk.h`) -- Sidewalk thread file.
   It is a common source file for all sample configurations.
   It implements a separate thread that calls the Sidewalk API.
@@ -67,6 +66,11 @@ The application consists of two source files:
 
       Sidewalk thread state machine.
 
+Additionally, it has a variant-specific file:
+
+* :file:`app.c` (:file:`app.h`) -- Implements application logic.
+  It communicates to the Sidewalk thread using events defined in the :file:`sidewalk.h` file, and receives Sidewalk callbacks defined in the :file:`sid_api.h` file.
+  An application may consist of multiple ``app_*`` files that are used to define user interface and realize application logic.
 
 .. _sidewalk_end_device_configuration:
 
