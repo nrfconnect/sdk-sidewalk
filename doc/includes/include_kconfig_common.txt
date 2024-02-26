@@ -19,6 +19,8 @@
 * ``CONFIG_SID_END_DEVICE_CLI`` -- Enables Sidewalk CLI.
   To see the list of available commands, flash the sample and type ``sid help``.
 
+* ``CONFIG_SIDEWALK_ON_DEV_CERT`` -- Enables the on-device certification Shell.
+
 * ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
 
 * ``CONFIG_SID_END_DEVICE_AUTO_CONN_REQ`` -- Enables an automatic connection request before sending a message.

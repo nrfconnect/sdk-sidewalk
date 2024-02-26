@@ -74,6 +74,5 @@ endif # SIDEWALK_DFU_SERVICE_BLE
 
 
 config SIDEWALK_ON_DEV_CERT
-	bool "Enable on device certification [EXPERIMENTAL]"
+	bool "Enable on device certification"
 	depends on SHELL
-	select EXPERIMENTAL

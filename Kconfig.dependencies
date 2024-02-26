@@ -21,11 +21,6 @@ config SIDEWALK_BUILD
 	help
 	  An internal config to build the NCS Sidewalk Sources.
 
-config SIDEWALK_THINGY53_SUPPORT
-	bool "Sidewalk support for Thingy:53 [EXPERIMENTAL]"
-	select EXPERIMENTAL
-	default BOARD_THINGY53_NRF5340_CPUAPP && SIDEWALK
-
 config SIDEWALK_BLE
 	bool
 	default SIDEWALK
