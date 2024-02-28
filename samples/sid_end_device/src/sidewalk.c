@@ -301,8 +301,12 @@ static void state_sidewalk_run(void *o)
 	case SID_EVENT_FILE_TRANSFER: {
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
 		struct data_received_args *args = (struct data_received_args *)sm->event.ctx;
-		LOG_INF("Received file Id %d; buffer size %d; file offset %d", args->desc->file_id,
-			args->buffer->size, args->desc->file_offset);
+		if (!args) {
+			LOG_ERR("File transfer event data is NULL");
+			break;
+		}
+		LOG_INF("Received file Id %d; buffer size %d; file offset %d", args->desc.file_id,
+			args->buffer->size, args->desc.file_offset);
 		uint8_t hash_out[32];
 		sid_pal_hash_params_t params = { .algo = SID_PAL_HASH_SHA256,
 						 .data = args->buffer->data,
@@ -324,7 +328,7 @@ static void state_sidewalk_run(void *o)
 		}
 
 		sid_error_t ret = sid_bulk_data_transfer_release_buffer(
-			sm->sid->handle, args->desc->file_id, args->buffer);
+			sm->sid->handle, args->desc.file_id, args->buffer);
 		if (ret != SID_ERROR_NONE) {
 			LOG_ERR("sid_bulk_data_transfer_release_buffer returned %s",
 				SID_ERROR_T_STR(ret));
@@ -430,5 +434,8 @@ int sidewalk_event_send(sidewalk_event_t event, void *ctx)
 		.ctx = ctx,
 	};
 
-	return k_msgq_put(&sid_sm.msgq, (void *)&ctx_event, K_NO_WAIT);
+	const int result = k_msgq_put(&sid_sm.msgq, (void *)&ctx_event, K_NO_WAIT);
+	LOG_DBG("sidewalk_event_send event = %d (%s), context = %p, k_msgq_put result %d", event,
+		SIDEWALK_EVENT_T_STR(event), ctx, result);
+	return result;
 }

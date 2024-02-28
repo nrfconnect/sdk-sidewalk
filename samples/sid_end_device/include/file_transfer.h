@@ -7,7 +7,7 @@
 #include <sid_bulk_data_transfer_api.h>
 
 struct data_received_args {
-	struct sid_bulk_data_transfer_desc *desc;
+	struct sid_bulk_data_transfer_desc desc;
 	struct sid_bulk_data_transfer_buffer *buffer;
 	void *context;
 };

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <stdint.h>
 #include <zephyr/sys/util.h>
 #include <sid_bulk_data_transfer_api.h>
 #include <sid_hal_memory_ifc.h>
@@ -24,7 +25,7 @@ K_HEAP_DEFINE(File_transfer_heap, KB(10));
 
 struct buffer_repo_element {
 	uint32_t file_id;
-	void *ptr;
+	void *memory_slab_for_transfer;
 };
 
 static struct buffer_repo_element buffer_repo[PARALEL_TRANSFER_MAX];
@@ -40,7 +41,7 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 			"file_descriptor");
 	size_t repo_index = UINT_MAX;
 	for (size_t i = 0; i < PARALEL_TRANSFER_MAX; i++) {
-		if (buffer_repo[i].ptr == NULL) {
+		if (buffer_repo[i].memory_slab_for_transfer == NULL) {
 			repo_index = i;
 			break;
 		}
@@ -61,7 +62,7 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 	}
 
 	// accept all requests if only we have avaliable memory for scratch buffer
-	buffer_repo[repo_index].ptr = ptr;
+	buffer_repo[repo_index].memory_slab_for_transfer = ptr;
 	buffer_repo[repo_index].file_id = transfer_request->file_id;
 	transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_ACCEPT;
 	transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_NONE;
@@ -73,13 +74,18 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 			     const struct sid_bulk_data_transfer_buffer *const buffer,
 			     void *context)
 {
-	printk(JSON_NEW_LINE(
-		JSON_OBJ(JSON_NAME("on_data_received",
-				   JSON_OBJ(JSON_VAL_sid_bulk_data_transfer_desc("desc", desc))))));
+	printk(JSON_NEW_LINE(JSON_OBJ(
+		JSON_LIST_2(JSON_NAME("on_data_received",
+				      JSON_OBJ(JSON_VAL_sid_bulk_data_transfer_desc("desc", desc))),
+			    JSON_NAME("data_size", JSON_INT(buffer->size))))));
 
 	struct data_received_args *args =
 		(struct data_received_args *)sid_hal_malloc(sizeof(struct data_received_args));
-	args->desc = (struct sid_bulk_data_transfer_desc *)desc;
+	if (!args) {
+		LOG_ERR("Failed to allocate memory for received data descriptor");
+		return;
+	}
+	args->desc = *desc;
 	args->buffer = (struct sid_bulk_data_transfer_buffer *)buffer;
 	args->context = context;
 	int err = sidewalk_event_send(SID_EVENT_FILE_TRANSFER, args);
@@ -123,10 +129,10 @@ static void on_release_scratch_buffer(uint32_t file_id, void *context)
 
 	for (size_t i = 0; i < PARALEL_TRANSFER_MAX; i++) {
 		if (buffer_repo[i].file_id == file_id) {
-			k_heap_free(&File_transfer_heap, buffer_repo[i].ptr);
+			k_heap_free(&File_transfer_heap, buffer_repo[i].memory_slab_for_transfer);
 
-			buffer_repo[i].ptr = NULL;
-			buffer_repo[i].file_id = 0;
+			buffer_repo[i].memory_slab_for_transfer = NULL;
+			buffer_repo[i].file_id = UINT32_MAX;
 			return;
 		}
 	}

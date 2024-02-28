@@ -75,3 +75,11 @@
 		"SID_CONTROL_EVENT_LOW_LATENCY_CONFIG_UPDATE" :                                    \
 	(val) == SID_CONTROL_EVENT_LAST ? "SID_CONTROL_EVENT_LAST" :                               \
 					  "UNKNOWN"
+
+#define SIDEWALK_EVENT_T_STR(val)                                                                  \
+	(((val) > (SID_EVENT_LAST)) || ((val) < 0)) ?                                              \
+		"UNKNOWN" :                                                                        \
+		((char *[]){ "SID_EVENT_SIDEWALK", "SID_EVENT_FACTORY_RESET",                      \
+			     "SID_EVENT_NEW_STATUS", "SID_EVENT_SEND_MSG", "SID_EVENT_CONNECT",    \
+			     "SID_EVENT_LINK_SWITCH", "SID_EVENT_NORDIC_DFU",                      \
+			     "SID_EVENT_FILE_TRANSFER", "SID_EVENT_LAST" }[val])
