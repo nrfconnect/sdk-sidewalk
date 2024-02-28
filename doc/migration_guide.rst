@@ -186,9 +186,9 @@ The following examples show code differences for selected events:
 
                 // app.c
                 const char payload[] = "hello";
-                sidewalk_msg_t *hello = sidewalk_data_alloc(sizeof(sidewalk_msg_t));
+                sidewalk_msg_t *hello = sid_hal_malloc(sizeof(sidewalk_msg_t));
                 hello->msg.size = sizeof(payload);
-                hello->msg.data = sidewalk_data_alloc(hello->msg.size);
+                hello->msg.data = sid_hal_malloc(hello->msg.size);
                 memcpy(hello->msg.data, payload, hello->msg.size);
                 hello->desc.type = SID_MSG_TYPE_NOTIFY;
                 hello->desc.link_type = SID_LINK_TYPE_ANY;
@@ -201,8 +201,8 @@ The following examples show code differences for selected events:
                 case SID_EVENT_SEND_MSG:
                     sidewalk_msg_t *p_msg = (sidewalk_msg_t *)sm->event.ctx;
                     sid_put_msg(sm->sid->handle, &p_msg->msg, &p_msg->desc);
-                    sidewalk_data_free(p_msg->msg.data);
-                    sidewalk_data_free(p_msg);
+                    sid_hal_free(p_msg->msg.data);
+                    sid_hal_free(p_msg);
                     break;
                 }
 

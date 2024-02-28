@@ -295,7 +295,7 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid_bulk_data_transfer_release_buffer returned %s",
 				SID_ERROR_T_STR(ret));
 		}
-		sidewalk_data_free(args);
+		sid_hal_free(args);
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER */
 	} break;
 	case SID_EVENT_LAST:

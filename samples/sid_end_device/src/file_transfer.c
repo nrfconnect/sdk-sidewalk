@@ -6,6 +6,7 @@
 
 #include <zephyr/sys/util.h>
 #include <sid_bulk_data_transfer_api.h>
+#include <sid_hal_memory_ifc.h>
 #include <file_transfer.h>
 
 #include <zephyr/kernel.h>
@@ -77,13 +78,13 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 				   JSON_OBJ(JSON_VAL_sid_bulk_data_transfer_desc("desc", desc))))));
 
 	struct data_received_args *args =
-		(struct data_received_args *)sidewalk_data_alloc(sizeof(struct data_received_args));
+		(struct data_received_args *)sid_hal_malloc(sizeof(struct data_received_args));
 	args->desc = (struct sid_bulk_data_transfer_desc *)desc;
 	args->buffer = (struct sid_bulk_data_transfer_buffer *)buffer;
 	args->context = context;
 	int err = sidewalk_event_send(SID_EVENT_FILE_TRANSFER, args);
 	if (err) {
-		sidewalk_data_free(args);
+		sid_hal_free(args);
 	}
 }
 

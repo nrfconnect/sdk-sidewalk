@@ -44,10 +44,6 @@ typedef struct {
 
 void sidewalk_start(sidewalk_ctx_t *context);
 
-void *sidewalk_data_alloc(size_t data_size);
-
-void sidewalk_data_free(void *data);
-
 int sidewalk_event_send(sidewalk_event_t event, void *ctx);
 
 #endif /* SIDEWALK_APP_H */
