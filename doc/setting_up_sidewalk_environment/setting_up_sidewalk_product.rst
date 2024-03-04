@@ -26,18 +26,17 @@ The tools required for provisioning are located in the downloaded `sdk-nrf`_ rep
 
       .. code-block:: python
 
-         python3 provision.py aws --output_bin mfg.bin --certificate_json certificate.json \
-            --config config/[device_vendor]/[device]_dk/config.yaml --addr 0xFF000
+         python3 provision.py nordic aws --output_bin mfg.bin --certificate_json certificate.json --addr 0xFF000
 
    * If you are using separate device JSON files obtained as responses from the GetDeviceProfile and GetWirelessDevice API operations, use the ``wireless_device_json`` and ``device_profile_json`` parameters.
      This will specify both files as input when running the provisioning script.
 
       .. code-block:: python
 
-         python3 provision.py aws --output_bin mfg.bin \
+         python3 provision.py nordic aws --output_bin mfg.bin \
             --wireless_device_json wireless_device.json \
             --device_profile_json device_profile.json \
-            --config config/[device_vendor]/[device]_dk/config.yaml --addr 0xFF000
+             --addr 0xFF000
 
    .. note::
       The default name of the :file:`mfg.hex` file generated from the :file:`provision.py` script is :file:`nordic_aws_nrf52840.hex`.
