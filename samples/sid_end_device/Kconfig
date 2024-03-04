@@ -53,7 +53,6 @@ config SID_END_DEVICE_AUTO_CONN_REQ
     bool "Enable automatic connection request before message send"
 
 config SID_END_DEVICE_PERSISTENT_LINK_MASK
-	select EXPERIMENTAL
     bool "Enable persitent link mask"
     help
       The Sidewalk link mask persists after a device reset
