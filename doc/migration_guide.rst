@@ -15,7 +15,23 @@ Reasons for change
 
 The new sample model allows users to easily:
 
-* Adopt new features from the Amazon Sidewalk and nRF Connect SDK.
+* Adopt new features from the Amazon Sidewalk and nRF Connect SDK:
+
+  * Autonomous link switching (multi-link) - The MCU SDK v1.16 release enables applications to configure a policy for optimizing radio links usage based on the application profiles.
+    For more details, see the `Application notes`_ documentation.
+  * On-device certificates generation - The MCU SDK v1.16 release enhances the security of IoT products at manufacturing through the on-device key generation and creation of the manufacturing page.
+    For more details, see `How to manufacture and produce devices`_.
+  * Downlink file transfer over Bluetooth LE (experimental) - In the MCU SDK v1.16 release, the Sidewalk Bulk Data Transfer mode and Integration of AWS IoT FUOTA service allow sending files (up to 1 MB) to fleet of IoT devices from the AWS IoT FUOTA task.
+    The current implementation covers basic scenario that shows the transferred data in the logs with minimal callback implementation.
+    There is no Device Firwmare Update (DFU) integration.
+    For more details, see the `Amazon Sidewalk specification`_.
+
+    .. note::
+
+        To test this functionality, it is required to have access to S3 bucket.
+        If you want to gain the access, contact your account manager or sidewalk-beta-support@amazon.com.
+        In the message provide your AWS account ID to be added to the allowlist.
+
 * Maintain samples codebase.
 * Understand how the application works.
 
@@ -372,3 +388,7 @@ To use the deprecated functionalities, you have to enable the relevant Kconfig o
 * ``CONFIG_SIDEWALK_LINK_MASK`` -- The option chooses sidewalk link mask to start with.
   New Sidewalk libraries support link switch in runtime.
   To switch between the full link mask support libraries and Bluetooth LE only libraries, use the ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` option.
+
+.. _Application notes: https://docs.sidewalk.amazon/app-notes/
+.. _How to manufacture and produce devices: https://docs.sidewalk.amazon/manufacturing/manufacture-provision/
+.. _Amazon Sidewalk specification: https://docs.sidewalk.amazon/specifications/
