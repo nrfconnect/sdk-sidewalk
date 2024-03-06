@@ -47,7 +47,7 @@ config NVS_LOOKUP_CACHE
 	default y
 
 config NVS_LOOKUP_CACHE_SIZE
-	default 1024
+	default 256
 
 # Stack and Heap
 config SYSTEM_WORKQUEUE_STACK_SIZE

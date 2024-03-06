@@ -33,7 +33,13 @@ LOG_MODULE_REGISTER(hal_memory, CONFIG_SIDEWALK_LOG_LEVEL);
 #define CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE 0
 #endif
 
-#define HEAP_SIZE CONFIG_SID_HAL_PROTOCOL_MEMORY_SZ + CONFIG_SIDEWALK_HEAP_SIZE + CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+#define SIDEWALK_FILE_TRANSFER_HEAP KB(10)
+#else
+#define SIDEWALK_FILE_TRANSFER_HEAP 0
+#endif
+
+#define HEAP_SIZE CONFIG_SID_HAL_PROTOCOL_MEMORY_SZ + CONFIG_SIDEWALK_HEAP_SIZE + CONFIG_SID_END_DEVICE_EVENT_HEAP_SIZE + SIDEWALK_FILE_TRANSFER_HEAP
 
 K_HEAP_DEFINE(sid_heap, HEAP_SIZE);
 
@@ -62,13 +68,21 @@ void *sid_hal_malloc(size_t size)
 	heap_alloc_stats(&sid_heap.heap, size);
     #endif
 
-	return k_heap_alloc(&sid_heap, size, K_NO_WAIT);
+	void * ptr = k_heap_alloc(&sid_heap, size, K_NO_WAIT);
+	#if CONFIG_SIDEWALK_TRACE_HEAP
+	LOG_DBG("Alloc %d bytes at addr %p", size, ptr);
+	#endif /* CONFIG_SIDEWALK_TRACE_HEAP */
+	return ptr;
 }
 
 void sid_hal_free(void *ptr)
 {
     if (!ptr) {
+	LOG_ERR("Can not free NULL ptr");
         return;
     }
+    	#if CONFIG_SIDEWALK_TRACE_HEAP
+	LOG_DBG("Free ptr at addr %p", ptr);
+	#endif /* CONFIG_SIDEWALK_TRACE_HEAP */
     k_heap_free(&sid_heap, ptr);
 }

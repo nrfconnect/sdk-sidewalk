@@ -74,6 +74,11 @@ config SIDEWALK_HEAP_SIZE
 	help
 	  Set the heap size for dynamic memory alocation in Sidewalk.
 
+config SIDEWALK_TRACE_HEAP
+	bool "Trace allocation and free of Sidewalk heap"
+	help
+	  Add debug log to every alloc and free operation on Sidewalk heap
+
 config SID_HAL_PROTOCOL_MEMORY_SZ
 	int
 	default 1024

@@ -21,8 +21,6 @@ LOG_MODULE_REGISTER(file_transfer, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define PARALEL_TRANSFER_MAX 3
 
-K_HEAP_DEFINE(File_transfer_heap, KB(10));
-
 struct buffer_repo_element {
 	uint32_t file_id;
 	void *memory_slab_for_transfer;
@@ -52,8 +50,7 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC;
 		return;
 	}
-	void *ptr = k_heap_alloc(&File_transfer_heap, transfer_request->minimum_scratch_buffer_size,
-				 K_NO_WAIT);
+	void *ptr = sid_hal_malloc(transfer_request->minimum_scratch_buffer_size);
 	if (ptr == NULL) {
 		LOG_ERR("Failed to alloc memory");
 		transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_REJECT;
@@ -129,7 +126,7 @@ static void on_release_scratch_buffer(uint32_t file_id, void *context)
 
 	for (size_t i = 0; i < PARALEL_TRANSFER_MAX; i++) {
 		if (buffer_repo[i].file_id == file_id) {
-			k_heap_free(&File_transfer_heap, buffer_repo[i].memory_slab_for_transfer);
+			sid_hal_free(buffer_repo[i].memory_slab_for_transfer);
 
 			buffer_repo[i].memory_slab_for_transfer = NULL;
 			buffer_repo[i].file_id = UINT32_MAX;
