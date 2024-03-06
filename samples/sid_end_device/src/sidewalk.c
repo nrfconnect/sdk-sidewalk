@@ -162,13 +162,13 @@ static void state_sidewalk_run(void *o)
 	sid_error_t e = SID_ERROR_NONE;
 
 	switch (sm->event.id) {
-	case SID_EVENT_SIDEWALK:
+	case SID_EVENT_SIDEWALK: {
 		e = sid_process(sm->sid->handle);
 		if (e) {
 			LOG_ERR("sid process err %d", (int)e);
 		}
-		break;
-	case SID_EVENT_FACTORY_RESET:
+	} break;
+	case SID_EVENT_FACTORY_RESET: {
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 		(void)settings_utils_link_mask_set(0);
 #endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
@@ -176,8 +176,8 @@ static void state_sidewalk_run(void *o)
 		if (e) {
 			LOG_ERR("sid factory reset err %d", (int)e);
 		}
-		break;
-	case SID_EVENT_LINK_SWITCH:
+	} break;
+	case SID_EVENT_LINK_SWITCH: {
 		static uint32_t new_link_mask = DEFAULT_LM;
 
 		switch (sm->sid->config.link_mask) {
@@ -250,8 +250,8 @@ static void state_sidewalk_run(void *o)
 			}
 		}
 #endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
-		break;
-	case SID_EVENT_NORDIC_DFU:
+	} break;
+	case SID_EVENT_NORDIC_DFU: {
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
 		app_file_transfer_demo_deinit(sm->sid->handle);
 #endif
@@ -260,8 +260,8 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid deinit err %d", (int)e);
 		}
 		smf_set_state(SMF_CTX(sm), &sid_states[STATE_DFU]);
-		break;
-	case SID_EVENT_NEW_STATUS:
+	} break;
+	case SID_EVENT_NEW_STATUS: {
 		struct sid_status *p_status = (struct sid_status *)sm->event.ctx;
 		if (!p_status) {
 			LOG_ERR("sid new status is NULL");
@@ -270,9 +270,8 @@ static void state_sidewalk_run(void *o)
 
 		memcpy(&sm->sid->last_status, p_status, sizeof(struct sid_status));
 		sid_hal_free(p_status);
-
-		break;
-	case SID_EVENT_SEND_MSG:
+	} break;
+	case SID_EVENT_SEND_MSG: {
 		sidewalk_msg_t *p_msg = (sidewalk_msg_t *)sm->event.ctx;
 		if (!p_msg) {
 			LOG_ERR("sid send msg is NULL");
@@ -286,9 +285,8 @@ static void state_sidewalk_run(void *o)
 		LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
 		sid_hal_free(p_msg->msg.data);
 		sid_hal_free(p_msg);
-
-		break;
-	case SID_EVENT_CONNECT:
+	} break;
+	case SID_EVENT_CONNECT: {
 		if (!(sm->sid->config.link_mask & SID_LINK_TYPE_1)) {
 			LOG_ERR("Can not request connection - BLE not enabled");
 			return;
@@ -297,7 +295,7 @@ static void state_sidewalk_run(void *o)
 		if (e) {
 			LOG_ERR("sid conn req err %d", (int)e);
 		}
-		break;
+	} break;
 	case SID_EVENT_FILE_TRANSFER: {
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
 		struct data_received_args *args = (struct data_received_args *)sm->event.ctx;
@@ -366,10 +364,9 @@ static void state_dfu_entry(void *o)
 static void state_dfu_run(void *o)
 {
 	sm_t *sm = (sm_t *)o;
-
+	int err = -ENOTSUP;
 	switch (sm->event.id) {
 	case SID_EVENT_NORDIC_DFU:
-		int err = -ENOTSUP;
 #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 		err = nordic_dfu_ble_stop();
 #endif

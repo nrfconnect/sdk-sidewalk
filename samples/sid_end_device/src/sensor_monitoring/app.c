@@ -93,7 +93,11 @@ static void on_sidewalk_factory_reset(void *context)
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
 {
 	struct sid_status *new_status = sid_hal_malloc(sizeof(struct sid_status));
-	memcpy(new_status, status, sizeof(struct sid_status));
+	if (!new_status) {
+		LOG_ERR("Failed to allocate memory for new status value");
+	} else {
+		memcpy(new_status, status, sizeof(struct sid_status));
+	}
 	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
 
 	int err = 0;

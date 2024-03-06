@@ -57,6 +57,7 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_NO_SPACE;
 		return;
 	}
+	memset(ptr, 0x0, sizeof(transfer_request->minimum_scratch_buffer_size));
 
 	// accept all requests if only we have avaliable memory for scratch buffer
 	buffer_repo[repo_index].memory_slab_for_transfer = ptr;
@@ -82,6 +83,7 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 		LOG_ERR("Failed to allocate memory for received data descriptor");
 		return;
 	}
+	memset(args, 0x0, sizeof(*args));
 	args->desc = *desc;
 	args->buffer = (struct sid_bulk_data_transfer_buffer *)buffer;
 	args->context = context;
