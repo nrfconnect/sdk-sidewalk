@@ -17,7 +17,7 @@
 
 typedef struct {
 	struct bt_conn *conn;
-	struct bt_uuid *uuid;
+	const struct bt_uuid *uuid;
 	struct bt_gatt_service_static *service;
 } sid_ble_srv_params_t;
 

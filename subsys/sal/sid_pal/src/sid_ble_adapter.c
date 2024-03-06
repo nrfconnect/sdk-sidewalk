@@ -146,37 +146,56 @@ static sid_error_t ble_adapter_stop_advertisement(void)
 	return SID_ERROR_NONE;
 }
 
+/* The static literal has lifetime of its context, so as a global its lifetime is static.
+   When it was used in a context of a function, it had been stored on the stack of that function, 
+   and was not valid outside of this function.*/
+static const struct bt_uuid *uuid_ama_service = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
+#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
+static const struct bt_uuid *uuid_vnd_service = VND_SID_BT_CHARACTERISTIC_NOTIFY;
+#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
+#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
+static const struct bt_uuid *uuid_log_service = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
+#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
+
+static sid_ble_srv_params_t get_srv_params(sid_ble_cfg_service_identifier_t id)
+{
+	switch (id) {
+	case AMA_SERVICE:
+		return (sid_ble_srv_params_t){
+			.conn = sid_ble_conn_params_get()->conn,
+			.service = (struct bt_gatt_service_static *)sid_ble_get_ama_service(),
+			.uuid = uuid_ama_service
+		};
+
+#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
+	case VENDOR_SERVICE:
+		return (sid_ble_srv_params_t){
+			.conn = sid_ble_conn_params_get()->conn,
+			.service = (struct bt_gatt_service_static *)sid_ble_get_vnd_service(),
+			.uuid = uuid_vnd_service
+		};
+#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
+#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
+	case LOGGING_SERVICE:
+		return (sid_ble_srv_params_t){
+			.conn = sid_ble_conn_params_get()->conn,
+			.service = (struct bt_gatt_service_static *)sid_ble_get_log_service(),
+			.uuid = uuid_log_service
+		};
+#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
+	default:
+		return (sid_ble_srv_params_t){ .conn = NULL, .uuid = NULL, .service = NULL };
+	}
+}
+
 static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, uint8_t *data,
 					 uint16_t length)
 {
 	LOG_DBG("Sidewalk -> BLE");
-	sid_ble_srv_params_t srv_params = {};
-
-	switch (id) {
-	case AMA_SERVICE: {
-		srv_params.uuid = AMA_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_ama_service();
-		break;
-	}
-#if defined(CONFIG_SIDEWALK_VENDOR_SERVICE)
-	case VENDOR_SERVICE: {
-		srv_params.uuid = VND_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_vnd_service();
-		break;
-	}
-#endif /* CONFIG_SIDEWALK_VENDOR_SERVICE */
-#if defined(CONFIG_SIDEWALK_LOGGING_SERVICE)
-	case LOGGING_SERVICE: {
-		srv_params.uuid = LOG_SID_BT_CHARACTERISTIC_NOTIFY;
-		srv_params.service = (struct bt_gatt_service_static *)sid_ble_get_log_service();
-		break;
-	}
-#endif /* CONFIG_SIDEWALK_LOGGING_SERVICE */
-	default:
+	sid_ble_srv_params_t srv_params = get_srv_params(id);
+	if (srv_params.service == NULL || srv_params.uuid == NULL) {
 		return SID_ERROR_NOSUPPORT;
 	}
-
-	srv_params.conn = sid_ble_conn_params_get()->conn;
 
 	int err_code = sid_ble_send_data(&srv_params, data, length);
 	if (-EINVAL == err_code) {

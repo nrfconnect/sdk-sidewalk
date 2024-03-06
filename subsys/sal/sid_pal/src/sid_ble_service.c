@@ -42,7 +42,6 @@ int sid_ble_send_data(sid_ble_srv_params_t *params, uint8_t *data, uint16_t leng
 		srv_attrs = params->service->attrs;
 		srv_attr_count = params->service->attr_count;
 	}
-
 	attr = bt_gatt_find_by_uuid(srv_attrs, srv_attr_count, params->uuid);
 
 	if (!attr) {
