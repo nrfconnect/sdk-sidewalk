@@ -13,7 +13,7 @@ Complete the `Onbarding your Sidewalk devices`_ steps described in the Amazon Si
 Generate provisioning
 *********************
 
-The tools required for provisioning are located in the downloaded `sdk-nrf`_ repository under the :file:`sidewalk/tools/provision` path.
+The tools required for provisioning are located in the repository (`sdk-nrf`_ and `sdk-sidewalk`_) under the :file:`sidewalk/tools/provision` path.
 
 1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
 
@@ -88,6 +88,7 @@ Use MQTT client
 
    .. figure:: /images/AWSIoTCoreMQTT.png
 
+.. _sdk-sidewalk: https://github.com/nrfconnect/sdk-sidewalk
 .. _Onbarding your Sidewalk devices: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-gs-workflow.html
 .. _Provision your Sidewalk endpoint and flash the binary image: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-provision-endpoint.html
 .. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app

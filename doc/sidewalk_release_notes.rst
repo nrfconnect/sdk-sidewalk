@@ -8,14 +8,14 @@ For more information about the current Amazon Sidewalk release, refer to the lin
 Changelog
 *********
 
-See the `Release notes for the nRF Connect SDK`_ for the v2.5.0 release.
+See the `Release notes for the nRF Connect SDK`_ for the v2.6.0 release.
 
 Limitations
 ***********
 
 Dynamic FSK-WAN Profile switching from 2 to 1 is prohibited.
   The issue is a limitation of the 1.14 Sidewalk release.
-  Currently there is no workaround for this issue.
+  There is no workaround for this issue.
 
 Known issues
 ************
@@ -23,7 +23,7 @@ Known issues
 .. note::
   Starting from the v2.5.0 release of the nRF Connect SDK, known issues have been moved to the nRF Connect SDK documentation.
 
-See `Known issues for the nRF Connect SDK`_ for the v2.5.0 release.
+See `Known issues for the nRF Connect SDK`_ for the v2.6.0 release.
 
 Known issues (before the v2.5.0 release)
 ----------------------------------------

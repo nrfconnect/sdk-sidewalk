@@ -58,7 +58,7 @@ The application consists of two source files:
 * :file:`sidewalk.c` (:file:`sidewalk.h`) -- Sidewalk thread file.
   It is a common source file for all sample configurations.
   It implements a separate thread that calls the Sidewalk API.
-  The file also includes support for the DFU state.
+  The file also includes support for the device firmware update (DFU).
   The following diagram shows the behavior of the state machine:
 
    .. figure:: ../images/sidewalk_thread_state_machine.svg

@@ -40,9 +40,9 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
 
 .. tabs::
 
-   .. tab:: nRF52840
+   .. tab:: nRF52840 DK
 
-    Refer to the pinout assignment for nRF52840:
+    Refer to the pinout assignment for the nRF52840 DK:
 
     +---------------+-------------+
     | SX126X shield | nRF52840 DK |
@@ -64,9 +64,9 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     | NRESET        | P0.03       |
     +---------------+-------------+
 
-   .. tab:: nRF5340
+   .. tab:: nRF5340 DK
 
-    Refer to the pinout assignment for nRF5340:
+    Refer to the pinout assignment for the nRF5340 DK:
 
     +---------------+-------------+
     | SX126X shield | nRF5340 DK  |
@@ -88,6 +88,25 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     | NRESET        | P0.04       |
     +---------------+-------------+
 
+.. _setting_up_sidewalk_gateway:
+
+Sidewalk gateway
+****************
+
+.. note::
+   Refer to the `Amazon Sidewalk gateways`_ for the complete list of available devices.
+
+For the exact instructions, refer to the `Setting up a Sidewalk gateway`_ documentation.
+
+.. note::
+   If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
+   If you need to operate multiple FSK gateways, we recommend setting them up under separate Amazon accounts.
+
 .. include:: ../ncs_links.rst
 
+.. _Echo: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
+.. _iOS: https://apps.apple.com/us/app/amazon-alexa/id94401162
+.. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
+.. _Amazon Sidewalk gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
+.. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas

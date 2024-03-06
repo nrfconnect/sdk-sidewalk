@@ -25,3 +25,5 @@
 
 * ``CONFIG_SID_END_DEVICE_AUTO_CONN_REQ`` -- Enables an automatic connection request before sending a message.
   If needed, the Bluetooth LE connection request is sent automatically.
+
+* ``SID_END_DEVICE_PERSISTENT_LINK_MASK`` - Enables persistent link mask.
