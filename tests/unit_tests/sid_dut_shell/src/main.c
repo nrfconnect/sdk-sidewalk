@@ -1458,6 +1458,7 @@ void test_sid_set_option_ml(struct test_sid_set_option_params params)
 
 void test_sid_set_option_gc(struct test_sid_set_option_params params)
 {
+	sidewalk_parameters_set(params_sid_ok);
 	int ret = cmd_sid_option_gc(NULL, params.argc, params.argv);
 
 	verify_sid_option_asserts(params, ret);

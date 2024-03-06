@@ -95,8 +95,18 @@ static int app_tx_demo_msg_send(struct sid_parse_state *state, uint8_t *buffer,
 
 	// Send sidewalk message
 	sidewalk_msg_t *sid_msg = sid_hal_malloc(sizeof(sidewalk_msg_t));
+	if (!sid_msg) {
+		LOG_ERR("Failed to alloc memory for message context");
+		return -ENOMEM;
+	}
+	memset(sid_msg, 0x0, sizeof(*sid_msg));
 	sid_msg->msg.size = state->offset;
 	sid_msg->msg.data = sid_hal_malloc(sid_msg->msg.size);
+	if (!sid_msg->msg.data) {
+		sid_hal_free(sid_msg);
+		LOG_ERR("Failed to allocate memory for message data");
+		return -ENOMEM;
+	}
 	memcpy(sid_msg->msg.data, msg_buffer, sid_msg->msg.size);
 	memcpy(&sid_msg->desc, sid_desc, sizeof(struct sid_msg_desc));
 

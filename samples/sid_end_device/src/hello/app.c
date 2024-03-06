@@ -50,9 +50,18 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 	if (msg_desc->type == SID_MSG_TYPE_GET || msg_desc->type == SID_MSG_TYPE_SET) {
 		LOG_INF("Send echo message");
 		sidewalk_msg_t *echo = sid_hal_malloc(sizeof(sidewalk_msg_t));
-
+		if (!echo) {
+			LOG_ERR("Failed to allocate event context for echo message");
+			return;
+		}
+		memset(echo, 0x0, sizeof(*echo));
 		echo->msg.size = msg->size;
 		echo->msg.data = sid_hal_malloc(echo->msg.size);
+		if (!echo->msg.data) {
+			LOG_ERR("Failed to allocate memory for message echo data");
+			sid_hal_free(echo);
+			return;
+		}
 		memcpy(echo->msg.data, msg->data, echo->msg.size);
 
 		echo->desc.type = (msg_desc->type == SID_MSG_TYPE_GET) ? SID_MSG_TYPE_RESPONSE :
@@ -113,7 +122,11 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	int err = 0;
 	uint32_t new_link_mask = status->detail.link_status_mask;
 	struct sid_status *new_status = sid_hal_malloc(sizeof(struct sid_status));
-	memcpy(new_status, status, sizeof(struct sid_status));
+	if (!new_status) {
+		LOG_ERR("Failed to allocate memory for new status value");
+	} else {
+		memcpy(new_status, status, sizeof(struct sid_status));
+	}
 	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
 
 	switch (status->state) {
@@ -170,9 +183,19 @@ static void app_button_handler(uint32_t event)
 		LOG_INF("Send hello message");
 		const char payload[] = "hello";
 		sidewalk_msg_t *hello = sid_hal_malloc(sizeof(sidewalk_msg_t));
+		if (!hello) {
+			LOG_ERR("Failed to alloc memory for message context");
+			return;
+		}
+		memset(hello, 0x0, sizeof(*hello));
 
 		hello->msg.size = sizeof(payload);
 		hello->msg.data = sid_hal_malloc(hello->msg.size);
+		if (!hello->msg.data) {
+			sid_hal_free(hello);
+			LOG_ERR("Failed to allocate memory for message data");
+			return;
+		}
 		memcpy(hello->msg.data, payload, hello->msg.size);
 
 		hello->desc.type = SID_MSG_TYPE_NOTIFY;

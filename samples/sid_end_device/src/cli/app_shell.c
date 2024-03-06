@@ -214,6 +214,7 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 	if (!p_opt) {
 		return -ENOMEM;
 	}
+	memset(p_opt, 0x0, sizeof(*p_opt));
 	p_opt->option = option;
 	p_opt->data_len = len;
 	if (data) {
@@ -489,6 +490,10 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 	}
 
 	sidewalk_msg_t *send = sid_hal_malloc(sizeof(sidewalk_msg_t));
+	if (!send) {
+		return -ENOMEM;
+	}
+	memset(send, 0x0, sizeof(*send));
 	memcpy(&send->msg, &msg, sizeof(struct sid_msg));
 	memcpy(&send->desc, &desc, sizeof(struct sid_msg_desc));
 
@@ -875,6 +880,11 @@ int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv
 		return -EINVAL;
 	}
 	uint32_t *p_link_mask = sid_hal_malloc(sizeof(uint32_t));
+	if (!p_link_mask) {
+		return -ENOMEM;
+	}
+
+	memset(p_link_mask, 0x0, sizeof(*p_link_mask));
 	cli_parse_link_mask_opt((uint8_t)link_type, p_link_mask);
 
 	int err = cmd_sid_option_get_input_data(SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
