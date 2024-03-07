@@ -14,7 +14,9 @@ Documentation
 
 Browse the official Sidewalk documentation:
 
-* Sidewalk for the nRF Connect SDK: https://nrfconnect.github.io/sdk-sidewalk
+* Latest Sidewalk documentation for the nRF Connect SDK: https://nrfconnect.github.io/sdk-sidewalk
+
+  * For previous releases, see: https://github.com/nrfconnect/sdk-sidewalk/releases
 
 * Amazon Sidewalk: https://docs.sidewalk.amazon
 
