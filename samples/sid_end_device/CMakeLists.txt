@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.20.0)
 include(bootloader_version.cmake)
 
 # Child images
-set(hci_rpmsg_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/hci_rpmsg/Kconfig.root)
+set(hci_ipc_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/hci_ipc/Kconfig.root)
 set(mcuboot_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/mcuboot/Kconfig.root)
 
 # Configurations
