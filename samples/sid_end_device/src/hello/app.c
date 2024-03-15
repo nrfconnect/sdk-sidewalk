@@ -127,7 +127,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	} else {
 		memcpy(new_status, status, sizeof(struct sid_status));
 	}
-	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
+	err = sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
 
 	switch (status->state) {
 	case SID_STATE_READY:

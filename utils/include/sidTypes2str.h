@@ -76,9 +76,24 @@
 	(val) == SID_CONTROL_EVENT_LAST ? "SID_CONTROL_EVENT_LAST" :                               \
 					  "UNKNOWN"
 
-#define SIDEWALK_EVENT_T_STR(val)                                                                  \
-	(((val) > (SID_EVENT_LAST)) || ((val) < 0)) ?                                              \
+#ifdef CONFIG_SID_END_DEVICE_CLI
+#define SIDEWALK_APP_EVENT_T_STR(val)                                                              \
+	((val) > (SID_EVENT_LAST)) ?                                                               \
 		"UNKNOWN" :                                                                        \
+		((char *[]){ "DUT_EVENT_INIT", "DUT_EVENT_DEINIT", "DUT_EVENT_START",              \
+			     "DUT_EVENT_STOP", "DUT_EVENT_GET_MTU", "DUT_EVENT_GET_TIME",          \
+			     "DUT_EVENT_GET_STATUS", "DUT_EVENT_GET_OPTION",                       \
+			     "DUT_EVENT_SET_OPTION", "DUT_EVENT_SET_DEST_ID",                      \
+			     "DUT_EVENT_SET_CONN_REQ" }[val - SID_EVENT_LAST])
+#else
+#define SIDEWALK_APP_EVENT_T_STR(val) "UNKNOWN"
+#endif
+
+#define SIDEWALK_EVENT_T_STR(val)                                                                  \
+	(((val) < 0)) ?                                                                            \
+		"UNKNOWN" :                                                                        \
+	((val) >= (SID_EVENT_LAST)) ?                                                              \
+		SIDEWALK_APP_EVENT_T_STR(val) :                                                    \
 		((char *[]){ "SID_EVENT_SIDEWALK", "SID_EVENT_FACTORY_RESET",                      \
 			     "SID_EVENT_NEW_STATUS", "SID_EVENT_SEND_MSG", "SID_EVENT_CONNECT",    \
 			     "SID_EVENT_LINK_SWITCH", "SID_EVENT_NORDIC_DFU",                      \

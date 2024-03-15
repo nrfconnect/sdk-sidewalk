@@ -155,8 +155,8 @@ static int sid_on_dev_cert_cli_smsn(const struct shell *shell, int32_t argc, con
 			goto exit;
 		}
 		dev_type_production[0] = 0;
-		strcat(dev_type_production, argv[1]);
-		strcat(dev_type_production, CERT_DEV_TYPE_SUFFIX);
+		strncat(dev_type_production, argv[1], strlen(argv[1]));
+		strncat(dev_type_production, CERT_DEV_TYPE_SUFFIX, strlen(CERT_DEV_TYPE_SUFFIX));
 
 		const struct sid_on_dev_cert_info dev_info = {
 			.dev_type = dev_type_production,
