@@ -179,7 +179,7 @@ static void state_notify_capability(void *o)
 	app_sm_t *sm = (app_sm_t *)o;
 
 	switch (sm->event) {
-	case APP_EVENT_NOTIFY_SENSOR:
+	case APP_EVENT_NOTIFY_SENSOR: {
 		// Prepare message
 		struct sid_demo_capability_discovery cap = {
 			.link_type = last_link_mask_get(),
@@ -219,7 +219,7 @@ static void state_notify_capability(void *o)
 		}
 
 		LOG_INF("Capability send");
-		break;
+	} break;
 	case APP_EVENT_CAPABILITY_SUCCESS:
 		smf_set_state(SMF_CTX(sm), &app_states[STATE_APP_NOTIFY_DATA]);
 		break;
@@ -243,7 +243,7 @@ static void state_notify_data(void *o)
 	int err = 0;
 
 	switch (sm->event) {
-	case APP_EVENT_NOTIFY_BUTTON:
+	case APP_EVENT_NOTIFY_BUTTON: {
 		// Read button state
 		uint8_t button_arr[APP_BUTTONS_MAX] = { 0 };
 		uint8_t num_buttons = 0;
@@ -299,8 +299,8 @@ static void state_notify_data(void *o)
 
 		app_btn_pending_flag_clear();
 		LOG_INF("Notify button send");
-		break;
-	case APP_EVENT_NOTIFY_SENSOR:
+	} break;
+	case APP_EVENT_NOTIFY_SENSOR: {
 		// Read sensor data
 		int16_t temp = 0;
 		err = app_sensor_temperature_get(&temp);
@@ -346,8 +346,8 @@ static void state_notify_data(void *o)
 		}
 
 		LOG_INF("Notify sensor send");
-		break;
-	case APP_EVENT_RESP_LED_ON:
+	} break;
+	case APP_EVENT_RESP_LED_ON: {
 		// Read led status
 		uint8_t led_on_arr[APP_BUTTONS_MAX] = { 0 };
 		uint8_t num_leds_on = 0;
@@ -374,8 +374,8 @@ static void state_notify_data(void *o)
 		}
 
 		LOG_INF("Response LED ON send");
-		break;
-	case APP_EVENT_RESP_LED_OFF:
+	} break;
+	case APP_EVENT_RESP_LED_OFF: {
 		// Read led status
 		uint8_t led_off_arr[APP_BUTTONS_MAX] = { 0 };
 		uint8_t num_leds_off = 0;
@@ -401,7 +401,7 @@ static void state_notify_data(void *o)
 		}
 
 		LOG_INF("Response LED OFF send");
-		break;
+	} break;
 	case APP_EVENT_TIME_SYNC_FAIL:
 		smf_set_state(SMF_CTX(sm), &app_states[STATE_APP_NOTIFY_CAPABILITY]);
 	case APP_EVENT_TIME_SYNC_SUCCESS:
@@ -431,7 +431,7 @@ void app_tx_task(void *dummy1, void *dummy2, void *dummy3)
 	k_timer_start(&button_timer, K_MSEC(APP_NOTIFY_BUTTON_PERIOD_MS),
 		      K_MSEC(APP_NOTIFY_BUTTON_PERIOD_MS));
 
-	k_msgq_init(&app_sm.msgq, app_msgq_buff, sizeof(app_event_t),
+	k_msgq_init(&app_sm.msgq, (char *)app_msgq_buff, sizeof(app_event_t),
 		    CONFIG_SID_END_DEVICE_TX_THREAD_QUEUE_SIZE);
 	smf_set_initial(SMF_CTX(&app_sm), &app_states[STATE_APP_INIT]);
 

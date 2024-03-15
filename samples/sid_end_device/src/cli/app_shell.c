@@ -227,7 +227,7 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 		p_opt->data = NULL;
 	}
 
-	int err = sidewalk_event_send(event, p_opt);
+	int err = sidewalk_event_send((sidewalk_event_t)event, p_opt);
 	if (err) {
 		if (p_opt->data) {
 			sid_hal_free(p_opt->data);
@@ -262,7 +262,7 @@ static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
 	}
 	memcpy(event_ctx, data, sizeof(uint32_t));
 
-	int err = sidewalk_event_send(event, event_ctx);
+	int err = sidewalk_event_send((sidewalk_event_t)event, event_ctx);
 	if (err) {
 		sid_hal_free(event_ctx);
 		return -ENOMSG;
@@ -297,7 +297,7 @@ int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_DEINIT_ARG_REQUIRED, CMD_SID_DEINIT_ARG_OPTIONAL);
 
-	return sidewalk_event_send(DUT_EVENT_DEINIT, NULL);
+	return sidewalk_event_send((sidewalk_event_t)DUT_EVENT_DEINIT, NULL);
 }
 
 int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
@@ -497,7 +497,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 	memcpy(&send->msg, &msg, sizeof(struct sid_msg));
 	memcpy(&send->desc, &desc, sizeof(struct sid_msg_desc));
 
-	int err = sidewalk_event_send(SID_EVENT_SEND_MSG, send);
+	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_SEND_MSG, send);
 	if (err) {
 		sid_hal_free(send->msg.data);
 		sid_hal_free(send);
@@ -512,7 +512,7 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_FACTORY_RESET_ARG_REQUIRED,
 			     CMD_SID_FACTORY_RESET_ARG_OPTIONAL);
 
-	int err = sidewalk_event_send(SID_EVENT_FACTORY_RESET, NULL);
+	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_FACTORY_RESET, NULL);
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -885,7 +885,10 @@ int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv
 	}
 
 	memset(p_link_mask, 0x0, sizeof(*p_link_mask));
-	cli_parse_link_mask_opt((uint8_t)link_type, p_link_mask);
+	if (!cli_parse_link_mask_opt((uint8_t)link_type, p_link_mask)) {
+		shell_error(shell, "Can not parse link mask");
+		return -EINVAL;
+	}
 
 	int err = cmd_sid_option_get_input_data(SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
 						p_link_mask, sizeof(uint32_t));
@@ -901,7 +904,9 @@ int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **ar
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_LAST_STATUS_ARG_REQUIRED,
 			     CMD_SID_LAST_STATUS_ARG_OPTIONAL);
 
-	sidewalk_event_send(DUT_EVENT_GET_STATUS, NULL);
+	if (0 != sidewalk_event_send((sidewalk_event_t)DUT_EVENT_GET_STATUS, NULL)) {
+		shell_error(shell, "Failed to send Event");
+	}
 	return 0;
 }
 

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include "sid_error.h"
 #include <cli/app_dut.h>
 #include <sidewalk.h>
 #include <sid_900_cfg.h>
@@ -76,7 +77,7 @@ static void dut_option_get(sidewalk_option_t *p_option, struct sid_handle *handl
 	case SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS: {
 		struct sid_link_auto_connect_params params = { 0 };
 		memcpy(&params.link_type, p_option->data, sizeof(uint32_t));
-		sid_error_t e = sid_option(handle, opt, &params, sizeof(params));
+		sid_error_t e = sid_option(handle, opt, (void *)&params, sizeof(params));
 		LOG_INF("sid_option returned %d; AC Policy, link %d, enable %d priority %d timeout %d",
 			e, params.link_type, params.enable, params.priority,
 			params.connection_attempt_timeout_seconds);
@@ -123,6 +124,9 @@ void app_dut_event_process(sidewalk_ctx_event_t event, sidewalk_ctx_t *sid)
 		sid->config.link_mask = dut_ctx_get_uint32(event.ctx);
 		sid_error_t e = sid_init(&sid->config, &sid->handle);
 		LOG_INF("sid_init returned %d", e);
+		if (e != SID_ERROR_NONE) {
+			return;
+		}
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
 		app_file_transfer_demo_init(sid->handle);
 #endif
@@ -157,13 +161,13 @@ void app_dut_event_process(sidewalk_ctx_event_t event, sidewalk_ctx_t *sid)
 	case DUT_EVENT_GET_MTU: {
 		uint32_t link_mask = dut_ctx_get_uint32(event.ctx);
 		size_t mtu = 0;
-		sid_error_t e = sid_get_mtu(sid->handle, link_mask, &mtu);
+		sid_error_t e = sid_get_mtu(sid->handle, (enum sid_link_type)link_mask, &mtu);
 		LOG_INF("sid_get_mtu returned %d, MTU: %d", e, mtu);
 	} break;
 	case DUT_EVENT_GET_TIME: {
 		uint32_t format = dut_ctx_get_uint32(event.ctx);
 		struct sid_timespec curr_time = { 0 };
-		sid_error_t e = sid_get_time(sid->handle, format, &curr_time);
+		sid_error_t e = sid_get_time(sid->handle, (enum sid_time_format)format, &curr_time);
 		LOG_INF("sid_get_time returned %d, SEC: %d NSEC: %d", e, curr_time.tv_sec,
 			curr_time.tv_nsec);
 	} break;

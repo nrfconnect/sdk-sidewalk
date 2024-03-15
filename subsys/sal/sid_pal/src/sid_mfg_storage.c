@@ -474,7 +474,7 @@ uint16_t sid_pal_mfg_store_get_length_for_value(uint16_t value)
 			length = tlv_info.length;
 		}
 	} else {
-		length = value_to_size(value);
+		length = value_to_size((sid_pal_mfg_store_value_t)value);
 	}
 	return length;
 }

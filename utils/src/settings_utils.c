@@ -72,10 +72,11 @@ int settings_utils_load_immediate_value(const char *name, void *dest, size_t len
 
 	rc = settings_load_subtree_direct(name, direct_loader_immediate_value, (void *)&dov);
 	if (rc == 0) {
-		if (!dov.fetched) {
-			rc = -ENOENT;
-		}
 		LOG_DBG("loaded %s key", name);
+		if (!dov.fetched) {
+			LOG_ERR("Failed to fetch %s key", name);
+			return -ENOENT;
+		}
 	}
 
 	return dov.len;
@@ -128,14 +129,14 @@ int settings_utils_link_mask_get(uint32_t *link_mask)
 	settings_load();
 
 	return settings_utils_load_immediate_value(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY,
-						   link_mask, sizeof(link_mask));
+						   link_mask, sizeof(*link_mask));
 }
 
 int settings_utils_link_mask_set(uint32_t link_mask)
 {
 	int ret = settings_save_one(CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY,
 				    (const void *)&link_mask, sizeof(link_mask));
-	settings_commit();
+	ret |= settings_commit();
 	return ret;
 }
 #endif /* CONFIG_PERSISTENT_LINK_MASK_SETTINGS_KEY */

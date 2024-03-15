@@ -543,6 +543,8 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 	if (context->state != ODC_STATE_MSK_FULL_INIT) {
 		return SID_ERROR_INVALID_STATE;
 	}
+	int32_t result = 0;
+	bool status = false;
 
 	sid_error_t ret = SID_ERROR_NONE;
 
@@ -611,7 +613,7 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		}
 	}
 
-	int32_t result = sid_pal_mfg_store_erase();
+	result = sid_pal_mfg_store_erase();
 	if (result) {
 		LOG_ERR("MFG erase failed [%d]", result);
 		ret = SID_ERROR_STORAGE_ERASE_FAIL;
@@ -639,24 +641,23 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		goto exit;
 	}
 
-	bool status =
-		write_to_mfg_store(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_APID, context->apid,
-				   SID_PAL_MFG_STORE_APID_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
-				   SID_ODC_ED25519_PUK_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
-				   context->device_ed25519_prk, SID_ODC_ED25519_PRK_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,
-				   context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
-				   context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1, context->device_p256r1_prk,
-				   SID_ODC_P256R1_PRK_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, context->device_p256r1_puk,
-				   SID_ODC_P256R1_PUK_SIZE) &&
-		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
-				   context->device_p256r1_sig, SID_ODC_SIGNATURE_SIZE);
+	status = write_to_mfg_store(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_APID, context->apid,
+				    SID_PAL_MFG_STORE_APID_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
+				    SID_ODC_ED25519_PUK_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
+				    context->device_ed25519_prk, SID_ODC_ED25519_PRK_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,
+				    context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
+				    context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,
+				    context->device_p256r1_prk, SID_ODC_P256R1_PRK_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, context->device_p256r1_puk,
+				    SID_ODC_P256R1_PUK_SIZE) &&
+		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
+				    context->device_p256r1_sig, SID_ODC_SIGNATURE_SIZE);
 
 	if (!status) {
 		ret = SID_ERROR_STORAGE_WRITE_FAIL;
