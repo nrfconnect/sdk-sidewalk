@@ -35,14 +35,6 @@ config FLASH
 config FPROTECT
     default y
 
-config NORDIC_QSPI_NOR
-    default y
-
-config NORDIC_QSPI_NOR_FLASH_LAYOUT_PAGE_SIZE
-    default 4096
-
-config NORDIC_QSPI_NOR_STACK_WRITE_BUFFER_SIZE
-    default 16
 
 config BOOT_MAX_IMG_SECTORS
     default 256
