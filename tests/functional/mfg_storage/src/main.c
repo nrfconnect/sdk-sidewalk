@@ -24,8 +24,7 @@
  * MFG_START_OFFSET = 0x0FF000
  * MFG_END_OFFSET   = 0x100000
  */
-#define MFG_END_OFFSET                                                                             \
-	(FIXED_PARTITION_OFFSET(sidewalk_storage) + FIXED_PARTITION_SIZE(sidewalk_storage))
+#define MFG_END_OFFSET (FIXED_PARTITION_OFFSET(mfg_storage) + FIXED_PARTITION_SIZE(mfg_storage))
 #define MFG_START_OFFSET (MFG_END_OFFSET - MFG_STORAGE_SIZE)
 
 static uint8_t test_data_buffer[512];
@@ -96,8 +95,8 @@ ZTEST(mfg_storage, test_1sid_pal_mfg_storage_no_init)
 ZTEST(mfg_storage, test_2sid_pal_mfg_storage_init)
 {
 	static const sid_pal_mfg_store_region_t mfg_store_region = {
-		.addr_start = MFG_START_OFFSET,
-		.addr_end = MFG_END_OFFSET,
+		.addr_start = PM_MFG_STORAGE_ADDRESS,
+		.addr_end = PM_MFG_STORAGE_END_ADDRESS,
 	};
 
 	sid_pal_mfg_store_init(mfg_store_region);
