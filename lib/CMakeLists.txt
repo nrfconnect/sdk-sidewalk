@@ -5,7 +5,7 @@
 #
 
 if (CONFIG_SIDEWALK)
-    if(CONFIG_SOC_SERIES_NRF52X)
+    if(CONFIG_CPU_CORTEX_M4)
         add_subdirectory(cortex-m4)
     else()
         add_subdirectory(cortex-m33)

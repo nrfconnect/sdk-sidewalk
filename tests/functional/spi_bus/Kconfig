@@ -9,6 +9,13 @@ config SIDEWALK_BUILD
 config SIDEWALK_SUBGHZ_SUPPORT
 	default y
 
+config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
+	hex "value for trim cap used by subGHz radio"
+	range 0x0 0xFFFF
+	default 0x1212
+	help
+	  The value of the trim cap. Default value works for Semtech SX1262 shield 
+
 config SIDEWALK_SPI_BUS
 	default y
 	imply SPI
@@ -17,7 +24,7 @@ config SIDEWALK_SPI_BUS
 
 config SIDEWALK_GPIO
 	default y
-	imply GPIO
+	imply GPIO 
 
 config SIDEWALK_GPIO_IRQ_PRIORITY
 	default 1

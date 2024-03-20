@@ -1,9 +1,10 @@
 tests:
   sidewalk.functional.spi_bus:
-    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp
+    platform_allow: nrf52840dk_nrf52840 nrf5340dk_nrf5340_cpuapp nrf54l15pdk_nrf54l15_cpuapp
     integration_platforms:
       - nrf52840dk_nrf52840
       - nrf5340dk_nrf5340_cpuapp
+      - nrf54l15pdk_nrf54l15_cpuapp
     tags: Sidewalk
     harness: ztest
     harness_config:
