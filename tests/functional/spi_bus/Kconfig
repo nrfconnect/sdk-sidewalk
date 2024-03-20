@@ -17,7 +17,7 @@ config SIDEWALK_SPI_BUS
 
 config SIDEWALK_GPIO
 	default y
-	imply GPIO
+	imply GPIO 
 
 config SIDEWALK_GPIO_IRQ_PRIORITY
 	default 1
