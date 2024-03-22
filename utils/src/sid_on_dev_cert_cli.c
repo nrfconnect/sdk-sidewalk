@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include "sid_hal_memory_ifc.h"
 #include <sid_on_dev_cert.h>
 #include <sid_base64.h>
 
@@ -149,14 +150,14 @@ static int sid_on_dev_cert_cli_smsn(const struct shell *shell, int32_t argc, con
 		sid_error_t ret = SID_ERROR_NONE;
 		// Note on device-type. It gets transformed into "Amazon-id" which is <device-type>-PRODUCTION
 		char *dev_type_production =
-			malloc(strlen(argv[1]) + strlen(CERT_DEV_TYPE_SUFFIX) + 1);
+			sid_hal_malloc(strlen(argv[1]) + strlen(CERT_DEV_TYPE_SUFFIX) + 1);
 		if (!dev_type_production) {
 			ret = SID_ERROR_OOM;
 			goto exit;
 		}
 		dev_type_production[0] = 0;
-		strncat(dev_type_production, argv[1], strlen(argv[1]));
-		strncat(dev_type_production, CERT_DEV_TYPE_SUFFIX, strlen(CERT_DEV_TYPE_SUFFIX));
+		strcat(dev_type_production, argv[1]);
+		strcat(dev_type_production, CERT_DEV_TYPE_SUFFIX);
 
 		const struct sid_on_dev_cert_info dev_info = {
 			.dev_type = dev_type_production,
@@ -171,7 +172,7 @@ static int sid_on_dev_cert_cli_smsn(const struct shell *shell, int32_t argc, con
 			ret = sid_on_dev_cert_cli_print_base64(smsn, SID_ODC_SMSN_SIZE);
 		}
 
-		free(dev_type_production);
+		sid_hal_free(dev_type_production);
 	exit:
 		if (ret == SID_ERROR_NONE) {
 			LOG_INF(CERT_MSG_OK);
