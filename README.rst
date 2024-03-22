@@ -20,7 +20,7 @@ Browse the official Sidewalk documentation:
 
 * Amazon Sidewalk: https://docs.sidewalk.amazon
 
-To see the official nRF Connect SDK documentation, go to https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.5.0/nrf/index.html.
+To see the official nRF Connect SDK documentation, go to https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.6.0/nrf/index.html.
 
 
 Support

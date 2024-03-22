@@ -3,8 +3,8 @@ LABEL org.opencontainers.image.source="https://github.com/nrfconnect/sdk-sidewal
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG tools_version_major=10
-ARG tools_version_minor=23
-ARG tools_version_patch=2
+ARG tools_version_minor=24
+ARG tools_version_patch=0
 
 ARG command_line_tools_name=nrf-command-line-tools_${tools_version_major}.${tools_version_minor}.${tools_version_patch}_amd64.deb
 ARG command_line_tools_url=https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-${tools_version_major}-x-x/${tools_version_major}-${tools_version_minor}-${tools_version_patch}/${command_line_tools_name}
