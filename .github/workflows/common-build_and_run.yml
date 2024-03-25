@@ -237,10 +237,6 @@ jobs:
           source /workdir/zephyr/zephyr-env.sh
           west twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan --testsuite-root /workdir/sidewalk/tests/ --inline-logs --overflow-as-errors -vvv
 
-      - name: Fix coverage report
-        run: |
-          lcov -q --remove "twister-out/coverage.info" '/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr/*' -o "coverage.info"
-
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: always()
@@ -250,19 +246,3 @@ jobs:
             twister-out/twister.xml
             twister-out/**/handler.log
             twister-out/**/device.log
-
-      - name: Upload Coverage report
-        run: |
-          echo "# Coverage" >> summary
-          echo "" >> summary
-          echo "## Summary" >> summary
-          echo "" >> summary
-          echo "\`\`\`" >> summary
-          lcov --summary coverage.info --rc lcov_branch_coverage=1 >> summary
-          echo "\`\`\`" >> summary
-          echo "## File coverage" >> summary
-          echp "">> summary
-          echo "\`\`\`" >> summary
-          lcov --list coverage.info --rc lcov_branch_coverage=1 >> summary
-          echo "\`\`\`" >> summary
-          cat summary >> $GITHUB_STEP_SUMMARY
