@@ -9,7 +9,3 @@ jobs:
     uses: ./.github/workflows/common-build_and_run.yml
     with:
       change_nrf_revision: true
-
-  publish_test_results:
-    needs: [build_samples_and_tests]
-    uses: ./.github/workflows/publish_test_results.yml
