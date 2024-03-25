@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -O0")
 target_sources(testbinary PRIVATE
         src/main.c
         ${SIDEWALK_BASE}/samples/sid_end_device/src/cli/app_shell.c
-        $ENV{ZEPHYR_BASE}/lib/os/hex.c
+        $ENV{ZEPHYR_BASE}/lib/utils/hex.c
         mock/sidewalk_version.c
 )
 
