@@ -22,7 +22,7 @@ pca_to_board = {
     "PCA10059": "nrf52840dongle_nrf52840",
     "PCA10095": "nrf5340dk_nrf5340_cpuapp",
     "PCA20053": "thingy53_nrf5340_cpuapp",
-    # "PCA10145": "nrf54h20dk_nrf54h20_cpuapp@soc1",
+    "PCA10156": "nrf54l15pdk_nrf54l15_cpuapp"
 }
 
 family_to_pca = {
@@ -32,7 +32,7 @@ family_to_pca = {
     "NRF52840DONGLE": "PCA10059",
     "NRF5340": "PCA10095",
     "THINGY53": "PCA20053",
-    # "NRF54H20": "PCA10145"
+    "NRF54L15": "PCA10156"
 }
 
 
@@ -139,6 +139,10 @@ def main(hardware_map_path: str, userdev_conf_path: str):
             elif "nrf52840dk_nrf52840" in hw_entry["platform"]:
                 # If newer nRF52 board, remove first serial interface
                 if segger.startswith("1050") and "-if02" in hw_entry["serial"]:
+                    to_remove.append(hw_entry)
+            elif "nrf54l15pdk_nrf54l15_cpuapp" in hw_entry["platform"]:
+                # If nRF54l board, remove only first serial interface
+                if segger.startswith("1057") and "-if00" in hw_entry["serial"]:
                     to_remove.append(hw_entry)
         else:
             # HW not known or not connected. Mark for removal
