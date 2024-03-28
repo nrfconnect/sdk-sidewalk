@@ -35,8 +35,12 @@ static void gpio_enumerate_state(enum application_state state_id, uint32_t value
 {
 	struct gpio_pin gpio_id = state_to_pin_mapper(state_id);
 
+#if defined(NRF54L15_ENGA_XXAA)
+	gpio_pin_set_raw(gpio_id.port, gpio_id.pin, value);
+#else
 	/* output activated with low state */
 	gpio_pin_set_raw(gpio_id.port, gpio_id.pin, !value);
+#endif
 }
 
 static void state_change_handler_gpio(const struct notifier_state *state)
