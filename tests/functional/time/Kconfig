@@ -12,7 +12,5 @@ config SIDEWALK_TIMER
 config SIDEWALK_LOG_LEVEL
 	default 0
 
-
-source "${ZEPHYR_BASE}/../sidewalk/Kconfig"
-source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
 source "Kconfig.zephyr"
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"

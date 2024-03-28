@@ -92,15 +92,7 @@ config PSA_WANT_ALG_CBC_PKCS7
 config PSA_WANT_ALG_HKDF
 	default n
 
-config HEAP_MEM_POOL_SIZE
-	default 4096
-
-config MBEDTLS_HEAP_SIZE
-	default 4096
-
 endif #SIDEWALK_CRYPTO
-
-
 
 config SIDEWALK_LOG
 	bool
