@@ -41,6 +41,8 @@ LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 #elif defined(NRF_NETWORK)
 #define DEV_ID_REG (uint32_t)(NRF_FICR_NS->INFO.DEVICEID[0])
 #endif /* NRF5340_XXAA */
+#elif defined(NRF54L15_ENGA_XXAA)
+#define DEV_ID_REG (uint32_t)(NRF_FICR->INFO.DEVICEID[0])
 #else
 #error "Unknow Device ID register."
 #endif

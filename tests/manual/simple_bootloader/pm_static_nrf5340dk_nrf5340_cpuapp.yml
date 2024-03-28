@@ -2,10 +2,6 @@ mcuboot:
   address: 0x0
   region: flash_primary
   size: 0x8000
-sidewalk_storage:
-  address: 0xf9000
-  region: flash_primary
-  size: 0x6000
 mfg_storage:
   address: 0xff000
   region: flash_primary

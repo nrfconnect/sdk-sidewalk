@@ -19,10 +19,12 @@ if(CONF_FILE)
 endif()
 
 if("${CONFIG_FILE_NAME}" STREQUAL "prj_no_dfu.conf")
-    set(PM_STATIC_YML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/configuration/pm_static_no_dfu.yml)
+    set(PM_FILENAME "pm_static_no_dfu.yml")
 else()
-    set(PM_STATIC_YML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/configuration/${BOARD}/pm_static_dfu.yml)
+    set(PM_FILENAME "pm_static_dfu.yml")
 endif()
+set(PM_STATIC_YML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/configuration/${BOARD}/${PM_FILENAME})
+
 
 # Zephyr CMake project
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
