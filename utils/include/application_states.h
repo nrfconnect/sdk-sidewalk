@@ -31,14 +31,14 @@
 	X(receiving, gpio1, 3)
 #elif defined(NRF54L15_ENGA_XXAA)
 #define X_APPLICAITON_STATES                                                                       \
-	X(error, gpio1, 8)                                                                         \
-	X(working, gpio1, 8)                                                                       \
-	X(registered, gpio1, 8)                                                                    \
+	X(error, gpio1, 4)                                                                         \
+	X(working, gpio1, 14)                                                                      \
+	X(registered, gpio1, 13)                                                                   \
 	X(time_sync, gpio1, 8)                                                                     \
-	X(connected, gpio1, 8)                                                                     \
-	X(dfu, gpio1, 8)                                                                           \
-	X(sending, gpio1, 8)                                                                       \
-	X(receiving, gpio1, 8)
+	X(connected, gpio0, 4)                                                                     \
+	X(dfu, gpio1, 5)                                                                           \
+	X(sending, gpio1, 6)                                                                       \
+	X(receiving, gpio1, 7)
 #else
 #error "Unknow device application states."
 #endif
