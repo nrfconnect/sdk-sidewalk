@@ -1,52 +1,20 @@
 name: On Commit action
 
 on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 0 * * *"
+
   push:
     branches: ["main"]
 
-  workflow_dispatch:
-
 jobs:
-  github_context:
+  get_base_commit:
     runs-on: ubuntu-latest
+    outputs:
+      commit_number: ${{ steps.get_commits.outputs.commit_number }}
     steps:
-      - name: Print Github context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-
-  validate_code_compliance:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install requirements
-        run: |
-          python3 -m pip install -r ./scripts/ci/requirements.txt
-
-      - name: Check formatting
-        run: |
-          python3 ./scripts/ci/verify_formatting.py -d -s . -c ./scripts/ci/formatter_cfg.yml
-
-      - name: Check license
-        run: |
-          python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
-
-  validate_compliance_with_zephyr:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2
-    defaults:
-      run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
       - name: get number of commits pushed
         id: get_commits
         env:
@@ -58,16 +26,15 @@ jobs:
           echo 'Number of commits pushed: $LL'
           echo "commit_number=$LL" > $GITHUB_OUTPUT
 
-      - name: Run Compliance Tests
-        run: |
-          source /workdir/zephyr/zephyr-env.sh
-          cp -r ../sdk-sidewalk /workdir/sidewalk_internal
-          ln -s /workdir/sidewalk_internal /workdir/sidewalk
-          cd /workdir/sidewalk
-          west config manifest.path sidewalk_internal
-          west config manifest.file internal_west.yml
-          west update --narrow
-          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c HEAD~${{steps.get_commits.outputs.commit_number}}..
+  verify_changes:
+    if: ${{github.event.schedule}} != ""
+    needs: get_base_commit
+    uses: ./.github/workflows/validate_code_style.yml
+    with:
+      reference_commit: "HEAD~${{needs.get_base_commit.outputs.commit_number}}"
 
-  build_samples_and_tests:
-    uses: ./.github/workflows/common-build_and_run.yml
+  build_samples:
+    uses: ./.github/workflows/samples_build.yml
+
+  build_and_run_tests:
+    uses: ./.github/workflows/run_tests.yml

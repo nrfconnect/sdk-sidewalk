@@ -6,13 +6,13 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 jobs:
-  build_samples_and_tests:
-    uses: ./.github/workflows/common-build_and_run.yml
+  build_samples:
+    uses: ./.github/workflows/samples_build.yml
 
   build_documentation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install requirements
         run: |
@@ -24,21 +24,21 @@ jobs:
         run: cd doc; bash ./build_local.sh
 
       - name: Upload documentation
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: documentation
           path: |
             doc/build
 
   publish_release:
-    needs: [build_documentation, build_samples_and_tests]
+    needs: [build_documentation, build_samples]
     permissions: write-all
     name: Create release page
     runs-on: ubuntu-latest
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 

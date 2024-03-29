@@ -1,0 +1,64 @@
+name: Validate code style and commit messages
+on:
+  workflow_call:
+    inputs:
+      reference_commit:
+        description: 'commit that the change is based on'
+        required: true
+        type: string
+
+jobs:
+  check_formating_and_license:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: sidewalk
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install requirements
+        run: |
+          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Check formatting
+        run: |
+          python3 sidewalk/scripts/ci/verify_formatting.py -d -s . -c sidewalk/scripts/ci/formatter_cfg.yml
+
+      - name: Check license
+        run: |
+          python3 sidewalk/scripts/ci/verify_license.py -s . -c sidewalk/scripts/ci/license.yml
+
+  validate_compliance_with_zephyr:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+          west config manifest.group-filter +sidewalk
+          west update -n -o=--depth=1 --path-cache /workdir/
+          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+
+      - name: Run Compliance Tests
+        run: |
+          source zephyr/zephyr-env.sh
+          cd sidewalk
+          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c ${{ inputs.reference_commit }}..HEAD

@@ -1,0 +1,197 @@
+name: Build Sidewalk samples
+on:
+  workflow_call:
+    inputs:
+      nrf_revision:
+        type: string
+        required: false
+        default: "main"
+      boards_to_test:
+        type: string
+        required: false
+        default: '["nrf52840dk_nrf52840", "nrf5340dk_nrf5340_cpuapp", "nrf54l15pdk_nrf54l15_cpuapp"]'
+
+jobs:
+  build_manual_tests:
+    strategy:
+      matrix:
+        subset: [1, 2, 3]
+    env:
+      MAX_SUBSETS: 3
+
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+          cd nrf
+          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
+            git fetch origin ${{inputs.nrf_revision}}:PR-branch
+            git checkout PR-branch
+          else
+            git fetch origin
+            git checkout ${{inputs.nrf_revision}};
+          fi
+          cd ..
+          west config manifest.group-filter +sidewalk
+          west update -n -o=--depth=1 --path-cache /workdir/
+          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Twister build manual tests
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --testsuite-root sidewalk/tests/manual --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+
+      - name: Prepare artifacts for upload
+        run: |
+          mkdir -p subsets/${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          cp twister-out/twister.json subsets/${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: manual-tests-artifacts-${{ matrix.subset }}
+          path: |
+            subsets
+            twister-out/**/*sidewalk*/build.log
+            twister-out/**/*sidewalk*/zephyr/.config
+            twister-out/**/*sidewalk*/zephyr/runners.yaml
+            twister-out/**/*sidewalk*/zephyr/zephyr.elf
+            twister-out/**/*sidewalk*/zephyr/zephyr.hex
+            twister-out/**/*sidewalk*/zephyr/merged.hex
+            twister-out/**/*sidewalk*/zephyr/merged_domains.hex
+            twister-out/**/*sidewalk*/zephyr/*.dts
+            twister-out/**/*sidewalk*/zephyr/dfu_application.zip
+
+  merge_manual_tests:
+    needs: build_manual_tests
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: manual-tests-artifacts
+          pattern: manual-tests-artifacts-*
+          merge-multiple: true
+
+      - name: Delete manual-tests-artifacts
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: manual-tests-artifacts-*
+
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: manual-tests-artifacts
+          path: manual-tests-artifacts
+
+  build_and_run_x86_tests:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+          cd nrf
+          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
+            git fetch origin ${{inputs.nrf_revision}}:PR-branch
+            git checkout PR-branch
+          else
+            git fetch origin
+            git checkout ${{inputs.nrf_revision}};
+          fi
+          cd ..
+          west config manifest.group-filter +sidewalk
+          west update -n -o=--depth=1 --path-cache /workdir/
+          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Twister build and run x86 tests
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan --testsuite-root sidewalk --inline-logs --overflow-as-errors -vvv
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-x86_result
+          path: |
+            twister-out/twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+
+  build-and-test_on_hw:
+    strategy:
+      fail-fast: true
+      matrix:
+        subset: [1, 2, 3]
+        board: ${{ fromJson(inputs.boards_to_test) }}
+    uses: ./.github/workflows/run_tests_dut.yml
+    with:
+      subset: ${{ matrix.subset }}
+      max_subsets: 3
+      run_tests: true
+      target_board: ${{ matrix.board }}
+      nrf_revision: ${{ inputs.nrf_revision }}
+
+  merge_tests_on_hw:
+    needs: build-and-test_on_hw
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: tests-dut_result
+          pattern: tests-dut_result_*
+          merge-multiple: true
+
+      - name: Delete tests-dut_result
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: tests-dut_result_*
+
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-dut_result
+          path: tests-dut_result

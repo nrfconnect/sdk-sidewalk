@@ -1,0 +1,138 @@
+name: Build Sidewalk samples
+on:
+  workflow_call:
+    inputs:
+      nrf_revision:
+        type: string
+        required: false
+        default: "main"
+      save_images:
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  build_samples:
+    strategy:
+      matrix:
+        subset: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    env:
+      MAX_SUBSETS: 10
+
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+          cd nrf
+          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
+            git fetch origin ${{inputs.nrf_revision}}:PR-branch
+            git checkout PR-branch
+          else
+            git fetch origin
+            git checkout ${{inputs.nrf_revision}};
+          fi
+          cd ..
+          west config manifest.group-filter +sidewalk
+          west update -n -o=--depth=1 --path-cache /workdir/
+          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Twister build samples
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --testsuite-root sidewalk/samples/ --inline-logs --overflow-as-errors --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+
+      - name: Prepare artifacts for upload
+        run: |
+          mkdir -p subsets/${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+          cp twister-out/twister.json subsets/${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sample-artifacts-meta-${{ matrix.subset }}
+          path: |
+            subsets
+            twister-out/**/build.log
+            twister-out/**/.config
+            twister-out/**/runners.yaml
+            twister-out/**/*.dts
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.save_images }}
+        with:
+          name: sample-artifacts-build-${{ matrix.subset }}
+          path: |
+            twister-out/**/zephyr.elf
+            twister-out/**/zephyr.hex
+            twister-out/**/merged.hex
+            twister-out/**/merged_domains.hex
+            twister-out/**/dfu_application.zip
+
+  merge_artifacts_meta:
+    needs: build_samples
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Download metadata from build
+        uses: actions/download-artifact@v4
+        with:
+          path: sample-artifacts-meta
+          pattern: sample-artifacts-meta-*
+          merge-multiple: true
+
+      - name: Delete sample-artifacts-meta
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: sample-artifacts-meta-*
+
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-artifacts-meta
+          path: sample-artifacts-meta
+
+  merge_artifacts_images:
+    needs: build_samples
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Download images
+        uses: actions/download-artifact@v4
+        with:
+          path: sample-artifacts
+          pattern: sample-artifacts-build-*
+          merge-multiple: true
+
+      - name: Delete sample-artifacts
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: sample-artifacts-build-*
+
+      - name: Upload build images
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-artifacts
+          path: sample-artifacts

@@ -1,58 +1,27 @@
-name: on PR action
+name: On PR action
 on:
   pull_request:
-    branches:
-      - main
 
 jobs:
-  validate_code_compliance:
+  Run_Configuration:
     runs-on: ubuntu-latest
+    outputs:
+      NRF_revision: ${{ steps.config.outputs.NRF_revision }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Read body of PR
+        run: printf "%s\n" "${{ github.event.pull_request.body }}" > pr_body.md
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install requirements
+      - name: Get nrf revision
+        id: config
         run: |
-          python3 -m pip install -r ./scripts/ci/requirements.txt
+          grep -oP "(NRF_revision=)[a-zA-Z0-9/_-]*" pr_body.md > config
+          if [ $? != 0 ]; then echo NRF_revision=main > config; fi
+          cat config >> $GITHUB_OUTPUT
 
-      - name: Check formatting
-        run: |
-          python3 ./scripts/ci/verify_formatting.py -d -s . -c ./scripts/ci/formatter_cfg.yml
-
-      - name: Check license
-        run: |
-          python3 ./scripts/ci/verify_license.py -s . -c ./scripts/ci/license.yml
-
-  validate_compliance_with_zephyr:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2
-    defaults:
-      run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0
-
-      - name: Run Compliance Tests
-        env:
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          source /workdir/zephyr/zephyr-env.sh
-          cp -r ../sdk-sidewalk /workdir/sidewalk_internal
-          ln -s /workdir/sidewalk_internal /workdir/sidewalk
-          cd /workdir/sidewalk
-          python3 scripts/ci/sid_compliance.py --annotate -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m gitlint -m identity -c origin/${BASE_REF}..
+  verify_PR:
+    uses: ./.github/workflows/validate_code_style.yml
+    with:
+      reference_commit: ${{ github.event.pull_request.base.sha }}
 
   save_pr_number:
     runs-on: ubuntu-latest
@@ -62,11 +31,20 @@ jobs:
           echo "${{ github.event.number }}" > PR_number
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: PR_number
           path: |
             PR_number
 
-  build_samples_and_tests:
-    uses: ./.github/workflows/common-build_and_run.yml
+  build_samples:
+    needs: Run_Configuration
+    uses: ./.github/workflows/samples_build.yml
+    with:
+      nrf_revision: ${{needs.Run_Configuration.outputs.NRF_revision}}
+
+  build_and_run_tests:
+    needs: Run_Configuration
+    uses: ./.github/workflows/run_tests.yml
+    with:
+      nrf_revision: ${{needs.Run_Configuration.outputs.NRF_revision}}

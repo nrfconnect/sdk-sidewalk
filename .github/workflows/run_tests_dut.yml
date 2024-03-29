@@ -1,0 +1,158 @@
+name: Build and run DUT tests
+on:
+  workflow_call:
+    inputs:
+      nrf_revision:
+        type: string
+        required: false
+        default: "main"
+      subset:
+        description: ""
+        required: true
+        type: number
+      max_subsets:
+        description: ""
+        type: number
+        required: true
+      target_board:
+        description: "target board for tests"
+        type: string
+        required: true
+      run_tests:
+        description: ""
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  build_dut_tests:
+    name: "Build DUT tests (${{inputs.target_board}} - ${{ inputs.subset }})"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+          cd nrf
+          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
+            git fetch origin ${{inputs.nrf_revision}}:PR-branch
+            git checkout PR-branch
+          else
+            git fetch origin
+            git checkout ${{inputs.nrf_revision}};
+          fi
+          cd ..
+          west config manifest.group-filter +sidewalk
+          west update -n -o=--depth=1 --path-cache /workdir/
+          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Build DUT test artifacts
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --platform ${{inputs.target_board}} --testsuite-root sidewalk --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
+
+      - name: save build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
+          name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
+
+  run_dut_ut:
+    needs: [build_dut_tests]
+    if: ${{ fromJson(inputs.run_tests) }}
+    continue-on-error: true
+    name: "Run DUT tests  (${{inputs.target_board}} - ${{ inputs.subset }})"
+    runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}"]
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2 --privileged
+      volumes:
+        - /dev:/dev
+        - /run/udev:/run/udev
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+          cd nrf
+          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
+            git fetch origin ${{inputs.nrf_revision}}:PR-branch
+            git checkout PR-branch
+          else
+            git fetch origin
+            git checkout ${{inputs.nrf_revision}};
+          fi
+          cd ..
+          west config manifest.group-filter +sidewalk
+          west update -n -o=--depth=1 --path-cache /workdir/
+          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
+
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
+
+      - name: Unwrap artifacts
+        run: |
+          tar -xf PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
+
+      - name: Run Tests
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --no-clean -vvv --inline-logs --test-only --hardware-map /__w/hardware_map.yaml --device-testing -T sidewalk --retry-failed 2 --west-flash="--recover,--erase"
+
+      - name: rename_twister_xml_report
+        run: |
+          mv twister-out/twister.xml twister-out/${{inputs.target_board}}_${{ inputs.subset }}_twister.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tests-dut_result_${{inputs.target_board}}_${{ inputs.subset }}
+          path: |
+            twister-out/${{inputs.target_board}}_${{ inputs.subset }}_twister.xml
+            twister-out/**/handler.log
+            twister-out/**/device.log
+            twister-out/**/zephyr.hex
+            twister-out/**/zephyr.elf
+
+      - name: clean artifacts
+        if: always()
+        run: |
+          rm -rf PACKAGE_ARTIFACTS_* twister-out
