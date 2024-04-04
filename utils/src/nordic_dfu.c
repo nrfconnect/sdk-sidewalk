@@ -62,7 +62,6 @@ static void led_action(struct k_timer *timer_id)
 static void exit_dfu_mode(struct k_timer *timer_id)
 {
 	LOG_ERR("DFU did not start or could not complete. Reset to exit dfu mode");
-	k_sleep(K_MSEC(100));
 	sys_reboot(SYS_REBOOT_COLD);
 }
 
