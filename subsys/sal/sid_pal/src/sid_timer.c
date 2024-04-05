@@ -60,7 +60,7 @@ static const struct sid_timespec *sid_pal_timer_get_tolerance(sid_pal_timer_prio
 	return tolerance;
 }
 
-static bool sid_pal_timer_list_in_list(sid_pal_timer_t *timer)
+static bool sid_pal_timer_list_in_list(const sid_pal_timer_t *timer)
 {
 	SID_PAL_ASSERT(timer);
 	bool result = true;
@@ -214,9 +214,8 @@ bool sid_pal_timer_is_armed(const sid_pal_timer_t *timer_storage)
 	if (!timer_storage) {
 		return false;
 	}
-	sid_pal_timer_t *timer = (sid_pal_timer_t *)timer_storage;
 
-	return sid_pal_timer_list_in_list(timer);
+	return sid_pal_timer_list_in_list(timer_storage);
 }
 
 void sid_pal_timer_event_callback(void *arg, const struct sid_timespec *now)
