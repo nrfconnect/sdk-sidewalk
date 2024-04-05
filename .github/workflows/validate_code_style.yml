@@ -44,10 +44,19 @@ jobs:
 
     steps:
       - name: Checkout
+        if: ${{github.event_name != 'pull_request'}}
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: sidewalk
+
+      - name: Checkout
+        if: ${{github.event_name == 'pull_request'}}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: update NRF
         run: |

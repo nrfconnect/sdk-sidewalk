@@ -1,9 +1,6 @@
 .. image:: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/on-commit.yml/badge.svg?branch=main
  :target: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/on-commit.yml
 
-.. image:: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/verify-new-ncs.yml/badge.svg
- :target: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/verify-new-ncs.yml
-
 nRF Connect SDK: sdk-sidewalk
 #############################
 

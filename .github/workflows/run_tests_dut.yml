@@ -68,7 +68,7 @@ jobs:
           source zephyr/zephyr-env.sh
           west twister --platform ${{inputs.target_board}} --testsuite-root sidewalk --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
 
-      - name: save build artifacts
+      - name: Save build artifacts
         uses: actions/upload-artifact@v4
         with:
           path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
@@ -86,6 +86,7 @@ jobs:
       volumes:
         - /dev:/dev
         - /run/udev:/run/udev
+    permissions: write-all
     defaults:
       run:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
@@ -119,11 +120,6 @@ jobs:
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
-        with:
-          name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
-
-      - name: Delete artifacts
-        uses: geekyeggo/delete-artifact@v4
         with:
           name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
 
