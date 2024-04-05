@@ -13,10 +13,18 @@ jobs:
 
       - name: Get nrf revision
         id: config
+        shell: bash {0}
         run: |
           grep -oP "(NRF_revision=)[a-zA-Z0-9/_-]*" pr_body.md > config
-          if [ $? != 0 ]; then echo NRF_revision=main > config; fi
-          cat config >> $GITHUB_OUTPUT
+          if [ $? != 0 ]; then
+            echo "NRF_revision=main" >> $GITHUB_OUTPUT;
+          else
+            cat config >> $GITHUB_OUTPUT;
+          fi;
+
+      - name: print nrf revision
+        run: |
+          echo ${{ steps.config.outputs.NRF_revision }}
 
   verify_PR:
     uses: ./.github/workflows/validate_code_style.yml
