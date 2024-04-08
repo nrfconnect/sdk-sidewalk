@@ -1,0 +1,30 @@
+name: handle manifest PR
+on:
+  pull_request_target:
+    types: [opened, synchronize, closed]
+    branches:
+      - main
+
+jobs:
+  create-manifest-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read body of PR
+        run: printf "%s\n" "${{ github.event.pull_request.body }}" > pr_body.md
+
+      - name: Get nrf revision
+        id: config
+        shell: bash {0}
+        run: |
+          grep -oP "(Create_NRF_PR=)(true|false)" pr_body.md > config
+          if [ $? != 0 ]; then
+            echo "Create_NRF_PR=false" >> $GITHUB_OUTPUT;
+          else
+            cat config >> $GITHUB_OUTPUT;
+          fi;
+
+      - name: Create manifest PR
+        if: ${{steps.config.outcome.Create_NRF_PR == 'true' }}
+        uses: nrfconnect/action-manifest-pr@main
+        with:
+          token: ${{ secrets.NCS_GITHUB_TOKEN }}
