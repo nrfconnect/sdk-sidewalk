@@ -1,6 +1,10 @@
 ## CI parameters
 
+(branch, hash, pull/XXX/head)
 NRF_revision=main
+
+(true, false)
+Create_NRF_PR=false
 
 ## Description
 
