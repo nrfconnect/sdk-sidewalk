@@ -15,7 +15,7 @@ set(mcuboot_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/mcuboot/Kconfig
 
 # Configurations
 if(CONF_FILE)
-    get_filename_component(CONFIG_FILE_NAME ${CONF_FILE} NAME)
+    get_filename_component(CONFIG_FILE_NAME ${CONF_FILE} REALPATH)
 endif()
 
 if("${CONFIG_FILE_NAME}" STREQUAL "prj_no_dfu.conf")
