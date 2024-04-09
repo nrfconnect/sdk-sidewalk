@@ -74,7 +74,7 @@ int settings_utils_load_immediate_value(const char *name, void *dest, size_t len
 	if (rc == 0) {
 		LOG_DBG("loaded %s key", name);
 		if (!dov.fetched) {
-			LOG_ERR("Failed to fetch %s key", name);
+			LOG_DBG("Failed to fetch %s key", name);
 			return -ENOENT;
 		}
 	}
