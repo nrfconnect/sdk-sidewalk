@@ -383,7 +383,7 @@ static void state_dfu_run(void *o)
 	case SID_EVENT_LINK_SWITCH:
 	case SID_EVENT_SIDEWALK:
 	case SID_EVENT_FILE_TRANSFER:
-		LOG_INF("Operation not supported in DFU mode");
+		LOG_DBG("Operation not supported in DFU mode");
 		break;
 	case SID_EVENT_LAST:
 		break;
