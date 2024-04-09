@@ -154,7 +154,20 @@ static void sidewalk_btn_handler(uint32_t event)
 	int err = sidewalk_event_send((sidewalk_event_t)event, NULL);
 	if (err) {
 		LOG_ERR("Send event err %d", err);
+		return;
 	};
+
+	if (SID_EVENT_NORDIC_DFU == event) {
+		static bool in_dfu;
+		if (in_dfu) {
+			in_dfu = false;
+			k_timer_start(&notify_timer, K_MSEC(NOTIFY_TIMER_DURATION_MS),
+				      K_MSEC(CONFIG_SID_END_DEVICE_NOTIFY_DATA_PERIOD_MS));
+		} else {
+			in_dfu = true;
+			k_timer_stop(&notify_timer);
+		}
+	}
 }
 
 static int app_buttons_init(void)
