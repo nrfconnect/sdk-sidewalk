@@ -282,10 +282,12 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 	uint32_t link_type = 0;
 
 	if (!IN_RANGE(connection_type, CLI_CMD_OPT_LINK_BLE, CLI_CMD_OPT_LINK_ANY)) {
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 
 	if (!cli_parse_link_mask_opt(connection_type, &link_type)) {
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 	cli_cfg.send_link_type = link_type;
@@ -309,6 +311,7 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 		link_type = cli_cfg.send_link_type;
 	} else {
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_type)) {
+			shell_error(shell, "invalid value");
 			return -EINVAL;
 		}
 	}
@@ -325,6 +328,7 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 		link_type = cli_cfg.send_link_type;
 	} else {
 		if (!cli_parse_link_mask_opt(atoi(argv[1]), &link_type)) {
+			shell_error(shell, "invalid value");
 			return -EINVAL;
 		}
 	}
@@ -419,6 +423,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			}
 
 			if (!cli_parse_link_mask_opt(atoi(argv[opt]), &desc.link_type)) {
+				shell_error(shell, "invalid value");
 				return -EINVAL;
 			}
 			continue;
@@ -537,6 +542,7 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 		link_mask = SID_LINK_TYPE_3;
 		break;
 	default:
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 
@@ -584,6 +590,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 
 	data_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1]) {
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 	if (!IN_RANGE(data_raw, 0, UINT8_MAX)) {
@@ -924,6 +931,7 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 		conn_req = 0U;
 		break;
 	default:
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 
@@ -935,6 +943,7 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_GET_TIME_ARG_REQUIRED, CMD_SID_GET_TIME_ARG_OPTIONAL);
 
 	if (argv[1][0] != '0') {
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 	uint32_t time_type = SID_GET_GPS_TIME;
@@ -975,6 +984,7 @@ int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **
 		break;
 	}
 	default: {
+		shell_error(shell, "invalid value");
 		return -EINVAL;
 	}
 	}
