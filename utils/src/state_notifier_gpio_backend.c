@@ -23,7 +23,7 @@ static inline struct gpio_pin state_to_pin_mapper(enum application_state state)
 	switch (state) {
 	#define X(name, port_obj, pin_num, ...)\
 		case APPLICATION_STATE_ENUM(name):\
-			return (struct gpio_pin){ .port =DEVICE_DT_GET(DT_NODELABEL(port_obj)), .pin = pin_num};
+			return (struct gpio_pin){ .port =COND_CODE_1(DT_NODE_EXISTS(port_obj), DEVICE_DT_GET_OR_NULL(DT_NODELABEL(port_obj)), (NULL)), .pin = pin_num};
 		X_APPLICAITON_STATES
 	#undef X
 	}
@@ -34,6 +34,9 @@ static inline struct gpio_pin state_to_pin_mapper(enum application_state state)
 static void gpio_enumerate_state(enum application_state state_id, uint32_t value)
 {
 	struct gpio_pin gpio_id = state_to_pin_mapper(state_id);
+	if (gpio_id.port == NULL) {
+		return;
+	}
 
 #if defined(NRF54L15_ENGA_XXAA)
 	gpio_pin_set_raw(gpio_id.port, gpio_id.pin, value);
