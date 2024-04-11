@@ -3,8 +3,7 @@
 (branch, hash, pull/XXX/head)
 NRF_revision=main
 
-(true, false)
-Create_NRF_PR=false
+manifest-pr-skip (remove this line to create PR in NRF)
 
 ## Description
 

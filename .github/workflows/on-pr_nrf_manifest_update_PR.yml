@@ -8,7 +8,6 @@ on:
 jobs:
   create-manifest-pr:
     runs-on: ubuntu-latest
-    if: contains(${{ github.event.pull_request.body }}, "Create_NRF_PR=true" )
     steps:
       - name: Create manifest PR
         uses: nrfconnect/action-manifest-pr@main
