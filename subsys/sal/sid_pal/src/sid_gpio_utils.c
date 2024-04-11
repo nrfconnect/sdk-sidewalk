@@ -81,6 +81,9 @@ uint32_t sid_gpio_utils_register_gpio(struct gpio_dt_spec gpio_from_dts)
 	static bool initialized = false;
 	if (!initialized) {
 		initialized = true;
+		sid_gpio_utils_gpio_set_flags(
+			ctx.next_free_slot,
+			ctx.supported_pins[ctx.next_free_slot].configuration_cache);
 		k_work_queue_init(&sidewalk_gpio_workq);
 		k_work_queue_start(&sidewalk_gpio_workq, sidewalk_gpio_workq_stack,
 				   CONFIG_SIDEWALK_GPIO_IRQ_STACK_SIZE,

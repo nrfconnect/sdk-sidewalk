@@ -117,8 +117,8 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
-		.ctrl = SX126X_TCXO_CTRL_NONE,
-	},
+        	.ctrl = SX126X_TCXO_CTRL_NONE,
+    	},
 
 	.trim_cap_val_callback = radio_sx1262_trim_val,
 
@@ -129,10 +129,11 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	},
 
 	.state_timings = {
-		.sleep_to_full_power_us = 440,
+		.sleep_to_full_power_us = 500,
 		.full_power_to_sleep_us = 0,
 		.rx_to_tx_us = 0,
 		.tx_to_rx_us = 0,
+		.tcxo_delay_us=500
 	},
 
 	.internal_buffer = {
