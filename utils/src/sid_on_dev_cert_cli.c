@@ -78,7 +78,8 @@ static struct sid_base64_ctx cert_app_key_base64_ctx = {
 	.state = 0,
 };
 
-static sid_error_t sid_on_dev_cert_cli_print_base64(const uint8_t *input, size_t input_size)
+static sid_error_t sid_on_dev_cert_cli_print_base64(const struct shell *shell, const uint8_t *input,
+						    size_t input_size)
 {
 	struct sid_base64_ctx ctx;
 	sid_base64_init(&ctx);
@@ -95,7 +96,7 @@ static sid_error_t sid_on_dev_cert_cli_print_base64(const uint8_t *input, size_t
 			// add a null terminator
 			*ctx.next_out = '\0';
 
-			LOG_INF(CERT_MSG_BASE64, out);
+			shell_info(shell, CERT_MSG_BASE64, out);
 
 			if (status == SID_ERROR_NONE) {
 				break;
@@ -116,15 +117,15 @@ static int sid_on_dev_cert_cli_init_cmd(const struct shell *shell, int32_t argc,
 		sid_error_t ret = sid_on_dev_cert_init();
 
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_BASE64_MTU, CERT_BASE64_FRAGMENT_MAX_SIZE);
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_BASE64_MTU, CERT_BASE64_FRAGMENT_MAX_SIZE);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_INIT_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_INIT_CMD);
 	}
 	return 0;
 }
@@ -134,11 +135,11 @@ static int sid_on_dev_cert_cli_deinit(const struct shell *shell, int32_t argc, c
 	if (argc == 1) {
 		sid_on_dev_cert_deinit();
 
-		LOG_INF(CERT_MSG_OK);
+		shell_info(shell, CERT_MSG_OK);
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_DEINIT_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_DEINIT_CMD);
 	}
 	return 0;
 }
@@ -169,20 +170,20 @@ static int sid_on_dev_cert_cli_smsn(const struct shell *shell, int32_t argc, con
 		uint8_t smsn[SID_ODC_SMSN_SIZE];
 		memset(smsn, 0xFF, SID_ODC_SMSN_SIZE);
 		if ((ret = sid_on_dev_cert_generate_smsn(&dev_info, smsn)) == SID_ERROR_NONE) {
-			ret = sid_on_dev_cert_cli_print_base64(smsn, SID_ODC_SMSN_SIZE);
+			ret = sid_on_dev_cert_cli_print_base64(shell, smsn, SID_ODC_SMSN_SIZE);
 		}
 
 		sid_hal_free(dev_type_production);
 	exit:
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_SMSN_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_SMSN_CMD);
 	}
 	return 0;
 }
@@ -205,15 +206,16 @@ static int sid_on_dev_cert_cli_csr(const struct shell *shell, int32_t argc, cons
 
 		if (ret == SID_ERROR_NONE &&
 		    (ret = sid_on_dev_cert_generate_csr(algo, csr, &csr_size)) == SID_ERROR_NONE &&
-		    (ret = sid_on_dev_cert_cli_print_base64(csr, csr_size)) == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+		    (ret = sid_on_dev_cert_cli_print_base64(shell, csr, csr_size)) ==
+			    SID_ERROR_NONE) {
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_CSR_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_CSR_CMD);
 	}
 	return 0;
 }
@@ -241,14 +243,14 @@ static int sid_on_dev_cert_cli_chain_start(const struct shell *shell, int32_t ar
 			cert_chain_params.algo = algo;
 			cert_chain_params.cert_chain = cert_chain_buffer;
 			cert_chain_params.cert_chain_size = 0;
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_CHAIN_START_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_CHAIN_START_CMD);
 	}
 	return 0;
 }
@@ -265,9 +267,7 @@ static int sid_on_dev_cert_cli_chain_write(const struct shell *shell, int32_t ar
 			if (cert_chain_params.cert_chain) {
 				cert_chain_base64_ctx.next_in = (const uint8_t *)argv[1];
 				cert_chain_base64_ctx.avail_in = base64_fragment_len;
-
 				ret = sid_base64_decode(&cert_chain_base64_ctx);
-
 				/*
                  * If we have a successful result, we should check:
                  *  - the input buffer should be empty
@@ -290,14 +290,14 @@ static int sid_on_dev_cert_cli_chain_write(const struct shell *shell, int32_t ar
 		}
 
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_CHAIN_WRITE_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_CHAIN_WRITE_CMD);
 	}
 	return 0;
 }
@@ -318,14 +318,14 @@ static int sid_on_dev_cert_cli_chain_commit(const struct shell *shell, int32_t a
 			ret = SID_ERROR_UNINITIALIZED;
 		}
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_CHAIN_COMMIT_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_CHAIN_COMMIT_CMD);
 	}
 	return 0;
 }
@@ -337,11 +337,11 @@ static int sid_on_dev_cert_cli_app_key_start(const struct shell *shell, int32_t 
 		sid_base64_init(&cert_app_key_base64_ctx);
 		cert_app_key_base64_ctx.next_out = cert_app_key;
 		cert_app_key_base64_ctx.avail_out = SID_ODC_ED25519_PUK_SIZE;
-		LOG_INF(CERT_MSG_OK);
+		shell_info(shell, CERT_MSG_OK);
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_APPKEY_START_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_APPKEY_START_CMD);
 	}
 	return 0;
 }
@@ -381,14 +381,14 @@ static int sid_on_dev_cert_cli_app_key_write(const struct shell *shell, int32_t 
 		}
 
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_APPKEY_WRITE_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_APPKEY_WRITE_CMD);
 	}
 	return 0;
 }
@@ -409,14 +409,14 @@ static int sid_on_dev_cert_cli_app_key_commit(const struct shell *shell, int32_t
 		sid_base64_init(&cert_app_key_base64_ctx);
 
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_APPKEY_COMMIT_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_APPKEY_COMMIT_CMD);
 	}
 	return 0;
 }
@@ -427,14 +427,14 @@ static int sid_on_dev_cert_cli_store(const struct shell *shell, int32_t argc, co
 		sid_error_t ret = sid_on_dev_cert_verify_and_store();
 
 		if (ret == SID_ERROR_NONE) {
-			LOG_INF(CERT_MSG_OK);
+			shell_info(shell, CERT_MSG_OK);
 		} else {
-			LOG_INF(CERT_MSG_ERROR, ret);
+			shell_info(shell, CERT_MSG_ERROR, ret);
 		}
 
 	} else {
-		LOG_ERR(SYNTAX_ERR);
-		LOG_WRN(CERT_STORE_CMD);
+		shell_error(shell, SYNTAX_ERR);
+		shell_warn(shell, CERT_STORE_CMD);
 	}
 	return 0;
 }
