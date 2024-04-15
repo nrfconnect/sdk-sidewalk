@@ -31,10 +31,7 @@ if [ $# -eq 0 ]; then
     docker run -it --rm -e USER_ID=$(id -u) -e GRP_ID=$(id -g) -v "$(pwd)":/work -v "$(pwd)"/build_doc_in_docker.sh:/run.sh "${DOCKER}" /run.sh "RUN_IN_DOCKER"
     echo "Docker exited"
 elif [ $# -eq 1 ]; then
-    apt update
-    apt install default-jre graphviz -y
     cd /work
-    curl -sSL https://github.com/plantuml/plantuml/releases/download/v1.2023.13/plantuml-1.2023.13.jar --output /usr/local/bin/plantuml.jar
     pip install -r requirements-doc.txt
     sphinx-build -M html . build
     chown -R $USER_ID:$GRP_ID build
