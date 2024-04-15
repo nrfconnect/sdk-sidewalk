@@ -50,6 +50,7 @@ jobs:
           python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output --show_only_diff > memory_usage.md
 
       - name: Generate .config diff
+        shell: bash {0}
         run: |
           cd current
           configs=$(find . -name .config)
@@ -57,8 +58,10 @@ jobs:
           echo "<details><summary>.config diff</summary>" >> memory_usage.md
           for cfg in configs
           do
-            printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" >> memory_usage.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new <(sort old/${cfg}) <(sort current/${cfg}) >> memory_usage.md
+            printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" >> tmp.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new <(sort old/${cfg}) <(sort current/${cfg}) >> tmp.md
+            if [ $? -eq 1 ]; then cat tmp.md >> memory_usage.md fi
+            rm tmp.md
           done
           echo "<\details>" >> memory_usage.md
 
