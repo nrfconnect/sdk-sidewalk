@@ -19,6 +19,7 @@ Depending on the device, refer to the getting started guide for setup instructio
 
 * `Getting started with nRF52 Series`_
 * `Getting started with nRF53 Series`_
+* `Getting started with nRF54L Series`_
 
 Semtech SX1262
 **************
