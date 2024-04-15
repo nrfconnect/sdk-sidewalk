@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  github_context:
+  create-manifest-pr:
     runs-on: ubuntu-latest
     steps:
       - name: Print Github context
@@ -14,9 +14,6 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
 
-  create-manifest-pr:
-    runs-on: ubuntu-latest
-    steps:
       - name: Create manifest PR
         uses: nrfconnect/action-manifest-pr@main
         with:
