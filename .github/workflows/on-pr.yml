@@ -9,12 +9,16 @@ jobs:
       NRF_revision: ${{ steps.config.outputs.NRF_revision }}
     steps:
       - name: Read body of PR
-        run: printf "%s\n" "${{ github.event.pull_request.body }}" > pr_body.md
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{github.repository}}/pulls/${{github.event.number}} --jq '.body' > pr_body.md
 
       - name: Get nrf revision
         id: config
         shell: bash {0}
         run: |
+          cat pr_body.md
           grep -oP "(NRF_revision=)[a-zA-Z0-9/_-]*" pr_body.md > config
           if [ $? != 0 ]; then
             echo "NRF_revision=main" >> $GITHUB_OUTPUT;
