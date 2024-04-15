@@ -49,6 +49,19 @@ jobs:
 
           python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output --show_only_diff > memory_usage.md
 
+      - name: Generate .config diff
+        run: |
+          cd current
+          configs=$(find . -name .config)
+          cd ..
+          echo "<details><summary>.config diff</summary>" >> memory_usage.md
+          for cfg in configs
+          do
+            printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" >> memory_usage.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new <(sort old/${cfg}) <(sort current/${cfg}) >> memory_usage.md
+          done
+          echo "<\details>" >> memory_usage.md
+
       - name: Find Comment
         uses: peter-evans/find-comment@v2
         id: fc

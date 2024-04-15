@@ -14,6 +14,7 @@ on:
 jobs:
   build_manual_tests:
     strategy:
+      fail-fast: false
       matrix:
         subset: [1, 2, 3, 4, 5]
     env:
@@ -148,7 +149,7 @@ jobs:
 
   build-and-test_on_hw:
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         subset: [1, 2, 3, 4]
         board: ${{ fromJson(inputs.boards_to_test) }}
