@@ -73,11 +73,8 @@ jobs:
             sort current/${cfg} > current/${cfg}
             tr -s '\n' < current/${cfg} > current/${cfg}
 
-            printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" > tmp.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> tmp.md
-            if [ $? -eq 1 ]; then
-              cat tmp.md >> memory_usage.md
-            fi
+            printf "\n%s\n%-75s|%s\n" "${cfg}" "old" "new" >> memory_usage.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> memory_usage.md
           done
           echo "\`\`\`" >> memory_usage.md
           echo "</details>" >> memory_usage.md

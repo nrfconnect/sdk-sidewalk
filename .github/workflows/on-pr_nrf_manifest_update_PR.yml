@@ -14,7 +14,26 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
 
+      - name: Read body of PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{github.repository}}/pulls/${{github.event.number}} --jq '.body' > pr_body.md
+
+      - name: Parse body
+        id: config
+        shell: bash {0}
+        run: |
+          cat pr_body.md
+          grep -oP "manifest-pr-skip" pr_body.md
+          if [ $? != 0 ]; then
+            echo "manifest-pr-skip=false" >> $GITHUB_OUTPUT;
+          else
+            echo "manifest-pr-skip=true" >> $GITHUB_OUTPUT;
+          fi;
+
       - name: Create manifest PR
+        if: ! ${{ steps.config.outputs.manifest-pr-skip }}
         uses: nrfconnect/action-manifest-pr@main
         with:
           token: ${{ secrets.NCS_GITHUB_TOKEN }}
