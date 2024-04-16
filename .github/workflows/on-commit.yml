@@ -100,9 +100,12 @@ jobs:
             if [ $? -eq 1 ]; then cat cfg_diff.md >> config_diff.md; fi
           done
           echo "\`\`\`" >> config_diff.md
-          if [ `wc -l config_diff.md` -eq 2 ]; then echo "diff='false'" >> $GITHUB_OUTPUT; else echo "diff='true'" >> $GITHUB_OUTPUT; fi
+          lines=$(wc -l config_diff.md)
+          if [ $lines -eq 2 ]; then echo "diff='false'" >> $GITHUB_OUTPUT; else echo "diff='true'" >> $GITHUB_OUTPUT; fi
+          cat config_diff.md
 
       - name: Post diff
+        if: ${{ steps.config_diff.outputs.diff == 'true' }}
         run: |
           cat config_diff.md >> $GITHUB_STEP_SUMMARY
 
