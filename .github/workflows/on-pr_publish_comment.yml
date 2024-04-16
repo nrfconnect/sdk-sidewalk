@@ -58,7 +58,7 @@ jobs:
           echo "<details>" >> memory_usage.md
           echo "<summary>.config diff</summary>" >> memory_usage.md
           echo "" >> memory_usage.md
-          echo "```" >> memory_usage.md
+          echo "\`\`\`" >> memory_usage.md
           for cfg in ${configs}
           do
             echo "compare ${cfg}"
@@ -79,11 +79,11 @@ jobs:
               cat tmp.md >> memory_usage.md
             fi
           done
-          echo "```" >> memory_usage.md
+          echo "\`\`\`" >> memory_usage.md
           echo "</details>" >> memory_usage.md
 
       - name: Find Comment
-        uses: peter-evans/find-comment@v2
+        uses: peter-evans/find-comment@v3
         id: fc
         with:
           issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
@@ -91,7 +91,7 @@ jobs:
           body-includes: "| Sample | | diff | used | total |"
 
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
