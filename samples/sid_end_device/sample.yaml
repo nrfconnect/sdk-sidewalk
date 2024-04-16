@@ -32,22 +32,6 @@ tests:
       - nrf54l15pdk_nrf54l15_cpuapp
     tags: Sidewalk hello
 
-  sample.sidewalk.hello.no_dfu:
-    build_only: true
-    platform_allow:
-      - nrf52840dk_nrf52840
-      - nrf5340dk_nrf5340_cpuapp
-      - nrf54l15pdk_nrf54l15_cpuapp
-    extra_args:
-      CONF_FILE=prj_no_dfu.conf
-    extra_configs:
-      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
-    integration_platforms:
-      - nrf52840dk_nrf52840
-      - nrf5340dk_nrf5340_cpuapp
-      - nrf54l15pdk_nrf54l15_cpuapp
-    tags: Sidewalk hello
-
   sample.sidewalk.hello.ble_only:
     build_only: true
     platform_allow:
