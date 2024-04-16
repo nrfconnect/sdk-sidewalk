@@ -63,18 +63,21 @@ jobs:
           do
             echo "compare ${cfg}"
 
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > old/${cfg}
-            grep -v "#"  old/${cfg} > old/${cfg}
-            sort old/${cfg} > old/${cfg}
-            tr -s '\n' < old/${cfg} > old/${cfg}
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > tmp_old.1
+            grep -v "#"  tmp_old.1 > tmp_old.2
+            sort tmp_old.2 > tmp_old.3
+            tr -s '\n' < tmp_old.3 > old/${cfg}
 
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > current/${cfg}
-            grep -v "#"  current/${cfg} > current/${cfg}
-            sort current/${cfg} > current/${cfg}
-            tr -s '\n' < current/${cfg} > current/${cfg}
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > tmp_current.1
+            grep -v "#"  tmp_current.1 > tmp_current.2
+            sort tmp_current.2 > tmp_current.3
+            tr -s '\n' < tmp_current.3 > current/${cfg}
 
-            printf "\n%s\n%-75s|%s\n" "${cfg}" "old" "new" >> memory_usage.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> memory_usage.md
+            rm -rf tmp_*
+
+            printf "\n%s\n%-63s|%s\n" "${cfg}" "old" "new" > cfg_diff.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
+            if [ $? -eq 1 ] then; cat cfg_diff.md >> memory_usage.md; fi
           done
           echo "\`\`\`" >> memory_usage.md
           echo "</details>" >> memory_usage.md
