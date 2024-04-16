@@ -60,3 +60,16 @@ jobs:
     uses: ./.github/workflows/run_tests.yml
     with:
       nrf_revision: ${{needs.Run_Configuration.outputs.NRF_revision}}
+
+  post_message_to_teams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neonidian/teams-notify-build-status@v4
+        name: Post message to teams
+        with:
+          webhookUrl: ${{ secrets.MSTEAMS_WEBHOOK }}
+          message: Detected change in .config
+        env:
+          SHOULD_DISPLAY_ACTOR_LABEL: false
+          SHOULD_DISPLAY_VIEW_RUN_BUTTON: true
+          SHOULD_DISPLAY_VIEW_COMMIT_BUTTON: false
