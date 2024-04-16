@@ -56,7 +56,7 @@ jobs:
           configs=$(find . -name .config)
           cd ..
           echo "<details><summary>.config diff</summary>" >> memory_usage.md
-          for cfg in configs
+          for cfg in ${configs}
           do
             echo "compare ${cfg}"
             printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" > tmp.md
