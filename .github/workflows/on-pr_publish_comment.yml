@@ -59,8 +59,19 @@ jobs:
           for cfg in ${configs}
           do
             echo "compare ${cfg}"
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > old/${cfg}
+            grep -v "#"  old/${cfg} > old/${cfg}
+            sort old/${cfg} > old/${cfg}
+            tr -s '\n' < old/${cfg} > old/${cfg}
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > current/${cfg}
+            grep -v "#"  current/${cfg} > current/${cfg}
+            sort current/${cfg} > current/${cfg}
+            tr -s '\n' < current/${cfg} > current/${cfg}
+
             printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" > tmp.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new <(sort old/${cfg}) <(sort current/${cfg}) >> tmp.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> tmp.md
             if [ $? -eq 1 ]; then
               cat tmp.md >> memory_usage.md
             fi
