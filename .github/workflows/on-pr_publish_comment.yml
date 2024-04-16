@@ -55,7 +55,10 @@ jobs:
           cd current
           configs=$(find . -name .config)
           cd ..
-          echo "<details><summary>.config diff</summary>" >> memory_usage.md
+          echo "<details>" >> memory_usage.md
+          echo "<summary>.config diff</summary>" >> memory_usage.md
+          echo "" >> memory_usage.md
+          echo "```" >> memory_usage.md
           for cfg in ${configs}
           do
             echo "compare ${cfg}"
@@ -76,7 +79,8 @@ jobs:
               cat tmp.md >> memory_usage.md
             fi
           done
-          echo "<\details>" >> memory_usage.md
+          echo "```" >> memory_usage.md
+          echo "</details>" >> memory_usage.md
 
       - name: Find Comment
         uses: peter-evans/find-comment@v2
