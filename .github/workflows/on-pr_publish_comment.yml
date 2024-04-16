@@ -58,10 +58,12 @@ jobs:
           echo "<details><summary>.config diff</summary>" >> memory_usage.md
           for cfg in configs
           do
-            printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" >> tmp.md
+            echo "compare ${cfg}"
+            printf "\n\n%s\n%-75s|%s\n" "${cfg}" "old" "new" > tmp.md
             diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new <(sort old/${cfg}) <(sort current/${cfg}) >> tmp.md
-            if [ $? -eq 1 ]; then cat tmp.md >> memory_usage.md fi
-            rm tmp.md
+            if [ $? -eq 1 ]; then
+              cat tmp.md >> memory_usage.md
+            fi
           done
           echo "<\details>" >> memory_usage.md
 

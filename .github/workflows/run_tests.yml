@@ -164,6 +164,7 @@ jobs:
   merge_tests_on_hw:
     needs: build-and-test_on_hw
     runs-on: ubuntu-latest
+    if: always()
     permissions: write-all
     steps:
       - name: Merge Artifacts
