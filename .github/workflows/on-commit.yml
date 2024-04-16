@@ -64,17 +64,11 @@ jobs:
         with:
           path: current
 
-      - name: Get prev run-id
-        env:
-          NUM: ${{ github.run_id }}
-        id: prev_id
-        run: |
-          echo prev_id=$(($NUM - 1)) >> $GITHUB_OUTPUT;
-
-      - name: Get artifacts from PR
-        uses: actions/download-artifact@v4
+      - name: Get artifacts from PR base
+        uses: dawidd6/action-download-artifact@v3
         with:
-          run-id: ${{ steps.prev_id.outcome.prev_id }}
+          workflow: on-commit.yml
+          workflow_conclusion: success
           path: old
 
       - name: Generate .config diff
