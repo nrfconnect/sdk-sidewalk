@@ -77,7 +77,7 @@ jobs:
 
             printf "\n%s\n%-63s|%s\n" "${cfg}" "old" "new" > cfg_diff.md
             diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
-            if [ $? -eq 1 ] then; cat cfg_diff.md >> memory_usage.md; fi
+            if [ $? -eq 1 ]; then cat cfg_diff.md >> memory_usage.md; fi
           done
           echo "\`\`\`" >> memory_usage.md
           echo "</details>" >> memory_usage.md

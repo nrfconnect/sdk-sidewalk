@@ -38,3 +38,87 @@ jobs:
 
   build_and_run_tests:
     uses: ./.github/workflows/run_tests.yml
+
+  Post_fail_to_Teams:
+    needs: [build_samples, build_and_run_tests]
+    if: ${{ !success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: neonidian/teams-notify-build-status@v4
+        with:
+          webhookUrl: ${{ secrets.MSTEAMS_WEBHOOK }}
+          status: failure
+          message: On Commit tests failed!
+        env:
+          SHOULD_DISPLAY_ACTOR_LABEL: false
+          SHOULD_DISPLAY_VIEW_RUN_BUTTON: true
+          SHOULD_DISPLAY_VIEW_COMMIT_BUTTON: true
+
+  create_comment_with_memory_usage:
+    needs: [build_samples, build_and_run_tests, verify_changes]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Get artifacts from PR
+        uses: actions/download-artifact@v4
+        with:
+          path: current
+
+      - name: Get prev run-id
+        env:
+          NUM: ${{ github.run_id }}
+        id: prev_id
+        run: |
+          echo prev_id=$(($NUM - 1)) >> $GITHUB_OUTPUT;
+
+      - name: Get artifacts from PR
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ steps.prev_id.outcome.prev_id }}
+          path: old
+
+      - name: Generate .config diff
+        shell: bash {0}
+        id: config_diff
+        run: |
+          cd current
+          configs=$(find . -name .config)
+          cd ..
+          echo "\`\`\`" >> config_diff.md
+          for cfg in ${configs}
+          do
+            echo "compare ${cfg}"
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > tmp_old.1
+            grep -v "#"  tmp_old.1 > tmp_old.2
+            sort tmp_old.2 > tmp_old.3
+            tr -s '\n' < tmp_old.3 > old/${cfg}
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > tmp_current.1
+            grep -v "#"  tmp_current.1 > tmp_current.2
+            sort tmp_current.2 > tmp_current.3
+            tr -s '\n' < tmp_current.3 > current/${cfg}
+
+            rm -rf tmp_*
+
+            printf "\n%s\n%-63s|%s\n" "${cfg}" "old" "new" > cfg_diff.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
+            if [ $? -eq 1 ]; then cat cfg_diff.md >> config_diff.md; fi
+          done
+          echo "\`\`\`" >> config_diff.md
+          if [ `wc -l config_diff.md` -eq 2 ]; then echo "diff='false'" >> $GITHUB_OUTPUT; else echo "diff='true'" >> $GITHUB_OUTPUT; fi
+
+      - name: Post diff
+        run: |
+          cat config_diff.md >> $GITHUB_STEP_SUMMARY
+
+      - uses: neonidian/teams-notify-build-status@v4
+        name: Notify Teams
+        if: ${{ steps.config_diff.outputs.diff == 'true' }}
+        with:
+          webhookUrl: ${{ secrets.MSTEAMS_WEBHOOK }}
+          message: Detected change in .config
+        env:
+          SHOULD_DISPLAY_ACTOR_LABEL: false
+          SHOULD_DISPLAY_VIEW_RUN_BUTTON: true
+          SHOULD_DISPLAY_VIEW_COMMIT_BUTTON: false
