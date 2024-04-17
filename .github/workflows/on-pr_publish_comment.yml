@@ -82,6 +82,11 @@ jobs:
           echo "\`\`\`" >> memory_usage.md
           echo "</details>" >> memory_usage.md
 
+      - name: Post diff to summary
+        run: |
+          cat memory_usage.md
+          cat memory_usage.md >> $GITHUB_STEP_SUMMARY
+
       - name: Find Comment
         uses: peter-evans/find-comment@v3
         id: fc
