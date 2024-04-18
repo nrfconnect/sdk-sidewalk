@@ -27,13 +27,17 @@ jobs:
           cat pr_body.md
           grep -oP "(manifest-pr-skip)" pr_body.md
           if [ $? != 0 ]; then
-            echo "manifest-pr-skip='false'" >> $GITHUB_OUTPUT;
+            echo "manifest-pr-skip=false" >> $GITHUB_OUTPUT;
           else
-            echo "manifest-pr-skip='true'" >> $GITHUB_OUTPUT;
+            echo "manifest-pr-skip=true" >> $GITHUB_OUTPUT;
           fi;
 
+      - name: show skip result
+        run: |
+          echo "steps.config.outputs.manifest-pr-skip = ${{steps.config.outputs.manifest-pr-skip}}"
+
       - name: Create manifest PR
-        if: ${{ steps.config.outputs.manifest-pr-skip == 'false' }}
+        if: ${{ ! steps.config.outputs.manifest-pr-skip }}
         uses: nrfconnect/action-manifest-pr@main
         with:
           token: ${{ secrets.NCS_GITHUB_TOKEN }}

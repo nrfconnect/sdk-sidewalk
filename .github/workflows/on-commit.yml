@@ -101,17 +101,21 @@ jobs:
           done
           echo "\`\`\`" >> config_diff.md
           lines=$(cat config_diff.md | wc -l)
-          if [ $lines -eq 2 ]; then echo "diff='false'" >> $GITHUB_OUTPUT; else echo "diff='true'" >> $GITHUB_OUTPUT; fi
+          if [ $lines -eq 2 ]; then echo "diff=false" >> $GITHUB_OUTPUT; else echo "diff=true" >> $GITHUB_OUTPUT; fi
           cat config_diff.md
 
+      - name: Check diff
+        run: |
+          echo "diff = ${{steps.config_diff.outputs.diff}}"
+
       - name: Post diff
-        if: ${{ steps.config_diff.outputs.diff == 'true' }}
+        if: steps.config_diff.outputs.diff
         run: |
           cat config_diff.md >> $GITHUB_STEP_SUMMARY
 
       - uses: neonidian/teams-notify-build-status@v4
         name: Notify Teams
-        if: ${{ steps.config_diff.outputs.diff == 'true' }}
+        if: steps.config_diff.outputs.diff
         with:
           webhookUrl: ${{ secrets.MSTEAMS_WEBHOOK }}
           message: Detected change in .config
