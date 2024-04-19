@@ -26,7 +26,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - * `nRF52840 DK`_
      - Qualified/approved
    * - ---
-     - v2.5.0 ``*``
+     - v2.5.0 `*`
      - v1.14
      - * `nRF52840 DK`_
        * `nRF5340 DK`_
@@ -38,6 +38,6 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF5340 DK`_
      - Planned
 
-``*`` - From the v2.5.0 release, Amazon Sidewalk is a part of the nRF Connect SDK.
+`*` From the v2.5.0 release, Amazon Sidewalk is a part of the nRF Connect SDK.
 
 .. include:: ncs_links.rst

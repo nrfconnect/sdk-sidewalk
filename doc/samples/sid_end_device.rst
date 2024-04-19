@@ -27,10 +27,10 @@ This sample supports the following development kits:
 +--------------------+----------+----------------------------+----------------------------------+
 | Thingy53           | PCA20053 | `thingy53_nrf5340`_        | ``thingy53_nrf5340_cpuapp``      |
 +--------------------+----------+----------------------------+----------------------------------+
-| nRF54L15 PDK ``*`` | PCA10156 | `nrf54l15pdk_nrf54l15`_    | ``nrf54l15pdk_nrf54l15_cpuapp``  |
+| nRF54L15 PDK  `*`  | PCA10156 | `nrf54l15pdk_nrf54l15`_    | ``nrf54l15pdk_nrf54l15_cpuapp``  |
 +--------------------+----------+----------------------------+----------------------------------+
 
-``*`` - `nRF54L15 PDK`_ does not support LoRa and FSK configurations.
+`*` The `nRF54L15 PDK`_ does not support LoRa and FSK configurations.
 
 To run the sample in the Bluetooth LE link mode, you only need the development kit.
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
