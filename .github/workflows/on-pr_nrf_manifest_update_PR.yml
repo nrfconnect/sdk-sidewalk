@@ -37,7 +37,7 @@ jobs:
           echo "steps.config.outputs.manifest-pr-skip = ${{steps.config.outputs.manifest-pr-skip}}"
 
       - name: Create manifest PR
-        if: ${{ ! steps.config.outputs.manifest-pr-skip }}
+        if: ${{ ! fromJson(steps.config.outputs.manifest-pr-skip) }}
         uses: nrfconnect/action-manifest-pr@main
         with:
           token: ${{ secrets.NCS_GITHUB_TOKEN }}

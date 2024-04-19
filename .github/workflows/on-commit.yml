@@ -40,8 +40,8 @@ jobs:
     uses: ./.github/workflows/run_tests.yml
 
   Post_fail_to_Teams:
-    needs: [build_samples, build_and_run_tests]
-    if: ${{ !success() }}
+    needs: [verify_changes, build_samples, build_and_run_tests]
+    if: ${{ failure() }}
     runs-on: ubuntu-latest
     steps:
       - uses: neonidian/teams-notify-build-status@v4
@@ -104,18 +104,14 @@ jobs:
           if [ $lines -eq 2 ]; then echo "diff=false" >> $GITHUB_OUTPUT; else echo "diff=true" >> $GITHUB_OUTPUT; fi
           cat config_diff.md
 
-      - name: Check diff
-        run: |
-          echo "diff = ${{steps.config_diff.outputs.diff}}"
-
       - name: Post diff
-        if: steps.config_diff.outputs.diff
+        if: ${{ fromJSON(steps.config_diff.outputs.diff) }}
         run: |
           cat config_diff.md >> $GITHUB_STEP_SUMMARY
 
       - uses: neonidian/teams-notify-build-status@v4
         name: Notify Teams
-        if: steps.config_diff.outputs.diff
+        if: ${{ fromJSON(steps.config_diff.outputs.diff) }}
         with:
           webhookUrl: ${{ secrets.MSTEAMS_WEBHOOK }}
           message: Detected change in .config
