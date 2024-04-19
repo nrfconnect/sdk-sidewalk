@@ -117,7 +117,9 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
-		.ctrl = SX126X_TCXO_CTRL_NONE,
+		.ctrl = SX126X_TCXO_CTRL_DIO3,
+		.voltage = RADIO_SX126X_TCXO_CTRL_3_3V,
+		.timeout = 320,
 	},
 
 	.trim_cap_val_callback = radio_sx1262_trim_val,
