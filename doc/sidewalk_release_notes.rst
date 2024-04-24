@@ -10,7 +10,7 @@ Changelog
 
 See the `Release notes for the nRF Connect SDK`_ for the v2.6.0 release.
 
-If you are participating in the customer sampling release, see the `v2.6.99-cs`_ release notes and limitations.
+If you are participating in the customer sampling release, see the `v2.6.99-cs1`_ release notes and limitations.
 The nRF Connect SDK v2.6.99-cs is tailored exclusively for participants in the nRF54L15 customer sampling program.
 Do not use this release of the nRF Connect SDK if you are not participating in the program.
 
@@ -105,4 +105,4 @@ v1.14.3
 
 .. include:: ncs_links.rst
 
-.. _v2.6.99-cs: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.6.99-cs/nrf/releases_and_maturity/releases/release-notes-2.6.99-cs.html
+.. _v2.6.99-cs1: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.6.99-cs1/nrf/releases_and_maturity/releases/release-notes-2.6.99-cs1.html
