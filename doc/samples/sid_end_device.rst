@@ -111,12 +111,6 @@ The sample supports the following build types:
      - All from `Requirements`_
      - Release version of the application.
        It can be used to enable only the necessary application functionalities to optimize its performance.
-   * - No DFU
-     - :file:`prj_no_dfu.conf`
-     - All from `Requirements`_
-     - No DFU version of the application.
-       It can be used in simple scenarios where DFU is not required.
-       Additionally, it can be treated as a starting point when integrating the Sidewalk sample with a custom bootloader.
 
 You can build the ``release`` firmware for ``build_target`` by running the following command in the project directory:
 

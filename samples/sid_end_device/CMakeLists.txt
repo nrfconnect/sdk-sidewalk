@@ -13,14 +13,6 @@ include(bootloader_version.cmake)
 set(hci_ipc_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/hci_ipc/Kconfig.root)
 set(mcuboot_KCONFIG_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/child_image/mcuboot/Kconfig.root)
 
-# Configurations
-if("prj_no_dfu.conf" IN_LIST CONF_FILE)
-    set(PM_FILENAME "pm_static_no_dfu.yml")
-else()
-    set(PM_FILENAME "pm_static_dfu.yml")
-endif()
-set(PM_STATIC_YML_FILE ${CMAKE_CURRENT_SOURCE_DIR}/configuration/${BOARD}/${PM_FILENAME})
-
 # Zephyr CMake project
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_sid_end_device)
