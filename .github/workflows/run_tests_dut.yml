@@ -68,11 +68,18 @@ jobs:
           source zephyr/zephyr-env.sh
           west twister --platform ${{inputs.target_board}} --testsuite-root sidewalk --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
 
+      - name: Replace slash with underscore
+        id: replace
+        run: |
+          TARGET_BOARD=${{ inputs.target_board }}
+          TARGET_BOARD=${TARGET_BOARD//\//_}
+          echo "::set-output name=target_board::$TARGET_BOARD"
+
       - name: Save build artifacts
         uses: actions/upload-artifact@v4
         with:
           path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
-          name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
+          name: DUT_artifacts_${{steps.replace.outputs.target_board}}_${{ inputs.subset }}
 
   run_dut_ut:
     needs: [build_dut_tests]
@@ -114,6 +121,13 @@ jobs:
           west update -n -o=--depth=1 --path-cache /workdir/
           cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
 
+      - name: Replace slash with underscore
+        id: replace
+        run: |
+          TARGET_BOARD=${{ inputs.target_board }}
+          TARGET_BOARD=${TARGET_BOARD//\//_}
+          echo "::set-output name=target_board::$TARGET_BOARD"
+
       - name: Install Python dependencies
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
@@ -121,7 +135,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: DUT_artifacts_${{inputs.target_board}}_${{ inputs.subset }}
+          name: DUT_artifacts_${{steps.replace.outputs.target_board}}_${{ inputs.subset }}
 
       - name: Unwrap artifacts
         run: |
@@ -134,15 +148,15 @@ jobs:
 
       - name: rename_twister_xml_report
         run: |
-          mv twister-out/twister.xml twister-out/${{inputs.target_board}}_${{ inputs.subset }}_twister.xml
+          mv twister-out/twister.xml twister-out/${{steps.replace.outputs.target_board}}_${{ inputs.subset }}_twister.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: tests-dut_result_${{inputs.target_board}}_${{ inputs.subset }}
+          name: tests-dut_result_${{steps.replace.outputs.target_board}}_${{ inputs.subset }}
           path: |
-            twister-out/${{inputs.target_board}}_${{ inputs.subset }}_twister.xml
+            twister-out/${{steps.replace.outputs.target_board}}_${{ inputs.subset }}_twister.xml
             twister-out/**/handler.log
             twister-out/**/device.log
             twister-out/**/zephyr.hex
