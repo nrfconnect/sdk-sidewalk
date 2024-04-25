@@ -1,12 +1,12 @@
 tests:
   sidewalk.unit_tests.ace.alloc:
     platform_allow:
-      - nrf52840dk_nrf52840
-      - nrf5340dk_nrf5340_cpuapp
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
       - native_posix
-      - nrf54l15pdk_nrf54l15_cpuapp
+      - nrf54l15pdk/nrf54l15/cpuapp
     tags: Sidewalk
     integration_platforms:
       - native_posix
-      - nrf52840dk_nrf52840
-      - nrf54l15pdk_nrf54l15_cpuapp
+      - nrf52840dk/nrf52840
+      - nrf54l15pdk/nrf54l15/cpuapp

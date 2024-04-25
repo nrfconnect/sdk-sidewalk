@@ -45,7 +45,7 @@ For example:
 
 .. code-block:: console
 
-   $ west build -b nrf5340dk_nrf5340_cpuapp -- -DCONFIG_SID_END_DEVICE_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+   $ west build -b nrf5340dk/nrf5340/cpuapp -- -DCONFIG_SID_END_DEVICE_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
 
 User Interface
 **************
@@ -86,7 +86,7 @@ You should see the following output:
       ----------------------------------------------------------------
       sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
       build time          = 2023-03-14 15:00:00.000000+00:00
-      board               = nrf52840dk_nrf52840
+      board               = nrf52840dk
       ----------------------------------------------------------------
       [00:00:00.001,373] <inf> application_state: working = true
       [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE

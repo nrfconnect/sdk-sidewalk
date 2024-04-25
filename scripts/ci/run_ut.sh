@@ -46,7 +46,7 @@ descr () {
     echo "    -u run unit tests on native_posix. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
     echo "    -f run unit tests functional on nRF HW. Use testcase-root SIDEWALK_SDK_DIR/tests/functional"
     echo "    -a run build or tests only for entries with selected tag. It can be passed multiple times, ones per tag. e.g. -a Sidewalk -a Sidewalk_cli"
-    echo "    -p run build or tests only for selected platforms. It can be passed multiple times, e.g. -p nrf5340dk_nrf5340_cpuapp"    
+    echo "    -p run build or tests only for selected platforms. It can be passed multiple times, e.g. -p nrf5340dk/nrf5340/cpuapp"    
     echo ""
 }
 

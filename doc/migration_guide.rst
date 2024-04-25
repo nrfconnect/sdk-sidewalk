@@ -73,13 +73,13 @@ The following table is an example of the new build commands used for the `nRF528
 +----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
 | Sample                     | Old commands                                            | New commands                                                                                 |
 +============================+=========================================================+==============================================================================================+
-| Template sub-GHz           | ``west build -b nrf52840dk_nrf52840 template_subghz``   | ``west build -b nrf52840dk_nrf52840 sid_end_device``                                         |
+| Template sub-GHz           | ``west build -b nrf52840dk/nrf52840 template_subghz``   | ``west build -b nrf52840dk/nrf52840 sid_end_device``                                         |
 +----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Template Bluetooth LE only | ``west build -b nrf52840dk_nrf52840 template_ble``      | ``west build -b nrf52840dk_nrf52840 sid_end_device -- -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=y``   |
+| Template Bluetooth LE only | ``west build -b nrf52840dk/nrf52840 template_ble``      | ``west build -b nrf52840dk/nrf52840 sid_end_device -- -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=y``   |
 +----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Sensor monitoring demo     | ``west build -b nrf52840dk_nrf52840 sensor_monitoring`` | ``west build -b nrf52840dk_nrf52840 sid_end_device -- -DOVERLAY_CONFIG="overlay-demo.conf"`` |
+| Sensor monitoring demo     | ``west build -b nrf52840dk/nrf52840 sensor_monitoring`` | ``west build -b nrf52840dk/nrf52840 sid_end_device -- -DOVERLAY_CONFIG="overlay-demo.conf"`` |
 +----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
-| Device under test          | ``west build -b nrf52840dk_nrf52840 sid_dut``           | ``west build -b nrf52840dk_nrf52840 sid_end_device -- -DOVERLAY_CONFIG="overlay-dut.conf"``  |
+| Device under test          | ``west build -b nrf52840dk/nrf52840 sid_dut``           | ``west build -b nrf52840dk/nrf52840 sid_end_device -- -DOVERLAY_CONFIG="overlay-dut.conf"``  |
 +----------------------------+---------------------------------------------------------+----------------------------------------------------------------------------------------------+
 
 User interface

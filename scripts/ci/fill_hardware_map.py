@@ -16,13 +16,13 @@ logging.basicConfig(level=logging.INFO)
 MIN_PCA10056_REVISION = "2.0.0"
 
 pca_to_board = {
-    "PCA10056": "nrf52840dk_nrf52840",
-    "PCA10100": "nrf52833dk_nrf52833",
-    "PCA10112": "nrf21540dk_nrf52840",
-    "PCA10059": "nrf52840dongle_nrf52840",
-    "PCA10095": "nrf5340dk_nrf5340_cpuapp",
-    "PCA20053": "thingy53_nrf5340_cpuapp",
-    "PCA10156": "nrf54l15pdk_nrf54l15_cpuapp"
+    "PCA10056": "nrf52840dk/nrf52840",
+    "PCA10100": "nrf52833dk/nrf52833",
+    "PCA10112": "nrf21540dk/nrf52840",
+    "PCA10059": "nrf52840dongle/nrf52840",
+    "PCA10095": "nrf5340dk/nrf5340/cpuapp",
+    "PCA20053": "thingy53/nrf5340/cpuapp",
+    "PCA10156": "nrf54l15pdk/nrf54l15/cpuapp"
 }
 
 family_to_pca = {
@@ -118,7 +118,7 @@ def main(hardware_map_path: str, userdev_conf_path: str):
                 to_remove.append(hw_entry)
                 continue
             # Collect all entries for nRF53 DKs
-            if "nrf5340dk_nrf5340_cpuapp" in hw_entry["platform"]:
+            if "nrf5340dk/nrf5340/cpuapp" in hw_entry["platform"]:
                 # If older nRF53 board (3 serial IFs), remove first and second serial interface
                 if segger.startswith("9601"):
                     logging.info(
@@ -136,11 +136,11 @@ def main(hardware_map_path: str, userdev_conf_path: str):
                 else:
                     logging.warning(
                         f"Unrecognized version of nRF53 board {segger}")
-            elif "nrf52840dk_nrf52840" in hw_entry["platform"]:
+            elif "nrf52840dk/nrf52840" in hw_entry["platform"]:
                 # If newer nRF52 board, remove first serial interface
                 if segger.startswith("1050") and "-if02" in hw_entry["serial"]:
                     to_remove.append(hw_entry)
-            elif "nrf54l15pdk_nrf54l15_cpuapp" in hw_entry["platform"]:
+            elif "nrf54l15pdk/nrf54l15/cpuapp" in hw_entry["platform"]:
                 # If nRF54l board, remove only first serial interface
                 if segger.startswith("1057") and "-if00" in hw_entry["serial"]:
                     to_remove.append(hw_entry)
