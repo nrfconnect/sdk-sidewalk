@@ -3,7 +3,7 @@ on:
   workflow_call:
     inputs:
       current_run_id:
-        type: number
+        type: string
         required: true
 
       base_commit_sha:
