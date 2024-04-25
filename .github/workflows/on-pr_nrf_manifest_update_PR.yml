@@ -20,24 +20,26 @@ jobs:
         run: |
           gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{github.repository}}/pulls/${{github.event.number}} --jq '.body' > pr_body.md
 
-      - name: Parse body
+      - uses: chrisdickinson/setup-yq@latest
+      - name: Get configuration
         id: config
         shell: bash {0}
         run: |
           cat pr_body.md
-          grep -oP "(manifest-pr-skip)" pr_body.md
+
+          csplit pr_body.md /\`\`\`yaml/1
+          csplit xx01 /\`\`\`/
+          mv xx00 configuration.yaml
+
+          create_pr=$(yq '.Github_actions.Create_NRF_PR' xx00)
           if [ $? != 0 ]; then
-            echo "manifest-pr-skip=false" >> $GITHUB_OUTPUT;
+            echo "Create_NRF_PR=false" >> $GITHUB_OUTPUT;
           else
-            echo "manifest-pr-skip=true" >> $GITHUB_OUTPUT;
+            echo "Create_NRF_PR=$create_pr" >> $GITHUB_OUTPUT;
           fi;
 
-      - name: show skip result
-        run: |
-          echo "steps.config.outputs.manifest-pr-skip = ${{steps.config.outputs.manifest-pr-skip}}"
-
       - name: Create manifest PR
-        if: ${{ ! fromJson(steps.config.outputs.manifest-pr-skip) }}
+        if: ${{ fromJson(steps.config.outputs.Create_NRF_PR) }}
         uses: nrfconnect/action-manifest-pr@main
         with:
           token: ${{ secrets.NCS_GITHUB_TOKEN }}

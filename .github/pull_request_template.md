@@ -1,14 +1,19 @@
 ## CI parameters
 
-(branch, hash, pull/XXX/head)
-NRF_revision=main
+```yaml
+Github_actions:
+  #(branch, hash, pull/XXX/head)
+  NRF_revision: main
 
-manifest-pr-skip (remove this line to create PR in NRF)
+  # Do not change after creating PR
+  Create_NRF_PR: false
+Jenkins:
+  test-sdk-sidewalk: master
+```
 
 ## Description
 
 JIRA ticket: 
-
 
 ## Self review
 
