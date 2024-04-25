@@ -1,0 +1,102 @@
+name: compare config
+on:
+  workflow_call:
+    inputs:
+      current_run_id:
+        type: number
+        required: true
+
+      base_commit_sha:
+        type: string
+        required: false
+
+    outputs:
+      diff_detected:
+        value: ${{ jobs.compare_config.outputs.diff_detected }}
+      artifact_url:
+        value: ${{ jobs.compare_config.outputs.artifact_url }}
+
+jobs:
+  compare_config:
+    outputs:
+      diff_detected: ${{steps.config_diff.outputs.diff}}
+      artifact_url: ${{steps.save_diff.outputs.artifact-url}}
+
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Get artifacts from current
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          run_id: ${{inputs.current_run_id}}
+          path: current
+
+      - name: Get artifacts from base
+        if: ${{inputs.base_commit_sha}} != ""
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          commit: ${{inputs.base_commit_sha}}
+          workflow: on-commit.yml
+          path: old
+
+      - name: Get artifacts from base
+        if: ${{inputs.base_commit_sha}} == ""
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: on-commit.yml
+          path: old
+
+      - name: Generate .config diff
+        shell: bash {0}
+        id: config_diff
+        run: |
+          cd current
+          configs=$(find . -name .config)
+          cd ..
+          echo "\`\`\`" >> config_diff.md
+          for cfg in ${configs}
+          do
+            echo "compare ${cfg}"
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > tmp_old.1
+            grep -v "#"  tmp_old.1 > tmp_old.2
+            sort tmp_old.2 > tmp_old.3
+            tr -s '\n' < tmp_old.3 > old/${cfg}
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > tmp_current.1
+            grep -v "#"  tmp_current.1 > tmp_current.2
+            sort tmp_current.2 > tmp_current.3
+            tr -s '\n' < tmp_current.3 > current/${cfg}
+
+            rm -rf tmp_*
+
+            printf "\n%s\n%-62s| %s\n" "${cfg}" "old" "new" > cfg_diff.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
+            if [ $? -eq 1 ]; then cat cfg_diff.md >> config_diff.md; fi
+          done
+          echo "\`\`\`" >> config_diff.md
+          lines=$(cat config_diff.md | wc -l)
+          if [ $lines -eq 2 ]; then echo "diff=false" >> $GITHUB_OUTPUT; else echo "diff=true" >> $GITHUB_OUTPUT; fi
+          cat config_diff.md
+
+      - name: save diff
+        if: ${{ fromJSON(steps.config_diff.outputs.diff) }}
+        uses: actions/upload-artifact@v4
+        id: save_diff
+        with:
+          name: configuration_diff
+          path: |
+            config_diff.md
+
+      - name: Post diff
+        if: ${{ fromJSON(steps.config_diff.outputs.diff) }}
+        run: |
+          lines=$(cat config_diff.md | wc -l)
+          if [ $lines -ge 200 ]; then
+            echo ".config change: ${{steps.save_diff.outputs.artifact-url}}" >> $GITHUB_STEP_SUMMARY;
+            head -n 200 config_diff.md >> $GITHUB_STEP_SUMMARY;
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY;
+            echo "Configuration diff too long to fit. Check file in artifacts." >> $GITHUB_STEP_SUMMARY;
+          else
+            cat config_diff.md >> $GITHUB_STEP_SUMMARY;
+          fi

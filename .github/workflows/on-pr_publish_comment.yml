@@ -7,7 +7,14 @@ on:
       - completed
 
 jobs:
-  create_comment_with_memory_usage:
+  compare_configuration:
+    uses: ./.github/workflows/compare_config.yml
+    with:
+      current_run_id: ${{github.event.workflow_run.id}}
+      base_commit_sha: ${{github.event.workflow_run.event.pull_request.base.sha}}
+
+  create_PR_comment:
+    needs: [compare_configuration]
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -48,44 +55,30 @@ jobs:
           python3 scripts/ci/combine_twister_reports.py $base_reports old.json
 
           python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output --show_only_diff > memory_usage.md
+          cat memory_usage.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Generate .config diff
-        shell: bash {0}
+      - uses: actions/download-artifact@v4
+        if: ${{ fromJson(needs.compare_configuration.outputs.diff_detected)}}
+        with:
+          name: configuration_diff
+
+      - name: Post diff to summary
+        if: ${{ fromJson(needs.compare_configuration.outputs.diff_detected)}}
         run: |
-          cd current
-          configs=$(find . -name .config)
-          cd ..
           echo "<details>" >> memory_usage.md
           echo "<summary>.config diff</summary>" >> memory_usage.md
           echo "" >> memory_usage.md
-          echo "\`\`\`" >> memory_usage.md
-          for cfg in ${configs}
-          do
-            echo "compare ${cfg}"
 
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > tmp_old.1
-            grep -v "#"  tmp_old.1 > tmp_old.2
-            sort tmp_old.2 > tmp_old.3
-            tr -s '\n' < tmp_old.3 > old/${cfg}
-
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > tmp_current.1
-            grep -v "#"  tmp_current.1 > tmp_current.2
-            sort tmp_current.2 > tmp_current.3
-            tr -s '\n' < tmp_current.3 > current/${cfg}
-
-            rm -rf tmp_*
-
-            printf "\n%s\n%-63s|%s\n" "${cfg}" "old" "new" > cfg_diff.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
-            if [ $? -eq 1 ]; then cat cfg_diff.md >> memory_usage.md; fi
-          done
-          echo "\`\`\`" >> memory_usage.md
+          lines=$(cat config_diff.md | wc -l)
+          if [ $lines -ge 200 ]; then
+            echo ".config change: ${{needs.compare_configuration.outputs.artifact_url}}" >> memory_usage.md;
+            head -n 200 config_diff.md >> memory_usage.md;
+            echo "\`\`\`" >> memory_usage.md;
+            echo "Configuration diff too long to fit. Check file in artifacts." >> memory_usage.md;
+          else
+            cat config_diff.md >> memory_usage.md;
+          fi
           echo "</details>" >> memory_usage.md
-
-      - name: Post diff to summary
-        run: |
-          cat memory_usage.md
-          cat memory_usage.md >> $GITHUB_STEP_SUMMARY
 
       - name: Find Comment
         uses: peter-evans/find-comment@v3

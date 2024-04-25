@@ -54,67 +54,26 @@ jobs:
           SHOULD_DISPLAY_VIEW_RUN_BUTTON: true
           SHOULD_DISPLAY_VIEW_COMMIT_BUTTON: true
 
-  create_comment_with_memory_usage:
+  compare_configuration:
     needs: [build_samples, build_and_run_tests, verify_changes]
+    uses: ./.github/workflows/compare_config.yml
+    with:
+      current_run_id: ${{ github.action.run_id }}
+
+  post_configuration_diff:
+    needs: [compare_configuration]
     runs-on: ubuntu-latest
+    if: ${{ fromJson(needs.compare_configuration.outputs.diff_detected)}}
     steps:
-
-      - name: Get artifacts from PR
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          path: current
-
-      - name: Get artifacts from PR base
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          workflow: on-commit.yml
-          workflow_conclusion: success
-          path: old
-
-      - name: Generate .config diff
-        shell: bash {0}
-        id: config_diff
-        run: |
-          cd current
-          configs=$(find . -name .config)
-          cd ..
-          echo "\`\`\`" >> config_diff.md
-          for cfg in ${configs}
-          do
-            echo "compare ${cfg}"
-
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > tmp_old.1
-            grep -v "#"  tmp_old.1 > tmp_old.2
-            sort tmp_old.2 > tmp_old.3
-            tr -s '\n' < tmp_old.3 > old/${cfg}
-
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > tmp_current.1
-            grep -v "#"  tmp_current.1 > tmp_current.2
-            sort tmp_current.2 > tmp_current.3
-            tr -s '\n' < tmp_current.3 > current/${cfg}
-
-            rm -rf tmp_*
-
-            printf "\n%s\n%-63s|%s\n" "${cfg}" "old" "new" > cfg_diff.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
-            if [ $? -eq 1 ]; then cat cfg_diff.md >> config_diff.md; fi
-          done
-          echo "\`\`\`" >> config_diff.md
-          lines=$(cat config_diff.md | wc -l)
-          if [ $lines -eq 2 ]; then echo "diff=false" >> $GITHUB_OUTPUT; else echo "diff=true" >> $GITHUB_OUTPUT; fi
-          cat config_diff.md
-
-      - name: Post diff
-        if: ${{ fromJSON(steps.config_diff.outputs.diff) }}
-        run: |
-          cat config_diff.md >> $GITHUB_STEP_SUMMARY
+          name: configuration_diff
 
       - uses: neonidian/teams-notify-build-status@v4
         name: Notify Teams
-        if: ${{ fromJSON(steps.config_diff.outputs.diff) }}
         with:
           webhookUrl: ${{ secrets.MSTEAMS_WEBHOOK }}
-          message: Detected change in .config
+          message: Detected change in .config ${{needs.compare_configuration.outputs.artifact_url}}
         env:
           SHOULD_DISPLAY_ACTOR_LABEL: false
           SHOULD_DISPLAY_VIEW_RUN_BUTTON: true
