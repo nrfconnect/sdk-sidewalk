@@ -58,7 +58,7 @@ jobs:
     needs: [build_samples, build_and_run_tests, verify_changes]
     uses: ./.github/workflows/compare_config.yml
     with:
-      current_run_id: ${{ github.action.run_id }}
+      current_run_id: ${{ github.run_id }}
 
   post_configuration_diff:
     needs: [compare_configuration]
