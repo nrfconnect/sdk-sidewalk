@@ -18,17 +18,17 @@ Requirements
 
 This sample supports the following development kits:
 
-+--------------------+----------+----------------------------+----------------------------------+
-| Hardware platforms | PCA      | Board name                 | Build target                     |
-+====================+==========+============================+==================================+
-| nRF52840 DK        | PCA10056 | `nrf52840dk_nrf52840`_     | ``nrf52840dk_nrf52840``          |
-+--------------------+----------+----------------------------+----------------------------------+
-| nRF5340 DK         | PCA10095 | `nrf5340dk_nrf5340`_       | ``nrf5340dk_nrf5340_cpuapp``     |
-+--------------------+----------+----------------------------+----------------------------------+
-| Thingy53           | PCA20053 | `thingy53_nrf5340`_        | ``thingy53_nrf5340_cpuapp``      |
-+--------------------+----------+----------------------------+----------------------------------+
-| nRF54L15 PDK  `*`  | PCA10156 | `nrf54l15pdk_nrf54l15`_    | ``nrf54l15pdk_nrf54l15_cpuapp``  |
-+--------------------+----------+----------------------------+----------------------------------+
++--------------------+----------+-------------------+----------------------------------+
+| Hardware platforms | PCA      | Board name        | Build target                     |
++====================+==========+===================+==================================+
+| nRF52840 DK        | PCA10056 | `nrf52840dk`_     | ``nrf52840dk/nrf52840``          |
++--------------------+----------+-------------------+----------------------------------+
+| nRF5340 DK         | PCA10095 | `nrf5340dk`_      | ``nrf5340dk/nrf5340/cpuapp``     |
++--------------------+----------+-------------------+----------------------------------+
+| Thingy53           | PCA20053 | `thingy53`_       | ``thingy53/nrf5340/cpuapp``      |
++--------------------+----------+-------------------+----------------------------------+
+| nRF54L15 PDK  `*`  | PCA10156 | `nrf54l15pdk`_    | ``nrf54l15pdk/nrf54l15/cpuapp``  |
++--------------------+----------+-------------------+----------------------------------+
 
 `*` The `nRF54L15 PDK`_ does not support LoRa and FSK configurations.
 
@@ -123,7 +123,7 @@ For example:
 
 .. code-block:: console
 
-   $ west build -b nrf52840dk_nrf52840 -- -DCONF_FILE=prj_release.conf
+   $ west build -b nrf52840dk/nrf52840 -- -DCONF_FILE=prj_release.conf
 
 .. note::
     Selecting a build type is optional.
@@ -152,7 +152,7 @@ For example, to build the Sidewalk DUT configuration overlay, run the following 
 
 .. code-block:: console
 
-   $ west build -b nrf52840dk_nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
+   $ west build -b nrf52840dk/nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
 
 See the details on running and testing individual variants, as well as enabling available Kconfig options:
 
