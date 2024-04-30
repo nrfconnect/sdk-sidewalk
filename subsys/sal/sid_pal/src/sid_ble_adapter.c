@@ -70,6 +70,12 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 	bt_ctlr_set_public_addr(pub_addr.val);
 #endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
+#if defined(CONFIG_SOC_SERIES_NRF53X)
+	static bool bt_enabled;
+	if (!bt_enabled) {
+		bt_enabled = true;
+	}
+#endif /* CONFIG_SOC_SERIES_NRF53X */
 	int err_code;
 	err_code = bt_enable(NULL);
 	switch (err_code) {
@@ -265,6 +271,11 @@ static sid_error_t ble_adapter_deinit(void)
 {
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
+
+#if defined(CONFIG_SOC_SERIES_NRF53X)
+	return SID_ERROR_NONE;
+#endif /* CONFIG_SOC_SERIES_NRF53X */
+
 
 	int err = bt_disable();
 

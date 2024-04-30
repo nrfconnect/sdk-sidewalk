@@ -115,11 +115,15 @@ int nordic_dfu_ble_start(void)
 	application_state_dfu(&global_state_notifier, true);
 	dk_leds_init();
 
-	int err = bt_enable(NULL);
+	int err = 0;
+
+#if !defined(CONFIG_SOC_SERIES_NRF53X)
+	err = bt_enable(NULL);
 	if (err && err != -EALREADY) {
 		LOG_ERR("Bluetooth enable failed (err %d)", err);
 		return err;
 	}
+#endif /* CONFIG_SOC_SERIES_NRF53X */
 
 	mgmt_callback_register(&dfu_mode_mgmt_cb);
 
@@ -153,11 +157,13 @@ int nordic_dfu_ble_stop(void)
 		return err;
 	}
 
+#if !defined(CONFIG_SOC_SERIES_NRF53X)
 	err = bt_disable();
 	if (err) {
 		LOG_ERR("Bluetooth disable failed (err %d)", err);
 		return err;
 	}
+#endif /* CONFIG_SOC_SERIES_NRF53X */
 
 	LOG_INF("Advertising successfully stoped");
 
