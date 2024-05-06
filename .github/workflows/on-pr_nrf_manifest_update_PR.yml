@@ -31,8 +31,9 @@ jobs:
           csplit xx01 /\`\`\`/
           mv xx00 configuration.yaml
 
-          create_pr=$(yq '.Github_actions.Create_NRF_PR' xx00)
+          create_pr=$(yq '.Github_actions.Create_NRF_PR' configuration.yaml)
           if [ $? != 0 ]; then
+            echo "Did not found Create_NRF_PR in configuration, default to false."
             echo "Create_NRF_PR=false" >> $GITHUB_OUTPUT;
           else
             echo "Create_NRF_PR=$create_pr" >> $GITHUB_OUTPUT;
