@@ -44,16 +44,13 @@ jobs:
 
       - name: update NRF
         run: |
+          rm -rf .west nrf;
           cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
           west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
           cd nrf
-          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
-            git fetch origin ${{inputs.nrf_revision}}:PR-branch
-            git checkout PR-branch
-          else
-            git fetch origin
-            git checkout ${{inputs.nrf_revision}};
-          fi
+          git fetch origin ${{inputs.nrf_revision}}:branch_to_run
+          git checkout branch_to_run
+          git rev-parse HEAD
           cd ..
           west config manifest.group-filter +sidewalk
           west update -n -o=--depth=1 --path-cache /workdir/
@@ -73,7 +70,7 @@ jobs:
         run: |
           TARGET_BOARD=${{ inputs.target_board }}
           TARGET_BOARD=${TARGET_BOARD//\//_}
-          echo "::set-output name=target_board::$TARGET_BOARD"
+          echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
 
       - name: Save build artifacts
         uses: actions/upload-artifact@v4
@@ -84,7 +81,6 @@ jobs:
   run_dut_ut:
     needs: [build_dut_tests]
     if: ${{ fromJson(inputs.run_tests) }}
-    continue-on-error: true
     name: "Run DUT tests  (${{inputs.target_board}} - ${{ inputs.subset }})"
     runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}"]
     container:
@@ -106,16 +102,13 @@ jobs:
 
       - name: update NRF
         run: |
+          rm -rf .west nrf;
           cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
           west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
           cd nrf
-          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
-            git fetch origin ${{inputs.nrf_revision}}:PR-branch
-            git checkout PR-branch
-          else
-            git fetch origin
-            git checkout ${{inputs.nrf_revision}};
-          fi
+          git fetch origin ${{inputs.nrf_revision}}:branch_to_run
+          git checkout branch_to_run
+          git rev-parse HEAD
           cd ..
           west config manifest.group-filter +sidewalk
           west update -n -o=--depth=1 --path-cache /workdir/
@@ -126,7 +119,7 @@ jobs:
         run: |
           TARGET_BOARD=${{ inputs.target_board }}
           TARGET_BOARD=${TARGET_BOARD//\//_}
-          echo "::set-output name=target_board::$TARGET_BOARD"
+          echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
 
       - name: Install Python dependencies
         run: |
@@ -165,4 +158,5 @@ jobs:
       - name: clean artifacts
         if: always()
         run: |
+          cd nrf; git checkout main; git branch -D branch_to_run;
           rm -rf PACKAGE_ARTIFACTS_* twister-out
