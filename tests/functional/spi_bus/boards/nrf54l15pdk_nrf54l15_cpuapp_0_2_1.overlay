@@ -5,26 +5,26 @@
  */
 
 
- &pinctrl {
+&pinctrl {
 	spi00_default: spi00_default {
 		group1 {
 			psels = <NRF_PSEL(SPIM_SCK, 2, 6)>,
-				<NRF_PSEL(SPIM_MISO, 2, 9)>,
-				<NRF_PSEL(SPIM_MOSI, 2, 8)>;
+			        <NRF_PSEL(SPIM_MISO, 2, 9)>,
+			        <NRF_PSEL(SPIM_MOSI, 2, 8)>;
 		};
 	};
 
 	spi00_sleep: spi00_sleep {
 		group1 {
 			psels = <NRF_PSEL(SPIM_SCK, 2, 6)>,
-				<NRF_PSEL(SPIM_MISO, 2, 9)>,
-				<NRF_PSEL(SPIM_MOSI, 2, 8)>;
+			        <NRF_PSEL(SPIM_MISO, 2, 9)>,
+			        <NRF_PSEL(SPIM_MOSI, 2, 8)>;
 			low-power-enable;
 		};
 	};
 };
 
- sid_semtech: &spi00 {
+sid_semtech: &spi00 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
 	pinctrl-0 = <&spi00_default>;
@@ -56,7 +56,7 @@
 			gpios = <&gpio1 0xa 0x0>;
 			label = "semtech_sx1262 DIO1";
 		};
-	};	
+	};
 	aliases {
 		led0 = &led0;
 		led1 = &led1;
@@ -74,3 +74,23 @@
 /delete-node/ &button2;
 /delete-node/ &button1;
 /delete-node/ &button0;
+
+&gpiote20 {
+	status = "okay";
+};
+
+&gpiote30 {
+	status = "okay";
+};
+
+&gpio1 {
+	status = "okay";
+};
+
+&gpio2 {
+	status = "okay";
+};
+
+&gpio0 {
+	status = "okay";
+};
