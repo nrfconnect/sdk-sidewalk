@@ -29,8 +29,8 @@ ZTEST(temperature, test_valid_temperature_range_for_SoC)
 {
 	test_initialize();
 	int16_t die_temp = sid_pal_temperature_get();
-	validate_temp_reading(die_temp);
 	printk("die temperature = %d", die_temp);
+	validate_temp_reading(die_temp);
 }
 
 static void analyze_temp_readings(int16_t *values, size_t count, double limit)
