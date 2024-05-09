@@ -20,6 +20,37 @@
 };
 
 /{
+	state_notifier_gpios{
+		compatible = "gpio-keys";
+		state_notifier_error: error  {
+			gpios = <&gpio1 0x8 0x0>;
+			label = "Application state error";
+		};
+		state_notifier_dfu: dfu  {
+			gpios = <&gpio1 0x2 0x0>;
+			label = "Application state dfu";
+		};
+		state_notifier_sending: sending  {
+			gpios = <&gpio1 0x4 0x0>;
+			label = "Application state sending";
+		};
+		state_notifier_receiving: receiving  {
+			gpios = <&gpio1 0x3 0x0>;
+			label = "Application state receiving";
+		};
+	};
+
+	aliases {
+		state-notifier-connected = &led0;
+		state-notifier-time-sync = &led1;
+		state-notifier-registered = &led2;
+		state-notifier-working = &led3;
+		state-notifier-error = &state_notifier_error;
+		state-notifier-dfu = &state_notifier_dfu;
+		state-notifier-sending = &state_notifier_sending;
+		state-notifier-receiving = &state_notifier_receiving;
+	};
+
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
 	   semtech_sx1262_cs: cs {

@@ -12,37 +12,32 @@
 
 #include <state_notifier.h>
 
-struct gpio_pin {
-	const struct device *port;
-	gpio_pin_t pin;
-};
-
-static inline struct gpio_pin state_to_pin_mapper(enum application_state state)
+static inline struct gpio_dt_spec state_to_pin_mapper(enum application_state state)
 {
 	// clang-format off
 	switch (state) {
-	#define X(name, port_obj, pin_num, ...)\
+	#define X(name, ...)\
 		case APPLICATION_STATE_ENUM(name):\
-			return (struct gpio_pin){ .port =COND_CODE_1(DT_NODE_EXISTS(port_obj), DEVICE_DT_GET_OR_NULL(DT_NODELABEL(port_obj)), (NULL)), .pin = pin_num};
+			return (struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_ALIAS(state_notifier_##name), gpios, { 0 });
 		X_APPLICAITON_STATES
 	#undef X
 	}
 	// clang-format on
-	return (struct gpio_pin){ NULL, 0 };
+	return (struct gpio_dt_spec){ 0 };
 }
 
 static void gpio_enumerate_state(enum application_state state_id, uint32_t value)
 {
-	struct gpio_pin gpio_id = state_to_pin_mapper(state_id);
-	if (gpio_id.port == NULL) {
+	struct gpio_dt_spec gpio = state_to_pin_mapper(state_id);
+	if (gpio.port == NULL) {
 		return;
 	}
 
 #if defined(NRF54L15_ENGA_XXAA)
-	gpio_pin_set_raw(gpio_id.port, gpio_id.pin, value);
+	gpio_pin_set_raw(gpio.port, gpio.pin, value);
 #else
 	/* output activated with low state */
-	gpio_pin_set_raw(gpio_id.port, gpio_id.pin, !value);
+	gpio_pin_set_raw(gpio.port, gpio.pin, !value);
 #endif
 }
 
@@ -53,7 +48,7 @@ static void state_change_handler_gpio(const struct notifier_state *state)
 
 static void gpio_initializer(const enum application_state state_id, const uint32_t value)
 {
-	struct gpio_pin pin = state_to_pin_mapper(state_id);
+	struct gpio_dt_spec pin = state_to_pin_mapper(state_id);
 
 	if (pin.port == NULL) {
 		return;

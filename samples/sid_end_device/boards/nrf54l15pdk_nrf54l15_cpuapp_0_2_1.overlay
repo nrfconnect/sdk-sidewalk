@@ -34,6 +34,13 @@ sid_semtech: &spi00 {
 };
 
 /{
+	aliases {
+		state-notifier-connected = &led0;
+		state-notifier-time-sync = &led1;
+		state-notifier-registered = &led2;
+		state-notifier-working = &led3;
+	};
+
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
 		semtech_sx1262_cs: cs {
@@ -57,23 +64,8 @@ sid_semtech: &spi00 {
 			label = "semtech_sx1262 DIO1";
 		};
 	};
-	aliases {
-		led0 = &led0;
-		led1 = &led1;
-		led2 = &led2;
-		led3 = &led3;
-		watchdog0 = &wdt30;
-		/delete-property/ sw0;
-		/delete-property/ sw1;
-		/delete-property/ sw2;
-		/delete-property/ sw3;
-	};
-};
 
-/delete-node/ &button3;
-/delete-node/ &button2;
-/delete-node/ &button1;
-/delete-node/ &button0;
+};
 
 &gpiote20 {
 	status = "okay";
