@@ -14,7 +14,14 @@ jobs:
         run: |
           gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" /repos/${{github.repository}}/pulls/${{github.event.number}} --jq '.body' > pr_body.md
 
-      - uses: chrisdickinson/setup-yq@latest
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: install yq
+        run: pip install yq
+
       - name: Get configuration
         id: config
         shell: bash {0}
@@ -25,8 +32,9 @@ jobs:
           csplit xx01 /\`\`\`/
           mv xx00 configuration.yaml
 
-          revision=$(yq '.Github_actions.NRF_revision' xx00)
+          revision=$(yq '.Github_actions.NRF_revision' configuration.yaml)
           if [ $? != 0 ]; then
+            echo "Failed to read configuration use default main for NRF_revision"
             echo "NRF_revision=main" >> $GITHUB_OUTPUT;
           else
             echo "NRF_revision=$revision" >> $GITHUB_OUTPUT;
