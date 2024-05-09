@@ -37,20 +37,15 @@ jobs:
 
       - name: update NRF
         run: |
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
-          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
-          cd nrf
-          if [[ "${{inputs.nrf_revision}}" =~ "pull/" ]]; then
-            git fetch origin ${{inputs.nrf_revision}}:PR-branch
-            git checkout PR-branch
-          else
-            git fetch origin
-            git checkout ${{inputs.nrf_revision}};
-          fi
-          cd ..
-          west config manifest.group-filter +sidewalk
-          west update -n -o=--depth=1 --path-cache /workdir/
-          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main . &&
+          cd nrf &&
+          git fetch origin ${{inputs.nrf_revision}}:PR-branch &&
+          git checkout PR-branch &&
+          cd .. &&
+          west config manifest.group-filter +sidewalk &&
+          west update -n -o=--depth=1 --path-cache /workdir/ &&
+          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
 
       - name: Install Python dependencies
         run: |

@@ -25,12 +25,10 @@ jobs:
         id: config
         shell: bash {0}
         run: |
-          cat pr_body.md
-
           csplit pr_body.md /\`\`\`yaml/1
           csplit xx01 /\`\`\`/
           mv xx00 configuration.yaml
-
+          cat configuration.yaml
           revision=$(yq '.Github_actions.NRF_revision' configuration.yaml)
           if [ $? != 0 ]; then
             echo "Failed to read configuration use default main for NRF_revision"

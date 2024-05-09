@@ -45,16 +45,16 @@ jobs:
       - name: update NRF
         run: |
           rm -rf .west nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
-          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
-          cd nrf
-          git fetch origin ${{inputs.nrf_revision}}:branch_to_run
-          git checkout branch_to_run
-          git rev-parse HEAD
-          cd ..
-          west config manifest.group-filter +sidewalk
-          west update -n -o=--depth=1 --path-cache /workdir/
-          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main . &&
+          cd nrf &&
+          git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
+          git checkout branch_to_run &&
+          git rev-parse HEAD &&
+          cd .. &&
+          west config manifest.group-filter +sidewalk &&
+          west update -n -o=--depth=1 --path-cache /workdir/ &&
+          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
 
       - name: Install Python dependencies
         run: |
@@ -103,16 +103,16 @@ jobs:
       - name: update NRF
         run: |
           rm -rf .west nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash; cd ..
-          west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
-          cd nrf
-          git fetch origin ${{inputs.nrf_revision}}:branch_to_run
-          git checkout branch_to_run
-          git rev-parse HEAD
-          cd ..
-          west config manifest.group-filter +sidewalk
-          west update -n -o=--depth=1 --path-cache /workdir/
-          cd sidewalk; git checkout `cat /workdir/sidewalk_hash`; rm -rf /workdir/sidewalk_hash
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd ..
+          west init -m https://github.com/nrfconnect/sdk-nrf --mr main . &&
+          cd nrf &&
+          git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
+          git checkout branch_to_run &&
+          git rev-parse HEAD &&
+          cd .. &&
+          west config manifest.group-filter +sidewalk &&
+          west update -n -o=--depth=1 --path-cache /workdir/ &&
+          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
 
       - name: Replace slash with underscore
         id: replace

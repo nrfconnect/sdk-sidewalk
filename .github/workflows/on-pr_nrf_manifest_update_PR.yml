@@ -31,12 +31,10 @@ jobs:
         id: config
         shell: bash {0}
         run: |
-          cat pr_body.md
-
           csplit pr_body.md /\`\`\`yaml/1
           csplit xx01 /\`\`\`/
           mv xx00 configuration.yaml
-
+          cat configuration.yaml
           create_pr=$(yq '.Github_actions.Create_NRF_PR' configuration.yaml)
           if [ $? != 0 ]; then
             echo "Did not found Create_NRF_PR in configuration, default to false."
