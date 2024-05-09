@@ -27,7 +27,7 @@ extern const char *const sidewalk_version_component[];
 	LOG_PRINTK("Sidewalk SDK        = %d.%d.%d.%d\n", SID_SDK_MAJOR_VERSION,                   \
 		   SID_SDK_MINOR_VERSION, SID_SDK_PATCH_VERSION, SID_SDK_BUILD_VERSION);           \
 	LOG_PRINTK("build time          = %s\n", build_time_stamp);                                \
-	LOG_PRINTK("board               = %s\n", CONFIG_BOARD);                                    \
+	LOG_PRINTK("board               = %s\n", CONFIG_BOARD_TARGET);                             \
 	LOG_PRINTK("----------------------------------------------------------------\n")
 #else
 #define PRINT_SIDEWALK_VERSION()
