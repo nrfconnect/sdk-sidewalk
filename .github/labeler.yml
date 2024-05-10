@@ -9,28 +9,43 @@
 
 
 "doc-required":
-  - "doc/**/*"
-  - "doc/*"
-  - "**/*.rst"
+- changed-files:
+  - any-glob-to-any-file:
+    - "doc/**/*"
+    - "doc/*"
+    - "**/*.rst"
 
 "sid-tools":
-  - "tools/**/*"
-  - "tools/*"
+- changed-files:
+  - any-glob-to-any-file:
+    - "tools/**/*"
+    - "tools/*"
 
 "sid-lib":
-  - "lib/**/*"
-  - "lib/*"
+- changed-files:
+  - any-glob-to-any-file:
+    - "lib/**/*"
+    - "lib/*"
 
 "manifest":
-  - "west.yml"
+- changed-files:
+  - any-glob-to-any-file:
+    - "west.yml"
 
 "scripts":
-  - "scripts/**/*"
-  - "scripts/*"
+- changed-files:
+  - any-glob-to-any-file:
+    - "scripts/**/*"
+    - "scripts/*"
 
 "tests":
-  - "tests/**/*"
+- changed-files:
+  - any-glob-to-any-file:
+    - "tests/**/*"
 
 # Add 'source' label to any change in repo EXCEPT the ones defined with ! at the beginning
 "source":
-  - any: ['**/*', '!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml', "!.devcontainer/*", "!scripts/*", "!scripts/**/*", "!tests/**/*", "!.github/*", "!.github/**/*"]
+- all:
+  - changed-files:
+    - any-glob-to-any-file: '**/*'
+    - any-globs-to-all-files: ['!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml', "!.devcontainer/*", "!scripts/*", "!scripts/**/*", "!tests/**/*", "!.github/*", "!.github/**/*"]
