@@ -48,4 +48,4 @@
 - all:
   - changed-files:
     - any-glob-to-any-file: '**/*'
-    - any-globs-to-all-files: ['!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml', "!.devcontainer/*", "!scripts/*", "!scripts/**/*", "!tests/**/*", "!.github/*", "!.github/**/*"]
+    - any-glob-to-all-files: ['!doc/**/*', '!doc/*', '!**/*.rst', '!tools/**/*', '!tools/*', '!lib/**/*', '!lib/*', '!west.yml', "!.devcontainer/*", "!scripts/*", "!scripts/**/*", "!tests/**/*", "!.github/*", "!.github/**/*"]
