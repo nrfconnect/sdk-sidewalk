@@ -88,6 +88,76 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     +---------------+-------------+
     | NRESET        | P0.04       |
     +---------------+-------------+
+   
+   .. tab:: nRF54L15 PDK
+
+      The nRF54L15 PDK does not have the Arduino-compatible header.
+      The connection layout may differ depending on the revision of your PDK.
+      GPIO assignments are recommended by the Nordic Semiconductor. 
+     
+      The nRF54L15 PDK operates on a lower voltage level (1.8V). 
+      The Semtech Shield is compatible with this voltage and can be safely provided to the pin marked as 3.3V.
+      Due to the lower voltage, the Semtech radio cannot achieve the full transmit power, and it will reach a plateau at 15 dBm gain even when a higher value is configured.
+      The specification of the Semtech module describes that it is possible to provide a separate, higher voltage source for radio while maintaining the lower voltage for communication. 
+      However, the recommended shield does not support this configuration.
+
+      .. tabs::
+
+         .. tab:: PDK revision v0.2.1
+
+            The v0.2.1 PDK revision does not require any hardware modification, but the buttons are reused to connect the Semtech SX126X shield.
+            Pressing the buttons while working with the Semtech module can lead to malfunctions and undefined behavior.
+            This issue is caused by the limitation of the v0.2.1 PDK revision. 
+            It is possible to assign different pins for the radio shield, but you might need to disable some of the PDK's functions, or modify connections by cutting or soldering PDK bridges.
+
+            +---------------+--------------+
+            | SX126X shield | nRF54L15 PDK |
+            +===============+==============+
+            | BUSY          | P1.12        |
+            +---------------+--------------+
+            | DIO1          | P1.10        |
+            +---------------+--------------+
+            | NSS           | P2.10        |
+            +---------------+--------------+
+            | ANT_SW        | P2.07        |
+            +---------------+--------------+
+            | SPI MOSI      | P2.08        |
+            +---------------+--------------+
+            | SPI MISO      | P2.09        |
+            +---------------+--------------+
+            | SPI SCK       | P2.06        |
+            +---------------+--------------+
+            | NRESET        | P1.11        |
+            +---------------+--------------+
+
+         .. tab:: PDK revision v0.3.0 / v0.7.0
+
+            To use the suggested pins, disable **UART0** (not used by Sidewalk samples) through the `Board Configurator`_ tool in the nRF Connect for Desktop.
+            This step is required for the shield to work as some pins are connected to **UART0** by default.
+
+            See a board configuration for the suggested pin layout:
+
+            .. figure:: /images/board_configurator_nrf54l15_0_3_0.png
+
+            +---------------+--------------+
+            | SX126X shield | nRF54L15 PDK |
+            +===============+==============+
+            | BUSY          | P0.00        |
+            +---------------+--------------+
+            | DIO1          | P0.03        |
+            +---------------+--------------+
+            | NSS           | P2.10        |
+            +---------------+--------------+
+            | ANT_SW        | P0.01        |
+            +---------------+--------------+
+            | SPI MOSI      | P2.08        |
+            +---------------+--------------+
+            | SPI MISO      | P1.11        |
+            +---------------+--------------+
+            | SPI SCK       | P2.06        |
+            +---------------+--------------+
+            | NRESET        | P0.02        |
+            +---------------+--------------+
 
 .. _setting_up_sidewalk_gateway:
 
@@ -111,3 +181,4 @@ For the exact instructions, refer to the `Setting up a Sidewalk gateway`_ docume
 .. _Amazon Sidewalk gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
 .. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
+.. _Board Configurator: https://docs.nordicsemi.com/bundle/nrf-connect-board-configurator/page/index.html
