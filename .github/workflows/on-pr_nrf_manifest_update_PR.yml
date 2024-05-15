@@ -6,8 +6,10 @@ on:
       - main
 
 jobs:
-  create-manifest-pr:
+  read_pr_configuration:
     runs-on: ubuntu-latest
+    outputs:
+      Create_NRF_PR: ${{ steps.config.outputs.Create_NRF_PR }}
     steps:
       - name: Print Github context
         env:
@@ -43,8 +45,12 @@ jobs:
             echo "Create_NRF_PR=$create_pr" >> $GITHUB_OUTPUT;
           fi;
 
+  create-manifest-pr:
+    runs-on: ubuntu-latest
+    needs: read_pr_configuration
+    if: ${{ fromJson(needs.read_pr_configuration.outputs.Create_NRF_PR)}}
+    steps:
       - name: Create manifest PR
-        if: ${{ fromJson(steps.config.outputs.Create_NRF_PR) }}
         uses: nrfconnect/action-manifest-pr@main
         with:
           token: ${{ secrets.NCS_GITHUB_TOKEN }}
