@@ -6,7 +6,9 @@
 #ifndef SIDEWALK_APP_H
 #define SIDEWALK_APP_H
 
+#include <zephyr/sys/slist.h>
 #include <sid_api.h>
+#include <zephyr/kernel.h>
 
 typedef enum {
 	SID_EVENT_SIDEWALK,
@@ -32,6 +34,7 @@ typedef struct {
 } sidewalk_ctx_t;
 
 typedef struct {
+	sys_snode_t node;
 	struct sid_msg msg;
 	struct sid_msg_desc desc;
 } sidewalk_msg_t;
@@ -45,5 +48,7 @@ typedef struct {
 void sidewalk_start(sidewalk_ctx_t *context);
 
 int sidewalk_event_send(sidewalk_event_t event, void *ctx);
+
+sidewalk_msg_t *get_message_buffer(uint16_t message_id);
 
 #endif /* SIDEWALK_APP_H */

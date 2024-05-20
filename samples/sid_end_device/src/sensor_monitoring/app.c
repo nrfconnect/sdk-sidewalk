@@ -71,6 +71,13 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
 {
 	LOG_DBG("sent message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
+	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
+	if (message == NULL) {
+		LOG_ERR("failed to find message buffer to clean");
+		return;
+	}
+	sid_hal_free(message->msg.data);
+	sid_hal_free(message);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
@@ -78,6 +85,13 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 {
 	LOG_ERR("Send message err %d", (int)error);
 	LOG_DBG("Failed to send message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
+	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
+	if (message == NULL) {
+		LOG_ERR("failed to find message buffer to clean");
+		return;
+	}
+	sid_hal_free(message->msg.data);
+	sid_hal_free(message);
 }
 
 static void on_sidewalk_factory_reset(void *context)
