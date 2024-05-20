@@ -13,7 +13,7 @@ Browse the official Sidewalk documentation:
 
 * Latest Sidewalk documentation for the nRF Connect SDK: https://nrfconnect.github.io/sdk-sidewalk
 
-  * For previous releases, see: https://github.com/nrfconnect/sdk-sidewalk/releases
+  * For release version, see: https://docs.nordicsemi.com/bundle/sidewalk_2.6.99-cs1/page/index.html
 
 * Amazon Sidewalk: https://docs.sidewalk.amazon
 
