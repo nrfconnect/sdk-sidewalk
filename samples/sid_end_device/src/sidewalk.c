@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
 #include <sid_pal_crypto_ifc.h>
 #include <stdio.h>
 
@@ -43,6 +42,24 @@ LOG_MODULE_REGISTER(sidewalk_app, CONFIG_SIDEWALK_LOG_LEVEL);
 static struct k_thread sid_thread;
 K_THREAD_STACK_DEFINE(sid_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
+sys_slist_t pending_message_list = SYS_SLIST_STATIC_INIT(&pending_message_list);
+
+sidewalk_msg_t *get_message_buffer(uint16_t message_id)
+{
+	sidewalk_msg_t *pending_message;
+	sidewalk_msg_t *iterator;
+	SYS_SLIST_FOR_EACH_CONTAINER_SAFE (&pending_message_list, pending_message, iterator, node) {
+		if (pending_message->desc.id == message_id) {
+			if (sys_slist_find_and_remove(&pending_message_list,
+						      &pending_message->node) == false) {
+				LOG_ERR("Failed to remove pending message from list");
+			};
+			return pending_message;
+		}
+	}
+	return NULL;
+}
+
 typedef struct sm_s {
 	struct smf_ctx ctx;
 	struct k_msgq msgq;
@@ -57,11 +74,13 @@ enum state {
 
 static void state_sidewalk_run(void *o);
 static void state_sidewalk_entry(void *o);
+static void state_sidewalk_exit(void *o);
 static void state_dfu_entry(void *o);
 static void state_dfu_run(void *o);
 
 static const struct smf_state sid_states[] = {
-	[STATE_SIDEWALK] = SMF_CREATE_STATE(state_sidewalk_entry, state_sidewalk_run, NULL),
+	[STATE_SIDEWALK] =
+		SMF_CREATE_STATE(state_sidewalk_entry, state_sidewalk_run, state_sidewalk_exit),
 	[STATE_DFU] = SMF_CREATE_STATE(state_dfu_entry, state_dfu_run, NULL),
 };
 
@@ -283,8 +302,7 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid send err %d", (int)e);
 		}
 		LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
-		sid_hal_free(p_msg->msg.data);
-		sid_hal_free(p_msg);
+		sys_slist_append(&pending_message_list, &p_msg->node);
 	} break;
 	case SID_EVENT_CONNECT: {
 		if (!(sm->sid->config.link_mask & SID_LINK_TYPE_1)) {
@@ -343,6 +361,16 @@ static void state_sidewalk_run(void *o)
 		app_dut_event_process(sm->event, sm->sid);
 	}
 #endif /* CONFIG_SID_END_DEVICE_CLI */
+}
+
+static void state_sidewalk_exit(void *o)
+{
+	while (sys_slist_is_empty(&pending_message_list) == false) {
+		sidewalk_msg_t *message;
+		message = SYS_SLIST_CONTAINER(sys_slist_get(&pending_message_list), message, node);
+		sid_hal_free(message->msg.data);
+		sid_hal_free(message);
+	}
 }
 
 static void state_dfu_entry(void *o)
