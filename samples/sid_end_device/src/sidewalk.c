@@ -80,8 +80,8 @@ static void state_dfu_run(void *o);
 
 static const struct smf_state sid_states[] = {
 	[STATE_SIDEWALK] =
-		SMF_CREATE_STATE(state_sidewalk_entry, state_sidewalk_run, state_sidewalk_exit),
-	[STATE_DFU] = SMF_CREATE_STATE(state_dfu_entry, state_dfu_run, NULL),
+		SMF_CREATE_STATE(state_sidewalk_entry, state_sidewalk_run, state_sidewalk_exit, NULL, NULL),
+	[STATE_DFU] = SMF_CREATE_STATE(state_dfu_entry, state_dfu_run, NULL, NULL, NULL),
 };
 
 static uint8_t __aligned(4)
