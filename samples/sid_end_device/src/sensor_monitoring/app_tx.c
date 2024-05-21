@@ -46,9 +46,10 @@ static void state_notify_data(void *o);
 static void button_timer_cb(struct k_timer *timer_id);
 
 static const struct smf_state app_states[] = {
-	[STATE_APP_INIT] = SMF_CREATE_STATE(NULL, state_init, NULL),
-	[STATE_APP_NOTIFY_CAPABILITY] = SMF_CREATE_STATE(NULL, state_notify_capability, NULL),
-	[STATE_APP_NOTIFY_DATA] = SMF_CREATE_STATE(NULL, state_notify_data, NULL),
+	[STATE_APP_INIT] = SMF_CREATE_STATE(NULL, state_init, NULL, NULL, NULL),
+	[STATE_APP_NOTIFY_CAPABILITY] =
+		SMF_CREATE_STATE(NULL, state_notify_capability, NULL, NULL, NULL),
+	[STATE_APP_NOTIFY_DATA] = SMF_CREATE_STATE(NULL, state_notify_data, NULL, NULL, NULL),
 };
 
 static uint8_t __aligned(4)
