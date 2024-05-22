@@ -1,5 +1,6 @@
 tests:
   sidewalk.unit_tests.crypto:
+    sysbuild: true
     tags: Sidewalk
     platform_allow: native_posix
     integration_platforms:

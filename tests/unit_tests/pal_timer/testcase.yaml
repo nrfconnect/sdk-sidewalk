@@ -1,5 +1,6 @@
 tests:
   sidewalk.unit_tests.timer:
+    sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk
     integration_platforms:

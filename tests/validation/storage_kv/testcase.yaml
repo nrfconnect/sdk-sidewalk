@@ -1,5 +1,6 @@
 tests:
   sidewalk.sid_validation.pal_storage_kv:
+    sysbuild: true
     platform_allow: nrf52840dk/nrf52840 nrf5340dk/nrf5340/cpuapp nrf54l15pdk@0.3.0/nrf54l15/cpuapp
     tags: Sidewalk
     integration_platforms:
