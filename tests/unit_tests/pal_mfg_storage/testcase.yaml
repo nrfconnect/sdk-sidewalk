@@ -1,6 +1,7 @@
 tests:
   sidewalk.unit_tests.mfg_storage:
     skip: true
+    sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk
     integration_platforms:

@@ -1,5 +1,6 @@
 tests:
   sidewalk.unit_tests.sid_ble_service:
+    sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk
     integration_platforms:

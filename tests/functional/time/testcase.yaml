@@ -1,5 +1,6 @@
 tests:
   sidewalk.functional.time:
+    sysbuild: true
     tags: Sidewalk
     platform_allow: nrf52840dk/nrf52840 nrf5340dk/nrf5340/cpuapp
     integration_platforms:
