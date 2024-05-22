@@ -123,7 +123,7 @@ Follow these steps to download the Sidewalk application for the nRF Connect SDK:
 
       $ pip install -r sidewalk/requirements.txt
 
-#. Set the Sidewalk application manifest and update.
+#. Set the Sidewalk application manifest and update repositories.
 
    a. Check the current manifest path:
 
@@ -158,9 +158,3 @@ Extracting nRF Command Line Tools
 *********************************
 
 To download the nRF Command Line, go to the `nRF command line tools`_ page.
-
-.. include:: ../ncs_links.rst
-
-.. _sdk-sidewalk repository: https://github.com/nrfconnect/sdk-sidewalk
-.. _nRF Command Line Tools: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs
-.. _Installing the nRF Connect SDK: https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/installation/install_ncs.html

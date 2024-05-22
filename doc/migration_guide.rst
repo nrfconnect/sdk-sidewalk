@@ -388,7 +388,3 @@ To use the deprecated functionalities, you have to enable the relevant Kconfig o
 * ``CONFIG_SIDEWALK_LINK_MASK`` -- The option chooses sidewalk link mask to start with.
   New Sidewalk libraries support link switch in runtime.
   To switch between the full link mask support libraries and Bluetooth LE only libraries, use the ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` option.
-
-.. _Application notes: https://docs.sidewalk.amazon/app-notes/
-.. _How to manufacture and produce devices: https://docs.sidewalk.amazon/manufacturing/manufacture-provision/
-.. _Amazon Sidewalk specification: https://docs.sidewalk.amazon/specifications/

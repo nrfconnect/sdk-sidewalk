@@ -36,7 +36,7 @@ This documentation will guide you through the setup of Amazon Sidewalk used with
 Browse the content by referring to the following pages:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
    :caption: Subpages:
 
@@ -46,8 +46,3 @@ Browse the content by referring to the following pages:
    migration_guide.rst
    sidewalk_release_notes.rst
    additional_resources.rst
-
-.. include:: ncs_links.rst
-
-.. _Amazon license: https://raw.githubusercontent.com/nrfconnect/sdk-sidewalk/main/LICENSE.txt
-.. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html

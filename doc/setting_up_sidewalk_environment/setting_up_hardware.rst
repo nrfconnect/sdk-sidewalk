@@ -88,17 +88,17 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     +---------------+-------------+
     | NRESET        | P0.04       |
     +---------------+-------------+
-   
+
    .. tab:: nRF54L15 PDK
 
       The nRF54L15 PDK does not have the Arduino-compatible header.
       The connection layout may differ depending on the revision of your PDK.
-      GPIO assignments are recommended by the Nordic Semiconductor. 
-     
-      The nRF54L15 PDK operates on a lower voltage level (1.8V). 
+      GPIO assignments are recommended by the Nordic Semiconductor.
+
+      The nRF54L15 PDK operates on a lower voltage level (1.8V).
       The Semtech Shield is compatible with this voltage and can be safely provided to the pin marked as 3.3V.
       Due to the lower voltage, the Semtech radio cannot achieve the full transmit power, and it will reach a plateau at 15 dBm gain even when a higher value is configured.
-      The specification of the Semtech module describes that it is possible to provide a separate, higher voltage source for radio while maintaining the lower voltage for communication. 
+      The specification of the Semtech module describes that it is possible to provide a separate, higher voltage source for radio while maintaining the lower voltage for communication.
       However, the recommended shield does not support this configuration.
 
       .. tabs::
@@ -107,7 +107,7 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
 
             The v0.2.1 PDK revision does not require any hardware modification, but the buttons are reused to connect the Semtech SX126X shield.
             Pressing the buttons while working with the Semtech module can lead to malfunctions and undefined behavior.
-            This issue is caused by the limitation of the v0.2.1 PDK revision. 
+            This issue is caused by the limitation of the v0.2.1 PDK revision.
             It is possible to assign different pins for the radio shield, but you might need to disable some of the PDK's functions, or modify connections by cutting or soldering PDK bridges.
 
             +---------------+--------------+
@@ -137,7 +137,11 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
 
             See a board configuration for the suggested pin layout:
 
-            .. figure:: /images/board_configurator_nrf54l15_0_3_0.png
+            +--------------------------------------------------------------+
+            |                                                              |
+            | .. figure:: /images/board_configurator_nrf54l15_0_3_0.png    |
+            |                                                              |
+            +--------------------------------------------------------------+
 
             +---------------+--------------+
             | SX126X shield | nRF54L15 PDK |
@@ -172,13 +176,3 @@ For the exact instructions, refer to the `Setting up a Sidewalk gateway`_ docume
 .. note::
    If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
    If you need to operate multiple FSK gateways, we recommend setting them up under separate Amazon accounts.
-
-.. include:: ../ncs_links.rst
-
-.. _Echo: https://www.amazon.com/All-New-Echo-4th-Gen/dp/B07XKF5RM3
-.. _iOS: https://apps.apple.com/us/app/amazon-alexa/id94401162
-.. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
-.. _Amazon Sidewalk gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
-.. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html
-.. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
-.. _Board Configurator: https://docs.nordicsemi.com/bundle/nrf-connect-board-configurator/page/index.html

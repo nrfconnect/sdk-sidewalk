@@ -163,6 +163,3 @@ See the details on running and testing individual variants, as well as enabling 
    variants/hello.rst
    variants/sensor_monitoring.rst
    variants/dut.rst
-
-.. include:: ../ncs_links.rst
-.. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
