@@ -117,13 +117,13 @@ You can build the ``release`` firmware for ``build_target`` by running the follo
 .. parsed-literal::
    :class: highlight
 
-   $ west build -b *build_target* -- -DCONF_FILE=prj_release.conf
+   $ west build -b *build_target* -- -DFILE_SUFFIX=release
 
 For example:
 
 .. code-block:: console
 
-   $ west build -b nrf52840dk/nrf52840 -- -DCONF_FILE=prj_release.conf
+   $ west build -b nrf52840dk/nrf52840 -- -DFILE_SUFFIX=release
 
 .. note::
     Selecting a build type is optional.

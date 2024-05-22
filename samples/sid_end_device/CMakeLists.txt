@@ -6,9 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-# Sidewalk version
-include(bootloader_version.cmake)
-
 # Zephyr CMake project
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_sid_end_device)
