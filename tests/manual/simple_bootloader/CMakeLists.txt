@@ -6,8 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-include($ENV{ZEPHYR_BASE}/../sidewalk/samples/sid_end_device/bootloader_version.cmake)
-
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(simple_bootloader)
 
