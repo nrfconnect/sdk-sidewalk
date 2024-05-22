@@ -29,5 +29,3 @@ Testing
 
 #. To start testing the application, use the Sidewalk CLI (DUT).
    Type ``sid help`` and press enter to get the list of supported commands.
-
-.. include:: ../../ncs_links.rst

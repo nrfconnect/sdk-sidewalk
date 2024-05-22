@@ -92,7 +92,3 @@ You should see the following output:
       [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE
 
 .. include:: ../../includes/include_testing_nordic_dfu.txt
-
-.. include:: ../../ncs_links.rst
-.. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
-.. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app

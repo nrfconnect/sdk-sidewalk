@@ -239,13 +239,3 @@ Receiving message from AWS MQTT
 
 
 .. include:: ../../includes/include_testing_nordic_dfu.txt
-
-.. include:: ../../ncs_links.rst
-.. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
-.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
-.. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-.. _ID users change permissions: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_change-permissions.html
-.. _Sidewalk Protocol Specification: https://docs.sidewalk.amazon/specifications/
-.. _Sidewalk_Handler CloudWatch log group: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups/log-group/$252Faws$252Flambda$252FSidewalk_Handler
-.. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
-.. _CloudShell: https://console.aws.amazon.com/cloudshell

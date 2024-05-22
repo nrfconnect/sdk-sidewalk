@@ -114,14 +114,3 @@ Use MQTT client
 #. Type your MQTT topic in the filter field and click :guilabel:`Subscribe`.
 
    .. figure:: /images/AWSIoTCoreMQTT.png
-
-.. include:: ../ncs_links.rst
-
-.. _sdk-sidewalk: https://github.com/nrfconnect/sdk-sidewalk
-.. _Onbarding your Sidewalk devices: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-gs-workflow.html
-.. _Provision your Sidewalk endpoint and flash the binary image: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-provision-endpoint.html
-.. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
-.. _Amazon Sidewalk IoT Prerequisites: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#prerequisites
-.. _Install virtual environment: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#1-install-virtual-environment
-.. _AWS: https://aws.amazon.com/
-.. _sdk-nrf: https://github.com/nrfconnect/sdk-nrf

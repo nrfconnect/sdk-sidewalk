@@ -58,3 +58,7 @@ html_theme = 'sphinx_ncs_theme'
 html_static_path = ['_static']
 
 plantuml = 'java -jar /usr/local/bin/plantuml.jar'
+
+rst_epilog = """
+.. include:: /ncs_links.rst
+"""

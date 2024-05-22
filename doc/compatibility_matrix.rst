@@ -39,5 +39,3 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - Planned
 
 `*` From the v2.5.0 release, Amazon Sidewalk is a part of the nRF Connect SDK.
-
-.. include:: ncs_links.rst

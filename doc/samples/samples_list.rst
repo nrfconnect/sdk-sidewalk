@@ -38,7 +38,3 @@ The following table demonstrates the variants' configuration for the supported d
    :caption: Subpages:
 
    sid_end_device.rst
-
-.. include:: ../ncs_links.rst
-
-.. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
