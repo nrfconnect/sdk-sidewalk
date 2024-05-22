@@ -2,6 +2,7 @@ sample:
   name: Sidewalk end device sample
   description: Sample implementing Amazon Sidewalk End Device
 common:
+  sysbuild: true
   build_only: true
   platform_allow:
     - nrf52840dk/nrf52840
@@ -19,7 +20,7 @@ tests:
 
   sample.sidewalk.hello.release:
     extra_args:
-      CONF_FILE=prj_release.conf
+      FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
     tags: Sidewalk hello
@@ -31,7 +32,7 @@ tests:
 
   sample.sidewalk.hello.ble_only.release:
     extra_args:
-      CONF_FILE=prj_release.conf
+      FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
     tags: Sidewalk hello BLE
