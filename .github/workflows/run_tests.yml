@@ -9,7 +9,7 @@ on:
       boards_to_test:
         type: string
         required: false
-        default: '["nrf52840dk/nrf52840", "nrf5340dk/nrf5340/cpuapp", "nrf54l15pdk@0.3.0/nrf54l15/cpuapp"]'
+        default: '["nrf52840dk/nrf52840", "nrf5340dk/nrf5340/cpuapp", "nrf54l15pdk/nrf54l15/cpuapp"]'
 
 jobs:
   build_manual_tests:
