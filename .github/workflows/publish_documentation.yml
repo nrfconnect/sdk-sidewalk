@@ -51,8 +51,17 @@ jobs:
           zip -rq "${ARCHIVE}" .
           mv "${ARCHIVE}" /workdir
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: |
+            /workdir/${ARCHIVE}
+
       - name: Prepare access key
         run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan upload-v1.zoominsoftware.io >> ~/.ssh/known_hosts
           echo "${{ secrets.NCS_ZOOMIN_KEY }}" | base64 -d > zoomin_key
           chmod 600 zoomin_key
 
