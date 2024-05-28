@@ -1,0 +1,72 @@
+name: Publish documentation
+
+on:
+  workflow_dispatch:
+    inputs:
+      documentation_tag:
+        type: string
+        required: false
+        default: "latest"
+        description: "Label of the documentation"
+      project_revision:
+        type: string
+        required: false
+        default: "main"
+        description: "Branch/commitSHA of the project from where documentaiton is build"
+
+  workflow_call:
+    inputs:
+      documentation_tag:
+        type: string
+        required: true
+        default: "latest"
+      project_revision:
+        type: string
+        required: true
+        default: "main"
+
+jobs:
+  Publish_Documentation:
+    env:
+      ARCHIVE: "sidewalk_${{inputs.documentation_tag}}.zip"
+
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{inputs.project_revision}}
+          path: sidewalk
+
+      - name: Build documentation
+        run: |
+          cd sidewalk/doc
+          ./build_local.sh
+
+          cp custom.properties build/html
+          sed -i 's/__VERSION__/'"${{inputs.documentation_tag}}"'/g' build/html/custom.properties
+
+          cp tags.yml build/html
+          sed -i 's/__VERSION__/'"${{inputs.documentation_tag}}"'/g' build/html/tags.yml
+
+          cd build/html
+          zip -rq "${ARCHIVE}" .
+          mv "${ARCHIVE}" /workdir
+
+      - name: Publish documentation
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: 'nordic'
+          server: 'upload-v1.zoominsoftware.io'
+          ssh_private_key: ${{ secrets.NCS_ZOOMIN_KEY }}
+          local_path: '/workdir/${ARCHIVE}'
+          remote_path: '/nordic-be-dev.zoominsoftware.io/sphinx-html/incoming'
+          sftpArgs: '-o ConnectTimeout=5'
