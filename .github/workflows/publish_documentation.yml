@@ -57,13 +57,13 @@ jobs:
         with:
           name: documentation
           path: |
-            /workdir/${ARCHIVE}
+            /workdir/${{env.ARCHIVE}}
 
       - name: Prepare access key
         run: |
           mkdir -p /root/.ssh
           ssh-keyscan upload-v1.zoominsoftware.io >> /root/.ssh/known_hosts
-          echo "${{ secrets.NCS_ZOOMIN_KEY }}" | base64 -d > zoomin_key
+          echo "${{ secrets.NCS_ZOOMIN_KEY }}" | base64 --decode --ignore-garbage > zoomin_key
           chmod 600 zoomin_key
 
       - name: Publish documentation
