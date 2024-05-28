@@ -8,11 +8,6 @@ on:
         required: false
         default: "latest"
         description: "Label of the documentation"
-      project_revision:
-        type: string
-        required: false
-        default: "main"
-        description: "Branch/commitSHA of the project from where documentaiton is build"
 
   workflow_call:
     inputs:
@@ -20,10 +15,6 @@ on:
         type: string
         required: true
         default: "latest"
-      project_revision:
-        type: string
-        required: true
-        default: "main"
 
 jobs:
   Publish_Documentation:
@@ -43,7 +34,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{inputs.project_revision}}
           path: sidewalk
 
       - name: Build documentation
