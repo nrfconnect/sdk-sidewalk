@@ -11,7 +11,7 @@ ARG command_line_tools_url=https://nsscprodmedia.blob.core.windows.net/prod/soft
 
 RUN apt-get update; apt-get install --no-install-recommends -y wget curl libusb-1.0-0 \
   clangd ssh nano bash-completion gpg ruby lcov screen libffi7 libffi-dev libfftw3-dev python3-venv \
-  git-lfs golang-go clang-format python3-pip python3-autopep8 gitlint libmagic1 git gcc g++ gcc-multilib lbzip2 jq sudo
+  git-lfs golang-go clang-format python3-pip python3-autopep8 gitlint libmagic1 git gcc g++ gcc-multilib lbzip2 jq sudo zip
 
 ENV NRFUTIL_HOME=/usr/local/share/nrfutil
 RUN <<EOT
