@@ -51,12 +51,15 @@ jobs:
           zip -rq "${ARCHIVE}" .
           mv "${ARCHIVE}" /workdir
 
+      - name: Prepare access key
+        run: |
+          echo "${{ secrets.NCS_ZOOMIN_KEY }}" | base64 -d > zoomin_key
+          chmod 600 zoomin_key
+
       - name: Publish documentation
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          username: 'nordic'
-          server: 'upload-v1.zoominsoftware.io'
-          ssh_private_key: ${{ secrets.NCS_ZOOMIN_KEY }}
-          local_path: '/workdir/${ARCHIVE}'
-          remote_path: '/nordic-be-dev.zoominsoftware.io/sphinx-html/incoming'
-          sftpArgs: '-o ConnectTimeout=5'
+        run: |
+          sftp -v -i zoomin_key nordic@upload-v1.zoominsoftware.io <<EOF
+            cd nordic-be-dev.zoominsoftware.io/sphinx-html/incoming
+            put /workdir/${ARCHIVE}
+            quit
+          EOF
