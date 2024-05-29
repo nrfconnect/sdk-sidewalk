@@ -81,7 +81,7 @@ jobs:
       - name: Publish documentation - dev
         if: ${{inputs.publish_to_dev}}
         run: |
-          sftp -v -i zoomin_key ${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
+          sftp -v -i zoomin_key ${{vars.NCS_ZOOMIN_USER}}@${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
             cd ${{ vars.NCS_ZOOMIN_DEPLOY_DEV_PATH}}
             put /workdir/${{env.ARCHIVE}}
           EOF
@@ -89,7 +89,7 @@ jobs:
       - name: Publish documentation - prod
         if: ${{inputs.publish_to_prod}}
         run: |
-          sftp -v -i zoomin_key ${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
+          sftp -v -i zoomin_key ${{vars.NCS_ZOOMIN_USER}}@${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
             cd ${{ vars.NCS_ZOOMIN_DEPLOY_PROD_PATH}}
             put /workdir/${{env.ARCHIVE}}
           EOF
