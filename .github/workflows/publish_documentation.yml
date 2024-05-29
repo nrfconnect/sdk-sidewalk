@@ -71,24 +71,25 @@ jobs:
           path: |
             /workdir/${{env.ARCHIVE}}
 
+      - name: Prepare Key
+        run: |
+          mkdir -p /root/.ssh
+          ssh-keyscan upload-v1.zoominsoftware.io >> /root/.ssh/known_hosts
+          echo ${{ secrets.NCS_ZOOMIN_KEY }} > zoomin_key
+          chmod 600 zoomin_key
+
       - name: Publish documentation - dev
         if: ${{inputs.publish_to_dev}}
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          username: ${{ vars.NCS_ZOOMIN_USER }}
-          server: ${{ vars.NCS_ZOOMIN_SERVER }}
-          ssh_private_key: ${{ secrets.NCS_ZOOMIN_KEY }}
-          local_path: '/workdir/${{env.ARCHIVE}}'
-          remote_path: ${{ vars.NCS_ZOOMIN_DEPLOY_DEV_PATH}}
-          sftpArgs: '-o ConnectTimeout=5'
+        run: |
+          sftp -v -i zoomin_key ${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
+            cd ${{ vars.NCS_ZOOMIN_DEPLOY_DEV_PATH}}
+            put /workdir/${{env.ARCHIVE}}
+          EOF
 
       - name: Publish documentation - prod
         if: ${{inputs.publish_to_prod}}
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          username: ${{ vars.NCS_ZOOMIN_USER }}
-          server: ${{ vars.NCS_ZOOMIN_SERVER }}
-          ssh_private_key: ${{ secrets.NCS_ZOOMIN_KEY }}
-          local_path: '/workdir/${{env.ARCHIVE}}'
-          remote_path: ${{ vars.NCS_ZOOMIN_DEPLOY_PROD_PATH}}
-          sftpArgs: '-o ConnectTimeout=5'
+        run: |
+          sftp -v -i zoomin_key ${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
+            cd ${{ vars.NCS_ZOOMIN_DEPLOY_PROD_PATH}}
+            put /workdir/${{env.ARCHIVE}}
+          EOF
