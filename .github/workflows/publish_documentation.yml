@@ -8,6 +8,12 @@ on:
         required: false
         default: "latest"
         description: "Label of the documentation"
+      publish_to_prod:
+        type: boolean
+        default: true
+      publish_to_dev:
+        type: boolean
+        default: true
 
   workflow_call:
     inputs:
@@ -15,6 +21,12 @@ on:
         type: string
         required: true
         default: "latest"
+      publish_to_prod:
+        type: boolean
+        default: true
+      publish_to_dev:
+        type: boolean
+        default: true
 
 jobs:
   Publish_Documentation:
@@ -48,8 +60,8 @@ jobs:
           sed -i 's/__VERSION__/'"${{inputs.documentation_tag}}"'/g' build/html/tags.yml
 
           cd build/html
-          zip -rq "${ARCHIVE}" .
-          mv "${ARCHIVE}" /workdir/${ARCHIVE}
+          zip -rq "${{env.ARCHIVE}}" .
+          mv "${{env.ARCHIVE}}" /workdir/${{env.ARCHIVE}}
           ls -lah /workdir
 
       - name: Upload build artifacts
@@ -59,19 +71,24 @@ jobs:
           path: |
             /workdir/${{env.ARCHIVE}}
 
-      - name: Prepare access key
-        run: |
-          mkdir -p /root/.ssh
-          ssh-keyscan upload-v1.zoominsoftware.io >> /root/.ssh/known_hosts
-          echo "${{ secrets.NCS_ZOOMIN_KEY }}" > zoomin_key
-          echo wc -l zoomin_key
-          echo "" >> zoomin_key
-          chmod 600 zoomin_key
+      - name: Publish documentation - dev
+        if: ${{inputs.publish_to_dev}}
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ vars.NCS_ZOOMIN_USER }}
+          server: ${{ vars.NCS_ZOOMIN_SERVER }}
+          ssh_private_key: ${{ secrets.NCS_ZOOMIN_KEY }}
+          local_path: '/workdir/${{env.ARCHIVE}}'
+          remote_path: ${{ vars.NCS_ZOOMIN_DEPLOY_DEV_PATH}}
+          sftpArgs: '-o ConnectTimeout=5'
 
-      - name: Publish documentation
-        run: |
-          sftp -v -i zoomin_key nordic@upload-v1.zoominsoftware.io <<EOF
-            cd nordic-be-dev.zoominsoftware.io/sphinx-html/incoming
-            put /workdir/${ARCHIVE}
-            quit
-          EOF
+      - name: Publish documentation - prod
+        if: ${{inputs.publish_to_prod}}
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ vars.NCS_ZOOMIN_USER }}
+          server: ${{ vars.NCS_ZOOMIN_SERVER }}
+          ssh_private_key: ${{ secrets.NCS_ZOOMIN_KEY }}
+          local_path: '/workdir/${{env.ARCHIVE}}'
+          remote_path: ${{ vars.NCS_ZOOMIN_DEPLOY_PROD_PATH}}
+          sftpArgs: '-o ConnectTimeout=5'

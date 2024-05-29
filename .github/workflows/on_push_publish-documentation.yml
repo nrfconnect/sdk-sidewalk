@@ -1,0 +1,17 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Publish latest documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'doc/**'
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/publish_documentation.yml
+    with:
+      documentation_tag: "latest"
+      publish_to_prod: true
+      publish_to_dev: true
