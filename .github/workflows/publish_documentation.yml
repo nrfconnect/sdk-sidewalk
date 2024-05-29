@@ -75,7 +75,7 @@ jobs:
         run: |
           mkdir -p /root/.ssh
           ssh-keyscan upload-v1.zoominsoftware.io >> /root/.ssh/known_hosts
-          echo ${{ secrets.NCS_ZOOMIN_KEY }} > zoomin_key
+          echo "${{ secrets.NCS_ZOOMIN_KEY }}" > zoomin_key
           chmod 600 zoomin_key
 
       - name: Publish documentation - dev
