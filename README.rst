@@ -11,14 +11,9 @@ Documentation
 
 Browse the official Sidewalk documentation:
 
-* Latest Sidewalk documentation for the nRF Connect SDK: https://docs.nordicsemi.com/bundle/sidewalk_latest/page/index.html
-
-  * For release version, see: https://docs.nordicsemi.com/bundle/sidewalk_2.6.99-cs1/page/index.html
+* To see the official nRF Connect SDK documentation, go to https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/amazon_sidewalk/index.html
 
 * Amazon Sidewalk: https://docs.sidewalk.amazon
-
-To see the official nRF Connect SDK documentation, go to https://developer.nordicsemi.com/nRF_Connect_SDK/doc/2.6.0/nrf/index.html.
-
 
 Support
 *******
