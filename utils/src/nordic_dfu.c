@@ -27,6 +27,10 @@ static const struct bt_data ad[] = {
 		      0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53, 0x8d),
 };
 
+static const struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+};
+
 static enum led_status_e {
 	LED_TOGGLE_ALL,
 	LED_LOADING_WHEEL,
@@ -123,7 +127,7 @@ int nordic_dfu_ble_start(void)
 
 	mgmt_callback_register(&dfu_mode_mgmt_cb);
 
-	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), NULL, 0);
+	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd,  ARRAY_SIZE(sd));
 	if (err) {
 		LOG_ERR("Bluetooth advertising start failed (err %d)", err);
 		return err;
