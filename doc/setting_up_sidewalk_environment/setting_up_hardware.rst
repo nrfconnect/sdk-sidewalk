@@ -171,7 +171,7 @@ Sidewalk gateway
 .. note::
    Refer to the `Amazon Sidewalk gateways`_ for the complete list of available devices.
 
-For the exact instructions, refer to the `Setting up a Sidewalk gateway`_ documentation.
+See the official Amazon Sidewalk documentation on `Setting up a Sidewalk gateway`_.
 
 .. note::
    If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.

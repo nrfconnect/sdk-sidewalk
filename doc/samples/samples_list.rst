@@ -30,7 +30,7 @@ The following table demonstrates the variants' configuration for the supported d
 .. note::
 
    With the v2.6.0 release of the `nRF Connect SDK`_ a new sample model has been introduced.
-   To see how the changes might affect your application, see the :ref:`migration_guide`.
+   To see how the changes might affect your application, see the :ref:`migration_guide_v260`.
 
 .. toctree::
    :maxdepth: 3

@@ -1,7 +1,7 @@
-.. _migration_guide:
+.. _migration_guide_v260:
 
-Migration guide
-***************
+Migration guide for the v2.6.0 of the nRF Connect SDK
+*****************************************************
 
 .. contents::
    :local:
@@ -43,7 +43,7 @@ The new approach allows to present the same functionalities through one, unified
 
         Introduces common, configurable code base:
 
-        .. figure:: images/unify_sample_new.svg
+        .. figure:: ../images/unify_sample_new.svg
            :scale: 100 %
            :alt: New samples model
 
@@ -51,7 +51,7 @@ The new approach allows to present the same functionalities through one, unified
 
         Samples are separate for each configuration:
 
-        .. figure:: images/unify_sample_old.svg
+        .. figure:: ../images/unify_sample_old.svg
            :scale: 100 %
            :alt: Old samples model
 
@@ -371,8 +371,6 @@ Sidewalk and custom Bluetooth Service
 :ref:`sidewalk_end_device` uses the `Zephyr State Machine Framework`_.
 The :file:`sidewalk.c` file uses the state machine to demonstrate how the application can switch between Sidewalk and the `Zephyr SMP Server sample`_.
 You can use this as a reference design for switching between Sidewalk mode and another Bluetooth LE service-based application.
-
-.. include:: ncs_links.rst
 
 Using old samples model
 =======================

@@ -72,9 +72,9 @@ The application consists of two source files:
 
 Additionally, it has a variant-specific file:
 
-* :file:`app.c` (:file:`app.h`) -- Implements application logic.
+* :file:`app.c` (:file:`app.h`) -- A file that implements the application's logic.
   It communicates to the Sidewalk thread using events defined in the :file:`sidewalk.h` file, and receives Sidewalk callbacks defined in the :file:`sid_api.h` file.
-  An application may consist of multiple ``app_*`` files that are used to define user interface and realize application logic.
+  An application may consist of multiple ``app_*`` files that are used to define user interface and realize application's logic.
 
 .. _sidewalk_end_device_configuration:
 
