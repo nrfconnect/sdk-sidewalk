@@ -60,5 +60,5 @@ html_static_path = ['_static']
 plantuml = 'java -jar /usr/local/bin/plantuml.jar'
 
 rst_epilog = """
-.. include:: /ncs_links.rst
+.. include:: /links.rst
 """

@@ -50,13 +50,51 @@ For example:
 User Interface
 **************
 
-.. include:: ../../includes/include_user_interface_common.txt
+.. tabs::
 
-Button 1-4 (short press):
-   Send button action message - This action works after the application successfully sends capability message.
+   .. group-tab:: nRF52 and nRF53 DKs
 
-LED 1-4:
-   Notify LED action message - Works after the application successfully sends capability message.
+      Button 1 (long press):
+         Enter DFU state - This action disables the Sidewalk stack and starts the Bluetooth LE SMP Server.
+         You can update the firmware image using the nRF Connect for mobile application.
+         To exit the DFU state, long press **Button 1**.
+
+      Button 2 (long press):
+         Factory reset - The application informs the Sidewalk stack about the factory reset event.
+         The Sidewalk library clears its configuration from the non-volatile storage.
+         After a successful reset, the device needs to be registered with the cloud services again.
+
+      Button 3 (long press):
+         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
+         A log message informs about the link mask switch and the status of the operation.
+
+      Button 1-4 (short press):
+         Send button action message - This action works after the application successfully sends capability message.
+
+      LED 1-4:
+         Notify LED action message - Works after the application successfully sends capability message.
+
+   .. group-tab:: nRF54 DKs
+
+      Button 0 (long press):
+         Enter DFU state - This action disables the Sidewalk stack and starts the Bluetooth LE SMP Server.
+         You can update the firmware image using the nRF Connect for mobile application.
+         To exit the DFU state, long press **Button 0**.
+
+      Button 1 (long press):
+         Factory reset - The application informs the Sidewalk stack about the factory reset event.
+         The Sidewalk library clears its configuration from the non-volatile storage.
+         After a successful reset, the device needs to be registered with the cloud services again.
+
+      Button 2 (long press):
+         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
+         A log message informs about the link mask switch and the status of the operation.
+
+      Button 0-3 (short press):
+         Send button action message - This action works after the application successfully sends capability message.
+
+      LED 0-3:
+         Notify LED action message - Works after the application successfully sends capability message.
 
 Building and running
 ********************

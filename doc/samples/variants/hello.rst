@@ -21,33 +21,91 @@ The sample variant supports the following Kconfig options:
 User Interface
 **************
 
-.. include:: ../../includes/include_user_interface_common.txt
+.. tabs::
 
-Button 1 (short press):
-   Send Hello -  This action queues a message to the cloud.
-   If Sidewalk is not ready, it displays an error without sending the message.
-   On Bluetooth LE, the application performs Connection Requests before sending the message.
+   .. group-tab:: nRF52 and nRF53 DKs
 
-Button 2 (short press):
-   Set Connection Request - The device requests the Sidewalk Gateway to initiate a connection while the device advertises through Bluetooth LE.
-   Gateways may not process this request, as it depends on the number of devices connected to it.
+      Button 1 (long press):
+         Enter DFU state - This action disables the Sidewalk stack and starts the Bluetooth LE SMP Server.
+         You can update the firmware image using the nRF Connect for mobile application.
+         To exit the DFU state, long press **Button 1**.
 
-Button 3 (short press):
-   Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
-   A log message informs about the link mask switch and the status of the operation.
+      Button 2 (long press):
+         Factory reset - The application informs the Sidewalk stack about the factory reset event.
+         The Sidewalk library clears its configuration from the non-volatile storage.
+         After a successful reset, the device needs to be registered with the cloud services again.
 
-LED 1:
-   Indicates that the application established a link and connected successfully.
-   The application is ready to send and receive Sidewalk messages.
+      Button 3 (long press):
+         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
+         A log message informs about the link mask switch and the status of the operation.
 
-LED 2:
-   Indicates that the application time synced successfully.
+      Button 1 (short press):
+         Send Hello -  This action queues a message to the cloud.
+         If Sidewalk is not ready, it displays an error without sending the message.
+         On Bluetooth LE, the application performs Connection Requests before sending the message.
 
-LED 3:
-   Indicates that the application registered successfully.
+      Button 2 (short press):
+         Set Connection Request - The device requests the Sidewalk Gateway to initiate a connection while the device advertises through Bluetooth LE.
+         Gateways may not process this request, as it depends on the number of devices connected to it.
 
-LED 4:
-   Indicates that the application woke up successfully.
+      Button 3 (short press):
+         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
+         A log message informs about the link mask switch and the status of the operation.
+
+      LED 1:
+         Indicates that the application established a link and connected successfully.
+         The application is ready to send and receive Sidewalk messages.
+
+      LED 2:
+         Indicates that the application time synced successfully.
+
+      LED 3:
+         Indicates that the application registered successfully.
+
+      LED 4:
+         Indicates that the application woke up successfully.
+
+   .. group-tab:: nRF54 DKs
+
+      Button 0 (long press):
+         Enter DFU state - This action disables the Sidewalk stack and starts the Bluetooth LE SMP Server.
+         You can update the firmware image using the nRF Connect for mobile application.
+         To exit the DFU state, long press **Button 0**.
+
+      Button 1 (long press):
+         Factory reset - The application informs the Sidewalk stack about the factory reset event.
+         The Sidewalk library clears its configuration from the non-volatile storage.
+         After a successful reset, the device needs to be registered with the cloud services again.
+
+      Button 2 (long press):
+         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
+         A log message informs about the link mask switch and the status of the operation.
+
+      Button 0 (short press):
+         Send Hello -  This action queues a message to the cloud.
+         If Sidewalk is not ready, it displays an error without sending the message.
+         On Bluetooth LE, the application performs Connection Requests before sending the message.
+
+      Button 1 (short press):
+         Set Connection Request - The device requests the Sidewalk Gateway to initiate a connection while the device advertises through Bluetooth LE.
+         Gateways may not process this request, as it depends on the number of devices connected to it.
+
+      Button 2 (short press):
+         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
+         A log message informs about the link mask switch and the status of the operation.
+
+      LED 0:
+         Indicates that the application established a link and connected successfully.
+         The application is ready to send and receive Sidewalk messages.
+
+      LED 1:
+         Indicates that the application time synced successfully.
+
+      LED 2:
+         Indicates that the application registered successfully.
+
+      LED 3:
+         Indicates that the application woke up successfully.
 
 Building and running
 ********************
@@ -71,113 +129,225 @@ Starting Sidewalk
 
 To start Sidewalk, do the following:
 
-#. Connect your Nordic device to the PC through USB.
-   Set the device's power switch to **ON**.
+.. tabs::
 
-#. Flash the sample application with the manufacturing data as described in the building and running section of the respective sample.
+   .. group-tab:: nRF52 and nRF53 DKs
 
-   You should see the following logs:
+      #. Connect your Nordic device to the PC through USB.
+         Set the device's power switch to **ON**.
 
-   .. code-block:: console
+      #. Flash the sample application with the manufacturing data as described in the building and running section of the respective sample.
 
-      *** Booting nRF Connect SDK 883c3709f9c8 ***
-      ----------------------------------------------------------------
-      sidewalk             v2.5.0-3-g1232aabb
-      nrf                  v2.5.0-g271e80422
-      zephyr               883c3709f9
-      ----------------------------------------------------------------
-      sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
-      build time          = 2023-03-14 15:00:00.000000+00:00
-      board               = nrf52840dk
-      ----------------------------------------------------------------
-      [00:00:00.001,373] <inf> application_state: working = true
-      [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE
+         You should see the following logs:
 
-   When Sidewalk sample starts, **LED 4** turns on.
+         .. code-block:: console
 
-#. Wait for the device to complete the registration.
+            *** Booting nRF Connect SDK 883c3709f9c8 ***
+            ----------------------------------------------------------------
+            sidewalk             v2.5.0-3-g1232aabb
+            nrf                  v2.5.0-g271e80422
+            zephyr               883c3709f9
+            ----------------------------------------------------------------
+            sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
+            build time          = 2023-03-14 15:00:00.000000+00:00
+            board               = nrf52840dk
+            ----------------------------------------------------------------
+            [00:00:00.001,373] <inf> application_state: working = true
+            [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE
 
-   You should see the following logs:
+         When Sidewalk sample starts, **LED 4** turns on.
 
-   .. code-block:: console
+      #. Wait for the device to complete the registration.
 
-      [00:00:31.045,471] <inf> sid_thread: Device Is registered, Time Sync Fail, Link status Up
+         You should see the following logs:
 
-   When Sidewalk registration status changes, **LED 3** turns on.
+         .. code-block:: console
 
-#. Wait for the device to complete time sync with the Sidewalk network.
+            [00:00:31.045,471] <inf> sid_thread: Device Is registered, Time Sync Fail, Link status Up
 
-   You should see the following logs:
+         When Sidewalk registration status changes, **LED 3** turns on.
 
-   .. code-block:: console
+      #. Wait for the device to complete time sync with the Sidewalk network.
 
-      [00:00:35.827,789] <inf> sid_thread: status changed: ready
-      [00:00:35.827,850] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
+         You should see the following logs:
 
-   When Sidewalk gets Time Sync, **LED 2** turns on.
+         .. code-block:: console
 
-#. Wait for the status change.
+            [00:00:35.827,789] <inf> sid_thread: status changed: ready
+            [00:00:35.827,850] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
 
-   * For a Bluetooth LE device, status change occurs on request. Gateway connects over Bluetooth LE before sending down-link message, and device sends connection request before up-link message. Sidewalk automatically disconnects Bluetooth LE after some inactivity period.
+         When Sidewalk gets Time Sync, **LED 2** turns on.
 
-   * For a LoRa and FSK device, the following messages appear in the log:
+      #. Wait for the status change.
 
-      .. code-block:: console
+         * For a Bluetooth LE device, status change occurs on request. Gateway connects over Bluetooth LE before sending down-link message, and device sends connection request before up-link message. Sidewalk automatically disconnects Bluetooth LE after some inactivity period.
 
-         [00:45:31.597,564] <inf> sid_thread: status changed: init
-         [00:45:31.597,564] <dbg> sid_thread: on_sidewalk_status_changed: Device Is registered, Time Sync Success, Link status Up
+         * For a LoRa and FSK device, the following messages appear in the log:
 
-   When Sidewalk Link Status is Up, **LED 1** turns on.
+            .. code-block:: console
+
+               [00:45:31.597,564] <inf> sid_thread: status changed: init
+               [00:45:31.597,564] <dbg> sid_thread: on_sidewalk_status_changed: Device Is registered, Time Sync Success, Link status Up
+
+         When Sidewalk Link Status is Up, **LED 1** turns on.
+
+   .. group-tab:: nRF54 DKs
+
+      #. Connect your Nordic device to the PC through USB.
+         Set the device's power switch to **ON**.
+
+      #. Flash the sample application with the manufacturing data as described in the building and running section of the respective sample.
+
+         You should see the following logs:
+
+         .. code-block:: console
+
+            *** Booting nRF Connect SDK 883c3709f9c8 ***
+            ----------------------------------------------------------------
+            sidewalk             v2.5.0-3-g1232aabb
+            nrf                  v2.5.0-g271e80422
+            zephyr               883c3709f9
+            ----------------------------------------------------------------
+            sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
+            build time          = 2023-03-14 15:00:00.000000+00:00
+            board               = nrf52840dk
+            ----------------------------------------------------------------
+            [00:00:00.001,373] <inf> application_state: working = true
+            [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE
+
+         When Sidewalk sample starts, **LED 3** turns on.
+
+      #. Wait for the device to complete the registration.
+
+         You should see the following logs:
+
+         .. code-block:: console
+
+            [00:00:31.045,471] <inf> sid_thread: Device Is registered, Time Sync Fail, Link status Up
+
+         When Sidewalk registration status changes, **LED 2** turns on.
+
+      #. Wait for the device to complete time sync with the Sidewalk network.
+
+         You should see the following logs:
+
+         .. code-block:: console
+
+            [00:00:35.827,789] <inf> sid_thread: status changed: ready
+            [00:00:35.827,850] <inf> sid_thread: Device Is registered, Time Sync Success, Link status Up
+
+         When Sidewalk gets Time Sync, **LED 1** turns on.
+
+      #. Wait for the status change.
+
+         * For a Bluetooth LE device, status change occurs on request. Gateway connects over Bluetooth LE before sending down-link message, and device sends connection request before up-link message. Sidewalk automatically disconnects Bluetooth LE after some inactivity period.
+
+         * For a LoRa and FSK device, the following messages appear in the log:
+
+            .. code-block:: console
+
+               [00:45:31.597,564] <inf> sid_thread: status changed: init
+               [00:45:31.597,564] <dbg> sid_thread: on_sidewalk_status_changed: Device Is registered, Time Sync Success, Link status Up
+
+         When Sidewalk Link Status is Up, **LED 0** turns on.
 
 Sending message to AWS MQTT
 ---------------------------
 
-You can use `AWS IoT MQTT client`_ to view the received and republished messages from the device.
+.. tabs::
 
-#. Enter ``#`` and click :guilabel:`Subscribe to topic`.
-   You are now subscribed to the republished device messages.
+   .. group-tab:: nRF52 and nRF53 DKs
 
-#. To see the data republished into the subscribed MQTT topic, press **Button 1** on your development kit.
+      You can use `AWS IoT MQTT client`_ to view the received and republished messages from the device.
 
-   .. code-block:: console
+      #. Enter ``#`` and click :guilabel:`Subscribe to topic`.
+         You are now subscribed to the republished device messages.
 
-      # Logs from DK after pressing "Button 1"
-      [00:04:57.461,029] <inf> sid_end device: Pressed button 1
-      [00:04:57.461,120] <inf> sid_thread: sending counter update: 0
-      [00:04:57.461,456] <inf> sid_thread: queued data message id:3
+      #. To see the data republished into the subscribed MQTT topic, press **Button 1** on your development kit.
+
+         .. code-block:: console
+
+               # Logs from DK after pressing "Button 1"
+               [00:04:57.461,029] <inf> sid_end device: Pressed button 1
+               [00:04:57.461,120] <inf> sid_thread: sending counter update: 0
+               [00:04:57.461,456] <inf> sid_thread: queued data message id:3
 
 
-      # Logs from MQTT test client
-	  {
-      "MessageId": "4c5dadb3-2762-40fa-9763-8a432c023eb5",
-      "WirelessDeviceId": "5153dd3a-c78f-4e9e-9d8c-3d84fabb8911",
-      "PayloadData": "MDA=",
-      "WirelessMetadata": {
-         "Sidewalk": {
-            "CmdExStatus": "COMMAND_EXEC_STATUS_UNSPECIFIED",
-            "MessageType": "CUSTOM_COMMAND_ID_NOTIFY",
-            "NackExStatus": [],
-            "Seq": 2,
-            "SidewalkId": "BFFFFFFFFF"
-         }
-      }
+               # Logs from MQTT test client
+            {
+               "MessageId": "4c5dadb3-2762-40fa-9763-8a432c023eb5",
+               "WirelessDeviceId": "5153dd3a-c78f-4e9e-9d8c-3d84fabb8911",
+               "PayloadData": "MDA=",
+               "WirelessMetadata": {
+                  "Sidewalk": {
+                     "CmdExStatus": "COMMAND_EXEC_STATUS_UNSPECIFIED",
+                     "MessageType": "CUSTOM_COMMAND_ID_NOTIFY",
+                     "NackExStatus": [],
+                     "Seq": 2,
+                     "SidewalkId": "BFFFFFFFFF"
+                  }
+               }
 
-   Payload data is presented in base64 format.
-   You can decode it using Python:
+         Payload data is presented in base64 format.
+         You can decode it using Python:
 
-   .. code-block:: console
+         .. code-block:: console
 
-      python -c "import sys,base64;print(base64.b64decode(sys.argv[1].encode('utf-8')).decode('utf-8'))" MDA=
-      00
+            python -c "import sys,base64;print(base64.b64decode(sys.argv[1].encode('utf-8')).decode('utf-8'))" MDA=
+            00
 
-   Data is republished into the subscribed MQTT topic.
+         Data is republished into the subscribed MQTT topic.
 
-   .. figure:: /images/Step7-MQTT-Subscribe.png
+         .. figure:: /images/Step7-MQTT-Subscribe.png
+
+   .. group-tab:: nRF54 DKs
+
+      You can use `AWS IoT MQTT client`_ to view the received and republished messages from the device.
+
+      #. Enter ``#`` and click :guilabel:`Subscribe to topic`.
+         You are now subscribed to the republished device messages.
+
+      #. To see the data republished into the subscribed MQTT topic, press **Button 0** on your development kit.
+
+         .. code-block:: console
+
+               # Logs from DK after pressing "Button 0"
+               [00:04:57.461,029] <inf> sid_end device: Pressed button 0
+               [00:04:57.461,120] <inf> sid_thread: sending counter update: 0
+               [00:04:57.461,456] <inf> sid_thread: queued data message id:3
+
+
+               # Logs from MQTT test client
+            {
+               "MessageId": "4c5dadb3-2762-40fa-9763-8a432c023eb5",
+               "WirelessDeviceId": "5153dd3a-c78f-4e9e-9d8c-3d84fabb8911",
+               "PayloadData": "MDA=",
+               "WirelessMetadata": {
+                  "Sidewalk": {
+                     "CmdExStatus": "COMMAND_EXEC_STATUS_UNSPECIFIED",
+                     "MessageType": "CUSTOM_COMMAND_ID_NOTIFY",
+                     "NackExStatus": [],
+                     "Seq": 2,
+                     "SidewalkId": "BFFFFFFFFF"
+                  }
+               }
+
+         Payload data is presented in base64 format.
+         You can decode it using Python:
+
+         .. code-block:: console
+
+            python -c "import sys,base64;print(base64.b64decode(sys.argv[1].encode('utf-8')).decode('utf-8'))" MDA=
+            00
+
+         Data is republished into the subscribed MQTT topic.
+
+         .. figure:: /images/Step7-MQTT-Subscribe.png
 
 Receiving message from AWS MQTT
 -------------------------------
 
-#. To be able to use AWS CLI, ensure you completed steps in the `Installing or updating the latest version of the AWS CLI`_ documentation.
+#. To be able to use AWS CLI, you must first complete `Installing or updating the latest version of the AWS CLI`_.
 
 #. Run the following command to send a message to your Sidewalk Endpoint:
 
@@ -187,23 +357,21 @@ Receiving message from AWS MQTT
 
    * ``<wireless-device-id>`` is the Wireless Device ID of your Sidewalk Device.
 
-      You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_product`.
-      If you have sent a message before, you can also find your Wireless Device ID in the messages sent from your device to AWS.
+     You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_product`.
+     If you have sent a message before, you can also find your Wireless Device ID in the messages sent from your device to AWS.
 
    * ``<payload-data>`` is base64 encoded.
-
-      To prepare a message payload in the base64 format, run:
-
-      .. code-block:: console
-
-         python -c "import sys,base64;print(base64.b64encode(sys.argv[1].encode('utf-8')).decode('utf-8'))" "Hello   Sidewalk!"
-         SGVsbG8gICBTaWRld2FsayE=
-
    * ``<sequence-number>`` is an integer and should be different for each subsequent request.
 
-      .. note::
-         Ensure to increase 'Seq' number on every message.
-         The device will not receive a message with lower or equal sequence number.
+#. Prepare a message payload in the base64 format by running the following command:
+
+   .. code-block:: console
+
+      python -c "import sys,base64;print(base64.b64encode(sys.argv[1].encode('utf-8')).decode('utf-8'))" "Hello   Sidewalk!"
+      SGVsbG8gICBTaWRld2FsayE=
+
+#. Increase a sequence number on every message.
+   The device will not receive a message with lower or equal sequence number.
 
    Once you have populated the command with data, it should look similar to the following:
 
@@ -219,15 +387,15 @@ Receiving message from AWS MQTT
           "MessageId": "eabea2c7-a818-4680-8421-7a5fa322460e"
       }
 
-   * Ensure your IAM user or role has permissions to send data to your wireless device in case you see the following error:
+   In case you receive the following error, make sure your IAM user or role has permissions to send data to your wireless device:
 
-      .. code-block:: console
+   .. code-block:: console
 
-         {
-            "Message": "User: arn:aws:iam::[AWS Account ID]:user/console_user is not authorized to perform:
-            iotwireless:SendDataToWirelessDevice on resource: arn:aws:iotwireless:us-east-1:[AWS Account ID]:
-            WirelessDevice/[Wireless Device ID]"
-         }
+      {
+         "Message": "User: arn:aws:iam::[AWS Account ID]:user/console_user is not authorized to perform:
+         iotwireless:SendDataToWirelessDevice on resource: arn:aws:iotwireless:us-east-1:[AWS Account ID]:
+         WirelessDevice/[Wireless Device ID]"
+      }
 
    Data will be received in Sidewalk logs:
 
@@ -236,6 +404,5 @@ Receiving message from AWS MQTT
        [00:06:56.338,134] <inf> sid_thread: Message data:
                                      48 65 6c 6c 6f 20 20 20  53 69 64 65 77 61 6c 6b |Hello    Sidewalk
                                      21                                               |!
-
 
 .. include:: ../../includes/include_testing_nordic_dfu.txt
