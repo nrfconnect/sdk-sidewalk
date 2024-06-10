@@ -15,3 +15,4 @@ jobs:
       documentation_tag: "latest"
       publish_to_prod: true
       publish_to_dev: true
+    secrets: inherit
