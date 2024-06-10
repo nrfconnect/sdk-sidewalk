@@ -9,10 +9,14 @@
  */
 
 #include <sid_pal_assert_ifc.h>
-#include <zephyr/sys/__assert.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+
+LOG_MODULE_REGISTER(sid_assert, LOG_LEVEL_ERR);
 
 void sid_pal_assert(int line, const char *file)
 {
+	LOG_ERR("PAL_ASSERT failed at line: %d, file: %s", line, file);
 #if defined(CONFIG_ASSERT)
 #if defined(CONFIG_ASSERT_NO_FILE_INFO)
 	ARG_UNUSED(line);
