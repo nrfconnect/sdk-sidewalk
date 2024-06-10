@@ -43,20 +43,29 @@ static struct k_thread sid_thread;
 K_THREAD_STACK_DEFINE(sid_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
 sys_slist_t pending_message_list = SYS_SLIST_STATIC_INIT(&pending_message_list);
+K_MUTEX_DEFINE(pending_message_list_mutex);
 
 sidewalk_msg_t *get_message_buffer(uint16_t message_id)
 {
 	sidewalk_msg_t *pending_message;
 	sidewalk_msg_t *iterator;
+	int mutex_err =
+		k_mutex_lock(&pending_message_list_mutex, k_is_in_isr() ? K_NO_WAIT : K_FOREVER);
+	if (mutex_err != 0) {
+		LOG_ERR("Failed to lock mutex for message list");
+		return NULL;
+	}
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE (&pending_message_list, pending_message, iterator, node) {
 		if (pending_message->desc.id == message_id) {
 			if (sys_slist_find_and_remove(&pending_message_list,
 						      &pending_message->node) == false) {
 				LOG_ERR("Failed to remove pending message from list");
 			};
+			k_mutex_unlock(&pending_message_list_mutex);
 			return pending_message;
 		}
 	}
+	k_mutex_unlock(&pending_message_list_mutex);
 	return NULL;
 }
 
@@ -79,8 +88,8 @@ static void state_dfu_entry(void *o);
 static void state_dfu_run(void *o);
 
 static const struct smf_state sid_states[] = {
-	[STATE_SIDEWALK] =
-		SMF_CREATE_STATE(state_sidewalk_entry, state_sidewalk_run, state_sidewalk_exit, NULL, NULL),
+	[STATE_SIDEWALK] = SMF_CREATE_STATE(state_sidewalk_entry, state_sidewalk_run,
+					    state_sidewalk_exit, NULL, NULL),
 	[STATE_DFU] = SMF_CREATE_STATE(state_dfu_entry, state_dfu_run, NULL, NULL, NULL),
 };
 
@@ -302,7 +311,13 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sid send err %d", (int)e);
 		}
 		LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
+		int mutex_err = k_mutex_lock(&pending_message_list_mutex, K_FOREVER);
+		if (mutex_err != 0) {
+			LOG_ERR("Failed to lock mutex for message list");
+			break;
+		}
 		sys_slist_append(&pending_message_list, &p_msg->node);
+		k_mutex_unlock(&pending_message_list_mutex);
 	} break;
 	case SID_EVENT_CONNECT: {
 		if (!(sm->sid->config.link_mask & SID_LINK_TYPE_1)) {
@@ -365,12 +380,21 @@ static void state_sidewalk_run(void *o)
 
 static void state_sidewalk_exit(void *o)
 {
-	while (sys_slist_is_empty(&pending_message_list) == false) {
-		sidewalk_msg_t *message;
-		message = SYS_SLIST_CONTAINER(sys_slist_get(&pending_message_list), message, node);
+	int mutex_err = k_mutex_lock(&pending_message_list_mutex, K_FOREVER);
+	if (mutex_err != 0) {
+		LOG_ERR("Failed to lock mutex for message list");
+		return;
+	}
+	sys_snode_t *list_element = sys_slist_get(&pending_message_list);
+
+	while (list_element != NULL) {
+		sidewalk_msg_t *message = SYS_SLIST_CONTAINER(list_element, message, node);
 		sid_hal_free(message->msg.data);
 		sid_hal_free(message);
+
+		list_element = sys_slist_get(&pending_message_list);
 	}
+	k_mutex_unlock(&pending_message_list_mutex);
 }
 
 static void state_dfu_entry(void *o)
