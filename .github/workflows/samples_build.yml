@@ -54,7 +54,7 @@ jobs:
       - name: Twister build samples
         run: |
           source zephyr/zephyr-env.sh
-          west twister --testsuite-root sidewalk/samples/ --inline-logs --overflow-as-errors --enable-size-report --show-footprint --footprint-from-buildlog -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
+          west twister --testsuite-root sidewalk/samples/ --inline-logs --overflow-as-errors --enable-size-report --show-footprint -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
 
       - name: Prepare artifacts for upload
         run: |
