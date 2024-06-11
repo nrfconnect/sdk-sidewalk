@@ -50,9 +50,11 @@ jobs:
           shopt -s extglob
           pr_reports=$(ls current/sample-artifacts-meta/subsets/*/twister.json)
           python3 scripts/ci/combine_twister_reports.py $pr_reports new.json
+          cat new.json
 
           base_reports=$(ls old/sample-artifacts-meta/subsets/*/twister.json)
           python3 scripts/ci/combine_twister_reports.py $base_reports old.json
+          cat old.json
 
           python3 scripts/ci/compare_size_reports.py -o old.json -n new.json --md_output --show_only_diff > memory_usage.md
           cat memory_usage.md >> $GITHUB_STEP_SUMMARY
