@@ -16,4 +16,7 @@ config SIDEWALK_STORAGE
 config SIDEWALK_LOG_LEVEL
 	default 0
 
+config SETTINGS_UTILS_LOG_LEVEL
+	default 0
+
 source "Kconfig.zephyr"

@@ -6,6 +6,18 @@
 
 #include <sbdt/file_transfer.h>
 #include <sbdt/scratch_buffer.h>
+#include <stdint.h>
+#include <zephyr/sys/util.h>
+#include <sid_bulk_data_transfer_api.h>
+#include <sid_hal_memory_ifc.h>
+#include <sid_pal_crypto_ifc.h>
+
+#include <zephyr/kernel.h>
+#include <stdio.h>
+#include <zephyr/logging/log.h>
+#include <sidTypes2str.h>
+#include <sidTypes2Json.h>
+
 #include <sidewalk.h>
 #include <sid_hal_memory_ifc.h>
 #include <json_printer/sidTypes2Json.h>
@@ -186,4 +198,43 @@ void app_file_transfer_demo_deinit(struct sid_handle *handle)
 	if (err != SID_ERROR_NONE) {
 		LOG_ERR("sid_bulk_data_transfer_deinit returned %s", SID_ERROR_T_STR(err));
 	}
+}
+
+/* --- Sidewalk FSM Event handlers --- */
+
+void sid_sidewalk_event_file_transfer_handler(void *ctx, void *state_machine)
+{
+	sm_t *sm = (sm_t *)state_machine;
+	struct data_received_args *args = (struct data_received_args *)ctx;
+	if (!args) {
+		LOG_ERR("File transfer event data is NULL");
+		return;
+	}
+	LOG_INF("Received file Id %d; buffer size %d; file offset %d", args->desc.file_id,
+		args->buffer->size, args->desc.file_offset);
+	uint8_t hash_out[32];
+	sid_pal_hash_params_t params = { .algo = SID_PAL_HASH_SHA256,
+					 .data = args->buffer->data,
+					 .data_size = args->buffer->size,
+					 .digest = hash_out,
+					 .digest_size = sizeof(hash_out) };
+
+	sid_error_t e = sid_pal_crypto_hash(&params);
+	if (e != SID_ERROR_NONE) {
+		LOG_ERR("Failed to hash received file transfer with error %s", SID_ERROR_T_STR(e));
+	} else {
+#define HEX_PRINTER(a, ...) "%02X"
+#define HEX_PRINTER_ARG(a, ...) hash_out[a]
+		char hex_str[sizeof(hash_out) * 2 + 1] = { 0 };
+		snprintf(hex_str, sizeof(hex_str), LISTIFY(32, HEX_PRINTER, ()),
+			 LISTIFY(32, HEX_PRINTER_ARG, (, )));
+		LOG_INF("SHA256: %s", hex_str);
+	}
+
+	sid_error_t ret = sid_bulk_data_transfer_release_buffer(sm->sid->handle, args->desc.file_id,
+								args->buffer);
+	if (ret != SID_ERROR_NONE) {
+		LOG_ERR("sid_bulk_data_transfer_release_buffer returned %s", SID_ERROR_T_STR(ret));
+	}
+	sid_hal_free(args);
 }

@@ -95,6 +95,10 @@ config SIDEWALK_FILE_TRANSFER_DFU
 
 endif
 
+module = SIDEWALK_FSM_EVENTS
+module-str = Sidewalk State machine events
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 rsource "Kconfig.defconfig"
 
 source "Kconfig.zephyr"

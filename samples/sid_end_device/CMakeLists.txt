@@ -13,8 +13,10 @@ project(sidewalk_sid_end_device)
 # Source files
 target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
-src/main.c
-src/sidewalk.c
+    src/main.c
+    src/sidewalk.c
+    src/sidewalk_state_event_handlers.c
+    src/nordic_dfu_state_event_handlers.c
 )
 
 target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE
@@ -43,8 +45,8 @@ endif()
 
 if(CONFIG_SID_END_DEVICE_CLI)
     target_sources(app PRIVATE
-        src/cli/app_dut.c
         src/cli/app_shell.c
+        src/cli/sidewalk_state_cli_event_handlers.c
     )
     target_sources_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT app PRIVATE src/cli/sid_on_dev_cert_cli.c)
 endif()

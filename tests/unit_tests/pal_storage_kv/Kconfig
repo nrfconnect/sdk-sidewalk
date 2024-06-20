@@ -1,4 +1,7 @@
 config SIDEWALK_LOG_LEVEL
         default 3
 
+config SETTINGS_UTILS_LOG_LEVEL
+	default 3
+
 source "Kconfig.zephyr"

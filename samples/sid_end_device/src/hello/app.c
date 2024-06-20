@@ -190,10 +190,18 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		}
 	}
 }
+enum Button_actions {
+	BTN_ACTION_SEND_MESSAGE,
+	BTN_ACTION_NORDIC_DFU,
+	BTN_ACTION_CONNECT,
+	BTN_ACTION_FACTORY_RESET,
+	BTN_ACTION_LINK_SWITCH
+};
 
 static void app_button_handler(uint32_t event)
 {
-	if (event == SID_EVENT_SEND_MSG) {
+	switch (event) {
+	case BTN_ACTION_SEND_MESSAGE: {
 		LOG_INF("Send hello message");
 		const char payload[] = "hello";
 		sidewalk_msg_t *hello = sid_hal_malloc(sizeof(sidewalk_msg_t));
@@ -224,19 +232,34 @@ static void app_button_handler(uint32_t event)
 		} else {
 			application_state_sending(&global_state_notifier, true);
 		}
-		return;
+		break;
 	}
-
-	sidewalk_event_send((sidewalk_event_t)event, NULL);
+	case BTN_ACTION_NORDIC_DFU: {
+		sidewalk_event_send(SID_EVENT_NORDIC_DFU, NULL);
+		break;
+	}
+	case BTN_ACTION_CONNECT: {
+		sidewalk_event_send(SID_EVENT_CONNECT, NULL);
+		break;
+	}
+	case BTN_ACTION_FACTORY_RESET: {
+		sidewalk_event_send(SID_EVENT_FACTORY_RESET, NULL);
+		break;
+	}
+	case BTN_ACTION_LINK_SWITCH: {
+		sidewalk_event_send(SID_EVENT_LINK_SWITCH, NULL);
+		break;
+	}
+	}
 }
 
 static int app_buttons_init(void)
 {
-	button_set_action_short_press(DK_BTN1, app_button_handler, SID_EVENT_SEND_MSG);
-	button_set_action_long_press(DK_BTN1, app_button_handler, SID_EVENT_NORDIC_DFU);
-	button_set_action_short_press(DK_BTN2, app_button_handler, SID_EVENT_CONNECT);
-	button_set_action_long_press(DK_BTN2, app_button_handler, SID_EVENT_FACTORY_RESET);
-	button_set_action(DK_BTN3, app_button_handler, SID_EVENT_LINK_SWITCH);
+	button_set_action_short_press(DK_BTN1, app_button_handler, BTN_ACTION_SEND_MESSAGE);
+	button_set_action_long_press(DK_BTN1, app_button_handler, BTN_ACTION_NORDIC_DFU);
+	button_set_action_short_press(DK_BTN2, app_button_handler, BTN_ACTION_CONNECT);
+	button_set_action_long_press(DK_BTN2, app_button_handler, BTN_ACTION_FACTORY_RESET);
+	button_set_action(DK_BTN3, app_button_handler, BTN_ACTION_LINK_SWITCH);
 
 	return buttons_init();
 }
@@ -275,4 +298,5 @@ void app_start(void)
 	};
 
 	sidewalk_start(&sid_ctx);
+	sidewalk_event_send(SID_EVENT_AUTOCONNECT, NULL);
 }

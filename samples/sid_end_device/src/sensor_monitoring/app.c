@@ -163,15 +163,23 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	}
 }
 
+enum Button_actions { BTN_ACTION_NORDIC_DFU, BTN_ACTION_FACTORY_RESET, BTN_ACTION_LINK_SWITCH };
+
 static void sidewalk_btn_handler(uint32_t event)
 {
-	int err = sidewalk_event_send((sidewalk_event_t)event, NULL);
-	if (err) {
-		LOG_ERR("Send event err %d", err);
-		return;
+	switch (event) {
+	case BTN_ACTION_NORDIC_DFU:
+		sidewalk_event_send(SID_EVENT_NORDIC_DFU, NULL);
+		break;
+	case BTN_ACTION_FACTORY_RESET:
+		sidewalk_event_send(SID_EVENT_FACTORY_RESET, NULL);
+		break;
+	case BTN_ACTION_LINK_SWITCH:
+		sidewalk_event_send(SID_EVENT_LINK_SWITCH, NULL);
+		break;
 	};
 
-	if (SID_EVENT_NORDIC_DFU == event) {
+	if (BTN_ACTION_NORDIC_DFU == event) {
 		static bool in_dfu;
 		if (in_dfu) {
 			in_dfu = false;
@@ -191,9 +199,9 @@ static int app_buttons_init(void)
 	button_set_action_short_press(DK_BTN3, app_btn_event_handler, DEMO_BTN_ID_2);
 	button_set_action_short_press(DK_BTN4, app_btn_event_handler, DEMO_BTN_ID_3);
 
-	button_set_action_long_press(DK_BTN1, sidewalk_btn_handler, SID_EVENT_NORDIC_DFU);
-	button_set_action_long_press(DK_BTN2, sidewalk_btn_handler, SID_EVENT_FACTORY_RESET);
-	button_set_action_long_press(DK_BTN3, sidewalk_btn_handler, SID_EVENT_LINK_SWITCH);
+	button_set_action_long_press(DK_BTN1, sidewalk_btn_handler, BTN_ACTION_NORDIC_DFU);
+	button_set_action_long_press(DK_BTN2, sidewalk_btn_handler, BTN_ACTION_FACTORY_RESET);
+	button_set_action_long_press(DK_BTN3, sidewalk_btn_handler, BTN_ACTION_LINK_SWITCH);
 
 	return buttons_init();
 }

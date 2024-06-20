@@ -19,7 +19,7 @@
 #include <sid_hal_memory_ifc.h>
 
 #include <cli/app_shell.h>
-#include <cli/app_dut.h>
+#include <cli/app_shell_events.h>
 #include <sid_sdk_version.h>
 #include <sidewalk_version.h>
 
@@ -208,7 +208,7 @@ static int cmd_sid_option_handle_set_link3_profile(const char *value,
 	return 0;
 }
 
-static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data, size_t len)
+static int cmd_sid_option(sidewalk_event_t event, enum sid_option option, void *data, size_t len)
 {
 	sidewalk_option_t *p_opt = sid_hal_malloc(sizeof(sidewalk_option_t));
 	if (!p_opt) {
@@ -227,7 +227,7 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 		p_opt->data = NULL;
 	}
 
-	int err = sidewalk_event_send((sidewalk_event_t)event, p_opt);
+	int err = sidewalk_event_send(event, p_opt);
 	if (err) {
 		if (p_opt->data) {
 			sid_hal_free(p_opt->data);
@@ -254,7 +254,7 @@ static int cmd_sid_option_get_input_data(enum sid_option option, void *data, siz
 	return cmd_sid_option(DUT_EVENT_GET_OPTION, option, data, len);
 }
 
-static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
+static int cmd_sid_simple_param(sidewalk_event_t event, uint32_t *data)
 {
 	uint32_t *event_ctx = sid_hal_malloc(sizeof(uint32_t));
 	if (!event_ctx) {

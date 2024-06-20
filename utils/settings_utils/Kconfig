@@ -13,6 +13,10 @@ menuconfig SIDEWALK_SETTINGS_UTILS
 
 if SIDEWALK_SETTINGS_UTILS
 
+module = SETTINGS_UTILS
+module-str = Settings utilitues
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
 config PERSISTENT_LINK_MASK_SETTINGS_KEY
 	string
 	default "application/settings/link_mask"

@@ -12,7 +12,8 @@
 #include <zephyr/kernel.h>
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(settings_utils, CONFIG_SIDEWALK_LOG_LEVEL);
+
+LOG_MODULE_REGISTER(settings_utils, CONFIG_SETTINGS_UTILS_LOG_LEVEL);
 
 /**
  * Structure for immediate request from settings

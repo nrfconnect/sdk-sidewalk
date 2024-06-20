@@ -7,4 +7,8 @@
 config SHELL_CMD_BUFF_SIZE
 	default 1024
 
+config SIDEWALK_FSM_EVENTS_LOG_LEVEL
+	int
+	default 0
+
 source "Kconfig.zephyr"
