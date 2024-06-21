@@ -10,7 +10,7 @@
 
 LOG_MODULE_DECLARE(sidewalk_fsm_event_handlers, CONFIG_SIDEWALK_FSM_EVENTS_LOG_LEVEL);
 
-void sid_dfu_event_nordic_dfu_handler(void *event_ctx, sm_t *sm)
+void dfu_event_nordic_dfu(void *event_ctx, sm_t *sm)
 {
 	int err = -ENOTSUP;
 #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
@@ -23,7 +23,7 @@ void sid_dfu_event_nordic_dfu_handler(void *event_ctx, sm_t *sm)
 	smf_set_state(SMF_CTX(sm), &sm->sid_states[STATE_SIDEWALK]);
 }
 
-void sid_dfu_event_new_status_handler(void *event_ctx, sm_t *sm)
+void dfu_event_new_status(void *event_ctx, sm_t *sm)
 {
 	if (!event_ctx) {
 		LOG_ERR("sid new status is NULL, expected data");
@@ -32,7 +32,7 @@ void sid_dfu_event_new_status_handler(void *event_ctx, sm_t *sm)
 	sid_hal_free(event_ctx);
 }
 
-void sid_dfu_event_send_message_handler(void *event_ctx, sm_t *sm)
+void dfu_event_send_message(void *event_ctx, sm_t *sm)
 {
 	sidewalk_msg_t *p_msg = (sidewalk_msg_t *)event_ctx;
 	sidewalk_msg_t *message = get_message_buffer(p_msg->desc.id);

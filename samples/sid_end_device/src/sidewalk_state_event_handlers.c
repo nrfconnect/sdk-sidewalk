@@ -15,7 +15,7 @@
 
 LOG_MODULE_REGISTER(sidewalk_fsm_event_handlers, CONFIG_SIDEWALK_FSM_EVENTS_LOG_LEVEL);
 
-void sid_sidewalk_event_process_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_process(void *event_ctx, sm_t *sm)
 {
 	ARG_UNUSED(event_ctx);
 	sidewalk_ctx_t *sid = sm->sid;
@@ -26,7 +26,7 @@ void sid_sidewalk_event_process_handler(void *event_ctx, sm_t *sm)
 	}
 }
 
-void sid_sidewalk_event_autoconnect_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_autoconnect(void *event_ctx, sm_t *sm)
 {
 	ARG_UNUSED(event_ctx);
 #ifdef CONFIG_SID_END_DEVICE_AUTO_START
@@ -91,7 +91,7 @@ void sid_sidewalk_event_autoconnect_handler(void *event_ctx, sm_t *sm)
 #endif /* CONFIG_SIDEWALK_AUTO_START */
 }
 
-void sid_sidewalk_event_factory_reset_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_factory_reset(void *event_ctx, sm_t *sm)
 {
 	ARG_UNUSED(event_ctx);
 	sidewalk_ctx_t *sid = sm->sid;
@@ -105,7 +105,7 @@ void sid_sidewalk_event_factory_reset_handler(void *event_ctx, sm_t *sm)
 	}
 }
 
-void sid_sidewalk_event_link_switch_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_link_switch(void *event_ctx, sm_t *sm)
 {
 	ARG_UNUSED(event_ctx);
 	sidewalk_ctx_t *sid = sm->sid;
@@ -183,7 +183,7 @@ void sid_sidewalk_event_link_switch_handler(void *event_ctx, sm_t *sm)
 #endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 }
 
-void sid_sidewalk_event_nordic_dfu_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_nordic_dfu(void *event_ctx, sm_t *sm)
 {
 	ARG_UNUSED(event_ctx);
 	sidewalk_ctx_t *sid = sm->sid;
@@ -199,7 +199,7 @@ void sid_sidewalk_event_nordic_dfu_handler(void *event_ctx, sm_t *sm)
 	smf_set_state(SMF_CTX(sm), &sm->sid_states[STATE_DFU]);
 }
 
-void sid_sidewalk_event_new_status_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_new_status(void *event_ctx, sm_t *sm)
 {
 	sidewalk_ctx_t *sid = sm->sid;
 	struct sid_status *p_status = (struct sid_status *)event_ctx;
@@ -212,7 +212,7 @@ void sid_sidewalk_event_new_status_handler(void *event_ctx, sm_t *sm)
 	sid_hal_free(p_status);
 }
 
-void sid_sidewalk_event_send_message_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_send_message(void *event_ctx, sm_t *sm)
 {
 	sid_error_t e = SID_ERROR_NONE;
 	sidewalk_ctx_t *sid = sm->sid;
@@ -230,7 +230,7 @@ void sid_sidewalk_event_send_message_handler(void *event_ctx, sm_t *sm)
 	push_message_buffer(p_msg);
 }
 
-void sid_sidewalk_event_connect_handler(void *event_ctx, sm_t *sm)
+void sidewalk_event_connect(void *event_ctx, sm_t *sm)
 {
 	ARG_UNUSED(event_ctx);
 	sidewalk_ctx_t *sid = sm->sid;

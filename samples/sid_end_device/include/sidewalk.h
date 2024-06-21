@@ -49,45 +49,38 @@ typedef struct sm_s {
 		.name = #event_name, .call = event_handlers                                        \
 	}
 
-void sid_sidewalk_event_process_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_autoconnect_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_factory_reset_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_link_switch_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_nordic_dfu_handler(void *event_ctx, sm_t *sm);
-void sid_dfu_event_nordic_dfu_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_new_status_handler(void *event_ctx, sm_t *sm);
-void sid_dfu_event_new_status_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_send_message_handler(void *event_ctx, sm_t *sm);
-void sid_dfu_event_send_message_handler(void *event_ctx, sm_t *sm);
-void sid_sidewalk_event_connect_handler(void *event_ctx, sm_t *sm);
+void sidewalk_event_process(void *event_ctx, sm_t *sm);
+void sidewalk_event_autoconnect(void *event_ctx, sm_t *sm);
+void sidewalk_event_factory_reset(void *event_ctx, sm_t *sm);
+void sidewalk_event_link_switch(void *event_ctx, sm_t *sm);
+void sidewalk_event_nordic_dfu(void *event_ctx, sm_t *sm);
+void dfu_event_nordic_dfu(void *event_ctx, sm_t *sm);
+void sidewalk_event_new_status(void *event_ctx, sm_t *sm);
+void dfu_event_new_status(void *event_ctx, sm_t *sm);
+void sidewalk_event_send_message(void *event_ctx, sm_t *sm);
+void dfu_event_send_message(void *event_ctx, sm_t *sm);
+void sidewalk_event_connect(void *event_ctx, sm_t *sm);
 
 #define SID_EVENT_SIDEWALK                                                                         \
-	APP_SIDEWALK_EVENT(SID_EVENT_SIDEWALK,                                                     \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_process_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_SIDEWALK, { [STATE_SIDEWALK] = sidewalk_event_process })
 #define SID_EVENT_AUTOCONNECT                                                                      \
-	APP_SIDEWALK_EVENT(SID_EVENT_AUTOCONNECT,                                                  \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_autoconnect_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_AUTOCONNECT, { [STATE_SIDEWALK] = sidewalk_event_autoconnect })
 #define SID_EVENT_FACTORY_RESET                                                                    \
 	APP_SIDEWALK_EVENT(SID_EVENT_FACTORY_RESET,                                                \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_factory_reset_handler })
+			   { [STATE_SIDEWALK] = sidewalk_event_factory_reset })
 #define SID_EVENT_LINK_SWITCH                                                                      \
-	APP_SIDEWALK_EVENT(SID_EVENT_LINK_SWITCH,                                                  \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_link_switch_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_LINK_SWITCH, { [STATE_SIDEWALK] = sidewalk_event_link_switch })
 #define SID_EVENT_NORDIC_DFU                                                                       \
-	APP_SIDEWALK_EVENT(SID_EVENT_NORDIC_DFU,                                                   \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_nordic_dfu_handler,             \
-			     [STATE_DFU] = sid_dfu_event_nordic_dfu_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_NORDIC_DFU, { [STATE_SIDEWALK] = sidewalk_event_nordic_dfu,   \
+						   [STATE_DFU] = dfu_event_nordic_dfu })
 #define SID_EVENT_NEW_STATUS                                                                       \
-	APP_SIDEWALK_EVENT(SID_EVENT_NEW_STATUS,                                                   \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_new_status_handler,             \
-			     [STATE_DFU] = sid_dfu_event_new_status_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_NEW_STATUS, { [STATE_SIDEWALK] = sidewalk_event_new_status,   \
+						   [STATE_DFU] = dfu_event_new_status })
 #define SID_EVENT_SEND_MSG                                                                         \
-	APP_SIDEWALK_EVENT(SID_EVENT_SEND_MSG,                                                     \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_send_message_handler,           \
-			     [STATE_DFU] = sid_dfu_event_send_message_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_SEND_MSG, { [STATE_SIDEWALK] = sidewalk_event_send_message,   \
+						 [STATE_DFU] = dfu_event_send_message })
 #define SID_EVENT_CONNECT                                                                          \
-	APP_SIDEWALK_EVENT(SID_EVENT_CONNECT,                                                      \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_connect_handler })
+	APP_SIDEWALK_EVENT(SID_EVENT_CONNECT, { [STATE_SIDEWALK] = sidewalk_event_connect })
 
 typedef struct {
 	sys_snode_t node;

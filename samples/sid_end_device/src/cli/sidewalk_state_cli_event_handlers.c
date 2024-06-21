@@ -20,9 +20,8 @@ static void dut_option_get(sidewalk_option_t *p_option, struct sid_handle *handl
 
 /* --- Event handlers ---*/
 
-void dut_sidewalk_event_init_handler(void *ctx, void *state_machine)
+void sidewalk_event_init(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	sm->sid->config.link_mask = dut_ctx_get_uint32(ctx);
 	sid_error_t e = sid_init(&sm->sid->config, &sm->sid->handle);
 	LOG_INF("sid_init returned %d", e);
@@ -34,9 +33,8 @@ void dut_sidewalk_event_init_handler(void *ctx, void *state_machine)
 #endif
 }
 
-void dut_sidewalk_event_deinit_handler(void *ctx, void *state_machine)
+void sidewalk_event_deinit(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	if (ctx) {
 		sid_hal_free(ctx);
 		LOG_ERR("Did not expect context");
@@ -49,35 +47,31 @@ void dut_sidewalk_event_deinit_handler(void *ctx, void *state_machine)
 	LOG_INF("sid_deinit returned %d", e);
 }
 
-void dut_sidewalk_event_start_handler(void *ctx, void *state_machine)
+void sidewalk_event_start(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	uint32_t link_mask = dut_ctx_get_uint32(ctx);
 	sid_error_t e = sid_start(sm->sid->handle, link_mask);
 	LOG_INF("sid_start returned %d", e);
 }
 
-void dut_sidewalk_event_stop_handler(void *ctx, void *state_machine)
+void sidewalk_event_stop(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	uint32_t link_mask = dut_ctx_get_uint32(ctx);
 	sid_process(sm->sid->handle);
 	sid_error_t e = sid_stop(sm->sid->handle, link_mask);
 	LOG_INF("sid_stop returned %d", e);
 }
 
-void dut_sidewalk_event_get_mtu_handler(void *ctx, void *state_machine)
+void sidewalk_event_get_mtu(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	uint32_t link_mask = dut_ctx_get_uint32(ctx);
 	size_t mtu = 0;
 	sid_error_t e = sid_get_mtu(sm->sid->handle, (enum sid_link_type)link_mask, &mtu);
 	LOG_INF("sid_get_mtu returned %d, MTU: %d", e, mtu);
 }
 
-void dut_sidewalk_event_get_time_handler(void *ctx, void *state_machine)
+void sidewalk_event_get_time(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	uint32_t format = dut_ctx_get_uint32(ctx);
 	struct sid_timespec curr_time = { 0 };
 	sid_error_t e = sid_get_time(sm->sid->handle, (enum sid_time_format)format, &curr_time);
@@ -85,9 +79,8 @@ void dut_sidewalk_event_get_time_handler(void *ctx, void *state_machine)
 		curr_time.tv_nsec);
 }
 
-void dut_sidewalk_event_get_status_handler(void *ctx, void *state_machine)
+void sidewalk_event_get_status(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
 		(SID_STATUS_REGISTERED == sm->sid->last_status.detail.registration_status) ? "Is " :
 											     "Un",
@@ -114,29 +107,25 @@ void dut_sidewalk_event_get_status_handler(void *ctx, void *state_machine)
 	}
 }
 
-void dut_sidewalk_event_get_option_handler(void *ctx, void *state_machine)
+void sidewalk_event_get_option(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	dut_option_get((sidewalk_option_t *)ctx, sm->sid->handle);
 }
 
-void dut_sidewalk_event_set_option_handler(void *ctx, void *state_machine)
+void sidewalk_event_set_option(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	dut_option_set((sidewalk_option_t *)ctx, sm->sid->handle);
 }
 
-void dut_sidewalk_event_set_dest_id_handler(void *ctx, void *state_machine)
+void sidewalk_event_set_dest_id(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	uint32_t id = dut_ctx_get_uint32(ctx);
 	sid_error_t e = sid_set_msg_dest_id(sm->sid->handle, id);
 	LOG_INF("sid_set_msg_dest_id returned %d", e);
 }
 
-void dut_sidewalk_event_set_conn_req_handler(void *ctx, void *state_machine)
+void sidewalk_event_set_conn_req(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	uint32_t event_req = dut_ctx_get_uint32(ctx);
 	bool conn_req = (event_req == 1U);
 	sid_error_t e = sid_ble_bcn_connection_request(sm->sid->handle, conn_req);

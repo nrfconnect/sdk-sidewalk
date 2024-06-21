@@ -234,18 +234,18 @@ void app_tx_task(void *dummy1, void *dummy2, void *dummy3)
 /* --- Event handlers for FSM --- */
 
 /* -- Init state events -- */
-void app_tx_init_event_time_sync_success(app_sm_t *sm)
+void init_event_time_sync_success(app_sm_t *sm)
 {
 	smf_set_state(SMF_CTX(sm), &sm->app_states[STATE_APP_NOTIFY_CAPABILITY]);
 }
 
 /* -- Notify capability state events -- */
-void app_tx_notify_capability_event_capability_success(app_sm_t *sm)
+void notify_capability_event_capability_success(app_sm_t *sm)
 {
 	smf_set_state(SMF_CTX(sm), &sm->app_states[STATE_APP_NOTIFY_DATA]);
 }
 
-void app_tx_notify_capability_event_notify_sensor(app_sm_t *sm)
+void notify_capability_event_notify_sensor(app_sm_t *sm)
 {
 	struct sid_demo_capability_discovery cap = {
 		.link_type = last_link_mask_get(),
@@ -287,19 +287,19 @@ void app_tx_notify_capability_event_notify_sensor(app_sm_t *sm)
 	LOG_INF("Capability send");
 }
 
-void app_tx_notify_capability_not_supported(app_sm_t *sm)
+void notify_capability_not_supported(app_sm_t *sm)
 {
 	ARG_UNUSED(sm);
 	LOG_WRN("Operation not supported, waiting for capability response.");
 }
 
 /* -- Notify data state events -- */
-void app_tx_notify_data_event_time_sync_fail(app_sm_t *sm)
+void notify_data_event_time_sync_fail(app_sm_t *sm)
 {
 	smf_set_state(SMF_CTX(sm), &sm->app_states[STATE_APP_NOTIFY_CAPABILITY]);
 }
 
-void app_tx_notify_data_event_notify_sensor(app_sm_t *sm)
+void notify_data_event_notify_sensor(app_sm_t *sm)
 {
 	struct sid_parse_state state = { 0 };
 	uint8_t msg_buffer[MSG_PAYLOAD_SIZE_MAX] = { 0 };
@@ -351,7 +351,7 @@ void app_tx_notify_data_event_notify_sensor(app_sm_t *sm)
 	LOG_INF("Notify sensor send");
 }
 
-void app_tx_notify_data_event_notify_button(app_sm_t *sm)
+void notify_data_event_notify_button(app_sm_t *sm)
 {
 	struct sid_parse_state state = { 0 };
 	uint8_t msg_buffer[MSG_PAYLOAD_SIZE_MAX] = { 0 };
@@ -412,7 +412,7 @@ void app_tx_notify_data_event_notify_button(app_sm_t *sm)
 	LOG_INF("Notify button send");
 }
 
-void app_tx_notify_data_event_resp_led_on(app_sm_t *sm)
+void notify_data_event_resp_led_on(app_sm_t *sm)
 {
 	int err = 0;
 	// Read led status
@@ -443,7 +443,7 @@ void app_tx_notify_data_event_resp_led_on(app_sm_t *sm)
 	LOG_INF("Response LED ON send");
 }
 
-void app_tx_notify_data_event_resp_led_off(app_sm_t *sm)
+void notify_data_event_resp_led_off(app_sm_t *sm)
 {
 	int err = 0;
 	// Read led status
