@@ -144,14 +144,14 @@ static bool validate_event(sm_t *sm, enum sidewalk_fsm_states state)
 static void state_sidewalk_run(void *o)
 {
 	sm_t *sm = (sm_t *)o;
-
+	sidewalk_ctx_event_t *event_to_process = &sm->application_event;
 	if (!validate_event(sm, STATE_SIDEWALK)) {
 		return;
 	}
 	LOG_DBG("Handle event %s", sm->application_event.event_handler.name ?
 					   sm->application_event.event_handler.name :
 					   "UNKNOWN");
-	sm->application_event.event_handler.call[STATE_SIDEWALK](sm->application_event.ctx, sm);
+	event_to_process->event_handler.call[STATE_SIDEWALK](event_to_process->ctx, sm);
 }
 
 static void state_sidewalk_exit(void *o)
@@ -193,11 +193,12 @@ static void state_dfu_entry(void *o)
 static void state_dfu_run(void *o)
 {
 	sm_t *sm = (sm_t *)o;
+	sidewalk_ctx_event_t *event_to_process = &sm->application_event;
 
 	if (!validate_event(sm, STATE_DFU)) {
 		return;
 	}
-	sm->application_event.event_handler.call[STATE_DFU](sm->application_event.ctx, sm);
+	event_to_process->event_handler.call[STATE_DFU](event_to_process->ctx, sm);
 }
 
 static void sid_thread_entry(void *context, void *sidewalk_started, void *unused)

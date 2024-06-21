@@ -24,7 +24,7 @@ void app_file_transfer_demo_init(struct sid_handle *handle);
  */
 void app_file_transfer_demo_deinit(struct sid_handle *handle);
 
-void sid_sidewalk_event_file_transfer_handler(void *ctx, void *state_machine);
+void sid_sidewalk_event_file_transfer_handler(void *ctx, sm_t *sm);
 #define SID_EVENT_FILE_TRANSFER                                                                    \
 	APP_SIDEWALK_EVENT(SID_EVENT_FILE_TRANSFER,                                                \
 			   { [STATE_SIDEWALK] = sid_sidewalk_event_file_transfer_handler })

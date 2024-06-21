@@ -23,9 +23,12 @@ typedef struct {
 	struct sid_status last_status;
 } sidewalk_ctx_t;
 
+typedef struct sm_s sm_t;
+
+typedef void (*sidewalk_event_handler)(void *event_ctx, sm_t *sm);
 typedef struct {
 	const char *name;
-	void (*call[STATE_LAST])(void *ctx, void *state_machine);
+	sidewalk_event_handler call[STATE_LAST];
 } sidewalk_event_t;
 typedef struct {
 	sidewalk_event_t event_handler;
@@ -46,17 +49,17 @@ typedef struct sm_s {
 		.name = #event_name, .call = event_handlers                                        \
 	}
 
-void sid_sidewalk_event_process_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_autoconnect_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_factory_reset_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_link_switch_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_nordic_dfu_handler(void *ctx, void *state_machine);
-void sid_dfu_event_nordic_dfu_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_new_status_handler(void *ctx, void *state_machine);
-void sid_dfu_event_new_status_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_send_message_handler(void *ctx, void *state_machine);
-void sid_dfu_event_send_message_handler(void *ctx, void *state_machine);
-void sid_sidewalk_event_connect_handler(void *ctx, void *state_machine);
+void sid_sidewalk_event_process_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_autoconnect_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_factory_reset_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_link_switch_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_nordic_dfu_handler(void *event_ctx, sm_t *sm);
+void sid_dfu_event_nordic_dfu_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_new_status_handler(void *event_ctx, sm_t *sm);
+void sid_dfu_event_new_status_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_send_message_handler(void *event_ctx, sm_t *sm);
+void sid_dfu_event_send_message_handler(void *event_ctx, sm_t *sm);
+void sid_sidewalk_event_connect_handler(void *event_ctx, sm_t *sm);
 
 #define SID_EVENT_SIDEWALK                                                                         \
 	APP_SIDEWALK_EVENT(SID_EVENT_SIDEWALK,                                                     \

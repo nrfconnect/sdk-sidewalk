@@ -202,9 +202,8 @@ void app_file_transfer_demo_deinit(struct sid_handle *handle)
 
 /* --- Sidewalk FSM Event handlers --- */
 
-void sid_sidewalk_event_file_transfer_handler(void *ctx, void *state_machine)
+void sid_sidewalk_event_file_transfer_handler(void *ctx, sm_t *sm)
 {
-	sm_t *sm = (sm_t *)state_machine;
 	struct data_received_args *args = (struct data_received_args *)ctx;
 	if (!args) {
 		LOG_ERR("File transfer event data is NULL");
