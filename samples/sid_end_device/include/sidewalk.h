@@ -53,7 +53,9 @@ void sid_sidewalk_event_link_switch_handler(void *ctx, void *state_machine);
 void sid_sidewalk_event_nordic_dfu_handler(void *ctx, void *state_machine);
 void sid_dfu_event_nordic_dfu_handler(void *ctx, void *state_machine);
 void sid_sidewalk_event_new_status_handler(void *ctx, void *state_machine);
+void sid_dfu_event_new_status_handler(void *ctx, void *state_machine);
 void sid_sidewalk_event_send_message_handler(void *ctx, void *state_machine);
+void sid_dfu_event_send_message_handler(void *ctx, void *state_machine);
 void sid_sidewalk_event_connect_handler(void *ctx, void *state_machine);
 
 #define SID_EVENT_SIDEWALK                                                                         \
@@ -74,10 +76,12 @@ void sid_sidewalk_event_connect_handler(void *ctx, void *state_machine);
 			     [STATE_DFU] = sid_dfu_event_nordic_dfu_handler })
 #define SID_EVENT_NEW_STATUS                                                                       \
 	APP_SIDEWALK_EVENT(SID_EVENT_NEW_STATUS,                                                   \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_new_status_handler })
+			   { [STATE_SIDEWALK] = sid_sidewalk_event_new_status_handler,             \
+			     [STATE_DFU] = sid_dfu_event_new_status_handler })
 #define SID_EVENT_SEND_MSG                                                                         \
 	APP_SIDEWALK_EVENT(SID_EVENT_SEND_MSG,                                                     \
-			   { [STATE_SIDEWALK] = sid_sidewalk_event_send_message_handler })
+			   { [STATE_SIDEWALK] = sid_sidewalk_event_send_message_handler,           \
+			     [STATE_DFU] = sid_dfu_event_send_message_handler })
 #define SID_EVENT_CONNECT                                                                          \
 	APP_SIDEWALK_EVENT(SID_EVENT_CONNECT,                                                      \
 			   { [STATE_SIDEWALK] = sid_sidewalk_event_connect_handler })

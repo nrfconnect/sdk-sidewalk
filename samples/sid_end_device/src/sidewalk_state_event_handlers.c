@@ -11,11 +11,13 @@
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
 #include <file_transfer.h>
 #endif
+#include <sidTypes2str.h>
 
 LOG_MODULE_REGISTER(sidewalk_fsm_event_handlers, CONFIG_SIDEWALK_FSM_EVENTS_LOG_LEVEL);
 
 void sid_sidewalk_event_process_handler(void *ctx, void *state_machine)
 {
+	ARG_UNUSED(ctx);
 	sm_t *sm = (sm_t *)state_machine;
 	sid_error_t e = SID_ERROR_NONE;
 	e = sid_process(sm->sid->handle);
@@ -26,6 +28,7 @@ void sid_sidewalk_event_process_handler(void *ctx, void *state_machine)
 
 void sid_sidewalk_event_autoconnect_handler(void *ctx, void *state_machine)
 {
+	ARG_UNUSED(ctx);
 #ifdef CONFIG_SID_END_DEVICE_AUTO_START
 	sm_t *sm = (sm_t *)state_machine;
 	sid_error_t e = SID_ERROR_NONE;
@@ -91,6 +94,7 @@ void sid_sidewalk_event_autoconnect_handler(void *ctx, void *state_machine)
 
 void sid_sidewalk_event_factory_reset_handler(void *ctx, void *state_machine)
 {
+	ARG_UNUSED(ctx);
 	sm_t *sm = (sm_t *)state_machine;
 	sid_error_t e = SID_ERROR_NONE;
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
@@ -104,6 +108,7 @@ void sid_sidewalk_event_factory_reset_handler(void *ctx, void *state_machine)
 
 void sid_sidewalk_event_link_switch_handler(void *ctx, void *state_machine)
 {
+	ARG_UNUSED(ctx);
 	sm_t *sm = (sm_t *)state_machine;
 	sid_error_t e = SID_ERROR_NONE;
 	static uint32_t new_link_mask = DEFAULT_LM;
@@ -181,6 +186,7 @@ void sid_sidewalk_event_link_switch_handler(void *ctx, void *state_machine)
 
 void sid_sidewalk_event_nordic_dfu_handler(void *ctx, void *state_machine)
 {
+	ARG_UNUSED(ctx);
 	sm_t *sm = (sm_t *)state_machine;
 	sid_error_t e = SID_ERROR_NONE;
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
@@ -219,7 +225,7 @@ void sid_sidewalk_event_send_message_handler(void *ctx, void *state_machine)
 
 	e = sid_put_msg(sm->sid->handle, &p_msg->msg, &p_msg->desc);
 	if (e) {
-		LOG_ERR("sid send err %d", (int)e);
+		LOG_ERR("sid send err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 	LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
 	push_message_buffer(p_msg);
@@ -227,6 +233,7 @@ void sid_sidewalk_event_send_message_handler(void *ctx, void *state_machine)
 
 void sid_sidewalk_event_connect_handler(void *ctx, void *state_machine)
 {
+	ARG_UNUSED(ctx);
 	sm_t *sm = (sm_t *)state_machine;
 	sid_error_t e = SID_ERROR_NONE;
 	if (!(sm->sid->config.link_mask & SID_LINK_TYPE_1)) {
@@ -235,6 +242,6 @@ void sid_sidewalk_event_connect_handler(void *ctx, void *state_machine)
 	}
 	e = sid_ble_bcn_connection_request(sm->sid->handle, true);
 	if (e) {
-		LOG_ERR("sid conn req err %d", (int)e);
+		LOG_ERR("sid conn req err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 }
