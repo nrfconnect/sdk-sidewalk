@@ -41,13 +41,12 @@ licenses:
   - sidewalk.*/subsys/config/common/src/.*(c|h)$
   - sidewalk.*/subsys/hal(/.*)+h$
   - sidewalk.*/subsys/hal/src/memory.c$
-  - sidewalk.*/subsys/sal/common(/.*)+h$
+  - sidewalk.*/subsys/sal/common/.*(c|h)$
   - sidewalk.*/subsys/semtech/include/semtech_radio_ifc.h$
   - sidewalk.*/tools/.*
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
   - sidewalk.*/tests/validation/timer/.*(c|h)$
   - sidewalk.*/subsys/demo(/.*)+(c|h)$
-  - sidewalk.*/utils/src/sid_on_dev_cert.c$
   - sidewalk.*/utils/include/sid_.*\.h$
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL

@@ -1,0 +1,80 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+menuconfig SIDEWALK_DFU
+	bool "DFU service in Sidewalk sample"
+
+if SIDEWALK_DFU
+
+config SIDEWALK_DFU_BOOTLOADER
+	bool "Bootloder configuration for Sidewalk sample"
+	default SIDEWALK_DFU
+	imply IMG_MANAGER
+	imply BOOTLOADER_MCUBOOT
+	imply FLASH
+	imply NET_BUF
+	imply ZCBOR
+	imply CRC
+	imply STREAM_FLASH
+	imply FLASH_MAP
+	imply MCUMGR_TRANSPORT_BT_REASSEMBLY
+	imply FLASH_PAGE_LAYOUT
+	imply EXTRA_EXCEPTION_INFO
+
+config SIDEWALK_DFU_SERVICE_BLE
+	bool "DFU sericve over BLE"
+	default SIDEWALK_DFU
+	imply MCUMGR
+	imply MCUMGR_GRP_IMG
+	imply MCUMGR_GRP_OS
+	imply MCUMGR_MGMT_NOTIFICATION_HOOKS
+	imply MCUMGR_GRP_IMG_UPLOAD_CHECK_HOOK
+	imply MCUMGR_GRP_IMG_STATUS_HOOKS
+	imply MCUMGR_GRP_OS_RESET_HOOK
+	imply MCUMGR_SMP_COMMAND_STATUS_HOOKS
+	imply MCUMGR_TRANSPORT_BT
+	imply MCUMGR_TRANSPORT_BT_CONN_PARAM_CONTROL
+	help
+	  Use Zephyr SMP Service as image upload methode for Sidewalk.
+
+config SIDEWALK_DFU_IMG_UTILS
+	bool "Utils for dfu images management"
+	help
+	  Use nRF Connect SDK muli image as image write methode for Sidewalk.
+
+if SIDEWALK_DFU_SERVICE_BLE
+
+config DFU_UPLOAD_START_TIMEOUT
+	int
+	default 5
+	help
+	  Time in minutes in which the DFU has to start, after this time the device will reboot and exit DFU mode
+
+config DFU_UPLOAD_COMPLETE_TIMEOUT
+	int
+	default 60
+	help
+	  Time in minutes in which the DFU has to complete (starting from entering to DFU mode)
+	  if it do not complete in this time, the device will reboot and exit DFU mode
+
+
+config MCUMGR_TRANSPORT_BT_AUTHEN
+	default n
+
+endif # SIDEWALK_DFU_SERVICE_BLE
+
+if SIDEWALK_DFU_IMG_UTILS
+
+config SIDEWALK_DFU_IMG_BUFFER_SIZE
+	int "Sidewalk dfu image utils chunk buffer size"
+	default 1024
+	help
+	  Chunk size for dfu image utils. Size in bytes.
+	  Default value choosen for Sidewalk Bulk Data Transfer.
+
+endif # SIDEWALK_DFU_IMG_UTILS
+
+endif # SIDEWALK_DFU

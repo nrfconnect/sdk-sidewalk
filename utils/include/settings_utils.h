@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#ifndef SETTINGS_UTILS_H
+#define SETTINGS_UTILS_H
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -49,3 +52,5 @@ int settings_utils_get_value_size(const char *name, size_t *len);
  * @return int number of readed bytes or negative errno on fail.
  */
 int settings_utils_load_immediate_value(const char *name, void *dest, size_t len);
+
+#endif /* SETTINGS_UTILS_H */

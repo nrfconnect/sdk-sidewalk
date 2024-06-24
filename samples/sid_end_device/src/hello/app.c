@@ -11,18 +11,17 @@
 #include <sid_hal_reset_ifc.h>
 #include <sid_hal_memory_ifc.h>
 #if defined(CONFIG_GPIO)
-#include <state_notifier_gpio_backend.h>
+#include <state_notifier/notifier_gpio.h>
 #endif
 #if defined(CONFIG_LOG)
-#include <state_notifier_log_backend.h>
+#include <state_notifier/notifier_log.h>
 #endif
 #include <buttons.h>
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
 #include <zephyr/logging/log.h>
 
-#include <json_printer.h>
-#include <sidTypes2Json.h>
+#include <json_printer/sidTypes2Json.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 

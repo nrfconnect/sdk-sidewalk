@@ -11,8 +11,7 @@
 #include <sid_hal_reset_ifc.h>
 #include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
-#include <json_printer.h>
-#include <sidTypes2Json.h>
+#include <json_printer/sidTypes2Json.h>
 #include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
