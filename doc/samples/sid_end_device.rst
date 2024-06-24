@@ -129,6 +129,32 @@ For example:
     Selecting a build type is optional.
     However, if the build type is not selected, the ``debug`` build type is used by default.
 
+Device Firmware Upgrade support
+===============================
+
+The sample supports over-the-air (OTA) device firmware upgrade (DFU) using one of the two following protocols:
+
+* Simple Management Protocol (SMP) over Bluetooth® LE.
+  In this case, the DFU is performed using a smartphone application or a PC command line tool.
+  This protocol is not a part of the Sidewalk specification.
+* Downlink file transfer over Bluetooth LE (experimental).
+  This method uses the Sidewalk Bulk Data Transfer (SBDT) mode and integration of AWS IoT FUOTA service to send files to fleet of IoT devices from the AWS IoT FUOTA task.
+  For more details, see the Sidewalk Bulk Data Transfer section in the `Amazon Sidewalk specification`_.
+
+   .. note::
+
+      To test this functionality, you must have access to S3 bucket.
+      To gain it, contact your account manager or sidewalk-beta-support@amazon.com.
+      In the message provide your AWS account ID to be added to the allowlist.
+
+In both cases, the MCUboot secure bootloader is used to apply the new firmware image.
+
+The DFU over SMP is enabled by default.
+
+The following configuration arguments are available during the build process for configuring DFU:
+
+* To enable support for the downlink file transfer over Bluetooth LE, use the ``-DCONFIG_SIDEWALK_FILE_TRANSFER=y`` build flag.
+
 Selecting a sample variant
 **************************
 
