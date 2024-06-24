@@ -6,9 +6,10 @@
 #ifndef SIDEWALK_APP_H
 #define SIDEWALK_APP_H
 
-#include <zephyr/sys/slist.h>
 #include <sid_api.h>
+
 #include <zephyr/kernel.h>
+#include <zephyr/sys/slist.h>
 
 typedef enum {
 	SID_EVENT_SIDEWALK,
@@ -19,6 +20,7 @@ typedef enum {
 	SID_EVENT_LINK_SWITCH,
 	SID_EVENT_NORDIC_DFU,
 	SID_EVENT_FILE_TRANSFER,
+	SID_EVENT_REBOOT,
 	SID_EVENT_LAST,
 } sidewalk_event_t;
 
@@ -44,6 +46,13 @@ typedef struct {
 	void *data;
 	size_t data_len;
 } sidewalk_option_t;
+
+typedef struct {
+	uint32_t file_id;
+	size_t file_offset;
+	void *data;
+	size_t data_size;
+} sidewalk_transfer_t;
 
 void sidewalk_start(sidewalk_ctx_t *context);
 

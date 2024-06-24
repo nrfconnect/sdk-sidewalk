@@ -65,9 +65,33 @@ config SID_END_DEVICE_EVENT_HEAP_SIZE
 
 config SIDEWALK_FILE_TRANSFER
     select EXPERIMENTAL
-    bool "Add File transfer capability to the application"
+    imply DFU_MULTI_IMAGE
+    imply DFU_TARGET
+    imply DFU_TARGET_MCUBOOT
+    imply STREAM_FLASH
+    imply STREAM_FLASH_ERASE
+    bool "Enable Sidewalk file transfer"
     help
-      Include the callbacks necesary to handle file transfer
+      Add support for Sidewalk Bulk Data Transfer (SBDT)
+      in application.
+
+if SIDEWALK_FILE_TRANSFER
+
+config SIDEWALK_FILE_TRANSFER_HEAP_SIZE
+    int "Sidewalk file transfer heap size"
+    default 10240
+    help
+        Heap size in bytes to be allocated
+        for Sidewalk Bulk Data Transfer (SBDT).
+
+config SIDEWALK_FILE_TRANSFER_DFU
+    bool "Sildewak file transfer and dfu"
+    default SIDEWALK_FILE_TRANSFER
+    help
+        Save recived data to flash. Expect CBOR manifest.
+        Autoatically reset device after file transfer.
+
+endif
 
 rsource "Kconfig.defconfig"
 
