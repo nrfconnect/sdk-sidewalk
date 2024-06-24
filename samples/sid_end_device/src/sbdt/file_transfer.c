@@ -13,12 +13,11 @@
 #include <sidewalk_dfu/nordic_dfu_img.h>
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 
-#include <sid_bulk_data_transfer_api.h> 
+#include <sid_bulk_data_transfer_api.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/logging/log.h>
 
-	
 LOG_MODULE_REGISTER(file_transfer, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static void on_transfer_request(const struct sid_bulk_data_transfer_request *const transfer_request,
@@ -30,6 +29,17 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 							 "transfer_request", transfer_request))))));
 	LOG_HEXDUMP_INF(transfer_request->file_descriptor, transfer_request->file_descriptor_size,
 			"file_descriptor");
+
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+	int dfu_err = nordic_dfu_img_init();
+	if (dfu_err) {
+		LOG_ERR("dfu img init fail %d", dfu_err);
+		transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_REJECT;
+		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC;
+		transfer_response->scratch_buffer_size = 0;
+		return;
+	}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 
 	transfer_response->scratch_buffer = scratch_buffer_create(
 		transfer_request->file_id, transfer_request->minimum_scratch_buffer_size);
