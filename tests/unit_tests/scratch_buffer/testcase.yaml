@@ -1,0 +1,5 @@
+tests:
+  sidewalk.unit_tests.scratch_buffer:
+    sysbuild: false
+    tags: Sidewalk
+    type: unit

@@ -11,7 +11,7 @@
 #include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <file_transfer.h>
+#include <sbdt/file_transfer.h>
 
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 

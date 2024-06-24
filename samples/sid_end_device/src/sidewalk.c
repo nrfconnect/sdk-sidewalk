@@ -6,16 +6,18 @@
 #include <sidewalk.h>
 #include <sid_pal_common_ifc.h>
 #include <sid_hal_memory_ifc.h>
-#include <sidTypes2str.h>
-#include <nordic_dfu.h>
+#include <json_printer/sidTypes2Json.h>
+#include <sidewalk_dfu/nordic_dfu.h>
 #include <app_mfg_config.h>
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 #include <app_subGHz_config.h>
 #endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
-#include <file_transfer.h>
+#include <sbdt/file_transfer.h>
+#include <sid_bulk_data_transfer_api.h>
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-#include <dfu/dfu_multi_image.h>
+#include <sidewalk_dfu/nordic_dfu_img.h>
+#include <zephyr/dfu/mcuboot.h>
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 #include <stdio.h> // print hash only
 #include <sid_pal_crypto_ifc.h> // print hash only
@@ -152,9 +154,7 @@ static void state_sidewalk_entry(void *o)
 	if (e) {
 		LOG_ERR("sid init err %d", (int)e);
 	}
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
-	app_file_transfer_demo_init(sm->sid->handle);
-#endif
+
 	e = sid_start(sm->sid->handle, sm->sid->config.link_mask);
 	if (e) {
 		LOG_ERR("sid start err %d", (int)e);
@@ -382,15 +382,14 @@ static void state_sidewalk_run(void *o)
 		}
 
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-		// Write a chunk of file to flash (nvm)
-		int err = 0;
-		err = dfu_multi_image_write(transfer->file_offset, transfer->data,
-					    transfer->data_size);
+		int err = nordic_dfu_img_write(transfer->file_offset, transfer->data,
+					       transfer->data_size);
+
 		if (err) {
 			LOG_ERR("Fail to write img %d", err);
 			err = nordic_dfu_img_cancel();
 			if (err) {
-				LOG_ERR("Fail dfu_multi_image_done %d", err);
+				LOG_ERR("Fail to complete dfu %d", err);
 			}
 			e = sid_bulk_data_transfer_cancel(
 				sm->sid->handle, transfer->file_id,
@@ -398,18 +397,11 @@ static void state_sidewalk_run(void *o)
 			if (e != SID_ERROR_NONE) {
 				LOG_ERR("sbdt cancel ret %s", SID_ERROR_T_STR(e));
 			}
-		} else {
-			const struct sid_bulk_data_transfer_buffer sbdt_buffer = {
-				.data = transfer->data,
-				.size = transfer->data_size,
-			};
-			e = sid_bulk_data_transfer_release_buffer(sm->sid->handle,
-								  transfer->file_id, &sbdt_buffer);
-			if (e != SID_ERROR_NONE) {
-				LOG_ERR("sbdt release ret %s", SID_ERROR_T_STR(e));
-			}
+
+			sid_hal_free(transfer);
+			break;
 		}
-#else
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 		const struct sid_bulk_data_transfer_buffer sbdt_buffer = {
 			.data = transfer->data,
 			.size = transfer->data_size,
@@ -419,7 +411,6 @@ static void state_sidewalk_run(void *o)
 		if (e != SID_ERROR_NONE) {
 			LOG_ERR("sbdt release ret %s", SID_ERROR_T_STR(e));
 		}
-#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 
 		// free event context
 		sid_hal_free(transfer);

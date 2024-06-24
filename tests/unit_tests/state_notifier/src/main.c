@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include "ztest_assert.h"
+#include <ztest_assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <state_notifier.h>
+#include <state_notifier/state_notifier.h>
 
 #include <zephyr/ztest.h>
 

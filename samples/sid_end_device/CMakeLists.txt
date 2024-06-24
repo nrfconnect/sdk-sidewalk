@@ -13,11 +13,14 @@ project(sidewalk_sid_end_device)
 # Source files
 target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
-    src/main.c
-    src/sidewalk.c
+src/main.c
+src/sidewalk.c
 )
 
-target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE src/file_transfer.c)
+target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE
+    src/sbdt/file_transfer.c
+    src/sbdt/scratch_buffer.c
+)
 
 if(CONFIG_SID_END_DEVICE_SENSOR_MONITORING)
     target_sources(app PRIVATE
@@ -43,4 +46,5 @@ if(CONFIG_SID_END_DEVICE_CLI)
         src/cli/app_dut.c
         src/cli/app_shell.c
     )
+    target_sources_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT app PRIVATE src/cli/sid_on_dev_cert_cli.c)
 endif()

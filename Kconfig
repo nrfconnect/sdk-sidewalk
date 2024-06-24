@@ -192,19 +192,9 @@ config SIDEWALK_LOGGING_SERVICE
 config SIDEWALK_DEMO_PARSER
 	bool "Enable sensor monitoring demo parser module"
 
-# DFU
-menuconfig SIDEWALK_DFU
-	bool "DFU service in Sidewalk sample"
-
-if SIDEWALK_DFU
-
-config SIDEWALK_DFU_SERVICE_BLE
-	bool "DFU sericve over BLE"
-	default SIDEWALK_DFU
-	help
-	  Use Zephyr SMP Service as image upload methode for Sidewalk.
-
-endif # SIDEWALK_DFU
+config SIDEWALK_ON_DEV_CERT
+	bool "Enable Sidewalk on device certification"
+	depends on SHELL
 
 config SIDEWALK_PAL_RADIO_SOURCE
 	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
