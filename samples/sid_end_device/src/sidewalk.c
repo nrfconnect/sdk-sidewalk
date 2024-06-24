@@ -533,8 +533,17 @@ int sidewalk_event_send(sidewalk_event_t event, void *ctx)
 		.ctx = ctx,
 	};
 
-	const int result = k_msgq_put(&sid_sm.msgq, (void *)&ctx_event, K_NO_WAIT);
+	k_timeout_t timeout = K_NO_WAIT;
+
+#ifdef CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT
+	if (!k_is_in_isr()) {
+		timeout = K_MSEC(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE);
+	}
+#endif /* CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT */
+
+	const int result = k_msgq_put(&sid_sm.msgq, (void *)&ctx_event, timeout);
 	LOG_DBG("sidewalk_event_send event = %d (%s), context = %p, k_msgq_put result %d", event,
 		SIDEWALK_EVENT_T_STR(event), ctx, result);
+
 	return result;
 }
