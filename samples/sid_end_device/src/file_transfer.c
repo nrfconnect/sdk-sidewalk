@@ -4,29 +4,28 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include <stdint.h>
-#include <zephyr/sys/util.h>
+#include <file_transfer.h>
 #include <sid_bulk_data_transfer_api.h>
 #include <sid_hal_memory_ifc.h>
-#include <file_transfer.h>
+#include <sidewalk.h>
+#include <scratch_buffer.h>
+
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+#include <dfu/dfu_multi_image.h>
+#include <dfu/dfu_target.h>
+#include <dfu_multi_image_utils.h>
+
+#include <zephyr/dfu/mcuboot.h>
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 
 #include <zephyr/kernel.h>
+#include <zephyr/sys/util.h>
 #include <zephyr/logging/log.h>
+
 #include <sidTypes2str.h>
 #include <sidTypes2Json.h>
 
-#include <sidewalk.h>
-
 LOG_MODULE_REGISTER(file_transfer, CONFIG_SIDEWALK_LOG_LEVEL);
-
-#define PARALEL_TRANSFER_MAX 3
-
-struct buffer_repo_element {
-	uint32_t file_id;
-	void *memory_slab_for_transfer;
-};
-
-static struct buffer_repo_element buffer_repo[PARALEL_TRANSFER_MAX];
 
 static void on_transfer_request(const struct sid_bulk_data_transfer_request *const transfer_request,
 				struct sid_bulk_data_transfer_response *const transfer_response,
@@ -37,34 +36,19 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 							 "transfer_request", transfer_request))))));
 	LOG_HEXDUMP_INF(transfer_request->file_descriptor, transfer_request->file_descriptor_size,
 			"file_descriptor");
-	size_t repo_index = UINT_MAX;
-	for (size_t i = 0; i < PARALEL_TRANSFER_MAX; i++) {
-		if (buffer_repo[i].memory_slab_for_transfer == NULL) {
-			repo_index = i;
-			break;
-		}
-	}
-	if (repo_index > PARALEL_TRANSFER_MAX) {
-		LOG_ERR("Failed to find slot for transfer");
-		transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_REJECT;
-		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC;
-		return;
-	}
-	void *ptr = sid_hal_malloc(transfer_request->minimum_scratch_buffer_size);
-	if (ptr == NULL) {
-		LOG_ERR("Failed to alloc memory");
+
+	transfer_response->scratch_buffer = scratch_buffer_create(
+		transfer_request->file_id, transfer_request->minimum_scratch_buffer_size);
+
+	if (!transfer_response->scratch_buffer) {
 		transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_REJECT;
 		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_NO_SPACE;
+		transfer_response->scratch_buffer_size = 0;
 		return;
 	}
-	memset(ptr, 0x0, sizeof(transfer_request->minimum_scratch_buffer_size));
 
-	// accept all requests if only we have avaliable memory for scratch buffer
-	buffer_repo[repo_index].memory_slab_for_transfer = ptr;
-	buffer_repo[repo_index].file_id = transfer_request->file_id;
 	transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_ACCEPT;
 	transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_NONE;
-	transfer_response->scratch_buffer = ptr;
 	transfer_response->scratch_buffer_size = transfer_request->minimum_scratch_buffer_size;
 }
 
@@ -77,19 +61,35 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 				      JSON_OBJ(JSON_VAL_sid_bulk_data_transfer_desc("desc", desc))),
 			    JSON_NAME("data_size", JSON_INT(buffer->size))))));
 
-	struct data_received_args *args =
-		(struct data_received_args *)sid_hal_malloc(sizeof(struct data_received_args));
-	if (!args) {
-		LOG_ERR("Failed to allocate memory for received data descriptor");
+	sidewalk_transfer_t *transfer =
+		(sidewalk_transfer_t *)sid_hal_malloc(sizeof(sidewalk_transfer_t));
+	if (!transfer) {
+		LOG_ERR("Fail transfer alloc");
 		return;
 	}
-	memset(args, 0x0, sizeof(*args));
-	args->desc = *desc;
-	args->buffer = (struct sid_bulk_data_transfer_buffer *)buffer;
-	args->context = context;
-	int err = sidewalk_event_send(SID_EVENT_FILE_TRANSFER, args);
+	transfer->file_id = desc->file_id;
+	transfer->file_offset = desc->file_offset;
+	transfer->data = buffer->data;
+	transfer->data_size = buffer->size;
+
+	int err = sidewalk_event_send(SID_EVENT_FILE_TRANSFER, transfer);
 	if (err) {
-		sid_hal_free(args);
+		LOG_ERR("Event transfer err %d", err);
+		LOG_INF("Cancelig file transfer");
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+		err = dfu_multi_image_done(false);
+		if (err) {
+			LOG_ERR("Fail to coplete dfu %d", err);
+		}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
+		sid_error_t ret =
+			sid_bulk_data_transfer_cancel((struct sid_handle *)context,
+						      transfer->file_id,
+						      SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC);
+		if (ret != SID_ERROR_NONE) {
+			LOG_ERR("Fail to cancel sbdt %d", ret);
+		}
+		sid_hal_free(transfer);
 	}
 }
 
@@ -98,27 +98,57 @@ static void on_finalize_request(uint32_t file_id, void *context)
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_finalize_request", JSON_OBJ(JSON_NAME("file_id", JSON_INT(file_id)))))));
 
-	// Illustrative API indicating verification of file
-	//     validate received file
-
-	// always report success
+	// report transfer success
 	sid_error_t ret = sid_bulk_data_transfer_finalize(
 		(struct sid_handle *)context, file_id, SID_BULK_DATA_TRANSFER_FINAL_STATUS_SUCCESS);
 	if (ret != SID_ERROR_NONE) {
 		LOG_ERR("sid_bulk_data_transfer_finalize returned %s", SID_ERROR_T_STR(ret));
 	}
+
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+	// request upgrade and reboot
+	int err = 0;
+	err = dfu_multi_image_done(true);
+	if (err) {
+		LOG_ERR("Fail to coplete dfu %d", err);
+	}
+
+	err = dfu_target_schedule_update(DFU_MUTI_IMAGE_UTILS_UPDATE_ALL);
+	if (err) {
+		LOG_ERR("dfu_target_schedule_update ret %d", err);
+	}
+
+	err = sidewalk_event_send(SID_EVENT_REBOOT, NULL);
+	if (err) {
+		LOG_ERR("reboot event send ret %d", err);
+	}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 }
 
 static void on_cancel_request(uint32_t file_id, void *context)
 {
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_cancel_request", JSON_OBJ(JSON_NAME("file_id", JSON_INT(file_id)))))));
+
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+	int err = dfu_multi_image_done(false);
+	if (err) {
+		LOG_ERR("Fail to coplete dfu %d", err);
+	}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 }
 
 static void on_error(uint32_t file_id, void *context)
 {
 	printk(JSON_NEW_LINE(JSON_OBJ(
 		JSON_NAME("on_error", JSON_OBJ(JSON_NAME("file_id", JSON_INT(file_id)))))));
+
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+	int err = dfu_multi_image_done(false);
+	if (err) {
+		LOG_ERR("Fail to coplete dfu %d", err);
+	}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 }
 
 static void on_release_scratch_buffer(uint32_t file_id, void *context)
@@ -126,16 +156,7 @@ static void on_release_scratch_buffer(uint32_t file_id, void *context)
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_release_scratch_buffer", JSON_OBJ(JSON_NAME("file_id", JSON_INT(file_id)))))));
 
-	for (size_t i = 0; i < PARALEL_TRANSFER_MAX; i++) {
-		if (buffer_repo[i].file_id == file_id) {
-			sid_hal_free(buffer_repo[i].memory_slab_for_transfer);
-
-			buffer_repo[i].memory_slab_for_transfer = NULL;
-			buffer_repo[i].file_id = UINT32_MAX;
-			return;
-		}
-	}
-	LOG_ERR("failed to find file_id to be freed");
+	scratch_buffer_remove(file_id);
 }
 
 static struct sid_bulk_data_transfer_event_callbacks ft_callbacks = {
@@ -150,12 +171,33 @@ static struct sid_bulk_data_transfer_event_callbacks ft_callbacks = {
 
 void app_file_transfer_demo_init(struct sid_handle *handle)
 {
-	ft_callbacks.context = (void *)handle;
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+	int err = 0;
+	// confirm current image
 
-	sid_error_t err = sid_bulk_data_transfer_init(
+	err = boot_write_img_confirmed();
+	if (err) {
+		LOG_ERR("img confirm fail %d", err);
+	}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
+
+	// prepare memory dependecies
+	scratch_buffer_init();
+
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+	err = dfu_multi_image_init_target_mcuboot();
+	if (err) {
+		LOG_ERR("img init fail %d", err);
+		return;
+	}
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
+
+	// init sidewalk file transfer
+	ft_callbacks.context = (void *)handle;
+	sid_error_t ret = sid_bulk_data_transfer_init(
 		&(struct sid_bulk_data_transfer_config){ .callbacks = &ft_callbacks }, handle);
-	if (err != SID_ERROR_NONE) {
-		LOG_ERR("sid_bulk_data_transfer_init returned %s", SID_ERROR_T_STR(err));
+	if (ret != SID_ERROR_NONE) {
+		LOG_ERR("sid_bulk_data_transfer_init returned %s", SID_ERROR_T_STR(ret));
 	}
 }
 
