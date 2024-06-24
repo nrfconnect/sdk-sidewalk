@@ -56,9 +56,24 @@ config SIDEWALK_THREAD_STACK_SIZE
 config SIDEWALK_THREAD_QUEUE_SIZE
 	int "Message queue size for the Sidewalk thread"
 	range 4 256
-	default 10
+	default 16
 	help
 	  Set the message queue size for the Sidewalk thread.
+
+config SIDEWALK_THREAD_QUEUE_TIMEOUT
+	bool "Message queue timeout for the Sidewalk thread [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	help
+	  Set the message queue put timeout for the Sidewalk thread.
+	  The events form interrupt conetext are always put with no timeout.
+
+if SIDEWALK_THREAD_QUEUE_TIMEOUT
+
+config SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE
+	int "Message queue timeout value in ms [EXPERIMENTAL]"
+	default 300
+
+endif # SIDEWALK_THREAD_QUEUE_TIMEOUT
 
 config SIDEWALK_THREAD_PRIORITY
 	int "Priority of the Sidewalk thread"
