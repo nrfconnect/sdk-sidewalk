@@ -16,6 +16,7 @@ tests:
   sample.sidewalk.hello:
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_FILE_TRANSFER=y
     tags: Sidewalk hello
 
   sample.sidewalk.hello.release:
@@ -58,7 +59,4 @@ tests:
   sample.sidewalk.dut:
     extra_args:
       OVERLAY_CONFIG="overlay-dut.conf"
-    extra_configs:
-      - CONFIG_SIDEWALK_FILE_TRANSFER=y
-      - CONFIG_SIDEWALK_FILE_TRANSFER_DFU=n
     tags: Sidewalk cli

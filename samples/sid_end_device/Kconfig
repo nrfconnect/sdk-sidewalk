@@ -65,11 +65,6 @@ config SID_END_DEVICE_EVENT_HEAP_SIZE
 
 config SIDEWALK_FILE_TRANSFER
     select EXPERIMENTAL
-    imply DFU_MULTI_IMAGE
-    imply DFU_TARGET
-    imply DFU_TARGET_MCUBOOT
-    imply STREAM_FLASH
-    imply STREAM_FLASH_ERASE
     bool "Enable Sidewalk file transfer"
     help
       Add support for Sidewalk Bulk Data Transfer (SBDT)
@@ -88,6 +83,12 @@ config SIDEWALK_FILE_TRANSFER_DFU
     bool "Sildewak file transfer and dfu"
     default SIDEWALK_FILE_TRANSFER
     imply SIDEWALK_DFU_IMG_UTILS
+    imply DFU_MULTI_IMAGE
+    imply DFU_TARGET
+    imply DFU_TARGET_MCUBOOT
+    imply STREAM_FLASH
+    imply STREAM_FLASH_ERASE
+    imply SIDEWALK_THREAD_QUEUE_TIMEOUT
     help
         Save recived data to flash. Expect CBOR manifest.
         Autoatically reset device after file transfer.
