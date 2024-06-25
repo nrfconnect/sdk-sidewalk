@@ -9,9 +9,9 @@
 #include <sid_error.h>
 #include <settings_utils.h>
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER
-#include <file_transfer.h>
+#include <sbdt/file_transfer.h>
 #endif
-#include <sidTypes2str.h>
+#include <json_printer/sidTypes2str.h>
 
 LOG_MODULE_REGISTER(sidewalk_fsm_event_handlers, CONFIG_SIDEWALK_FSM_EVENTS_LOG_LEVEL);
 

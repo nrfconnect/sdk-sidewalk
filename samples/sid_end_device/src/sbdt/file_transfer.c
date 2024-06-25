@@ -15,8 +15,7 @@
 #include <zephyr/kernel.h>
 #include <stdio.h>
 #include <zephyr/logging/log.h>
-#include <sidTypes2str.h>
-#include <sidTypes2Json.h>
+#include <json_printer/sidTypes2str.h>
 
 #include <sidewalk.h>
 #include <sid_hal_memory_ifc.h>
@@ -204,17 +203,17 @@ void app_file_transfer_demo_deinit(struct sid_handle *handle)
 
 void sid_sidewalk_event_file_transfer_handler(void *ctx, sm_t *sm)
 {
-	struct data_received_args *args = (struct data_received_args *)ctx;
+	sidewalk_transfer_t *args = (sidewalk_transfer_t *)ctx;
 	if (!args) {
 		LOG_ERR("File transfer event data is NULL");
 		return;
 	}
-	LOG_INF("Received file Id %d; buffer size %d; file offset %d", args->desc.file_id,
-		args->buffer->size, args->desc.file_offset);
+	LOG_INF("Received file Id %d; buffer size %d; file offset %d", args->file_id,
+		args->data_size, args->file_offset);
 	uint8_t hash_out[32];
 	sid_pal_hash_params_t params = { .algo = SID_PAL_HASH_SHA256,
-					 .data = args->buffer->data,
-					 .data_size = args->buffer->size,
+					 .data = args->data,
+					 .data_size = args->data_size,
 					 .digest = hash_out,
 					 .digest_size = sizeof(hash_out) };
 
@@ -230,8 +229,8 @@ void sid_sidewalk_event_file_transfer_handler(void *ctx, sm_t *sm)
 		LOG_INF("SHA256: %s", hex_str);
 	}
 
-	sid_error_t ret = sid_bulk_data_transfer_release_buffer(sm->sid->handle, args->desc.file_id,
-								args->buffer);
+	sid_error_t ret =
+		sid_bulk_data_transfer_release_buffer(sm->sid->handle, args->file_id, args->data);
 	if (ret != SID_ERROR_NONE) {
 		LOG_ERR("sid_bulk_data_transfer_release_buffer returned %s", SID_ERROR_T_STR(ret));
 	}

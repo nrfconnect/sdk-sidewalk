@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 #include <sidewalk.h>
-#include <nordic_dfu.h>
+#include <sidewalk_dfu/nordic_dfu.h>
 #include <zephyr/logging/log.h>
 #include <sid_hal_memory_ifc.h>
 

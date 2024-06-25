@@ -9,7 +9,6 @@
 #include <json_printer/sidTypes2Json.h>
 #include <sidewalk_dfu/nordic_dfu.h>
 #include <app_mfg_config.h>
-#include <nordic_dfu.h>
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 #include <settings_utils.h>
 #endif
