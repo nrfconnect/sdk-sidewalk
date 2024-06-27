@@ -42,7 +42,7 @@ static sidewalk_ctx_t sid_ctx;
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	int err = sidewalk_event_send(SID_EVENT_SIDEWALK, NULL);
+	int err = sidewalk_event_send(SID_EVENT_SIDEWALK, NULL, NULL);
 	if (err) {
 		LOG_ERR("Send event err %d", err);
 	};
@@ -112,7 +112,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	} else {
 		memcpy(new_status, status, sizeof(struct sid_status));
 	}
-	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
+	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status, sid_hal_free);
 
 	int err = 0;
 	switch (status->state) {
@@ -165,7 +165,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 
 static void sidewalk_btn_handler(uint32_t event)
 {
-	int err = sidewalk_event_send((sidewalk_event_t)event, NULL);
+	int err = sidewalk_event_send((sidewalk_event_t)event, NULL, NULL);
 	if (err) {
 		LOG_ERR("Send event err %d", err);
 		return;

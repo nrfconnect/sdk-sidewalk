@@ -15,7 +15,7 @@ DEFINE_FFF_GLOBALS;
 FAKE_VOID_FUNC(sidewalk_start, sidewalk_ctx_t *);
 FAKE_VALUE_FUNC(void *, sid_hal_malloc, size_t);
 FAKE_VOID_FUNC(sid_hal_free, void *);
-FAKE_VALUE_FUNC(int, sidewalk_event_send, sidewalk_event_t, void *);
+FAKE_VALUE_FUNC(int, sidewalk_event_send, sidewalk_event_t, void *, ctx_free);
 
 #define SIDEWALK_FAKES_LIST(FAKE)                                                                  \
 	FAKE(sidewalk_start)                                                                       \

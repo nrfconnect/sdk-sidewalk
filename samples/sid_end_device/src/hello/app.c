@@ -29,10 +29,22 @@ static uint32_t persistent_link_mask;
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	int err = sidewalk_event_send(SID_EVENT_SIDEWALK, NULL);
+	int err = sidewalk_event_send(SID_EVENT_SIDEWALK, NULL, NULL);
 	if (err) {
 		LOG_ERR("Send event err %d", err);
 	};
+}
+
+static void free_sid_echo_event_ctx(void *ctx)
+{
+	sidewalk_msg_t *echo = (sidewalk_msg_t *)ctx;
+	if (echo == NULL) {
+		return;
+	}
+	if (echo->msg.data) {
+		sid_hal_free(echo->msg.data);
+	}
+	sid_hal_free(echo);
 }
 
 static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
@@ -70,10 +82,9 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 		echo->desc.link_type = SID_LINK_TYPE_ANY;
 		echo->desc.link_mode = SID_LINK_MODE_CLOUD;
 
-		int err = sidewalk_event_send(SID_EVENT_SEND_MSG, echo);
+		int err = sidewalk_event_send(SID_EVENT_SEND_MSG, echo, free_sid_echo_event_ctx);
 		if (err) {
-			sid_hal_free(echo->msg.data);
-			sid_hal_free(echo);
+			free_sid_echo_event_ctx(echo);
 			LOG_ERR("Send event err %d", err);
 		} else {
 			application_state_sending(&global_state_notifier, true);
@@ -141,7 +152,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	} else {
 		memcpy(new_status, status, sizeof(struct sid_status));
 	}
-	err = sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status);
+	err = sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status, sid_hal_free);
 
 	switch (status->state) {
 	case SID_STATE_READY:
@@ -190,6 +201,17 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 		}
 	}
 }
+static void free_sid_hello_event_ctx(void *ctx)
+{
+	sidewalk_msg_t *hello = (sidewalk_msg_t *)ctx;
+	if (hello == NULL) {
+		return;
+	}
+	if (hello->msg.data) {
+		sid_hal_free(hello->msg.data);
+	}
+	sid_hal_free(hello->msg.data);
+}
 
 static void app_button_handler(uint32_t event)
 {
@@ -216,10 +238,9 @@ static void app_button_handler(uint32_t event)
 		hello->desc.link_type = SID_LINK_TYPE_ANY;
 		hello->desc.link_mode = SID_LINK_MODE_CLOUD;
 
-		int err = sidewalk_event_send(SID_EVENT_SEND_MSG, hello);
+		int err = sidewalk_event_send(SID_EVENT_SEND_MSG, hello, free_sid_hello_event_ctx);
 		if (err) {
-			sid_hal_free(hello->msg.data);
-			sid_hal_free(hello);
+			free_sid_hello_event_ctx(hello);
 			LOG_ERR("Send event err %d", err);
 		} else {
 			application_state_sending(&global_state_notifier, true);
@@ -227,7 +248,7 @@ static void app_button_handler(uint32_t event)
 		return;
 	}
 
-	sidewalk_event_send((sidewalk_event_t)event, NULL);
+	sidewalk_event_send((sidewalk_event_t)event, NULL, NULL);
 }
 
 static int app_buttons_init(void)

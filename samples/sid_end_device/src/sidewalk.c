@@ -312,7 +312,6 @@ static void state_sidewalk_run(void *o)
 		}
 
 		memcpy(&sm->sid->last_status, p_status, sizeof(struct sid_status));
-		sid_hal_free(p_status);
 	} break;
 	case SID_EVENT_SEND_MSG: {
 		sidewalk_msg_t *p_msg = (sidewalk_msg_t *)sm->event.ctx;
@@ -321,17 +320,37 @@ static void state_sidewalk_run(void *o)
 			break;
 		}
 
-		e = sid_put_msg(sm->sid->handle, &p_msg->msg, &p_msg->desc);
+		/* Making a copy of the data is a workaround for issue KRKNWK-18805 
+		   When sid_put_msg makes intenal copy, the workaround can be removed.
+		*/
+		sidewalk_msg_t *p_msg_copy = sid_hal_malloc(sizeof(sidewalk_msg_t));
+		memset(p_msg_copy, 0x0, sizeof(*p_msg_copy));
+
+		p_msg_copy->msg.data = sid_hal_malloc(p_msg->msg.size);
+		if (p_msg_copy->msg.data == NULL) {
+			sid_hal_free(p_msg_copy);
+			LOG_ERR("Failed to allocate message buffer");
+			break;
+		}
+		memcpy(p_msg_copy->msg.data, p_msg->msg.data, p_msg->msg.size);
+		p_msg_copy->msg.size = p_msg->msg.size;
+
+		e = sid_put_msg(sm->sid->handle, p_msg_copy->msg.data, &p_msg_copy->desc);
 		if (e) {
 			LOG_ERR("sid send err %d", (int)e);
+			sid_hal_free(p_msg_copy->msg.data);
+			sid_hal_free(p_msg_copy);
+			break;
 		}
 		LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
 		int mutex_err = k_mutex_lock(&pending_message_list_mutex, K_FOREVER);
 		if (mutex_err != 0) {
 			LOG_ERR("Failed to lock mutex for message list");
+			sid_hal_free(p_msg_copy->msg.data);
+			sid_hal_free(p_msg_copy);
 			break;
 		}
-		sys_slist_append(&pending_message_list, &p_msg->node);
+		sys_slist_append(&pending_message_list, &p_msg_copy->node);
 		k_mutex_unlock(&pending_message_list_mutex);
 	} break;
 	case SID_EVENT_CONNECT: {
@@ -393,7 +412,6 @@ static void state_sidewalk_run(void *o)
 				LOG_ERR("sbdt cancel ret %s", SID_ERROR_T_STR(e));
 			}
 
-			sid_hal_free(transfer);
 			break;
 		}
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
@@ -407,8 +425,6 @@ static void state_sidewalk_run(void *o)
 			LOG_ERR("sbdt release ret %s", SID_ERROR_T_STR(e));
 		}
 
-		// free event context
-		sid_hal_free(transfer);
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER */
 	} break;
 	case SID_EVENT_REBOOT: {
@@ -506,7 +522,11 @@ static void sid_thread_entry(void *context, void *unused, void *unused2)
 	while (1) {
 		int err = k_msgq_get(&sid_sm.msgq, &sid_sm.event, K_FOREVER);
 		if (!err) {
-			if (smf_run_state(SMF_CTX(&sid_sm))) {
+			int32_t e = smf_run_state(SMF_CTX(&sid_sm));
+			if (sid_sm.event.ctx_free) {
+				sid_sm.event.ctx_free(sid_sm.event.ctx);
+			}
+			if (e) {
 				LOG_ERR("Sidewalk state machine termination");
 				break;
 			}
@@ -526,11 +546,12 @@ void sidewalk_start(sidewalk_ctx_t *context)
 	(void)k_thread_name_set(&sid_thread, "sidewalk");
 }
 
-int sidewalk_event_send(sidewalk_event_t event, void *ctx)
+int sidewalk_event_send(sidewalk_event_t event, void *ctx, ctx_free free)
 {
 	sidewalk_ctx_event_t ctx_event = {
 		.id = event,
 		.ctx = ctx,
+		.ctx_free = free,
 	};
 
 	k_timeout_t timeout = K_NO_WAIT;

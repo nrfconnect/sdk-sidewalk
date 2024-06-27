@@ -24,9 +24,11 @@ typedef enum {
 	SID_EVENT_LAST,
 } sidewalk_event_t;
 
+typedef void (*ctx_free)(void *ctx);
 typedef struct {
 	sidewalk_event_t id;
 	void *ctx;
+	ctx_free ctx_free;
 } sidewalk_ctx_event_t;
 
 typedef struct {
@@ -56,7 +58,7 @@ typedef struct {
 
 void sidewalk_start(sidewalk_ctx_t *context);
 
-int sidewalk_event_send(sidewalk_event_t event, void *ctx);
+int sidewalk_event_send(sidewalk_event_t event, void *ctx, ctx_free free);
 
 sidewalk_msg_t *get_message_buffer(uint16_t message_id);
 
