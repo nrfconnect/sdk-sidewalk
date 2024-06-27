@@ -22,6 +22,7 @@
 #include <cli/app_dut.h>
 #include <sid_sdk_version.h>
 #include <sidewalk_version.h>
+#include <sidewalk.h>
 
 #define CLI_CMD_OPT_LINK_BLE 1
 #define CLI_CMD_OPT_LINK_FSK 2
@@ -220,7 +221,7 @@ static void free_sid_option_event_ctx(void *ctx)
 	sid_hal_free(p_opt);
 }
 
-static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data, size_t len)
+static int cmd_sid_option(event_handler_t event, enum sid_option option, void *data, size_t len)
 {
 	sidewalk_option_t *p_opt = sid_hal_malloc(sizeof(sidewalk_option_t));
 	if (!p_opt) {
@@ -239,7 +240,7 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 		p_opt->data = NULL;
 	}
 
-	int err = sidewalk_event_send((sidewalk_event_t)event, p_opt, free_sid_option_event_ctx);
+	int err = sidewalk_event_send(event, p_opt, free_sid_option_event_ctx);
 	if (err) {
 		free_sid_option_event_ctx(p_opt);
 		err = -ENOMSG;
@@ -250,20 +251,20 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 
 static int cmd_sid_option_set(enum sid_option option, void *data, size_t len)
 {
-	return cmd_sid_option(DUT_EVENT_SET_OPTION, option, data, len);
+	return cmd_sid_option(dut_event_set_option, option, data, len);
 }
 
 static int cmd_sid_option_get(enum sid_option option)
 {
-	return cmd_sid_option(DUT_EVENT_GET_OPTION, option, NULL, 0);
+	return cmd_sid_option(dut_event_get_option, option, NULL, 0);
 }
 
 static int cmd_sid_option_get_input_data(enum sid_option option, void *data, size_t len)
 {
-	return cmd_sid_option(DUT_EVENT_GET_OPTION, option, data, len);
+	return cmd_sid_option(dut_event_get_option, option, data, len);
 }
 
-static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
+static int cmd_sid_simple_param(event_handler_t event, uint32_t *data)
 {
 	uint32_t *event_ctx = sid_hal_malloc(sizeof(uint32_t));
 	if (!event_ctx) {
@@ -271,7 +272,7 @@ static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
 	}
 	memcpy(event_ctx, data, sizeof(uint32_t));
 
-	int err = sidewalk_event_send((sidewalk_event_t)event, event_ctx, sid_hal_free);
+	int err = sidewalk_event_send(event, event_ctx, sid_hal_free);
 	if (err) {
 		sid_hal_free(event_ctx);
 		return -ENOMSG;
@@ -301,14 +302,14 @@ int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 	}
 	cli_cfg.send_link_type = link_type;
 
-	return cmd_sid_simple_param(DUT_EVENT_INIT, &link_type);
+	return cmd_sid_simple_param(dut_event_init, &link_type);
 }
 
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_DEINIT_ARG_REQUIRED, CMD_SID_DEINIT_ARG_OPTIONAL);
 
-	return sidewalk_event_send((sidewalk_event_t)DUT_EVENT_DEINIT, NULL, NULL);
+	return sidewalk_event_send(dut_event_deinit, NULL, NULL);
 }
 
 int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
@@ -325,7 +326,7 @@ int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
 		}
 	}
 
-	return cmd_sid_simple_param(DUT_EVENT_START, &link_type);
+	return cmd_sid_simple_param(dut_event_start, &link_type);
 }
 
 int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
@@ -342,7 +343,7 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 		}
 	}
 
-	return cmd_sid_simple_param(DUT_EVENT_STOP, &link_type);
+	return cmd_sid_simple_param(dut_event_stop, &link_type);
 }
 
 static void free_sid_send_event_ctx(void *ctx)
@@ -524,8 +525,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 	memcpy(&send->msg, &msg, sizeof(struct sid_msg));
 	memcpy(&send->desc, &desc, sizeof(struct sid_msg_desc));
 
-	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_SEND_MSG, send,
-				      free_sid_send_event_ctx);
+	int err = sidewalk_event_send(sidewalk_event_send_msg, send, free_sid_send_event_ctx);
 	if (err) {
 		free_sid_send_event_ctx(send);
 		return -ENOMSG;
@@ -539,7 +539,7 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_FACTORY_RESET_ARG_REQUIRED,
 			     CMD_SID_FACTORY_RESET_ARG_OPTIONAL);
 
-	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_FACTORY_RESET, NULL, NULL);
+	int err = sidewalk_event_send(sidewalk_event_factory_reset, NULL, NULL);
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -568,7 +568,7 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 		return -EINVAL;
 	}
 
-	return cmd_sid_simple_param(DUT_EVENT_GET_MTU, &link_mask);
+	return cmd_sid_simple_param(dut_event_get_mtu, &link_mask);
 }
 
 int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char **argv)
@@ -908,19 +908,14 @@ int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv
 		shell_error(shell, "parameter link type invalid");
 		return -EINVAL;
 	}
-	uint32_t *p_link_mask = sid_hal_malloc(sizeof(uint32_t));
-	if (!p_link_mask) {
-		return -ENOMEM;
-	}
-
-	memset(p_link_mask, 0x0, sizeof(*p_link_mask));
-	if (!cli_parse_link_mask_opt((uint8_t)link_type, p_link_mask)) {
+	uint32_t link_mask = 0;
+	if (!cli_parse_link_mask_opt((uint8_t)link_type, &link_mask)) {
 		shell_error(shell, "Can not parse link mask");
 		return -EINVAL;
 	}
 
 	int err = cmd_sid_option_get_input_data(SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
-						p_link_mask, sizeof(uint32_t));
+						&link_mask, sizeof(uint32_t));
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -933,7 +928,7 @@ int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **ar
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_LAST_STATUS_ARG_REQUIRED,
 			     CMD_SID_LAST_STATUS_ARG_OPTIONAL);
 
-	if (0 != sidewalk_event_send((sidewalk_event_t)DUT_EVENT_GET_STATUS, NULL, NULL)) {
+	if (0 != sidewalk_event_send(dut_event_get_status, NULL, NULL)) {
 		shell_error(shell, "Failed to send Event");
 	}
 	return 0;
@@ -957,7 +952,7 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 		return -EINVAL;
 	}
 
-	return cmd_sid_simple_param(DUT_EVENT_SET_CONN_REQ, &conn_req);
+	return cmd_sid_simple_param(dut_event_conn_req, &conn_req);
 }
 
 int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
@@ -970,7 +965,7 @@ int cmd_sid_get_time(const struct shell *shell, int32_t argc, const char **argv)
 	}
 	uint32_t time_type = SID_GET_GPS_TIME;
 
-	return cmd_sid_simple_param(DUT_EVENT_GET_TIME, &time_type);
+	return cmd_sid_simple_param(dut_event_get_time, &time_type);
 }
 
 int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **argv)
@@ -978,7 +973,7 @@ int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **arg
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_DST_ID_ARG_REQUIRED,
 			     CMD_SID_SET_DST_ID_ARG_OPTIONAL);
 	uint32_t dst_id = atoi(argv[1]);
-	return cmd_sid_simple_param(DUT_EVENT_SET_DEST_ID, &dst_id);
+	return cmd_sid_simple_param(dut_event_set_dest_id, &dst_id);
 }
 
 int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **argv)

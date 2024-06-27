@@ -15,6 +15,7 @@ target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
 src/main.c
 src/sidewalk.c
+src/sidewalk_events.c
 )
 
 target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE
