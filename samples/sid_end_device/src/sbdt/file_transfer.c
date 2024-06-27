@@ -76,7 +76,7 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 	transfer->data = buffer->data;
 	transfer->data_size = buffer->size;
 
-	int err = sidewalk_event_send(SID_EVENT_FILE_TRANSFER, transfer, sid_hal_free);
+	int err = sidewalk_event_send(sidewalk_event_file_transfer, transfer, sid_hal_free);
 	if (err) {
 		LOG_ERR("Event transfer err %d", err);
 		LOG_INF("Cancelig file transfer");
@@ -117,7 +117,7 @@ static void on_finalize_request(uint32_t file_id, void *context)
 		LOG_ERR("dfu image finalize fail %d", err);
 	}
 
-	err = sidewalk_event_send(SID_EVENT_REBOOT, NULL, NULL);
+	err = sidewalk_event_send(sidewalk_event_reboot, NULL, NULL);
 	if (err) {
 		LOG_ERR("reboot event send ret %d", err);
 	}
