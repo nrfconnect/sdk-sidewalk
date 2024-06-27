@@ -44,7 +44,6 @@ jobs:
           git checkout PR-branch &&
           cd .. &&
           west config manifest.group-filter +sidewalk &&
-          sidewalk/scripts/ci/parallel_update.sh &&
           west update -n -o=--depth=1 --path-cache /workdir/ &&
           cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
 
