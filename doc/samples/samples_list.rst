@@ -29,6 +29,13 @@ The following table demonstrates the variants' configuration for the supported d
 
 .. note::
 
+   Targets `nRF5340 DK`_  and `Thingy53`_  use `MCUBOOT_MODE_OVERWRITE_ONLY` configuration for bootloader. This means, that after the DFU image swap, there is no rollback mechanism in case new image is not functional.
+   This limitation is due to split between app and net core. If the default MCUBOOT mode to be set, the rollback would only apply to the app core, and not to the net core. This could lead to missmatch between app and net core.
+   Please verify the image to be updated before performing DFU on large scale as faulty image may lead to unrecoverable state of the device. 
+   Other platforms use default MCUBOOT mode (`MCUBOOT_MODE_SWAP_WITHOUT_SCRATCH`), and it requires new image to be confirmed (either externally, or by the new application itself), otherwise on next reboot mcuboot will revert the change. 
+
+.. note::
+
    With the v2.6.0 release of the `nRF Connect SDK`_ a new sample model has been introduced.
    To see how the changes might affect your application, see the :ref:`migration_guide_v260`.
 
