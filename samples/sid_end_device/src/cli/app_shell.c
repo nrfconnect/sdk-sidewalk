@@ -208,6 +208,18 @@ static int cmd_sid_option_handle_set_link3_profile(const char *value,
 	return 0;
 }
 
+static void free_sid_option_event_ctx(void *ctx)
+{
+	sidewalk_option_t *p_opt = (sidewalk_option_t *)ctx;
+	if (p_opt == NULL) {
+		return;
+	}
+	if (p_opt->data) {
+		sid_hal_free(p_opt->data);
+	}
+	sid_hal_free(p_opt);
+}
+
 static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data, size_t len)
 {
 	sidewalk_option_t *p_opt = sid_hal_malloc(sizeof(sidewalk_option_t));
@@ -227,12 +239,9 @@ static int cmd_sid_option(cli_event_t event, enum sid_option option, void *data,
 		p_opt->data = NULL;
 	}
 
-	int err = sidewalk_event_send((sidewalk_event_t)event, p_opt);
+	int err = sidewalk_event_send((sidewalk_event_t)event, p_opt, free_sid_option_event_ctx);
 	if (err) {
-		if (p_opt->data) {
-			sid_hal_free(p_opt->data);
-		}
-		sid_hal_free(p_opt);
+		free_sid_option_event_ctx(p_opt);
 		err = -ENOMSG;
 	}
 
@@ -262,7 +271,7 @@ static int cmd_sid_simple_param(cli_event_t event, uint32_t *data)
 	}
 	memcpy(event_ctx, data, sizeof(uint32_t));
 
-	int err = sidewalk_event_send((sidewalk_event_t)event, event_ctx);
+	int err = sidewalk_event_send((sidewalk_event_t)event, event_ctx, sid_hal_free);
 	if (err) {
 		sid_hal_free(event_ctx);
 		return -ENOMSG;
@@ -299,7 +308,7 @@ int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_DEINIT_ARG_REQUIRED, CMD_SID_DEINIT_ARG_OPTIONAL);
 
-	return sidewalk_event_send((sidewalk_event_t)DUT_EVENT_DEINIT, NULL);
+	return sidewalk_event_send((sidewalk_event_t)DUT_EVENT_DEINIT, NULL, NULL);
 }
 
 int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv)
@@ -334,6 +343,18 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 	}
 
 	return cmd_sid_simple_param(DUT_EVENT_STOP, &link_type);
+}
+
+static void free_sid_send_event_ctx(void *ctx)
+{
+	sidewalk_msg_t *send = (sidewalk_msg_t *)ctx;
+	if (send == NULL) {
+		return;
+	}
+	if (send->msg.data) {
+		sid_hal_free(send->msg.data);
+	}
+	sid_hal_free(send);
 }
 
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
@@ -496,16 +517,17 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 
 	sidewalk_msg_t *send = sid_hal_malloc(sizeof(sidewalk_msg_t));
 	if (!send) {
+		sid_hal_free(msg.data);
 		return -ENOMEM;
 	}
 	memset(send, 0x0, sizeof(*send));
 	memcpy(&send->msg, &msg, sizeof(struct sid_msg));
 	memcpy(&send->desc, &desc, sizeof(struct sid_msg_desc));
 
-	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_SEND_MSG, send);
+	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_SEND_MSG, send,
+				      free_sid_send_event_ctx);
 	if (err) {
-		sid_hal_free(send->msg.data);
-		sid_hal_free(send);
+		free_sid_send_event_ctx(send);
 		return -ENOMSG;
 	}
 
@@ -517,7 +539,7 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_FACTORY_RESET_ARG_REQUIRED,
 			     CMD_SID_FACTORY_RESET_ARG_OPTIONAL);
 
-	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_FACTORY_RESET, NULL);
+	int err = sidewalk_event_send((sidewalk_event_t)SID_EVENT_FACTORY_RESET, NULL, NULL);
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -911,7 +933,7 @@ int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **ar
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_LAST_STATUS_ARG_REQUIRED,
 			     CMD_SID_LAST_STATUS_ARG_OPTIONAL);
 
-	if (0 != sidewalk_event_send((sidewalk_event_t)DUT_EVENT_GET_STATUS, NULL)) {
+	if (0 != sidewalk_event_send((sidewalk_event_t)DUT_EVENT_GET_STATUS, NULL, NULL)) {
 		shell_error(shell, "Failed to send Event");
 	}
 	return 0;

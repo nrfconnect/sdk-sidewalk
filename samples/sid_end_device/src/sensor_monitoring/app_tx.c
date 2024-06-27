@@ -81,6 +81,18 @@ static uint32_t last_link_mask_get(void)
 	return last_link_mask;
 }
 
+static void free_sid_msg_event_ctx(void *ctx)
+{
+	sidewalk_msg_t *sid_msg = (sidewalk_msg_t *)ctx;
+	if (sid_msg == NULL) {
+		return;
+	}
+	if (sid_msg->msg.data) {
+		sid_hal_free(sid_msg->msg.data);
+	}
+	sid_hal_free(sid_msg);
+}
+
 static int app_tx_demo_msg_send(struct sid_parse_state *state, uint8_t *buffer,
 				struct sid_demo_msg_desc *demo_desc, struct sid_msg_desc *sid_desc)
 {
@@ -111,10 +123,9 @@ static int app_tx_demo_msg_send(struct sid_parse_state *state, uint8_t *buffer,
 	memcpy(sid_msg->msg.data, msg_buffer, sid_msg->msg.size);
 	memcpy(&sid_msg->desc, sid_desc, sizeof(struct sid_msg_desc));
 
-	int err = sidewalk_event_send(SID_EVENT_SEND_MSG, sid_msg);
+	int err = sidewalk_event_send(SID_EVENT_SEND_MSG, sid_msg, free_sid_msg_event_ctx);
 	if (err) {
-		sid_hal_free(sid_msg->msg.data);
-		sid_hal_free(sid_msg);
+		free_sid_msg_event_ctx(sid_msg);
 		LOG_ERR("Event send err %d", err);
 		return -EIO;
 	};
