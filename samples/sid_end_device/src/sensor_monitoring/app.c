@@ -10,6 +10,7 @@
 #include <sensor_monitoring/app_buttons.h>
 #include <sensor_monitoring/app_leds.h>
 #include <app_ble_config.h>
+#include <sidewalk_dfu/nordic_dfu.h>
 #include <app_subGHz_config.h>
 #include <sid_hal_reset_ifc.h>
 #include <sid_hal_memory_ifc.h>
@@ -21,6 +22,7 @@
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
+#define PARAM_UNUSED (0U)
 #define NOTIFY_TIMER_DURATION_MS (500)
 
 K_THREAD_STACK_DEFINE(app_tx_stack, CONFIG_SID_END_DEVICE_TX_THREAD_STACK_SIZE);
@@ -42,7 +44,7 @@ static sidewalk_ctx_t sid_ctx;
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	int err = sidewalk_event_send(SID_EVENT_SIDEWALK, NULL, NULL);
+	int err = sidewalk_event_send(sidewalk_event_process, NULL, NULL);
 	if (err) {
 		LOG_ERR("Send event err %d", err);
 	};
@@ -112,7 +114,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	} else {
 		memcpy(new_status, status, sizeof(struct sid_status));
 	}
-	sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status, sid_hal_free);
+	sidewalk_event_send(sidewalk_event_new_status, new_status, sid_hal_free);
 
 	int err = 0;
 	switch (status->state) {
@@ -163,25 +165,56 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	}
 }
 
-static void sidewalk_btn_handler(uint32_t event)
+static void app_event_exit_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
 {
-	int err = sidewalk_event_send((sidewalk_event_t)event, NULL, NULL);
+	int err = -ENOTSUP;
+	// Exit from DFU state
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	err = nordic_dfu_ble_stop();
+#endif
 	if (err) {
-		LOG_ERR("Send event err %d", err);
-		return;
-	};
-
-	if (SID_EVENT_NORDIC_DFU == event) {
-		static bool in_dfu;
-		if (in_dfu) {
-			in_dfu = false;
-			k_timer_start(&notify_timer, K_MSEC(NOTIFY_TIMER_DURATION_MS),
-				      K_MSEC(CONFIG_SID_END_DEVICE_NOTIFY_DATA_PERIOD_MS));
-		} else {
-			in_dfu = true;
-			k_timer_stop(&notify_timer);
-		}
+		LOG_ERR("dfu stop err %d", err);
 	}
+}
+
+static void app_event_enter_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
+{
+	int err = -ENOTSUP;
+
+	LOG_INF("Entering into DFU mode");
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	err = nordic_dfu_ble_start();
+#endif
+	if (err) {
+		LOG_ERR("dfu start err %d", err);
+	}
+}
+
+static void app_btn_dfu_state(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	static bool go_to_dfu_state = true;
+	if (go_to_dfu_state) {
+		sidewalk_event_send(sidewalk_event_exit, NULL, NULL);
+		sidewalk_event_send(app_event_enter_dfu_mode, NULL, NULL);
+	} else {
+		sidewalk_event_send(app_event_exit_dfu_mode, NULL, NULL);
+		sidewalk_event_send(sidewalk_event_autostart, NULL, NULL);
+	}
+
+	go_to_dfu_state = !go_to_dfu_state;
+}
+
+static void app_btn_factory_reset(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	(void)sidewalk_event_send(sidewalk_event_factory_reset, NULL, NULL);
+}
+
+static void app_btn_link_switch(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	(void)sidewalk_event_send(sidewalk_event_link_switch, NULL, NULL);
 }
 
 static int app_buttons_init(void)
@@ -191,9 +224,9 @@ static int app_buttons_init(void)
 	button_set_action_short_press(DK_BTN3, app_btn_event_handler, DEMO_BTN_ID_2);
 	button_set_action_short_press(DK_BTN4, app_btn_event_handler, DEMO_BTN_ID_3);
 
-	button_set_action_long_press(DK_BTN1, sidewalk_btn_handler, SID_EVENT_NORDIC_DFU);
-	button_set_action_long_press(DK_BTN2, sidewalk_btn_handler, SID_EVENT_FACTORY_RESET);
-	button_set_action_long_press(DK_BTN3, sidewalk_btn_handler, SID_EVENT_LINK_SWITCH);
+	button_set_action_long_press(DK_BTN1, app_btn_dfu_state, PARAM_UNUSED);
+	button_set_action_long_press(DK_BTN2, app_btn_factory_reset, PARAM_UNUSED);
+	button_set_action_long_press(DK_BTN3, app_btn_link_switch, PARAM_UNUSED);
 
 	return buttons_init();
 }
@@ -240,6 +273,9 @@ void app_start(void)
 	};
 
 	sidewalk_start(&sid_ctx);
+	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);
+	sidewalk_event_send(sidewalk_event_autostart, NULL, NULL);
+
 	app_start_tasks();
 
 	k_timer_start(&notify_timer, K_MSEC(NOTIFY_TIMER_DURATION_MS),

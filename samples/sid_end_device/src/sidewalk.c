@@ -7,7 +7,6 @@
 #include <sid_pal_common_ifc.h>
 #include <sid_hal_memory_ifc.h>
 #include <json_printer/sidTypes2Json.h>
-#include <sidewalk_dfu/nordic_dfu.h>
 
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 #include <app_subGHz_config.h>
@@ -42,53 +41,8 @@ K_THREAD_STACK_DEFINE(sid_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static uint8_t __aligned(4)
 	sid_msgq_buff[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(sidewalk_ctx_event_t)];
 
-// static void state_dfu_entry(void *o)
-// {
-// 	sm_t *sm = (sm_t *)o;
-
-// 	LOG_INF("Entering into DFU mode");
-// 	int err = -ENOTSUP;
-// #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-// 	err = nordic_dfu_ble_start();
-// #endif
-// 	if (err) {
-// 		LOG_ERR("dfu start err %d", err);
-// 		smf_set_state(SMF_CTX(sm), &sid_states[STATE_SIDEWALK]);
-// 		return;
-// 	}
-// }
-
-// static void state_dfu_run(void *o)
-// {
-// 	sm_t *sm = (sm_t *)o;
-// 	int err = -ENOTSUP;
-// 	switch (sm->event.id) {
-// 	case SID_EVENT_NORDIC_DFU:
-// #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
-// 		err = nordic_dfu_ble_stop();
-// #endif
-// 		if (err) {
-// 			LOG_ERR("dfu stop err %d", err);
-// 		}
-
-// 		smf_set_state(SMF_CTX(sm), &sid_states[STATE_SIDEWALK]);
-// 		break;
-// 	case SID_EVENT_NEW_STATUS:
-// 	case SID_EVENT_SEND_MSG:
-// 	case SID_EVENT_CONNECT:
-// 	case SID_EVENT_FACTORY_RESET:
-// 	case SID_EVENT_LINK_SWITCH:
-// 	case SID_EVENT_SIDEWALK:
-// 	case SID_EVENT_FILE_TRANSFER:
-// 	case SID_EVENT_REBOOT:
-// 		LOG_INF("Operation not supported in DFU mode");
-// 		break;
-// 	case SID_EVENT_LAST:
-// 		break;
-// 	}
-// }
-
 static struct k_msgq msgq;
+K_SEM_DEFINE(sid_thread_started, 0, 1);
 static void sid_thread_entry(void *context, void *unused, void *unused2)
 {
 	ARG_UNUSED(unused);
@@ -99,6 +53,8 @@ static void sid_thread_entry(void *context, void *unused, void *unused2)
 
 	k_msgq_init(&msgq, sid_msgq_buff, sizeof(sidewalk_ctx_event_t),
 		    CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
+	k_sem_give(&sid_thread_started);
+
 	while (1) {
 		int err = k_msgq_get(&msgq, &event, K_FOREVER);
 		if (!err) {
@@ -122,6 +78,7 @@ void sidewalk_start(sidewalk_ctx_t *context)
 			      K_THREAD_STACK_SIZEOF(sid_thread_stack), sid_thread_entry, context,
 			      NULL, NULL, CONFIG_SIDEWALK_THREAD_PRIORITY, 0, K_NO_WAIT);
 	(void)k_thread_name_set(&sid_thread, "sidewalk");
+	k_sem_take(&sid_thread_started, K_FOREVER);
 }
 
 int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free)

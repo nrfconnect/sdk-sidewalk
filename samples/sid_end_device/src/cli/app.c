@@ -145,4 +145,5 @@ void app_start(void)
 	};
 
 	sidewalk_start(&sid_ctx);
+	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);
 }

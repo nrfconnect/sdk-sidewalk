@@ -194,7 +194,7 @@ void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 		   When sid_put_msg makes intenal copy, the workaround can be removed.
 		*/
 	sidewalk_msg_t *p_msg_copy = sid_hal_malloc(sizeof(sidewalk_msg_t));
-	memset(p_msg_copy, 0x0, sizeof(*p_msg_copy));
+	memcpy(p_msg_copy, p_msg, sizeof(sidewalk_msg_t));
 
 	p_msg_copy->msg.data = sid_hal_malloc(p_msg->msg.size);
 	if (p_msg_copy->msg.data == NULL) {
@@ -205,7 +205,7 @@ void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 	memcpy(p_msg_copy->msg.data, p_msg->msg.data, p_msg->msg.size);
 	p_msg_copy->msg.size = p_msg->msg.size;
 
-	sid_error_t e = sid_put_msg(sid->handle, p_msg_copy->msg.data, &p_msg_copy->desc);
+	sid_error_t e = sid_put_msg(sid->handle, &p_msg_copy->msg, &p_msg_copy->desc);
 	if (e) {
 		LOG_ERR("sid send err %d", (int)e);
 		sid_hal_free(p_msg_copy->msg.data);
@@ -356,8 +356,6 @@ void sidewalk_event_file_transfer(sidewalk_ctx_t *sid, void *ctx)
 		if (e != SID_ERROR_NONE) {
 			LOG_ERR("sbdt cancel ret %s", SID_ERROR_T_STR(e));
 		}
-
-		break;
 	}
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 	const struct sid_bulk_data_transfer_buffer sbdt_buffer = {

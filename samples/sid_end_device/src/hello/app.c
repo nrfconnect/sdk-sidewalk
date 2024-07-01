@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <state_notifier/state_notifier.h>
 #include <app.h>
 #include <sidewalk.h>
 #include <app_ble_config.h>
@@ -16,6 +17,7 @@
 #if defined(CONFIG_LOG)
 #include <state_notifier/notifier_log.h>
 #endif
+#include <sidewalk_dfu/nordic_dfu.h>
 #include <buttons.h>
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
@@ -25,11 +27,13 @@
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
+#define PARAM_UNUSED (0U)
+
 static uint32_t persistent_link_mask;
 
 static void on_sidewalk_event(bool in_isr, void *context)
 {
-	int err = sidewalk_event_send(SID_EVENT_SIDEWALK, NULL, NULL);
+	int err = sidewalk_event_send(sidewalk_event_process, NULL, NULL);
 	if (err) {
 		LOG_ERR("Send event err %d", err);
 	};
@@ -82,7 +86,8 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 		echo->desc.link_type = SID_LINK_TYPE_ANY;
 		echo->desc.link_mode = SID_LINK_MODE_CLOUD;
 
-		int err = sidewalk_event_send(SID_EVENT_SEND_MSG, echo, free_sid_echo_event_ctx);
+		int err =
+			sidewalk_event_send(sidewalk_event_send_msg, echo, free_sid_echo_event_ctx);
 		if (err) {
 			free_sid_echo_event_ctx(echo);
 			LOG_ERR("Send event err %d", err);
@@ -152,7 +157,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	} else {
 		memcpy(new_status, status, sizeof(struct sid_status));
 	}
-	err = sidewalk_event_send(SID_EVENT_NEW_STATUS, new_status, sid_hal_free);
+	err = sidewalk_event_send(sidewalk_event_new_status, new_status, sid_hal_free);
 
 	switch (status->state) {
 	case SID_STATE_READY:
@@ -210,56 +215,121 @@ static void free_sid_hello_event_ctx(void *ctx)
 	if (hello->msg.data) {
 		sid_hal_free(hello->msg.data);
 	}
-	sid_hal_free(hello->msg.data);
+	sid_hal_free(hello);
 }
 
-static void app_button_handler(uint32_t event)
+static void app_btn_send_msg(uint32_t unused)
 {
-	if (event == SID_EVENT_SEND_MSG) {
-		LOG_INF("Send hello message");
-		const char payload[] = "hello";
-		sidewalk_msg_t *hello = sid_hal_malloc(sizeof(sidewalk_msg_t));
-		if (!hello) {
-			LOG_ERR("Failed to alloc memory for message context");
-			return;
-		}
-		memset(hello, 0x0, sizeof(*hello));
+	ARG_UNUSED(unused);
 
-		hello->msg.size = sizeof(payload);
-		hello->msg.data = sid_hal_malloc(hello->msg.size);
-		if (!hello->msg.data) {
-			sid_hal_free(hello);
-			LOG_ERR("Failed to allocate memory for message data");
-			return;
-		}
-		memcpy(hello->msg.data, payload, hello->msg.size);
-
-		hello->desc.type = SID_MSG_TYPE_NOTIFY;
-		hello->desc.link_type = SID_LINK_TYPE_ANY;
-		hello->desc.link_mode = SID_LINK_MODE_CLOUD;
-
-		int err = sidewalk_event_send(SID_EVENT_SEND_MSG, hello, free_sid_hello_event_ctx);
-		if (err) {
-			free_sid_hello_event_ctx(hello);
-			LOG_ERR("Send event err %d", err);
-		} else {
-			application_state_sending(&global_state_notifier, true);
-		}
+	LOG_INF("Send hello message");
+	const char payload[] = "hello";
+	sidewalk_msg_t *hello = sid_hal_malloc(sizeof(sidewalk_msg_t));
+	if (!hello) {
+		LOG_ERR("Failed to alloc memory for message context");
 		return;
 	}
+	memset(hello, 0x0, sizeof(*hello));
 
-	sidewalk_event_send((sidewalk_event_t)event, NULL, NULL);
+	hello->msg.size = sizeof(payload);
+	hello->msg.data = sid_hal_malloc(hello->msg.size);
+	if (!hello->msg.data) {
+		sid_hal_free(hello);
+		LOG_ERR("Failed to allocate memory for message data");
+		return;
+	}
+	memcpy(hello->msg.data, payload, hello->msg.size);
+
+	hello->desc.type = SID_MSG_TYPE_NOTIFY;
+	hello->desc.link_type = SID_LINK_TYPE_ANY;
+	hello->desc.link_mode = SID_LINK_MODE_CLOUD;
+
+	int err = sidewalk_event_send(sidewalk_event_send_msg, hello, free_sid_hello_event_ctx);
+	if (err) {
+		free_sid_hello_event_ctx(hello);
+		LOG_ERR("Send event err %d", err);
+	} else {
+		application_state_sending(&global_state_notifier, true);
+	}
+}
+
+static void app_event_exit_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
+{
+	int err = -ENOTSUP;
+	// Exit from DFU state
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	err = nordic_dfu_ble_stop();
+#endif
+	if (err) {
+		LOG_ERR("dfu stop err %d", err);
+	}
+}
+
+static void app_event_enter_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
+{
+	int err = -ENOTSUP;
+
+	LOG_INF("Entering into DFU mode");
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	err = nordic_dfu_ble_start();
+#endif
+	if (err) {
+		LOG_ERR("dfu start err %d", err);
+	}
+}
+
+static void app_btn_dfu_state(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	static bool go_to_dfu_state = true;
+	if (go_to_dfu_state) {
+		sidewalk_event_send(sidewalk_event_exit, NULL, NULL);
+		sidewalk_event_send(app_event_enter_dfu_mode, NULL, NULL);
+		application_state_working(&global_state_notifier, false);
+	} else {
+		sidewalk_event_send(app_event_exit_dfu_mode, NULL, NULL);
+		sidewalk_event_send(sidewalk_event_autostart, NULL, NULL);
+		application_state_working(&global_state_notifier, true);
+	}
+
+	go_to_dfu_state = !go_to_dfu_state;
+}
+
+static void app_btn_connect(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	(void)sidewalk_event_send(sidewalk_event_connect, NULL, NULL);
+}
+
+static void app_btn_factory_reset(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	(void)sidewalk_event_send(sidewalk_event_factory_reset, NULL, NULL);
+}
+
+static void app_btn_link_switch(uint32_t unused)
+{
+	ARG_UNUSED(unused);
+	(void)sidewalk_event_send(sidewalk_event_link_switch, NULL, NULL);
 }
 
 static int app_buttons_init(void)
 {
-	button_set_action_short_press(DK_BTN1, app_button_handler, SID_EVENT_SEND_MSG);
-	button_set_action_long_press(DK_BTN1, app_button_handler, SID_EVENT_NORDIC_DFU);
-	button_set_action_short_press(DK_BTN2, app_button_handler, SID_EVENT_CONNECT);
-	button_set_action_long_press(DK_BTN2, app_button_handler, SID_EVENT_FACTORY_RESET);
-	button_set_action(DK_BTN3, app_button_handler, SID_EVENT_LINK_SWITCH);
+	button_set_action_short_press(DK_BTN1, app_btn_send_msg, PARAM_UNUSED);
+	button_set_action_long_press(DK_BTN1, app_btn_dfu_state, PARAM_UNUSED);
+	button_set_action_short_press(DK_BTN2, app_btn_connect, PARAM_UNUSED);
+	button_set_action_long_press(DK_BTN2, app_btn_factory_reset, PARAM_UNUSED);
+	button_set_action(DK_BTN3, app_btn_link_switch, PARAM_UNUSED);
 
 	return buttons_init();
+}
+typedef sid_error_t (*deinit_original)(void);
+static deinit_original ble_adapter_deinit_original = NULL;
+static sid_error_t ble_adapter_deinit_wrapper(void)
+{
+	sid_error_t e = ble_adapter_deinit_original();
+
+	return e;
 }
 
 void app_start(void)
@@ -294,6 +364,12 @@ void app_start(void)
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
+	sid_pal_ble_adapter_interface_t interface;
+	app_get_ble_config()->create_ble_adapter(&interface);
+	ble_adapter_deinit_original = interface->deinit;
+	interface->deinit = ble_adapter_deinit_wrapper;
 
 	sidewalk_start(&sid_ctx);
+	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);
+	sidewalk_event_send(sidewalk_event_autostart, NULL, NULL);
 }
