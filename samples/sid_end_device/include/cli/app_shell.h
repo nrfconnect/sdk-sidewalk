@@ -261,6 +261,11 @@ int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **arg
 int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **argv);
 
+#ifdef CONFIG_SIDEWALK_TRACE_HEAP
+int cmd_sid_print_heap_stats(const struct shell *shell, int32_t argc, const char **argv);
+void print_open_buffers(void);
+#endif
+
 struct cli_config {
 	const struct shell *shell;
 	enum sid_link_type send_link_type;

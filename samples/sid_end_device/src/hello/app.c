@@ -323,14 +323,6 @@ static int app_buttons_init(void)
 
 	return buttons_init();
 }
-typedef sid_error_t (*deinit_original)(void);
-static deinit_original ble_adapter_deinit_original = NULL;
-static sid_error_t ble_adapter_deinit_wrapper(void)
-{
-	sid_error_t e = ble_adapter_deinit_original();
-
-	return e;
-}
 
 void app_start(void)
 {
@@ -364,10 +356,6 @@ void app_start(void)
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
-	sid_pal_ble_adapter_interface_t interface;
-	app_get_ble_config()->create_ble_adapter(&interface);
-	ble_adapter_deinit_original = interface->deinit;
-	interface->deinit = ble_adapter_deinit_wrapper;
 
 	sidewalk_start(&sid_ctx);
 	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);

@@ -49,9 +49,9 @@ static void sid_thread_entry(void *context, void *unused, void *unused2)
 	ARG_UNUSED(unused2);
 
 	sidewalk_ctx_t *sid = (sidewalk_ctx_t *)context;
-	sidewalk_ctx_event_t event;
+	sidewalk_ctx_event_t event = {};
 
-	k_msgq_init(&msgq, sid_msgq_buff, sizeof(sidewalk_ctx_event_t),
+	k_msgq_init(&msgq, (char *)sid_msgq_buff, sizeof(sidewalk_ctx_event_t),
 		    CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
 	k_sem_give(&sid_thread_started);
 
