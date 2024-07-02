@@ -111,6 +111,9 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 	SHELL_CMD_ARG(sdk_config, NULL, CMD_SID_SDK_CONFIG_DESCRIPTION, cmd_sid_sdk_config,
 		      CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED,
 		      CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL),
+#ifdef CONFIG_SIDEWALK_TRACE_HEAP
+	SHELL_CMD_ARG(heap_stat, NULL, "print heap statistics", cmd_sid_print_heap_stats, 1, 0),
+#endif
 	SHELL_SUBCMD_SET_END);
 
 // command, subcommands, help, handler
@@ -1059,3 +1062,11 @@ int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **arg
 			   IS_ENABLED(CONFIG_SIDEWALK_LINK_MASK_LORA));
 	return 0;
 }
+
+#ifdef CONFIG_SIDEWALK_TRACE_HEAP
+int cmd_sid_print_heap_stats(const struct shell *shell, int32_t argc, const char **argv)
+{
+	print_open_buffers();
+	return 0;
+}
+#endif
