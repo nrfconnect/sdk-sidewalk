@@ -123,7 +123,7 @@ static int app_tx_demo_msg_send(struct sid_parse_state *state, uint8_t *buffer,
 	memcpy(sid_msg->msg.data, msg_buffer, sid_msg->msg.size);
 	memcpy(&sid_msg->desc, sid_desc, sizeof(struct sid_msg_desc));
 
-	int err = sidewalk_event_send(SID_EVENT_SEND_MSG, sid_msg, free_sid_msg_event_ctx);
+	int err = sidewalk_event_send(sidewalk_event_send_msg, sid_msg, free_sid_msg_event_ctx);
 	if (err) {
 		free_sid_msg_event_ctx(sid_msg);
 		LOG_ERR("Event send err %d", err);
