@@ -59,6 +59,45 @@ static void heap_alloc_stats(struct sys_heap *p_heap, size_t mem_to_alloc)
 	}
 }
 #endif
+#ifdef CONFIG_SIDEWALK_TRACE_HEAP
+uint32_t alloc_stat = 0;
+uint32_t free_stat = 0;
+
+struct trace_heap{
+	void* caller_function;
+	void* buffer;
+	size_t size;
+};
+
+struct trace_heap open_buffers[100];
+static void store_buffer(void* caller, void* buffer, size_t size){
+	for(size_t i = 0; i < ARRAY_SIZE(open_buffers); i++){
+		if(open_buffers[i].buffer == NULL){
+			open_buffers[i].buffer = buffer;
+			open_buffers[i].caller_function = caller;
+			open_buffers[i].size = size;
+			return;
+		}
+	}
+}
+static void remove_buffer(void* buffer){
+	for(size_t i = 0; i < ARRAY_SIZE(open_buffers); i++){
+		if(open_buffers[i].buffer == buffer){
+			open_buffers[i] = (struct trace_heap){0, 0, 0};
+			return;
+		}
+	}
+}
+
+void print_open_buffers(void){
+	printk("Allocated %d, freed %d\n",alloc_stat, free_stat);
+	for(size_t i = 0; i < ARRAY_SIZE(open_buffers); i++){
+		if(open_buffers[i].buffer != NULL){
+			printk("function %p, buffer %p size %d\n", open_buffers[i].caller_function, open_buffers[i].buffer, open_buffers[i].size);
+		}
+	}
+}
+#endif
 
 void *sid_hal_malloc(size_t size)
 {
@@ -69,6 +108,8 @@ void *sid_hal_malloc(size_t size)
 	void * ptr = k_heap_alloc(&sid_heap, size, K_NO_WAIT);
 	#if CONFIG_SIDEWALK_TRACE_HEAP
 	LOG_DBG("Alloc %d bytes at addr %p", size, ptr);
+	alloc_stat++;
+	store_buffer(__builtin_return_address(0), ptr, size);
 	#endif /* CONFIG_SIDEWALK_TRACE_HEAP */
 	return ptr;
 }
@@ -81,6 +122,8 @@ void sid_hal_free(void *ptr)
     }
     	#if CONFIG_SIDEWALK_TRACE_HEAP
 	LOG_DBG("Free ptr at addr %p", ptr);
+    	free_stat++;
+	remove_buffer(ptr);
 	#endif /* CONFIG_SIDEWALK_TRACE_HEAP */
     k_heap_free(&sid_heap, ptr);
 }
