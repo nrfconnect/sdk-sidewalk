@@ -12,18 +12,30 @@
 LOG_MODULE_REGISTER(scratch_buffer);
 
 #define SCRATCH_FILE_ID_UNUSED UINT32_MAX
-#define SCRATCH_BUFFERS_MAX (3)
 
 typedef struct {
 	uint32_t id;
 	void *buffer;
 } file_ctx_t;
 
-static file_ctx_t files[SCRATCH_BUFFERS_MAX];
+static file_ctx_t files[CONFIG_SBDT_MAX_PARALEL_TRANSFERS];
 
 void scratch_buffer_init(void)
 {
-	for (uint8_t i = 0; i < SCRATCH_BUFFERS_MAX; i++) {
+	for (uint8_t i = 0; i < CONFIG_SBDT_MAX_PARALEL_TRANSFERS; i++) {
+		files[i].id = SCRATCH_FILE_ID_UNUSED;
+	}
+}
+
+void scratch_bufer_deinit(void)
+{
+	for (uint8_t i = 0; i < CONFIG_SBDT_MAX_PARALEL_TRANSFERS; i++) {
+		if (files[i].id != SCRATCH_FILE_ID_UNUSED) {
+			if (files[i].buffer) {
+				sid_hal_free(files[i].buffer);
+				files[i].buffer = NULL;
+			}
+		}
 		files[i].id = SCRATCH_FILE_ID_UNUSED;
 	}
 }
@@ -31,18 +43,18 @@ void scratch_buffer_init(void)
 void *scratch_buffer_create(uint32_t file_id, size_t size)
 {
 	file_ctx_t *p_file = NULL;
-	for (uint8_t i = 0; i < SCRATCH_BUFFERS_MAX; i++) {
+	for (uint8_t i = 0; i < CONFIG_SBDT_MAX_PARALEL_TRANSFERS; i++) {
 		if (!p_file && files[i].id == SCRATCH_FILE_ID_UNUSED) {
 			p_file = &files[i];
 		}
-		if(files[i].id == file_id){
+		if (files[i].id == file_id) {
 			LOG_ERR("buffer already assigned to file (id %d)", file_id);
 			return NULL;
 		}
 	}
 
 	if (!p_file) {
-		LOG_ERR("too many buffers (max %d)", SCRATCH_BUFFERS_MAX);
+		LOG_ERR("too many buffers (max %d)", CONFIG_SBDT_MAX_PARALEL_TRANSFERS);
 		return NULL;
 	}
 
@@ -62,7 +74,7 @@ void *scratch_buffer_create(uint32_t file_id, size_t size)
 void scratch_buffer_remove(uint32_t file_id)
 {
 	file_ctx_t *p_file = NULL;
-	for (uint8_t i = 0; i < SCRATCH_BUFFERS_MAX; i++) {
+	for (uint8_t i = 0; i < CONFIG_SBDT_MAX_PARALEL_TRANSFERS; i++) {
 		if (files[i].id == file_id) {
 			p_file = &files[i];
 			break;
