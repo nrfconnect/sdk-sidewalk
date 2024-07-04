@@ -79,9 +79,12 @@ config SIDEWALK_FILE_TRANSFER_HEAP_SIZE
         Heap size in bytes to be allocated
         for Sidewalk Bulk Data Transfer (SBDT).
 
+choice SIDEWALK_FILE_TRANSFER_IMPL
+    prompt "Select which implementation of SBDT to use"
+    default SIDEWALK_FILE_TRANSFER_DFU
+
 config SIDEWALK_FILE_TRANSFER_DFU
-    bool "Sildewak file transfer and dfu"
-    default SIDEWALK_FILE_TRANSFER
+    bool "Sidewalk file transfer and dfu"
     imply SIDEWALK_DFU_IMG_UTILS
     imply DFU_MULTI_IMAGE
     imply DFU_TARGET
@@ -92,6 +95,20 @@ config SIDEWALK_FILE_TRANSFER_DFU
     help
         Save recived data to flash. Expect CBOR manifest.
         Autoatically reset device after file transfer.
+
+config SIDEWALK_FILE_TRANSFER_SHELL
+    bool "SBDT cli backend for file transfer"
+    imply SHELL
+    help
+        Use shell commands to controll file transfer.
+        This implementation does not save received data,
+        but allows user to controll the sbdt behaviour form shell.
+
+endchoice
+
+config SBDT_MAX_PARALEL_TRANSFERS
+    int "maximum number of sbdt paralel transfers"
+    default 3
 
 endif
 

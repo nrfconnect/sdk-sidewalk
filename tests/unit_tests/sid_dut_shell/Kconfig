@@ -6,5 +6,15 @@
 
 config SHELL_CMD_BUFF_SIZE
 	default 1024
+config LOG
+	default false
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+
+config SBDT_MAX_PARALEL_TRANSFERS
+	int 
+	default 3
 
 source "Kconfig.zephyr"

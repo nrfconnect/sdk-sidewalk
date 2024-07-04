@@ -11,8 +11,9 @@
 #include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <sbdt/file_transfer.h>
-
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
+#include <sbdt/dfu_file_transfer.h>
+#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
 
 static uint32_t dut_ctx_get_uint32(void *ctx)
@@ -33,7 +34,7 @@ void dut_event_init(sidewalk_ctx_t *sid, void *ctx)
 	if (e != SID_ERROR_NONE) {
 		return;
 	}
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	app_file_transfer_demo_init(sid->handle);
 #endif
 }
@@ -42,7 +43,7 @@ void dut_event_deinit(sidewalk_ctx_t *sid, void *ctx)
 	if (ctx) {
 		LOG_WRN("Unexpected context");
 	};
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
+#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	app_file_transfer_demo_deinit(sid->handle);
 #endif
 	sid_error_t e = sid_deinit(sid->handle);

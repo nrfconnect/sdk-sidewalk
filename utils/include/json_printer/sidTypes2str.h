@@ -102,4 +102,18 @@
 			     "SID_EVENT_LINK_SWITCH", "SID_EVENT_NORDIC_DFU",                      \
 			     "SID_EVENT_FILE_TRANSFER", "SID_EVENT_LAST" }[val])
 
+#define SID_BULK_DATA_TRANSFER_REJECT_REASON_STR(val)                                              \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_NONE	   ? "NONE" :                      \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC	   ? "GENERIC" :                   \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_FILE_TOO_BIG ? "FILE_TO_BIG" :               \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_NO_SPACE	   ? "NO_SPACE" :                  \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_LOW_BATTERY  ? "LOW_BATTERY" :               \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_FILE_VERIFICATION_FAILED ?                   \
+								    "FILE_VERIFICATION_FAILED" :   \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_FILE_ALREADY_EXISTS ?                        \
+								    "FILE_ALREADY_EXISTS" :        \
+	(val) == SID_BULK_DATA_TRANSFER_REJECT_REASON_INVALID_FRAGMENT_SIZE ?                      \
+								    "INVALID_FRAGEMENT_SIZE" :     \
+								    "UNKNOWN"
+
 #endif /* SID_TYPE_2_STR_H */

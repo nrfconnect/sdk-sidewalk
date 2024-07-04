@@ -18,9 +18,11 @@ src/sidewalk.c
 src/sidewalk_events.c
 )
 
-target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE
-    src/sbdt/file_transfer.c
+target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER app PRIVATE 
     src/sbdt/scratch_buffer.c
+)
+target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER_DFU app PRIVATE
+    src/sbdt/dfu_file_transfer.c
 )
 
 if(CONFIG_SID_END_DEVICE_SENSOR_MONITORING)
@@ -47,5 +49,12 @@ if(CONFIG_SID_END_DEVICE_CLI)
         src/cli/app_dut.c
         src/cli/app_shell.c
     )
-    target_sources_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT app PRIVATE src/cli/sid_on_dev_cert_cli.c)
+    target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER_SHELL app PRIVATE
+        src/cli/sbdt_shell.c
+        src/cli/sbdt_shell_events.c
+        src/cli/sbdt_shell_file_transfer.c
+    )
+    target_sources_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT app PRIVATE 
+        src/cli/sid_on_dev_cert_cli.c
+    )
 endif()

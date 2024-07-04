@@ -4,34 +4,9 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 #include <sidewalk.h>
-#include <sid_pal_common_ifc.h>
-#include <sid_hal_memory_ifc.h>
-#include <json_printer/sidTypes2Json.h>
-
-#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-#include <app_subGHz_config.h>
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER
-#include <sbdt/file_transfer.h>
-#include <sid_bulk_data_transfer_api.h>
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-#include <sidewalk_dfu/nordic_dfu_img.h>
-#include <zephyr/dfu/mcuboot.h>
-#endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
-#include <stdio.h> // print hash only
-#include <sid_pal_crypto_ifc.h> // print hash only
-#endif /* CONFIG_SIDEWALK_FILE_TRANSFER */
-#ifdef CONFIG_SID_END_DEVICE_CLI
-#include <cli/app_dut.h>
-#endif /* CONFIG_SID_END_DEVICE_CLI */
-#ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
-#include <settings_utils.h>
-#endif /* CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK */
 
 #include <zephyr/kernel.h>
-
 #include <zephyr/logging/log.h>
-#include <zephyr/logging/log_ctrl.h>
 
 LOG_MODULE_REGISTER(sidewalk_app, CONFIG_SIDEWALK_LOG_LEVEL);
 

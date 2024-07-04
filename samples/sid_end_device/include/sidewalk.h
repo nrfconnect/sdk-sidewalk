@@ -66,7 +66,6 @@ void sidewalk_event_new_status(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_connect(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx);
-void sidewalk_event_file_transfer(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_exit(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_reboot(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx);

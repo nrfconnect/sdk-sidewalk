@@ -19,6 +19,15 @@
 void scratch_buffer_init(void);
 
 /**
+ * @brief Init scratch buffer
+ * 
+ * Free all allocated data and set all file id as UNUSED.
+ * After calling deinit there is no need to call init again.
+ * 
+ */
+void scratch_bufer_deinit(void);
+
+/**
  * @brief Create scratch buffor assigned for file id.
  * 
  * @param id file id
