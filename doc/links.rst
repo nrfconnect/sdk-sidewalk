@@ -9,7 +9,7 @@
 .. _nRF54L15 PDK: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/config_and_build/board_support/board_names.html
 .. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/gsg_guides/nrf52_gs.html
 .. _Getting started with nRF53 Series: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/gsg_guides/nrf5340_gs.html
-.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/device_guides/working_with_nrf/nrf54l/ug_nrf54l15_gs.html
+.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/device_guides/working_with_nrf/nrf54l/nrf54l15_gs.html
 .. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/installation.html
 .. _nRF52840dk: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/zephyr/boards/nordic/nrf52840dk/doc/index.html
 .. _nrf5340dk: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/zephyr/boards/nordic/nrf5340dk/doc/index.html
