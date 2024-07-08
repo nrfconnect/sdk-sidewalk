@@ -272,11 +272,10 @@ void app_start(void)
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
 
+	app_start_tasks();
 	sidewalk_start(&sid_ctx);
 	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);
 	sidewalk_event_send(sidewalk_event_autostart, NULL, NULL);
-
-	app_start_tasks();
 
 	k_timer_start(&notify_timer, K_MSEC(NOTIFY_TIMER_DURATION_MS),
 		      K_MSEC(CONFIG_SID_END_DEVICE_NOTIFY_DATA_PERIOD_MS));
