@@ -29,7 +29,7 @@ FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const stru
 		size_t, const struct bt_data *, size_t);
 
 FAKE_VALUE_FUNC(int, bt_le_adv_stop);
-FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
+FAKE_VALUE_FUNC(int, bt_conn_cb_register, struct bt_conn_cb *);
 FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
 FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
