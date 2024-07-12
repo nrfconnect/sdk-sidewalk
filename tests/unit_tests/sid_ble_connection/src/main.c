@@ -18,7 +18,7 @@
 
 DEFINE_FFF_GLOBALS;
 
-FAKE_VOID_FUNC(bt_conn_cb_register, struct bt_conn_cb *);
+FAKE_VALUE_FUNC(int, bt_conn_cb_register, struct bt_conn_cb *);
 FAKE_VOID_FUNC(bt_gatt_cb_register, struct bt_gatt_cb *);
 FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);

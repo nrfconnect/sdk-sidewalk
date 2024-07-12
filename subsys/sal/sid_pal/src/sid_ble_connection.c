@@ -106,7 +106,16 @@ void sid_ble_conn_init(void)
 	static bool bt_conn_registered;
 
 	if (!bt_conn_registered) {
-		bt_conn_cb_register(&conn_callbacks);
+		int e = bt_conn_cb_register(&conn_callbacks);
+		switch (e) {
+		case 0:
+		case -EEXIST:
+			break;
+		default: {
+			LOG_ERR("bt_conn_cb_register failed with error: %d = %s", e, strerror(e));
+			return;
+		}
+		}
 		bt_gatt_cb_register(&gatt_callbacks);
 		bt_conn_registered = true;
 	}
