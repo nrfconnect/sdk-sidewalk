@@ -111,6 +111,7 @@ void on_sbdt_transfer_request(const struct sid_bulk_data_transfer_request *const
 		return;
 	}
 	transfer_response->scratch_buffer_size = transfer_request->minimum_scratch_buffer_size;
+	info->scratch = transfer_response->scratch_buffer;
 
 	sbdt_context->started_transfer = true;
 }
