@@ -80,7 +80,8 @@ void sbdt_event_print_params(sidewalk_ctx_t *sid, void *ctx)
 	}
 
 	if (params.scratch_buffer != info->scratch) {
-		LOG_ERR("SCRATCH_BUFFER: R:%p != P:%p", info->scratch, params.scratch_buffer);
+		LOG_ERR("SCRATCH_BUFFER: R:%p != P:%p", (void *)info->scratch,
+			(void *)params.scratch_buffer);
 	}
 
 	if (params.file_descriptor_size != info->file_descriptor_size) {
