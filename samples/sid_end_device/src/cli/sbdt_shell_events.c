@@ -16,10 +16,11 @@ LOG_MODULE_REGISTER(sid_sbdt_events, CONFIG_SIDEWALK_LOG_LEVEL);
 void sbdt_event_init(sidewalk_ctx_t *sid, void *ctx)
 {
 	struct sbdt_context *context = (struct sbdt_context *)ctx;
+	scratch_bufer_deinit();
+	scratch_buffer_init();
 	sid_error_t ret = sid_bulk_data_transfer_init(
 		&(struct sid_bulk_data_transfer_config){ .callbacks = &context->ft_callbacks },
 		sid->handle);
-	scratch_buffer_init();
 	LOG_INF("sid_bulk_data_transfer_init returned %d (%s)", ret, SID_ERROR_T_STR(ret));
 }
 
