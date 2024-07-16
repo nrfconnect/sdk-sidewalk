@@ -170,3 +170,14 @@ jobs:
           delete-merged: true
           name: tests-dut_artifacts
           pattern: DUT_artifacts_*
+
+  run_cli_tests:
+    needs: [build-and-test_on_hw]
+    strategy:
+      fail-fast: false
+      matrix:
+        board: ${{ fromJson(inputs.boards_to_test) }}
+    uses: ./.github/workflows/run_tests_cli.yml
+    with:
+      target_board: ${{ matrix.board }}
+      nrf_revision: ${{ inputs.nrf_revision }}

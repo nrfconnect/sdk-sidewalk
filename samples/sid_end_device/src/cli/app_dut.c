@@ -46,6 +46,7 @@ void dut_event_deinit(sidewalk_ctx_t *sid, void *ctx)
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	app_file_transfer_demo_deinit(sid->handle);
 #endif
+	(void)sid_process(sid->handle);
 	sid_error_t e = sid_deinit(sid->handle);
 	LOG_INF("sid_deinit returned %d", e);
 }
@@ -58,6 +59,7 @@ void dut_event_start(sidewalk_ctx_t *sid, void *ctx)
 void dut_event_stop(sidewalk_ctx_t *sid, void *ctx)
 {
 	uint32_t link_mask = dut_ctx_get_uint32(ctx);
+	(void)sid_process(sid->handle);
 	sid_error_t e = sid_stop(sid->handle, link_mask);
 	LOG_INF("sid_stop returned %d", e);
 }
