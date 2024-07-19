@@ -13,10 +13,9 @@ LOG_MODULE_REGISTER(sidewalk_app, CONFIG_SIDEWALK_LOG_LEVEL);
 static struct k_thread sid_thread;
 K_THREAD_STACK_DEFINE(sid_thread_stack, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 
-static uint8_t __aligned(4)
-	sid_msgq_buff[CONFIG_SIDEWALK_THREAD_QUEUE_SIZE * sizeof(sidewalk_ctx_event_t)];
+K_MSGQ_DEFINE(sidewalk_thread_msgq, sizeof(sidewalk_ctx_event_t), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE,
+	      4);
 
-static struct k_msgq msgq;
 K_SEM_DEFINE(sid_thread_started, 0, 1);
 static void sid_thread_entry(void *context, void *unused, void *unused2)
 {
@@ -26,12 +25,10 @@ static void sid_thread_entry(void *context, void *unused, void *unused2)
 	sidewalk_ctx_t *sid = (sidewalk_ctx_t *)context;
 	sidewalk_ctx_event_t event = {};
 
-	k_msgq_init(&msgq, (char *)sid_msgq_buff, sizeof(sidewalk_ctx_event_t),
-		    CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
 	k_sem_give(&sid_thread_started);
 
 	while (1) {
-		int err = k_msgq_get(&msgq, &event, K_FOREVER);
+		int err = k_msgq_get(&sidewalk_thread_msgq, &event, K_FOREVER);
 		if (!err) {
 			if (event.handler) {
 				event.handler(sid, event.ctx);
@@ -72,7 +69,7 @@ int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free)
 	}
 #endif /* CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT */
 
-	const int result = k_msgq_put(&msgq, (void *)&ctx_event, timeout);
+	const int result = k_msgq_put(&sidewalk_thread_msgq, (void *)&ctx_event, timeout);
 	LOG_DBG("sidewalk_event_send event = %p, context = %p, k_msgq_put result %d", (void *)event,
 		ctx, result);
 
