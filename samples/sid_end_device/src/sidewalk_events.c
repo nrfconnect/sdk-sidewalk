@@ -59,6 +59,10 @@ sidewalk_msg_t *get_message_buffer(uint16_t message_id)
 // private
 void sidewalk_event_process(sidewalk_ctx_t *sid, void *ctx)
 {
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_INF("sidewalk need to be started first.");
+		return;
+	}
 	sid_error_t e = sid_process(sid->handle);
 	if (e) {
 		LOG_ERR("sid process err %d", (int)e);
@@ -81,7 +85,14 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		LOG_ERR("Sidewalk Platform Init err: %d", e);
 		return;
 	}
+}
 
+void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
+{
+	if (sid->handle != NULL) {
+		LOG_INF("Sidewlak is already running");
+		return;
+	}
 	if (app_mfg_cfg_is_valid()) {
 		LOG_ERR("The mfg.hex version mismatch");
 		LOG_ERR("Check if the file has been generated and flashed properly");
@@ -89,10 +100,6 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
 		return;
 	}
-}
-
-void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
-{
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	int err = settings_utils_link_mask_get(&sid->config.link_mask);
 	if (err <= 0) {
@@ -156,6 +163,10 @@ void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
 
 void sidewalk_event_factory_reset(sidewalk_ctx_t *sid, void *ctx)
 {
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_INF("sidewalk need to be started first.");
+		return;
+	}
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	(void)settings_utils_link_mask_set(0);
 #endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
@@ -177,6 +188,10 @@ void sidewalk_event_new_status(sidewalk_ctx_t *sid, void *ctx)
 }
 void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 {
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_INF("sidewalk need to be started first.");
+		return;
+	}
 	sidewalk_msg_t *p_msg = (sidewalk_msg_t *)ctx;
 	if (!p_msg) {
 		LOG_ERR("sid send msg is NULL");
@@ -218,6 +233,10 @@ void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 }
 void sidewalk_event_connect(sidewalk_ctx_t *sid, void *ctx)
 {
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_INF("sidewalk need to be started first.");
+		return;
+	}
 	if (!(sid->config.link_mask & SID_LINK_TYPE_1)) {
 		LOG_ERR("Can not request connection - BLE not enabled");
 		return;
@@ -229,6 +248,10 @@ void sidewalk_event_connect(sidewalk_ctx_t *sid, void *ctx)
 }
 void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 {
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_INF("Can not change link if sidewalk was not started yet");
+		return;
+	}
 	static uint32_t new_link_mask = DEFAULT_LM;
 
 	switch (sid->config.link_mask) {
@@ -305,6 +328,10 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 
 void sidewalk_event_exit(sidewalk_ctx_t *sid, void *ctx)
 {
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_INF("Sidewalk is already deinitialized");
+		return;
+	}
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	app_file_transfer_demo_deinit(sid->handle);
 #endif
@@ -326,6 +353,7 @@ void sidewalk_event_exit(sidewalk_ctx_t *sid, void *ctx)
 		list_element = sys_slist_get(&pending_message_list);
 	}
 	k_mutex_unlock(&pending_message_list_mutex);
+	sid->handle = NULL;
 }
 void sidewalk_event_reboot(sidewalk_ctx_t *sid, void *ctx)
 {
