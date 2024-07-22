@@ -85,6 +85,13 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		LOG_ERR("Sidewalk Platform Init err: %d", e);
 		return;
 	}
+	if (app_mfg_cfg_is_valid()) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", APP_MFG_CFG_FLASH_START);
+		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
+		return;
+	}
 }
 
 void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
