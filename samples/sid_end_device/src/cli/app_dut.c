@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include "sid_error.h"
+#include <sid_error.h>
 #include <cli/app_dut.h>
 #include <sidewalk.h>
 #include <sid_900_cfg.h>
 #include <sid_hal_memory_ifc.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <app_mfg_config.h>
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 #include <sbdt/dfu_file_transfer.h>
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
@@ -29,6 +30,13 @@ static uint32_t dut_ctx_get_uint32(void *ctx)
 void dut_event_init(sidewalk_ctx_t *sid, void *ctx)
 {
 	sid->config.link_mask = dut_ctx_get_uint32(ctx);
+	if (app_mfg_cfg_is_valid()) {
+		LOG_ERR("The mfg.hex version mismatch");
+		LOG_ERR("Check if the file has been generated and flashed properly");
+		LOG_ERR("START ADDRESS: 0x%08x", APP_MFG_CFG_FLASH_START);
+		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
+		return;
+	}
 	sid_error_t e = sid_init(&sid->config, &sid->handle);
 	LOG_INF("sid_init returned %d", e);
 	if (e != SID_ERROR_NONE) {
