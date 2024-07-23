@@ -1967,7 +1967,6 @@ ZTEST(crypto, test_sid_pal_crypto_ecc_dsa)
 		zassert_equal(SID_ERROR_NONE, sid_pal_crypto_ecc_dsa(&params));
 	}
 
-	// TODO: NOT SUPPORTED YET --> this test will fail when EDDSA be supported
 	// SID_PAL_EDDSA_ED25519
 	params.algo = SID_PAL_EDDSA_ED25519;
 
