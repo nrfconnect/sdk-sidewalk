@@ -1,0 +1,7 @@
+tests:
+  sidewalk.unit_tests.tlv:
+    sysbuild: true
+    platform_allow: native_posix
+    tags: Sidewalk
+    integration_platforms:
+      - native_posix
