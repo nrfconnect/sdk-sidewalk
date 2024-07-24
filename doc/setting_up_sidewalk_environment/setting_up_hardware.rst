@@ -48,11 +48,11 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     +---------------+-------------+
     | SX126X shield | nRF52840 DK |
     +===============+=============+
-    | BUSY          | P1.04       |
+    | BUSY          | P1.4        |
     +---------------+-------------+
-    | DIO1          | P1.06       |
+    | DIO1          | P1.6        |
     +---------------+-------------+
-    | NSS           | P1.08       |
+    | NSS           | P1.8        |
     +---------------+-------------+
     | ANT_SW        | P1.10       |
     +---------------+-------------+
@@ -62,7 +62,7 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     +---------------+-------------+
     | SPI SCK       | P1.15       |
     +---------------+-------------+
-    | NRESET        | P0.03       |
+    | NRESET        | P0.3        |
     +---------------+-------------+
 
    .. tab:: nRF5340 DK
@@ -86,7 +86,7 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     +---------------+-------------+
     | SPI SCK       | P1.15       |
     +---------------+-------------+
-    | NRESET        | P0.04       |
+    | NRESET        | P0.4        |
     +---------------+-------------+
 
    .. tab:: nRF54L15 PDK
@@ -119,13 +119,13 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
             +---------------+--------------+
             | NSS           | P2.10        |
             +---------------+--------------+
-            | ANT_SW        | P2.07        |
+            | ANT_SW        | P2.7         |
             +---------------+--------------+
-            | SPI MOSI      | P2.08        |
+            | SPI MOSI      | P2.8         |
             +---------------+--------------+
-            | SPI MISO      | P2.09        |
+            | SPI MISO      | P2.9         |
             +---------------+--------------+
-            | SPI SCK       | P2.06        |
+            | SPI SCK       | P2.6         |
             +---------------+--------------+
             | NRESET        | P1.11        |
             +---------------+--------------+
@@ -146,21 +146,21 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
             +---------------+--------------+
             | SX126X shield | nRF54L15 PDK |
             +===============+==============+
-            | BUSY          | P0.00        |
+            | BUSY          | P0.0         |
             +---------------+--------------+
-            | DIO1          | P0.03        |
+            | DIO1          | P0.3         |
             +---------------+--------------+
             | NSS           | P2.10        |
             +---------------+--------------+
-            | ANT_SW        | P0.01        |
+            | ANT_SW        | P0.1         |
             +---------------+--------------+
-            | SPI MOSI      | P2.08        |
+            | SPI MOSI      | P2.8         |
             +---------------+--------------+
             | SPI MISO      | P1.11        |
             +---------------+--------------+
-            | SPI SCK       | P2.06        |
+            | SPI SCK       | P2.6         |
             +---------------+--------------+
-            | NRESET        | P0.02        |
+            | NRESET        | P0.2         |
             +---------------+--------------+
 
 .. _setting_up_sidewalk_gateway:
