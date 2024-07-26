@@ -125,7 +125,7 @@ jobs:
       - name: Twister build and run x86 tests
         run: |
           source zephyr/zephyr-env.sh
-          west twister --platform native_posix --platform unit_testing --coverage --enable-ubsan --enable-lsan --enable-asan --testsuite-root sidewalk --inline-logs --overflow-as-errors -vvv
+          west twister --platform native_posix --platform unit_testing --coverage --coverage-basedir sidewalk --coverage-formats html,xml --enable-ubsan --enable-lsan --enable-asan --testsuite-root sidewalk --inline-logs --overflow-as-errors -vvv
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -136,6 +136,20 @@ jobs:
             twister-out/twister.xml
             twister-out/**/handler.log
             twister-out/**/device.log
+            twister-out/coverage
+
+      - name: Code Coverage Summary Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: 'twister-out/coverage/coverage.xml'
+          badge: true
+          format: 'markdown'
+          output: 'both'
+
+      - name: publish coverage summary
+        run: |
+          cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+
 
   build-and-test_on_hw:
     strategy:
