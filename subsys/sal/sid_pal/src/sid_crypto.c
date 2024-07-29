@@ -9,6 +9,9 @@
  */
 
 #include <sid_pal_crypto_ifc.h>
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+#include <sid_crypto_keys.h>
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
@@ -150,6 +153,13 @@ static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t ke
 	if (!key_handle) {
 		return PSA_ERROR_DATA_INVALID;
 	}
+
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	int err = sid_crypto_keys_buffer_get(key_handle, (uint8_t *)key, key_length);
+	if (!err && SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(*key_handle)) {
+		return PSA_SUCCESS;
+	}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 	psa_set_key_usage_flags(&attributes, usage_flags);
 	psa_set_key_lifetime(&attributes, PSA_KEY_LIFETIME_VOLATILE);
@@ -365,6 +375,13 @@ static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_param
 
 sid_error_t sid_pal_crypto_init(void)
 {
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	int err = sid_crypto_keys_init();
+	if (err) {
+		LOG_ERR("Keys init failed! (err: %d)", err);
+		return SID_ERROR_NOT_FOUND;
+	}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	psa_status_t status = psa_crypto_init();
 
 	if (PSA_SUCCESS == status) {
@@ -379,6 +396,14 @@ sid_error_t sid_pal_crypto_init(void)
 
 sid_error_t sid_pal_crypto_deinit(void)
 {
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	int err = sid_crypto_keys_deinit();
+	if (err) {
+		LOG_ERR("Keys deinit failed! (err: %d)", err);
+		return SID_ERROR_NOT_FOUND;
+	}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
+
 	is_initialized = false;
 	return SID_ERROR_NONE;
 }
@@ -499,9 +524,17 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 			}
 		}
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		if (!SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_handle)) {
+			if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
+				LOG_WRN("Destroy key failed!");
+			}
+		}
+#else
 		if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
 			LOG_WRN("Destroy key failed!");
 		}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 
 	return get_error(status, __func__);
@@ -576,9 +609,17 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 			return SID_ERROR_INVALID_ARGS;
 		}
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		if (!SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_handle)) {
+			if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
+				LOG_WRN("Destroy key failed!");
+			}
+		}
+#else
 		if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
 			LOG_WRN("Destroy key failed!");
 		}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 
 	return get_error(status, __func__);
@@ -649,9 +690,17 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 			return SID_ERROR_INVALID_ARGS;
 		}
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		if (!SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_handle)) {
+			if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
+				LOG_WRN("Destroy key failed!");
+			}
+		}
+#else
 		if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
 			LOG_WRN("Destroy key failed!");
 		}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 
 	return get_error(status, __func__);
@@ -715,16 +764,18 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 			     ECC_FAMILY_TYPE(params->mode, type), &key_handle);
 
 	if (PSA_SUCCESS == status) {
-		LOG_DBG("Key import success.");
+		LOG_DBG("Key import success. handle %04x", key_handle);
 
 		switch (params->mode) {
 		case SID_PAL_CRYPTO_VERIFY:
+			LOG_DBG("dsa verify");
 			status = psa_verify_message(key_handle, alg, params->in, params->in_size,
 						    params->signature, params->sig_size);
 
 			break;
 		case SID_PAL_CRYPTO_SIGN: {
 			size_t out_len;
+			LOG_DBG("dsa sign");
 
 			status = psa_sign_message(key_handle, alg, params->in, params->in_size,
 						  params->signature, params->sig_size, &out_len);
@@ -733,9 +784,17 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 			return SID_ERROR_INVALID_ARGS;
 		}
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		if (!SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_handle)) {
+			if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
+				LOG_WRN("Destroy key failed!");
+			}
+		}
+#else
 		if (PSA_SUCCESS != psa_destroy_key(key_handle)) {
 			LOG_WRN("Destroy key failed!");
 		}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 
 	return get_error(status, __func__);
@@ -796,10 +855,19 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		status = psa_raw_key_agreement(PSA_ALG_ECDH, priv_key_handle, pub_key, pub_key_size,
 					       params->shared_secret, params->shared_secret_sz,
 					       &out_len);
-	}
+		LOG_DBG("ecdh key agreement %s", (PSA_SUCCESS == status) ? "success." : "failed!");
 
-	if (PSA_SUCCESS != psa_destroy_key(priv_key_handle)) {
-		LOG_WRN("Destroy key failed!");
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		if (!SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(priv_key_handle)) {
+			if (PSA_SUCCESS != psa_destroy_key(priv_key_handle)) {
+				LOG_WRN("Destroy key failed!");
+			}
+		}
+#else
+		if (PSA_SUCCESS != psa_destroy_key(priv_key_handle)) {
+			LOG_WRN("Destroy key failed!");
+		}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 
 	return get_error(status, __func__);
@@ -877,9 +945,17 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 				(PSA_SUCCESS == status) ? "success." : "failed!");
 		}
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		if (!SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(keys_handle)) {
+			if (PSA_SUCCESS != psa_destroy_key(keys_handle)) {
+				LOG_WRN("Destroy key failed!");
+			}
+		}
+#else
 		if (PSA_SUCCESS != psa_destroy_key(keys_handle)) {
 			LOG_WRN("Destroy key failed!");
 		}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 	psa_reset_key_attributes(&key_attributes);
 

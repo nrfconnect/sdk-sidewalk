@@ -10,6 +10,9 @@
 
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_error.h>
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+#include <sid_crypto_keys.h>
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 #include <stdint.h>
 #include <stdio.h>
@@ -59,6 +62,11 @@ static const uint32_t MFG_WORD_SIZE = 4; // in bytes
 #define MFG_STORE_TLV_HEADER_SIZE 4
 #define MFG_STORE_TLV_TAG_EMPTY 0xFFFF
 #define EXPAND_TO_MULTIPLE_WORD(_VALUE_) (((_VALUE_ + 3) / 4) * 4)
+
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+#define SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_RAW (100)
+#define SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_RAW (101)
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 struct sid_pal_mfg_store_tlv_info {
 	uint16_t tag;
@@ -283,6 +291,37 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	if (!flash_dev) {
 		LOG_ERR("Flash device is not found.");
 	}
+
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	int rc = 0;
+	uint8_t raw_key[32];
+	uint8_t zeros[32] = { 0 };
+
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_RAW, raw_key, sizeof(raw_key));
+	if (0 != memcmp(raw_key, zeros, sizeof(raw_key))) {
+		rc = sid_crypto_keys_new_import(SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID, raw_key,
+					    sizeof(raw_key));
+		LOG_INF("MFG_ED25519 import %s", (0 == rc) ? "success" : "failure");
+		LOG_HEXDUMP_INF(raw_key, sizeof(raw_key), "value:");
+		memset(raw_key, 0, sizeof(raw_key));
+		rc = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_RAW, raw_key,
+					     sizeof(raw_key));
+		LOG_INF("MFG_ED25519 overwrite status %d", rc);
+	}
+
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_RAW, raw_key, sizeof(raw_key));
+	if (0 != memcmp(raw_key, zeros, sizeof(raw_key))) {
+		rc = sid_crypto_keys_new_import(SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID, raw_key,
+					    sizeof(raw_key));
+		LOG_INF("MFG_SECP_256R1 import %s", (0 == rc) ? "success" : "failure");
+		LOG_HEXDUMP_INF(raw_key, sizeof(raw_key), "value:");
+		memset(raw_key, 0, sizeof(raw_key));
+		rc = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_RAW, raw_key,
+					     sizeof(raw_key));
+		LOG_INF("MFG_SECP_256R1 overwrite status %d", rc);
+	}
+
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 }
 
 void sid_pal_mfg_store_deinit(void)
@@ -394,6 +433,27 @@ int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t 
 
 void sid_pal_mfg_store_read(uint16_t value, uint8_t *buffer, uint16_t length)
 {
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	switch (value) {
+	case SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519:
+		if (sid_crypto_keys_buffer_set(SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID, buffer, length)) {
+			LOG_ERR("DEVICE_PRIV_ED25519 read fail");
+		}
+		return;
+	case SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1:
+		if (sid_crypto_keys_buffer_set(SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID, buffer, length)) {
+			LOG_ERR("DEVICE_PRIV_P256R1 read fail");
+		}
+		return;
+	case SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_RAW:
+		value = SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519;
+		break;
+	case SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_RAW:
+		value = SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1;
+		break;
+	}
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
+
 	uint32_t version = sid_pal_mfg_store_get_version();
 	if (version == SID_PAL_MFG_STORE_TLV_VERSION) {
 		// The SID_PAL_MFG_STORE_VERSION we should read as fixed offset

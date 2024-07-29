@@ -211,6 +211,10 @@ config SIDEWALK_ON_DEV_CERT
 	bool "Enable Sidewalk on device certification"
 	depends on SHELL
 
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	bool "Enable psa crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
+	select EXPERIMENTAL
+
 config SIDEWALK_PAL_RADIO_SOURCE
 	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
 	select EXPERIMENTAL
