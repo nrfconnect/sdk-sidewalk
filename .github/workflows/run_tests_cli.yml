@@ -13,14 +13,15 @@ on:
 
 jobs:
   run_dut_ut:
-    name: "Run DUT tests  (${{inputs.target_board}} - ${{ inputs.subset }})"
-    runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}"]
+    name: "Run CLI tests  (${{inputs.target_board}})"
+    runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}", echo]
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2 --privileged
       volumes:
         - /dev:/dev
         - /run/udev:/run/udev
+        - /home/tester/.ssh:/root/.ssh
     permissions: write-all
     defaults:
       run:
@@ -56,6 +57,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
+          python3 -m pip install yq
 
       - name: Download tests
         run: |
@@ -72,35 +74,38 @@ jobs:
       - name: Build dut sample
         run: |
           source zephyr/zephyr-env.sh
-          cd sidewalk/sample/sid_end_device
-          west build -b ${{ inputs.target_board }} -DOVERLAY_CONFIG="overlay-dut.conf"
+          cd sidewalk/samples/sid_end_device
+          west build -b ${{ inputs.target_board }} . -DOVERLAY_CONFIG="overlay-dut.conf"
 
       - name: Flash dut sample
         run: |
           source zephyr/zephyr-env.sh
-          cd sidewalk/sample/sid_end_device
-          west flash
+          cd sidewalk/samples/sid_end_device/build
+          nrfjprog --snr $(yq '.[0].id' /__w/hardware_map.yaml | tr -d \") --recover
+          west flash -r nrfjprog -- --snr $(yq '.[0].id' /__w/hardware_map.yaml | tr -d \")
 
       - name: Flash mfg_hex
-        if: ${{ inputs.target_board }} == "nrf54l15pdk/nrf54l15/cpuapp"
+        if: ${{ inputs.target_board == 'nrf54l15pdk/nrf54l15/cpuapp' }}
         run: |
-          nrfjprog --program pytest-sidewalk/test_objects/mfg/BFFFEA01CA/PCA10156/mfg_v8.hex --sectorerase --verify -r
+          nrfjprog --program pytest-sidewalk/test_objects/mfg/BFFFEA01CA/PCA10156/mfg_v8.hex --snr $(yq '.[0].id' /__w/hardware_map.yaml | tr -d \") --sectorerase --verify -r
 
       - name: Flash mfg_hex
-        if: ${{ inputs.target_board }} != "nrf54l15pdk/nrf54l15/cpuapp"
+        if: ${{ inputs.target_board != 'nrf54l15pdk/nrf54l15/cpuapp' }}
         run: |
-          nrfjprog --program pytest-sidewalk/test_objects/mfg/BFFFEA01CA/mfg_v8.hex --sectorerase --verify -r
+          nrfjprog --program pytest-sidewalk/test_objects/mfg/BFFFEA01CA/mfg_v8.hex --snr $(yq '.[0].id' /__w/hardware_map.yaml | tr -d \") --sectorerase --verify -r
 
       - name: Run Tests
         run: |
           source zephyr/zephyr-env.sh
           cd pytest-sidewalk
           source .venv/bin/activate
-          pytest tests/test_sid_dut.py --segger=$(yq '.[0].id' /__w/hardware_map.yaml | tr -d \") --sid-device BFFFEA01CA  --html=report.html --self-contained-html
+          pytest tests/test_sid_dut.py --segger=$(yq '.[0].id' /__w/hardware_map.yaml | tr -d \") --sid-device BFFFEA01CA
 
       - name: clean artifacts
         if: always()
         run: |
           rm -rf pytest-sidewalk
+          rm -rf sidewalk/samples/sid_end_device/build
           cd nrf; git checkout main; git branch -D branch_to_run;
           rm -rf PACKAGE_ARTIFACTS_* twister-out
+          nrfjprog --snr $(yq '.[0].id' /__w/hardware_map.yaml | tr -d \") --recover
