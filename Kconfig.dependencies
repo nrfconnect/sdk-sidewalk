@@ -125,12 +125,12 @@ config SIDEWALK_MFG_STORAGE
 	help
 	  Sidewalk manufacturing storage module
 
-config SIDEWALK_MFG_STORAGE_WRITE
+config SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 	bool
 	default SIDEWALK_ON_DEV_CERT
 	depends on SIDEWALK_MFG_STORAGE
 	help
-	  Enable write functionality to mfg storage
+	  Enable mfg storage diagnostic functionalities 
 
 config SIDEWALK_STORAGE
 	bool

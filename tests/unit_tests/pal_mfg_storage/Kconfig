@@ -11,7 +11,7 @@ config SIDEWALK_MFG_STORAGE
 	default y
 	imply FLASH
 
-config SIDEWALK_MFG_STORAGE_WRITE
+config SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 	default y
 
 source "Kconfig.zephyr"
