@@ -115,6 +115,7 @@ static sid_pal_mfg_store_region_t nrf_mfg_store_region = {
 };
 
 static const struct device *flash_dev;
+static struct flash_parameters flash_params;
 
 /**
  * @brief Search for tag value in mfg tlv.
@@ -157,7 +158,8 @@ static bool sid_pal_mfg_store_search_for_tag(uint16_t tag,
 		}
 
 		/* Go to the next TLV */
-		address += (MFG_STORE_TLV_HEADER_SIZE + ROUND_UP(length, WORD_SIZE));
+		address += (MFG_STORE_TLV_HEADER_SIZE +
+			    ROUND_UP(length, WORD_SIZE));
 
 		if ((uintptr_t)(address + MFG_STORE_TLV_HEADER_SIZE + WORD_SIZE) >
 		    nrf_mfg_store_region.addr_end) {
@@ -194,6 +196,9 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		LOG_ERR("Flash device is not found.");
 	}
 
+	const struct flash_parameters *params = flash_get_parameters(flash_dev);
+	memcpy(&flash_params, params, sizeof(struct flash_parameters));
+
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	sid_mfg_storage_secure_init();
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
@@ -215,12 +220,10 @@ int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t 
 		return (int32_t)SID_ERROR_INVALID_ARGS;
 	}
 
-	struct sid_pal_mfg_store_tlv_info tlv_info = {};
-	uintptr_t address;
-	bool found;
-	uint8_t __aligned(4) wr_array
-		[SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN]; // TODO: Is SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN accurate for nRF53 and nRF54? Shouldn't it be taken form zephyr, not sid ifc?
-	uint16_t full_length = ROUND_UP(length, WORD_SIZE);
+	struct sid_pal_mfg_store_tlv_info tlv_info = { 0 };
+	bool found = false;
+	uintptr_t address = 0;
+	uint16_t length_aligned = ROUND_UP(length, flash_params.write_block_size);
 	int err = 0;
 
 	/* mfg storage doesn't allow overwrites */
@@ -237,41 +240,34 @@ int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t 
 	}
 
 	address = (uintptr_t)tlv_info.offset;
-	if (address + MFG_STORE_TLV_HEADER_SIZE + full_length > nrf_mfg_store_region.addr_end) {
+	if (address + MFG_STORE_TLV_HEADER_SIZE + length_aligned > nrf_mfg_store_region.addr_end) {
 		LOG_ERR("Not enough space to store: %d", value);
 		return -1;
 	}
 
 	/* write tag value and length */
-	wr_array[0] = value >> 8;
-	wr_array[1] = value;
-	wr_array[2] = full_length >> 8;
-	wr_array[3] = full_length;
+	uint8_t header_buffer[MFG_STORE_TLV_HEADER_SIZE] = { 0 };
+	header_buffer[0] = value >> 8;
+	header_buffer[1] = value;
+	header_buffer[2] = length_aligned >> 8;
+	header_buffer[3] = length_aligned;
 
-	err = flash_write(flash_dev, address, wr_array, MFG_STORE_TLV_HEADER_SIZE);
+	err = flash_write(flash_dev, address, header_buffer, MFG_STORE_TLV_HEADER_SIZE);
 	if (err != 0) {
 		return err;
 	}
 	address += MFG_STORE_TLV_HEADER_SIZE;
 
 	/* write data */
-	while (full_length) {
-		uint16_t wr_length =
-			full_length > sizeof(wr_array) ? sizeof(wr_array) : full_length;
-
-		memset(wr_array, 0xFF, sizeof(wr_array));
-		memcpy(wr_array, buffer, wr_length > length ? length : wr_length);
-
-		err = flash_write(flash_dev, address, wr_array, wr_length);
-		if (err != 0) {
-			return err;
-		}
-
-		address += wr_length;
-		buffer += wr_length;
-		full_length -=
-			wr_length; // TODO: consider refactor with for loop. full_length is unsigned...
-	};
+	uint8_t write_buffer[length_aligned];
+	memset(write_buffer, flash_params.erase_value, length_aligned);
+	memcpy(write_buffer, buffer, length);
+	err = flash_write(flash_dev, address, write_buffer, length_aligned);
+	if (err != 0) {
+		LOG_ERR("Flash write filed for tag %d (code %d)", value, err);
+		LOG_HEXDUMP_DBG(buffer, length, "buffer: ");
+		return err;
+	}
 
 	return 0;
 }
@@ -302,7 +298,7 @@ void sid_pal_mfg_store_read(uint16_t value, uint8_t *buffer, uint16_t length)
 		flash_read(flash_dev, tlv_info.offset + MFG_STORE_TLV_HEADER_SIZE, buffer, length);
 	if (err) {
 		LOG_ERR("Flash read fail %d", err);
-		memset(buffer, 0xFF, length);
+		memset(buffer, flash_params.erase_value, length);
 	}
 }
 
@@ -344,7 +340,7 @@ bool sid_pal_mfg_store_is_empty(void)
 	size_t length = sizeof(tmp_buff);
 	int rc;
 
-	memset(empty_flash_mem, 0xFF, sizeof(empty_flash_mem));
+	memset(empty_flash_mem, flash_params.erase_value, sizeof(empty_flash_mem));
 	for (off_t offset = nrf_mfg_store_region.addr_start; offset < nrf_mfg_store_region.addr_end;
 	     offset += length) {
 		if ((offset + length) > nrf_mfg_store_region.addr_end) {
@@ -400,8 +396,8 @@ bool sid_pal_mfg_store_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE])
 
 	if (dev_id) {
 		uint8_t unset_dev_id[SID_PAL_MFG_STORE_DEVID_SIZE];
-		memset(unset_dev_id, 0xFF, SID_PAL_MFG_STORE_DEVID_SIZE);
-		memset(dev_id, 0xFF, SID_PAL_MFG_STORE_DEVID_SIZE);
+		memset(unset_dev_id, flash_params.erase_value, SID_PAL_MFG_STORE_DEVID_SIZE);
+		memset(dev_id, flash_params.erase_value, SID_PAL_MFG_STORE_DEVID_SIZE);
 		sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, dev_id,
 				       SID_PAL_MFG_STORE_DEVID_SIZE);
 
@@ -423,8 +419,8 @@ bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIA
 		return false;
 	}
 
-	memset(unset_serial_num, 0xFF, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
-	memset(serial_num, 0xFF, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
+	memset(unset_serial_num, flash_params.erase_value, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
+	memset(serial_num, flash_params.erase_value, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_SERIAL_NUM, serial_num,
 			       SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 
@@ -435,6 +431,7 @@ bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIA
 	return true;
 }
 
+// TODO: why those values are hard-coded?
 static const uint8_t product_apid[] = { 0x76, 0x43, 0x74, 0x32 };
 static const uint8_t app_server_public_key[] = { 0xb2, 0x40, 0xbf, 0x98, 0xc6, 0x5c, 0xdf, 0x84,
 						 0xbf, 0x2a, 0xa1, 0xac, 0x29, 0x11, 0x14, 0x1f,
