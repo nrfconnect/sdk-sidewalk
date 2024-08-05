@@ -32,7 +32,7 @@ static int sid_mfg_storage_secure_read(uint16_t *p_value, uint8_t *buffer, uint1
 static void sid_mfg_storage_secure_init(void);
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
-#define FLASH_MEM_CHUNK (128) // TODO: get from low layer?
+#define FLASH_MEM_CHUNK (128)
 
 #ifndef DEV_ID_REG
 #if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(NRF52832_XXAA)
@@ -324,7 +324,7 @@ int32_t sid_pal_mfg_store_erase(void)
 	return (int32_t)SID_ERROR_UNINITIALIZED;
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
-#endif
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
 }
 
 bool sid_pal_mfg_store_is_empty(void)
@@ -361,7 +361,7 @@ bool sid_pal_mfg_store_is_empty(void)
 #else
 	LOG_WRN("The sid_pal_mfg_store_is_empty function is not enabled.");
 	return false;
-#endif
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
 }
 
 bool sid_pal_mfg_store_is_tlv_support(void)
@@ -431,21 +431,15 @@ bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIA
 	return true;
 }
 
-// TODO: why those values are hard-coded?
-static const uint8_t product_apid[] = { 0x76, 0x43, 0x74, 0x32 };
-static const uint8_t app_server_public_key[] = { 0xb2, 0x40, 0xbf, 0x98, 0xc6, 0x5c, 0xdf, 0x84,
-						 0xbf, 0x2a, 0xa1, 0xac, 0x29, 0x11, 0x14, 0x1f,
-						 0xb4, 0x80, 0x7c, 0xbc, 0xb6, 0x6e, 0xcf, 0x09,
-						 0x1c, 0x20, 0x04, 0xb3, 0x37, 0xb4, 0x06, 0x47 };
-
 void sid_pal_mfg_store_apid_get(uint8_t apid[SID_PAL_MFG_STORE_APID_SIZE])
 {
-	memcpy(apid, product_apid, sizeof(product_apid));
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_APID, apid, SID_PAL_MFG_STORE_APID_SIZE);
 }
 
 void sid_pal_mfg_store_app_pub_key_get(uint8_t app_pub[SID_PAL_MFG_STORE_APP_PUB_ED25519_SIZE])
 {
-	memcpy(app_pub, app_server_public_key, sizeof(app_server_public_key));
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_APP_PUB_ED25519, app_pub,
+			       SID_PAL_MFG_STORE_APP_PUB_ED25519_SIZE);
 }
 
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
