@@ -122,6 +122,7 @@ config SIDEWALK_MFG_STORAGE
 	bool
 	default SIDEWALK
 	imply FLASH
+	imply FPROTECT
 	help
 	  Sidewalk manufacturing storage module
 

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <fprotect.h>
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/flash.h>
@@ -126,10 +127,9 @@ static const struct device *flash_dev;
 static bool sid_pal_mfg_store_search_for_tag(uint16_t tag,
 					     struct sid_pal_mfg_store_tlv_info *tlv_info)
 {
-	off_t address =
-		(off_t)(nrf_mfg_store_region.addr_start +
-			SID_PAL_MFG_STORE_OFFSET_VERSION * WORD_SIZE +
-			SID_PAL_MFG_STORE_VERSION_SIZE);
+	off_t address = (off_t)(nrf_mfg_store_region.addr_start +
+				SID_PAL_MFG_STORE_OFFSET_VERSION * WORD_SIZE +
+				SID_PAL_MFG_STORE_VERSION_SIZE);
 
 	uint16_t current_tag, length;
 	uint8_t header_raw[MFG_STORE_TLV_HEADER_SIZE] = { 0 };
@@ -198,7 +198,10 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	sid_mfg_storage_secure_init();
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
-	// TODO: use fprotect to protect mfg partition form overwrite
+	int err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
+	if (err) {
+		LOG_ERR("Flash protect failed %d", err);
+	}
 }
 
 void sid_pal_mfg_store_deinit(void)
