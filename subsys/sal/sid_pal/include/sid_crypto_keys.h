@@ -9,18 +9,19 @@
 
 #include <psa/crypto.h>
 
-#define SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(_id) (PSA_KEY_ID_USER_MIN <= _id && _id < SID_CRYPTO_KEY_ID_LAST)
+#define SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(_id)                                                    \
+	(PSA_KEY_ID_USER_MIN <= _id && _id < SID_CRYPTO_KEY_ID_LAST)
 
 /**
  * @brief Persistent psa key ids used in Sidewalk.
  */
 typedef enum {
-    SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID = PSA_KEY_ID_USER_MIN,
-    SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID,
-    SID_CRYPTO_KV_WAN_MASTER_KEY_ID,
-    SID_CRYPTO_KV_APP_KEY_KEY_ID,
-    SID_CRYPTO_KV_D2D_KEY_ID,
-    SID_CRYPTO_KEY_ID_LAST
+	SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID = PSA_KEY_ID_USER_MIN,
+	SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID,
+	SID_CRYPTO_KV_WAN_MASTER_KEY_ID,
+	SID_CRYPTO_KV_APP_KEY_KEY_ID,
+	SID_CRYPTO_KV_D2D_KEY_ID,
+	SID_CRYPTO_KEY_ID_LAST
 } sid_crypto_key_id_t;
 
 /**
@@ -50,7 +51,7 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size);
  * @param id [in] Key id to generate new.
  * @return 0 on success, or -errno on failure.
  */
-int sid_crypto_keys_new_generate(psa_key_id_t id);
+int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size);
 
 /**
  * @brief Set key id in buffer.
