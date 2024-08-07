@@ -143,19 +143,13 @@ void test_sid_pal_ble_adapter_init(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__cmock_settings_load_ExpectAndReturn(0);
 	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
-	__cmock_settings_load_ExpectAndReturn(0);
 	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(NULL));
 
 	bt_enable_fake.return_val = -ENOENT;
-	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
-
-	bt_enable_fake.return_val = ESUCCESS;
-	__cmock_settings_load_ExpectAndReturn(-ENOENT);
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
 }
 
