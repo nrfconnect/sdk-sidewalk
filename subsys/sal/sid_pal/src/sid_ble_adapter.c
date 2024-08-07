@@ -82,16 +82,6 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 		return SID_ERROR_GENERIC;
 	}
 
-	if (IS_ENABLED(CONFIG_SETTINGS)) {
-		err_code = settings_load();
-		if (err_code) {
-			LOG_ERR("settings load failed (err %d)", err_code);
-			return SID_ERROR_GENERIC;
-		}
-	} else {
-		return SID_ERROR_INVALID_ARGS;
-	}
-
 	sid_ble_conn_init();
 
 	return SID_ERROR_NONE;
