@@ -30,10 +30,7 @@ config SIDEWALK_BLE
 	bool
 	default SIDEWALK
 	imply BT
-	imply SETTINGS
 	imply BT_PERIPHERAL
-	imply BT_SMP
-	imply BT_PRIVACY
 	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
