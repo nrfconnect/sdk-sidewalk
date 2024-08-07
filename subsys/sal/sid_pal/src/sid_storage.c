@@ -48,9 +48,16 @@ sid_error_t sid_pal_storage_kv_init()
 {
 	int rc = settings_subsys_init();
 	if (rc != 0) {
-		LOG_ERR("Failed to initialize pal_storage. Returned errno %d", rc);
+		LOG_ERR("settings init failed (err %d)", rc);
 		return SID_ERROR_GENERIC;
 	}
+
+	rc = settings_load();
+	if (rc != 0) {
+		LOG_ERR("settings load failed (err %d)", rc);
+		return SID_ERROR_GENERIC;
+	}
+
 	LOG_DBG("Initialized KV storage");
 	return SID_ERROR_NONE;
 }
