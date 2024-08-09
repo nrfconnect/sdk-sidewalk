@@ -82,7 +82,7 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size)
 	/* Import key to secure storage */
 	status = psa_import_key(&attributes, data, size, &out_id);
 	if (PSA_SUCCESS == status && out_id == id) {
-		LOG_HEXDUMP_DBG(data, size, "found new key: ");
+		LOG_DBG("psa_import_key success");
 	} else {
 		LOG_ERR("psa_import_key failed! (err %d id %d)", status, id);
 		return -EACCES;
@@ -100,10 +100,10 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size)
 	return ESUCCESS;
 }
 
-int sid_crypto_keys_new_generate(psa_key_id_t id)
+int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
 {
 	/* Check arguments */
-	if (PSA_KEY_ID_NULL == id) {
+	if (PSA_KEY_ID_NULL == id || !puk || !puk_size) {
 		return -EINVAL;
 	}
 
@@ -116,6 +116,7 @@ int sid_crypto_keys_new_generate(psa_key_id_t id)
 
 	/* Configure the key attributes */
 	psa_key_id_t out_id = PSA_KEY_ID_NULL;
+	size_t out_size = 0;
 	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 	sid_crypto_keys_attributes_set(id, &attributes);
 
@@ -124,8 +125,18 @@ int sid_crypto_keys_new_generate(psa_key_id_t id)
 	if (PSA_SUCCESS == status && out_id == id) {
 		LOG_DBG("key generation success");
 	} else {
-		LOG_ERR("psa_import_key failed! (err %d id %d)", status, id);
+		LOG_ERR("psa_generate_key failed! (err %d id %d)", status, id);
 		return -EACCES;
+	}
+
+	/* Export public key */
+	status = psa_export_public_key(id, puk, puk_size, &out_size);
+	if (PSA_SUCCESS == status && out_size == puk_size) {
+		LOG_DBG("export public key success");
+	} else {
+		LOG_ERR("psa_export_public_key failed! (err %d id %d)", status, id);
+		LOG_ERR("psa_export_public_key failed! (expected %d was %d)", puk_size, out_size);
+		return -EBADF;
 	}
 
 	/* Clear key data */
@@ -151,7 +162,7 @@ int sid_crypto_keys_buffer_set(psa_key_id_t id, uint8_t *data, size_t size)
 	memset(data, 0, size);
 	psa_key_id_t *data_id = (psa_key_id_t *)data;
 	*data_id = id;
-	LOG_HEXDUMP_DBG(data, size, "saved new key: ");
+	LOG_DBG("key buffer set %d", id);
 
 	return ESUCCESS;
 }
