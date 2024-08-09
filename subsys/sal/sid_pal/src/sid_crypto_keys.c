@@ -82,7 +82,7 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size)
 	/* Import key to secure storage */
 	status = psa_import_key(&attributes, data, size, &out_id);
 	if (PSA_SUCCESS == status && out_id == id) {
-		LOG_HEXDUMP_DBG(data, size, "found new key: ");
+		LOG_DBG("psa_import_key success");
 	} else {
 		LOG_ERR("psa_import_key failed! (err %d id %d)", status, id);
 		return -EACCES;
@@ -103,7 +103,7 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size)
 int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
 {
 	/* Check arguments */
-	if (PSA_KEY_ID_NULL == id|| !puk || !puk_size) {
+	if (PSA_KEY_ID_NULL == id || !puk || !puk_size) {
 		return -EINVAL;
 	}
 
@@ -133,7 +133,6 @@ int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
 	status = psa_export_public_key(id, puk, puk_size, &out_size);
 	if (PSA_SUCCESS == status && out_size == puk_size) {
 		LOG_DBG("export public key success");
-		LOG_HEXDUMP_DBG(puk, puk_size, "puk: ");
 	} else {
 		LOG_ERR("psa_export_public_key failed! (err %d id %d)", status, id);
 		LOG_ERR("psa_export_public_key failed! (expected %d was %d)", puk_size, out_size);
@@ -163,7 +162,7 @@ int sid_crypto_keys_buffer_set(psa_key_id_t id, uint8_t *data, size_t size)
 	memset(data, 0, size);
 	psa_key_id_t *data_id = (psa_key_id_t *)data;
 	*data_id = id;
-	LOG_HEXDUMP_DBG(data, size, "saved new key: ");
+	LOG_DBG("key buffer set %d", id);
 
 	return ESUCCESS;
 }

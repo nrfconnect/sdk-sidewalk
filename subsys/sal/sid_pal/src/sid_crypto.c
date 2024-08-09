@@ -495,7 +495,7 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 
 	if (PSA_SUCCESS == status) {
 		size_t hmac_length;
-		LOG_DBG("Key load success.");
+		LOG_DBG("Key import success.");
 		status = psa_mac_sign_setup(&operation, key_handle, PSA_ALG_HMAC(alg_sha));
 
 		if (PSA_SUCCESS == status) {
@@ -586,7 +586,7 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES, &key_handle);
 
 	if (PSA_SUCCESS == status) {
-		LOG_DBG("Key import success");
+		LOG_DBG("Key import success.");
 
 		switch (params->mode) {
 		case SID_PAL_CRYPTO_ENCRYPT:
@@ -764,7 +764,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 			     ECC_FAMILY_TYPE(params->mode, type), &key_handle);
 
 	if (PSA_SUCCESS == status) {
-		LOG_DBG("Key import success. handle %04x", key_handle);
+		LOG_DBG("Key import success.");
 
 		switch (params->mode) {
 		case SID_PAL_CRYPTO_VERIFY:
