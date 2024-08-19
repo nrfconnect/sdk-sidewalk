@@ -19,6 +19,7 @@
 #include <zephyr/smf.h>
 #include <zephyr/logging/log.h>
 #include <sid_demo_parser.h>
+#include <json_printer/sidTypes2str.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -85,7 +86,7 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
 				   void *context)
 {
-	LOG_ERR("Send message err %d", (int)error);
+	LOG_ERR("Send message err %d (%s)", (int)error, SID_ERROR_T_STR(error));
 	LOG_DBG("Failed to send message(type: %d, id: %u)", (int)msg_desc->type, msg_desc->id);
 	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
 	if (message == NULL) {

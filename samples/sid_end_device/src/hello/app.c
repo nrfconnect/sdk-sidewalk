@@ -24,6 +24,7 @@
 #include <zephyr/logging/log.h>
 
 #include <json_printer/sidTypes2Json.h>
+#include <json_printer/sidTypes2str.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -117,7 +118,7 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
 				   void *context)
 {
-	LOG_ERR("Message send err %d", (int)error);
+	LOG_ERR("Message send err %d (%s)", (int)error, SID_ERROR_T_STR(error));
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_send_error",
 		JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
