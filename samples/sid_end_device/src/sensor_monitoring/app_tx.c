@@ -15,6 +15,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/smf.h>
 #include <zephyr/logging/log.h>
+#include <json_printer/sidTypes2str.h>
 
 LOG_MODULE_REGISTER(app_tx, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -70,7 +71,7 @@ static uint32_t time_in_sec_get(void)
 	struct sid_timespec curr_time = { 0 };
 	sid_error_t e = sid_pal_uptime_now(&curr_time);
 	if (e) {
-		LOG_INF("Uptime get failed %d", e);
+		LOG_INF("Uptime get failed %d (%s)", e, SID_ERROR_T_STR(e));
 	}
 
 	return curr_time.tv_sec;
@@ -102,7 +103,8 @@ static int app_tx_demo_msg_send(struct sid_parse_state *state, uint8_t *buffer,
 	sid_parse_state_init(state, msg_buffer, sizeof(msg_buffer));
 	sid_demo_app_msg_serialize(state, demo_desc, &demo_msg);
 	if (state->ret_code != SID_ERROR_NONE) {
-		LOG_DBG("Demo msg serialize failed -%d", state->ret_code);
+		LOG_DBG("Demo msg serialize failed -%d (%s)", state->ret_code,
+			SID_ERROR_T_STR(state->ret_code));
 		return -EINVAL;
 	}
 

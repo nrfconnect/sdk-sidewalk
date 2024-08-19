@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include "json_printer/sidTypes2str.h"
 #include <sidewalk.h>
 #include <sid_error.h>
 #include <app_mfg_config.h>
@@ -65,7 +66,7 @@ void sidewalk_event_process(sidewalk_ctx_t *sid, void *ctx)
 	}
 	sid_error_t e = sid_process(sid->handle);
 	if (e) {
-		LOG_ERR("sid process err %d", (int)e);
+		LOG_ERR("sid process err  %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 }
 
@@ -82,7 +83,7 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 
 	sid_error_t e = sid_platform_init(&platform_parameters);
 	if (SID_ERROR_NONE != e) {
-		LOG_ERR("Sidewalk Platform Init err: %d", e);
+		LOG_ERR("Sidewalk Platform Init err:  %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		return;
 	}
 	if (app_mfg_cfg_is_valid()) {
@@ -125,13 +126,13 @@ void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
 											  "BLE");
 	sid_error_t e = sid_init(&sid->config, &sid->handle);
 	if (e) {
-		LOG_ERR("sid init err %d", (int)e);
+		LOG_ERR("sid init err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		return;
 	}
 
 	e = sid_start(sid->handle, sid->config.link_mask);
 	if (e) {
-		LOG_ERR("sid start err %d", (int)e);
+		LOG_ERR("sid start err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 
 #if CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
@@ -179,7 +180,7 @@ void sidewalk_event_factory_reset(sidewalk_ctx_t *sid, void *ctx)
 #endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
 	sid_error_t e = sid_set_factory_reset(sid->handle);
 	if (e) {
-		LOG_ERR("sid factory reset err %d", (int)e);
+		LOG_ERR("sid factory reset err  %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 }
 
@@ -222,7 +223,7 @@ void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 
 	sid_error_t e = sid_put_msg(sid->handle, &p_msg_copy->msg, &p_msg_copy->desc);
 	if (e) {
-		LOG_ERR("sid send err %d", (int)e);
+		LOG_ERR("sid send err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		sid_hal_free(p_msg_copy->msg.data);
 		sid_hal_free(p_msg_copy);
 		return;
@@ -250,7 +251,7 @@ void sidewalk_event_connect(sidewalk_ctx_t *sid, void *ctx)
 	}
 	sid_error_t e = sid_ble_bcn_connection_request(sid->handle, true);
 	if (e) {
-		LOG_ERR("sid conn req err %d", (int)e);
+		LOG_ERR("sid conn req err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 }
 void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
@@ -291,20 +292,20 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 		(void)sid_process(sid->handle);
 		sid_error_t e = sid_deinit(sid->handle);
 		if (e) {
-			LOG_ERR("sid deinit err %d", (int)e);
+			LOG_ERR("sid deinit err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		}
 	}
 
 	sid_error_t e = sid_init(&sid->config, &sid->handle);
 	if (e) {
-		LOG_ERR("sid init err %d", (int)e);
+		LOG_ERR("sid init err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	app_file_transfer_demo_init(sid->handle);
 #endif
 	e = sid_start(sid->handle, sid->config.link_mask);
 	if (e) {
-		LOG_ERR("sid start err %d", (int)e);
+		LOG_ERR("sid start err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
 #if CONFIG_SID_END_DEVICE_AUTO_CONN_REQ
 	if (sid->config.link_mask & SID_LINK_TYPE_1) {
@@ -314,7 +315,8 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 		e = sid_option(sid->handle, SID_OPTION_SET_LINK_CONNECTION_POLICY, &set_policy,
 			       sizeof(set_policy));
 		if (e) {
-			LOG_ERR("sid option multi link manager err %d", (int)e);
+			LOG_ERR("sid option multi link manager err %d (%s)", (int)e,
+				SID_ERROR_T_STR(e));
 		}
 
 		struct sid_link_auto_connect_params ac_params = {
@@ -327,7 +329,8 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 		e = sid_option(sid->handle, SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS,
 			       &ac_params, sizeof(ac_params));
 		if (e) {
-			LOG_ERR("sid option multi link policy err %d", (int)e);
+			LOG_ERR("sid option multi link policy err %d (%s)", (int)e,
+				SID_ERROR_T_STR(e));
 		}
 	}
 #endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */

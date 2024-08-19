@@ -20,6 +20,7 @@
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_pal_temperature_ifc.h>
+#include <json_printer/sidTypes2str.h>
 
 LOG_MODULE_REGISTER(sid_board_init, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -32,19 +33,22 @@ sid_error_t application_pal_init(void)
 
 	ret_code = sid_pal_storage_kv_init();
 	if (ret_code) {
-		LOG_ERR("Sidewalk KV store init failed, err: %d", ret_code);
+		LOG_ERR("Sidewalk KV store init failed, err: %d (%s)", ret_code,
+			SID_ERROR_T_STR(ret_code));
 		return ret_code;
 	}
 
 	ret_code = sid_pal_crypto_init();
 	if (ret_code) {
-		LOG_ERR("Sidewalk Init Crypto HAL, err: %d", ret_code);
+		LOG_ERR("Sidewalk Init Crypto HAL, err: %d (%s)", ret_code,
+			SID_ERROR_T_STR(ret_code));
 		return ret_code;
 	}
 #if defined(CONFIG_SIDEWALK_TEMPERATURE)
 	ret_code = sid_pal_temperature_init();
 	if (ret_code) {
-		LOG_ERR("Sidewalk Init temperature pal  err: %d", ret_code);
+		LOG_ERR("Sidewalk Init temperature pal  err: %d (%s)", ret_code,
+			SID_ERROR_T_STR(ret_code));
 	}
 #endif
 	static const sid_pal_mfg_store_region_t mfg_store_region = {

@@ -9,6 +9,7 @@
 #include <sidewalk.h>
 #include <sid_hal_memory_ifc.h>
 #include <json_printer/sidTypes2Json.h>
+#include <json_printer/sidTypes2str.h>
 #include <sidewalk_dfu/nordic_dfu_img.h>
 #include <sid_bulk_data_transfer_api.h>
 #include <zephyr/logging/log.h>
@@ -141,7 +142,7 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 						      transfer->file_id,
 						      SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC);
 		if (ret != SID_ERROR_NONE) {
-			LOG_ERR("Fail to cancel sbdt %d", ret);
+			LOG_ERR("Fail to cancel sbdt %d (%s)", ret, SID_ERROR_T_STR(ret));
 		}
 		sid_hal_free(transfer);
 	}
