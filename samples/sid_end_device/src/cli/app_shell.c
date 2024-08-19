@@ -1045,7 +1045,7 @@ int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **ar
 	shell_info(shell, "SID_SDK_PATCH_VERSION: %d", SID_SDK_PATCH_VERSION);
 	shell_info(shell, "SID_SDK_BUILD_VERSION: %d", SID_SDK_BUILD_VERSION);
 
-	shell_info(shell, "Nordic version: %s", sidewalk_version_component[0]);
+	shell_info(shell, "Nordic version: %s", STRINGIFY(APP_BUILD_VERSION));
 	return 0;
 }
 
