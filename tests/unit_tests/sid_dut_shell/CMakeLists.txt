@@ -32,4 +32,5 @@ target_include_directories(testbinary PRIVATE
         ${SIDEWALK_BASE}/utils/include
         ${SIDEWALK_BASE}/utils
         .
+        src
 )
