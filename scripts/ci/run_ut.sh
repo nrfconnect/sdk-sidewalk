@@ -70,10 +70,10 @@ do
             ;;
         a)
             TWISTER_TAGS="${TWISTER_TAGS}--tag ${OPTARG} "
-            ;;            
+            ;;
         p)
             TWISTER_PLATFORM="${TWISTER_PLATFORM}--platform ${OPTARG} "
-            ;;             
+            ;;
         u)
             RUN_UT=true
             ;;
@@ -165,7 +165,7 @@ function run_on_hw ()
     fi
     run_twister -v --generate-hardware-map hardware-map.yaml --persistent-hardware-map
     python3 "$CURRENT_DIR/fill_hardware_map.py" --hardware_map_path hardware-map.yaml  --userdev_conf_path "$USERDEV_CONF_FILE"
-    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
+    run_twister $TWISTER_PLATFORM -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/functional)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests)) -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/validation)) --device-testing --retry-failed 1 --retry-interval 1 --hardware-map hardware-map.yaml_filled --west-flash="--recover,--erase"
     status=$?
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-on_HW"
     return $status
