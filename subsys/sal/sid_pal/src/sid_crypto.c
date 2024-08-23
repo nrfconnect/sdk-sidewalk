@@ -22,6 +22,41 @@
 
 LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PERF_TEST
+
+#define CRYPTO_PERF_START(fmt, ...)                                                                \
+	do {                                                                                       \
+		LOG_INF(fmt, ##__VA_ARGS__);                                                       \
+		step_cnt = 0;                                                                      \
+		t_start = t_step = k_uptime_ticks();                                               \
+	} while (false)
+
+#define CRYPTO_PERF_STEP()                                                                         \
+	do {                                                                                       \
+		step_array[step_cnt++] = k_uptime_ticks() - t_step;                                \
+		t_step = k_uptime_ticks();                                                         \
+	} while (false)
+
+#define CRYPTO_PERF_END()                                                                          \
+	do {                                                                                       \
+		int64_t t_delta = k_uptime_ticks() - t_start;                                      \
+		if (step_cnt > 0) {                                                                \
+			for (int i = 0; i < step_cnt; i++) {                                       \
+				LOG_INF("STEP %d: %lld [us]", i + 1,                               \
+					k_ticks_to_us_near64(step_array[i]));                      \
+			}                                                                          \
+		}                                                                                  \
+		LOG_INF(" %s: Total: %lld [us]", __FUNCTION__, k_ticks_to_us_near64(t_delta));     \
+	} while (false)
+
+#else
+
+#define CRYPTO_PERF_START(fmt, ...)
+#define CRYPTO_PERF_STEP()
+#define CRYPTO_PERF_END()
+
+#endif
+
 #define BYTE_TO_BITS(_byte) (_byte << 3)
 #define BITS_TO_BYTE(_bits) (_bits >> 3)
 
@@ -34,7 +69,7 @@ LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 #define ED25519_KEY_LEN_BITS (255)
 
 /* Data chunk used in cryptographic algorithm. */
-#define ALGO_DATA_CHUNK (32)
+#define ALGO_DATA_CHUNK (64)
 
 /* Max. EC key buffer length in bytes. */
 #define EC_MAX_KEY_LENGTH (65)
@@ -65,6 +100,13 @@ LOG_MODULE_REGISTER(sid_crypto, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 #define ECC_FAMILY_TYPE(_mode, _type)                                                              \
 	((SID_PAL_CRYPTO_VERIFY == _mode) ? PSA_KEY_TYPE_ECC_PUBLIC_KEY(_type) :                   \
 					    PSA_KEY_TYPE_ECC_KEY_PAIR(_type))
+
+#ifdef CONFIG_SIDEWALK_CRYPTO_PERF_TEST
+static int64_t t_start;
+static int64_t t_step;
+static int32_t step_cnt = 0;
+static int64_t step_array[32];
+#endif
 
 /* Crypto initialization global flag. */
 static bool is_initialized = false;
@@ -219,10 +261,12 @@ static psa_status_t aes_encrypt(psa_key_handle_t key_handle, sid_pal_aes_params_
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
 
 	status = psa_cipher_encrypt_setup(&operation, key_handle, PSA_ALG_CTR);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("psa_cipher_encrypt_setup success.");
 		status = aes_execute(&operation, params);
+		CRYPTO_PERF_STEP();
 	}
 
 	if (PSA_SUCCESS != status) {
@@ -248,10 +292,12 @@ static psa_status_t aes_decrypt(psa_key_handle_t key_handle, sid_pal_aes_params_
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
 
 	status = psa_cipher_decrypt_setup(&operation, key_handle, PSA_ALG_CTR);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("psa_cipher_decrypt_setup success.");
 		status = aes_execute(&operation, params);
+		CRYPTO_PERF_STEP();
 	}
 
 	if (PSA_SUCCESS != status) {
@@ -275,21 +321,25 @@ static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t
 {
 	size_t out_len, mac_len;
 	psa_status_t status = psa_aead_set_lengths(op, params->aad_size, params->in_size);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("psa_aead_set_lengths success.");
 		if (NULL != params->iv) {
 			status = psa_aead_set_nonce(op, params->iv, params->iv_size);
+			CRYPTO_PERF_STEP();
 		}
 
 		if (PSA_SUCCESS == status) {
 			LOG_DBG("psa_aead_set_nonce success.");
 			status = psa_aead_update_ad(op, params->aad, params->aad_size);
+			CRYPTO_PERF_STEP();
 
 			if (PSA_SUCCESS == status) {
 				LOG_DBG("psa_aead_update_ad success.");
 				status = psa_aead_update(op, params->in, params->in_size,
 							 params->out, params->out_size, &out_len);
+				CRYPTO_PERF_STEP();
 
 				if (PSA_SUCCESS == status) {
 					LOG_DBG("psa_aead_update_ad success (out_len=%d).",
@@ -300,6 +350,7 @@ static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t
 									params->out_size - out_len,
 									&out_len, params->mac,
 									params->mac_size, &mac_len);
+						CRYPTO_PERF_STEP();
 						LOG_DBG("psa_aead_finish %s (out_len=%d, mac_len=%d)",
 							(PSA_SUCCESS == status) ? "success." :
 										  "failed!",
@@ -309,6 +360,7 @@ static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t
 									 params->out_size - out_len,
 									 &out_len, params->mac,
 									 params->mac_size);
+						CRYPTO_PERF_STEP();
 						LOG_DBG("psa_aead_verify %s (out_len=%d)",
 							(PSA_SUCCESS == status) ? "success." :
 										  "failed!",
@@ -335,6 +387,7 @@ static psa_status_t aead_encrypt(psa_key_handle_t key_handle, sid_pal_aead_param
 {
 	psa_aead_operation_t op = PSA_AEAD_OPERATION_INIT;
 	psa_status_t status = psa_aead_encrypt_setup(&op, key_handle, alg);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		status = aead_execute(&op, params);
@@ -361,6 +414,7 @@ static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_param
 {
 	psa_aead_operation_t op = PSA_AEAD_OPERATION_INIT;
 	psa_status_t status = psa_aead_decrypt_setup(&op, key_handle, alg);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		status = aead_execute(&op, params);
@@ -410,6 +464,8 @@ sid_error_t sid_pal_crypto_deinit(void)
 
 sid_error_t sid_pal_crypto_rand(uint8_t *rand, size_t size)
 {
+	psa_status_t status;
+
 	if (!is_initialized) {
 		return SID_ERROR_UNINITIALIZED;
 	}
@@ -422,11 +478,16 @@ sid_error_t sid_pal_crypto_rand(uint8_t *rand, size_t size)
 		return SID_ERROR_INVALID_ARGS;
 	}
 
-	return get_error(psa_generate_random(rand, size), __func__);
+	CRYPTO_PERF_START("Data size: %d", size);
+	status = psa_generate_random(rand, size);
+	CRYPTO_PERF_END();
+
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_hash(sid_pal_hash_params_t *params)
 {
+	psa_status_t status;
 	psa_algorithm_t alg_sha;
 	size_t hash_length;
 
@@ -453,9 +514,17 @@ sid_error_t sid_pal_crypto_hash(sid_pal_hash_params_t *params)
 		return SID_ERROR_NOSUPPORT;
 	}
 
-	return get_error(psa_hash_compute(alg_sha, params->data, params->data_size, params->digest,
-					  params->digest_size, &hash_length),
-			 __func__);
+	CRYPTO_PERF_START("Algo: %s, data size: %d",
+			  params->algo == SID_PAL_HASH_SHA256 ? "PSA_ALG_SHA_256" :
+								"PSA_ALG_SHA_512",
+			  params->data_size);
+
+	status = psa_hash_compute(alg_sha, params->data, params->data_size, params->digest,
+				  params->digest_size, &hash_length);
+
+	CRYPTO_PERF_END();
+
+	return get_error(status, __func__);
 }
 
 sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
@@ -488,15 +557,24 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 		return SID_ERROR_NOSUPPORT;
 	}
 
+	CRYPTO_PERF_START("Algo: %s, data size: %d",
+			  params->algo == SID_PAL_HASH_SHA256 ? "PSA_ALG_SHA_256" :
+								"PSA_ALG_SHA_512",
+			  params->data_size);
+
 	// NOTE: key_size is in bytes.
 	status = prepare_key(params->key, params->key_size, BYTE_TO_BITS(params->key_size),
 			     PSA_KEY_USAGE_SIGN_HASH, PSA_ALG_HMAC(alg_sha), PSA_KEY_TYPE_HMAC,
 			     &key_handle);
 
+	CRYPTO_PERF_STEP();
+
 	if (PSA_SUCCESS == status) {
 		size_t hmac_length;
 		LOG_DBG("Key load success.");
 		status = psa_mac_sign_setup(&operation, key_handle, PSA_ALG_HMAC(alg_sha));
+
+		CRYPTO_PERF_STEP();
 
 		if (PSA_SUCCESS == status) {
 			size_t offset = 0;
@@ -512,12 +590,16 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 
 				offset += data_chunk;
 				s_left -= data_chunk;
+				CRYPTO_PERF_STEP();
 			} while ((PSA_SUCCESS == status) && (0 != s_left));
 
 			if (PSA_SUCCESS == status) {
 				LOG_DBG("psa_mac_update success.");
 				status = psa_mac_sign_finish(&operation, params->digest,
 							     params->digest_size, &hmac_length);
+
+				CRYPTO_PERF_STEP();
+
 				LOG_DBG("psa_mac_sign_finish %s [hmac length=%d]",
 					(PSA_SUCCESS == status) ? "success." : "failed!",
 					hmac_length);
@@ -536,6 +618,8 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 		}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
+
+	CRYPTO_PERF_END();
 
 	return get_error(status, __func__);
 }
@@ -581,9 +665,18 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 		return SID_ERROR_INVALID_ARGS;
 	}
 
+	CRYPTO_PERF_START("Algo: %s, mode: %s, data size: %d",
+			  params->algo == SID_PAL_AES_CMAC_128 ? "PSA_ALG_CMAC" : "PSA_ALG_CTR",
+			  params->mode == SID_PAL_CRYPTO_ENCRYPT ? "ENCRYPT" :
+			  params->mode == SID_PAL_CRYPTO_DECRYPT ? "DECRYPT" :
+								   "MAC_CALCULATE",
+			  params->in_size);
+
 	// NOTE: key_size is in bits.
 	status = prepare_key(params->key, BITS_TO_BYTE(params->key_size), params->key_size,
 			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES, &key_handle);
+
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("Key import success");
@@ -591,10 +684,12 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 		switch (params->mode) {
 		case SID_PAL_CRYPTO_ENCRYPT:
 			status = aes_encrypt(key_handle, params);
+
 			LOG_DBG("AES encrypt %s", (PSA_SUCCESS == status) ? "success." : "failed!");
 			break;
 		case SID_PAL_CRYPTO_DECRYPT:
 			status = aes_decrypt(key_handle, params);
+
 			LOG_DBG("AES decrypt %s", (PSA_SUCCESS == status) ? "success." : "failed!");
 			break;
 		case SID_PAL_CRYPTO_MAC_CALCULATE: {
@@ -602,6 +697,9 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 
 			status = psa_mac_compute(key_handle, alg, params->in, params->in_size,
 						 params->out, params->out_size, &out_len);
+
+			CRYPTO_PERF_STEP();
+
 			LOG_DBG("Mac calculate %s",
 				(PSA_SUCCESS == status) ? "success." : "failed!");
 		} break;
@@ -621,6 +719,8 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 		}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
+
+	CRYPTO_PERF_END();
 
 	return get_error(status, __func__);
 }
@@ -668,9 +768,15 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 		return SID_ERROR_INVALID_ARGS;
 	}
 
+	CRYPTO_PERF_START("Algo: %s, mode: %s, data size: %d",
+			  params->algo == SID_PAL_AEAD_GCM_128 ? "PSA_ALG_GCM" : "PSA_ALG_CCM",
+			  params->mode == SID_PAL_CRYPTO_ENCRYPT ? "ENCRYPT" : "DECRYPT",
+			  params->in_size);
+
 	// NOTE: key_size is in bits.
 	status = prepare_key(params->key, BITS_TO_BYTE(params->key_size), params->key_size,
 			     AES_MODE_TO_USAGE(params->mode), alg, PSA_KEY_TYPE_AES, &key_handle);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("Key import success.");
@@ -702,6 +808,8 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 		}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
+
+	CRYPTO_PERF_END();
 
 	return get_error(status, __func__);
 }
@@ -756,12 +864,18 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 		return SID_ERROR_NOSUPPORT;
 	}
 
+	CRYPTO_PERF_START("Algo: %s, mode: %s, data size: %d",
+			  params->algo == SID_PAL_EDDSA_ED25519 ? "ED25519" : "SECP256R1",
+			  params->mode == SID_PAL_CRYPTO_VERIFY ? "VERIFY" : "SIGN",
+			  params->in_size);
+
 	key_size = MIN(sizeof(key), key_size);
 	memcpy(&key[key_offset], params->key, key_size - key_offset);
 
 	// NOTE: key_size is in bytes.
 	status = prepare_key(key, key_size, key_len, ECDSA_MODE_TO_USAGE(params->mode), alg,
 			     ECC_FAMILY_TYPE(params->mode, type), &key_handle);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		LOG_DBG("Key import success. handle %04x", key_handle);
@@ -771,6 +885,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 			LOG_DBG("dsa verify");
 			status = psa_verify_message(key_handle, alg, params->in, params->in_size,
 						    params->signature, params->sig_size);
+			CRYPTO_PERF_STEP();
 
 			break;
 		case SID_PAL_CRYPTO_SIGN: {
@@ -779,6 +894,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 
 			status = psa_sign_message(key_handle, alg, params->in, params->in_size,
 						  params->signature, params->sig_size, &out_len);
+			CRYPTO_PERF_STEP();
 		} break;
 		default:
 			return SID_ERROR_INVALID_ARGS;
@@ -796,6 +912,8 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 		}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
+
+	CRYPTO_PERF_END();
 
 	return get_error(status, __func__);
 }
@@ -840,9 +958,14 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		return SID_ERROR_NOSUPPORT;
 	}
 
+	CRYPTO_PERF_START("Algo: %s", params->algo == SID_PAL_ECDH_SECP256R1 ?
+					      "PSA_ECC_FAMILY_SECP_R1" :
+					      "PSA_ECC_FAMILY_MONTGOMERY");
+
 	// NOTE: params->prk_size and params->puk_size are in bytes.
 	status = prepare_key(params->prk, params->prk_size, key_len, PSA_KEY_USAGE_DERIVE,
 			     PSA_ALG_ECDH, PSA_KEY_TYPE_ECC_KEY_PAIR(type), &priv_key_handle);
+	CRYPTO_PERF_STEP();
 
 	if (PSA_SUCCESS == status) {
 		size_t out_len;
@@ -855,6 +978,7 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		status = psa_raw_key_agreement(PSA_ALG_ECDH, priv_key_handle, pub_key, pub_key_size,
 					       params->shared_secret, params->shared_secret_sz,
 					       &out_len);
+		CRYPTO_PERF_STEP();
 		LOG_DBG("ecdh key agreement %s", (PSA_SUCCESS == status) ? "success." : "failed!");
 
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
@@ -869,6 +993,8 @@ sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 		}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
+
+	CRYPTO_PERF_END();
 
 	return get_error(status, __func__);
 }
@@ -919,6 +1045,11 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 		return SID_ERROR_NOSUPPORT;
 	}
 
+	CRYPTO_PERF_START("Algo: %s",
+			  params->algo == SID_PAL_EDDSA_ED25519 ? "ED25519" :
+			  params->algo == SID_PAL_EDDSA_ED25519 ? "SECP256R1" :
+								  "SID_PAL_ECDH_CURVE25519");
+
 	// NOTE: params->prk_size and params->puk_size are in bytes.
 	psa_set_key_usage_flags(&key_attributes, PSA_KEY_USAGE_EXPORT);
 	psa_set_key_lifetime(&key_attributes, PSA_KEY_LIFETIME_VOLATILE);
@@ -927,11 +1058,15 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 	psa_set_key_bits(&key_attributes, key_len);
 
 	status = psa_generate_key(&key_attributes, &keys_handle);
+	CRYPTO_PERF_STEP();
+
 	if (PSA_SUCCESS == status) {
 		size_t key_len;
 
 		LOG_DBG("Key pair generated.");
 		status = psa_export_key(keys_handle, params->prk, params->prk_size, &key_len);
+		CRYPTO_PERF_STEP();
+
 		if (PSA_SUCCESS == status) {
 			uint8_t public_key[EC_MAX_PUBLIC_KEY_LENGTH];
 
@@ -939,6 +1074,8 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 
 			status = psa_export_public_key(keys_handle, public_key, sizeof(public_key),
 						       &key_len);
+			CRYPTO_PERF_STEP();
+
 			memcpy(params->puk, &public_key[pub_key_offset], params->puk_size);
 
 			LOG_DBG("Public key export %s",
@@ -958,6 +1095,8 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	}
 	psa_reset_key_attributes(&key_attributes);
+
+	CRYPTO_PERF_END();
 
 	return get_error(status, __func__);
 }

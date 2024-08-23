@@ -1,0 +1,42 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_CRYPTO
+	default y
+
+config SIDEWALK_CRYPTO_PERF_TEST
+	bool
+	default y
+
+config SIDEWALK_CRYPTO_LOG_LEVEL
+	default 3
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+# Stacks
+config MAIN_STACK_SIZE
+	default 8192
+
+config ZTEST_STACK_SIZE
+	default 8192
+
+config HEAP_MEM_POOL_SIZE
+	default 4096
+
+config MBEDTLS_HEAP_SIZE
+	default 4096
+
+# Increase clk resolution in order to get more accurate results for nRF54L.
+config SYS_CLOCK_TICKS_PER_SEC
+	default 100000  if NRF_GRTC_TIMER
+
+# Use sample configuration.
+source "${ZEPHYR_BASE}/../sidewalk/samples/sid_end_device/Kconfig.defconfig"
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
+source "Kconfig.zephyr"
