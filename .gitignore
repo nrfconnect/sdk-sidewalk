@@ -45,3 +45,6 @@ ext/BSEC_*
 YAMLLint.txt
 Gitlint.txt
 compliance.xml
+
+tools/provision/*.hex
+tools/provision/*.bin
