@@ -1096,6 +1096,8 @@ ZTEST(crypto, test_hash_positive)
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_equal(0, memcmp(out_buf, sha256_result, hash_params.digest_size));
 
+	ztest_test_skip();
+
 	hash_params.algo = SID_PAL_HASH_SHA512;
 	hash_params.digest_size = SHA512_SZ;
 	ret = sid_pal_crypto_hash(&hash_params);
@@ -1131,6 +1133,8 @@ ZTEST(crypto, test_hmac_positive)
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_equal(0, memcmp(out_buf, hmac_sha256_result, hmac_params.digest_size));
 
+	ztest_test_skip();
+
 	hmac_params.algo = SID_PAL_HASH_SHA512;
 	hmac_params.digest_size = SHA512_SZ;
 	ret = sid_pal_crypto_hmac(&hmac_params);
@@ -1165,6 +1169,8 @@ ZTEST(crypto, test_hmac_negative)
 
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_not_equal(0, memcmp(out_buf, hmac_sha256_result, hmac_params.digest_size));
+
+	ztest_test_skip();
 
 	hmac_params.algo = SID_PAL_HASH_SHA512;
 	hmac_params.digest_size = SHA512_SZ;

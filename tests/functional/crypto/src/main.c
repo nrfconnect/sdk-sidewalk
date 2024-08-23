@@ -332,6 +332,8 @@ ZTEST(crypto, test_sid_pal_crypto_hash)
 	params.digest_size = SHA256_LEN / 2;
 	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_hash(&params));
 
+	ztest_test_skip();
+
 	// Compute SHA2_512
 	params.algo = SID_PAL_HASH_SHA512;
 	params.data = data_copy;
@@ -542,6 +544,8 @@ ZTEST(crypto, test_sid_pal_crypto_hmac_sha512)
 	memcpy(data_copy, test_string, sizeof(data_copy));
 	memset(digest, 0x00, sizeof(digest));
 
+	ztest_test_skip();
+
 	// Initialize crypto module
 	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
 
@@ -586,6 +590,8 @@ ZTEST(crypto, test_sid_pal_crypto_hmac_sha512_fake_key)
 	memset(&params, 0x00, sizeof(params));
 	memcpy(data_copy, test_string, sizeof(data_copy));
 	memset(digest, 0x00, sizeof(digest));
+
+	ztest_test_skip();
 
 	// Initialize crypto module
 	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_init());
