@@ -21,6 +21,8 @@ static const uint8_t sha256_result[SHA256_SZ] = { 0x16, 0xf6, 0x09, 0xe1, 0x5f, 
 						  0xab, 0x45, 0xf5, 0xb9, 0x90, 0x36, 0x05, 0x06,
 						  0x8e, 0xd9, 0x8c, 0xc0, 0xdf, 0x97, 0xf6, 0x22 };
 
+#if defined(CONFIG_SOC_NRF54L15)
+
 static const uint8_t sha512_result[SHA512_SZ] = {
 	0x08, 0x89, 0x42, 0x97, 0x01, 0x29, 0x4b, 0x44, 0xa8, 0x02, 0xba, 0xf5, 0xff,
 	0x61, 0x58, 0xfb, 0x35, 0xce, 0x42, 0xfd, 0x31, 0x14, 0x07, 0x97, 0x5b, 0x56,
@@ -28,6 +30,8 @@ static const uint8_t sha512_result[SHA512_SZ] = {
 	0x3a, 0x10, 0x0b, 0xe9, 0xd5, 0x64, 0xfb, 0xa8, 0xed, 0x2f, 0xd3, 0x21, 0x4f,
 	0xf9, 0xe0, 0xdc, 0xce, 0xea, 0x27, 0xd5, 0x86, 0xf1, 0x4c, 0x3b, 0x9e
 };
+
+#endif /* CONFIG_SOC_NRF54L15 */
 
 static const uint8_t hmac_hash_string[] = "halo_crypto_test_run_hmac";
 
@@ -44,6 +48,8 @@ static const uint8_t hmac_sha256_result[SHA256_SZ] = { 0xfd, 0x71, 0x58, 0xaa, 0
 						       0x51, 0xe9, 0x8a, 0xcd, 0xf5, 0x97, 0xd6,
 						       0x73, 0xf1, 0xea, 0x33 };
 
+#if defined(CONFIG_SOC_NRF54L15)
+
 static const uint8_t hmac_sha512_result[SHA512_SZ] = {
 	0x64, 0x84, 0xa8, 0x5b, 0x48, 0x62, 0x41, 0xa6, 0xbf, 0x2e, 0xff, 0xe6, 0xed,
 	0x24, 0xf5, 0xd7, 0x8b, 0x84, 0x10, 0xe8, 0x14, 0xaf, 0x3f, 0xed, 0x4a, 0x6d,
@@ -51,6 +57,8 @@ static const uint8_t hmac_sha512_result[SHA512_SZ] = {
 	0xda, 0x6b, 0xb2, 0xc7, 0x42, 0x98, 0xfe, 0x86, 0x7a, 0xc9, 0xc8, 0xff, 0x2b,
 	0x3a, 0x31, 0xde, 0xec, 0xc9, 0x6a, 0x81, 0xd4, 0xce, 0x0d, 0x5c, 0x5d
 };
+
+#endif /* CONFIG_SOC_NRF54L15 */
 
 // Test vector
 // https://tools.ietf.org/html/rfc4493
@@ -1096,11 +1104,15 @@ ZTEST(crypto, test_hash_positive)
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_equal(0, memcmp(out_buf, sha256_result, hash_params.digest_size));
 
+#if defined(CONFIG_SOC_NRF54L15)
+
 	hash_params.algo = SID_PAL_HASH_SHA512;
 	hash_params.digest_size = SHA512_SZ;
 	ret = sid_pal_crypto_hash(&hash_params);
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_equal(0, memcmp(out_buf, sha512_result, hash_params.digest_size));
+
+#endif /* CONFIG_SOC_NRF54L15 */
 }
 
 ZTEST(crypto, test_hash_invalid_param_sha256)
@@ -1131,11 +1143,15 @@ ZTEST(crypto, test_hmac_positive)
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_equal(0, memcmp(out_buf, hmac_sha256_result, hmac_params.digest_size));
 
+#if defined(CONFIG_SOC_NRF54L15)
+
 	hmac_params.algo = SID_PAL_HASH_SHA512;
 	hmac_params.digest_size = SHA512_SZ;
 	ret = sid_pal_crypto_hmac(&hmac_params);
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_equal(0, memcmp(out_buf, hmac_sha512_result, hmac_params.digest_size));
+
+#endif /* CONFIG_SOC_NRF54L15 */
 }
 
 ZTEST(crypto, test_hmac_invalid_param_sha256)
@@ -1166,11 +1182,15 @@ ZTEST(crypto, test_hmac_negative)
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_not_equal(0, memcmp(out_buf, hmac_sha256_result, hmac_params.digest_size));
 
+#if defined(CONFIG_SOC_NRF54L15)
+
 	hmac_params.algo = SID_PAL_HASH_SHA512;
 	hmac_params.digest_size = SHA512_SZ;
 	ret = sid_pal_crypto_hmac(&hmac_params);
 	zassert_equal(SID_ERROR_NONE, ret);
 	zassert_not_equal(0, memcmp(out_buf, hmac_sha512_result, hmac_params.digest_size));
+
+#endif /* CONFIG_SOC_NRF54L15 */
 }
 
 ZTEST(crypto, test_cmac_positive)
