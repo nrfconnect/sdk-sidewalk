@@ -28,5 +28,6 @@ config HEAP_MEM_POOL_SIZE
 config MBEDTLS_HEAP_SIZE
 	default 4096
 
+rsource "Kconfig.defconfig"
 source "Kconfig.zephyr"
 source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
