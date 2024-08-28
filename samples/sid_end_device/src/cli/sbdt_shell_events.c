@@ -59,7 +59,6 @@ void sbdt_event_print_params(sidewalk_ctx_t *sid, void *ctx)
 	struct sid_bulk_data_transfer_params params = {};
 	sid_error_t ret = sid_bulk_data_transfer_get_transfer_params(sid->handle, file_id, &params);
 	if (ret != SID_ERROR_NONE) {
-		// CMD_PRINT_RESULT(ret);
 		LOG_ERR("sid_bulk_data_transfer_get_transfer_params returned %d, (%s)", ret,
 			SID_ERROR_T_STR(ret));
 		return;
@@ -111,6 +110,10 @@ void sbdt_event_finalize_request_response(sidewalk_ctx_t *sid, void *ctx)
 	struct sbdt_finalize_resp_ctx *resp_event = (struct sbdt_finalize_resp_ctx *)ctx;
 	sid_error_t result = sid_bulk_data_transfer_finalize(sid->handle, resp_event->file_id,
 							     resp_event->finalize_response_action);
+	if (result != SID_ERROR_NONE) {
+		LOG_ERR("sid_bulk_data_transfer_finalize returned %d, (%s)", result,
+			SID_ERROR_T_STR(result));
+	}
 	LOG_INF("CMD: FINALIZE RESP:  ERR: %d", result);
 }
 
@@ -119,5 +122,9 @@ void sbdt_event_release_buffer(sidewalk_ctx_t *sid, void *ctx)
 	struct sbdt_buffer_release_ctx *release_event = ctx;
 	sid_error_t result = sid_bulk_data_transfer_release_buffer(
 		sid->handle, release_event->file_id, &release_event->transfer_buffer);
+	if (result != SID_ERROR_NONE) {
+		LOG_ERR("sid_bulk_data_transfer_release_buffer returned %d, (%s)", result,
+			SID_ERROR_T_STR(result));
+	}
 	LOG_INF("CMD: RELEASE BUFFER:  ERR: %d", result);
 }

@@ -39,7 +39,7 @@ void dut_event_init(sidewalk_ctx_t *sid, void *ctx)
 		return;
 	}
 	sid_error_t e = sid_init(&sid->config, &sid->handle);
-	LOG_INF("sid_init returned %d", e);
+	LOG_INF("sid_init returned %d (%s)", e, SID_ERROR_T_STR(e));
 	if (e != SID_ERROR_NONE) {
 		return;
 	}
