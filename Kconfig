@@ -213,6 +213,7 @@ config SIDEWALK_ON_DEV_CERT
 
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	bool "Enable psa crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
+	default SIDEWALK
 	select EXPERIMENTAL
 
 config SIDEWALK_PAL_RADIO_SOURCE

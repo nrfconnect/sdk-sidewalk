@@ -17,15 +17,29 @@
 #include <sid_crypto_keys.h>
 
 #define STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID 0
-#define STORAGE_KV_WAN_MASTER_KEY 28
-#define STORAGE_KV_APP_MASTER_KEY 30
-#define STORAGE_KV_D2D_MASTER_KEY 48
+#define STORAGE_KV_WAN_MASTER_KEY (28)
+#define STORAGE_KV_APP_MASTER_KEY (30)
+#define STORAGE_KV_D2D_MASTER_KEY (48)
+#define STORAGE_MASTER_KEY_SIZE (16)
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 #include <zephyr/logging/log.h>
 #include <settings_utils.h>
 
 LOG_MODULE_REGISTER(sid_storage, CONFIG_SIDEWALK_LOG_LEVEL);
+
+#define STORAGE_SERIAL_SIZE (32)
+
+static void settings_serialize_group(char *serial, size_t serial_size, uint16_t group)
+{
+	snprintf(serial, serial_size, "sidewalk/storage/%04x", group);
+}
+
+static void settings_serialize_group_key(char *serial, size_t serial_size, uint16_t group,
+					 uint16_t key)
+{
+	snprintf(serial, serial_size, "sidewalk/storage/%04x/%04x", group, key);
+}
 
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 static psa_key_id_t storage2key_id(uint16_t group, uint16_t key)
@@ -41,6 +55,37 @@ static psa_key_id_t storage2key_id(uint16_t group, uint16_t key)
 		}
 	}
 	return PSA_KEY_ID_NULL;
+}
+
+static void storage_key_save_secure(uint16_t group, uint16_t key)
+{
+	int err = 0;
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
+	uint8_t data[STORAGE_MASTER_KEY_SIZE];
+	psa_key_id_t key_id = storage2key_id(group, key);
+
+	settings_serialize_group_key(serial, sizeof(serial), group, key);
+	err = settings_utils_load_immediate_value(serial, (void *)data, STORAGE_MASTER_KEY_SIZE);
+	if (err == -ENOENT) {
+		LOG_DBG("not found key %04x", key);
+		return;
+	}
+	if (err < 0) {
+		LOG_ERR("load key %04x err %d", key, err);
+		return;
+	}
+
+	err = sid_crypto_keys_new_import(key_id, (void *)data, STORAGE_MASTER_KEY_SIZE);
+	if (err) {
+		LOG_ERR("crypto import %d err %d", key_id, err);
+		return;
+	}
+
+	err = settings_delete(serial);
+	if (err) {
+		LOG_ERR("delete key %04x err %d", key, err);
+		return;
+	}
 }
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
@@ -59,18 +104,15 @@ sid_error_t sid_pal_storage_kv_init()
 	}
 
 	LOG_DBG("Initialized KV storage");
+
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID, STORAGE_KV_WAN_MASTER_KEY);
+	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
+				STORAGE_KV_APP_MASTER_KEY);
+	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID, STORAGE_KV_D2D_MASTER_KEY);
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
+
 	return SID_ERROR_NONE;
-}
-
-static void settings_serialize_group(char *serial, size_t serial_size, uint16_t group)
-{
-	snprintf(serial, serial_size, "sidewalk/storage/%04x", group);
-}
-
-static void settings_serialize_group_key(char *serial, size_t serial_size, uint16_t group,
-					 uint16_t key)
-{
-	snprintf(serial, serial_size, "sidewalk/storage/%04x/%04x", group, key);
 }
 
 sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_data, uint32_t len)
@@ -92,12 +134,12 @@ sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_
 	}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
-	char serial[32] = { 0 };
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
 	settings_serialize_group_key(serial, sizeof(serial), group, key);
 	int rc = settings_utils_load_immediate_value(serial, p_data, len);
-	if (rc <= 0)
+	if (rc <= 0) {
 		return SID_ERROR_NOT_FOUND;
-	else
+	} else
 		return SID_ERROR_NONE;
 }
 
@@ -106,7 +148,7 @@ sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint
 	if (!p_len) {
 		return SID_ERROR_NULL_POINTER;
 	}
-	char serial[32] = { 0 };
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
 	settings_serialize_group_key(serial, sizeof(serial), group, key);
 	int rc = settings_utils_get_value_size(serial, p_len);
 	if (rc < 0 || *p_len == 0)
@@ -138,7 +180,7 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
 	}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
-	char serial[32] = { 0 };
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
 	settings_serialize_group_key(serial, sizeof(serial), group, key);
 
 	int rc = settings_save_one(serial, (const void *)p_data, len);
@@ -170,7 +212,7 @@ sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key)
 	}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
-	char serial[32] = { 0 };
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
 	settings_serialize_group_key(serial, sizeof(serial), group, key);
 	int rc = settings_delete(serial);
 	if (rc == 0) {
@@ -184,7 +226,7 @@ int delete_subtree_cb(const char *key, size_t len, settings_read_cb read_cb, voi
 		      void *param)
 {
 	char *subtree = (char *)param;
-	char serial[32] = { 0 };
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
 	snprintf(serial, sizeof(serial), "%s/%s", subtree, key);
 	int rc = settings_delete(serial);
 	if (rc != 0) {
@@ -196,6 +238,19 @@ int delete_subtree_cb(const char *key, size_t len, settings_read_cb read_cb, voi
 
 sid_error_t sid_pal_storage_kv_group_delete(uint16_t group)
 {
+	char serial[STORAGE_SERIAL_SIZE] = { 0 };
+	settings_serialize_group(serial, sizeof(serial), group);
+	int rc = settings_load_subtree_direct(serial, delete_subtree_cb, (void *)serial);
+	if (rc != 0) {
+		LOG_ERR("Failed to delete group. Returned errno %d", rc);
+		return SID_ERROR_STORAGE_ERASE_FAIL;
+	}
+	rc = settings_commit();
+	if (rc != 0) {
+		LOG_ERR("Failed to commit changes. Returned errno %d", rc);
+		return SID_ERROR_GENERIC;
+	}
+
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	bool key_delete_fail = false;
 	if (STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID == group) {
@@ -216,22 +271,6 @@ sid_error_t sid_pal_storage_kv_group_delete(uint16_t group)
 			key_delete_fail = true;
 		}
 	}
-#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
-
-	char serial[32] = { 0 };
-	settings_serialize_group(serial, sizeof(serial), group);
-	int rc = settings_load_subtree_direct(serial, delete_subtree_cb, (void *)serial);
-	if (rc != 0) {
-		LOG_ERR("Failed to delete group. Returned errno %d", rc);
-		return SID_ERROR_STORAGE_ERASE_FAIL;
-	}
-	rc = settings_commit();
-	if (rc != 0) {
-		LOG_ERR("Failed to commit changes. Returned errno %d", rc);
-		return SID_ERROR_GENERIC;
-	}
-
-#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	if (key_delete_fail) {
 		return SID_ERROR_STORAGE_ERASE_FAIL;
 	}
