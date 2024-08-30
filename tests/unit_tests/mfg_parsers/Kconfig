@@ -1,0 +1,18 @@
+#
+# Copyright (c) 2023 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config LOG
+	default false
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	bool "Enable psa crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
+
+source "${ZEPHYR_BASE}/../sidewalk/utils/Kconfig"
+source "Kconfig.zephyr"

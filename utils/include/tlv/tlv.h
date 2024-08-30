@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
+#ifndef TLV_H
+#define TLV_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -38,9 +40,13 @@ typedef struct tlv_ctx {
 		void *ctx;
 		tlv_storage_write_t write;
 		tlv_storage_read_t read;
-	} storage;
-	uint32_t first_entry_offset;
-	uint32_t last_valid_offset;
+	} storage_impl;
+	/*starting offset of the tlv memory region, including storage marker*/
+	uint32_t start_offset;
+	/*first offset outside valid memory range, that can not be written*/
+	uint32_t end_offset;
+	/* size of starting marker, after the marker the first tlv entry is stored.*/
+	uint32_t tlv_storage_start_marker_size;
 } tlv_ctx;
 
 typedef uint16_t tlv_type;
@@ -53,6 +59,28 @@ typedef struct {
 	tlv_type type;
 	tlv_size payload_size;
 } tlv_header;
+
+/**
+ * @brief read the header of the TLV storage
+ *        The header usually contains some magic value that signal start of data
+ * 
+ * @param ctx tlv context
+ * @param data [OUT] content of header
+ * @param data_size size of the header to read, need to match the size passed in ctx
+ * @return int 0 on success, negative in case of error
+ */
+int tlv_read_start_marker(tlv_ctx *ctx, uint8_t *data, uint8_t data_size);
+
+/**
+ * @brief Write the header of the TLV storage
+ *        The header usually contains some magic value that signal start of data
+ * 
+ * @param ctx tlv context
+ * @param data [IN] content of header
+ * @param data_size size of the header to read, need to match the size passed in ctx
+ * @return int 0 on success, negative in case of error
+ */
+int tlv_write_start_marker(tlv_ctx *ctx, uint8_t *data, uint8_t data_size);
 
 /**
  * @brief Find TLV header
@@ -94,4 +122,6 @@ int tlv_read(tlv_ctx *ctx, tlv_type type, uint8_t *data, uint16_t data_size);
  *   -ENOMEM when can not fit data in storage
  *   other errors are passed from storage handlers. 
  */
-int tlv_write(tlv_ctx *ctx, tlv_type type, uint8_t *data, uint16_t data_size);
+int tlv_write(tlv_ctx *ctx, tlv_type type, const uint8_t *data, uint16_t data_size);
+
+#endif

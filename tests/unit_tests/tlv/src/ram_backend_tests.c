@@ -18,43 +18,50 @@
 
 uint8_t TLV_RAM_STORAGE[64] = { 0 };
 
-tlv_ctx RAM_TLV_OBJECT = (tlv_ctx){ .first_entry_offset = 0,
-				    .last_valid_offset = sizeof(TLV_RAM_STORAGE),
-				    .storage = { .ctx = TLV_RAM_STORAGE,
-						 .read = tlv_storage_ram_read,
-						 .write = tlv_storage_ram_write } };
+tlv_ctx RAM_TLV_OBJECT = (tlv_ctx){ .start_offset = 0,
+				    .end_offset = sizeof(TLV_RAM_STORAGE),
+				    .storage_impl = { .ctx = TLV_RAM_STORAGE,
+						      .read = tlv_storage_ram_read,
+						      .write = tlv_storage_ram_write } };
+
+tlv_ctx RAM_TLV_OBJECT_WITH_MAGIC = (tlv_ctx){ .start_offset = 0,
+					       .end_offset = sizeof(TLV_RAM_STORAGE),
+					       .tlv_storage_start_marker_size = 8,
+					       .storage_impl = { .ctx = TLV_RAM_STORAGE,
+								 .read = tlv_storage_ram_read,
+								 .write = tlv_storage_ram_write } };
 
 tlv_ctx RAM_TLV_OBJECT_NO_WRITE = (tlv_ctx){
-	.first_entry_offset = 0,
-	.last_valid_offset = sizeof(TLV_RAM_STORAGE),
-	.storage = { .ctx = TLV_RAM_STORAGE, .read = tlv_storage_ram_read, .write = NULL }
+	.start_offset = 0,
+	.end_offset = sizeof(TLV_RAM_STORAGE),
+	.storage_impl = { .ctx = TLV_RAM_STORAGE, .read = tlv_storage_ram_read, .write = NULL }
 };
 
 tlv_ctx RAM_TLV_OBJECT_NO_READ = (tlv_ctx){
-	.first_entry_offset = 0,
-	.last_valid_offset = sizeof(TLV_RAM_STORAGE),
-	.storage = { .ctx = TLV_RAM_STORAGE, .read = NULL, .write = tlv_storage_ram_write }
+	.start_offset = 0,
+	.end_offset = sizeof(TLV_RAM_STORAGE),
+	.storage_impl = { .ctx = TLV_RAM_STORAGE, .read = NULL, .write = tlv_storage_ram_write }
 };
 
-tlv_ctx RAM_TLV_OBJECT_OFFSET = (tlv_ctx){ .first_entry_offset = 3,
-					   .last_valid_offset = sizeof(TLV_RAM_STORAGE),
-					   .storage = { .ctx = TLV_RAM_STORAGE,
-							.read = tlv_storage_ram_read,
-							.write = tlv_storage_ram_write } };
+tlv_ctx RAM_TLV_OBJECT_OFFSET = (tlv_ctx){ .start_offset = 3,
+					   .end_offset = sizeof(TLV_RAM_STORAGE),
+					   .storage_impl = { .ctx = TLV_RAM_STORAGE,
+							     .read = tlv_storage_ram_read,
+							     .write = tlv_storage_ram_write } };
 
 tlv_ctx RAM_TLV_OBJECT_LAST_OFFSET_LE_FIRST =
-	(tlv_ctx){ .first_entry_offset = 0,
-		   .last_valid_offset = 0,
-		   .storage = { .ctx = TLV_RAM_STORAGE,
-				.read = tlv_storage_ram_read,
-				.write = tlv_storage_ram_write } };
+	(tlv_ctx){ .start_offset = 0,
+		   .end_offset = 0,
+		   .storage_impl = { .ctx = TLV_RAM_STORAGE,
+				     .read = tlv_storage_ram_read,
+				     .write = tlv_storage_ram_write } };
 
 tlv_ctx RAM_TLV_OBJECT_LAST_OFFSET_ONLY_HEADER =
-	(tlv_ctx){ .first_entry_offset = 0,
-		   .last_valid_offset = 5,
-		   .storage = { .ctx = TLV_RAM_STORAGE,
-				.read = tlv_storage_ram_read,
-				.write = tlv_storage_ram_write } };
+	(tlv_ctx){ .start_offset = 0,
+		   .end_offset = 5,
+		   .storage_impl = { .ctx = TLV_RAM_STORAGE,
+				     .read = tlv_storage_ram_read,
+				     .write = tlv_storage_ram_write } };
 
 /**
  * @brief Set up for test.
@@ -87,6 +94,13 @@ static void test_tlv_lookup(struct test_tlv_lookup_parameters parameters)
 	int ret = tlv_lookup(&parameters.tlv, parameters.tlv_type, &header);
 	zassert_equal(ret, parameters.expected_return);
 	zassert_mem_equal(&header, &parameters.header, sizeof(header));
+}
+
+static void test_tlv_lookup_no_header(struct test_tlv_lookup_parameters parameters)
+{
+	memcpy(TLV_RAM_STORAGE, parameters.initial_storage_content, 64);
+	int ret = tlv_lookup(&parameters.tlv, parameters.tlv_type, NULL);
+	zassert_equal(ret, parameters.expected_return);
 }
 
 struct test_tlv_read_parameters {
@@ -126,6 +140,40 @@ static void test_tlv_write(struct test_tlv_write_parameters parameters)
 	zassert_mem_equal(TLV_RAM_STORAGE, parameters.final_storage_content, 64);
 }
 
+struct test_tlv_read_start_marker_parameters {
+	int expected_return;
+	tlv_ctx tlv;
+	uint8_t expect_read_data[64];
+	uint8_t read_size;
+	uint8_t initial_storage_content[64];
+};
+
+static void test_tlv_read_start_marker(struct test_tlv_read_start_marker_parameters parameters)
+{
+	memcpy(TLV_RAM_STORAGE, parameters.initial_storage_content, 64);
+	uint8_t read_data[64] = { 0 };
+	int ret = tlv_read_start_marker(&parameters.tlv, read_data, parameters.read_size);
+	zassert_equal(ret, parameters.expected_return);
+	zassert_mem_equal(read_data, parameters.expect_read_data, parameters.read_size);
+}
+
+struct test_tlv_write_start_marker_parameters {
+	int expected_return;
+	tlv_ctx tlv;
+	uint8_t write_data[64];
+	uint8_t write_size;
+	uint8_t initial_storage_content[64];
+	uint8_t final_storage_content[64];
+};
+
+static void test_tlv_write_start_marker(struct test_tlv_write_start_marker_parameters parameters)
+{
+	memcpy(TLV_RAM_STORAGE, parameters.initial_storage_content, 64);
+	int ret = tlv_write_start_marker(&parameters.tlv, parameters.write_data,
+					 parameters.write_size);
+	zassert_equal(ret, parameters.expected_return);
+	zassert_mem_equal(TLV_RAM_STORAGE, parameters.final_storage_content, 64);
+}
 /* tlv lookup */
 PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_0_ram_empty, test_tlv_lookup,
 		  (struct test_tlv_lookup_parameters){
@@ -136,6 +184,11 @@ PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_0_ram_empty, test_tlv_lookup,
 				      .payload_size = { .data_size = 0, .padding = 0 } } })
 
 PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_0xff_ram_empty, test_tlv_lookup,
+		  (struct test_tlv_lookup_parameters){ .tlv = RAM_TLV_OBJECT,
+						       .tlv_type = 0xFF,
+						       .expected_return = -ENODATA })
+
+PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_0xff_ram_empty_no_header, test_tlv_lookup_no_header,
 		  (struct test_tlv_lookup_parameters){ .tlv = RAM_TLV_OBJECT,
 						       .tlv_type = 0xFF,
 						       .expected_return = -ENODATA })
@@ -177,6 +230,14 @@ PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_1_filled, test_tlv_lookup,
 			  .expected_return = 0,
 			  .header = { .type = 1,
 				      .payload_size = { .padding = 0, .data_size = 4 } } })
+
+PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_1_filled_no_header, test_tlv_lookup_no_header,
+		  (struct test_tlv_lookup_parameters){
+			  .tlv = RAM_TLV_OBJECT,
+			  .initial_storage_content = { 0x0, 0x1, 0x0, 0x4, 0x1, 0x2, 0x3, 0x4 },
+			  .tlv_type = 1,
+			  .expected_return = 0,
+		  })
 
 PARAMETRIZED_TEST(valid_ctx, test_tlv_lookup_0xff_filled, test_tlv_lookup,
 		  (struct test_tlv_lookup_parameters){
@@ -361,7 +422,71 @@ PARAMETRIZED_TEST(valid_ctx, test_tlv_write_floded_ff, test_tlv_write,
 			  .final_storage_content = { 0x01, 0x1, 0x0, 0x4, 0x1, 0x2, 0x3, 0x4,
 						     [8 ... 63] = 0xff } })
 
+PARAMETRIZED_TEST(valid_ctx, test_tlv_write_floded_ff_magic, test_tlv_write,
+		  (struct test_tlv_write_parameters){
+			  .tlv = RAM_TLV_OBJECT_WITH_MAGIC,
+			  .initial_storage_content = { [0 ... 63] = 0xff },
+			  .tlv_type = 0x101,
+			  .expected_return = 0,
+			  .write_data = { 0x1, 0x2, 0x3, 0x4 },
+			  .write_size = 4,
+			  .final_storage_content = { [0 ... 7] = 0xff,
+						     0x01,
+						     0x1,
+						     0x0,
+						     0x4,
+						     0x1,
+						     0x2,
+						     0x3,
+						     0x4,
+						     [16 ... 63] = 0xff } })
+
+PARAMETRIZED_TEST(valid_ctx, test_tlv_read_start_marker_real, test_tlv_read_start_marker,
+		  (struct test_tlv_read_start_marker_parameters){
+			  .tlv = RAM_TLV_OBJECT_WITH_MAGIC,
+			  .initial_storage_content = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00,
+						       0x08, [8 ... 63] = 0xff },
+			  .expected_return = 0,
+			  .expect_read_data = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00, 0x08 },
+			  .read_size = 8 })
+
+PARAMETRIZED_TEST(valid_ctx, test_tlv_write_start_marker_real, test_tlv_write_start_marker,
+		  (struct test_tlv_write_start_marker_parameters){
+			  .tlv = RAM_TLV_OBJECT_WITH_MAGIC,
+			  .initial_storage_content = { [0 ... 63] = 0xff },
+			  .write_data = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00, 0x08 },
+			  .write_size = 8,
+			  .expected_return = 0,
+			  .final_storage_content = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00, 0x08,
+						     [8 ... 63] = 0xff } })
+
+PARAMETRIZED_TEST(valid_ctx, test_tlv_read_start_marker_real_nomem, test_tlv_read_start_marker,
+		  (struct test_tlv_read_start_marker_parameters){
+			  .tlv = RAM_TLV_OBJECT_WITH_MAGIC,
+			  .initial_storage_content = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00,
+						       0x08, [8 ... 63] = 0xff },
+			  .expected_return = -ENOMEM,
+			  .expect_read_data = { 0x0 },
+			  .read_size = 5 })
+
+PARAMETRIZED_TEST(valid_ctx, test_tlv_write_start_marker_real_nomem, test_tlv_write_start_marker,
+		  (struct test_tlv_write_start_marker_parameters){
+			  .tlv = RAM_TLV_OBJECT_WITH_MAGIC,
+			  .initial_storage_content = { [0 ... 63] = 0xff },
+			  .write_data = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00, 0x08 },
+			  .write_size = 12,
+			  .expected_return = -ENOMEM,
+			  .final_storage_content = { [0 ... 63] = 0xff } })
 /* ctx not fully provided */
+
+PARAMETRIZED_TEST(missing_read, test_tlv_read_start_marker_real, test_tlv_read_start_marker,
+		  (struct test_tlv_read_start_marker_parameters){
+			  .tlv = RAM_TLV_OBJECT_NO_READ,
+			  .initial_storage_content = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00,
+						       0x08, [8 ... 63] = 0xff },
+			  .expected_return = -EINVAL,
+			  .expect_read_data = { 0 },
+			  .read_size = 8 })
 
 PARAMETRIZED_TEST(missing_read, test_tlv_lookup_1_filled, test_tlv_lookup,
 		  (struct test_tlv_lookup_parameters){
@@ -391,6 +516,15 @@ PARAMETRIZED_TEST(missing_read, test_tlv_write_empty, test_tlv_write,
 			  .write_data = { 0x1, 0x2, 0x3 },
 			  .write_size = 3,
 		  })
+
+PARAMETRIZED_TEST(missing_write, test_tlv_write_start_marker_real, test_tlv_write_start_marker,
+		  (struct test_tlv_write_start_marker_parameters){
+			  .tlv = RAM_TLV_OBJECT_NO_WRITE,
+			  .initial_storage_content = { [0 ... 63] = 0xff },
+			  .write_data = { 0x53, 0x49, 0x44, 0x30, 0x00, 0x00, 0x00, 0x08 },
+			  .write_size = 8,
+			  .expected_return = -EINVAL,
+			  .final_storage_content = { [0 ... 63] = 0xff } })
 
 PARAMETRIZED_TEST(missing_write, test_tlv_lookup_1_filled, test_tlv_lookup,
 		  (struct test_tlv_lookup_parameters){

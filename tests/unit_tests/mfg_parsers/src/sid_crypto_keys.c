@@ -3,33 +3,16 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-
-#ifndef SID_CRYPTO_KEYS_H
-#define SID_CRYPTO_KEYS_H
-
-#include <psa/crypto.h>
-
-#define SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(_id)                                                    \
-	(PSA_KEY_ID_USER_MIN <= _id && _id < SID_CRYPTO_KEY_ID_LAST)
-
-/**
- * @brief Persistent psa key ids used in Sidewalk.
- */
-typedef enum {
-	SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID = PSA_KEY_ID_USER_MIN,
-	SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID,
-	SID_CRYPTO_KV_WAN_MASTER_KEY_ID,
-	SID_CRYPTO_KV_APP_KEY_KEY_ID,
-	SID_CRYPTO_KV_D2D_KEY_ID,
-	SID_CRYPTO_KEY_ID_LAST
-} sid_crypto_key_id_t;
-
+#include <sid_crypto_keys.h>
 /**
  * @brief Init secure key storage for Sidewalk keys.
  * 
  * @return 0 on success, or -errno on failure.
  */
-int sid_crypto_keys_init(void);
+int sid_crypto_keys_init(void)
+{
+	return 0;
+}
 
 /**
  * @brief Import key value form buffer.
@@ -41,7 +24,10 @@ int sid_crypto_keys_init(void);
  * @param size [in] size of raw key data buffer.
  * @return 0 on success, or -errno on failure.
  */
-int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size);
+int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size)
+{
+	return 0;
+}
 
 /**
  * @brief Generate a new key value.
@@ -53,7 +39,10 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size);
  * @param puk_size [in] Size of buffer with rew kay value.
  * @return 0 on success, or -errno on failure.
  */
-int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size);
+int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
+{
+	return 0;
+}
 
 /**
  * @brief Set key id in buffer.
@@ -63,7 +52,10 @@ int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
  * @param size [in] size of raw key data buffer.
  * @return 0 on success, or -errno on failure.
  */
-int sid_crypto_keys_buffer_set(psa_key_id_t id, uint8_t *buffer, size_t size);
+int sid_crypto_keys_buffer_set(psa_key_id_t id, uint8_t *buffer, size_t size)
+{
+	return 0;
+}
 
 /**
  * @brief Get key id from buffer.
@@ -75,7 +67,10 @@ int sid_crypto_keys_buffer_set(psa_key_id_t id, uint8_t *buffer, size_t size);
  * @return 0 on success, or -errno on failure.
  *  -ENOENT - if no key in buffer.
  */
-int sid_crypto_keys_buffer_get(psa_key_id_t *id, uint8_t *buffer, size_t size);
+int sid_crypto_keys_buffer_get(psa_key_id_t *id, uint8_t *buffer, size_t size)
+{
+	return 0;
+}
 
 /**
  * @brief Destroy key.
@@ -85,13 +80,17 @@ int sid_crypto_keys_buffer_get(psa_key_id_t *id, uint8_t *buffer, size_t size);
  * @param id [in] psa key id to be permanently removed.
  * @return 0 on success, or -errno on failure.
  */
-int sid_crypto_keys_delete(psa_key_id_t id);
+int sid_crypto_keys_delete(psa_key_id_t id)
+{
+	return 0;
+}
 
 /**
  * @brief Deinit sidewalk key storage.
  * 
  * @return 0 on success, or -errno on failure. 
  */
-int sid_crypto_keys_deinit(void);
-
-#endif /* SID_CRYPTO_KEYS_H */
+int sid_crypto_keys_deinit(void)
+{
+	return 0;
+}

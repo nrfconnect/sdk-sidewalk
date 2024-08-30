@@ -11,6 +11,7 @@ int tlv_storage_flash_write(void *ctx, uint32_t offset, uint8_t *data, uint32_t 
 	if (flash_dev == NULL) {
 		return -ENODEV;
 	}
+	flash_erase(flash_dev, offset, data_size);
 	return flash_write(flash_dev, offset, data, data_size);
 }
 

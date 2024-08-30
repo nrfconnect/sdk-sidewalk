@@ -25,7 +25,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/_stdint.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/sys/byteorder.h>
@@ -640,17 +639,7 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		goto exit;
 	}
 
-	/*
-     * First of all, we need to write the MFG version.
-     * This will determine the storage format: static offsets or TLV
-     */
-	uint32_t mfg_version;
-
-	if (sid_pal_mfg_store_is_tlv_support()) {
-		mfg_version = sid_htonl(SID_PAL_MFG_STORE_TLV_VERSION);
-	} else {
-		mfg_version = sid_htonl(SID_PAL_MFG_STORE_FIXED_OFFSETS_VERSION);
-	}
+	uint32_t mfg_version = sid_htonl(SID_PAL_MFG_STORE_TLV_VERSION);
 
 	result = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, (uint8_t *)&mfg_version,
 					 SID_PAL_MFG_STORE_VERSION_SIZE);
@@ -661,24 +650,23 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		goto exit;
 	}
 
-#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-	memset(context->device_ed25519_prk, 0, SID_ODC_ED25519_PRK_SIZE);
-	memset(context->device_p256r1_prk, 0, SID_ODC_P256R1_PRK_SIZE);
-#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
-
 	status = write_to_mfg_store(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_APID, context->apid,
 				    SID_PAL_MFG_STORE_APID_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
 				    SID_ODC_ED25519_PUK_SIZE) &&
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
 				    context->device_ed25519_prk, SID_ODC_ED25519_PRK_SIZE) &&
+#endif
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,
 				    context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
 				    context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE) &&
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,
 				    context->device_p256r1_prk, SID_ODC_P256R1_PRK_SIZE) &&
+#endif
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, context->device_p256r1_puk,
 				    SID_ODC_P256R1_PUK_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,

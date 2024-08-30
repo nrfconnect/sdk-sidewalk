@@ -7,7 +7,10 @@
 #ifndef SID_CRYPTO_KEYS_H
 #define SID_CRYPTO_KEYS_H
 
-#include <psa/crypto.h>
+#include <stdint.h>
+#include <stddef.h>
+#define PSA_KEY_ID_USER_MIN 0
+typedef int psa_key_id_t;
 
 #define SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(_id)                                                    \
 	(PSA_KEY_ID_USER_MIN <= _id && _id < SID_CRYPTO_KEY_ID_LAST)

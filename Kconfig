@@ -11,6 +11,8 @@ menuconfig SIDEWALK
 if SIDEWALK
 
 # General
+config MAIN_STACK_SIZE
+	default 2048
 
 config SIDEWALK_SUBGHZ_SUPPORT
 	bool "Enable Sub-GHz link type support in Sidewalk libraries"
@@ -84,8 +86,8 @@ config SIDEWALK_THREAD_PRIORITY
 
 config SIDEWALK_HEAP_SIZE
 	int "Heap size for Sidewalk utils"
-	default 1024 if SIDEWALK_ACE_OSAL_ZEPHYR
-	default 0
+	default 5120 if SIDEWALK_ACE_OSAL_ZEPHYR
+	default 4096
 	help
 	  Set the heap size for dynamic memory alocation in Sidewalk.
 
@@ -211,6 +213,20 @@ config SIDEWALK_ON_DEV_CERT
 	bool "Enable Sidewalk on device certification"
 	depends on SHELL
 
+config DEPRECATED_SIDEWALK_MFG_STORAGE
+	bool "Enable previous implementation of manufacturing module [DEPREACATED]"
+	imply FLASH
+	help
+	  Previous Sidewalk manufacturing storage module
+	  This implementation is DEPRECATED
+
+config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
+	bool "Enable support for old Sidewalk manufaturing hex format"
+	help
+	  Sidewalk manifactuing module uses version 8, with tlv format
+	  Old fromats - version7 and before, are based on memory offsets
+	  and will be supported after enablig this configuration
+
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	bool "Enable psa crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
 	default SIDEWALK
@@ -224,3 +240,7 @@ rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
 
 endif # SIDEWALK
+
+config SIDEWALK_MFG_PARSER_MAX_ELEMENT_SIZE
+	int "Max size of element in MFG"
+	default 64

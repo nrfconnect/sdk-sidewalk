@@ -10,9 +10,9 @@ zephyr_library_sources(
     tlv.c
 )
 
-zephyr_library_sources_ifdef(SIDEWALK_TLV_FLASH
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TLV_FLASH
     tlv_flash_storage_impl.c
 )
-zephyr_library_sources_ifdef(SIDEWALK_TLV_RAM
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TLV_RAM
     tlv_ram_storage_impl.c
 )
