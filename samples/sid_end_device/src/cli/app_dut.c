@@ -31,7 +31,7 @@ static uint32_t dut_ctx_get_uint32(void *ctx)
 void dut_event_init(sidewalk_ctx_t *sid, void *ctx)
 {
 	sid->config.link_mask = dut_ctx_get_uint32(ctx);
-	if (app_mfg_cfg_is_valid()) {
+	if (app_mfg_cfg_is_empty()) {
 		LOG_ERR("The mfg.hex version mismatch");
 		LOG_ERR("Check if the file has been generated and flashed properly");
 		LOG_ERR("START ADDRESS: 0x%08x", APP_MFG_CFG_FLASH_START);

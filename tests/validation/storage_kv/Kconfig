@@ -4,4 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+config SIDEWALK_MFG_STORAGE
+        default n
+
 source "Kconfig.zephyr"

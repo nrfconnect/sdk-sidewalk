@@ -60,3 +60,10 @@ tests:
     extra_args:
       OVERLAY_CONFIG="overlay-dut.conf"
     tags: Sidewalk cli
+
+  sample.sidewalk.dut.no_secure:
+    extra_args:
+      OVERLAY_CONFIG="overlay-dut.conf"
+    extra_configs:
+      - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=n
+    tags: Sidewalk cli no_secure

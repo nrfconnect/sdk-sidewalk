@@ -18,7 +18,7 @@
 
 #define EMPTY_MFG_HEX_PARTITION (0xFFFFFFFF)
 
-static inline bool app_mfg_cfg_is_valid(void)
+static inline bool app_mfg_cfg_is_empty(void)
 {
 	return sid_pal_mfg_store_get_version() == EMPTY_MFG_HEX_PARTITION;
 }

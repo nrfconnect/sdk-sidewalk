@@ -115,26 +115,23 @@ config SIDEWALK_LOG
 	help
 	  Sidewalk log module
 
-config SIDEWALK_GENERATE_VERSION_MINIMAL
-	bool
-	default SIDEWALK
-	help
-	  Generate minimal information of application version (sidewalk, zephyr, nrf).
-	  In order to generate full version report from all modules set this config to `N`.
-
 config SIDEWALK_MFG_STORAGE
 	bool
-	default SIDEWALK
+	default SIDEWALK && !DEPRECATED_SIDEWALK_MFG_STORAGE
 	imply FLASH
+	imply FPROTECT
+	imply SIDEWALK_TLV
+	imply SIDEWALK_TLV_FLASH
+	imply SIDEWALK_TLV_RAM
 	help
 	  Sidewalk manufacturing storage module
+	  Supports: tlv parser, secure key storage and memory protection
 
-config SIDEWALK_MFG_STORAGE_WRITE
+config SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 	bool
-	default SIDEWALK_ON_DEV_CERT
-	depends on SIDEWALK_MFG_STORAGE
+	depends on SIDEWALK_MFG_STORAGE || DEPRECATED_SIDEWALK_MFG_STORAGE
 	help
-	  Enable write functionality to mfg storage
+	  Enable mfg storage diagnostic functionalities
 
 config SIDEWALK_STORAGE
 	bool
