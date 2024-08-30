@@ -19,6 +19,10 @@
 #include <sid_pal_crypto_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
 
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+#include <sid_crypto_keys.h>
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
+
 #include <stdlib.h>
 #include <string.h>
 #include <sys/_stdint.h>
@@ -337,7 +341,23 @@ sid_error_t sid_on_dev_cert_generate_csr(enum sid_on_dev_cert_algo_type algo, ui
 	}
 
 	// Generate key pair
-	if ((ret = sid_pal_crypto_ecc_key_gen(&key_params)) == SID_ERROR_NONE) {
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	ret = SID_ERROR_GENERIC;
+	psa_key_id_t key_id =
+		(algo == SID_ODC_CRYPT_ALGO_ED25519) ? SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID :
+		(algo == SID_ODC_CRYPT_ALGO_P256R1)  ? SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID :
+						       PSA_KEY_ID_NULL;
+	int err = sid_crypto_keys_new_generate(key_id, key_params.puk, key_params.puk_size);
+	if (!err) {
+		err = sid_crypto_keys_buffer_set(key_id, key_params.prk, key_params.prk_size);
+		if (!err) {
+			ret = SID_ERROR_NONE;
+		}
+	}
+#else
+	ret = sid_pal_crypto_ecc_key_gen(&key_params);
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
+	if (ret == SID_ERROR_NONE) {
 		/*
         * Signing the certificate CSR
         * Message_to_sign = Public key || SMSN
@@ -640,6 +660,11 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		ret = SID_ERROR_NOSUPPORT;
 		goto exit;
 	}
+
+#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	memset(context->device_ed25519_prk, 0, SID_ODC_ED25519_PRK_SIZE);
+	memset(context->device_p256r1_prk, 0, SID_ODC_P256R1_PRK_SIZE);
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 	status = write_to_mfg_store(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_APID, context->apid,

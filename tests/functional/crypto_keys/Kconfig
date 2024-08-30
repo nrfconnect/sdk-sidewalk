@@ -12,6 +12,9 @@ config SIDEWALK_CRYPTO
 config SIDEWALK_STORAGE
 	default y
 
+config SIDEWALK_SETTINGS_UTILS
+	default y
+
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	default y
 
@@ -34,5 +37,6 @@ config HEAP_MEM_POOL_SIZE
 config MBEDTLS_HEAP_SIZE
 	default 4096
 
+rsource "Kconfig.defconfig"
 source "Kconfig.zephyr"
 source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
