@@ -23,6 +23,9 @@
 #include <sid_sdk_version.h>
 #include <sidewalk_version.h>
 #include <sidewalk.h>
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+#include <sidewalk_dfu/nordic_dfu.h>
+#endif
 
 #define CLI_CMD_OPT_LINK_BLE 1
 #define CLI_CMD_OPT_LINK_FSK 2
@@ -77,6 +80,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services,
+	SHELL_CMD_ARG(nordic_dfu, NULL, CMD_NORDIC_DFU_DESCRIPTION, cmd_nordic_dfu,
+		      CMD_NORDIC_DFU_ARG_REQUIRED, CMD_NORDIC_DFU_ARG_OPTIONAL),
 	SHELL_CMD_ARG(init, NULL, CMD_SID_INIT_DESCRIPTION, cmd_sid_init, CMD_SID_INIT_ARG_REQUIRED,
 		      CMD_SID_INIT_ARG_OPTIONAL),
 	SHELL_CMD_ARG(deinit, NULL, CMD_SID_DEINIT_DESCRIPTION, cmd_sid_deinit,
@@ -282,7 +287,23 @@ static int cmd_sid_simple_param(event_handler_t event, uint32_t *data)
 	}
 	return 0;
 }
+static void app_event_enter_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
+{
+	int err = -ENOTSUP;
+	shell_info((const struct shell *)ctx, "Entering into DFU mode");
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	err = nordic_dfu_ble_start();
+#endif
+	if (err) {
+		shell_error((const struct shell *)ctx, "dfu start err %d", err);
+	}
+}
 // shell handlers
+int cmd_nordic_dfu(const struct shell *shell, int32_t argc, const char **argv)
+{
+	sidewalk_event_send(app_event_enter_dfu_mode, (void *)shell, NULL);
+	return 0;
+}
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv)
 {

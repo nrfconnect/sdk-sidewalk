@@ -11,6 +11,10 @@
 #include <zephyr/shell/shell.h>
 #include <sid_api.h>
 
+#define CMD_NORDIC_DFU_DESCRIPTION                                                                 \
+	"Start BLE SMP service for DFU\n"                                                          \
+	"Make sure that sidewalk is deinitialized before use, or the DFU may fail during transfer!"
+
 #define CMD_SID_INIT_DESCRIPTION                                                                   \
 	"<1,2,3,4,5,6,7,8>\n"                                                                      \
 	"initialize the sidewalk stack, 1 is SID_LINK_TYPE_1 (BLE)\n"                              \
@@ -182,6 +186,9 @@
 
 #define CMD_SID_SDK_CONFIG_DESCRIPTION "Print sid sdk config"
 
+#define CMD_NORDIC_DFU_ARG_REQUIRED 1
+#define CMD_NORDIC_DFU_ARG_OPTIONAL 0
+
 #define CMD_SID_INIT_ARG_REQUIRED 2
 #define CMD_SID_INIT_ARG_OPTIONAL 0
 #define CMD_SID_DEINIT_ARG_REQUIRED 1
@@ -228,6 +235,8 @@
 #define CMD_SID_SDK_VERSION_DESCRIPTION_ARG_OPTIONAL 0
 #define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED 1
 #define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL 0
+
+int cmd_nordic_dfu(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv);
