@@ -30,6 +30,7 @@
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/logging/log.h>
+#include <sid_mfg_hex_parsers.h>
 
 LOG_MODULE_REGISTER(sid_dev_cert, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -639,13 +640,14 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		goto exit;
 	}
 
-	uint32_t mfg_version = sid_htonl(SID_PAL_MFG_STORE_TLV_VERSION);
+	uint8_t mfg_version[SID_PAL_MFG_STORE_VERSION_SIZE] = { 0x00, 0x00, 0x00,
+								SID_PAL_MFG_STORE_TLV_VERSION };
 
-	result = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, (uint8_t *)&mfg_version,
+	result = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, mfg_version,
 					 SID_PAL_MFG_STORE_VERSION_SIZE);
 
 	if (result) {
-		LOG_ERR("MFG version %ld is not supported", sid_htonl(mfg_version));
+		LOG_ERR("Failed to write mfg version");
 		ret = SID_ERROR_NOSUPPORT;
 		goto exit;
 	}
@@ -655,7 +657,7 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 				    SID_PAL_MFG_STORE_APID_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
 				    SID_ODC_ED25519_PUK_SIZE) &&
-#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+#if !CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
 				    context->device_ed25519_prk, SID_ODC_ED25519_PRK_SIZE) &&
 #endif
@@ -663,7 +665,7 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 				    context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE) &&
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
 				    context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE) &&
-#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+#if !CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,
 				    context->device_p256r1_prk, SID_ODC_P256R1_PRK_SIZE) &&
 #endif
@@ -761,6 +763,18 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 				    context->cert_p256r1[CERT_AMZN].pub_key,
 				    SID_ODC_P256R1_PUK_SIZE);
 
+	if (!status) {
+		ret = SID_ERROR_STORAGE_WRITE_FAIL;
+		goto exit;
+	}
+
+	struct mfg_flags flags = {
+		.initialized = 1,
+#if CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+		.keys_in_psa = 1,
+#endif
+	};
+	status = write_to_mfg_store(MFG_FLAGS_TYPE_ID, (uint8_t *)&flags, sizeof(flags));
 	if (!status) {
 		ret = SID_ERROR_STORAGE_WRITE_FAIL;
 		goto exit;
