@@ -34,7 +34,7 @@ int tlv_lookup(tlv_ctx *ctx, tlv_type type, tlv_header *lookup_data)
 
 	for (uint32_t offset = ctx->start_offset + ctx->tlv_storage_start_marker_size;
 	     (offset + sizeof(tlv_header)) <= ctx->end_offset;) {
-		uint8_t header_raw[4];
+		uint8_t header_raw[4] = { 0 };
 		int ret = ctx->storage_impl.read(ctx->storage_impl.ctx, offset, header_raw,
 						 sizeof(header_raw));
 		if (ret != 0) {
@@ -62,7 +62,7 @@ int tlv_read(tlv_ctx *ctx, tlv_type type, uint8_t *data, uint16_t data_size)
 
 	for (uint32_t offset = ctx->start_offset + ctx->tlv_storage_start_marker_size;
 	     (offset + sizeof(tlv_header)) <= ctx->end_offset;) {
-		uint8_t header_raw[4];
+		uint8_t header_raw[4] = { 0 };
 		int ret = ctx->storage_impl.read(ctx->storage_impl.ctx, offset, header_raw,
 						 sizeof(header_raw));
 		if (ret != 0) {
@@ -95,7 +95,7 @@ static uint32_t get_next_free_offset(tlv_ctx *ctx)
 	}
 	for (uint32_t offset = ctx->start_offset + ctx->tlv_storage_start_marker_size;
 	     offset <= ctx->end_offset;) {
-		uint8_t header_raw[4];
+		uint8_t header_raw[4] = { 0 };
 		int ret = ctx->storage_impl.read(ctx->storage_impl.ctx, offset, header_raw,
 						 sizeof(header_raw));
 		if (ret != 0) {

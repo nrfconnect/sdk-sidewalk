@@ -57,8 +57,8 @@ int parse_mfg_raw_tlv(tlv_ctx *tlv)
 
 	uint8_t payload_buffer[CONFIG_SIDEWALK_MFG_PARSER_MAX_ELEMENT_SIZE] = { 0 };
 	for (; offset < tlv->end_offset;) {
-		uint8_t key[2];
-		uint8_t size[2];
+		uint8_t key[2] = { 0 };
+		uint8_t size[2] = { 0 };
 		int ret = tlv->storage_impl.read(tlv->storage_impl.ctx, offset, key, sizeof(key));
 		if (ret != 0) {
 			LOG_ERR("Failed to read data");
