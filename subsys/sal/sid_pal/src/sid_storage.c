@@ -106,9 +106,13 @@ sid_error_t sid_pal_storage_kv_init()
 	LOG_DBG("Initialized KV storage");
 
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	int ret = sid_crypto_keys_init();
+	if (ret != 0) {
+		LOG_ERR("Failed to initialize crypto_keys_storage returned errno %d", ret);
+		return SID_ERROR_GENERIC;
+	}
 	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID, STORAGE_KV_WAN_MASTER_KEY);
-	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID,
-				STORAGE_KV_APP_MASTER_KEY);
+	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID, STORAGE_KV_APP_MASTER_KEY);
 	storage_key_save_secure(STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID, STORAGE_KV_D2D_MASTER_KEY);
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 

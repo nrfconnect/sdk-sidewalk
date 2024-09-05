@@ -375,13 +375,6 @@ static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_param
 
 sid_error_t sid_pal_crypto_init(void)
 {
-#ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-	int err = sid_crypto_keys_init();
-	if (err) {
-		LOG_ERR("Keys init failed! (err: %d)", err);
-		return SID_ERROR_NOT_FOUND;
-	}
-#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	psa_status_t status = psa_crypto_init();
 
 	if (PSA_SUCCESS == status) {
