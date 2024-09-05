@@ -4,9 +4,12 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <sid_error.h>
+#include <sid_pal_crypto_ifc.h>
 #include <sid_crypto_keys.h>
 #include <errno.h>
 #include <zephyr/logging/log.h>
+#include <json_printer/sidTypes2str.h>
 
 LOG_MODULE_REGISTER(sid_crypto_key, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 #define ESUCCESS (0)
@@ -14,6 +17,16 @@ LOG_MODULE_REGISTER(sid_crypto_key, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 
 int sid_crypto_keys_init(void)
 {
+	static bool initialized = false;
+	if (!initialized) {
+		sid_error_t e = sid_pal_crypto_init();
+		if (e != SID_ERROR_NONE) {
+			LOG_ERR("Failed to initialize sid_pal_crypto with error %d (%s)", e,
+				SID_ERROR_T_STR(e));
+			return -EINVAL;
+		}
+		initialized = true;
+	}
 	/* Nothing to do, left for stable api for future features */
 	return ESUCCESS;
 }

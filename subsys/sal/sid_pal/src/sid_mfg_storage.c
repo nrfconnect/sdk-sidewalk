@@ -72,6 +72,14 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 			       .end_offset = mfg_store_region.addr_end,
 			       .tlv_storage_start_marker_size = sizeof(struct mfg_header) };
 
+#if CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	int crypto_init_ret = sid_crypto_keys_init();
+	if (crypto_init_ret != 0) {
+		LOG_ERR("Failed to initialize crypto_keys_storage returned errno %d",
+			crypto_init_ret);
+		return;
+	}
+#endif
 	struct mfg_header header = { 0 };
 	int ret = tlv_read_start_marker(&tlv_flash, (uint8_t *)&header, sizeof(header));
 	if (ret != 0 ||
