@@ -71,7 +71,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 			       .end_offset = mfg_store_region.addr_end,
 			       .tlv_storage_start_marker_size = sizeof(struct mfg_header) };
 
-	struct mfg_header header;
+	struct mfg_header header = { 0 };
 	int ret = tlv_read_start_marker(&tlv_flash, (uint8_t *)&header, sizeof(header));
 	if (ret != 0 ||
 	    strncmp(header.magic_string, MFG_HEADER_MAGIC, strlen(MFG_HEADER_MAGIC)) != 0) {
