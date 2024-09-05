@@ -10,6 +10,7 @@
 
 LOG_MODULE_REGISTER(sid_crypto_key, CONFIG_SIDEWALK_CRYPTO_LOG_LEVEL);
 #define ESUCCESS (0)
+#define MAX_PUBLIC_KEY_LENGTH (65)
 
 int sid_crypto_keys_init(void)
 {
@@ -130,12 +131,18 @@ int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
 	}
 
 	/* Export public key */
-	status = psa_export_public_key(id, puk, puk_size, &out_size);
-	if (PSA_SUCCESS == status && out_size == puk_size) {
+	uint8_t public_key[MAX_PUBLIC_KEY_LENGTH] = { 0 };
+	size_t pub_key_offset = (SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID == id) ? 1 : 0;
+
+	status = psa_export_public_key(id, public_key, puk_size + pub_key_offset, &out_size);
+	memcpy(puk, &public_key[pub_key_offset], puk_size);
+	memset(public_key, 0, sizeof(public_key));
+
+	if (PSA_SUCCESS == status && out_size == puk_size + pub_key_offset) {
 		LOG_DBG("export public key success");
 	} else {
 		LOG_ERR("psa_export_public_key failed! (err %d id %d)", status, id);
-		LOG_ERR("psa_export_public_key failed! (expected %d was %d)", puk_size, out_size);
+		LOG_DBG("puk size expected %d was %d", puk_size, out_size);
 		return -EBADF;
 	}
 
