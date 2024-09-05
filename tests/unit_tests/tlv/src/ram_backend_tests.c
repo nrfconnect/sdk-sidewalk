@@ -22,6 +22,7 @@ tlv_ctx RAM_TLV_OBJECT = (tlv_ctx){ .start_offset = 0,
 				    .end_offset = sizeof(TLV_RAM_STORAGE),
 				    .storage_impl = { .ctx = TLV_RAM_STORAGE,
 						      .read = tlv_storage_ram_read,
+						      .erase = tlv_storage_ram_erase,
 						      .write = tlv_storage_ram_write } };
 
 tlv_ctx RAM_TLV_OBJECT_WITH_MAGIC = (tlv_ctx){ .start_offset = 0,
@@ -29,13 +30,15 @@ tlv_ctx RAM_TLV_OBJECT_WITH_MAGIC = (tlv_ctx){ .start_offset = 0,
 					       .tlv_storage_start_marker_size = 8,
 					       .storage_impl = { .ctx = TLV_RAM_STORAGE,
 								 .read = tlv_storage_ram_read,
+								 .erase = tlv_storage_ram_erase,
 								 .write = tlv_storage_ram_write } };
 
-tlv_ctx RAM_TLV_OBJECT_NO_WRITE = (tlv_ctx){
-	.start_offset = 0,
-	.end_offset = sizeof(TLV_RAM_STORAGE),
-	.storage_impl = { .ctx = TLV_RAM_STORAGE, .read = tlv_storage_ram_read, .write = NULL }
-};
+tlv_ctx RAM_TLV_OBJECT_NO_WRITE = (tlv_ctx){ .start_offset = 0,
+					     .end_offset = sizeof(TLV_RAM_STORAGE),
+					     .storage_impl = { .ctx = TLV_RAM_STORAGE,
+							       .read = tlv_storage_ram_read,
+							       .erase = tlv_storage_ram_erase,
+							       .write = NULL } };
 
 tlv_ctx RAM_TLV_OBJECT_NO_READ = (tlv_ctx){
 	.start_offset = 0,
@@ -47,6 +50,7 @@ tlv_ctx RAM_TLV_OBJECT_OFFSET = (tlv_ctx){ .start_offset = 3,
 					   .end_offset = sizeof(TLV_RAM_STORAGE),
 					   .storage_impl = { .ctx = TLV_RAM_STORAGE,
 							     .read = tlv_storage_ram_read,
+							     .erase = tlv_storage_ram_erase,
 							     .write = tlv_storage_ram_write } };
 
 tlv_ctx RAM_TLV_OBJECT_LAST_OFFSET_LE_FIRST =
@@ -54,6 +58,7 @@ tlv_ctx RAM_TLV_OBJECT_LAST_OFFSET_LE_FIRST =
 		   .end_offset = 0,
 		   .storage_impl = { .ctx = TLV_RAM_STORAGE,
 				     .read = tlv_storage_ram_read,
+				     .erase = tlv_storage_ram_erase,
 				     .write = tlv_storage_ram_write } };
 
 tlv_ctx RAM_TLV_OBJECT_LAST_OFFSET_ONLY_HEADER =
@@ -61,6 +66,7 @@ tlv_ctx RAM_TLV_OBJECT_LAST_OFFSET_ONLY_HEADER =
 		   .end_offset = 5,
 		   .storage_impl = { .ctx = TLV_RAM_STORAGE,
 				     .read = tlv_storage_ram_read,
+				     .erase = tlv_storage_ram_erase,
 				     .write = tlv_storage_ram_write } };
 
 /**

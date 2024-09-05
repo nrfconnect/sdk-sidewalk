@@ -524,6 +524,7 @@ ZTEST(real_case, test_valid_mfg_hex_v8)
 				 .tlv_storage_start_marker_size = 8,
 				 .storage_impl = { .ctx = TLV_RAM_STORAGE,
 						   .read = tlv_storage_ram_read,
+						   .erase = tlv_storage_ram_erase,
 						   .write = tlv_storage_ram_write } };
 
 	int ret = parse_mfg_raw_tlv(&tlv);
@@ -548,6 +549,7 @@ ZTEST(real_case, test_valid_mfg_hex_v8_flash)
 				 .tlv_storage_start_marker_size = 8,
 				 .storage_impl = { .ctx = (void *)flash_dev,
 						   .read = tlv_storage_flash_read,
+						   .erase = tlv_storage_flash_erase,
 						   .write = tlv_storage_flash_write } };
 
 	flash_erase(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), 0x1000);
@@ -692,6 +694,7 @@ ZTEST(real_case, test_valid_mfg_hex_v7)
 				 .tlv_storage_start_marker_size = 8,
 				 .storage_impl = { .ctx = TLV_RAM_STORAGE,
 						   .read = tlv_storage_ram_read,
+						   .erase = tlv_storage_ram_erase,
 						   .write = tlv_storage_ram_write } };
 
 	int ret = parse_mfg_const_offsets(&tlv);
@@ -717,6 +720,7 @@ ZTEST(real_case, test_valid_mfg_hex_v7_flash)
 				 .tlv_storage_start_marker_size = 8,
 				 .storage_impl = { .ctx = (void *)flash_dev,
 						   .read = tlv_storage_flash_read,
+						   .erase = tlv_storage_flash_erase,
 						   .write = tlv_storage_flash_write } };
 
 	flash_erase(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), 0x1000);

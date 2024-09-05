@@ -18,3 +18,10 @@ int tlv_storage_ram_read(void *ctx, uint32_t offset, uint8_t *data, uint32_t dat
 	memcpy(data, ram_buffer + offset, data_size);
 	return 0;
 }
+
+int tlv_storage_ram_erase(void *ctx, uint32_t offset, uint32_t size)
+{
+	uint8_t *ram_buffer = (uint8_t *)ctx;
+	memset(ram_buffer + offset, 0x00, size);
+	return 0;
+}
