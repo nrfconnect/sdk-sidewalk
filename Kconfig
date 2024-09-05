@@ -222,6 +222,8 @@ config DEPRECATED_SIDEWALK_MFG_STORAGE
 
 config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
 	bool "Enable support for old Sidewalk manufaturing hex format"
+	default y
+	depends on SIDEWALK_MFG_STORAGE
 	help
 	  Sidewalk manifactuing module uses version 8, with tlv format
 	  Old fromats - version7 and before, are based on memory offsets
