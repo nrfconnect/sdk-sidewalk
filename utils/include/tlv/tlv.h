@@ -25,6 +25,15 @@
 typedef int (*tlv_storage_write_t)(void *ctx, uint32_t offset, uint8_t *data, uint32_t data_size);
 
 /**
+ * @brief Erase data 
+ * @param ctx Storage context.
+ * @param offset Location where to erase date.
+ * @param size Number of bytes to erase.
+ * 
+ */
+typedef int (*tlv_storage_erase_t)(void *ctx, uint32_t offset, uint32_t size);
+
+/**
  * @brief Read data from storage.
  * 
  * @param ctx Storage context.
@@ -39,6 +48,7 @@ typedef struct tlv_ctx {
 	struct tlv_storage {
 		void *ctx;
 		tlv_storage_write_t write;
+		tlv_storage_erase_t erase;
 		tlv_storage_read_t read;
 	} storage_impl;
 	/*starting offset of the tlv memory region, including storage marker*/

@@ -133,8 +133,14 @@ int parse_mfg_raw_tlv(tlv_ctx *tlv)
 		return -EIO;
 	}
 
-	ret = tlv->storage_impl.write(tlv->storage_impl.ctx, tlv->start_offset, ram_tlv_data,
-				      ram_tlv.end_offset);
+	ret = tlv->storage_impl.erase(tlv->storage_impl.ctx, tlv->start_offset, size);
+	if (ret != 0) {
+		LOG_ERR("Failed to erase flash storage");
+		sid_hal_free(ram_tlv_data);
+		return -EIO;
+	}
+
+	ret = tlv->storage_impl.write(tlv->storage_impl.ctx, tlv->start_offset, ram_tlv_data, size);
 	if (ret != 0) {
 		LOG_ERR("Failed to write parsed tlv data to flash");
 		sid_hal_free(ram_tlv_data);

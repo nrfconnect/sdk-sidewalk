@@ -65,6 +65,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	}
 
 	tlv_flash = (tlv_ctx){ .storage_impl = { .write = tlv_storage_flash_write,
+						 .erase = tlv_storage_flash_erase,
 						 .read = tlv_storage_flash_read,
 						 .ctx = (void *)flash_dev },
 			       .start_offset = mfg_store_region.addr_start,
@@ -210,11 +211,8 @@ int32_t sid_pal_mfg_store_erase(void)
 {
 #if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 	const size_t mfg_size = tlv_flash.end_offset - tlv_flash.start_offset;
-	if (flash_dev) {
-		return (int32_t)flash_erase(flash_dev, tlv_flash.start_offset, mfg_size);
-	}
-	LOG_ERR("MFG store is not initialized");
-	return (int32_t)SID_ERROR_UNINITIALIZED;
+	return tlv_flash.storage_impl.erase(tlv_flash.storage_impl.ctx, tlv_flash.start_offset,
+					    mfg_size);
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
 #endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
