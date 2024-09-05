@@ -129,6 +129,7 @@ config SIDEWALK_MFG_STORAGE
 
 config SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 	bool
+	default SIDEWALK_ON_DEV_CERT
 	depends on SIDEWALK_MFG_STORAGE || DEPRECATED_SIDEWALK_MFG_STORAGE
 	help
 	  Enable mfg storage diagnostic functionalities
