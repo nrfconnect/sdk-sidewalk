@@ -224,7 +224,10 @@ int sid_crypto_keys_delete(psa_key_id_t id)
 	}
 
 	psa_status_t status = psa_destroy_key(id);
-	if (status != PSA_SUCCESS) {
+	if (status == PSA_ERROR_INVALID_HANDLE) {
+		LOG_WRN("psa_destroy_key invalid id %d", id);
+		return -EINVAL;
+	} else if (status != PSA_SUCCESS) {
 		LOG_ERR("psa_destroy_key failed! (err %d id %d)", status, id);
 		return -EFAULT;
 	}
