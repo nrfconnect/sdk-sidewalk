@@ -87,6 +87,20 @@ static void storage_key_save_secure(uint16_t group, uint16_t key)
 		return;
 	}
 }
+
+static bool storage_key_delete_secure(sid_crypto_key_id_t id)
+{
+	int err = sid_crypto_keys_delete(id);
+	if (-EINVAL == err) {
+		LOG_INF("Not found secure key id %d", id);
+	} else if (err) {
+		LOG_ERR("Failed to delete secure key id %d", id);
+		return false;
+	}
+
+	return true;
+}
+
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
 sid_error_t sid_pal_storage_kv_init()
@@ -206,13 +220,7 @@ sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key)
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	psa_key_id_t key_id = storage2key_id(group, key);
 	if (SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_id)) {
-		int err = sid_crypto_keys_delete(key_id);
-		if (err) {
-			LOG_ERR("Failed to delete secure key id %d", key_id);
-			return SID_ERROR_STORAGE_ERASE_FAIL;
-		} else {
-			return SID_ERROR_NONE;
-		}
+		return storage_key_delete_secure(key_id) ? SID_ERROR_NONE : SID_ERROR_STORAGE_ERASE_FAIL;
 	}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
@@ -256,26 +264,13 @@ sid_error_t sid_pal_storage_kv_group_delete(uint16_t group)
 	}
 
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-	bool key_delete_fail = false;
+	bool success = true;
 	if (STORAGE_KV_INTERNAL_PROTOCOL_GROUP_ID == group) {
-		int err = sid_crypto_keys_delete(SID_CRYPTO_KV_WAN_MASTER_KEY_ID);
-		if (err) {
-			LOG_ERR("Failed to delete secure key id %d",
-				SID_CRYPTO_KV_WAN_MASTER_KEY_ID);
-			key_delete_fail = true;
-		}
-		err = sid_crypto_keys_delete(SID_CRYPTO_KV_APP_KEY_KEY_ID);
-		if (err) {
-			LOG_ERR("Failed to delete secure key id %d", SID_CRYPTO_KV_APP_KEY_KEY_ID);
-			key_delete_fail = true;
-		}
-		err = sid_crypto_keys_delete(SID_CRYPTO_KV_D2D_KEY_ID);
-		if (err) {
-			LOG_ERR("Failed to delete secure key id %d", SID_CRYPTO_KV_D2D_KEY_ID);
-			key_delete_fail = true;
-		}
+		success = success && storage_key_delete_secure(SID_CRYPTO_KV_WAN_MASTER_KEY_ID);
+		success = success && storage_key_delete_secure(SID_CRYPTO_KV_APP_KEY_KEY_ID);
+		success = success && storage_key_delete_secure(SID_CRYPTO_KV_D2D_KEY_ID);
 	}
-	if (key_delete_fail) {
+	if (!success) {
 		return SID_ERROR_STORAGE_ERASE_FAIL;
 	}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
