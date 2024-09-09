@@ -157,6 +157,13 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		LOG_INF("MFG data succesfully parsed");
 		sid_mfg_version = SID_PAL_MFG_STORE_TLV_VERSION;
 	}
+
+#if !CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+	int err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
+	if (err) {
+		LOG_ERR("Flash protect failed %d", err);
+	}
+#endif
 }
 
 void sid_pal_mfg_store_deinit(void)
