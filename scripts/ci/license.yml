@@ -41,7 +41,7 @@ licenses:
   - sidewalk.*/subsys/config/common/src/.*(c|h)$
   - sidewalk.*/subsys/hal(/.*)+h$
   - sidewalk.*/subsys/hal/src/memory.c$
-  - sidewalk.*/subsys/sal/common/.*(c|h)$
+  - sidewalk.*/subsys/sal/common/.*/sid_.*(c|h)$
   - sidewalk.*/subsys/semtech/include/semtech_radio_ifc.h$
   - sidewalk.*/tools/.*
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$

@@ -42,6 +42,9 @@ config BT_PERIPHERAL_PREF_LATENCY
 config BT_PERIPHERAL_PREF_TIMEOUT
 	default 400
 
+config BT_EXT_ADV_MAX_ADV_SET
+	default 2
+
 config NVS_LOOKUP_CACHE_SIZE
     default 256 if NVS
 

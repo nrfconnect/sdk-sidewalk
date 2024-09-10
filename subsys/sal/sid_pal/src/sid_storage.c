@@ -219,7 +219,8 @@ sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key)
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	psa_key_id_t key_id = storage2key_id(group, key);
 	if (SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_id)) {
-		return storage_key_delete_secure(key_id) ? SID_ERROR_NONE : SID_ERROR_STORAGE_ERASE_FAIL;
+		return storage_key_delete_secure(key_id) ? SID_ERROR_NONE :
+							   SID_ERROR_STORAGE_ERASE_FAIL;
 	}
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
