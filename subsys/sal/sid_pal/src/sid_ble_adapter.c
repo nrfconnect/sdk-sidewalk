@@ -213,6 +213,29 @@ static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power)
 	return SID_ERROR_NONE;
 }
 
+static int create_ble_id(void)
+{
+	int ret;
+	size_t count;
+
+	BUILD_ASSERT(CONFIG_SIDEWALK_BLE_ID < CONFIG_BT_ID_MAX, "CONFIG_BT_ID_MAX is too small.");
+
+	/* Check if Bluetooth identites weren't already created. */
+	bt_id_get(NULL, &count);
+	if (count > CONFIG_SIDEWALK_BLE_ID) {
+		return 0;
+	}
+
+	do {
+		ret = bt_id_create(NULL, NULL);
+		if (ret < 0) {
+			return ret;
+		}
+	} while (ret != CONFIG_SIDEWALK_BLE_ID);
+
+	return 0;
+}
+
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
 	LOG_DBG("Sidewalk -> BLE");
@@ -228,6 +251,18 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 		break;
 	default:
 		LOG_ERR("BT init failed (err %d)", err_code);
+		return SID_ERROR_GENERIC;
+	}
+
+	err_code = create_ble_id();
+	if (err_code) {
+		LOG_ERR("BT ID init failed (err: %d)", err_code);
+		return SID_ERROR_GENERIC;
+	}
+
+	err_code = sid_ble_advert_init();
+	if (err_code) {
+		LOG_ERR("BT Advertisement failed (err: %d)", err_code);
 		return SID_ERROR_GENERIC;
 	}
 

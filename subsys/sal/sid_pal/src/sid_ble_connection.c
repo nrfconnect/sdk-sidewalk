@@ -33,6 +33,16 @@ static struct bt_conn_cb conn_callbacks = {
 
 static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = ble_mtu_cb };
 
+static bool should_handle_event(struct bt_conn *conn) {
+	struct bt_conn_info conn_info;
+
+	if (!conn || bt_conn_get_info(conn, &conn_info) || conn_info.id != CONFIG_SIDEWALK_BLE_ID) {
+		return false;
+	}
+
+	return true;
+}
+
 /**
  * @brief The function is called when a new connection is established.
  *
@@ -41,12 +51,18 @@ static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = ble_mtu_cb };
  */
 static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 {
+	const bt_addr_le_t *bt_addr_le;
+
+	if (!should_handle_event(conn)) {
+		return;
+	}
+
 	if (err) {
 		LOG_ERR("Connection failed (err %u)\n", err);
 		return;
 	}
 
-	const bt_addr_le_t *bt_addr_le = bt_conn_get_dst(conn);
+	bt_addr_le = bt_conn_get_dst(conn);
 
 	if (bt_addr_le) {
 		memcpy(conn_params.addr, bt_addr_le->a.val, BT_ADDR_SIZE);
@@ -72,10 +88,10 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
  */
 static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 {
-	if (!conn || conn_params.conn != conn) {
-		LOG_WRN("Unknow connection");
+	if (!should_handle_event(conn)) {
 		return;
 	}
+
 	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_params.addr);
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
