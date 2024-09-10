@@ -20,6 +20,7 @@
 #include <sid_ble_adapter_callbacks.h>
 #include <sid_ble_advert.h>
 #include <sid_ble_connection.h>
+#include <sid_app_callbacks.h>
 
 #if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
 #include <zephyr/bluetooth/controller.h>
@@ -57,6 +58,40 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 };
 
+sid_bt_disable_pred_callback_t bt_disable_pred_cb = NULL;
+
+void sid_pal_bt_disable_pred_cb_set(sid_bt_disable_pred_callback_t cb)
+{
+	bt_disable_pred_cb = cb;
+}
+
+static bool should_disable_bt(void)
+{
+	return bt_disable_pred_cb ? bt_disable_pred_cb() : true;
+}
+
+static int create_ble_id(void) {
+	int ret;
+	size_t count;
+
+	BUILD_ASSERT(CONFIG_SIDEWALK_BLE_ID < CONFIG_BT_ID_MAX, "CONFIG_BT_ID_MAX is too small.");
+
+	/* Check if Bluetooth identites weren't already created. */
+	bt_id_get(NULL, &count);
+	if (count > CONFIG_SIDEWALK_BLE_ID) {
+		return 0;
+	}
+
+	do {
+		ret = bt_id_create(NULL, NULL);
+		if (ret < 0) {
+			return ret;
+		}
+	} while (ret != CONFIG_SIDEWALK_BLE_ID);
+
+	return 0;
+}
+
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {
 	LOG_DBG("Sidewalk -> BLE");
@@ -79,6 +114,18 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 		break;
 	default:
 		LOG_ERR("BT init failed (err %d)", err_code);
+		return SID_ERROR_GENERIC;
+	}
+
+	err_code = create_ble_id();
+	if (err_code) {
+		LOG_ERR("BT ID init failed (err: %d)", err_code);
+		return SID_ERROR_GENERIC;
+	}
+
+	err_code = sid_ble_advert_init();
+	if (err_code) {
+		LOG_ERR("BT Advertisement failed (err: %d)", err_code);
 		return SID_ERROR_GENERIC;
 	}
 
@@ -256,11 +303,13 @@ static sid_error_t ble_adapter_deinit(void)
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
 
-	int err = bt_disable();
+	if (should_disable_bt()) {
+		int err = bt_disable();
 
-	if (err) {
-		LOG_ERR("BT disable failed (error %d)", err);
-		return SID_ERROR_GENERIC;
+		if (err) {
+			LOG_ERR("BT disable failed (error %d)", err);
+			return SID_ERROR_GENERIC;
+		}
 	}
 
 	return SID_ERROR_NONE;
