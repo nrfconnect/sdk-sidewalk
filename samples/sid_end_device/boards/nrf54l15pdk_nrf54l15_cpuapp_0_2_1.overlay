@@ -25,8 +25,9 @@
 };
 
 sid_semtech: &spi00 {
-	compatible = "nordic,nrf-spim";
 	status = "okay";
+	cs-gpios = <&gpio2 0xa GPIO_PULL_UP>;
+	compatible = "nordic,nrf-spim";
 	pinctrl-0 = <&spi00_default>;
 	pinctrl-1 = <&spi00_sleep>;
 	pinctrl-names = "default", "sleep";
@@ -43,10 +44,6 @@ sid_semtech: &spi00 {
 
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
-		semtech_sx1262_cs: cs {
-			gpios = <&gpio2 0xa GPIO_PULL_UP>;
-			label = "semtech_sx1262 CS";
-		};
 		semtech_sx1262_reset_gpios: reset {
 			gpios = <&gpio1 0xb (GPIO_ACTIVE_LOW|GPIO_PULL_UP)>;
 			label = "semtech_sx1262 Reset";
