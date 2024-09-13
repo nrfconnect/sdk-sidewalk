@@ -21,6 +21,10 @@
 
 * ``CONFIG_SIDEWALK_ON_DEV_CERT`` -- Enables the on-device certification Shell.
 
+* ``SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` - Enables secure storage for persistent Sidewalk keys.
+
+* ``SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7`` - Enables support for Sidewalk manufacturing HEX in version 7 and below.
+
 * ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
 
 * ``CONFIG_SID_END_DEVICE_AUTO_CONN_REQ`` -- Enables an automatic connection request before sending a message.

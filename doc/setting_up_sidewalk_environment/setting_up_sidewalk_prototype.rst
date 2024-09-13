@@ -1,7 +1,7 @@
-.. _setting_up_sidewalk_product:
+.. _setting_up_sidewalk_prototype:
 
-Setting up your Sidewalk product
-################################
+Setting up your Sidewalk prototype
+##################################
 
 .. contents::
    :local:
@@ -9,6 +9,8 @@ Setting up your Sidewalk product
 
 To correctly set up your Sidewalk device, first you have to onboard it.
 Complete the `Onbarding your Sidewalk devices`_ steps described in the Amazon Sidewalk documentation.
+This section details the prototyping flow for onboarding your Sidewalk devices. 
+In this flow, you will provision devices individually, allowing you to learn more about prototyping your application.
 
 Generate provisioning
 *********************
