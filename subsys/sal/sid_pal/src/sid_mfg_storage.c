@@ -57,7 +57,10 @@ tlv_ctx tlv_flash;
 
 void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 {
-	/* Initialize Flash device*/
+	struct mfg_header header = { 0 };
+	bool need_to_parse = false;
+	int err = 0;
+
 	flash_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_flash_controller));
 	if (!flash_dev) {
 		LOG_ERR("Flash device is not found.");
@@ -73,19 +76,18 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 			       .tlv_storage_start_marker_size = sizeof(struct mfg_header) };
 
 #if CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-	int crypto_init_ret = sid_crypto_keys_init();
-	if (crypto_init_ret != 0) {
-		LOG_ERR("Failed to initialize crypto_keys_storage returned errno %d",
-			crypto_init_ret);
+	err = sid_crypto_keys_init();
+	if (err) {
+		LOG_ERR("Failed to initialize crypto_keys_storage errno %d", err);
 		return;
 	}
 #endif
-	struct mfg_header header = { 0 };
-	int ret = tlv_read_start_marker(&tlv_flash, (uint8_t *)&header, sizeof(header));
-	if (ret != 0 ||
-	    strncmp(header.magic_string, MFG_HEADER_MAGIC, strlen(MFG_HEADER_MAGIC)) != 0) {
-		if (ret != 0) {
-			LOG_ERR("Failed to read mfg start marker errno %d", ret);
+
+	/* Read mfg header */
+	err = tlv_read_start_marker(&tlv_flash, (uint8_t *)&header, sizeof(header));
+	if (err || strncmp(header.magic_string, MFG_HEADER_MAGIC, strlen(MFG_HEADER_MAGIC)) != 0) {
+		if (err) {
+			LOG_ERR("Failed to read mfg start marker errno %d", err);
 		}
 #if CONFIG_SIDEWALK_ON_DEV_CERT
 		LOG_INF("Please perform on_device_certification and reboot");
@@ -93,48 +95,42 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		return;
 	}
 
+	/* Check mfg version */
 	sid_mfg_version = header.raw_version[3] + (header.raw_version[2] << 8) +
 			  (header.raw_version[1] << 16) + ((header.raw_version[0]) << 24);
 
-	bool need_to_parse = false;
 	if (sid_mfg_version == SID_PAL_MFG_STORE_TLV_VERSION) {
-		// header is valid, version is supported
+		/* Check mfg flags */
 		struct mfg_flags flags = {};
-		int ret = tlv_read(&tlv_flash, MFG_FLAGS_TYPE_ID, (uint8_t *)&flags, sizeof(flags));
-		switch (ret) {
-		case -ENODATA:
+		err = tlv_read(&tlv_flash, MFG_FLAGS_TYPE_ID, (uint8_t *)&flags, sizeof(flags));
+		if (err == -ENODATA) {
 			need_to_parse = true;
-			break;
-		case 0:
-			break;
-		default: {
-			LOG_ERR("Failed to read mfg data errno: %d", ret);
+		} else if (err) {
+			LOG_ERR("Failed to read mfg data errno: %d", err);
 			return;
 		}
-		}
 
+		if (!flags.initialized) {
+			need_to_parse = true;
+		}
 #if CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-		if ((flags.keys_in_psa) == 0) {
-			// parse to move keys to psa
+		if (!flags.keys_in_psa) {
 			need_to_parse = true;
 		}
 #else
 		if (flags.keys_in_psa) {
-			LOG_ERR("Replace mfg hex. Keys are stored in PSA, but application is not build to support it.");
+			LOG_ERR("Failed to init mfg storage. No secure key storage support");
+			LOG_INF("Rebuild with CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=y or Flash mfg data again");
 			return;
 		}
-#endif
-		if (flags.initialized == 0) {
-			need_to_parse = true;
-		}
-
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	} else {
 		need_to_parse = true;
 	}
 
 	if (need_to_parse) {
-		LOG_INF("Need to parse MFG data");
-		int err = 0;
+		/* Save mfg data in desired version format */
+		LOG_INF("Need to parse mfg data");
 		switch (sid_mfg_version) {
 		case 8:
 			err = parse_mfg_raw_tlv(&tlv_flash);
@@ -146,20 +142,21 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 			break;
 #endif /* CONFIG_SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7 */
 		default: {
-			LOG_ERR("Incompatible MFG hex version");
+			LOG_ERR("Incompatible mfg data version");
 			return;
 		}
 		}
-		if (err != 0) {
-			LOG_ERR("Failed parsing MFG hex errno %d", err);
+		if (err) {
+			LOG_ERR("Failed parsing mfg data errno %d", err);
 			return;
 		}
-		LOG_INF("MFG data succesfully parsed");
+
+		LOG_INF("Successfully parsed mfg data");
 		sid_mfg_version = SID_PAL_MFG_STORE_TLV_VERSION;
 	}
 
 #if !CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
-	int err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
+	err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
 	if (err) {
 		LOG_ERR("Flash protect failed %d", err);
 	}
