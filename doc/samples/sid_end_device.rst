@@ -129,6 +129,18 @@ For example:
     Selecting a build type is optional.
     However, if the build type is not selected, the ``debug`` build type is used by default.
 
+Secure Key Storage support
+==========================
+
+The Sidewalk Platform Abstraction Layer for nRF Connect SDK supports a secure key storage mechanism for Sidewalk keys,
+ensuring they are stored persistently and confidentially.
+The feature is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option.
+
+.. note::
+
+   Once secure keys are moved to secure key storage, it is impossible to retrieve them in plain text.
+   Therefore, you must not update your firmware to versions that do not support secure key storage.
+
 Device Firmware Upgrade support
 ===============================
 

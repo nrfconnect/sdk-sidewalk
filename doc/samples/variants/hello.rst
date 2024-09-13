@@ -357,7 +357,7 @@ Receiving message from AWS MQTT
 
    * ``<wireless-device-id>`` is the Wireless Device ID of your Sidewalk Device.
 
-     You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_product`.
+     You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_prototype`.
      If you have sent a message before, you can also find your Wireless Device ID in the messages sent from your device to AWS.
 
    * ``<payload-data>`` is base64 encoded.

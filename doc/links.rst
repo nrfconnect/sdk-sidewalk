@@ -24,6 +24,8 @@
 .. _NCS testing applications: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/test_and_optimize.html
 .. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-2.7.0/page/nrf/installation/install_ncs.html
 .. _Board Configurator: https://docs.nordicsemi.com/bundle/nrf-connect-board-configurator/page/index.html
+.. _Hardware unique key: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/libraries/security/hw_unique_key.html#lib-hw-unique-key
+.. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/libraries/security/bootloader/fprotect.html
 
 .. ncs fixed links(do not update them)
 

@@ -18,7 +18,7 @@ config SIDEWALK_SUBGHZ_SUPPORT
 	bool "Enable Sub-GHz link type support in Sidewalk libraries"
 	default y
 	help
-	  Use Sidewalk with support for BLE, LoRa and FSK
+	  Use Sidewalk with support for BLE, LoRa and FSK.
 
 if SIDEWALK_SUBGHZ_SUPPORT
 
@@ -27,7 +27,7 @@ config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	range 0x0 0xFFFF
 	default 0x1212
 	help
-	  The value of the trim cap. Default value works for Semtech SX1262 shield 
+	  The value of the trim cap. Default value works for Semtech SX1262 shield.
 
 endif 
 
@@ -94,7 +94,7 @@ config SIDEWALK_HEAP_SIZE
 config SIDEWALK_TRACE_HEAP
 	bool "Trace allocation and free of Sidewalk heap"
 	help
-	  Add debug log to every alloc and free operation on Sidewalk heap
+	  Add debug log to every alloc and free operation on Sidewalk heap.
 
 config SID_HAL_PROTOCOL_MEMORY_SZ
 	int
@@ -218,7 +218,7 @@ config DEPRECATED_SIDEWALK_MFG_STORAGE
 	imply FLASH
 	help
 	  Previous Sidewalk manufacturing storage module
-	  This implementation is DEPRECATED
+	  This implementation is DEPRECATED.
 
 config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
 	bool "Enable support for old Sidewalk manufaturing hex format"
@@ -227,12 +227,17 @@ config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
 	help
 	  Sidewalk manifactuing module uses version 8, with tlv format
 	  Old fromats - version7 and before, are based on memory offsets
-	  and will be supported after enablig this configuration
+	  and will be supported after enabling this configuration.
 
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	bool "Enable psa crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
 	default SIDEWALK
 	select EXPERIMENTAL
+	help
+	  Use secure key storage for persistent Sidewalk keys.
+	  Once you flash the firmware with this config enabled,
+	  it must be enabled in every subsequent build.
+	  Otherwise, the keys will not be found and Sidewalk will not start.
 
 config SIDEWALK_PAL_RADIO_SOURCE
 	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"

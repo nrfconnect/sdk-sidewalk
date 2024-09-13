@@ -21,4 +21,5 @@ See information about the latest release notes and the available migration guide
    :glob:
    :caption: Migration guides:
 
+   releases_and_migration/migration_guide_v280.rst
    releases_and_migration/migration_guide_v260.rst
