@@ -22,7 +22,11 @@
 #include <stdbool.h>
 
 DEFINE_FFF_GLOBALS;
-
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_stop, struct bt_le_ext_adv *);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_set_data, struct bt_le_ext_adv *, const struct bt_data *, size_t,
+		const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_start, struct bt_le_ext_adv *,
+		const struct bt_le_ext_adv_start_param *);
 FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
 FAKE_VALUE_FUNC(int, bt_disable);
 FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *,
@@ -41,6 +45,10 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *, const struct b
 		void *, uint16_t, uint16_t);
 FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct bt_gatt_attr *,
 		const void *, uint16_t, uint16_t, uint8_t);
+FAKE_VOID_FUNC(bt_id_get, bt_addr_le_t *, size_t *);
+FAKE_VALUE_FUNC(int, bt_id_create, bt_addr_le_t *, uint8_t *);
+FAKE_VALUE_FUNC(int, bt_id_reset, uint8_t, bt_addr_le_t *, uint8_t *);
+FAKE_VALUE_FUNC(int, bt_id_delete, uint8_t);
 
 FAKE_VALUE_FUNC(struct net_buf *, bt_hci_cmd_create, uint16_t, uint8_t);
 FAKE_VALUE_FUNC(int, bt_hci_cmd_send_sync, uint16_t, struct net_buf *, struct net_buf **);
@@ -48,6 +56,7 @@ FAKE_VALUE_FUNC(int, bt_hci_cmd_send_sync, uint16_t, struct net_buf *, struct ne
 FAKE_VALUE_FUNC(int, bt_hci_get_conn_handle, const struct bt_conn *, uint16_t *);
 FAKE_VALUE_FUNC(void *, net_buf_simple_add, struct net_buf_simple *, size_t);
 FAKE_VOID_FUNC(net_buf_unref, struct net_buf *);
+FAKE_VALUE_FUNC(int, bt_conn_get_info, const struct bt_conn *, struct bt_conn_info *);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_enable)                                                                            \
@@ -58,6 +67,10 @@ FAKE_VOID_FUNC(net_buf_unref, struct net_buf *);
 	FAKE(bt_conn_ref)                                                                          \
 	FAKE(bt_conn_unref)                                                                        \
 	FAKE(bt_conn_get_dst)                                                                      \
+	FAKE(bt_id_get)                                                                            \
+	FAKE(bt_id_create)                                                                         \
+	FAKE(bt_id_reset)                                                                          \
+	FAKE(bt_id_delete)                                                                         \
 	FAKE(bt_gatt_attr_read_service)                                                            \
 	FAKE(bt_gatt_attr_read_chrc)                                                               \
 	FAKE(bt_gatt_attr_read_ccc)                                                                \
@@ -66,7 +79,11 @@ FAKE_VOID_FUNC(net_buf_unref, struct net_buf *);
 	FAKE(bt_hci_cmd_send_sync)                                                                 \
 	FAKE(bt_hci_get_conn_handle)                                                               \
 	FAKE(net_buf_simple_add)                                                                   \
-	FAKE(net_buf_unref)
+	FAKE(net_buf_unref)                                                                        \
+	FAKE(bt_le_ext_adv_stop)                                                                   \
+	FAKE(bt_le_ext_adv_set_data)                                                               \
+	FAKE(bt_le_ext_adv_start)                                                                  \
+	FAKE(bt_conn_get_info)
 
 #define ESUCCESS (0)
 #define FAKE_SERVICE (9)
@@ -91,11 +108,13 @@ void setUp(void)
 	FFF_RESET_HISTORY();
 	memset(&data_cb_test, 0x00, sizeof(data_cb_test));
 	cmock_sid_ble_adapter_callbacks_Init();
+	cmock_sid_ble_advert_Init();
 }
 
 void tearDown(void)
 {
 	cmock_sid_ble_adapter_callbacks_Verify();
+	cmock_sid_ble_advert_Verify();
 }
 
 static void ble_data_callback(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length)
@@ -155,7 +174,9 @@ void test_sid_pal_ble_adapter_init(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
+	bt_id_create_fake.return_val = CONFIG_SIDEWALK_BLE_ID;
 	__cmock_sid_ble_conn_init_Expect();
+	__cmock_sid_ble_advert_init_IgnoreAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
 	__cmock_sid_ble_conn_init_Expect();
@@ -172,6 +193,8 @@ void test_sid_pal_ble_adapter_deinit(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 	__cmock_settings_load_ExpectAndReturn(ESUCCESS);
 	__cmock_sid_ble_conn_init_Expect();
+	bt_id_create_fake.return_val = CONFIG_SIDEWALK_BLE_ID;
+	__cmock_sid_ble_advert_init_IgnoreAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
 	__cmock_sid_ble_conn_deinit_Expect();

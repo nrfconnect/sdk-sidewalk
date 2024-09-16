@@ -34,7 +34,7 @@ static struct bt_conn_cb conn_callbacks = {
 static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = ble_mtu_cb };
 
 static bool should_handle_event(struct bt_conn *conn) {
-	struct bt_conn_info conn_info;
+	struct bt_conn_info conn_info = {};
 
 	if (!conn || bt_conn_get_info(conn, &conn_info) || conn_info.id != CONFIG_SIDEWALK_BLE_ID) {
 		return false;
@@ -88,7 +88,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
  */
 static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 {
-	if (!should_handle_event(conn)) {
+	if (!should_handle_event(conn) || conn_params.conn != conn) {
 		return;
 	}
 
