@@ -15,16 +15,16 @@
 
 DEFINE_FFF_GLOBALS;
 
-FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *,
-		size_t, const struct bt_data *, size_t);
-FAKE_VALUE_FUNC(int, bt_le_adv_stop);
-FAKE_VALUE_FUNC(int, bt_le_adv_update_data, const struct bt_data *, size_t, const struct bt_data *,
-		size_t);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_start, struct bt_le_ext_adv *,
+		const struct bt_le_ext_adv_start_param *);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_stop, struct bt_le_ext_adv *);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_set_data, struct bt_le_ext_adv *, const struct bt_data *, size_t,
+		const struct bt_data *, size_t);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
-	FAKE(bt_le_adv_start)                                                                      \
-	FAKE(bt_le_adv_stop)                                                                       \
-	FAKE(bt_le_adv_update_data)
+	FAKE(bt_le_ext_adv_start)                                                                      \
+	FAKE(bt_le_ext_adv_stop)                                                                       \
+	FAKE(bt_le_ext_adv_set_data)
 
 #define ESUCCESS (0)
 #define TEST_BUFFER_LEN (100)
@@ -40,30 +40,30 @@ void test_sid_ble_advert_start(void)
 {
 	size_t adv_start_call_count = 0;
 
-	bt_le_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
 	adv_start_call_count++;
-	TEST_ASSERT_EQUAL(adv_start_call_count, bt_le_adv_start_fake.call_count);
+	TEST_ASSERT_EQUAL(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
 
-	bt_le_adv_start_fake.return_val = -ENOENT;
+	bt_le_ext_adv_start_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_start());
 	adv_start_call_count++;
-	TEST_ASSERT_EQUAL(adv_start_call_count, bt_le_adv_start_fake.call_count);
+	TEST_ASSERT_EQUAL(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
 }
 
 void test_sid_ble_advert_stop(void)
 {
 	size_t adv_stop_call_count = 0;
 
-	bt_le_adv_stop_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
 	adv_stop_call_count++;
-	TEST_ASSERT_EQUAL(adv_stop_call_count, bt_le_adv_stop_fake.call_count);
+	TEST_ASSERT_EQUAL(adv_stop_call_count, bt_le_ext_adv_stop_fake.call_count);
 
-	bt_le_adv_stop_fake.return_val = -ENOENT;
+	bt_le_ext_adv_stop_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_stop());
 	adv_stop_call_count++;
-	TEST_ASSERT_EQUAL(adv_stop_call_count, bt_le_adv_stop_fake.call_count);
+	TEST_ASSERT_EQUAL(adv_stop_call_count, bt_le_ext_adv_stop_fake.call_count);
 }
 
 void test_sid_ble_advert_update(void)
@@ -71,19 +71,20 @@ void test_sid_ble_advert_update(void)
 	uint8_t test_data[] = "Lorem ipsum.";
 	size_t adv_update_call_count = 0;
 
-	bt_le_adv_start_fake.return_val = ESUCCESS;
-	bt_le_adv_update_data_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
+	adv_update_call_count++;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 	adv_update_call_count++;
-	TEST_ASSERT_EQUAL(adv_update_call_count, bt_le_adv_update_data_fake.call_count);
+	TEST_ASSERT_EQUAL(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
 
-	bt_le_adv_update_data_fake.return_val = -ENOENT;
+	bt_le_ext_adv_set_data_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_update(test_data, sizeof(test_data)));
 	adv_update_call_count++;
-	TEST_ASSERT_EQUAL(adv_update_call_count, bt_le_adv_update_data_fake.call_count);
+	TEST_ASSERT_EQUAL(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
 
-	bt_le_adv_update_data_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_update(NULL, sizeof(test_data)));
 	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_update(test_data, 0));
 }
@@ -94,12 +95,12 @@ void test_sid_ble_advert_update_in_every_state(void)
 
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
-	bt_le_adv_start_fake.return_val = ESUCCESS;
-	bt_le_adv_update_data_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
-	bt_le_adv_stop_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 }
@@ -130,17 +131,17 @@ void test_sid_ble_advert_update_before_start(void)
 	size_t advert_data_size;
 	bool found;
 
-	bt_le_adv_stop_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
 
-	bt_le_adv_update_data_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
-	bt_le_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
 
-	advert_data = bt_le_adv_start_fake.arg1_val;
-	advert_data_size = bt_le_adv_start_fake.arg2_val;
+	advert_data = bt_le_ext_adv_set_data_fake.arg1_val;
+	advert_data_size = bt_le_ext_adv_set_data_fake.arg2_val;
 	TEST_ASSERT_NOT_NULL(advert_data);
 	TEST_ASSERT_GREATER_THAN_size_t(0, advert_data_size);
 
@@ -159,13 +160,13 @@ void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 	size_t advert_data_size;
 	bool found;
 
-	bt_le_adv_start_fake.return_val = ESUCCESS;
-	bt_le_adv_update_data_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(data, data_len));
 
-	advert_data = bt_le_adv_update_data_fake.arg0_val;
-	advert_data_size = bt_le_adv_update_data_fake.arg1_val;
+	advert_data = bt_le_ext_adv_set_data_fake.arg1_val;
+	advert_data_size = bt_le_ext_adv_set_data_fake.arg2_val;
 	TEST_ASSERT_NOT_NULL(advert_data);
 	TEST_ASSERT_GREATER_THAN_size_t(0, advert_data_size);
 

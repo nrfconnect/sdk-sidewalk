@@ -41,6 +41,8 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *, const struct b
 		void *, uint16_t, uint16_t);
 FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct bt_gatt_attr *,
 		const void *, uint16_t, uint16_t, uint8_t);
+FAKE_VOID_FUNC(bt_id_get, bt_addr_le_t  *, size_t *);
+FAKE_VALUE_FUNC(int, bt_id_create, bt_addr_le_t *, uint8_t *);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_enable)                                                                            \
@@ -51,10 +53,12 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct 
 	FAKE(bt_conn_ref)                                                                          \
 	FAKE(bt_conn_unref)                                                                        \
 	FAKE(bt_conn_get_dst)                                                                      \
+	FAKE(bt_id_get)                                                                            \
+	FAKE(bt_id_create)                                                                         \
 	FAKE(bt_gatt_attr_read_service)                                                            \
 	FAKE(bt_gatt_attr_read_chrc)                                                               \
 	FAKE(bt_gatt_attr_read_ccc)                                                                \
-	FAKE(bt_gatt_attr_write_ccc)
+	FAKE(bt_gatt_attr_write_ccc)                                                               \
 
 #define ESUCCESS (0)
 #define FAKE_SERVICE (9)
