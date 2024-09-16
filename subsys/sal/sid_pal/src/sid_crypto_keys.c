@@ -173,14 +173,23 @@ int sid_crypto_keys_new_generate(psa_key_id_t id, uint8_t *puk, size_t puk_size)
 
 int sid_crypto_keys_buffer_set(psa_key_id_t id, uint8_t *data, size_t size)
 {
+	psa_status_t status = PSA_ERROR_GENERIC_ERROR;
+	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
+	psa_key_id_t *data_id = (psa_key_id_t *)data;
+
 	/* Check arguments */
 	if (PSA_KEY_ID_NULL == id || !data || size < sizeof(psa_key_id_t)) {
 		return -EINVAL;
 	}
 
+	status = psa_get_key_attributes(id, &attributes);
+	psa_reset_key_attributes(&attributes);
+	if (status != PSA_SUCCESS) {
+		return -EACCES;
+	}
+
 	/* Save key id to buffer */
 	memset(data, 0, size);
-	psa_key_id_t *data_id = (psa_key_id_t *)data;
 	*data_id = id;
 	LOG_DBG("key buffer set %d", id);
 

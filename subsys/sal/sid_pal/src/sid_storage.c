@@ -144,7 +144,6 @@ sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_
 	if (SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_id)) {
 		int err = sid_crypto_keys_buffer_set(key_id, (uint8_t *)p_data, len);
 		if (err) {
-			LOG_ERR("Failed to read secure key id %d", key_id);
 			return SID_ERROR_STORAGE_READ_FAIL;
 		} else {
 			return SID_ERROR_NONE;

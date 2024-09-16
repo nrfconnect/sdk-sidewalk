@@ -79,13 +79,18 @@ ZTEST(crypto_keys, test_sid_crypto_key_invalid_args)
 	zassert_equal(-EINVAL, err, "err: %d", err);
 }
 
-ZTEST(crypto_keys, test_sid_crypto_key_buffers)
+ZTEST(crypto_keys, test_sid_crypto_key_import)
 {
+	uint8_t test_key_data[TEST_SYMMETRIC_KEY_SIZE] = { 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5,
+							   0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
+							   0xAC, 0xAD, 0xAE, 0xAF };
 	psa_key_id_t new_key_id = PSA_KEY_ID_NULL;
-	uint8_t test_key_data[TEST_SYMMETRIC_KEY_SIZE];
 	int err = -ENOEXEC;
 
 	err = sid_crypto_keys_init();
+	zassert_equal(0, err, "err: %d", err);
+
+	err = sid_crypto_keys_new_import(test_key_id, test_key_data, TEST_SYMMETRIC_KEY_SIZE);
 	zassert_equal(0, err, "err: %d", err);
 
 	err = sid_crypto_keys_buffer_set(test_key_id, test_key_data, TEST_SYMMETRIC_KEY_SIZE);
@@ -95,23 +100,6 @@ ZTEST(crypto_keys, test_sid_crypto_key_buffers)
 	zassert_equal(0, err, "err: %d", err);
 
 	zassert_equal(new_key_id, test_key_id);
-
-	err = sid_crypto_keys_deinit();
-	zassert_equal(0, err, "err: %d", err);
-}
-
-ZTEST(crypto_keys, test_sid_crypto_key_import)
-{
-	uint8_t test_key_data[TEST_SYMMETRIC_KEY_SIZE] = { 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5,
-							   0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
-							   0xAC, 0xAD, 0xAE, 0xAF };
-	int err = -ENOEXEC;
-
-	err = sid_crypto_keys_init();
-	zassert_equal(0, err, "err: %d", err);
-
-	err = sid_crypto_keys_new_import(test_key_id, test_key_data, TEST_SYMMETRIC_KEY_SIZE);
-	zassert_equal(0, err, "err: %d", err);
 
 	err = sid_crypto_keys_delete(test_key_id);
 	zassert_equal(0, err, "err: %d", err);
