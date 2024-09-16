@@ -12,4 +12,10 @@ config SIDEWALK_LOG_LEVEL
 config SIDEWALK_BLE_ADAPTER_LOG_LEVEL
 	default 0
 
+config SIDEWALK_BLE_ID
+	default 1
+
+config BT_ID_MAX
+	default 2
+
 source "Kconfig.zephyr"

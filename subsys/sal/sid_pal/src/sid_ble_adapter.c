@@ -216,7 +216,7 @@ static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power)
 static int create_ble_id(void)
 {
 	int ret;
-	size_t count;
+	size_t count = 0;
 
 	BUILD_ASSERT(CONFIG_SIDEWALK_BLE_ID < CONFIG_BT_ID_MAX, "CONFIG_BT_ID_MAX is too small.");
 
@@ -440,6 +440,8 @@ static sid_error_t ble_adapter_deinit(void)
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
 
+	bt_id_delete(CONFIG_SIDEWALK_BLE_ID);
+	bt_id_reset(CONFIG_SIDEWALK_BLE_ID, NULL, NULL);
 	int err = bt_disable();
 
 	if (err) {
