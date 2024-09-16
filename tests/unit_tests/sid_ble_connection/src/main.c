@@ -24,6 +24,7 @@ FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
 FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
 FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
+FAKE_VALUE_FUNC(int,bt_conn_get_info,const struct bt_conn *, struct bt_conn_info *);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_conn_cb_register)                                                                  \
@@ -31,7 +32,8 @@ FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
 	FAKE(bt_conn_ref)                                                                          \
 	FAKE(bt_conn_unref)                                                                        \
 	FAKE(bt_conn_get_dst)                                                                      \
-	FAKE(bt_conn_disconnect)
+	FAKE(bt_conn_disconnect)\
+	FAKE(bt_conn_get_info)
 
 #define CONNECTED (true)
 #define DISCONNECTED (false)
@@ -102,6 +104,11 @@ void test_sid_ble_conn_params_get(void)
 	TEST_ASSERT_NULL(params);
 }
 
+int bt_conn_get_info_fake1(const struct bt_conn * a, struct bt_conn_info * b){
+	b->id = CONFIG_SIDEWALK_BLE_ID;
+	return 0;
+}
+
 void test_sid_ble_conn_positive(void)
 {
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
@@ -115,6 +122,9 @@ void test_sid_ble_conn_positive(void)
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {bt_conn_get_info_fake1};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
+	
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
@@ -143,6 +153,8 @@ void test_sid_ble_set_conn_cb_positive(void)
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {bt_conn_get_info_fake1};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_init();
 	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
@@ -173,6 +185,8 @@ void test_sid_ble_conn_cb_set_call_count(void)
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {bt_conn_get_info_fake1};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_init();
 	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
@@ -208,6 +222,8 @@ void test_sid_ble_disconnected_wrong_conn(void)
 
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {bt_conn_get_info_fake1};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_init();
 	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
@@ -233,6 +249,8 @@ void test_sid_ble_cb_set_before_init(void)
 	struct bt_conn test_conn = { .dummy = 0xDC };
 
 	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {bt_conn_get_info_fake1};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
@@ -269,6 +287,8 @@ void test_sid_ble_conn_mtu_callback_curent_connection(void)
 
 	sid_ble_conn_init();
 	bt_conn_ref_fake.return_val = &curr_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {bt_conn_get_info_fake1};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&curr_conn, 0);
