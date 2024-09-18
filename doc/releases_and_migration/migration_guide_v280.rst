@@ -36,7 +36,7 @@ The following logs are generated:
    [00:00:00.014,900] <inf> sid_mfg_parser_v8: MFG_SECP_256R1 import success
    [00:00:00.054,505] <inf> sid_mfg: Successfully parsed mfg data
 
-The secure key storage is based on the `Hardware unique key`_ security library.
+The secure key storage is based on the `Trusted storage`_ security library.
 After keys are imported into secure key storage, it is impossible to read their raw values.
 Therefore, once secure key storage is enabled in the firmware, it must remain enabled in all subsequent firmware versions.
 This feature is enabled by default in all Sidewalk samples.
