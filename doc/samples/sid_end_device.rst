@@ -132,14 +132,13 @@ For example:
 Secure Key Storage support
 ==========================
 
-The Sidewalk Platform Abstraction Layer for nRF Connect SDK supports a secure key storage mechanism for Sidewalk keys,
-ensuring they are stored persistently and confidentially.
+The Sidewalk Platform Abstraction Layer for nRF Connect SDK supports a trusted storage mechanism for non-volatile Sidewalk keys, ensuring they are stored persistently and confidentially.
 The feature is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option.
 
 .. note::
 
-   Once secure keys are moved to secure key storage, it is impossible to retrieve them in plain text.
-   Therefore, you must not update your firmware to versions that do not support secure key storage.
+   Once keys are moved to trusted storage, it is impossible to retrieve them back into MFG storage.
+   Therefore, you must not update your firmware to versions that do not support trusted storage for non-volatile Sidewalk keys.
 
 Device Firmware Upgrade support
 ===============================
