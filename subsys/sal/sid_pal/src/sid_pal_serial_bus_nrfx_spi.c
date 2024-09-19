@@ -18,6 +18,7 @@ LOG_MODULE_REGISTER(sid_nrfx_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
 #define SPI_CS_PIN NRF_DT_GPIOS_TO_PSEL(DT_NODELABEL(nrfx_spi_cs), gpios)
 
 static const nrfx_spi_t spi = NRFX_SPI_INSTANCE(SPI_INSTANCE_ID);
+static nrf_spi_frequency_t speed_hz;
 
 static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
 				       const struct sid_pal_serial_bus_client *client, uint8_t *tx,
@@ -43,7 +44,7 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 	nrfx_spi_config_t config =
 		NRFX_SPI_DEFAULT_CONFIG(SPI_SCK_PIN, SPI_MOSI_PIN, SPI_MISO_PIN, SPI_CS_PIN);
 
-	config.frequency = get_radio_cfg()->bus_selector.speed_hz;
+	config.frequency = speed_hz;
 
 	LOG_DBG("%s(%p, %p, %d)", __func__, (void *)tx, (void *)rx, xfer_size);
 
@@ -84,6 +85,7 @@ sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus
 	}
 
 	*iface = &bus_ops;
+	speed_hz = get_radio_cfg()->bus_selector.speed_hz;
 
 	return SID_ERROR_NONE;
 }
