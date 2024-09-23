@@ -61,8 +61,9 @@ config DFU_UPLOAD_COMPLETE_TIMEOUT
 	  if it do not complete in this time, the device will reboot and exit DFU mode
 
 
-config MCUMGR_TRANSPORT_BT_AUTHEN
-	default n
+choice MCUMGR_TRANSPORT_BT_PERM
+	default MCUMGR_TRANSPORT_BT_PERM_RW
+endchoice
 
 config MCUMGR_TRANSPORT_BT_DYNAMIC_SVC_REGISTRATION
 	default n
