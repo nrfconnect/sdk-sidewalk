@@ -21,6 +21,7 @@ RUN <<EOT
     chmod +x /usr/local/bin/nrfutil
     nrfutil install toolchain-manager
     nrfutil install device
+    nrfutil install completion
 EOT
 
 RUN wget ${command_line_tools_url}
