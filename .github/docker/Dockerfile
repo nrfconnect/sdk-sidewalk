@@ -20,6 +20,7 @@ RUN <<EOT
     mv nrfutil /usr/local/bin
     chmod +x /usr/local/bin/nrfutil
     nrfutil install toolchain-manager
+    nrfutil install device
 EOT
 
 RUN wget ${command_line_tools_url}
