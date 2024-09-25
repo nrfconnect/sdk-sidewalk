@@ -35,17 +35,19 @@ RUN <<EOT
 EOT
 
 RUN <<EOT
-    nrfutil toolchain-manager search > versions.txt
-    latest_version=`tail -n+2 versions.txt | sort --reverse | head -n 1 | awk '{print$1}'`
-    echo "installing toolchain version" $latest_version
-    nrfutil toolchain-manager install --ncs-version $latest_version
+    mkdir /workdir
+    git clone https://github.com/nrfconnect/sdk-nrf /workdir/nrf
+EOT
+
+RUN <<EOT
+    nrfutil toolchain-manager install --toolchain-bundle-id $(/workdir/nrf/scripts/print_toolchain_checksum.sh)
     nrfutil toolchain-manager list
 EOT
 
 WORKDIR /workdir
 SHELL ["nrfutil","toolchain-manager","launch","/bin/bash","--","-c"]
 RUN <<EOT
-    west init -m https://github.com/nrfconnect/sdk-nrf --mr main .
+    west init -l nrf
     west update
     python3 -m pip install devicetree
     python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt 
