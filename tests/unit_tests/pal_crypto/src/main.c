@@ -33,8 +33,6 @@ FAKE_VALUE_FUNC(psa_status_t, psa_mac_sign_setup, psa_mac_operation_t *, mbedtls
 FAKE_VALUE_FUNC(psa_status_t, psa_mac_update, psa_mac_operation_t *, const uint8_t *, size_t);
 FAKE_VALUE_FUNC(psa_status_t, psa_mac_sign_finish, psa_mac_operation_t *, uint8_t *, size_t,
 		size_t *);
-FAKE_VALUE_FUNC(psa_status_t, psa_set_key_domain_parameters, psa_key_attributes_t *, psa_key_type_t,
-		const uint8_t *, size_t);
 FAKE_VALUE_FUNC(psa_status_t, psa_mac_compute, mbedtls_svc_key_id_t, psa_algorithm_t,
 		const uint8_t *, size_t, uint8_t *, size_t, size_t *);
 FAKE_VALUE_FUNC(psa_status_t, psa_cipher_encrypt_setup, psa_cipher_operation_t *,

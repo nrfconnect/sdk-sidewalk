@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <state_notifier/application_states.h>
-#include <autoconf.h> /* for kconfig options */
 
 #define APPLICATION_STATE_ENUM(name) APPLICATION_STATE_##name
 
