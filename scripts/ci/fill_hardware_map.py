@@ -142,6 +142,7 @@ def main(hardware_map_path: str, userdev_conf_path: str):
                     to_remove.append(hw_entry)
             elif "nrf54l15dk/nrf54l15/cpuapp" in hw_entry["platform"]:
                 # If nRF54l board, remove only first serial interface
+                hw_entry["runner"] = "nrfutil"
                 if segger.startswith("1057") and "-if00" in hw_entry["serial"]:
                     to_remove.append(hw_entry)
         else:
