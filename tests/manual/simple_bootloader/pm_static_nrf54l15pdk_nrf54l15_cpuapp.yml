@@ -1,8 +1,0 @@
-mcuboot:
-  address: 0x0
-  region: flash_primary
-  size: 0xc000
-mfg_storage:
-  address: 0x17c000
-  region: flash_primary
-  size: 0x1000
