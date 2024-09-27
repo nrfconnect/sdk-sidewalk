@@ -51,4 +51,8 @@ endif # (BOARD_NRF5340DK_NRF5340_CPUAPP || BOARD_THINGY53_NRF5340_CPUAPP)
 config PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY
 	default y if BOARD_NRF52840DK_NRF52840 || BOARD_NRF5340DK_NRF5340_CPUAPP || BOARD_THINGY53_NRF5340_CPUAPP
 
+# override the mcuboot pad size, because it is not set globally for NS build.
+config PM_MCUBOOT_PAD
+	default 0x800
+
 source "${ZEPHYR_BASE}/share/sysbuild/Kconfig"
