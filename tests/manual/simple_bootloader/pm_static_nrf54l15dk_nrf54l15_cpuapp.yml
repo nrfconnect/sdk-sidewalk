@@ -1,0 +1,18 @@
+mcuboot:
+  address: 0x0
+  region: flash_primary
+  size: 0xc000
+mcuboot_pad:
+  address: 0xc000
+  end_address: 0xc800
+  region: flash_primary
+  size: 0x800
+app:
+  address: 0xc800
+  end_address: 0x17c000
+  region: flash_primary
+  size: 0x16f800
+mfg_storage:
+  address: 0x17c000
+  region: flash_primary
+  size: 0x1000
