@@ -82,12 +82,12 @@ jobs:
           west flash
 
       - name: Flash mfg_hex
-        if: ${{ inputs.target_board }} == "nrf54l15pdk/nrf54l15/cpuapp"
+        if: ${{ inputs.target_board }} == "nrf54l15dk/nrf54l15/cpuapp"
         run: |
           nrfjprog --program pytest-sidewalk/test_objects/mfg/BFFFEA01CA/PCA10156/mfg_v8.hex --sectorerase --verify -r
 
       - name: Flash mfg_hex
-        if: ${{ inputs.target_board }} != "nrf54l15pdk/nrf54l15/cpuapp"
+        if: ${{ inputs.target_board }} != "nrf54l15dk/nrf54l15/cpuapp"
         run: |
           nrfjprog --program pytest-sidewalk/test_objects/mfg/BFFFEA01CA/mfg_v8.hex --sectorerase --verify -r
 
