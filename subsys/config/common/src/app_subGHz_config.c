@@ -164,6 +164,9 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 	radio_sx1262_cfg.bus_selector.client_selector =
 		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
+	radio_sx1262_cfg.bus_selector.client_selector = 
+		sid_gpio_utils_register_gpio(
+			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.speed_hz =
 #if CONFIG_SOC_NRF52840
 		NRF_SPI_FREQ_8M;
