@@ -33,6 +33,7 @@
 sid_semtech: &spi21 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
+	cs-gpios = <&gpio2 0xa GPIO_ACTIVE_LOW>;
 	pinctrl-0 = <&spi21_default>;
 	pinctrl-1 = <&spi21_sleep>;
 	pinctrl-names = "default", "sleep";
