@@ -12,7 +12,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(sid_assert, LOG_LEVEL_ERR);
+LOG_MODULE_REGISTER(sid_assert, CONFIG_SIDEWALK_LOG_LEVEL);
 
 void sid_pal_assert(int line, const char *file)
 {
