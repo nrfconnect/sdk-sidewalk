@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(sid_gpio, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sid_gpio, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define GPIO_SET_DIRECTION(dir) ((dir == SID_PAL_GPIO_DIRECTION_INPUT) ? GPIO_INPUT : GPIO_OUTPUT)
 

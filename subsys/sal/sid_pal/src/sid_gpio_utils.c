@@ -18,7 +18,7 @@
 #include <stdint.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(sid_gpio_util, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sid_gpio_util, CONFIG_SIDEWALK_LOG_LEVEL);
 
 struct sid_gpio_util_pin {
 	gpio_port_pin_t gpio;

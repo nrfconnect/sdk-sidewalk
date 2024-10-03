@@ -19,7 +19,7 @@
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(sid_common, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(sid_common, CONFIG_SIDEWALK_LOG_LEVEL);
 
 sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platform_init_parameters)
 {
