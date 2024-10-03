@@ -105,9 +105,11 @@ int sid_gpio_utils_gpio_read(uint32_t gpio_number, uint8_t *value)
 				       ctx.supported_pins[gpio_number].gpio.pin);
 	if (ret_val < 0) {
 		LOG_ERR("GPIO read returned error %d", ret_val);
+		return -EIO;
 	}
 	*value = ret_val;
-	return ret_val;
+	
+	return SID_ERROR_NONE;
 }
 
 int sid_gpio_utils_gpio_set(uint32_t gpio_number, uint8_t value)
