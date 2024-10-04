@@ -26,6 +26,7 @@ static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu);
 static sid_ble_conn_params_t conn_params;
 static sid_ble_conn_params_t *p_conn_params_out;
 
+static bool bt_conn_registered = false;
 static struct bt_conn_cb conn_callbacks = {
 	.connected = ble_connect_cb,
 	.disconnected = ble_disconnect_cb,
@@ -103,7 +104,6 @@ const sid_ble_conn_params_t *sid_ble_conn_params_get(void)
 void sid_ble_conn_init(void)
 {
 	p_conn_params_out = &conn_params;
-	static bool bt_conn_registered;
 
 	if (!bt_conn_registered) {
 		int e = bt_conn_cb_register(&conn_callbacks);
@@ -116,8 +116,14 @@ void sid_ble_conn_init(void)
 			return;
 		}
 		}
-		bt_gatt_cb_register(&gatt_callbacks);
 		bt_conn_registered = true;
+	} else {
+		LOG_WRN("The connection has already been registered, but init was called again");
+	}
+	static bool gatt_cb_registered = false;
+	if (!gatt_cb_registered) {
+		gatt_cb_registered = true;
+		bt_gatt_cb_register(&gatt_callbacks);
 	}
 }
 
@@ -138,4 +144,15 @@ int sid_ble_conn_disconnect(void)
 void sid_ble_conn_deinit(void)
 {
 	p_conn_params_out = NULL;
+	if (bt_conn_registered) {
+		int unregister_result = bt_conn_cb_unregister(&conn_callbacks);
+		switch (unregister_result) {
+		case 0:
+			bt_conn_registered = false;
+			break;
+		default:
+			LOG_ERR("bt_conn_cb_unregister resulted in errno %d = %s",
+				unregister_result, strerror(unregister_result));
+		}
+	}
 }

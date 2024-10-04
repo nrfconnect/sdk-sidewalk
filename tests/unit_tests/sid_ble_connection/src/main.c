@@ -19,6 +19,7 @@
 DEFINE_FFF_GLOBALS;
 
 FAKE_VALUE_FUNC(int, bt_conn_cb_register, struct bt_conn_cb *);
+FAKE_VALUE_FUNC(int, bt_conn_cb_unregister, struct bt_conn_cb *);
 FAKE_VOID_FUNC(bt_gatt_cb_register, struct bt_gatt_cb *);
 FAKE_VALUE_FUNC(struct bt_conn *, bt_conn_ref, struct bt_conn *);
 FAKE_VOID_FUNC(bt_conn_unref, struct bt_conn *);
@@ -27,6 +28,7 @@ FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_conn_cb_register)                                                                  \
+	FAKE(bt_conn_cb_unregister)                                                                \
 	FAKE(bt_gatt_cb_register)                                                                  \
 	FAKE(bt_conn_ref)                                                                          \
 	FAKE(bt_conn_unref)                                                                        \
@@ -74,6 +76,7 @@ void test_sid_ble_conn_init(void)
 {
 	sid_ble_conn_init();
 	TEST_ASSERT_EQUAL(1, bt_conn_cb_register_fake.call_count);
+	TEST_ASSERT_EQUAL(0, bt_conn_cb_unregister_fake.call_count);
 	TEST_ASSERT_EQUAL(1, bt_gatt_cb_register_fake.call_count);
 
 	sid_bt_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
@@ -83,6 +86,8 @@ void test_sid_ble_conn_init(void)
 	sid_bt_gatt_cb = bt_gatt_cb_register_fake.arg0_history[0];
 	TEST_ASSERT_NOT_NULL(sid_bt_gatt_cb);
 	TEST_ASSERT_NOT_NULL(sid_bt_gatt_cb->att_mtu_updated);
+	sid_ble_conn_deinit();
+	TEST_ASSERT_EQUAL(1, bt_conn_cb_unregister_fake.call_count);
 }
 
 void test_sid_ble_conn_params_get(void)
