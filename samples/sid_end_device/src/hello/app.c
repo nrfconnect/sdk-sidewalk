@@ -331,9 +331,6 @@ void app_start(void)
 		LOG_ERR("Cannot init buttons");
 	}
 
-#if defined(CONFIG_GPIO)
-	state_watch_init_gpio(&global_state_notifier);
-#endif
 #if defined(CONFIG_LOG)
 	state_watch_init_log(&global_state_notifier);
 #endif
