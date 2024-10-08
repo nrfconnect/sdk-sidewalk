@@ -20,7 +20,7 @@ config SIDEWALK_BLE_ADV_INT_PRECISION
 config SIDEWALK_BLE_ADV_INT_FAST
 	int "test value for Sidewalk configuration macro"
 	default 160
-	
+
 config SIDEWALK_BLE_ADV_INT_SLOW
 	int "test value for Sidewalk configuration macro"
 	default 1000
@@ -28,5 +28,9 @@ config SIDEWALK_BLE_ADV_INT_SLOW
 config SIDEWALK_BLE_ADV_INT_TRANSITION
 	int "test value for Sidewalk configuration macro"
 	default 30
+
+config SIDEWALK_BLE_ID
+	int "test value for Sidewalk configuration"
+	default 1
 
 source "Kconfig.zephyr"

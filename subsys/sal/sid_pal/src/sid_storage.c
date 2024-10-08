@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/settings/settings.h>
+#include <sid_app_callbacks.h>
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 #include <sid_crypto_keys.h>
 
@@ -29,6 +30,18 @@
 LOG_MODULE_REGISTER(sid_storage, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define STORAGE_SERIAL_SIZE (32)
+
+sid_settings_load_pred_callback_t settings_load_pred_cb = NULL;
+
+void sid_settings_load_pred_cb_set(sid_settings_load_pred_callback_t cb)
+{
+	settings_load_pred_cb = cb;
+}
+
+static bool should_load_settings(void)
+{
+	return settings_load_pred_cb ? settings_load_pred_cb() : true;
+}
 
 static void settings_serialize_group(char *serial, size_t serial_size, uint16_t group)
 {
@@ -105,16 +118,18 @@ static bool storage_key_delete_secure(sid_crypto_key_id_t id)
 
 sid_error_t sid_pal_storage_kv_init()
 {
-	int rc = settings_subsys_init();
-	if (rc != 0) {
-		LOG_ERR("settings init failed (err %d)", rc);
-		return SID_ERROR_GENERIC;
-	}
+	if (should_load_settings()) {
+		int rc = settings_subsys_init();
+		if (rc != 0) {
+			LOG_ERR("settings init failed (err %d)", rc);
+			return SID_ERROR_GENERIC;
+		}
 
-	rc = settings_load();
-	if (rc != 0) {
-		LOG_ERR("settings load failed (err %d)", rc);
-		return SID_ERROR_GENERIC;
+		rc = settings_load();
+		if (rc != 0) {
+			LOG_ERR("settings load failed (err %d)", rc);
+			return SID_ERROR_GENERIC;
+		}
 	}
 
 	LOG_DBG("Initialized KV storage");
