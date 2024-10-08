@@ -1,0 +1,10 @@
+settings_storage:
+  address: 0xf0000
+  end_address: 0x100000
+  placement:
+    align:
+      start: 0x1000
+    before:
+    - end
+  region: flash_primary
+  size: 0x10000
