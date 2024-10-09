@@ -26,12 +26,15 @@
 #include <zephyr/bluetooth/controller.h>
 #endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
+#include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/bluetooth.h>
 
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/settings/settings.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/byteorder.h>
+#include <zephyr/bluetooth/hci_vs.h>
 
 LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
@@ -62,19 +65,156 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.get_rssi = ble_adapter_get_rssi,
 	.get_tx_pwr = ble_adapter_get_tx_pwr,
 	.set_tx_pwr = ble_adapter_set_tx_pwr,
+
 };
+
+static void read_conn_rssi(uint16_t handle, int8_t *rssi)
+{
+	struct net_buf *buf, *rsp = NULL;
+	struct bt_hci_cp_read_rssi *cp;
+	struct bt_hci_rp_read_rssi *rp;
+
+	int err;
+
+	buf = bt_hci_cmd_create(BT_HCI_OP_READ_RSSI, sizeof(*cp));
+	if (!buf) {
+		LOG_ERR("Unable to allocate command buffer\n");
+		return;
+	}
+
+	cp = net_buf_add(buf, sizeof(*cp));
+	cp->handle = sys_cpu_to_le16(handle);
+
+	err = bt_hci_cmd_send_sync(BT_HCI_OP_READ_RSSI, buf, &rsp);
+	if (err) {
+		uint8_t reason = rsp ? ((struct bt_hci_rp_read_rssi *)rsp->data)->status : 0;
+		LOG_ERR("Read RSSI err: %d reason 0x%02x\n", err, reason);
+		return;
+	}
+
+	rp = (void *)rsp->data;
+	*rssi = rp->rssi;
+
+	net_buf_unref(rsp);
+}
+static void set_tx_power(uint8_t handle_type, uint16_t handle, int8_t tx_pwr_lvl)
+{
+	struct bt_hci_cp_vs_write_tx_power_level *cp;
+	struct bt_hci_rp_vs_write_tx_power_level *rp;
+	struct net_buf *buf, *rsp = NULL;
+	int err;
+
+	buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_TX_POWER_LEVEL, sizeof(*cp));
+	if (!buf) {
+		LOG_ERR("Unable to allocate command buffer\n");
+		return;
+	}
+
+	cp = net_buf_add(buf, sizeof(*cp));
+	cp->handle = sys_cpu_to_le16(handle);
+	cp->handle_type = handle_type;
+	cp->tx_power_level = tx_pwr_lvl;
+
+	err = bt_hci_cmd_send_sync(BT_HCI_OP_VS_WRITE_TX_POWER_LEVEL, buf, &rsp);
+	if (err) {
+		uint8_t reason =
+			rsp ? ((struct bt_hci_rp_vs_write_tx_power_level *)rsp->data)->status : 0;
+		LOG_ERR("Set Tx power err: %d reason 0x%02x\n", err, reason);
+		return;
+	}
+
+	rp = (void *)rsp->data;
+	LOG_ERR("Actual Tx Power: %d\n", rp->selected_tx_power);
+
+	net_buf_unref(rsp);
+}
+
+static void get_tx_power(uint8_t handle_type, uint16_t handle, int8_t *tx_pwr_lvl)
+{
+	struct bt_hci_cp_vs_read_tx_power_level *cp;
+	struct bt_hci_rp_vs_read_tx_power_level *rp;
+	struct net_buf *buf, *rsp = NULL;
+	int err;
+
+	*tx_pwr_lvl = 0xFF;
+	buf = bt_hci_cmd_create(BT_HCI_OP_VS_READ_TX_POWER_LEVEL, sizeof(*cp));
+	if (!buf) {
+		LOG_ERR("Unable to allocate command buffer\n");
+		return;
+	}
+
+	cp = net_buf_add(buf, sizeof(*cp));
+	cp->handle = sys_cpu_to_le16(handle);
+	cp->handle_type = handle_type;
+
+	err = bt_hci_cmd_send_sync(BT_HCI_OP_VS_READ_TX_POWER_LEVEL, buf, &rsp);
+	if (err) {
+		uint8_t reason =
+			rsp ? ((struct bt_hci_rp_vs_read_tx_power_level *)rsp->data)->status : 0;
+		LOG_ERR("Read Tx power err: %d reason 0x%02x\n", err, reason);
+		return;
+	}
+
+	rp = (void *)rsp->data;
+	*tx_pwr_lvl = rp->tx_power_level;
+
+	net_buf_unref(rsp);
+}
 
 static sid_error_t ble_adapter_get_rssi(int8_t *rssi)
 {
-	return SID_ERROR_GENERIC;
+	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	if (params == NULL || params->conn == NULL) {
+		return SID_ERROR_GENERIC;
+	}
+
+	uint16_t conn_handle = 0;
+	int e = bt_hci_get_conn_handle(params->conn, &conn_handle);
+	if (e != 0) {
+		LOG_ERR("Can not get conn_handle error %d", e);
+		return SID_ERROR_GENERIC;
+	}
+	read_conn_rssi(conn_handle, rssi);
+
+	LOG_DBG("BLE RSSI = %d", *rssi);
+	return SID_ERROR_NONE;
 }
+
 static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power)
 {
-	return SID_ERROR_GENERIC;
+	uint16_t conn_handle = 0;
+
+	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	if (params == NULL || params->conn == NULL) {
+		return SID_ERROR_GENERIC;
+	}
+
+	int e = bt_hci_get_conn_handle(params->conn, &conn_handle);
+	if (e != 0) {
+		LOG_ERR("Can not get conn_handle error %d", e);
+		return SID_ERROR_GENERIC;
+	}
+	get_tx_power(BT_HCI_VS_LL_HANDLE_TYPE_CONN, conn_handle, tx_power);
+	LOG_DBG("BLE get tx pwr: %d", *tx_power);
+	return SID_ERROR_NONE;
 }
+
 static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power)
 {
-	return SID_ERROR_GENERIC;
+	uint16_t conn_handle = 0;
+
+	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	if (params == NULL || params->conn == NULL) {
+		return SID_ERROR_GENERIC;
+	}
+	int e = bt_hci_get_conn_handle(params->conn, &conn_handle);
+	if (e != 0) {
+		LOG_ERR("Can not get conn_handle error %d", e);
+		return SID_ERROR_GENERIC;
+	}
+	set_tx_power(BT_HCI_VS_LL_HANDLE_TYPE_CONN, conn_handle, tx_power);
+	LOG_DBG("BLE set tx pwr: %d", tx_power);
+	return SID_ERROR_NONE;
 }
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
