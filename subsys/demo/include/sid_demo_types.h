@@ -63,7 +63,7 @@ enum sid_demo_msg_desc_attributes {
 enum sid_demo_tag_id {
     SID_DEMO_TAG_NUMBER_OF_BUTTONS = 0x1,
     SID_DEMO_TAG_NUMBER_OF_LEDS = 0x2,
-    SID_DEMO_TAG_LED_ON_ACTION_REQ  = 0x3,
+    SID_DEMO_TAG_LED_ON_ACTION_REQ = 0x3,
     SID_DEMO_TAG_LED_OFF_ACTION_REQ = 0x4,
     SID_DEMO_TAG_BUTTON_PRESS_ACTION_NOTIFY = 0x5,
     SID_DEMO_TAG_TEMPERATURE_SENSOR_DATA_NOTIFY = 0x6,
@@ -74,6 +74,12 @@ enum sid_demo_tag_id {
     SID_DEMO_TAG_TEMP_SENSOR_AVAILABLE_AND_UNIT_REPRESENTATION = 0xB,
     SID_DEMO_TAG_LINK_TYPE = 0xC,
     SID_DEMO_TAG_BUTTON_PRESSED_RESP = 0xD,
+    SID_DEMO_TAG_OTA_SUPPORTED = 0xE,
+    SID_DEMO_TAG_OTA_FIRMWARE_VERSION = 0xF,
+    SID_DEMO_TAG_OTA_TRIGGER_NOTIFY = 0x10,
+    SID_DEMO_TAG_OTA_STATS = 0x11,
+    SID_DEMO_TAG_OTA_COMPLETION_STATUS = 0x12,
+    SID_DEMO_TAG_OTA_FILE_ID = 0x13,
     SID_DEMO_TAG_LAST,
     SID_DEMO_TAG_ID_MAX = 0x40
 };
@@ -111,12 +117,21 @@ enum sid_demo_temperature_sensor {
     SID_DEMO_TEMPERATURE_SENSOR_LAST,
 };
 
+struct sid_demo_ota_capability_discovery {
+    uint8_t link_type;
+};
+
 struct sid_demo_capability_discovery {
     uint8_t num_buttons;
     uint8_t num_leds;
     enum sid_demo_temperature_sensor temp_sensor;
     uint8_t *button_id_arr;
     uint8_t *led_id_arr;
+    uint8_t ota_support;
+    uint16_t major;
+    uint16_t minor;
+    uint16_t patch;
+    uint16_t build;
     uint8_t link_type;
 };
 
@@ -168,16 +183,40 @@ struct sid_demo_action_resp {
     struct sid_demo_button_action_resp button_action_resp;
 };
 
+enum sid_demo_ota_completion_status {
+    SID_DEMO_OTA_COMPLETION_STATUS_INITIAL = 0,
+    SID_DEMO_OTA_COMPLETION_STATUS_SUCCESS = 1,
+    SID_DEMO_OTA_COMPLETION_STATUS_FAILED = 2,
+};
+
+struct sid_demo_ota_progress_stats {
+    bool is_valid;
+    uint8_t percent;
+    uint32_t completed_file_size;
+    uint32_t total_file_size;
+};
+
 struct sid_demo_action_notification {
+    uint8_t trigger_ota;
     uint8_t link_type;
-    enum sid_demo_temperature_sensor temp_sensor;
     int16_t temperature;
     uint32_t gps_time_in_seconds;
+    uint32_t file_id;
+    enum sid_demo_temperature_sensor temp_sensor;
+    enum sid_demo_ota_completion_status ota_status;
+    struct sid_demo_ota_progress_stats ota_stats;
     struct sid_demo_button_action_resp button_action_notify;
 };
 
+struct sid_demo_sdk_version {
+    uint32_t major;
+    uint32_t minor;
+    uint32_t patch;
+    uint32_t build;
+};
+
 #ifdef __cplusplus
-} // extern "C"
+}   // extern "C"
 #endif
 
 #endif /* SID_DEMO_TYPES_H */

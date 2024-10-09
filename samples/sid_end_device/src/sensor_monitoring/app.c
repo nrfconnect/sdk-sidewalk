@@ -266,8 +266,15 @@ void app_start(void)
 		.on_factory_reset = on_sidewalk_factory_reset,
 	};
 
+	struct sid_end_device_characteristics dev_ch = {
+		.type = SID_END_DEVICE_TYPE_STATIC,
+		.power_type = SID_END_DEVICE_POWERED_BY_BATTERY_AND_LINE_POWER,
+		.qualification_id = 0x0001,
+	};
+
 	sid_ctx.config = (struct sid_config){
 		.link_mask = 0,
+		.dev_ch = dev_ch,
 		.callbacks = &event_callbacks,
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
