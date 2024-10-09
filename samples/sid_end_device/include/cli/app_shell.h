@@ -42,7 +42,7 @@
 	"link value is optional, it can take the same values as for sid init command. If link value is not present the one set with sid init will be used to call sid_stop api."
 
 #define CMD_SID_SEND_DESCRIPTION                                                                                                                                                                     \
-	"-t <tv> -d <dv> -l <lm> -i <id> -a <ack> <retry> <ttl> -r <data>\n"                                                                                                                         \
+	"-t <tv> -d <dv> -l <lm> -i <id> -o <low> -a <ack> <retry> <ttl> -r <data>\n"                                                                                                                \
 	"send data over the SID_LINK_TYPE selected, calls the sid_put_msg()API.\n"                                                                                                                   \
 	"Data field must always be placed at the end of command patametrs. If -r parameter is not preset data filed is treated as ascii. Example usage:\n"                                           \
 	"    - sid send TEST\n"                                                                                                                                                                      \
@@ -66,6 +66,10 @@
 	"- i message id that needs to be used to send response. Valid only for messages of type response\n"                                                                                          \
 	"	<id> response id\n"                                                                                                                                                                        \
 	"- r data is interpreted hex string e.g. 010203AAFF\n"                                                                                                                                       \
+	"- o low laency configuration\n"                                                                                                                                                             \
+	"possible <low> values:\n"                                                                                                                                                                   \
+	"0 - Default Setting. Send the message with low latency disabled\n"                                                                                                                          \
+	"1 - Send the message as a LoRa low latency message\n"                                                                                                                                       \
 	"- a configure parameters for transport ack:\n"                                                                                                                                              \
 	"	<ack> - enable/disable ACK\n"                                                                                                                                                              \
 	"		1 - enable ACK\n"                                                                                                                                                                         \
@@ -78,8 +82,8 @@
 	"factory reset the board, deleting all registration status. This calls the sid_set_factory_reset() API."
 
 #define CMD_SID_GET_MTU_DESCRIPTION                                                                \
-	"<1,2,3>\n"                                                                                \
-	"get the MTU for the selected link type, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA). This calls the sid_get_mtu() API."
+	"<1,2,3,8>\n"                                                                              \
+	"get the MTU for the selected link type, 1 is SID_LINK_TYPE_1 (BLE), 2 is SID_LINK_TYPE_2 (FSK), 3 is SID_LINK_TYPE_3 (LORA), 8 is SID_LINK_TYPE_ANY. This calls the sid_get_mtu() API."
 
 #define CMD_SID_SET_OPTION_DESCRIPTION                                                             \
 	"<option> <val1>...<valN>\n"                                                               \
@@ -121,7 +125,7 @@
 	"<policy>\n"                                                                                     \
 	"Set Multi link policy parameters\n"                                                             \
 	"<policy> - The multi link policy that needs to be applied. valid values are only (0,1,2,3,4)\n" \
-	"   0 - SID_LINK_MULTI_LINK_POLICY_ACTIVE\n"                                                     \
+	"   0 - SID_LINK_MULTI_LINK_POLICY_DEFAULT\n"                                                    \
 	"   1 - SID_LINK_MULTI_LINK_POLICY_POWER_SAVE\n"                                                 \
 	"   2 - SID_LINK_MULTI_LINK_POLICY_PERFORMANCE\n"                                                \
 	"   3 - SID_LINK_MULTI_LINK_POLICY_LATENCY\n"                                                    \
@@ -148,6 +152,10 @@
 	"-lp_set 0x81 <rxwc> - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter\n"                                                                   \
 	"-lp_set 0x83 <rxwc> - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter\n"                                                                   \
 	"<rxwc> - (uint8) rx window count. 0 represents infinite windows\n"
+
+#define CMD_SID_OPTION_GSI_DESCRIPTION                                                             \
+	"\n"                                                                                       \
+	"Get Sidewalk ID, ex: SIDEWALK_ID: BFFFFFCAFE\n"
 
 #define CMD_SID_LAST_STATUS_DESCRIPTION                                                            \
 	"\n"                                                                                       \
@@ -219,6 +227,8 @@
 #define CMD_SID_SET_OPTION_C_ARG_OPTIONAL 2
 #define CMD_SID_SET_OPTION_LP_SET_ARG_REQUIRED 2
 #define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 1
+#define CMD_SID_OPTION_GSI_ARG_REQUIRED 1
+#define CMD_SID_OPTION_GSI_ARG_OPTIONAL 0
 #define CMD_SID_LAST_STATUS_ARG_REQUIRED 1
 #define CMD_SID_LAST_STATUS_ARG_OPTIONAL 0
 #define CMD_SID_CONN_REQUEST_ARG_REQUIRED 2
@@ -260,6 +270,7 @@ int cmd_sid_option_m(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_sid_id(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv);
