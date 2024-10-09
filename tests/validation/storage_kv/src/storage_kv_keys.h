@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2018-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -82,6 +82,10 @@ typedef enum {
     STORAGE_KV_DIAG_PHY_PKT_LORA,               // 55
     STORAGE_KV_DIAG_MODULATION,                 // 56
     STORAGE_KV_LORA_LOW_LATENCY_PARAMS,         // 57
+    STORAGE_KV_EP_CAP_PARAMS,                   // 58
+    STORAGE_KV_EP_CFG_PARAMS,                   // 59
+    STORAGE_KV_EP_METRICS_EN_CONFIG,            // 60
+    STORAGE_KV_GW_DISTRESS_DISC_STATS,          // 61
     STORAGE_KV_LAST_ENTRY,
     STORAGE_KV_EXTRY_MAX_VALUE = 0x6FFE
 } storage_kv_key_t;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -237,9 +237,9 @@ struct sid_msg_desc_rx_attributes {
      * propagating this message to the user*/
     bool ack_requested;
     /** rssi of the received message */
-    int8_t rssi;
+    int16_t rssi;
     /** snr of the received message */
-    int8_t snr;
+    int16_t snr;
 };
 
 union sid_msg_desc_attributes {
@@ -358,9 +358,9 @@ enum sid_option {
     /** Option to get the device profile configuration. Value is of type struct sid_device_profile */
     SID_OPTION_900MHZ_GET_DEVICE_PROFILE = 2,
     /** Option to set the message policy to filter duplicates, value is 0 or 1, when set to 0, the default  setting,
-      * duplicates are filtered and are not propagated using #on_msg_received, when set to 1,  duplicates are detected
-      * and are propagated using #on_msg_receive, see #sid_msg_desc_rx_attributes
-      */
+     * duplicates are filtered and are not propagated using #on_msg_received, when set to 1,  duplicates are detected
+     * and are propagated using #on_msg_receive, see #sid_msg_desc_rx_attributes
+     */
     SID_OPTION_SET_MSG_POLICY_FILTER_DUPLICATES = 3,
     /** Option to get the configured policy of filtering duplicates, 0 - Filter duplicates, 1 - Allow duplicates */
     SID_OPTION_GET_MSG_POLICY_FILTER_DUPLICATES = 4,
@@ -385,6 +385,9 @@ enum sid_option {
     SID_OPTION_GET_STATISTICS = 11,
     /** Clear msg statistics for the device */
     SID_OPTION_CLEAR_STATISTICS = 12,
+    /** Get the Sidewalk ID for the device. Since Sidewalk ID is given to the device post regsitration. This option will
+     * only work post regsitration */
+    SID_OPTION_GET_SIDEWALK_ID = 13,
     /** Delimiter to enum sid_option*/
     SID_OPTION_LAST,
 };
@@ -398,7 +401,7 @@ enum sid_option {
 enum sid_time_format {
     /** Option to get current gps time */
     SID_GET_GPS_TIME = 0,
-    /** Delimiter to enum sid_time_format*/
+    /** Delimiter to enum sid_time_format */
     SID_GET_TIME_LAST,
 
 };
@@ -408,10 +411,33 @@ enum sid_time_format {
  *  @see on_control_event_notify in #sid_event_callbacks.
  */
 enum sid_control_event_type {
-    /** Event indicating change in low latency configuraiton for #SID_LINK_TYPE_3*/
+    /** Event indicating change in low latency configuraiton for #SID_LINK_TYPE_3 */
     SID_CONTROL_EVENT_LOW_LATENCY_CONFIG_UPDATE = 0,
+    /** Event indicating the device exceeded the traffic thresholds */
+    SID_CONTROL_EVENT_TRAFFIC_THRESHOLD_RATE_EXCEEDED = 1,
     /** Delimiter to enum sid_control_event_type */
     SID_CONTROL_EVENT_LAST,
+};
+
+/**
+ * The sidewalk enforced Sidewalk traffic limit types
+ */
+enum sid_traffic_rate_limit_type {
+    /** The traffic rate threshold has exceeded */
+    SID_TRAFFIC_RATE_THRESHOLD_EXCEEDED = 0,
+    /** The daily limit of messages has exceeded */
+    SID_TRAFFIC_MAX_PACKETS_PER_DAY_EXCEEDED = 1,
+    /** Delimiter to enum sid_traffic_rate_limit_type */
+    SID_TRAFFIC_LAST,
+};
+
+struct sid_traffic_rate_limit {
+    /** The link type that has exceeded the traffic thresholds */
+    enum sid_link_type link_type;
+    /** The threshold type that is exceeded*/
+    enum sid_traffic_rate_limit_type limit_type;
+    /** The time period in seconds after which the User can attempt send messages*/
+    uint32_t try_after_secs;
 };
 
 /**
@@ -421,6 +447,53 @@ struct sid_control_event_data {
     enum sid_control_event_type event_type;
     /** Object used to store data pertaining to the event */
     void *event_data;
+};
+
+/**
+ * Structure to hold Sidewalk ID
+ */
+struct sid_id {
+#define MAX_SIDEWALK_ID_LEN 7
+    /** Array that holds the Sidewalk ID */
+    uint8_t id[MAX_SIDEWALK_ID_LEN];
+    /* Len of the Sidewalk ID */
+    size_t len;
+};
+
+/**
+ * The sidewalk end device type
+ */
+enum sid_end_device_type {
+    /** The end device is a static device*/
+    SID_END_DEVICE_TYPE_STATIC = 1,
+    /** The end device is a mobile device*/
+    SID_END_DEVICE_TYPE_MOBILE = 2,
+    SID_END_DEVICE_TYPE_LAST,
+};
+
+/**
+ * The source that powers the Sidewalk end device
+ */
+enum sid_end_device_power_type {
+    /** The end device powered by battery only*/
+    SID_END_DEVICE_POWERED_BY_BATTERY_ONLY = 1,
+    /** The end device is line powered*/
+    SID_END_DEVICE_POWERED_BY_LINE_POWER_ONLY = 2,
+    /** The end device can either be powered by battery or line powered*/
+    SID_END_DEVICE_POWERED_BY_BATTERY_AND_LINE_POWER = 3,
+    SID_END_DEVICE_POWERED_BY_LAST,
+};
+
+/**
+ * The characteristics of the End Point
+ */
+struct sid_end_device_characteristics {
+    /** The end device type*/
+    enum sid_end_device_type type;
+    /** The end device power source*/
+    enum sid_end_device_power_type power_type;
+    /** The end device id provided at qualification*/
+    uint16_t qualification_id;
 };
 
 /**
@@ -532,6 +605,8 @@ struct sid_config {
      * #SID_LINK_TYPE_ANY is an invalid option for sid_config
      */
     uint32_t link_mask;
+    /** The characteristics of the end device */
+    struct sid_end_device_characteristics dev_ch;
     /** The event callbacks associated with the chosen link.
      *  Must use static const storage as member is accessed by the Sidewalk stack without being copied.
      */
@@ -727,6 +802,8 @@ sid_error_t sid_get_error(struct sid_handle *handle);
 
 /**
  * Gets the MTU associated with the given link_type.
+ *
+ * @note If #SID_LINK_TYPE_ANY is given, the api will return  #SID_ERROR_NOSUPPORT
  *
  * @param[in]  handle    A pointer to the handle returned by sid_init()
  * @param[in]  link_type The link type to query

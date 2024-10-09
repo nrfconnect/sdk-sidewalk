@@ -31,6 +31,9 @@ config SIDEWALK_BLE
 	default SIDEWALK
 	imply BT
 	imply BT_PERIPHERAL
+	imply BT_CTLR_CONN_RSSI
+	imply BT_CTLR_TX_PWR_DYNAMIC_CONTROL
+	imply BT_CTLR_ADVANCED_FEATURES
 	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
