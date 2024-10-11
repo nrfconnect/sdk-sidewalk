@@ -22,37 +22,33 @@
 #include <sid_gpio_utils.h>
 #include <sx126x_config.h>
 
-#if CONFIG_SOC_NRF52840
-#include <nrfx_spi.h>
-#endif /* CONFIG_SOC_NRF52840 */
-
 #include <app_subGHz_config.h>
 
 #define REGION_US915
 
 /* This product has no external PA and SX1262 can support max of 22dBm*/
-#define RADIO_SX1262_MAX_TX_POWER                                  22
-#define RADIO_SX1262_MIN_TX_POWER                                  -9
+#define RADIO_SX1262_MAX_TX_POWER 22
+#define RADIO_SX1262_MIN_TX_POWER -9
 
-#define RADIO_MAX_TX_POWER_NA                                      20
-#define RADIO_MAX_TX_POWER_EU                                      14
+#define RADIO_MAX_TX_POWER_NA 20
+#define RADIO_MAX_TX_POWER_EU 14
 
-#define RADIO_REGION                                               RADIO_REGION_NA
+#define RADIO_REGION RADIO_REGION_NA
 
-#define RADIO_SX1262_SPI_BUFFER_SIZE                               255
+#define RADIO_SX1262_SPI_BUFFER_SIZE 255
 
-#define RADIO_SX1262_PA_DUTY_CYCLE                                 0x04
-#define RADIO_SX1262_HP_MAX                                        0x07
-#define RADIO_SX1262_DEVICE_SEL                                    0x00
-#define RADIO_SX1262_PA_LUT                                        0x01
+#define RADIO_SX1262_PA_DUTY_CYCLE 0x04
+#define RADIO_SX1262_HP_MAX 0x07
+#define RADIO_SX1262_DEVICE_SEL 0x00
+#define RADIO_SX1262_PA_LUT 0x01
 
-#define RADIO_RX_LNA_GAIN                                          0
-#define RADIO_MAX_CAD_SYMBOL                                       SID_PAL_RADIO_LORA_CAD_04_SYMBOL
-#define RADIO_ANT_GAIN(X)                                          ((X) * 100)
+#define RADIO_RX_LNA_GAIN 0
+#define RADIO_MAX_CAD_SYMBOL SID_PAL_RADIO_LORA_CAD_04_SYMBOL
+#define RADIO_ANT_GAIN(X) ((X) * 100)
 
-#define NULL_STRUCT_INITIALIZER                                    { 0 }
-#define INVALID_DT_GPIO                                            NULL_STRUCT_INITIALIZER
-#define SPI_FREQUENCY_DEFAULT                                      (DT_FREQ_M(8))
+#define NULL_STRUCT_INITIALIZER { 0 }
+#define INVALID_DT_GPIO NULL_STRUCT_INITIALIZER
+#define SPI_FREQUENCY_DEFAULT (DT_FREQ_M(8))
 
 static uint8_t radio_sx1262_buffer[RADIO_SX1262_SPI_BUFFER_SIZE] = { 0 };
 
@@ -77,38 +73,33 @@ static int32_t radio_sx1262_pa_cfg(int8_t tx_power, radio_sx126x_pa_cfg_t *pa_cf
 	pa_cfg->hp_max = RADIO_SX1262_HP_MAX;
 	pa_cfg->device_sel = RADIO_SX1262_DEVICE_SEL;
 	pa_cfg->pa_lut = RADIO_SX1262_PA_LUT;
-	pa_cfg->tx_power = pwr;  // one to one mapping between tx params and tx power
+	pa_cfg->tx_power = pwr; // one to one mapping between tx params and tx power
 	pa_cfg->ramp_time = RADIO_SX126X_RAMP_40_US;
 
 	return 0;
 }
 
-static int32_t radio_sx1262_trim_val (uint16_t* trim_val)
+static int32_t radio_sx1262_trim_val(uint16_t *trim_val)
 {
 	*trim_val = CONFIG_SIDEWALK_SUBGHZ_TRIM_CAP_VAL;
 	return 0;
 }
 
-const radio_sx126x_regional_param_t radio_sx126x_regional_param[] =
-{
-    #if defined (REGION_ALL) || defined (REGION_US915)
-	{
-		.param_region = RADIO_REGION_NA,
-		.max_tx_power = { RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
-				  RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA },
-		.cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
-		.ant_dbi = RADIO_ANT_GAIN(2.15)
-	},
-    #endif
-    #if defined (REGION_ALL) || defined (REGION_EU868)
-	{
-		.param_region = RADIO_REGION_EU,
-		.max_tx_power = { RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
-				  RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU },
-		.cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
-		.ant_dbi = RADIO_ANT_GAIN(2.15)
-	},
-    #endif
+const radio_sx126x_regional_param_t radio_sx126x_regional_param[] = {
+#if defined(REGION_ALL) || defined(REGION_US915)
+	{ .param_region = RADIO_REGION_NA,
+	  .max_tx_power = { RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
+			    RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA },
+	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
+	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
+#endif
+#if defined(REGION_ALL) || defined(REGION_EU868)
+	{ .param_region = RADIO_REGION_EU,
+	  .max_tx_power = { RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
+			    RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU },
+	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
+	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
+#endif
 };
 
 static radio_sx126x_device_config_t radio_sx1262_cfg = {
@@ -149,31 +140,25 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 const radio_sx126x_device_config_t *get_radio_cfg(void)
 {
 	radio_sx1262_cfg.gpio_power =
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_reset_gpios), gpios, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_reset_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_int1 =
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_dio1_gpios), gpios, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_dio1_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_radio_busy =
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_busy_gpios), gpios, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_busy_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_rf_sw_ena =
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_antenna_enable_gpios),
-							      gpios, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_antenna_enable_gpios), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.client_selector =
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.client_selector = 
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
+	radio_sx1262_cfg.bus_selector.client_selector =
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.speed_hz =
-#if CONFIG_SOC_NRF52840
-		NRF_SPI_FREQ_8M;
-#else /* CONFIG_SOC_NRF52840 */
 		DT_PROP_OR(DT_NODELABEL(sid_semtech), clock_frequency, SPI_FREQUENCY_DEFAULT);
-#endif /* CONFIG_SOC_NRF52840 */
-
 	radio_sx1262_cfg.gpio_tx_bypass =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
 			DT_NODELABEL(semtech_sx1262_tx_bypass), gpios, INVALID_DT_GPIO));

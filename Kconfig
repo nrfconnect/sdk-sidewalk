@@ -243,38 +243,6 @@ config SIDEWALK_PAL_RADIO_SOURCE
 	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
 	select EXPERIMENTAL
 
-if SIDEWALK_SPI_BUS
-
-choice SIDEWALK_NRFX_SPI_INSTANCE_ID
-	prompt "Instance of the NRX SPI driver"
-	depends on SOC_NRF52840
-	default SIDEWALK_NRFX_SPI2
-	help
-	  Select the NRFX SPI instance.
-	  The same SPI instance must be disabled in the DTS.
-
-config SIDEWALK_NRFX_SPI0
-	bool "SPI0"
-	select NRFX_SPI0
-
-config SIDEWALK_NRFX_SPI1
-	bool "SPI1"
-	select NRFX_SPI1
-
-config SIDEWALK_NRFX_SPI2
-	bool "SPI2"
-	select NRFX_SPI2
-
-endchoice # SIDEWALK_NRFX_SPI_INSTANCE_ID
-
-config SIDEWALK_NRFX_SPI_ID
-	int
-	depends on SOC_NRF52840
-	default 2
-	default 1 if SIDEWALK_NRFX_SPI1
-	default 0 if SIDEWALK_NRFX_SPI0
-
-endif # SIDEWALK_SPI_BUS
 
 rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"

@@ -8,31 +8,17 @@
 	status = "disabled";
 };
 
-&spi2 {
-	status = "disabled";
+sid_semtech: &spi2 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	cs-gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
+	pinctrl-0 = <&spi2_default>;
+	pinctrl-1 = <&spi2_sleep>;
+	pinctrl-names = "default", "sleep";
+	clock-frequency = <DT_FREQ_M(8)>;
 };
 
 /{
-	nrfx_spi_gpios{
-		compatible = "gpio-keys";
-		nrfx_spi_sck: sck {
-			gpios = <&gpio1 0xF GPIO_ACTIVE_LOW>;
-			label = "spi_sck";
-		};
-		nrfx_spi_miso: miso {
-			gpios = <&gpio1 0xE GPIO_ACTIVE_HIGH>;
-			label = "spi_miso";
-		};
-		nrfx_spi_mosi: mosi {
-			gpios = <&gpio1 0xD GPIO_ACTIVE_HIGH>;
-			label = "spi_mosi";
-		};
-		nrfx_spi_cs: cs {
-			gpios = <&gpio1 0x8 GPIO_ACTIVE_HIGH>;
-			label = "spi_cs";
-		};
-	};
-
 	state_notifier_gpios{
 		compatible = "gpio-keys";
 		state_notifier_error: error  {
@@ -66,10 +52,6 @@
 
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
-		semtech_sx1262_cs: cs {
-			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
-			label = "semtech_sx1262 CS";
-		};
 		semtech_sx1262_reset_gpios: reset {
 			gpios = <&gpio0 0x3 GPIO_ACTIVE_LOW>;
 			label = "semtech_sx1262 Reset";
@@ -90,5 +72,22 @@
 
 	chosen {
 		nordic,pm-ext-flash = &mx25r64;
+	};
+};
+
+&spi2_default {
+	group1 {
+		psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+		        <NRF_PSEL(SPIM_MISO, 1, 14)>,
+		        <NRF_PSEL(SPIM_MOSI, 1, 13)>;
+	};
+};
+
+&spi2_sleep {
+	group1 {
+		psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+		        <NRF_PSEL(SPIM_MISO, 1, 14)>,
+		        <NRF_PSEL(SPIM_MOSI, 1, 13)>;
+		low-power-enable;
 	};
 };
