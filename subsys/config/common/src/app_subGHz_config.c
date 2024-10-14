@@ -161,16 +161,16 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_antenna_enable_gpios),
 							      gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.client_selector =
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.client_selector = 
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.speed_hz =
 #if CONFIG_SOC_NRF52840
-		NRF_SPI_FREQ_8M;
+	radio_sx1262_cfg.bus_selector.client_selector =
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(nrfx_spi_cs), gpios, INVALID_DT_GPIO));
+	radio_sx1262_cfg.bus_selector.speed_hz = NRF_SPI_FREQ_8M;
 #else /* CONFIG_SOC_NRF52840 */
+	radio_sx1262_cfg.bus_selector.client_selector = 
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(sid_semtech), nrfx_spi_cs, INVALID_DT_GPIO));
+	radio_sx1262_cfg.bus_selector.speed_hz =
 		DT_PROP_OR(DT_NODELABEL(sid_semtech), clock_frequency, SPI_FREQUENCY_DEFAULT);
 #endif /* CONFIG_SOC_NRF52840 */
 
