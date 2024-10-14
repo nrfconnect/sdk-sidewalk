@@ -66,10 +66,6 @@
 
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
-		semtech_sx1262_cs: cs {
-			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
-			label = "semtech_sx1262 CS";
-		};
 		semtech_sx1262_reset_gpios: reset {
 			gpios = <&gpio0 0x3 GPIO_ACTIVE_LOW>;
 			label = "semtech_sx1262 Reset";
