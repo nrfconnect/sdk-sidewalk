@@ -167,16 +167,27 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 			DT_NODELABEL(nrfx_spi_cs), gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.speed_hz = NRF_SPI_FREQ_8M;
 #else /* CONFIG_SOC_NRF52840 */
+
 	radio_sx1262_cfg.bus_selector.client_selector = 
-		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(sid_semtech), nrfx_spi_cs, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio(
+			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.speed_hz =
 		DT_PROP_OR(DT_NODELABEL(sid_semtech), clock_frequency, SPI_FREQUENCY_DEFAULT);
 #endif /* CONFIG_SOC_NRF52840 */
 
+	__ASSERT(radio_sx1262_cfg.gpio_power < GPIO_UNUSED_PIN, "gpio_power invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.gpio_int1 < GPIO_UNUSED_PIN, "gpio_int1 invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.gpio_radio_busy < GPIO_UNUSED_PIN, "gpio_radio_busy invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.gpio_rf_sw_ena < GPIO_UNUSED_PIN, "gpio_rf_sw_ena invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.bus_selector.client_selector < GPIO_UNUSED_PIN, "client_selector invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.bus_selector.speed_hz != 0, "invalid speed of SPI = %d", radio_sx1262_cfg.bus_selector.speed_hz);
+
 	radio_sx1262_cfg.gpio_tx_bypass =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
 			DT_NODELABEL(semtech_sx1262_tx_bypass), gpios, INVALID_DT_GPIO));
+
+	__ASSERT(radio_sx1262_cfg.gpio_tx_bypass <= GPIO_UNUSED_PIN, "gpio_tx_bypass invalid GPIO");
+
 	return &radio_sx1262_cfg;
 }
 
