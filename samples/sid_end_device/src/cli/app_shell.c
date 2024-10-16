@@ -75,6 +75,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      CMD_SID_SET_OPTION_ML_ARG_REQUIRED, CMD_SID_SET_OPTION_ML_ARG_OPTIONAL),
 	SHELL_CMD_ARG(-gc, NULL, CMD_SID_SET_OPTION_GC_DESCRIPTION, cmd_sid_option_gc,
 		      CMD_SID_SET_OPTION_GC_ARG_REQUIRED, CMD_SID_SET_OPTION_GC_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-gsi, NULL, CMD_SID_OPTION_GSI_DESCRIPTION, cmd_sid_option_sid_id,
+		      CMD_SID_OPTION_GSI_ARG_REQUIRED, CMD_SID_OPTION_GSI_ARG_OPTIONAL),
 
 	SHELL_SUBCMD_SET_END);
 
@@ -440,6 +442,28 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			}
 			continue;
 		}
+		if (strcmp("-o", argv[opt]) == 0) {
+			opt++;
+			if (opt >= argc) {
+				shell_error(shell, "-o need a value");
+				return -EINVAL;
+			}
+			switch (argv[opt][0]) {
+			case '0':
+				desc.msg_desc_attr.tx_attr.additional_attr =
+					SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_NONE;
+				break;
+			case '1':
+				desc.msg_desc_attr.tx_attr.additional_attr =
+					SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_LORA_LOW_LATENCY;
+				break;
+			default: {
+				shell_error(shell, "invalid configuration");
+				return -EINVAL;
+			}
+			}
+			continue;
+		}
 		if (strcmp("-r", argv[opt]) == 0) {
 			opt++;
 			if (opt >= argc) {
@@ -587,6 +611,10 @@ int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv)
 	case '3':
 		link_mask = SID_LINK_TYPE_3;
 		break;
+	case CLI_CMD_OPT_LINK_ANY: {
+		link_mask = SID_LINK_TYPE_ANY;
+		break;
+	}
 	default:
 		shell_error(shell, "invalid value");
 		return -EINVAL;
@@ -793,6 +821,18 @@ int cmd_sid_option_gml(const struct shell *shell, int32_t argc, const char **arg
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_get(SID_OPTION_GET_LINK_POLICY_MULTI_LINK_POLICY);
+	if (err) {
+		shell_error(shell, "event err %d", err);
+	}
+
+	return 0;
+}
+
+int cmd_sid_option_sid_id(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_ARGUMENT_COUNT(argc, 1, 0);
+
+	int err = cmd_sid_option_get(SID_OPTION_GET_SIDEWALK_ID);
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
