@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -189,6 +189,42 @@ void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int l
 #endif /* DEBUG */
 
 #define SID_PAL_LOG_TRACE()                    SID_PAL_LOG_INFO("%s:%i %s() TRACE --", __FILENAME__, __LINE__, __FUNCTION__)
+
+#if SID_HAL_DISABLE_LOGS
+#define SID_HAL_LOG_INFO(...)
+#define SID_HAL_LOG_DEBUG(...)
+#define SID_HAL_LOG_ERROR(...)
+#define SID_HAL_LOG_WARNING(...)
+#define SID_HAL_LOG_HEXDUMP_WARNING(data, len)
+#define SID_HAL_LOG_HEXDUMP_INFO(data, len)
+#define SID_HAL_LOG_HEXDUMP_DEBUG(data, len)
+#define SID_HAL_LOG_FLUSH()
+#else
+
+#define SID_HAL_EVENT_LOG_ID(tag_id_, module_id_, message_id_) ((SID_HAL_EVENT_LOG_TAG_##tag_id_ << 24) | (CONCAT4(SID_HAL_EVENT_LOG_MODULE_, tag_id_ , _,  module_id_) << 16) | message_id_)
+#if defined(SID_EVENT_LOG_RENDERER) && SID_EVENT_LOG_RENDERER
+#define SID_HAL_EVENT_LOG_DEFINE(id_, name_, raw_message_) static const char *name_ = raw_message_;
+#include SID_EVENT_LOG_DATABASE_FILE_NAME
+#endif
+
+// Added to have an ability to change protocol's log level independently
+#define SID_HAL_LOG(level, fmt_, ...)                                                           \
+    do {                                                                                        \
+            sid_pal_log(level, SID_PAL_VA_NARG(__VA_ARGS__), fmt_, ##__VA_ARGS__);              \
+    } while(0)
+
+#define SID_HAL_LOG_ERROR(fmt_, ...)                      SID_HAL_LOG(SID_PAL_LOG_SEVERITY_ERROR, fmt_, ##__VA_ARGS__)
+#define SID_HAL_LOG_WARNING(fmt_, ...)                    SID_HAL_LOG(SID_PAL_LOG_SEVERITY_WARNING, fmt_, ##__VA_ARGS__)
+#define SID_HAL_LOG_INFO(fmt_, ...)                       SID_HAL_LOG(SID_PAL_LOG_SEVERITY_INFO, fmt_, ##__VA_ARGS__)
+#define SID_HAL_LOG_DEBUG(fmt_, ...)                      SID_HAL_LOG(SID_PAL_LOG_SEVERITY_DEBUG, fmt_, ##__VA_ARGS__)
+#define SID_HAL_LOG_FLUSH                                 SID_PAL_LOG_FLUSH
+#define SID_HAL_LOG_PUSH_STR                              SID_PAL_LOG_PUSH_STR
+
+#define SID_HAL_LOG_HEXDUMP_ERROR(data_, len_)            sid_pal_hexdump(SID_PAL_LOG_SEVERITY_ERROR, data_, len_)
+#define SID_HAL_LOG_HEXDUMP_WARNING(data_, len_)          sid_pal_hexdump(SID_PAL_LOG_SEVERITY_WARNING, data_, len_)
+#define SID_HAL_LOG_HEXDUMP_INFO(data_, len_)             sid_pal_hexdump(SID_PAL_LOG_SEVERITY_INFO, data_, len_)
+#define SID_HAL_LOG_HEXDUMP_DEBUG(data_, len_)            sid_pal_hexdump(SID_PAL_LOG_SEVERITY_DEBUG, data_, len_)
+#endif
 
 #ifdef __cplusplus
 }

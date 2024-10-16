@@ -33,7 +33,8 @@ extern "C" {
  * @param[in] pointer to the sid demo app message structure.
  */
 void sid_demo_app_msg_serialize(struct sid_parse_state *const state,
-                                struct sid_demo_msg_desc *msg_desc, struct sid_demo_msg *msg);
+                                struct sid_demo_msg_desc *msg_desc,
+                                struct sid_demo_msg *msg);
 
 /**
  * serializes the demo app capability structure fields to a buffer
@@ -59,8 +60,7 @@ void sid_demo_app_action_req_serialize(struct sid_parse_state *const state,
  * @param[in,out] state A pointer to the sid_parse_state
  * @param[in] pointer to the sid demo app action response structure.
  */
-void sid_demo_app_action_resp_serialize(struct sid_parse_state *const state,
-                                        struct sid_demo_action_resp *action_resp);
+void sid_demo_app_action_resp_serialize(struct sid_parse_state *const state, struct sid_demo_action_resp *action_resp);
 
 /**
  * serializes the sid demo action notification structure fields to a buffer
@@ -72,6 +72,15 @@ void sid_demo_app_action_notification_serialize(struct sid_parse_state *const st
                                                 struct sid_demo_action_notification *action_notify);
 
 /**
+ * Serializes the sdk version
+ *
+ * @pram[in, out] state A pointer to the sid_parse_state
+ * @param[in] pointer to sid demo sdk version structure
+ */
+void sid_demo_sdk_version_serialize(struct sid_parse_state *const state,
+                                    const struct sid_demo_sdk_version *sdk_version);
+
+/**
  * De-serializes the buffer to sid demo message descriptor and sid demo message structure fields
  *
  * @param[in,out] state A pointer to the sid_parse_state
@@ -79,7 +88,8 @@ void sid_demo_app_action_notification_serialize(struct sid_parse_state *const st
  * @param[out] pointer to the sid demo message structure.
  */
 void sid_demo_app_msg_deserialize(struct sid_parse_state *const state,
-                                  struct sid_demo_msg_desc *msg_desc, struct sid_demo_msg *msg);
+                                  struct sid_demo_msg_desc *msg_desc,
+                                  struct sid_demo_msg *msg);
 
 /**
  * De-serializes the buffer to sid demo app capability discovery structure fields
@@ -117,8 +127,16 @@ void sid_demo_app_action_resp_deserialize(struct sid_parse_state *const state,
 void sid_demo_app_action_notification_deserialize(struct sid_parse_state *const state,
                                                   struct sid_demo_action_notification *action_notify);
 
+/**
+ * De-serializes the sdk version
+ *
+ * @pram[in, out] state A pointer to the sid_parse_state
+ * @param[out] pointer to sid demo sdk version structure
+ */
+void sid_demo_sdk_version_deserialize(struct sid_parse_state *const state, struct sid_demo_sdk_version *sdk_version);
+
 #ifdef __cplusplus
-} // extern "C"
+}   // extern "C"
 #endif
 
 #endif /* SID_DEMO_PARSER_H */

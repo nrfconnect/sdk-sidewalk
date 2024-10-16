@@ -116,6 +116,8 @@ typedef struct sid_pal_radio_fsk_cad_params {
     uint16_t fsk_ed_duration_mus;
     uint8_t fsk_cs_min_prm_det;
     uint32_t fsk_cs_duration_us;
+    uint32_t fsk_cs_lbt_rx_timeout;
+    uint16_t fsk_cs_lbt_preamble_len;
 } sid_pal_radio_fsk_cad_params_t;
 
 enum sid_pal_radio_fsk_header_type {
