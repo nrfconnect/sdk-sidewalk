@@ -44,8 +44,6 @@ config NETCORE_APP_UPDATE
 config DFU_MULTI_IMAGE_PACKAGE_NET
 	default y
 
-endif # BOOTLOADER_MCUBOOT
-
 endif # (BOARD_NRF5340DK_NRF5340_CPUAPP || BOARD_THINGY53_NRF5340_CPUAPP)
 
 config PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY
@@ -54,5 +52,7 @@ config PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY
 # override the mcuboot pad size, because it is not set globally for NS build.
 config PM_MCUBOOT_PAD
 	default 0x800
+
+endif # BOOTLOADER_MCUBOOT
 
 source "${ZEPHYR_BASE}/share/sysbuild/Kconfig"

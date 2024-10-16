@@ -50,7 +50,7 @@ void sid_gpio_utils_clear_register(void)
 	memset(&ctx, 0, sizeof(ctx));
 }
 
-uint32_t find_gpio_in_register(struct gpio_dt_spec gpio_from_dts)
+static uint32_t find_gpio_in_register(struct gpio_dt_spec gpio_from_dts)
 {
 	for (uint32_t i = 0; i < ctx.next_free_slot; i++) {
 		if (ctx.supported_pins[i].gpio.port == gpio_from_dts.port &&
