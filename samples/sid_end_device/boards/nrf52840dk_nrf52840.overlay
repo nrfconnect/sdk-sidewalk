@@ -16,7 +16,7 @@
 	nrfx_spi_gpios{
 		compatible = "gpio-keys";
 		nrfx_spi_sck: sck {
-			gpios = <&gpio1 0xF GPIO_ACTIVE_LOW>;
+			gpios = <&gpio1 0xF GPIO_ACTIVE_HIGH>;
 			label = "spi_sck";
 		};
 		nrfx_spi_miso: miso {
@@ -28,7 +28,7 @@
 			label = "spi_mosi";
 		};
 		nrfx_spi_cs: cs {
-			gpios = <&gpio1 0x8 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
 			label = "spi_cs";
 		};
 	};

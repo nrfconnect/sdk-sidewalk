@@ -15,19 +15,19 @@
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
 		semtech_sx1262_reset_gpios: reset {
-			gpios = <&gpio0 0x2 (GPIO_ACTIVE_LOW|GPIO_PULL_UP)>;
+			gpios = <&gpio0 0x2 GPIO_ACTIVE_LOW>;
 			label = "semtech_sx1262 Reset";
 		};
 		semtech_sx1262_busy_gpios: busy {
-			gpios = <&gpio0 0x0 0x0>;
+			gpios = <&gpio0 0x0 GPIO_ACTIVE_HIGH>;
 			label = "semtech_sx1262 Busy";
 		};
 		semtech_sx1262_antenna_enable_gpios: antena_enable {
-			gpios = <&gpio0 0x1 0x0>;
+			gpios = <&gpio0 0x1 GPIO_ACTIVE_HIGH>;
 			label = "semtech_sx1262 Antena Enable";
 		};
 		semtech_sx1262_dio1_gpios: dio1 {
-			gpios = <&gpio0 0x3  0x0>;
+			gpios = <&gpio0 0x3  GPIO_ACTIVE_HIGH>;
 			label = "semtech_sx1262 DIO1";
 		};
 	};
