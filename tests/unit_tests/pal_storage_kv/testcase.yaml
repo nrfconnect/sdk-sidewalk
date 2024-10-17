@@ -1,7 +1,19 @@
 tests:
-  sidewalk.unit_tests.storage_kv:
+  sidewalk.unit_tests.storage_kv.NVS:
     sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk
     integration_platforms:
       - native_posix
+
+  sidewalk.unit_tests.storage_kv.ZMS:
+    sysbuild: true
+    platform_allow: native_posix
+    tags: Sidewalk
+    integration_platforms:
+      - native_posix
+    extra_configs:
+      - CONFIG_NVS=n
+      - CONFIG_SETTINGS_NVS=n
+      - CONFIG_ZMS=y
+      - CONFIG_SETTINGS_ZMS=y
