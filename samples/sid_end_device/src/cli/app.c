@@ -39,13 +39,6 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 	LOG_INF("Message send success");
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_msg_sent", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
-	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
-	if (message == NULL) {
-		LOG_ERR("failed to find message buffer to clean");
-		return;
-	}
-	sid_hal_free(message->msg.data);
-	sid_hal_free(message);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
@@ -56,13 +49,6 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 		"on_send_error",
 		JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
 				     JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0)))))));
-	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
-	if (message == NULL) {
-		LOG_ERR("failed to find message buffer to clean");
-		return;
-	}
-	sid_hal_free(message->msg.data);
-	sid_hal_free(message);
 }
 
 static void on_sidewalk_factory_reset(void *context)
@@ -137,8 +123,15 @@ void app_start(void)
 		.on_factory_reset = on_sidewalk_factory_reset,
 	};
 
+	struct sid_end_device_characteristics dev_ch = {
+		.type = SID_END_DEVICE_TYPE_STATIC,
+		.power_type = SID_END_DEVICE_POWERED_BY_BATTERY_AND_LINE_POWER,
+		.qualification_id = 0x0001,
+	};
+
 	sid_ctx.config = (struct sid_config){
 		.link_mask = persistent_link_mask,
+		.dev_ch = dev_ch,
 		.callbacks = &event_callbacks,
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
