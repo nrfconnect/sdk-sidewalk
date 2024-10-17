@@ -32,6 +32,7 @@ extern "C" {
 #define SID_TIME_MINUTE_PER_HOUR   ((uint32_t)60UL)
 #define SID_TIME_HOUR_PER_DAY      ((uint32_t)24UL)
 #define SID_TIME_SEC_PER_DAY       ((uint32_t)SID_TIME_HOUR_PER_DAY * SID_TIME_MINUTE_PER_HOUR * SID_TIME_SEC_PER_MINUTE)
+#define SID_TIME_MIN_PER_DAY       ((uint32_t)SID_TIME_HOUR_PER_DAY * SID_TIME_MINUTE_PER_HOUR)
 
 typedef uint32_t sid_time_t;
 

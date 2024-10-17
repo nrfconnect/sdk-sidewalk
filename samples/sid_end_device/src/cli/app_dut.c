@@ -146,6 +146,12 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 			stats.msg_stats.tx_fail, stats.msg_stats.retries,
 			stats.msg_stats.duplicates, stats.msg_stats.acks_recv, stats.msg_stats.rx);
 	} break;
+	case SID_OPTION_GET_SIDEWALK_ID: {
+		struct sid_id id = { 0 };
+		sid_error_t e = sid_option(sid->handle, opt, &id, sizeof(id));
+		LOG_INF("sid_option returned %d (%s); SIDEWALK_ID: %02X%02X%02X%02X%02X", e,
+			SID_ERROR_T_STR(e), id.id[0], id.id[1], id.id[2], id.id[3], id.id[4]);
+	} break;
 	case SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS: {
 		struct sid_link_auto_connect_params params = { 0 };
 		memcpy(&params.link_type, p_option->data, sizeof(uint32_t));
