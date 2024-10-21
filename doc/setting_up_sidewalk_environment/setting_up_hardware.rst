@@ -101,67 +101,36 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
       The specification of the Semtech module describes that it is possible to provide a separate, higher voltage source for radio while maintaining the lower voltage for communication.
       However, the recommended shield does not support this configuration.
 
-      .. tabs::
+      To use the suggested pins, disable **UART0** (not used by Sidewalk samples) through the `Board Configurator`_ tool in the nRF Connect for Desktop.
+      This step is required for the shield to work as some pins are connected to **UART0** by default.
 
-         .. tab:: PDK revision v0.2.1
+      See a board configuration for the suggested pin layout:
 
-            The v0.2.1 PDK revision does not require any hardware modification, but the buttons are reused to connect the Semtech SX126X shield.
-            Pressing the buttons while working with the Semtech module can lead to malfunctions and undefined behavior.
-            This issue is caused by the limitation of the v0.2.1 PDK revision.
-            It is possible to assign different pins for the radio shield, but you might need to disable some of the PDK's functions, or modify connections by cutting or soldering PDK bridges.
+      +--------------------------------------------------------------+
+      |                                                              |
+      | .. figure:: /images/board_configurator_nrf54l15_0_3_0.png    |
+      |                                                              |
+      +--------------------------------------------------------------+
 
-            +---------------+--------------+
-            | SX126X shield | nRF54L15 PDK |
-            +===============+==============+
-            | BUSY          | P1.12        |
-            +---------------+--------------+
-            | DIO1          | P1.10        |
-            +---------------+--------------+
-            | NSS           | P2.10        |
-            +---------------+--------------+
-            | ANT_SW        | P2.7         |
-            +---------------+--------------+
-            | SPI MOSI      | P2.8         |
-            +---------------+--------------+
-            | SPI MISO      | P2.9         |
-            +---------------+--------------+
-            | SPI SCK       | P2.6         |
-            +---------------+--------------+
-            | NRESET        | P1.11        |
-            +---------------+--------------+
-
-         .. tab:: PDK revision v0.3.0 / v0.7.0
-
-            To use the suggested pins, disable **UART0** (not used by Sidewalk samples) through the `Board Configurator`_ tool in the nRF Connect for Desktop.
-            This step is required for the shield to work as some pins are connected to **UART0** by default.
-
-            See a board configuration for the suggested pin layout:
-
-            +--------------------------------------------------------------+
-            |                                                              |
-            | .. figure:: /images/board_configurator_nrf54l15_0_3_0.png    |
-            |                                                              |
-            +--------------------------------------------------------------+
-
-            +---------------+--------------+
-            | SX126X shield | nRF54L15 PDK |
-            +===============+==============+
-            | BUSY          | P0.0         |
-            +---------------+--------------+
-            | DIO1          | P0.3         |
-            +---------------+--------------+
-            | NSS           | P2.10        |
-            +---------------+--------------+
-            | ANT_SW        | P0.1         |
-            +---------------+--------------+
-            | SPI MOSI      | P2.8         |
-            +---------------+--------------+
-            | SPI MISO      | P1.11        |
-            +---------------+--------------+
-            | SPI SCK       | P2.6         |
-            +---------------+--------------+
-            | NRESET        | P0.2         |
-            +---------------+--------------+
+      +---------------+--------------+
+      | SX126X shield | nRF54L15 DK  |
+      +===============+==============+
+      | DIO1          | P1.11        |
+      +---------------+--------------+
+      | BUSY          | P2.6         |
+      +---------------+--------------+
+      | NRESET        | P2.8         |
+      +---------------+--------------+
+      | ANT_SW        | P2.10        |
+      +---------------+--------------+
+      | NSS           | P0.0         |
+      +---------------+--------------+
+      | SPI MOSI      | P0.1         |
+      +---------------+--------------+
+      | SPI MISO      | P0.2         |
+      +---------------+--------------+
+      | SPI SCK       | P0.3         |
+      +---------------+--------------+
 
 .. _setting_up_sidewalk_gateway:
 

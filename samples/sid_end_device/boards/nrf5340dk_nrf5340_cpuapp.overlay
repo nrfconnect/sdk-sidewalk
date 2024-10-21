@@ -55,7 +55,7 @@
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
 		semtech_sx1262_reset_gpios: reset {
-		   gpios = <&gpio0 0x4 GPIO_ACTIVE_LOW>;
+		   gpios = <&gpio0 0x4 (GPIO_ACTIVE_LOW|GPIO_PULL_UP)>;
 		   label = "semtech_sx1262 Reset";
 	   };
 	   semtech_sx1262_busy_gpios: busy {
@@ -67,7 +67,7 @@
 		   label = "semtech_sx1262 Antena Enable";
 	   };
 	   semtech_sx1262_dio1_gpios: dio1 {
-		   gpios = <&gpio1 0x7 GPIO_ACTIVE_HIGH>;
+		   gpios = <&gpio1 0x7 (GPIO_ACTIVE_HIGH|GPIO_PULL_DOWN)>;
 		   label = "semtech_sx1262 DIO1";
 	   };
 	};
