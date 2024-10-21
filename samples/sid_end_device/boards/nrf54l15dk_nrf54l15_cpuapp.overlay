@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/{
+ /{
 	aliases {
 		state-notifier-connected = &led0;
 		state-notifier-time-sync = &led1;
@@ -31,9 +31,6 @@
 			label = "semtech_sx1262 DIO1";
 		};
 	};
-
-	// Use watchdog wdt31 as the application watchdog
-	watchdog0 = &wdt31;
 };
 
 sid_semtech: &spi21 {
@@ -46,7 +43,6 @@ sid_semtech: &spi21 {
 	clock-frequency = <DT_FREQ_M(8)>;
 };
 
-// restore full RRAM and SRAM space - by default some parts are dedicated to FLRP
 &cpuapp_rram {
 	reg = <0x0 DT_SIZE_K(1524)>;
 };
@@ -75,20 +71,26 @@ sid_semtech: &spi21 {
 	};
 };
 
-&gpio0 {
-	status = "okay";
+&adc {
+	status = "disabled";
 };
-
-&gpio1 {
-	status = "okay";
+&uart21 {
+	status = "disabled";
 };
-
-&gpio2 {
-	status = "okay";
+&pwm20 {
+	status = "disabled";
 };
-
-&wdt31 {
-	status = "okay";
+&i2c20 {
+	status = "disabled";
+};
+&spi00 {
+	status = "disabled";
+};
+&spi20 {
+	status = "disabled";
+};
+&spi22 {
+	status = "disabled";
 };
 
 &mx25r64 {
