@@ -106,13 +106,6 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 		"on_msg_sent", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
 
 	application_state_sending(&global_state_notifier, false);
-	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
-	if (message == NULL) {
-		LOG_ERR("failed to find message buffer to clean");
-		return;
-	}
-	sid_hal_free(message->msg.data);
-	sid_hal_free(message);
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
@@ -125,14 +118,6 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 				     JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0)))))));
 
 	application_state_sending(&global_state_notifier, false);
-
-	sidewalk_msg_t *message = get_message_buffer(msg_desc->id);
-	if (message == NULL) {
-		LOG_ERR("failed to find message buffer to clean");
-		return;
-	}
-	sid_hal_free(message->msg.data);
-	sid_hal_free(message);
 }
 
 static void on_sidewalk_factory_reset(void *context)
