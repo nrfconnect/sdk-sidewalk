@@ -8,6 +8,7 @@
  *  @brief Bluetooth low energy adapter implementation.
  */
 
+#include <sid_error.h>
 #include <sid_pal_ble_adapter_ifc.h>
 #include <sid_ble_service.h>
 #include <sid_ble_ama_service.h>
@@ -26,7 +27,7 @@
 #endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
 
 #include <zephyr/bluetooth/bluetooth.h>
-#include <zephyr/bluetooth/conn.h>
+
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/settings/settings.h>
@@ -44,6 +45,9 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb);
 static sid_error_t ble_adapter_disconnect(void);
 static sid_error_t ble_adapter_deinit(void);
+static sid_error_t ble_adapter_get_rssi(int8_t *rssi);
+static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power);
+static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
@@ -55,7 +59,23 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.set_callback = ble_adapter_set_callback,
 	.disconnect = ble_adapter_disconnect,
 	.deinit = ble_adapter_deinit,
+	.get_rssi = ble_adapter_get_rssi,
+	.get_tx_pwr = ble_adapter_get_tx_pwr,
+	.set_tx_pwr = ble_adapter_set_tx_pwr,
 };
+
+static sid_error_t ble_adapter_get_rssi(int8_t *rssi)
+{
+	return SID_ERROR_GENERIC;
+}
+static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power)
+{
+	return SID_ERROR_GENERIC;
+}
+static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power)
+{
+	return SID_ERROR_GENERIC;
+}
 
 static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 {

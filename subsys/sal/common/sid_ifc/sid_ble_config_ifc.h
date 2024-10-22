@@ -126,6 +126,13 @@ typedef struct sid_ble_config {
     sid_ble_cfg_conn_param_t conn_param;
     uint8_t num_profile;
     const sid_ble_cfg_gatt_profile_t *profile;
+    int8_t max_tx_power_in_dbm;
+    /** Enable transmission Sidewalk stack metrics to Sidewalk cloud services using explicit commands */
+    bool enable_link_metrics;
+    /** Number of retries that Sidewalk stack metrics message can be retried by Sidewalk stack
+     * configuring to 0 will disable the retries of the message
+     */
+    uint8_t metrics_msg_retries;
 } sid_ble_config_t;
 
 /** @} */

@@ -347,24 +347,8 @@ void sidewalk_event_exit(sidewalk_ctx_t *sid, void *ctx)
 #endif
 	(void)sid_process(sid->handle);
 	(void)sid_deinit(sid->handle);
-
-	int mutex_err = k_mutex_lock(&pending_message_list_mutex, K_FOREVER);
-	if (mutex_err != 0) {
-		LOG_ERR("Failed to lock mutex for message list");
-		return;
-	}
-	sys_snode_t *list_element = sys_slist_get(&pending_message_list);
-
-	while (list_element != NULL) {
-		sidewalk_msg_t *message = SYS_SLIST_CONTAINER(list_element, message, node);
-		sid_hal_free(message->msg.data);
-		sid_hal_free(message);
-
-		list_element = sys_slist_get(&pending_message_list);
-	}
-	k_mutex_unlock(&pending_message_list_mutex);
-	sid->handle = NULL;
 }
+
 void sidewalk_event_reboot(sidewalk_ctx_t *sid, void *ctx)
 {
 	LOG_INF("Rebooting...");

@@ -21,11 +21,11 @@ extern "C" {
 
 #define SID_SDK_MAJOR_VERSION 1
 
-#define SID_SDK_MINOR_VERSION 16
+#define SID_SDK_MINOR_VERSION 17
 
 #define SID_SDK_PATCH_VERSION 1
 
-#define SID_SDK_BUILD_VERSION 28
+#define SID_SDK_BUILD_VERSION 18
 
 #ifdef __cplusplus
 } /* extern "C" */

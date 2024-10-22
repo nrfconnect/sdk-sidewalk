@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-typedef struct sid_pal_ble_adapter_interface * sid_pal_ble_adapter_interface_t;
+typedef struct sid_pal_ble_adapter_interface *sid_pal_ble_adapter_interface_t;
 
 /**
  * This callback should be defined outside a module which defines implementation.
@@ -44,7 +44,7 @@ typedef struct sid_pal_ble_adapter_interface * sid_pal_ble_adapter_interface_t;
  * @param [out] data   - received RX data.
  * @param [out] length - size of received buffer in bytes.
  */
-typedef void (* sid_pal_ble_data_callback_t)(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
+typedef void (*sid_pal_ble_data_callback_t)(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
 
 /**
  * This callback should be defined outside a module which defines implementation.
@@ -55,7 +55,7 @@ typedef void (* sid_pal_ble_data_callback_t)(sid_ble_cfg_service_identifier_t id
  *                      notification is received.
  * @param [out] state - provides state of the notification(Enabled/Disabled).
  */
-typedef void (* sid_pal_ble_notify_callback_t)(sid_ble_cfg_service_identifier_t id, bool state);
+typedef void (*sid_pal_ble_notify_callback_t)(sid_ble_cfg_service_identifier_t id, bool state);
 
 /**
  * This callback should be defined outside a module which defines implementation.
@@ -64,7 +64,7 @@ typedef void (* sid_pal_ble_notify_callback_t)(sid_ble_cfg_service_identifier_t 
  * @param [out] state - indicates the state of the link (Connected/Disconnected).
  * @param [out] addr  - provides the peer BLE mac address.
  */
-typedef void (* sid_pal_ble_connection_callback_t)(bool state, uint8_t *addr);
+typedef void (*sid_pal_ble_connection_callback_t)(bool state, uint8_t *addr);
 
 /**
  * This callback should be defined outside a module which defines implementation.
@@ -73,7 +73,7 @@ typedef void (* sid_pal_ble_connection_callback_t)(bool state, uint8_t *addr);
  * @param [out] status - indicates the transmission state.
  *                       true - success, false - failure.
  */
-typedef void (* sid_pal_ble_indication_callback_t)(bool status);
+typedef void (*sid_pal_ble_indication_callback_t)(bool status);
 
 /**
  * This callback should be defined outside a module which defines implementation.
@@ -81,7 +81,7 @@ typedef void (* sid_pal_ble_indication_callback_t)(bool status);
  *
  * @param [out] size - negotiated mtu size.
  */
-typedef void (* sid_pal_ble_mtu_callback_t)(uint16_t size);
+typedef void (*sid_pal_ble_mtu_callback_t)(uint16_t size);
 
 /**
  * This callback should be defined outside a module which defines implementation.
@@ -89,7 +89,7 @@ typedef void (* sid_pal_ble_mtu_callback_t)(uint16_t size);
  *
  * @param [out] size - negotiated mtu size.
  */
-typedef void (* sid_pal_ble_adv_start_callback_t)(void);
+typedef void (*sid_pal_ble_adv_start_callback_t)(void);
 
 /**
  * @struct sid_pal_ble_adapter_callbacks_t
@@ -99,14 +99,13 @@ typedef void (* sid_pal_ble_adv_start_callback_t)(void);
  * When specific runtime events occur, the callbacks are triggered for BLE
  * network interface to take appropriate actions.
  */
-typedef struct
-{
-    sid_pal_ble_data_callback_t       data_callback;
-    sid_pal_ble_notify_callback_t     notify_callback;
+typedef struct {
+    sid_pal_ble_data_callback_t data_callback;
+    sid_pal_ble_notify_callback_t notify_callback;
     sid_pal_ble_connection_callback_t conn_callback;
     sid_pal_ble_indication_callback_t ind_callback;
-    sid_pal_ble_mtu_callback_t        mtu_callback;
-    sid_pal_ble_adv_start_callback_t  adv_start_callback;
+    sid_pal_ble_mtu_callback_t mtu_callback;
+    sid_pal_ble_adv_start_callback_t adv_start_callback;
 } sid_pal_ble_adapter_callbacks_t;
 
 struct sid_pal_ble_adapter_interface {
@@ -118,7 +117,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*init)          (const sid_ble_config_t *cfg);
+    sid_error_t (*init)(const sid_ble_config_t *cfg);
 
     /**
      * Start the service using the configuration.
@@ -126,7 +125,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*start_service) (void);
+    sid_error_t (*start_service)(void);
 
     /**
      * Set the advertisement data provided by Network Interface to BLE stack.
@@ -137,7 +136,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*set_adv_data)  (uint8_t *data, uint8_t length);
+    sid_error_t (*set_adv_data)(uint8_t *data, uint8_t length);
 
     /**
      * Start advertisement.
@@ -145,7 +144,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*start_adv)     (void);
+    sid_error_t (*start_adv)(void);
 
     /**
      * Stop advertisement.
@@ -153,7 +152,28 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*stop_adv)      (void);
+    sid_error_t (*stop_adv)(void);
+
+    /**
+     * Get RSSI of recieved data
+     *
+     * @return SID_ERROR_NONE - In case method is successful
+     *          In case of error, the error type depends on implementation
+     */
+    sid_error_t (*get_rssi)(int8_t *rssi);
+
+    /**
+     * Get tx power value
+     * Interface gets an upper limit on the Tx power previously set by user.
+     * In case user has not set Tx power yet, default value of Tx power
+     * for current platform is returned.
+     *
+     * @param [out] tx_power - actual upper limit for the Tx power.
+     *
+     * @return SID_ERROR_NONE - In case method is successful
+     *          In case of error, the error type depends on implementation
+     */
+    sid_error_t (*get_tx_pwr)(int8_t *tx_power);
 
     /**
      * Sends the data provided by the Network Interface over the air.
@@ -165,7 +185,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*send)          (sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
+    sid_error_t (*send)(sid_ble_cfg_service_identifier_t id, uint8_t *data, uint16_t length);
 
     /**
      * Used to set the defined callbacks from the Network Interface.
@@ -175,7 +195,22 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*set_callback)  (const sid_pal_ble_adapter_callbacks_t *cb);
+    sid_error_t (*set_callback)(const sid_pal_ble_adapter_callbacks_t *cb);
+
+    /**
+     * Sets Tx power value.
+     * Interface sets an upper limit on the Tx power. The provided argument
+     * is rounded to the nearest (less or equal) supported value by the platform
+     * and then set as the maximum allowable Tx power. That is why arguments
+     * after sequence set_tx_pwr(x) and get_tx_pwr(x) can be different.
+     * FYI, hardware can have its own automatic gain control.
+     *
+     * @param [in] tx_power - desired upper limit for the Tx power.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
+    sid_error_t (*set_tx_pwr)(int8_t tx_power);
 
     /**
      * Disconnect the link.
@@ -183,7 +218,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*disconnect)    (void);
+    sid_error_t (*disconnect)(void);
 
     /**
      * Deinitialize underneath BLE stack.
@@ -191,7 +226,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*deinit)        (void);
+    sid_error_t (*deinit)(void);
 };
 
 /**
