@@ -186,14 +186,16 @@ struct sid_link_type_2_registration_config {
 };
 
 struct sid_sub_ghz_links_config {
-    /** Enable transmission of Sub-Ghz link metrics to Sidewalk cloud services */
+    /** Enable transmission Sidewalk stack metrics to Sidewalk cloud services using explicit commands */
     bool enable_link_metrics;
-    /** Number of retries that Sub-Ghz metrics message can be retried by Sidewalk stack
+    /** Number of retries that Sidewalk stack metrics message can be retried by Sidewalk stack
      * configuring to 0 will disable the retries of the message
      */
     uint8_t metrics_msg_retries;
     /** sar dcr config*/
     uint8_t sar_dcr;
+    int8_t link2_max_tx_power_in_dbm;
+    int8_t link3_max_tx_power_in_dbm;
     struct sid_link_type_2_registration_config registration_config;
 };
 

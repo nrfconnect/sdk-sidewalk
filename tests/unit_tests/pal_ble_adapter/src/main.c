@@ -42,6 +42,13 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_read_ccc, struct bt_conn *, const struct b
 FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct bt_gatt_attr *,
 		const void *, uint16_t, uint16_t, uint8_t);
 
+FAKE_VALUE_FUNC(struct net_buf *, bt_hci_cmd_create, uint16_t, uint8_t);
+FAKE_VALUE_FUNC(int, bt_hci_cmd_send_sync, uint16_t, struct net_buf *, struct net_buf **);
+
+FAKE_VALUE_FUNC(int, bt_hci_get_conn_handle, const struct bt_conn *, uint16_t *);
+FAKE_VALUE_FUNC(void *, net_buf_simple_add, struct net_buf_simple *, size_t);
+FAKE_VOID_FUNC(net_buf_unref, struct net_buf *);
+
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_enable)                                                                            \
 	FAKE(bt_disable)                                                                           \
@@ -54,7 +61,12 @@ FAKE_VALUE_FUNC(ssize_t, bt_gatt_attr_write_ccc, struct bt_conn *, const struct 
 	FAKE(bt_gatt_attr_read_service)                                                            \
 	FAKE(bt_gatt_attr_read_chrc)                                                               \
 	FAKE(bt_gatt_attr_read_ccc)                                                                \
-	FAKE(bt_gatt_attr_write_ccc)
+	FAKE(bt_gatt_attr_write_ccc)                                                               \
+	FAKE(bt_hci_cmd_create)                                                                    \
+	FAKE(bt_hci_cmd_send_sync)                                                                 \
+	FAKE(bt_hci_get_conn_handle)                                                               \
+	FAKE(net_buf_simple_add)                                                                   \
+	FAKE(net_buf_unref)
 
 #define ESUCCESS (0)
 #define FAKE_SERVICE (9)

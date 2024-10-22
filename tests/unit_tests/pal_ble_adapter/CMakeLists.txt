@@ -11,10 +11,12 @@ project(sidewalk_test_ble_adapter)
 set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
 cmock_handle(${ZEPHYR_BASE}/include/zephyr/settings/settings.h)
+# cmock_handle(${ZEPHYR_BASE}/include/include/zephyr/bluetooth/hci.h)
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_advert.h)
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_connection.h)
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_adapter_callbacks.h)
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_service.h)
+
 
 # add test file
 target_sources(app PRIVATE src/main.c)
