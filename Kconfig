@@ -100,6 +100,13 @@ config SID_HAL_PROTOCOL_MEMORY_SZ
 	int
 	default 1024
 
+config SIDEWALK_APPLICATION_NAME
+	string "Name of the application printed on start up"
+	default "sidewalk"
+	help
+	  To help with identification of the run sample the application name can be set up.
+	  This information will be printed on startup next to version of the components used.  
+
 # Log
 config SIDEWALK_LOG_MSG_LENGTH_MAX
 	int "Log message max length"
