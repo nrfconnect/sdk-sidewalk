@@ -14,7 +14,8 @@
 	LOG_PRINTK("----------------------------------------------------------------\n");          \
 	LOG_PRINTK("Sidewalk SDK        = %d.%d.%d.%d\n", SID_SDK_MAJOR_VERSION,                   \
 		   SID_SDK_MINOR_VERSION, SID_SDK_PATCH_VERSION, SID_SDK_BUILD_VERSION);           \
-	LOG_PRINTK("APP_BUILD_VERSION   = %s\n", STRINGIFY(APP_BUILD_VERSION));                    \
+	LOG_PRINTK("APP_BUILD_VERSION   = %s\n", STRINGIFY(APP_BUILD_VERSION));			   \
+	LOG_PRINTK("APP_NAME            = %s\n", CONFIG_SIDEWALK_APPLICATION_NAME);		   \
 	LOG_PRINTK("build time          = %s %s\n", __DATE__, __TIME__);                           \
 	LOG_PRINTK("board               = %s\n", CONFIG_BOARD_TARGET);                             \
 	LOG_PRINTK("----------------------------------------------------------------\n")
