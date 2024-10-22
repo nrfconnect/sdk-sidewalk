@@ -47,7 +47,6 @@ typedef struct {
 void sidewalk_start(sidewalk_ctx_t *context);
 
 int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free);
-sidewalk_msg_t *get_message_buffer(uint16_t message_id);
 
 #ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)

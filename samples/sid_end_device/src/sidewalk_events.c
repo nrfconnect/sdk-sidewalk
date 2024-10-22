@@ -30,33 +30,6 @@
 
 LOG_MODULE_REGISTER(sidewalk_events, CONFIG_SIDEWALK_LOG_LEVEL);
 
-sys_slist_t pending_message_list = SYS_SLIST_STATIC_INIT(&pending_message_list);
-K_MUTEX_DEFINE(pending_message_list_mutex);
-
-sidewalk_msg_t *get_message_buffer(uint16_t message_id)
-{
-	sidewalk_msg_t *pending_message;
-	sidewalk_msg_t *iterator;
-	int mutex_err =
-		k_mutex_lock(&pending_message_list_mutex, k_is_in_isr() ? K_NO_WAIT : K_FOREVER);
-	if (mutex_err != 0) {
-		LOG_ERR("Failed to lock mutex for message list");
-		return NULL;
-	}
-	SYS_SLIST_FOR_EACH_CONTAINER_SAFE (&pending_message_list, pending_message, iterator, node) {
-		if (pending_message->desc.id == message_id) {
-			if (sys_slist_find_and_remove(&pending_message_list,
-						      &pending_message->node) == false) {
-				LOG_ERR("Failed to remove pending message from list");
-			};
-			k_mutex_unlock(&pending_message_list_mutex);
-			return pending_message;
-		}
-	}
-	k_mutex_unlock(&pending_message_list_mutex);
-	return NULL;
-}
-
 // private
 void sidewalk_event_process(sidewalk_ctx_t *sid, void *ctx)
 {
@@ -206,38 +179,12 @@ void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 		return;
 	}
 
-	/* Making a copy of the data is a workaround for issue KRKNWK-18805 
-		   When sid_put_msg makes intenal copy, the workaround can be removed.
-		*/
-	sidewalk_msg_t *p_msg_copy = sid_hal_malloc(sizeof(sidewalk_msg_t));
-	memcpy(p_msg_copy, p_msg, sizeof(sidewalk_msg_t));
-
-	p_msg_copy->msg.data = sid_hal_malloc(p_msg->msg.size);
-	if (p_msg_copy->msg.data == NULL) {
-		sid_hal_free(p_msg_copy);
-		LOG_ERR("Failed to allocate message buffer");
-		return;
-	}
-	memcpy(p_msg_copy->msg.data, p_msg->msg.data, p_msg->msg.size);
-	p_msg_copy->msg.size = p_msg->msg.size;
-
-	sid_error_t e = sid_put_msg(sid->handle, &p_msg_copy->msg, &p_msg_copy->desc);
+	sid_error_t e = sid_put_msg(sid->handle, &p_msg->msg, &p_msg->desc);
 	if (e) {
-		LOG_ERR("sid send err %d (%s)", (int)e, SID_ERROR_T_STR(e));
-		sid_hal_free(p_msg_copy->msg.data);
-		sid_hal_free(p_msg_copy);
+		LOG_ERR("sid send err %d", (int)e);
 		return;
 	}
 	LOG_DBG("sid send (type: %d, id: %u)", (int)p_msg->desc.type, p_msg->desc.id);
-	int mutex_err = k_mutex_lock(&pending_message_list_mutex, K_FOREVER);
-	if (mutex_err != 0) {
-		LOG_ERR("Failed to lock mutex for message list");
-		sid_hal_free(p_msg_copy->msg.data);
-		sid_hal_free(p_msg_copy);
-		return;
-	}
-	sys_slist_append(&pending_message_list, &p_msg_copy->node);
-	k_mutex_unlock(&pending_message_list_mutex);
 }
 void sidewalk_event_connect(sidewalk_ctx_t *sid, void *ctx)
 {
