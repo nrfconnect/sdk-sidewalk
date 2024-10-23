@@ -155,12 +155,12 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		sid_mfg_version = SID_PAL_MFG_STORE_TLV_VERSION;
 	}
 
-#if !CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if defined(CONFIG_FPROTECT) && !defined(CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC)
 	err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
 	if (err) {
 		LOG_ERR("Flash protect failed %d", err);
 	}
-#endif
+#endif // CONFIG_FPROTECT AND NOT CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 }
 
 void sid_pal_mfg_store_deinit(void)
