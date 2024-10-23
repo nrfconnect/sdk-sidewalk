@@ -140,6 +140,11 @@ The feature is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STOR
    Once keys are moved to trusted storage, it is impossible to retrieve them back into MFG storage.
    Therefore, you must not update your firmware to versions that do not support trusted storage for non-volatile Sidewalk keys.
 
+.. warning::
+  Once keys are moved to trusted storage, you MUST NOT change the settings backend. Otherwise, you will lose data, and the device will become inoperable!
+
+  E.g. when ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` is enabled you MUST NOT switch from `CONFIG_NVS <https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/services/storage/nvs/nvs.html>`_ to `CONFIG_ZMS <https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/services/storage/zms/zms.html>`_.
+
 Device Firmware Upgrade support
 ===============================
 

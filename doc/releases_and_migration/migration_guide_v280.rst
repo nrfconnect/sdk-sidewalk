@@ -7,7 +7,7 @@ Migration guide for the v2.8.0 of the nRF Connect SDK
    :local:
    :depth: 2
 
-Starting with the v2.8.0 release of the `nRF Connect SDK`_, there is a new Sidewalk provisioning module and PAL serial bus for the nRF52840 SoC.
+Starting with the v2.8.0 release of the `nRF Connect SDK`_, there is a new Sidewalk provisioning module, PAL serial bus for the nRF52840 SoC and new Sidewalk libraries v1.17.
 For an overview of changes, read the following sections:
 
 .. _migration_guide_v280_prov_module:
@@ -80,3 +80,56 @@ The new PAL serial bus implementation includes the following changes:
 
   .. note::
     It is recommended to disable the SPI bus instance in the devicetree when it is selected by the ``CONFIG_SIDEWALK_NRFX_SPI_INSTANCE_ID`` Kconfig option.
+
+.. _migration_guide_v280_new_libraries:
+
+Sidewalk v1.17 libraries
+************************
+
+The version 1.17 of Sidewalk libraries introduces metrics and capability features, along with fixes for known issues found in previous versions.
+
+New end device characteristics
+==============================
+
+A new characteristic has been added to the :ref:`sidewalk_end_device` configuration. 
+This characteristic includes device type, power source, and qualification ID. 
+To add this information, you must populate the ``dev_ch`` fields in the ``sid_config`` structure before the Sidewalk stack starts.
+
+See the following example of device characteristics:
+
+.. code-block:: C
+
+	struct sid_end_device_characteristics dev_ch = {
+		.type = SID_END_DEVICE_TYPE_STATIC,
+		.power_type = SID_END_DEVICE_POWERED_BY_BATTERY_AND_LINE_POWER,
+		.qualification_id = 0x0001,
+	};
+
+	sid_ctx.config = (struct sid_config){
+		.dev_ch = dev_ch,
+		.callbacks = &event_callbacks,
+		.link_config = app_get_ble_config(),
+		.sub_ghz_link_config = app_get_sub_ghz_config(),
+  };
+
+
+New Sidewalk ID option
+======================
+
+A new option has been introduced that allows fetching of the Sidewalk ID for the device. 
+This option is functional only after the device has been registered, as the Sidewalk ID is assigned post-registration.
+
+The Sidewalk ID can be retrieved using the ``-gsi`` subcommand of the CLI (DUT) option:
+
+.. code-block:: console
+
+  uart:~$ sid last_status 
+  [00:00:51.950,347] <inf> sid_cli: Device Is registered, Time Sync Fail, Link status: {BLE: Down, FSK: Down, LoRa: Down}
+  uart:~$ sid option -gsi
+  [00:00:55.582,641] <inf> sid_cli: sid_option returned 0 (SID_ERROR_NONE); SIDEWALK_ID: BFFFFFABCD
+
+Fixing uplink buffer
+====================
+
+Upon migration, you can remove the ``pending_message_list`` workaround, as the first uplink message after Link Up payload has been fixed in the v2.8.0 release. 
+For the issue details, see Amazon Sidewalk Known Issues.
