@@ -26,6 +26,11 @@ config SIDEWALK_NRF54L15_SUPPORT
 	select EXPERIMENTAL
 	default SOC_NRF54L15 && SIDEWALK
 
+config SIDEWALK_TFM_SUPPORT
+	bool "Sidewalk support for TF-M [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	default SIDEWALK && BUILD_WITH_TFM
+
 config SIDEWALK_BLE
 	bool
 	default SIDEWALK
