@@ -19,6 +19,7 @@ tests:
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_FILE_TRANSFER=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
     tags: Sidewalk hello
 
   sample.sidewalk.hello.release:
@@ -26,11 +27,13 @@ tests:
       FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.release"
     tags: Sidewalk hello
 
   sample.sidewalk.hello.ble_only:
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
     tags: Sidewalk hello BLE
 
   sample.sidewalk.hello.ble_only.release:
@@ -38,6 +41,7 @@ tests:
       FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.release"
     tags: Sidewalk hello BLE
 
   sample.sidewalk.demo:
@@ -45,6 +49,7 @@ tests:
       OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="demo"
     tags: Sidewalk demo
 
   sample.sidewalk.demo.ble_only:
@@ -54,6 +59,7 @@ tests:
       OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+      - CONFIG_SIDEWALK_APPLICATION_NAME="demo.ble_only"
     integration_platforms:
       - thingy53/nrf5340/cpuapp
     tags: Sidewalk demo BLE
@@ -61,6 +67,8 @@ tests:
   sample.sidewalk.dut:
     extra_args:
       OVERLAY_CONFIG="overlay-dut.conf"
+    extra_configs:
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
     tags: Sidewalk cli
 
   sample.sidewalk.dut.no_secure:
@@ -68,4 +76,5 @@ tests:
       OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=n
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.no_secure"
     tags: Sidewalk cli no_secure
