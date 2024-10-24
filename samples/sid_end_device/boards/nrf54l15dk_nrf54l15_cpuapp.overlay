@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/{
-	aliases {
-		state-notifier-connected = &led0;
-		state-notifier-time-sync = &led1;
-		state-notifier-registered = &led2;
-		state-notifier-working = &led3;
-	};
-
+ /{
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
 		semtech_sx1262_reset_gpios: reset {
@@ -83,10 +76,16 @@ sid_semtech: &spi30 {
 &i2c20 {
 	status = "disabled";
 };
+&spi00 {
+	status = "disabled";
+};
 &spi20 {
 	status = "disabled";
 };
 &spi22 {
+	status = "disabled";
+};
+&mx25r64 {
 	status = "disabled";
 };
 
