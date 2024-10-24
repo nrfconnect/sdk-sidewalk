@@ -19,4 +19,13 @@ config SHELL
 config SIDEWALK_MFG_STORAGE_DIAGNOSTIC
 	default y
 
+config SIDEWALK_TLV
+	default y
+
+config SIDEWALK_TLV_FLASH
+	default y
+
+config SIDEWALK_TLV_RAM
+	default y
+
 source "Kconfig.zephyr"
