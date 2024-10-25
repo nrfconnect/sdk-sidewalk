@@ -21,11 +21,6 @@ config SIDEWALK_BUILD
 	help
 	  An internal config to build the NCS Sidewalk Sources.
 
-config SIDEWALK_NRF54L15_SUPPORT
-	bool "Sidewalk support for nRF54L15 [EXPERIMENTAL]"
-	select EXPERIMENTAL
-	default SOC_NRF54L15 && SIDEWALK
-
 config SIDEWALK_TFM_SUPPORT
 	bool "Sidewalk support for TF-M [EXPERIMENTAL]"
 	select EXPERIMENTAL
