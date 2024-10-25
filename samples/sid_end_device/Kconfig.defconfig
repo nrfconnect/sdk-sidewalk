@@ -99,3 +99,11 @@ config PSA_USE_CC3XX_ASYMMETRIC_ENCRYPTION_DRIVER
 
 config PSA_USE_CC3XX_KEY_MANAGEMENT_DRIVER
 	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+
+config NVS_LOG_LEVEL
+	depends on NVS
+	default 2
+
+config ZMS_LOG_LEVEL
+	depends on ZMS
+	default 2
