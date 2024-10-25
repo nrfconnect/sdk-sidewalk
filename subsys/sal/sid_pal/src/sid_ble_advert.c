@@ -20,13 +20,9 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
 #define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
 
-#if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
-#define AMA_ADV_OPTIONS (BT_LE_ADV_OPT_USE_NAME | BT_LE_ADV_OPT_FORCE_NAME_IN_AD)
-#else
 #define AMA_ADV_OPTIONS                                                                            \
 	(BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_USE_NAME | BT_LE_ADV_OPT_FORCE_NAME_IN_AD |     \
 	 BT_LE_ADV_OPT_ONE_TIME)
-#endif
 
 #if 10240 < (CONFIG_SIDEWALK_BLE_ADV_INT_FAST + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION)
 #error "Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_FAST or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
@@ -129,11 +125,6 @@ int sid_ble_advert_start(void)
 		return err;
 	}
 	atomic_set(&adv_state, BLE_ADV_ENABLE);
-
-#if defined(CONFIG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)
-	static struct bt_le_oob oob;
-	(void)bt_le_oob_get_local(BT_ID_DEFAULT, &oob);
-#endif
 
 	return err;
 }

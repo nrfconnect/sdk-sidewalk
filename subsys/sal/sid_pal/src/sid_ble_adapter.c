@@ -22,10 +22,6 @@
 #include <sid_ble_advert.h>
 #include <sid_ble_connection.h>
 
-#if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
-#include <zephyr/bluetooth/controller.h>
-#endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
-
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/bluetooth.h>
 
@@ -223,13 +219,6 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 	ARG_UNUSED(cfg);
 
 	LOG_INF("Enable BT");
-
-#if defined(CONFIG_MAC_ADDRESS_TYPE_PUBLIC)
-	bt_addr_t pub_addr;
-	bt_addr_from_str(CONFIG_SID_BT_PUB_ADDR, &pub_addr);
-	bt_ctlr_set_public_addr(pub_addr.val);
-#endif /* CONFIG_MAC_ADDRESS_TYPE_PUBLIC */
-
 	int err_code;
 	err_code = bt_enable(NULL);
 	switch (err_code) {

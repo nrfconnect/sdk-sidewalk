@@ -135,58 +135,9 @@ config DEPRECATED_SIDEWALK_PAL_INIT
 	help
 	  Sidewalk 1.16 stack introduces new sid api sid_platform_init.
 	  Now new api togehter with sid_common pal are used by default.
+	  This implementation is DEPRECATED.
 
 # BLE
-config DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE
-	bool "Enable Sidewalk BLE MAC addres type choice [DEPRICATED]"
-	help
-	  The BLE MAC address type can be set using NCS configs.
-	  By default Sidewalk will use private random address.
-
-if DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE
-choice SIDEWALK_BLE_MAC_ADDR_TYPE
-	prompt "BLE MAC address type  [DEPRICATED]"
-	default MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
-
-config MAC_ADDRESS_TYPE_PUBLIC
-	bool "Public Address [DEPRICATED]"
-	help
-	   Address obtained from IEEE registration authority, no privacy.
-
-config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE
-	bool "Random Private Non-Resolvable Address [DEPRICATED]"
-	imply BT_SMP
-	help
-	   Random generated address non resolvable by remote
-	   changes on every advertisement or connection.
-
-config MAC_ADDRESS_TYPE_STATIC_RANDOM
-	bool "Random Static Address [DEPRICATED]"
-	help
-	   Random generated address changes on each device boot up or
-	   stay fixed for lifetime of device.
-
-config MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE
-	bool "Random Private Resolvable Address [DEPRICATED]"
-	imply BT_SMP
-	imply BT_PRIVACY
-	help
-	   Random generated address with IRK(Identity Resolving Key)
-	   resolvable by remote. Used when bonding is enabled.
-
-endchoice # SIDEWALK_BLE_MAC_ADDR_TYPE
-
-if MAC_ADDRESS_TYPE_PUBLIC
-config SID_BT_PUB_ADDR
-	string "Public MAC address for controller [DEPRICATED]"
-	default "AA:FF:BB:EE:CC:DD"
-	help
-	  Specify a MAC address for the BLE interface in the form of
-	  six hex 8-bit chars separated by colons (e.g.:AA:BB:CC:DD:EE:FF).
-endif # MAC_ADDRESS_TYPE_PUBLIC
-
-endif # DEPRECATED_SIDEWALK_BLE_MAC_ADDR_TYPE
-
 config SIDEWALK_BLE_ADV_INT_PRECISION
 	int "Precision of advertisement interval in ms"
 	range 1 1000
