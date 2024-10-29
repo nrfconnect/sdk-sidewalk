@@ -62,14 +62,15 @@ int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free)
 	};
 
 	k_timeout_t timeout = K_NO_WAIT;
+	int result = -EFAULT;
 
-#ifdef CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT
+#if defined(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE) && CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0
 	if (!k_is_in_isr()) {
 		timeout = K_MSEC(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE);
 	}
-#endif /* CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT */
+#endif /* CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0 */
 
-	const int result = k_msgq_put(&sidewalk_thread_msgq, (void *)&ctx_event, timeout);
+	result = k_msgq_put(&sidewalk_thread_msgq, (void *)&ctx_event, timeout);
 	LOG_DBG("sidewalk_event_send event = %p, context = %p, k_msgq_put result %d", (void *)event,
 		ctx, result);
 
