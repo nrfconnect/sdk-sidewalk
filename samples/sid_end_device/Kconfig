@@ -91,7 +91,6 @@ config SIDEWALK_FILE_TRANSFER_DFU
     imply DFU_TARGET_MCUBOOT
     imply STREAM_FLASH
     imply STREAM_FLASH_ERASE
-    imply SIDEWALK_THREAD_QUEUE_TIMEOUT
     help
         Save recived data to flash. Expect CBOR manifest.
         Autoatically reset device after file transfer.
