@@ -142,18 +142,20 @@ To start Sidewalk, do the following:
 
          .. code-block:: console
 
-            *** Booting nRF Connect SDK 883c3709f9c8 ***
+            *** Booting Sidewalk v2.7.99-ae200c29600e ***
+            *** Using nRF Connect SDK v2.8.99-152acb8205de ***
+            *** Using Zephyr OS v3.7.99-08f1c5bc9f20 ***
             ----------------------------------------------------------------
-            sidewalk             v2.5.0-3-g1232aabb
-            nrf                  v2.5.0-g271e80422
-            zephyr               883c3709f9
+            Sidewalk SDK        = 1.17.1.18
+            APP_BUILD_VERSION   = ae200c29600e
+            APP_NAME            = sidewalk
+            build time          = Oct 30 2024 15:07:09
+            board               = nrf52840dk/nrf52840
             ----------------------------------------------------------------
-            sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
-            build time          = 2023-03-14 15:00:00.000000+00:00
-            board               = nrf52840dk
-            ----------------------------------------------------------------
-            [00:00:00.001,373] <inf> application_state: working = true
-            [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE
+            [00:00:01.095,637] <inf> sid_mfg: Need to parse mfg data
+            [00:00:01.098,853] <inf> sid_mfg_parser_v8: MFG_ED25519 import success
+            [00:00:01.101,607] <inf> sid_mfg_parser_v8: MFG_SECP_256R1 import success
+            [00:00:01.109,493] <inf> sid_mfg: Successfully parsed mfg data
 
          When Sidewalk sample starts, **LED 4** turns on.
 
@@ -202,18 +204,20 @@ To start Sidewalk, do the following:
 
          .. code-block:: console
 
-            *** Booting nRF Connect SDK 883c3709f9c8 ***
+            *** Booting Sidewalk v2.7.99-ae200c29600e ***
+            *** Using nRF Connect SDK v2.8.99-152acb8205de ***
+            *** Using Zephyr OS v3.7.99-08f1c5bc9f20 ***
             ----------------------------------------------------------------
-            sidewalk             v2.5.0-3-g1232aabb
-            nrf                  v2.5.0-g271e80422
-            zephyr               883c3709f9
+            Sidewalk SDK        = 1.17.1.18
+            APP_BUILD_VERSION   = ae200c29600e
+            APP_NAME            = sidewalk
+            build time          = Oct 30 2024 15:07:09
+            board               = nrf54l15dk/nrf54l15/cpuapp
             ----------------------------------------------------------------
-            sidewalk_fork_point = af5d608303eb03465f35e369ef22ad6c02564ac6
-            build time          = 2023-03-14 15:00:00.000000+00:00
-            board               = nrf52840dk
-            ----------------------------------------------------------------
-            [00:00:00.001,373] <inf> application_state: working = true
-            [00:00:00.055,480] <inf> sidewalk_app: Sidewalk link switch to BLE
+            [00:00:01.095,637] <inf> sid_mfg: Need to parse mfg data
+            [00:00:01.098,853] <inf> sid_mfg_parser_v8: MFG_ED25519 import success
+            [00:00:01.101,607] <inf> sid_mfg_parser_v8: MFG_SECP_256R1 import success
+            [00:00:01.109,493] <inf> sid_mfg: Successfully parsed mfg data
 
          When Sidewalk sample starts, **LED 3** turns on.
 
