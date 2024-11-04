@@ -10,6 +10,7 @@ See information about the latest release notes and the available migration guide
    :glob:
    :caption: Release notes:
 
+   releases_and_migration/release_notes_v280.rst
    releases_and_migration/release_notes_v270.rst
    releases_and_migration/release_notes_v2699cs1.rst
    releases_and_migration/release_notes_v260.rst

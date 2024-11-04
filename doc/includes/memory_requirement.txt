@@ -34,9 +34,9 @@
       |               :ref:`Hello Sidewalk Bluetooth LE and sub-GHz <variant_sidewalk_hello>` (Release)                |      30.77       |        367.28        |         4         |            8             |     410.05     |     94.58      |
       +----------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+
 
-   .. tab:: nRF54L15 PDK
+   .. tab:: nRF54L15 DK
 
-      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF54L15 PDK`_.
+      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF54L15 DK`_.
       To determine the available space for user extension, it needs to be summarized against the allocated partition size and its layout.
 
       +----------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+
