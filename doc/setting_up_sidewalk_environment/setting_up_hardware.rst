@@ -89,13 +89,13 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
     | NRESET        | P0.4        |
     +---------------+-------------+
 
-   .. tab:: nRF54L15 PDK
+   .. tab:: nRF54L15 DK
 
-      The nRF54L15 PDK does not have the Arduino-compatible header.
-      The connection layout may differ depending on the revision of your PDK.
+      The nRF54L15 DK does not have the Arduino-compatible header.
+      The connection layout may differ depending on the revision of your DK.
       GPIO assignments are recommended by the Nordic Semiconductor.
 
-      The nRF54L15 PDK operates on a lower voltage level (1.8V).
+      The nRF54L15 DK operates on a lower voltage level (1.8V).
       The Semtech Shield is compatible with this voltage and can be safely provided to the pin marked as 3.3V.
       Due to the lower voltage, the Semtech radio cannot achieve the full transmit power, and it will reach a plateau at 15 dBm gain even when a higher value is configured.
       The specification of the Semtech module describes that it is possible to provide a separate, higher voltage source for radio while maintaining the lower voltage for communication.
