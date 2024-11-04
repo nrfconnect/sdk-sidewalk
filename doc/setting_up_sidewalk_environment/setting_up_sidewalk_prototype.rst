@@ -48,7 +48,7 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
          .. note::
             The default name of the :file:`mfg.hex` file generated from the :file:`provision.py` script is :file:`nordic_aws_nrf52840.hex`.
-            It is, however, compatible with other supported boards.
+            The ``--output_hex`` parameter is used to specify a custom name for the :file:`mfg.hex` file. 
 
       #. Flash the generated :file:`nordic_aws_nrf52840.hex` file with the provisioning data:
 
@@ -86,20 +86,22 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
                --wireless_device_json wireless_device.json
                --device_profile_json device_profile.json
                --addr 0x17c000
+               --output_hex nordic_aws_nrf54l15.hex
 
          .. note::
-            The default name of the :file:`mfg.hex` file generated from the :file:`provision.py` script is :file:`nordic_aws_nrf52840.hex`.
-            It is, however, compatible with other supported boards.
+            The ``--output_hex`` parameter is used to specify a custom name for the :file:`mfg.hex` file.
+            This change is optional and does not affect the file's compatibility with other supported boards. 
+            If the parameter is not provided, the default name will be :file:`nordic_aws_nrf52840.hex`.
 
-      #. Flash the generated :file:`nordic_aws_nrf52840.hex` file with the provisioning data:
+      #. Flash the generated file with the provisioning data:
 
          .. code-block:: console
 
-            nrfjprog --sectorerase --program nordic_aws_nrf52840.hex --reset
+            nrfutil device program --x-family nrf54l --options chip_erase_mode=ERASE_RANGES_TOUCHED_BY_FIRMWARE,reset=RESET_PIN,verify=VERIFY_READ --traits jlink --firmware nordic_aws_nrf54l15.hex
 
-         * If you reflashed the :file:`nordic_aws_nrf52840.hex` file on an already working device, you need to deregister the previously flashed device.
+         * If you reflashed the :file:`nordic_aws_nrf54l15.hex` file on an already working device, you need to deregister the previously flashed device.
            To do this, perform a factory reset by long pressing **Button 0**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf52840.hex`) in the Sidewalk network.
+           This will allow you to register a new product (new :file:`nordic_aws_nrf54l15.hex`) in the Sidewalk network.
 
 Add MQTT to destination
 ***********************
