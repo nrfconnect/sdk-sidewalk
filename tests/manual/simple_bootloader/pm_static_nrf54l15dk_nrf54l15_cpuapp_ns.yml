@@ -1,0 +1,168 @@
+EMPTY_0:
+  address: 0x164000
+  end_address: 0x165000
+  placement:
+    after:
+    - mcuboot_secondary
+  region: flash_primary
+  size: 0x1000
+app:
+  address: 0x54000
+  end_address: 0xbc000
+  region: flash_primary
+  size: 0x68000
+mcuboot:
+  address: 0x0
+  end_address: 0xc000
+  placement:
+    before:
+    - tfm_its
+  region: flash_primary
+  size: 0xc000
+mcuboot_pad:
+  address: 0x14000
+  end_address: 0x14800
+  placement:
+    before:
+    - mcuboot_primary_app
+  region: flash_primary
+  size: 0x800
+mcuboot_primary:
+  address: 0x14000
+  end_address: 0xbc000
+  orig_span: &id001
+  - app
+  - mcuboot_pad
+  - tfm
+  region: flash_primary
+  sharers: 0x1
+  size: 0xa8000
+  span: *id001
+mcuboot_primary_app:
+  address: 0x14800
+  end_address: 0xbc000
+  orig_span: &id002
+  - app
+  - tfm
+  region: flash_primary
+  size: 0xa7800
+  span: *id002
+mcuboot_secondary:
+  address: 0xbc000
+  end_address: 0x164000
+  placement:
+    after:
+    - mcuboot_primary
+    align:
+      start: 0x1000
+    align_next: 0x1000
+  region: flash_primary
+  share_size:
+  - mcuboot_primary
+  size: 0xa8000
+mcuboot_sram:
+  address: 0x20000000
+  end_address: 0x20013000
+  orig_span: &id003
+  - tfm_sram
+  region: sram_primary
+  size: 0x13000
+  span: *id003
+sram_nonsecure:
+  address: 0x20013000
+  end_address: 0x2002f000
+  orig_span: &id004
+  - sram_primary
+  region: sram_primary
+  size: 0x1c000
+  span: *id004
+sram_primary:
+  address: 0x20013000
+  end_address: 0x2002f000
+  region: sram_primary
+  size: 0x1c000
+sram_secure:
+  address: 0x20000000
+  end_address: 0x20013000
+  orig_span: &id005
+  - tfm_sram
+  region: sram_primary
+  size: 0x13000
+  span: *id005
+tfm:
+  address: 0x14800
+  end_address: 0x54000
+  inside:
+  - mcuboot_primary_app
+  placement:
+    before:
+    - app
+  region: flash_primary
+  size: 0x3f800
+tfm_its:
+  address: 0xc000
+  end_address: 0xe000
+  inside:
+  - tfm_storage
+  placement:
+    before:
+    - tfm_otp_nv_counters
+  region: flash_primary
+  size: 0x2000
+tfm_nonsecure:
+  address: 0x54000
+  end_address: 0xbc000
+  orig_span: &id006
+  - app
+  region: flash_primary
+  size: 0x68000
+  span: *id006
+tfm_otp_nv_counters:
+  address: 0xe000
+  end_address: 0x10000
+  inside:
+  - tfm_storage
+  placement:
+    before:
+    - tfm_ps
+  region: flash_primary
+  size: 0x2000
+tfm_ps:
+  address: 0x10000
+  end_address: 0x14000
+  inside:
+  - tfm_storage
+  placement:
+    before:
+    - mcuboot_primary
+  region: flash_primary
+  size: 0x4000
+tfm_secure:
+  address: 0x14000
+  end_address: 0x54000
+  orig_span: &id007
+  - mcuboot_pad
+  - tfm
+  region: flash_primary
+  size: 0x40000
+  span: *id007
+tfm_sram:
+  address: 0x20000000
+  end_address: 0x20013000
+  inside:
+  - sram_secure
+  placement:
+    after:
+    - start
+  region: sram_primary
+  size: 0x13000
+tfm_storage:
+  address: 0xc000
+  end_address: 0x14000
+  orig_span: &id008
+  - tfm_ps
+  - tfm_its
+  - tfm_otp_nv_counters
+  region: flash_primary
+  size: 0x8000
+  span: *id008
