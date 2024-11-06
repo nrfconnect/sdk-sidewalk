@@ -82,8 +82,9 @@ ZTEST(spi_bus, test_send_spi)
 	struct sid_pal_serial_bus_client client;
 	client.client_selector =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
+			DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
 	sid_pal_gpio_set_direction(client.client_selector, SID_PAL_GPIO_DIRECTION_OUTPUT);
+
 	zassert_equal(SID_ERROR_NONE, sid_pal_serial_bus_nordic_spi_create(&interface, NULL));
 	zassert_not_null(interface);
 	zassert_not_null(interface->xfer);
@@ -105,7 +106,7 @@ ZTEST(spi_bus, test_only_tx_spi)
 	struct sid_pal_serial_bus_client client;
 	client.client_selector =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_cs), gpios, INVALID_DT_GPIO));
+			DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
 	sid_pal_gpio_set_direction(client.client_selector, SID_PAL_GPIO_DIRECTION_OUTPUT);
 
 	zassert_equal(SID_ERROR_NONE, sid_pal_serial_bus_nordic_spi_create(&interface, NULL));
