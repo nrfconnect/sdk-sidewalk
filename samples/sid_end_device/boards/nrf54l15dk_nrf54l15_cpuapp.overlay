@@ -83,10 +83,16 @@ sid_semtech: &spi30 {
 &i2c20 {
 	status = "disabled";
 };
+&spi00 {
+	status = "disabled";
+};
 &spi20 {
 	status = "disabled";
 };
 &spi22 {
+	status = "disabled";
+};
+&mx25r64 {
 	status = "disabled";
 };
 
