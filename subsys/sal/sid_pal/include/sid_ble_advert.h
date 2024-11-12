@@ -17,6 +17,13 @@
 int sid_ble_advert_init(void);
 
 /**
+ * @brief Deinitialize Bluetooth Advertising.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_advert_deinit(void);
+
+/**
  * @brief Start Bluetooth advertising.
  *
  * @return Zero on success or (negative) error code on failure.

@@ -10,11 +10,13 @@
 #include <sid_ble_uuid.h>
 
 #include <sid_ble_uuid.h>
+#include <bt_app_callbacks.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/uuid.h>
 #include <zephyr/sys/byteorder.h>
 #include <zephyr/logging/log.h>
+#include <string.h>
 
 LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
@@ -37,7 +39,7 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
 /* Advertising parameters. */
 static struct bt_le_adv_param adv_param_fast = {
-	.id = CONFIG_SIDEWALK_BLE_ID,
+	.id = BT_ID_SIDEWALK,
 	.options = (AMA_ADV_OPTIONS),
 	.interval_min = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
 	.interval_max = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST +
@@ -45,15 +47,15 @@ static struct bt_le_adv_param adv_param_fast = {
 };
 
 static struct bt_le_adv_param adv_param_slow = {
-	.id = CONFIG_SIDEWALK_BLE_ID,
+	.id = BT_ID_SIDEWALK,
 	.options = (AMA_ADV_OPTIONS),
 	.interval_min = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
 	.interval_max = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW +
 					   CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION),
 };
 
-static struct bt_le_ext_adv *adv_set_fast;
-static struct bt_le_ext_adv *adv_set_slow;
+static struct bt_le_ext_adv *adv_set_fast = NULL;
+static struct bt_le_ext_adv *adv_set_slow = NULL;
 
 /**
  * @brief Advertising data items values size in bytes.
@@ -114,18 +116,24 @@ static void change_advertisement_interval(struct k_work *work)
 	struct bt_le_ext_adv_start_param ext_adv_start_param = { 0 };
 
 	if (BLE_ADV_FAST == atomic_get(&adv_state)) {
-		if (bt_le_ext_adv_stop(adv_set_fast)) {
+		int err = 0;
+		err = bt_le_ext_adv_stop(adv_set_fast);
+		if (err) {
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
+			LOG_ERR("Failed to stop fast adv errno %d (%s)", err, strerror(err));
 			return;
 		}
-
-		if (bt_le_ext_adv_set_data(adv_set_slow, adv_data, ARRAY_SIZE(adv_data), NULL, 0)) {
+		err = bt_le_ext_adv_set_data(adv_set_slow, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
+		if (err) {
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
+			LOG_ERR("Failed to set adv data to slow adv errno %d (%s)", err,
+				strerror(err));
 			return;
 		}
-
-		if (bt_le_ext_adv_start(adv_set_slow, &ext_adv_start_param)) {
+		err = bt_le_ext_adv_start(adv_set_slow, &ext_adv_start_param);
+		if (err) {
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
+			LOG_ERR("Failed to start slow adv errno %d (%s)", err, strerror(err));
 			return;
 		}
 
@@ -138,19 +146,41 @@ static void change_advertisement_interval(struct k_work *work)
 int sid_ble_advert_init(void)
 {
 	int ret;
-
-	ret = bt_le_ext_adv_create(&adv_param_fast, NULL, &adv_set_fast);
-	if (ret) {
-		LOG_ERR("Failed to create fast advertising set");
-		return ret;
+	if (adv_set_fast == NULL) {
+		ret = bt_le_ext_adv_create(&adv_param_fast, NULL, &adv_set_fast);
+		if (ret) {
+			LOG_ERR("Failed to create fast advertising set errno %d (%s)", ret,
+				strerror(ret));
+			return ret;
+		}
 	}
 
-	ret = bt_le_ext_adv_create(&adv_param_slow, NULL, &adv_set_slow);
-	if (ret) {
-		LOG_ERR("Failed to create slow advertising set");
-		return ret;
+	if (adv_set_slow == NULL) {
+		ret = bt_le_ext_adv_create(&adv_param_slow, NULL, &adv_set_slow);
+		if (ret) {
+			LOG_ERR("Failed to create slow advertising set errno %d (%s)", ret,
+				strerror(ret));
+			return ret;
+		}
 	}
 
+	return 0;
+}
+
+int sid_ble_advert_deinit(void)
+{
+	int err = bt_le_ext_adv_delete(adv_set_fast);
+	if (err) {
+		LOG_ERR("Failed to delete adv_set_fast errno %d (%s)", err, strerror(err));
+		return err;
+	}
+	adv_set_fast = NULL;
+	err = bt_le_ext_adv_delete(adv_set_slow);
+	if (err) {
+		LOG_ERR("Failed to delete adv_set_slow errno %d (%s)", err, strerror(err));
+		return err;
+	}
+	adv_set_slow = NULL;
 	return 0;
 }
 
@@ -159,15 +189,17 @@ int sid_ble_advert_start(void)
 	k_work_reschedule(&change_adv_work, K_SECONDS(CONFIG_SIDEWALK_BLE_ADV_INT_TRANSITION));
 
 	struct bt_le_ext_adv_start_param ext_adv_start_param = { 0 };
-	int err;
+	int err = 0;
 
 	err = bt_le_ext_adv_set_data(adv_set_fast, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
 	if (err) {
+		LOG_ERR("Failed to set adv data errno: %d (%s)", err, strerror(err));
 		return err;
 	}
 
 	err = bt_le_ext_adv_start(adv_set_fast, &ext_adv_start_param);
 	if (err) {
+		LOG_ERR("Failed to start adv errno: %d (%s)", err, strerror(err));
 		return err;
 	}
 

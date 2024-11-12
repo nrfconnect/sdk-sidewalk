@@ -23,8 +23,8 @@ int app_bt_enable(bt_ready_cb_t cb)
 	bt_enable_count++;
 	if (cb) {
 		cb(0);
-		return 0;
 	}
+	return 0;
 }
 
 int app_bt_disable()

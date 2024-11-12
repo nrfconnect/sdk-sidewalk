@@ -14,10 +14,6 @@ if SIDEWALK
 config MAIN_STACK_SIZE
 	default 2048
 
-config BT_ID_MAX
-	default 3 if SIDEWALK_DFU
-	default 2 
-
 config SIDEWALK_SUBGHZ_SUPPORT
 	bool "Enable Sub-GHz link type support in Sidewalk libraries"
 	default y

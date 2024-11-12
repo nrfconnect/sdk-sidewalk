@@ -222,7 +222,7 @@ static int create_ble_id(void)
 	/* Check if Bluetooth identites weren't already created. */
 	bt_id_get(NULL, &count);
 	if (count > BT_ID_SIDEWALK) {
-		return BT_ID_SIDEWALK;
+		return 0;
 	}
 
 	do {
@@ -438,7 +438,7 @@ static sid_error_t ble_adapter_deinit(void)
 {
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
-
+	sid_ble_advert_deinit();
 	bt_id_delete(BT_ID_SIDEWALK);
 	bt_id_reset(BT_ID_SIDEWALK, NULL, NULL);
 	int err = app_bt_disable();
