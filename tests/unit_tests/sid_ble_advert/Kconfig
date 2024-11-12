@@ -9,6 +9,12 @@ config SIDEWALK_BUILD
 config SIDEWALK_LOG_LEVEL
 	default 0
 
+config BT_ID_MAX
+	default 2
+
+config BT_APP_IFC
+	default y
+
 module = SIDEWALK_BLE_ADAPTER
 module-str = Sidewalk BLE interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
@@ -28,9 +34,5 @@ config SIDEWALK_BLE_ADV_INT_SLOW
 config SIDEWALK_BLE_ADV_INT_TRANSITION
 	int "test value for Sidewalk configuration macro"
 	default 30
-
-config SIDEWALK_BLE_ID
-	int "test value for Sidewalk configuration"
-	default 1
 
 source "Kconfig.zephyr"

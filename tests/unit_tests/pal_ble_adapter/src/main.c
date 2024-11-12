@@ -18,6 +18,7 @@
 #include <cmock_sid_ble_adapter_callbacks.h>
 #include <cmock_sid_ble_service.h>
 #include <errno.h>
+#include <bt_app_callbacks.h>
 
 #include <stdbool.h>
 
@@ -174,13 +175,15 @@ void test_sid_pal_ble_adapter_init(void)
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	bt_id_create_fake.return_val = CONFIG_SIDEWALK_BLE_ID;
+	bt_id_create_fake.return_val = BT_ID_SIDEWALK;
 	__cmock_sid_ble_conn_init_Expect();
 	__cmock_sid_ble_advert_init_IgnoreAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
+	app_bt_disable();
 
 	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(NULL));
+	app_bt_disable();
 
 	bt_enable_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));
@@ -193,11 +196,12 @@ void test_sid_pal_ble_adapter_deinit(void)
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 	__cmock_settings_load_ExpectAndReturn(ESUCCESS);
 	__cmock_sid_ble_conn_init_Expect();
-	bt_id_create_fake.return_val = CONFIG_SIDEWALK_BLE_ID;
+	bt_id_create_fake.return_val = BT_ID_SIDEWALK;
 	__cmock_sid_ble_advert_init_IgnoreAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
 
 	__cmock_sid_ble_conn_deinit_Expect();
+	__cmock_sid_ble_advert_deinit_IgnoreAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->deinit());
 }
 

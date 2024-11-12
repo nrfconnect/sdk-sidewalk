@@ -7,6 +7,7 @@
 #include <sidewalk_dfu/nordic_dfu.h>
 #include <dk_buttons_and_leds.h>
 #include <stdbool.h>
+#include <string.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <zephyr/mgmt/mcumgr/mgmt/callbacks.h>
@@ -20,7 +21,7 @@ LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
 #define LED_PERIOD_TOGGLE_ALL 500
 #define LED_PERIOD_LOADING_WHEEL 150
 
-static struct bt_le_ext_adv *adv;
+static struct bt_le_ext_adv *adv = NULL;
 static struct bt_le_ext_adv_start_param ext_adv_param = { .num_events = 0, .timeout = 0 };
 static struct bt_le_adv_param adv_params = { .id = BT_ID_DEFAULT,
 					     .sid = 0,
@@ -56,7 +57,7 @@ static int create_ble_id(void)
 	/* Check if Bluetooth identites weren't already created. */
 	bt_id_get(NULL, &count);
 	if (count > BT_ID_SMP_DFU) {
-		return BT_ID_SMP_DFU;
+		return 0;
 	}
 
 	do {
@@ -150,19 +151,31 @@ int nordic_dfu_ble_start(void)
 
 	int err = app_bt_enable(NULL);
 	if (err && err != -EALREADY) {
-		LOG_ERR("Bluetooth enable failed (err %d)", err);
+		LOG_ERR("Bluetooth enable failed (err %d %s)", err, strerror(err));
 		return err;
 	}
 
 	mgmt_callback_register(&dfu_mode_mgmt_cb);
+	int ret = create_ble_id();
+	if (ret < 0) {
+		LOG_ERR("Failed to create BLE ID errno %d %s", ret, strerror(ret));
+		return err;
+	}
 
-	adv_params.id = create_ble_id();
+	adv_params.id = BT_ID_SMP_DFU;
 	err = bt_le_ext_adv_create(&adv_params, NULL, &adv);
-	err = bt_le_ext_adv_set_data(adv, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
-	err = bt_le_ext_adv_start(adv, &ext_adv_param);
-
 	if (err) {
-		LOG_ERR("Bluetooth advertising start failed (err %d)", err);
+		LOG_ERR("Bluetooth advertising create failed (err %d %s)", err, strerror(err));
+		return err;
+	}
+	err = bt_le_ext_adv_set_data(adv, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	if (err) {
+		LOG_ERR("Bluetooth advertising data set failed (err %d %s)", err, strerror(err));
+		return err;
+	}
+	err = bt_le_ext_adv_start(adv, &ext_adv_param);
+	if (err) {
+		LOG_ERR("Bluetooth advertising start failed (err %d %s)", err, strerror(err));
 		return err;
 	}
 
@@ -186,13 +199,19 @@ int nordic_dfu_ble_stop(void)
 
 	int err = bt_le_ext_adv_stop(adv);
 	if (err) {
-		LOG_ERR("Bluetooth advertising stop failed (err %d)", err);
+		LOG_ERR("Bluetooth advertising stop failed (err %d %s)", err, strerror(err));
 		return err;
 	}
+	err = bt_le_ext_adv_delete(adv);
+	if (err) {
+		LOG_ERR("Bluetooth advertising delete failed (err %d %s)", err, strerror(err));
+		return err;
+	}
+	adv = NULL;
 
 	err = app_bt_disable();
 	if (err) {
-		LOG_ERR("Bluetooth disable failed (err %d)", err);
+		LOG_ERR("Bluetooth disable failed (err %d %s)", err, strerror(err));
 		return err;
 	}
 

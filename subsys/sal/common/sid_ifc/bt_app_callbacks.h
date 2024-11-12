@@ -10,21 +10,41 @@
 #include <stdbool.h>
 #include <zephyr/bluetooth/bluetooth.h>
 
+#if defined (CONFIG_BT_APP_IFC)
+
+/**
+ * @brief Wrapper for @bt_enable, with reference tracking.
+ * Real @bt_enable is called only of first call to app_bt_enable
+ * 
+ * @param cb callback passed to @bt_enable
+ * @return int result from @bt_enable call or 0 if called multiple times
+ */
 int app_bt_enable(bt_ready_cb_t cb);
 
+
+/**
+ * @brief Wrapper for @bt_disable.
+ * This function removes internal reference.
+ * If the internal reference counter shows 0, real @bt_disable is called
+ * 
+ * @return int result from @bt_disable or 0 if app_bt_enable has been called more than app_bt_disable
+ */
 int app_bt_disable();
 
+
+/**
+ * @brief BT ids used for extended advertising. 
+ * This allows to identify connections from different extended adverticements.
+ */
 enum BT_id_values{
         _BT_ID_DEFAULT = BT_ID_DEFAULT,
-        #if defined (CONFIG_SIDEWALK)
         BT_ID_SIDEWALK,
-        #endif
         #if defined (CONFIG_SIDEWALK_DFU)
         BT_ID_SMP_DFU,
         #endif
-        _BT_ID_MAX =  CONFIG_BT_ID_MAX
+        _BT_ID_MAX
 };
 
-BUILD_ASSERT(_BT_ID_MAX <= CONFIG_BT_ID_MAX, "Too many BT Ids! Configured limit is %d, but used %d", CONFIG_BT_ID_MAX, _BT_ID_MAX);
-
+BUILD_ASSERT(_BT_ID_MAX <= CONFIG_BT_ID_MAX, "Too many BT Ids! increase CONFIG_BT_ID_MAX, to match _BT_ID_MAX");
+#endif
 #endif
