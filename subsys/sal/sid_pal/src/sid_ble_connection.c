@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <hci_utils.h>
+#include <bt_app_callbacks.h>
 
 #include <zephyr/kernel.h>
 K_MUTEX_DEFINE(bt_conn_mutex);
@@ -33,10 +34,11 @@ static struct bt_conn_cb conn_callbacks = {
 
 static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = ble_mtu_cb };
 
-static bool should_handle_event(struct bt_conn *conn) {
+static bool should_handle_event(struct bt_conn *conn)
+{
 	struct bt_conn_info conn_info = {};
 
-	if (!conn || bt_conn_get_info(conn, &conn_info) || conn_info.id != CONFIG_SIDEWALK_BLE_ID) {
+	if (!conn || bt_conn_get_info(conn, &conn_info) || conn_info.id != BT_ID_SIDEWALK) {
 		return false;
 	}
 

@@ -24,6 +24,7 @@
 
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/bluetooth.h>
+#include <bt_app_callbacks.h>
 
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/uuid.h>
@@ -218,12 +219,10 @@ static int create_ble_id(void)
 	int ret;
 	size_t count = 0;
 
-	BUILD_ASSERT(CONFIG_SIDEWALK_BLE_ID < CONFIG_BT_ID_MAX, "CONFIG_BT_ID_MAX is too small.");
-
 	/* Check if Bluetooth identites weren't already created. */
 	bt_id_get(NULL, &count);
-	if (count > CONFIG_SIDEWALK_BLE_ID) {
-		return 0;
+	if (count > BT_ID_SIDEWALK) {
+		return BT_ID_SIDEWALK;
 	}
 
 	do {
@@ -231,7 +230,7 @@ static int create_ble_id(void)
 		if (ret < 0) {
 			return ret;
 		}
-	} while (ret != CONFIG_SIDEWALK_BLE_ID);
+	} while (ret != BT_ID_SIDEWALK);
 
 	return 0;
 }
@@ -243,7 +242,7 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 
 	LOG_INF("Enable BT");
 	int err_code;
-	err_code = bt_enable(NULL);
+	err_code = app_bt_enable(NULL);
 	switch (err_code) {
 	case -EALREADY:
 	case 0:
@@ -440,9 +439,9 @@ static sid_error_t ble_adapter_deinit(void)
 	LOG_DBG("Sidewalk -> BLE");
 	sid_ble_conn_deinit();
 
-	bt_id_delete(CONFIG_SIDEWALK_BLE_ID);
-	bt_id_reset(CONFIG_SIDEWALK_BLE_ID, NULL, NULL);
-	int err = bt_disable();
+	bt_id_delete(BT_ID_SIDEWALK);
+	bt_id_reset(BT_ID_SIDEWALK, NULL, NULL);
+	int err = app_bt_disable();
 
 	if (err) {
 		LOG_ERR("BT disable failed (error %d)", err);

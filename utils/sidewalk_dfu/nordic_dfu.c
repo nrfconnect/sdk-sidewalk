@@ -12,12 +12,23 @@
 #include <zephyr/mgmt/mcumgr/mgmt/callbacks.h>
 #include <zephyr/sys/reboot.h>
 #include <state_notifier/state_notifier.h>
+#include <bt_app_callbacks.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define LED_PERIOD_TOGGLE_ALL 500
 #define LED_PERIOD_LOADING_WHEEL 150
+
+static struct bt_le_ext_adv *adv;
+static struct bt_le_ext_adv_start_param ext_adv_param = { .num_events = 0, .timeout = 0 };
+static struct bt_le_adv_param adv_params = { .id = BT_ID_DEFAULT,
+					     .sid = 0,
+					     .secondary_max_skip = 0,
+					     .options = BT_LE_ADV_OPT_CONNECTABLE,
+					     .interval_min = BT_GAP_ADV_SLOW_INT_MIN,
+					     .interval_max = BT_GAP_ADV_SLOW_INT_MAX,
+					     .peer = NULL };
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
@@ -36,6 +47,27 @@ static enum led_status_e {
 
 static struct k_timer led_timer;
 static struct k_timer exit_timer;
+
+static int create_ble_id(void)
+{
+	int ret;
+	size_t count = 0;
+
+	/* Check if Bluetooth identites weren't already created. */
+	bt_id_get(NULL, &count);
+	if (count > BT_ID_SMP_DFU) {
+		return BT_ID_SMP_DFU;
+	}
+
+	do {
+		ret = bt_id_create(NULL, NULL);
+		if (ret < 0) {
+			return ret;
+		}
+	} while (ret != BT_ID_SMP_DFU);
+
+	return BT_ID_DEFAULT;
+}
 
 static void led_action(struct k_timer *timer_id)
 {
@@ -63,8 +95,7 @@ static void led_action(struct k_timer *timer_id)
 
 static void exit_dfu_mode(struct k_timer *timer_id)
 {
-	LOG_ERR("DFU did not start or could not complete. Reset to exit dfu mode");
-	sys_reboot(SYS_REBOOT_COLD);
+	LOG_ERR("DFU did not start or could not complete. Exit dfu mode");
 }
 
 static enum mgmt_cb_return dfu_mode_cb(uint32_t event, enum mgmt_cb_return prev_status, int32_t *rc,
@@ -117,7 +148,7 @@ int nordic_dfu_ble_start(void)
 	application_state_dfu(&global_state_notifier, true);
 	dk_leds_init();
 
-	int err = bt_enable(NULL);
+	int err = app_bt_enable(NULL);
 	if (err && err != -EALREADY) {
 		LOG_ERR("Bluetooth enable failed (err %d)", err);
 		return err;
@@ -125,7 +156,11 @@ int nordic_dfu_ble_start(void)
 
 	mgmt_callback_register(&dfu_mode_mgmt_cb);
 
-	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd,  ARRAY_SIZE(sd));
+	adv_params.id = create_ble_id();
+	err = bt_le_ext_adv_create(&adv_params, NULL, &adv);
+	err = bt_le_ext_adv_set_data(adv, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	err = bt_le_ext_adv_start(adv, &ext_adv_param);
+
 	if (err) {
 		LOG_ERR("Bluetooth advertising start failed (err %d)", err);
 		return err;
@@ -149,13 +184,13 @@ int nordic_dfu_ble_stop(void)
 
 	mgmt_callback_unregister(&dfu_mode_mgmt_cb);
 
-	int err = bt_le_adv_stop();
+	int err = bt_le_ext_adv_stop(adv);
 	if (err) {
 		LOG_ERR("Bluetooth advertising stop failed (err %d)", err);
 		return err;
 	}
 
-	err = bt_disable();
+	err = app_bt_disable();
 	if (err) {
 		LOG_ERR("Bluetooth disable failed (err %d)", err);
 		return err;
