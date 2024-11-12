@@ -5,13 +5,6 @@
  */
 
 /{
-	aliases {
-		state-notifier-connected = &led0;
-		state-notifier-time-sync = &led1;
-		state-notifier-registered = &led2;
-		state-notifier-working = &led3;
-	};
-
 	semtech_sx1262_gpios{
 		compatible = "gpio-keys";
 		semtech_sx1262_reset_gpios: reset {
