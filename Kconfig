@@ -15,7 +15,8 @@ config MAIN_STACK_SIZE
 	default 2048
 
 config BT_ID_MAX
-	default 2
+	default 3 if SIDEWALK_DFU
+	default 2 
 
 config SIDEWALK_SUBGHZ_SUPPORT
 	bool "Enable Sub-GHz link type support in Sidewalk libraries"
@@ -144,14 +145,6 @@ config SIDEWALK_BLE_ADV_INT_SLOW
 	int "Slow advertise interval in ms"
 	range 20 10240
 	default 1000
-
-config SIDEWALK_BLE_ID
-	int "Set Sidewalk's BLE identity identifier"
-	range 1 255
-	default 1
-	help
-	  Specify identifier used to distinguish Sidewalk related BLE
-	  events.
 
 config SIDEWALK_BLE_ADV_INT_TRANSITION
 	int "Duration of fast advertisement after sid_start in seconds"
