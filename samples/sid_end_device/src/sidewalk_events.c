@@ -12,6 +12,7 @@
 #include <sid_hal_memory_ifc.h>
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 #include <app_subGHz_config.h>
+#include <sid_pal_radio_ifc.h>
 #endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 
 #include <zephyr/logging/log.h>
@@ -29,6 +30,20 @@
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 
 LOG_MODULE_REGISTER(sidewalk_events, CONFIG_SIDEWALK_LOG_LEVEL);
+
+#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
+static sid_pal_radio_rx_packet_t radio_rx_packet;
+
+static void radio_event_notifier(sid_pal_radio_events_t event)
+{
+	LOG_DBG("Radio event %d", event);
+}
+
+static void radio_irq_handler(void)
+{
+	LOG_DBG("Radio IRQ");
+}
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 
 // private
 void sidewalk_event_process(sidewalk_ctx_t *sid, void *ctx)
@@ -66,6 +81,18 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
 		return;
 	}
+
+#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
+	int32_t err = 0;
+	err = sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &radio_rx_packet);
+	if (err) {
+		LOG_ERR("radio init err %d", err);
+	}
+	err = sid_pal_radio_sleep(0);
+	if (err) {
+		LOG_ERR("radio sleep err %d", err);
+	}
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 }
 
 void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
