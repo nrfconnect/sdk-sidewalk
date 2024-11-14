@@ -105,7 +105,7 @@ static const sid_ble_cfg_gatt_profile_t ble_profile[] = {
 };
 
 static const sid_ble_config_t ble_cfg = {
-	.name = CONFIG_BT_DEVICE_NAME,
+	.name = CONFIG_SIDEWALK_BLE_NAME,
 	.mtu = CONFIG_BT_L2CAP_TX_MTU,
 	.is_adv_available = true,
 	.mac_addr_type = SID_BLE_CFG_MAC_ADDRESS_TYPE_STATIC_RANDOM,
