@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
 #include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
 #include <zephyr/mgmt/mcumgr/mgmt/callbacks.h>
 #include <zephyr/sys/reboot.h>
@@ -21,8 +22,11 @@ LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
 #define LED_PERIOD_TOGGLE_ALL 500
 #define LED_PERIOD_LOADING_WHEEL 150
 
+static void pending_adv_start(struct k_work *work);
 static struct bt_le_ext_adv *adv = NULL;
 static struct bt_le_ext_adv_start_param ext_adv_param = { .num_events = 0, .timeout = 0 };
+static struct k_work_delayable adv_work = Z_WORK_DELAYABLE_INITIALIZER(pending_adv_start);
+
 static struct bt_le_adv_param adv_params = { .id = BT_ID_DEFAULT,
 					     .sid = 0,
 					     .secondary_max_skip = 0,
@@ -99,6 +103,49 @@ static void exit_dfu_mode(struct k_timer *timer_id)
 	LOG_ERR("DFU did not start or could not complete. Exit dfu mode");
 }
 
+static void connected(struct bt_conn *conn, uint8_t err)
+{
+	struct bt_conn_info cinfo;
+	int ec;
+
+	ec = bt_conn_get_info(conn, &cinfo);
+	if (ec) {
+		printk("Unable to get connection info (err %d)\n", ec);
+		return;
+	}
+
+	if (cinfo.id != adv_params.id) {
+		return;
+	}
+
+	printk("Connected to SMP service: err %d id %d\n", err, cinfo.id);
+}
+
+static void disconnected(struct bt_conn *conn, uint8_t reason)
+{
+	int err;
+	struct bt_conn_info cinfo;
+
+	err = bt_conn_get_info(conn, &cinfo);
+	if (err) {
+		printk("Unable to get connection info (err %d)\n", err);
+		return;
+	}
+
+	if (cinfo.id != adv_params.id) {
+		return;
+	}
+
+	printk("Disconnected from SMP service: reason %d id %d\n", reason, cinfo.id);
+
+	k_work_schedule(&adv_work, K_NO_WAIT);
+}
+
+static struct bt_conn_cb conn_callbacks = {
+	.connected = connected,
+	.disconnected = disconnected,
+};
+
 static enum mgmt_cb_return dfu_mode_cb(uint32_t event, enum mgmt_cb_return prev_status, int32_t *rc,
 				       uint16_t *group, bool *abort_more, void *data,
 				       size_t data_size)
@@ -142,6 +189,19 @@ static struct mgmt_callback dfu_mode_mgmt_cb = {
 		    MGMT_EVT_OP_IMG_MGMT_DFU_PENDING | MGMT_EVT_OP_IMG_MGMT_DFU_CHUNK,
 };
 
+static void pending_adv_start(struct k_work *work)
+{
+	int err;
+
+	err = bt_le_ext_adv_start(adv, &ext_adv_param);
+	if (err) {
+		printk("Unable to restart SMP service advertising (err %d)\n", err);
+		return;
+	}
+
+	printk("SMP service advertising restarted\n");
+}
+
 int nordic_dfu_ble_start(void)
 {
 	LOG_INF("Entering into DFU mode");
@@ -155,6 +215,7 @@ int nordic_dfu_ble_start(void)
 		return err;
 	}
 
+	bt_conn_cb_register(&conn_callbacks);
 	mgmt_callback_register(&dfu_mode_mgmt_cb);
 	int ret = create_ble_id();
 	if (ret < 0) {
@@ -195,6 +256,7 @@ int nordic_dfu_ble_stop(void)
 {
 	LOG_INF("Exiting DFU mode");
 
+	bt_conn_cb_unregister(&conn_callbacks);
 	mgmt_callback_unregister(&dfu_mode_mgmt_cb);
 
 	int err = bt_le_ext_adv_stop(adv);
