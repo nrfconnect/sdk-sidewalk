@@ -71,6 +71,14 @@ tests:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
     tags: Sidewalk cli
 
+  sample.sidewalk.dut.ble_only:
+    extra_args:
+      OVERLAY_CONFIG="overlay-dut.conf"
+    extra_configs:
+      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
+    tags: Sidewalk cli BLE
+
   sample.sidewalk.dut.no_secure:
     extra_args:
       OVERLAY_CONFIG="overlay-dut.conf"
