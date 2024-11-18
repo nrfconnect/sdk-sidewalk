@@ -105,12 +105,10 @@ static void exit_dfu_mode(struct k_timer *timer_id)
 
 static void connected(struct bt_conn *conn, uint8_t err)
 {
-	struct bt_conn_info cinfo;
-	int ec;
-
-	ec = bt_conn_get_info(conn, &cinfo);
-	if (ec) {
-		printk("Unable to get connection info (err %d)\n", ec);
+	struct bt_conn_info cinfo = {};
+	int ret = bt_conn_get_info(conn, &cinfo);
+	if (ret) {
+		printk("Unable to get connection info (err %d)\n", ret);
 		return;
 	}
 
@@ -124,7 +122,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
 	int err;
-	struct bt_conn_info cinfo;
+	struct bt_conn_info cinfo = {};
 
 	err = bt_conn_get_info(conn, &cinfo);
 	if (err) {
@@ -209,7 +207,7 @@ int nordic_dfu_ble_start(void)
 	application_state_dfu(&global_state_notifier, true);
 	dk_leds_init();
 
-	int err = app_bt_enable(NULL);
+	int err = sid_ble_bt_enable(NULL);
 	if (err && err != -EALREADY) {
 		LOG_ERR("Bluetooth enable failed (err %d %s)", err, strerror(err));
 		return err;
@@ -271,7 +269,7 @@ int nordic_dfu_ble_stop(void)
 	}
 	adv = NULL;
 
-	err = app_bt_disable();
+	err = sid_ble_bt_disable();
 	if (err) {
 		LOG_ERR("Bluetooth disable failed (err %d %s)", err, strerror(err));
 		return err;

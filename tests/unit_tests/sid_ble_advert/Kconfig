@@ -35,4 +35,9 @@ config SIDEWALK_BLE_ADV_INT_TRANSITION
 	int "test value for Sidewalk configuration macro"
 	default 30
 
+
+config SIDEWALK_BLE_NAME
+	string "BLE name adverticed for Sidewalk"
+	default "SID_APP"
+
 source "Kconfig.zephyr"

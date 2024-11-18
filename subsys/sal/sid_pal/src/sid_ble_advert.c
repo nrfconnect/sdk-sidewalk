@@ -22,9 +22,7 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
 #define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
 
-#define AMA_ADV_OPTIONS                                                                            \
-	(BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_USE_NAME | BT_LE_ADV_OPT_FORCE_NAME_IN_AD |     \
-	 BT_LE_ADV_OPT_ONE_TIME)
+#define AMA_ADV_OPTIONS (BT_LE_ADV_OPT_CONNECTABLE | BT_LE_ADV_OPT_ONE_TIME)
 
 #if 10240 < (CONFIG_SIDEWALK_BLE_ADV_INT_FAST + CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION)
 #error "Invalid value for CONFIG_SIDEWALK_BLE_ADV_INT_FAST or CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION, sum of those values have to be smaller than 10240"
@@ -70,7 +68,7 @@ static struct bt_le_ext_adv *adv_set_slow = NULL;
 	(BT_GAP_ADV_MAX_ADV_DATA_LEN - AD_TLV_TYPE_AND_LENGTH - AD_TLV_LEN(AD_FLAGS_LEN) -         \
 	 AD_TLV_LEN(AD_SERVICES_LEN) - AD_TLV_LEN(AD_NAME_SHORT_LEN))
 
-enum adv_data_items { ADV_DATA_FLAGS, ADV_DATA_SERVICES, ADV_DATA_MANUF_DATA };
+enum adv_data_items { ADV_DATA_FLAGS, ADV_DATA_SERVICES, ADV_DATA_MANUF_DATA, ADV_DATA_NAME };
 
 typedef enum { BLE_ADV_DISABLE, BLE_ADV_FAST, BLE_ADV_SLOW } sid_ble_adv_state_t;
 
@@ -86,7 +84,14 @@ static struct bt_data adv_data[] = {
 	[ADV_DATA_SERVICES] =
 		BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(AMA_SERVICE_UUID_VAL)),
 	[ADV_DATA_MANUF_DATA] =
-		BT_DATA(BT_DATA_MANUFACTURER_DATA, &bt_adv_manuf_data, AD_MANUF_DATA_LEN_MAX)
+		BT_DATA(BT_DATA_MANUFACTURER_DATA, &bt_adv_manuf_data, AD_MANUF_DATA_LEN_MAX),
+	[ADV_DATA_NAME] = BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_SIDEWALK_BLE_NAME,
+				  sizeof(CONFIG_SIDEWALK_BLE_NAME) - 1),
+};
+
+static const struct bt_data sd[] = {
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_SIDEWALK_BLE_NAME,
+		sizeof(CONFIG_SIDEWALK_BLE_NAME) - 1),
 };
 
 /**
@@ -123,7 +128,8 @@ static void change_advertisement_interval(struct k_work *work)
 			LOG_ERR("Failed to stop fast adv errno %d (%s)", err, strerror(err));
 			return;
 		}
-		err = bt_le_ext_adv_set_data(adv_set_slow, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
+		err = bt_le_ext_adv_set_data(adv_set_slow, adv_data, ARRAY_SIZE(adv_data), sd,
+					     ARRAY_SIZE(sd));
 		if (err) {
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
 			LOG_ERR("Failed to set adv data to slow adv errno %d (%s)", err,
@@ -191,15 +197,16 @@ int sid_ble_advert_start(void)
 	struct bt_le_ext_adv_start_param ext_adv_start_param = { 0 };
 	int err = 0;
 
-	err = bt_le_ext_adv_set_data(adv_set_fast, adv_data, ARRAY_SIZE(adv_data), NULL, 0);
+	err = bt_le_ext_adv_set_data(adv_set_fast, adv_data, ARRAY_SIZE(adv_data), sd,
+				     ARRAY_SIZE(sd));
 	if (err) {
-		LOG_ERR("Failed to set adv data errno: %d (%s)", err, strerror(err));
+		LOG_ERR("Failed to set fast adv data errno: %d (%s)", err, strerror(err));
 		return err;
 	}
 
 	err = bt_le_ext_adv_start(adv_set_fast, &ext_adv_start_param);
 	if (err) {
-		LOG_ERR("Failed to start adv errno: %d (%s)", err, strerror(err));
+		LOG_ERR("Failed to start fast adv errno: %d (%s)", err, strerror(err));
 		return err;
 	}
 
@@ -236,7 +243,7 @@ int sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 	if (BLE_ADV_DISABLE != state) {
 		/* Update currently advertised set, the other one will be set on start/transition */
 		err = bt_le_ext_adv_set_data((state == BLE_ADV_FAST ? adv_set_fast : adv_set_slow),
-					     adv_data, ARRAY_SIZE(adv_data), NULL, 0);
+					     adv_data, ARRAY_SIZE(adv_data), sd, ARRAY_SIZE(sd));
 	}
 
 	return err;

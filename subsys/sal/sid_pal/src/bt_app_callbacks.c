@@ -10,7 +10,7 @@
 
 static uint32_t bt_enable_count = 0;
 
-int app_bt_enable(bt_ready_cb_t cb)
+int sid_ble_bt_enable(bt_ready_cb_t cb)
 {
 	if (bt_enable_count == 0) {
 		int ret = bt_enable(cb);
@@ -27,7 +27,7 @@ int app_bt_enable(bt_ready_cb_t cb)
 	return 0;
 }
 
-int app_bt_disable()
+int sid_ble_bt_disable()
 {
 	if (bt_enable_count <= 0) {
 		bt_enable_count = 0;

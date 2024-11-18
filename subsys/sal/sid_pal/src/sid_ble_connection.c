@@ -34,7 +34,14 @@ static struct bt_conn_cb conn_callbacks = {
 
 static struct bt_gatt_cb gatt_callbacks = { .att_mtu_updated = ble_mtu_cb };
 
-static bool should_handle_event(struct bt_conn *conn)
+/**
+ * @brief Check if the connection came from right adv, and if it is valid.
+ * 
+ * @param conn connection to check
+ * @return true if the connection should be handled by Sidewalk
+ * @return false connection is not for Sidewlak
+ */
+static bool is_connection_valid(struct bt_conn *conn)
 {
 	struct bt_conn_info conn_info = {};
 
@@ -53,9 +60,9 @@ static bool should_handle_event(struct bt_conn *conn)
  */
 static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 {
-	const bt_addr_le_t *bt_addr_le;
+	const bt_addr_le_t *bt_addr_le = NULL;
 
-	if (!should_handle_event(conn)) {
+	if (!is_connection_valid(conn)) {
 		return;
 	}
 
@@ -90,7 +97,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
  */
 static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 {
-	if (!should_handle_event(conn) || conn_params.conn != conn) {
+	if (!is_connection_valid(conn) || conn_params.conn != conn) {
 		return;
 	}
 
