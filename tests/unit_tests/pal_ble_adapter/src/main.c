@@ -179,11 +179,11 @@ void test_sid_pal_ble_adapter_init(void)
 	__cmock_sid_ble_conn_init_Expect();
 	__cmock_sid_ble_advert_init_IgnoreAndReturn(0);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(&test_ble_cfg));
-	app_bt_disable();
+	sid_ble_bt_disable();
 
 	__cmock_sid_ble_conn_init_Expect();
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->init(NULL));
-	app_bt_disable();
+	sid_ble_bt_disable();
 
 	bt_enable_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(SID_ERROR_GENERIC, p_test_ble_ifc->init(&test_ble_cfg));

@@ -242,7 +242,7 @@ static sid_error_t ble_adapter_init(const sid_ble_config_t *cfg)
 
 	LOG_INF("Enable BT");
 	int err_code;
-	err_code = app_bt_enable(NULL);
+	err_code = sid_ble_bt_enable(NULL);
 	switch (err_code) {
 	case -EALREADY:
 	case 0:
@@ -441,7 +441,7 @@ static sid_error_t ble_adapter_deinit(void)
 	sid_ble_advert_deinit();
 	bt_id_delete(BT_ID_SIDEWALK);
 	bt_id_reset(BT_ID_SIDEWALK, NULL, NULL);
-	int err = app_bt_disable();
+	int err = sid_ble_bt_disable();
 
 	if (err) {
 		LOG_ERR("BT disable failed (error %d)", err);

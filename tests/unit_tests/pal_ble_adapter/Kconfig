@@ -37,4 +37,8 @@ config BT_APP_IFC
 config BT_ID_MAX
 	default 2
 
+config SIDEWALK_BLE_NAME
+	string "BLE name adverticed for Sidewalk"
+	default "SID_APP"
+
 source "Kconfig.zephyr"
