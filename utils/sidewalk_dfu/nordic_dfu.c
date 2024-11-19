@@ -15,6 +15,7 @@
 #include <zephyr/sys/reboot.h>
 #include <state_notifier/state_notifier.h>
 #include <bt_app_callbacks.h>
+#include <sid_ble_uuid.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
@@ -37,8 +38,7 @@ static struct bt_le_adv_param adv_params = { .id = BT_ID_DEFAULT,
 
 static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
-	BT_DATA_BYTES(BT_DATA_UUID128_ALL, 0x84, 0xaa, 0x60, 0x74, 0x52, 0x8a, 0x8b, 0x86, 0xd3,
-		      0x4c, 0xb7, 0x1d, 0x1d, 0xdc, 0x53, 0x8d),
+	BT_DATA_BYTES(BT_DATA_UUID128_ALL, SMP_BT_SVC_UUID_VAL),
 };
 
 static const struct bt_data sd[] = {

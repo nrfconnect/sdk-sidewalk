@@ -21,6 +21,13 @@
 #include <sid_demo_parser.h>
 #include <json_printer/sidTypes2str.h>
 
+#include <sid_ble_uuid.h>
+#include <bt_app_callbacks.h>
+#include <zephyr/bluetooth/gatt.h>
+#if defined(CONFIG_SIDEWALK_DFU)
+#include <zephyr/mgmt/mcumgr/transport/smp_bt.h>
+#endif //defined(CONFIG_SIDEWALK_DFU)
+
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define PARAM_UNUSED (0U)
@@ -230,6 +237,73 @@ void app_start_tasks(void)
 	k_thread_name_set(&app_rx, "app_rx");
 }
 
+static bool gatt_authorize(struct bt_conn *conn, const struct bt_gatt_attr *attr)
+{
+	struct bt_conn_info cinfo = {};
+	int ret = bt_conn_get_info(conn, &cinfo);
+	if (ret != 0) {
+		LOG_ERR("Failed to get id of connection err %d", ret);
+		return false;
+	}
+	char uuid_s[50] = "";
+	bt_uuid_to_str(attr->uuid, uuid_s, sizeof(uuid_s));
+	LOG_DBG("GATT authorize : conn_id = %d, attr %s", cinfo.id, uuid_s);
+
+	if (cinfo.id == BT_ID_SIDEWALK) {
+		if (bt_uuid_cmp(attr->uuid, BT_UUID_DECLARE_128(SMP_BT_CHR_UUID_VAL)) == 0) {
+			LOG_WRN("Block SMP_BT_CHR_UUID_VAL in Sidewalk connection");
+			return false;
+		}
+	}
+
+#if defined(CONFIG_SIDEWALK_DFU)
+	if (cinfo.id == BT_ID_SMP_DFU) {
+		if (bt_uuid_cmp(attr->uuid,
+				BT_UUID_DECLARE_128(AMA_CHARACTERISTIC_UUID_VAL_WRITE)) == 0) {
+			LOG_WRN("block AMA_CHARACTERISTIC_UUID_VAL_WRITE in DFU connection");
+			return false;
+		}
+		if (bt_uuid_cmp(attr->uuid,
+				BT_UUID_DECLARE_128(AMA_CHARACTERISTIC_UUID_VAL_NOTIFY)) == 0) {
+			LOG_WRN("block AMA_CHARACTERISTIC_UUID_VAL_NOTIFY in DFU connection");
+			return false;
+		}
+
+		if (bt_uuid_cmp(attr->uuid,
+				BT_UUID_DECLARE_128(VND_EXAMPLE_CHARACTERISTIC_UUID_VAL_WRITE)) ==
+		    0) {
+			LOG_WRN("block VND_EXAMPLE_CHARACTERISTIC_UUID_VAL_WRITE in DFU connection");
+			return false;
+		}
+		if (bt_uuid_cmp(attr->uuid,
+				BT_UUID_DECLARE_128(VND_EXAMPLE_CHARACTERISTIC_UUID_VAL_NOTIFY)) ==
+		    0) {
+			LOG_WRN("block VND_EXAMPLE_CHARACTERISTIC_UUID_VAL_NOTIFY in DFU connection");
+			return false;
+		}
+
+		if (bt_uuid_cmp(attr->uuid,
+				BT_UUID_DECLARE_128(LOG_EXAMPLE_CHARACTERISTIC_UUID_VAL_WRITE)) ==
+		    0) {
+			LOG_WRN("block LOG_EXAMPLE_CHARACTERISTIC_UUID_VAL_WRITE in DFU connection");
+			return false;
+		}
+		if (bt_uuid_cmp(attr->uuid,
+				BT_UUID_DECLARE_128(LOG_EXAMPLE_CHARACTERISTIC_UUID_VAL_NOTIFY)) ==
+		    0) {
+			LOG_WRN("block LOG_EXAMPLE_CHARACTERISTIC_UUID_VAL_NOTIFY in DFU connection");
+			return false;
+		}
+	}
+#endif //defined(CONFIG_SIDEWALK_DFU)
+	return true;
+}
+
+static const struct bt_gatt_authorization_cb gatt_authorization_callbacks = {
+	.read_authorize = gatt_authorize,
+	.write_authorize = gatt_authorize,
+};
+
 void app_start(void)
 {
 	if (app_buttons_init()) {
@@ -263,6 +337,12 @@ void app_start(void)
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
+
+	int err = bt_gatt_authorization_cb_register(&gatt_authorization_callbacks);
+	if (err) {
+		LOG_ERR("Registering GATT authorization callbacks failed (err %d)", err);
+		return;
+	}
 
 	app_start_tasks();
 	sidewalk_start(&sid_ctx);
