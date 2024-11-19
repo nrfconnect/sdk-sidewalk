@@ -35,6 +35,7 @@ config SIDEWALK_BLE
 	imply BT_CTLR_TX_PWR_DYNAMIC_CONTROL
 	imply BT_CTLR_ADVANCED_FEATURES
 	imply BT_EXT_ADV
+	imply BT_GATT_AUTHORIZATION_CUSTOM
 	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
