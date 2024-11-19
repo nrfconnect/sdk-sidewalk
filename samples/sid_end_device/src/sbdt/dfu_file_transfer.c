@@ -232,3 +232,13 @@ void app_file_transfer_demo_deinit(struct sid_handle *handle)
 		LOG_ERR("sid_bulk_data_transfer_deinit returned %s", SID_ERROR_T_STR(err));
 	}
 }
+
+void sidewalk_event_file_transfer_deinit(sidewalk_ctx_t *sid, void *ctx)
+{
+	app_file_transfer_demo_deinit(sid->handle);
+}
+
+void sidewalk_event_file_transfer_init(sidewalk_ctx_t *sid, void *ctx)
+{
+	app_file_transfer_demo_init(sid->handle);
+}
