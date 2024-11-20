@@ -47,10 +47,6 @@ config BT_ID_MAX
 	default 3 if SIDEWALK_DFU
 	default 2 
 
-config BT_APP_IFC
-	bool "Enable BT app wrapper"
-	default y if SIDEWALK_BLE
-
 config SIDEWALK_ASSERT
 	bool
 	default SIDEWALK

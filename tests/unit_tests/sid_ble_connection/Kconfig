@@ -15,7 +15,4 @@ config SIDEWALK_BLE_ADAPTER_LOG_LEVEL
 config BT_ID_MAX
 	default 2
 
-config BT_APP_IFC
-	default y
-
 source "Kconfig.zephyr"
