@@ -12,9 +12,6 @@ config SIDEWALK_LOG_LEVEL
 config BT_ID_MAX
 	default 2
 
-config BT_APP_IFC
-	default y
-
 module = SIDEWALK_BLE_ADAPTER
 module-str = Sidewalk BLE interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"

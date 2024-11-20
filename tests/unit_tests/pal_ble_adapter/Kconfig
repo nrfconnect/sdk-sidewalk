@@ -31,9 +31,6 @@ config SIDEWALK_LOG_LEVEL
 config SIDEWALK_BLE_ADAPTER_LOG_LEVEL
 	default 0
 
-config BT_APP_IFC
-	default y
-
 config BT_ID_MAX
 	default 2
 

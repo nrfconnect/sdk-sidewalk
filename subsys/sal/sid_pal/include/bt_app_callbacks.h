@@ -9,8 +9,25 @@
 
 #include <stdbool.h>
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/gatt.h>
 
-#if defined(CONFIG_BT_APP_IFC)
+/**
+ * @brief check if attr is for SMP service
+ * 
+ * @param attr 
+ * @return true if attr is for SMP
+ * @return false in othre cases
+ */
+bool sid_ble_bt_attr_is_SMP(const struct bt_gatt_attr *attr);
+
+/**
+ * @brief check if attr is for one of Sidewlak services
+ * 
+ * @param attr 
+ * @return true if attr is
+ * @return false in othre cases
+ */
+bool sid_ble_bt_attr_is_SIDEWALK(const struct bt_gatt_attr *attr);
 
 /**
  * @brief Wrapper for @bt_enable, with reference tracking.
@@ -43,6 +60,7 @@ enum sid_ble_id_values {
 	_BT_ID_MAX
 };
 
+#if defined(CONFIG_BT_ID_MAX)
 BUILD_ASSERT(_BT_ID_MAX <= CONFIG_BT_ID_MAX,
 	     "Too many BT Ids! increase CONFIG_BT_ID_MAX, to match _BT_ID_MAX");
 #endif
