@@ -8,6 +8,7 @@
 
 #include <sid_ble_advert.h>
 #include <sid_ble_uuid.h>
+#include <sid_ble_connection.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
@@ -20,11 +21,18 @@ FAKE_VALUE_FUNC(int, bt_le_ext_adv_start, struct bt_le_ext_adv *,
 FAKE_VALUE_FUNC(int, bt_le_ext_adv_stop, struct bt_le_ext_adv *);
 FAKE_VALUE_FUNC(int, bt_le_ext_adv_set_data, struct bt_le_ext_adv *, const struct bt_data *, size_t,
 		const struct bt_data *, size_t);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_delete, struct bt_le_ext_adv *);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_create, const struct bt_le_adv_param *,
+		const struct bt_le_ext_adv_cb *, struct bt_le_ext_adv **);
+FAKE_VALUE_FUNC(const sid_ble_conn_params_t *, sid_ble_conn_params_get);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
-	FAKE(bt_le_ext_adv_start)                                                                      \
-	FAKE(bt_le_ext_adv_stop)                                                                       \
-	FAKE(bt_le_ext_adv_set_data)
+	FAKE(bt_le_ext_adv_start)                                                                  \
+	FAKE(bt_le_ext_adv_stop)                                                                   \
+	FAKE(bt_le_ext_adv_set_data)                                                               \
+	FAKE(bt_le_ext_adv_delete)                                                                 \
+	FAKE(bt_le_ext_adv_create)                                                                 \
+	FAKE(sid_ble_conn_params_get)
 
 #define ESUCCESS (0)
 #define TEST_BUFFER_LEN (100)
@@ -111,7 +119,7 @@ bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t
 	for (size_t i = 0; i < ad_len; i++) {
 		if (ad[i].type == BT_DATA_MANUFACTURER_DATA) {
 			TEST_ASSERT_GREATER_OR_EQUAL_UINT8(BT_COMP_ID_LEN, ad[i].data_len);
-			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA) & 0xff), ad[i].data[0]);
+			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA)&0xff), ad[i].data[0]);
 			TEST_ASSERT_EQUAL_UINT8((((BT_COMP_ID_AMA) >> 8) & 0xff), ad[i].data[1]);
 
 			*result_len = ad[i].data_len - BT_COMP_ID_LEN;

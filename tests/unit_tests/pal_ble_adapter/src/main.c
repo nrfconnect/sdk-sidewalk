@@ -28,6 +28,9 @@ FAKE_VALUE_FUNC(int, bt_le_ext_adv_set_data, struct bt_le_ext_adv *, const struc
 		const struct bt_data *, size_t);
 FAKE_VALUE_FUNC(int, bt_le_ext_adv_start, struct bt_le_ext_adv *,
 		const struct bt_le_ext_adv_start_param *);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_delete, struct bt_le_ext_adv *);
+FAKE_VALUE_FUNC(int, bt_le_ext_adv_create, const struct bt_le_adv_param *,
+		const struct bt_le_ext_adv_cb *, struct bt_le_ext_adv **);
 FAKE_VALUE_FUNC(int, bt_enable, bt_ready_cb_t);
 FAKE_VALUE_FUNC(int, bt_disable);
 FAKE_VALUE_FUNC(int, bt_le_adv_start, const struct bt_le_adv_param *, const struct bt_data *,
@@ -63,6 +66,8 @@ FAKE_VALUE_FUNC(int, bt_conn_get_info, const struct bt_conn *, struct bt_conn_in
 	FAKE(bt_enable)                                                                            \
 	FAKE(bt_disable)                                                                           \
 	FAKE(bt_le_adv_start)                                                                      \
+	FAKE(bt_le_ext_adv_delete)                                                                 \
+	FAKE(bt_le_ext_adv_create)                                                                 \
 	FAKE(bt_le_adv_stop)                                                                       \
 	FAKE(bt_conn_cb_register)                                                                  \
 	FAKE(bt_conn_ref)                                                                          \

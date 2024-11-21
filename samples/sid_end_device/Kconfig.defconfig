@@ -43,8 +43,8 @@ config BT_PERIPHERAL_PREF_TIMEOUT
 	default 400
 
 config BT_EXT_ADV_MAX_ADV_SET
-	default 3 if SIDEWALK_DFU
-	default 2
+	default 2 if SIDEWALK_DFU
+	default 1
 
 config BT_MAX_CONN
 	default 2 if SIDEWALK_DFU
