@@ -31,6 +31,12 @@ int sid_ble_advert_deinit(void);
 int sid_ble_advert_start(void);
 
 /**
+ * @brief Notify sid_ble_advert that connection has been made
+ * 
+ */
+void sid_ble_advert_notify_connection(void);
+
+/**
  * @brief Stop Bluetooth advertising.
  *
  * @return Zero on success or (negative) error code on failure.

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include "zephyr/kernel.h"
 #include <sidewalk_dfu/nordic_dfu.h>
 #include <dk_buttons_and_leds.h>
 #include <stdbool.h>
@@ -24,9 +25,11 @@ LOG_MODULE_REGISTER(nordic_dfu, CONFIG_SIDEWALK_LOG_LEVEL);
 #define LED_PERIOD_LOADING_WHEEL 150
 
 static void pending_adv_start(struct k_work *work);
+static void deinit_nordic_dfu(struct k_work *work);
 static struct bt_le_ext_adv *adv = NULL;
 static struct bt_le_ext_adv_start_param ext_adv_param = { .num_events = 0, .timeout = 0 };
 static struct k_work_delayable adv_work = Z_WORK_DELAYABLE_INITIALIZER(pending_adv_start);
+static struct k_work exit_dfu = Z_WORK_INITIALIZER(deinit_nordic_dfu);
 
 static struct bt_le_adv_param adv_params = { .id = BT_ID_DEFAULT,
 					     .sid = 0,
@@ -52,6 +55,11 @@ static enum led_status_e {
 
 static struct k_timer led_timer;
 static struct k_timer exit_timer;
+
+static void deinit_nordic_dfu(struct k_work *work)
+{
+	nordic_dfu_ble_stop();
+}
 
 static int create_ble_id(void)
 {
@@ -101,6 +109,7 @@ static void led_action(struct k_timer *timer_id)
 static void exit_dfu_mode(struct k_timer *timer_id)
 {
 	LOG_ERR("DFU did not start or could not complete. Exit dfu mode");
+	k_work_submit(&exit_dfu);
 }
 
 static void connected(struct bt_conn *conn, uint8_t err)

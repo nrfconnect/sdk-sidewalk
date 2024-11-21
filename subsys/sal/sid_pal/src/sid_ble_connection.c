@@ -6,6 +6,7 @@
 
 #include <sid_ble_connection.h>
 #include <sid_ble_adapter_callbacks.h>
+#include <sid_ble_advert.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/gatt.h>
@@ -70,7 +71,7 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t err)
 		LOG_ERR("Connection failed (err %u)\n", err);
 		return;
 	}
-
+	sid_ble_advert_notify_connection();
 	bt_addr_le = bt_conn_get_dst(conn);
 
 	if (bt_addr_le) {
