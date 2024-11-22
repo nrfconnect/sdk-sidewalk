@@ -10,25 +10,21 @@ config BT_REMOTE_VERSION
 
 config BT_BUF_ACL_TX_SIZE
 	default 251
-	default 502 if SIDEWALK_DFU_BLE_FAST
 
 config BT_BUF_ACL_TX_COUNT
 	default 3
 
 config BT_BUF_ACL_RX_SIZE
 	default 251
-	default 502 if SIDEWALK_DFU_BLE_FAST
 
 config BT_BUF_ACL_RX_COUNT
 	default 6
 
 config BT_L2CAP_TX_MTU
 	default 247
-	default 498 if SIDEWALK_DFU_BLE_FAST
 
 config BT_CTLR_DATA_LENGTH_MAX
 	default 247
-	default 251 if SIDEWALK_DFU_BLE_FAST
 
 config BT_PERIPHERAL_PREF_MIN_INT
 	default 16

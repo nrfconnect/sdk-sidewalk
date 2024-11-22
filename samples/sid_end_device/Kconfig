@@ -109,7 +109,7 @@ config SBDT_MAX_PARALEL_TRANSFERS
     int "maximum number of sbdt paralel transfers"
     default 3
 
-endif
+endif # SIDEWALK_FILE_TRANSFER
 
 rsource "Kconfig.defconfig"
 
