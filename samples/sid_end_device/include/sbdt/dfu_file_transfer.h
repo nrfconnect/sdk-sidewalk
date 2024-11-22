@@ -32,20 +32,4 @@ void app_file_transfer_demo_deinit(struct sid_handle *handle);
  */
 void sidewalk_event_file_transfer(sidewalk_ctx_t *sid, void *ctx);
 
-/**
- * @brief Sidewalk event to deinit sbdt
- * 
- * @param sid sidewalk_ctx_t object
- * @param ctx Ignored
- */
-void sidewalk_event_file_transfer_deinit(sidewalk_ctx_t *sid, void *ctx);
-
-/**
- * @brief Sidewalk event to init sbdt
- * 
- * @param sid sidewalk_ctx_t object
- * @param ctx Ignored
- */
-void sidewalk_event_file_transfer_init(sidewalk_ctx_t *sid, void *ctx);
-
 #endif /* FILE_TRANSFER_H */

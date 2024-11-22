@@ -55,6 +55,7 @@ static enum led_status_e {
 
 static struct k_timer led_timer;
 static struct k_timer exit_timer;
+static volatile bool in_dfu_mode = false;
 
 static void deinit_nordic_dfu(struct k_work *work)
 {
@@ -196,6 +197,11 @@ static struct mgmt_callback dfu_mode_mgmt_cb = {
 		    MGMT_EVT_OP_IMG_MGMT_DFU_PENDING | MGMT_EVT_OP_IMG_MGMT_DFU_CHUNK,
 };
 
+bool nordic_dfu_is_in_dfu()
+{
+	return in_dfu_mode;
+}
+
 static void pending_adv_start(struct k_work *work)
 {
 	int err;
@@ -249,6 +255,7 @@ int nordic_dfu_ble_start(void)
 
 	LOG_INF("Advertising successfully started");
 
+	in_dfu_mode = true;
 	k_timer_init(&exit_timer, exit_dfu_mode, NULL);
 	k_timer_start(&exit_timer, K_MINUTES(CONFIG_DFU_UPLOAD_START_TIMEOUT), K_NO_WAIT);
 
@@ -262,7 +269,7 @@ int nordic_dfu_ble_start(void)
 int nordic_dfu_ble_stop(void)
 {
 	LOG_INF("Exiting DFU mode");
-
+	in_dfu_mode = false;
 	bt_conn_cb_unregister(&conn_callbacks);
 	mgmt_callback_unregister(&dfu_mode_mgmt_cb);
 

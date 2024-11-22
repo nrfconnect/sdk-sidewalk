@@ -276,15 +276,9 @@ static void app_btn_dfu_state(uint32_t unused)
 	ARG_UNUSED(unused);
 	static bool go_to_dfu_state = true;
 	if (go_to_dfu_state) {
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-		sidewalk_event_send(sidewalk_event_file_transfer_deinit, NULL, NULL);
-#endif
 		sidewalk_event_send(app_event_enter_dfu_mode, NULL, NULL);
 	} else {
 		sidewalk_event_send(app_event_exit_dfu_mode, NULL, NULL);
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-		sidewalk_event_send(sidewalk_event_file_transfer_init, NULL, NULL);
-#endif
 	}
 
 	go_to_dfu_state = !go_to_dfu_state;

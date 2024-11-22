@@ -16,6 +16,7 @@
 #include <sid_hal_memory_ifc.h>
 #include <sid_pal_storage_kv_ifc.h>
 #include <sid_pal_assert_ifc.h>
+#include <sidewalk_dfu/nordic_dfu.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_sbdt_file_transfer, CONFIG_SIDEWALK_LOG_LEVEL);
@@ -67,6 +68,16 @@ void on_sbdt_transfer_request(const struct sid_bulk_data_transfer_request *const
 		transfer_request->file_offset, transfer_request->fragment_size,
 		transfer_request->minimum_scratch_buffer_size,
 		transfer_request->file_descriptor_size);
+
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	if (nordic_dfu_is_in_dfu()) {
+		LOG_INF("Did not accept sbdt as application is in DFU mode");
+		transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_REJECT;
+		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC;
+		transfer_response->scratch_buffer_size = 0;
+		return;
+	}
+#endif
 
 	if (transfer_request->file_descriptor_size) {
 		SID_PAL_ASSERT(transfer_request->file_descriptor);
@@ -133,6 +144,14 @@ static void on_sbdt_data_received_stopped(struct k_timer *timer)
 void on_sbdt_data_received(const struct sid_bulk_data_transfer_desc *const desc,
 			   const struct sid_bulk_data_transfer_buffer *const buffer, void *context)
 {
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	if (nordic_dfu_is_in_dfu()) {
+		LOG_INF("Can not handle file transfer of new image. Application is in DFU mode");
+		(void)sid_bulk_data_transfer_cancel((struct sid_handle *)context, desc->file_id,
+						    SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC);
+		return;
+	}
+#endif
 	struct sbdt_context *sbdt_context = (struct sbdt_context *)context;
 	LOG_INF("EVENT SBDT DATA RECEIVED: FILE_ID: %x, FILE_OFFSET: 0x%x, LINK: %x", desc->file_id,
 		desc->file_offset, desc->link_type);
