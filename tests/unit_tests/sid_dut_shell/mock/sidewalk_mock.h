@@ -39,6 +39,7 @@ FAKE_VOID_FUNC(dut_event_get_option, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(dut_event_set_option, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(dut_event_set_dest_id, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(dut_event_conn_req, sidewalk_ctx_t *, void *);
+FAKE_VOID_FUNC(sbdt_event_deinit, sidewalk_ctx_t *, void *);
 
 #define SIDEWALK_FAKES_LIST(FAKE)                                                                  \
 	FAKE(sidewalk_start)                                                                       \
@@ -66,6 +67,7 @@ FAKE_VOID_FUNC(dut_event_conn_req, sidewalk_ctx_t *, void *);
 	FAKE(dut_event_get_option)                                                                 \
 	FAKE(dut_event_set_option)                                                                 \
 	FAKE(dut_event_set_dest_id)                                                                \
-	FAKE(dut_event_conn_req)
+	FAKE(dut_event_conn_req)                                                                   \
+	FAKE(sbdt_event_deinit)
 
 #endif /* SIDEWALK_MOCK_H */

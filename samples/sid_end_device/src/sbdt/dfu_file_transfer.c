@@ -15,6 +15,9 @@
 #include <zephyr/logging/log.h>
 #include <sid_pal_crypto_ifc.h>
 #include <stdio.h>
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+#include <sidewalk_dfu/nordic_dfu.h>
+#endif
 
 LOG_MODULE_REGISTER(file_transfer, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -93,6 +96,15 @@ static void on_transfer_request(const struct sid_bulk_data_transfer_request *con
 		transfer_response->scratch_buffer_size = 0;
 		return;
 	}
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	if (nordic_dfu_is_in_dfu()) {
+		LOG_INF("Did not accept sbdt as application is in DFU mode");
+		transfer_response->status = SID_BULK_DATA_TRANSFER_ACTION_REJECT;
+		transfer_response->reject_reason = SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC;
+		transfer_response->scratch_buffer_size = 0;
+		return;
+	}
+#endif
 
 	transfer_response->scratch_buffer = scratch_buffer_create(
 		transfer_request->file_id, transfer_request->minimum_scratch_buffer_size);
@@ -113,6 +125,15 @@ static void on_data_received(const struct sid_bulk_data_transfer_desc *const des
 			     const struct sid_bulk_data_transfer_buffer *const buffer,
 			     void *context)
 {
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	if (nordic_dfu_is_in_dfu()) {
+		LOG_INF("Can not handle file transfer of new image. Application is in DFU mode");
+		(void)sid_bulk_data_transfer_cancel((struct sid_handle *)context, desc->file_id,
+						    SID_BULK_DATA_TRANSFER_REJECT_REASON_GENERIC);
+		return;
+	}
+#endif
+
 	printk(JSON_NEW_LINE(JSON_OBJ(
 		JSON_LIST_2(JSON_NAME("on_data_received",
 				      JSON_OBJ(JSON_VAL_sid_bulk_data_transfer_desc("desc", desc))),
@@ -215,6 +236,7 @@ static struct sid_bulk_data_transfer_event_callbacks ft_callbacks = {
 
 void app_file_transfer_demo_init(struct sid_handle *handle)
 {
+	LOG_INF("sid_bulk_data_transfer_init called");
 	scratch_buffer_init();
 
 	ft_callbacks.context = (void *)handle;
@@ -227,18 +249,9 @@ void app_file_transfer_demo_init(struct sid_handle *handle)
 
 void app_file_transfer_demo_deinit(struct sid_handle *handle)
 {
+	LOG_INF("sid_bulk_data_transfer_deinit called");
 	sid_error_t err = sid_bulk_data_transfer_deinit(handle);
 	if (err != SID_ERROR_NONE) {
 		LOG_ERR("sid_bulk_data_transfer_deinit returned %s", SID_ERROR_T_STR(err));
 	}
-}
-
-void sidewalk_event_file_transfer_deinit(sidewalk_ctx_t *sid, void *ctx)
-{
-	app_file_transfer_demo_deinit(sid->handle);
-}
-
-void sidewalk_event_file_transfer_init(sidewalk_ctx_t *sid, void *ctx)
-{
-	app_file_transfer_demo_init(sid->handle);
 }

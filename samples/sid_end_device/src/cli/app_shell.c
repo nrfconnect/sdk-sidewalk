@@ -27,9 +27,7 @@
 #include <sidewalk_dfu/nordic_dfu.h>
 #endif
 
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-#include <sbdt/dfu_file_transfer.h>
-#endif
+#include <cli/sbdt_shell_events.h>
 
 #define CLI_CMD_OPT_LINK_BLE 1
 #define CLI_CMD_OPT_LINK_FSK 2
@@ -307,9 +305,6 @@ static void app_event_enter_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
 // shell handlers
 int cmd_nordic_dfu(const struct shell *shell, int32_t argc, const char **argv)
 {
-#ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
-	sidewalk_event_send(sidewalk_event_file_transfer_deinit, NULL, NULL);
-#endif
 	sidewalk_event_send(app_event_enter_dfu_mode, (void *)shell, NULL);
 	return 0;
 }
