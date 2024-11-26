@@ -20,7 +20,6 @@ Complete the following steps to test the Device Firmware Update (DFU) on your de
          After using the DFU mode, the first bootup might take up to 60 seconds.
          During the image swap the application is silent, meaning that LEDs are not blinking and the console does not output any logs.
          The application, however, is running, so do not reset the device.
-         In case the update fails, the old image is started instead.
 
    .. group-tab:: nRF54 DKs
 
@@ -37,4 +36,3 @@ Complete the following steps to test the Device Firmware Update (DFU) on your de
          After using the DFU mode, the first bootup might take up to 60 seconds.
          During the image swap the application is silent, meaning that LEDs are not blinking and the console does not output any logs.
          The application, however, is running, so do not reset the device.
-         In case the update fails, the old image is started instead.
