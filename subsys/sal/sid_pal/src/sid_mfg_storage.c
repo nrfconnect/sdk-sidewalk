@@ -44,7 +44,7 @@ static int sid_mfg_storage_secure_read(uint16_t *p_value, uint8_t *buffer, uint1
 #elif defined(NRF_NETWORK)
 #define DEV_ID_REG (uint32_t)(NRF_FICR_NS->INFO.DEVICEID[0])
 #endif /* NRF5340_XXAA */
-#elif defined(NRF54L15_ENGA_XXAA) || defined(NRF54L15_XXAA)
+#elif defined(NRF54L10_XXAA) || defined(NRF54L15_XXAA)
 #define DEV_ID_REG (uint32_t)(NRF_FICR->INFO.DEVICEID[0])
 #else
 #error "Unknow Device ID register."
