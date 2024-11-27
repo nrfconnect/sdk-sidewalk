@@ -107,7 +107,7 @@ choice CC3XX_LOCK_VARIANT
 endchoice
 
 config PSA_WANT_ALG_SHA_512
-	default y if SOC_NRF54L15
+	default y if SOC_SERIES_NRF54LX
 
 config PSA_WANT_ALG_CHACHA20_POLY1305
 	default n

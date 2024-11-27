@@ -33,7 +33,7 @@ static void gpio_enumerate_state(enum application_state state_id, uint32_t value
 		return;
 	}
 
-#if defined(NRF54L15_ENGA_XXAA) || defined(NRF54L15_XXAA)
+#if defined(NRF54L15_ENGA_XXAA) || defined(NRF54L15_XXAA) || defined(NRF54L10_XXAA)
 	gpio_pin_set_raw(gpio.port, gpio.pin, value);
 #else
 	/* output activated with low state */
