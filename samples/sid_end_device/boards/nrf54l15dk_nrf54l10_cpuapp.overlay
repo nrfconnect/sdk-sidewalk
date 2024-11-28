@@ -31,6 +31,10 @@
 			label = "semtech_sx1262 DIO1";
 		};
 	};
+
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
 };
 
 sid_semtech: &spi30 {
@@ -88,6 +92,9 @@ sid_semtech: &spi30 {
 };
 &spi22 {
 	status = "disabled";
+};
+&mx25r64 {
+	status = "okay";
 };
 
 // TODO: re-enable HWFC once it's fixed

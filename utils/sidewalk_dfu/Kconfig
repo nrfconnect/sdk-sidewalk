@@ -25,7 +25,7 @@ config SIDEWALK_DFU_BOOTLOADER
 	imply EXTRA_EXCEPTION_INFO
 
 config SIDEWALK_DFU_SERVICE_BLE
-	bool "DFU sericve over BLE"
+	bool "DFU service over BLE"
 	default SIDEWALK_DFU
 	imply MCUMGR
 	imply MCUMGR_GRP_IMG
