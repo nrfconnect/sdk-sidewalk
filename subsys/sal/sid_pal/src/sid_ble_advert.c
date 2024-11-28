@@ -192,7 +192,7 @@ int sid_ble_advert_deinit(void)
 
 void sid_ble_advert_notify_connection(void)
 {
-	LOG_INF("Conneciton has been made, cancel change adv");
+	LOG_DBG("Conneciton has been made, cancel change adv");
 	k_work_cancel_delayable(&change_adv_work);
 }
 
