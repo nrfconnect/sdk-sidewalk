@@ -4,6 +4,11 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+/ {
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
 
 /* Application does not use cpuflpr core. Assign whole RRAM and RAM to cpuapp. */
 &cpuapp_rram {
@@ -15,34 +20,6 @@
 	ranges = <0x0 0x20000000 DT_SIZE_K(192)>;
 };
 
-&adc {
-	status = "disabled";
-};
-&uart21 {
-	status = "disabled";
-};
-&pwm20 {
-	status = "disabled";
-};
-&i2c20 {
-	status = "disabled";
-};
-&spi00 {
-	status = "disabled";
-};
-&spi20 {
-	status = "disabled";
-};
-&spi21 {
-	status = "disabled";
-};
-&spi22 {
-	status = "disabled";
-};
-
-/* Disable the external flash, as it's not needed
-for the configuration with secondary slot residing
-in the internal MRAM. */
 &mx25r64 {
-	status = "disabled";
+	status = "okay";
 };
