@@ -3,11 +3,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
-config SIDEWALK_BUILD
-	default y
-
-config SIDEWALK_ASSERT
-	default y
-	imply ASSERT
+config SIDEWALK_LOG_LEVEL
+	default 0
 
 source "Kconfig.zephyr"

@@ -1,7 +1,5 @@
 tests:
   sidewalk.unit_tests.assert:
-    sysbuild: true
-    platform_allow: native_posix
+    sysbuild: false
     tags: Sidewalk
-    integration_platforms:
-      - native_posix
+    type: unit

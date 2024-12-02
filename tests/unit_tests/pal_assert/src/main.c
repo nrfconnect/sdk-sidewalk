@@ -4,13 +4,18 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include <unity.h>
 #include <sid_pal_assert_ifc.h>
 #include <stdbool.h>
-#include <zephyr/toolchain.h>
+#include <zephyr/ztest.h>
+#include <zephyr/fff.h>
 
-void setUp(void)
+DEFINE_FFF_GLOBALS;
+
+FAKE_VOID_FUNC_VARARG(z_log_minimal_printk, const char *, ...);
+
+static void suite_setup(void *f)
 {
+	RESET_FAKE(z_log_minimal_printk);
 }
 
 /******************************************************************
@@ -24,28 +29,23 @@ void assert_post_action(const char *file, unsigned int line)
 
 	if (should_assert) {
 		should_assert = false;
-		TEST_PASS_MESSAGE("Asserted.");
+		ztest_test_pass();
 	}
-	TEST_FAIL_MESSAGE("Asserted, but should not.");
+	ztest_test_fail();
 }
 
-void test_sid_pal_assert(void)
+ZTEST(assert_tests, test_sid_pal_assert_true)
 {
-	should_assert = false;
-	SID_PAL_ASSERT(true);
-
-	should_assert = true;
-	SID_PAL_ASSERT(false);
-	TEST_ASSERT_FALSE_MESSAGE(should_assert, "No assert when it should be.");
+    should_assert = false;
+    SID_PAL_ASSERT(true);
+    zassert_false(should_assert, "No assert when it should be.");
 }
 
-/* It is required to be added to each test. That is because unity is using
- * different main signature (returns int) and zephyr expects main which does
- * not return value.
- */
-extern int unity_main(void);
-
-int main(void)
+ZTEST(assert_tests, test_sid_pal_assert_false)
 {
-	return unity_main();
+    should_assert = true;
+    SID_PAL_ASSERT(false);
+    zassert_false(should_assert, "Asserted, but should not.");
 }
+
+ZTEST_SUITE(assert_tests, NULL, NULL, suite_setup, NULL, NULL);
