@@ -35,7 +35,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - * `nRF52840 DK`_
        * `nRF5340 DK`_
      - ---
-     - Planned
+     - Qualified/approved
    * - v2.6.0
      - v1.16.2
      - * `nRF52840 DK`_
