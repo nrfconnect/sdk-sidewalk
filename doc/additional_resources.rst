@@ -19,6 +19,13 @@ For additional Amazon resources, refer to the following list:
 * `Sidewalk terms of use`_
 * `Sidewalk qualification`_
 
+Additional Nordic resources for developers:
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   testing.rst
 
 .. _Introduction to Sidewalk: https://docs.sidewalk.amazon/introduction/
 .. _Getting Started Guide: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-getting-started.html
