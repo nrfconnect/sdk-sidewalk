@@ -16,7 +16,7 @@ config SIDEWALK_DEFAULTS
 	imply REBOOT
 
 config SIDEWALK_BUILD
-	bool
+	bool "Sidewalk build test"
 	default SIDEWALK
 	help
 	  An internal config to build the NCS Sidewalk Sources.
@@ -61,7 +61,7 @@ config SIDEWALK_ASSERT
 	  If the assertion fails, program will trigger a fatal error.
 
 config SIDEWALK_CRYPTO
-	bool
+	bool "sidewalk crypto test"
 	default SIDEWALK
 	imply NRF_SECURITY
 	imply HW_CC3XX

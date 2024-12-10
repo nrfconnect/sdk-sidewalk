@@ -1,0 +1,42 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_SUBGHZ_SUPPORT
+	default y
+
+config SIDEWALK_TEMPERATURE
+	default n
+
+config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
+	hex "value for trim cap used by subGHz radio"
+	range 0x0 0xFFFF
+	default 0x1212
+
+config SIDEWALK_SPI_BUS
+	default y
+
+config SIDEWALK_GPIO
+	default y
+
+config SIDEWALK_GPIO_MAX
+    default 6
+
+config SIDEWALK_GPIO_IRQ_PRIORITY
+	default 1
+
+config SIDEWALK_GPIO_IRQ_STACK_SIZE
+	default 2048
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+config SPI_BUS_LOG_LEVEL
+	default 0
+
+source "Kconfig.zephyr"
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
