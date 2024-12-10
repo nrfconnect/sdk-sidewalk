@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.temperature:
+  sidewalk.test.integration.temperature:
     sysbuild: true
     platform_allow:
       - nrf52840dk/nrf52840

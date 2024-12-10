@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.spi_bus:
+  sidewalk.test.integration.spi_bus:
     sysbuild: true
     platform_allow:
       - nrf52840dk/nrf52840

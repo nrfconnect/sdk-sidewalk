@@ -7,7 +7,7 @@ on:
 
 jobs:
   read_pr_configuration:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       Create_NRF_PR: ${{ steps.config.outputs.Create_NRF_PR }}
     steps:
@@ -46,7 +46,7 @@ jobs:
           fi;
 
   create-manifest-pr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: read_pr_configuration
     if: ${{ fromJson(needs.read_pr_configuration.outputs.Create_NRF_PR)}}
     steps:

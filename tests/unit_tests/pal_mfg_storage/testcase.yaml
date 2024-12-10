@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.mfg_storage:
+  sidewalk.test.unit.mfg_storage:
     skip: true
     sysbuild: true
     platform_allow: native_posix

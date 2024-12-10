@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.tlv:
+  sidewalk.test.unit.tlv:
     sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk

@@ -33,7 +33,7 @@ jobs:
     env:
       ARCHIVE: "sidewalk_${{inputs.documentation_tag}}.zip"
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2

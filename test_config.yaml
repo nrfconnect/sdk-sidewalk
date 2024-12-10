@@ -1,0 +1,36 @@
+platforms:
+  override_default_platforms: false
+  increased_platform_scope: false
+
+levels:
+  - name: samples
+    description: >
+      Prepare samples.
+    adds:
+      - sidewalk.samples.*
+      - sidewalk.test.acceptance.simple_bootloader
+
+  - name: unit
+    description: >
+      Check units in isolation.
+    adds:
+      - sidewalk.test.unit.*
+
+  - name: integration
+    description: >
+      Verify implementation of PAL on target
+    adds:
+      - sidewalk.test.integration.*
+
+  - name: Github_tests
+    description: >
+      set of tests run on GitHub
+    inherits:
+      - unit
+      - integration
+
+  - name: bugs
+    description: >
+      Test known issues and bug scenarios.
+    adds:
+      - sidewalk.test.acceptance.bugs.*

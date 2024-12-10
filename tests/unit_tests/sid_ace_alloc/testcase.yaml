@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.ace.alloc:
+  sidewalk.test.unit.ace.alloc:
     sysbuild: true
     platform_allow:
       - nrf52840dk/nrf52840

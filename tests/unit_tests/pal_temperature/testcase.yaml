@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.temperature:
+  sidewalk.test.unit.temperature:
     sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk
