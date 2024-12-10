@@ -61,6 +61,21 @@ jobs:
         run: |
           python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
 
+      - name: Replace slash with underscore
+        id: replace
+        run: |
+          TARGET_BOARD=${{ inputs.target_board }}
+          TARGET_BOARD=${TARGET_BOARD//\//_}
+          echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
+
+      - name: Ccache
+        id: ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-tests_dut-${{ inputs.subset }}-${{steps.replace.outputs.target_board}}-${{ github.run_id }}
+          restore-keys: ccache-tests_dut-${{ inputs.subset }}-${{ steps.replace.outputs.target_board}}-
+
       - name: Build DUT test artifacts
         run: |
           source zephyr/zephyr-env.sh
@@ -69,13 +84,6 @@ jobs:
       - name: Print ccache stats
         run: |
           ccache -ps;
-
-      - name: Replace slash with underscore
-        id: replace
-        run: |
-          TARGET_BOARD=${{ inputs.target_board }}
-          TARGET_BOARD=${TARGET_BOARD//\//_}
-          echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
 
       - name: Save build artifacts
         uses: actions/upload-artifact@v4

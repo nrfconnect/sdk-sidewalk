@@ -66,6 +66,14 @@ jobs:
           TARGET_BOARD=${TARGET_BOARD//\//_}
           echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
 
+      - name: Ccache
+        id: ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-samples-${{ matrix.subset }}-${{ steps.replace.outputs.target_board}}-${{ github.run_id }}
+          restore-keys: ccache-samples-${{ matrix.subset }}-${{ steps.replace.outputs.target_board}}-
+
       - name: Twister build samples
         run: |
           source zephyr/zephyr-env.sh

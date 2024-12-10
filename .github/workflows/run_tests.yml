@@ -45,6 +45,14 @@ jobs:
         run: |
           python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
 
+      - name: Ccache
+        id: ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-test_x86-${{ github.run_id }}
+          restore-keys: ccache-test_x86-
+
       - name: Twister build and run x86 tests
         run: |
           source zephyr/zephyr-env.sh
