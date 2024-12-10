@@ -172,5 +172,5 @@ jobs:
       - name: clean artifacts
         if: always()
         run: |
-          cd nrf; git checkout main; git branch -D branch_to_run;
+          cd nrf; git checkout main; git branch -D branch_to_run; cd ..;
           rm -rf PACKAGE_ARTIFACTS_* twister-out

@@ -21,10 +21,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        subset: [1, 2, 3, 4, 5]
+        subset: [1, 2, 3]
         board: ${{ fromJson(inputs.boards_to_test) }}
     env:
-      MAX_SUBSETS: 5
+      MAX_SUBSETS: 3
 
     runs-on: ubuntu-24.04
     container:
