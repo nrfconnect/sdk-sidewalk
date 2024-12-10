@@ -24,11 +24,13 @@ ZTEST(pal_delay, test_sid_pal_delay)
 	sid_pal_delay_us(MIN_DELAY_US);
 	uint64_t delta = TIMESTAMP_US_GET() - timestamp;
 
-	zassert_true(abs((int)(MIN_DELAY_US - delta)) <= MAX_DELAY_US_THRESHOLD);
+	zassert_true(abs((int)(MIN_DELAY_US - delta)) <= MAX_DELAY_US_THRESHOLD,
+		     "expected delay %d took %d", MIN_DELAY_US, delta);
 	timestamp = TIMESTAMP_US_GET();
 	sid_pal_delay_us(DELAY_US);
 	delta = TIMESTAMP_US_GET() - timestamp;
-	zassert_true(abs((int)(DELAY_US - delta)) <= MAX_DELAY_US_THRESHOLD);
+	zassert_true(abs((int)(DELAY_US - delta)) <= MAX_DELAY_US_THRESHOLD,
+		     "expected delay %d took %d", DELAY_US, delta);
 }
 
 ZTEST(pal_delay, test_sanity)
