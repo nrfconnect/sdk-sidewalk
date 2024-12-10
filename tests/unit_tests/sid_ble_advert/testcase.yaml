@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.ble_advertising:
+  sidewalk.test.unit.ble_advertising:
     sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk

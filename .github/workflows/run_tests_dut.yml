@@ -27,7 +27,7 @@ on:
 jobs:
   build_dut_tests:
     name: "Build DUT tests (${{inputs.target_board}} - ${{ inputs.subset }})"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2
@@ -45,8 +45,9 @@ jobs:
       - name: update NRF
         run: |
           rm -rf .west nrf;
+          cp -r /workdir/nrf nrf;
           cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
-          west init -m https://github.com/nrfconnect/sdk-nrf --mr main . &&
+          west init -l nrf &&
           cd nrf &&
           git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
           git checkout branch_to_run &&
@@ -60,17 +61,29 @@ jobs:
         run: |
           python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
 
-      - name: Build DUT test artifacts
-        run: |
-          source zephyr/zephyr-env.sh
-          west twister --platform ${{inputs.target_board}} --testsuite-root sidewalk --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
-
       - name: Replace slash with underscore
         id: replace
         run: |
           TARGET_BOARD=${{ inputs.target_board }}
           TARGET_BOARD=${TARGET_BOARD//\//_}
           echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
+
+      - name: Ccache
+        id: ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-tests_dut-${{ inputs.subset }}-${{steps.replace.outputs.target_board}}-${{ github.run_id }}
+          restore-keys: ccache-tests_dut-${{ inputs.subset }}-${{ steps.replace.outputs.target_board}}-
+
+      - name: Build DUT test artifacts
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --test-config sidewalk/test_config.yaml --levels="Github_tests" --platform ${{inputs.target_board}} --testsuite-root sidewalk --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
+
+      - name: Print ccache stats
+        run: |
+          ccache -ps;
 
       - name: Save build artifacts
         uses: actions/upload-artifact@v4
@@ -103,8 +116,9 @@ jobs:
       - name: update NRF
         run: |
           rm -rf .west nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd ..
-          west init -m https://github.com/nrfconnect/sdk-nrf --mr main . &&
+          cp -r /workdir/nrf nrf;
+          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
+          west init -l nrf &&
           cd nrf &&
           git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
           git checkout branch_to_run &&

@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.crypto_keys:
+  sidewalk.test.integration.crypto_keys:
     sysbuild: true
     tags: Sidewalk
     platform_allow:

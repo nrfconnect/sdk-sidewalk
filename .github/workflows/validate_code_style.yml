@@ -9,7 +9,7 @@ on:
 
 jobs:
   check_formating_and_license:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
           python3 sidewalk/scripts/ci/verify_license.py -s . -c sidewalk/scripts/ci/license.yml
 
   validate_compliance_with_zephyr:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2

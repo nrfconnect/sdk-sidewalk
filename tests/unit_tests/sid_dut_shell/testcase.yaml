@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.sid_dut_shell:
+  sidewalk.test.unit.sid_dut_shell:
     sysbuild: false
     tags: Sidewalk
     type: unit

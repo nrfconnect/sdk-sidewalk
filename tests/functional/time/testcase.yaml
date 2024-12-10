@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.time:
+  sidewalk.test.integration.time:
     sysbuild: true
     tags: Sidewalk
     platform_allow:

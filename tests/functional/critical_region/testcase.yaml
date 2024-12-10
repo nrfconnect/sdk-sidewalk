@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.critical_region:
+  sidewalk.test.integration.critical_region:
     sysbuild: true
     platform_allow:
       - nrf52840dk/nrf52840

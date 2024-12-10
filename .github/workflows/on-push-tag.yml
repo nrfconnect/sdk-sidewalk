@@ -20,7 +20,7 @@ jobs:
     needs: [build_documentation, build_samples]
     permissions: write-all
     name: Create release page
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Download artifact

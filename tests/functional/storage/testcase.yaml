@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.storage:
+  sidewalk.test.integration.storage:
     sysbuild: true
     tags: Sidewalk
     platform_allow:

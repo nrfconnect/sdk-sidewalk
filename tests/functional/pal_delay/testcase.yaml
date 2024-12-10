@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.delay:
+  sidewalk.test.integration.delay:
     sysbuild: true
     platform_allow:
       - nrf52840dk/nrf52840

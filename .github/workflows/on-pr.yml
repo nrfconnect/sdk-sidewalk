@@ -4,7 +4,7 @@ on:
 
 jobs:
   Run_Configuration:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       NRF_revision: ${{ steps.config.outputs.NRF_revision }}
     steps:
@@ -47,7 +47,7 @@ jobs:
       reference_commit: ${{ github.event.pull_request.base.sha }}
 
   save_pr_number:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Save PR number to file
         run: |
@@ -60,14 +60,36 @@ jobs:
           path: |
             PR_number
 
+  discover_target_boards:
+    runs-on: ubuntu-24.04
+    outputs:
+      targets: ${{ steps.platforms.outputs.targets }}
+    steps:
+      - name: install yq
+        run: pip install yq
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: sidewalk
+
+      - name: get_platforms
+        id: platforms
+        run: |
+          result=$(yq '.common.platform_allow' sidewalk/samples/sid_end_device/sample.yaml -c)
+          echo "targets=$result" >> $GITHUB_OUTPUT;
+          echo "$result"
+
   build_samples:
-    needs: Run_Configuration
+    needs: [Run_Configuration, discover_target_boards]
     uses: ./.github/workflows/samples_build.yml
     with:
       nrf_revision: ${{needs.Run_Configuration.outputs.NRF_revision}}
+      boards_to_test: ${{needs.discover_target_boards.outputs.targets}}
 
   build_and_run_tests:
-    needs: Run_Configuration
+    needs: [Run_Configuration, discover_target_boards]
     uses: ./.github/workflows/run_tests.yml
     with:
       nrf_revision: ${{needs.Run_Configuration.outputs.NRF_revision}}
+      boards_to_test: ${{needs.discover_target_boards.outputs.targets}}

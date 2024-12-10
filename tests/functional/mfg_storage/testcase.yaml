@@ -1,5 +1,5 @@
 tests:
-  sidewalk.functional.mfg_storage:
+  sidewalk.test.integration.mfg_storage:
     skip: true
     sysbuild: true
     tags: Sidewalk
@@ -16,7 +16,7 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
 
-  sidewalk.functional.mfg_storage_deprecated:
+  sidewalk.test.integration.mfg_storage_deprecated:
     skip: true
     sysbuild: true
     tags: Sidewalk

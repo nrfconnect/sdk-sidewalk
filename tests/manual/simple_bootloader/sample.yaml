@@ -2,7 +2,7 @@ sample:
   name: simple bootloader app
   description: Small footprint application to verify sidewalk dfu
 tests:
-  sidewalk.test.simple_bootloader:
+  sidewalk.test.acceptance.simple_bootloader:
     sysbuild: true
     build_only: true
     platform_allow:
