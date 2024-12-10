@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.unit_tests.interrupts:
+  sidewalk.test.unit.interrupts:
     sysbuild: false
     tags: Sidewalk
     type: unit

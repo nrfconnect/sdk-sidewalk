@@ -1,5 +1,5 @@
 tests:
-  sidewalk.unit_tests.ble_connection:
+  sidewalk.test.unit.ble_connection:
     sysbuild: true
     platform_allow: native_posix
     tags: Sidewalk

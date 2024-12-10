@@ -1,5 +1,5 @@
 tests:
-  sidewalk.sid_validation.pal_crypto:
+  sidewalk.test.integration.pal_crypto:
     sysbuild: true
     platform_allow:
       - nrf52840dk/nrf52840

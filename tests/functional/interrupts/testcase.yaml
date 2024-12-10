@@ -1,5 +1,5 @@
 tests:
-  unity.sidewalk.functional.interrupts:
+  sidewalk.test.integration.interrupts:
     sysbuild: true
     tags: Sidewalk
     platform_allow:
