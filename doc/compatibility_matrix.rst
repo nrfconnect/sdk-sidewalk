@@ -48,5 +48,3 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF5340 DK`_
      - ---
      - Qualified/approved
-
-`*` Experimental support
