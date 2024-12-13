@@ -4,13 +4,8 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/ {
-	chosen {
-		nordic,pm-ext-flash = &mx25r64;
-	};
-};
 
-/* Application does not use cpuflpr core. Assign whole RRAM and RAM to cpuapp. */
+/* Application does not use cpuflpr core. Assign whole RRAM to cpuapp. */
 &cpuapp_rram {
 	reg = <0x0 DT_SIZE_K(1024)>;
 };
@@ -18,8 +13,4 @@
 &cpuapp_sram {
 	reg = <0x20000000 DT_SIZE_K(192)>;
 	ranges = <0x0 0x20000000 DT_SIZE_K(192)>;
-};
-
-&mx25r64 {
-	status = "okay";
 };
