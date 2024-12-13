@@ -7,8 +7,8 @@ levels:
     description: >
       Prepare samples.
     adds:
-      - sidewalk.samples.*
-      - sidewalk.test.acceptance.simple_bootloader
+      - sample.sidewalk.*
+      - sidewalk.test.simple_bootloader
 
   - name: unit
     description: >
