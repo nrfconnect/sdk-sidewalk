@@ -20,16 +20,16 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - * `nRF52840 DK`_
        * `nRF5340 DK`_
        * `nRF54L15 DK`_
-     - --
+     - * `PICS v2.9.0 - BLE only`_
+       * `PICS v2.9.0`_
      - Planned
    * - v2.8.0
      - v1.17.0
      - * `nRF52840 DK`_
        * `nRF5340 DK`_
        * `nRF54L15 DK`_
-     - * `PICS v2.8.0 - BLE only`_
-       * `PICS v2.8.0`_
-     - Planned
+     - --
+     - Not planned
    * - v2.7.0
      - v1.16.2
      - * `nRF52840 DK`_
