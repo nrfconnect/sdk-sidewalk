@@ -17,8 +17,8 @@ config BT_BUF_ACL_TX_COUNT
 config BT_BUF_ACL_RX_SIZE
 	default 251
 
-config BT_BUF_ACL_RX_COUNT
-	default 6
+config BT_BUF_ACL_RX_COUNT_EXTRA
+	default 4
 
 config BT_L2CAP_TX_MTU
 	default 247
