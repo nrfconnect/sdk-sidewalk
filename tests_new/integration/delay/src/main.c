@@ -17,19 +17,26 @@
 
 #define TIMESTAMP_US_GET() (k_ticks_to_us_floor64((uint64_t)k_uptime_ticks()))
 
-ZTEST(pal_delay, test_sid_pal_delay)
+ZTEST(pal_delay, test_sid_pal_delay_min)
 {
+	uint64_t delta = 0;
 	uint64_t timestamp = TIMESTAMP_US_GET();
 	sid_pal_delay_us(MIN_DELAY_US);
-	uint64_t delta = TIMESTAMP_US_GET() - timestamp;
+	delta = TIMESTAMP_US_GET() - timestamp;
 
 	zassert_true(abs((int)(MIN_DELAY_US - delta)) <= MAX_DELAY_US_THRESHOLD,
-		     "expected delay %d took %d", MIN_DELAY_US, delta);
-	timestamp = TIMESTAMP_US_GET();
+		     "expected delay %lld took %lld", MIN_DELAY_US, delta);
+}
+
+ZTEST(pal_delay, test_sid_pal_delay)
+{
+	uint64_t delta = 0;
+	uint64_t timestamp = TIMESTAMP_US_GET();
 	sid_pal_delay_us(DELAY_US);
 	delta = TIMESTAMP_US_GET() - timestamp;
+
 	zassert_true(abs((int)(DELAY_US - delta)) <= MAX_DELAY_US_THRESHOLD,
-		     "expected delay %d took %d", DELAY_US, delta);
+		     "expected delay %lld took %lld", DELAY_US, delta);
 }
 
 ZTEST_SUITE(pal_delay, NULL, NULL, NULL, NULL, NULL);

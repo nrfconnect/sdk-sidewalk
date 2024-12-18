@@ -45,29 +45,9 @@ static void *sid_pal_storage_test_init(void)
 	return NULL;
 }
 
-/*********************************************
- * NOTE: DO NOT CHANGE THE ORDER OF THE TESTS!
- *********************************************
- *
- * ZTEST(functional_storage, test_1sid_pal_storage_no_init)
- * {
- *     uint32_t len;
- *
- *     // NVM is not initialized.
- *     zassert_equal(SID_ERROR_STORAGE_ERASE_FAIL,
- *                   sid_pal_storage_kv_group_delete(GROUP_ID_TEST_OK));
- *     zassert_equal(SID_ERROR_STORAGE_WRITE_FAIL,
- *                   sid_pal_storage_kv_record_set(GROUP_ID_TEST_OK, TEST_KEY_1, &test_data[0],
- *                                                 sizeof(test_data[0])));
- *     zassert_equal(SID_ERROR_STORAGE_READ_FAIL,
- *                   sid_pal_storage_kv_record_get(GROUP_ID_TEST_OK, TEST_KEY_1, &test_read_data,
- *                                                 sizeof(test_read_data)));
- *     zassert_equal(SID_ERROR_STORAGE_READ_FAIL,
- *                   sid_pal_storage_kv_record_get_len(GROUP_ID_TEST_OK, TEST_KEY_1, &len));
- *     zassert_equal(SID_ERROR_STORAGE_ERASE_FAIL,
- *                   sid_pal_storage_kv_record_delete(GROUP_ID_TEST_OK, TEST_KEY_1));
- * }
- */
+/***********************************************
+ * NOTE: DO NOT CHANGE THE ORDER OF THE TESTS! *
+ **********************************************/
 
 ZTEST(functional_storage, test_2sid_pal_storage_kv_init)
 {

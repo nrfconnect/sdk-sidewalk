@@ -300,8 +300,6 @@ ZTEST(crypto, test_sid_pal_crypto_hash_256)
 	zassert_equal(SID_ERROR_OUT_OF_RESOURCES, sid_pal_crypto_hash(&params));
 }
 
-#if defined(CONFIG_SOC_SERIES_NRF54LX)
-
 ZTEST(crypto, test_sid_pal_crypto_hash_512)
 {
 	sid_pal_hash_params_t params;
@@ -374,8 +372,6 @@ ZTEST(crypto, test_sid_pal_crypto_hash_512)
 	params.data_size = 1024;
 	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hash(&params));
 }
-
-#endif /* CONFIG_SOC_SERIES_NRF54LX */
 
 /**********************************************
 * HMAC
@@ -516,7 +512,6 @@ ZTEST(crypto, test_sid_pal_crypto_hmac_sha256_fake_key)
 	zassert_not_equal(0, memcmp(openssl_test_hmac_sha256_vector, digest, SHA256_LEN));
 }
 
-#if defined(CONFIG_SOC_SERIES_NRF54LX)
 ZTEST(crypto, test_sid_pal_crypto_hmac_sha512)
 {
 	sid_pal_hmac_params_t params;
@@ -635,8 +630,6 @@ ZTEST(crypto, test_sid_pal_crypto_hmac_sha512_fake_key)
 	zassert_equal(SID_ERROR_NONE, sid_pal_crypto_hmac(&params));
 	zassert_not_equal(0, memcmp(openssl_test_hmac_sha512_vector, digest, SHA512_LEN));
 }
-
-#endif /* CONFIG_SOC_SERIES_NRF54LX */
 
 /**********************************************
 * END HMAC
@@ -2017,7 +2010,6 @@ ZTEST(crypto, test_sid_pal_crypto_ecc_dsa)
 		params.key = public_Ed25519;
 		params.key_size = sizeof(public_Ed25519);
 		sid_error_t ret = sid_pal_crypto_ecc_dsa(&params);
-		printk("ret: %d\n", ret);
 		zassert_equal(SID_ERROR_NONE, ret);
 
 		// Bad public key

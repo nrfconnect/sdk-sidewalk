@@ -25,19 +25,31 @@ static void *setup(void)
 	return NULL;
 }
 
-static void teardown(void *f)
+static void teardown(void *arg)
 {
+	ARG_UNUSED(arg);
 	sid_pal_crypto_deinit();
+}
+
+static void before(void *arg)
+{
+	ARG_UNUSED(arg);
+	int err = sid_crypto_keys_init();
+	zassert_equal(0, err, "err: %d", err);
+}
+
+static void after(void *arg)
+{
+	ARG_UNUSED(arg);
+	int err = sid_crypto_keys_deinit();
+	zassert_equal(0, err, "err: %d", err);
 }
 
 ZTEST(crypto_keys, test_sid_crypto_key_invalid_args)
 {
 	int err = -ENOEXEC;
-	uint8_t key_data[TEST_SYMMETRIC_KEY_SIZE];
-	uint8_t ecc_key_data[TEST_ECC_PUBLIC_KEY_SIZE];
-
-	err = sid_crypto_keys_init();
-	zassert_equal(0, err, "err: %d", err);
+	uint8_t key_data[TEST_SYMMETRIC_KEY_SIZE] = { 0 };
+	uint8_t ecc_key_data[TEST_ECC_PUBLIC_KEY_SIZE] = { 0 };
 
 	/* Invalid data */
 	psa_key_id_t new_key_id = PSA_KEY_ID_NULL;
@@ -87,9 +99,6 @@ ZTEST(crypto_keys, test_sid_crypto_key_import)
 	psa_key_id_t new_key_id = PSA_KEY_ID_NULL;
 	int err = -ENOEXEC;
 
-	err = sid_crypto_keys_init();
-	zassert_equal(0, err, "err: %d", err);
-
 	err = sid_crypto_keys_new_import(test_key_id, test_key_data, TEST_SYMMETRIC_KEY_SIZE);
 	zassert_equal(0, err, "err: %d", err);
 
@@ -103,9 +112,6 @@ ZTEST(crypto_keys, test_sid_crypto_key_import)
 
 	err = sid_crypto_keys_delete(test_key_id);
 	zassert_equal(0, err, "err: %d", err);
-
-	err = sid_crypto_keys_deinit();
-	zassert_equal(0, err, "err: %d", err);
 }
 
 ZTEST(crypto_keys, test_sid_crypto_key_generate)
@@ -113,17 +119,11 @@ ZTEST(crypto_keys, test_sid_crypto_key_generate)
 	uint8_t public_key[TEST_ECC_PUBLIC_KEY_SIZE] = { 0 };
 	int err = -ENOEXEC;
 
-	err = sid_crypto_keys_init();
-	zassert_equal(0, err, "err: %d", err);
-
 	err = sid_crypto_keys_new_generate(test_key_ecc_id, public_key, TEST_ECC_PUBLIC_KEY_SIZE);
 	zassert_equal(0, err, "err: %d", err);
 
 	err = sid_crypto_keys_delete(test_key_ecc_id);
 	zassert_equal(0, err, "err: %d", err);
-
-	err = sid_crypto_keys_deinit();
-	zassert_equal(0, err, "err: %d", err);
 }
 
-ZTEST_SUITE(crypto_keys, NULL, setup, NULL, NULL, teardown);
+ZTEST_SUITE(crypto_keys, NULL, setup, before, after, teardown);
