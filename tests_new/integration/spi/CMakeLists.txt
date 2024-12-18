@@ -1,0 +1,21 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+cmake_minimum_required(VERSION 3.20.0)
+
+find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+project(sidewalk_spi_test)
+
+# add test file
+FILE(GLOB app_sources src/main.c)
+FILE(GLOB emul_sources src/spi_emul.c)
+target_sources(app PRIVATE ${app_sources})
+target_include_directories(app PRIVATE .)
+
+zephyr_include_directories_ifdef(CONFIG_SPI_EMUL src)
+zephyr_library_sources_ifdef(CONFIG_SPI_EMUL
+    src/spi_emul.c
+)
