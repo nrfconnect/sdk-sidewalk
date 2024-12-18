@@ -52,11 +52,11 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_CRITICAL_REGION sid_critical_region
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_GPIO sid_gpio.c sid_gpio_utils.c)
 
-if(CONFIG_SOC_SERIES_NRF53X)
+if(CONFIG_HAS_HW_NRF_TEMP)
+zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature.c)
+else()
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature_mock.c)
 message("Note: Sidewalk uses MOCK temperature implementation")
-else()
-zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature.c)
 endif() # CONFIG_SOC_SERIES_NRF53X
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SW_INTERRUPTS sid_sw_interrupts.c)
