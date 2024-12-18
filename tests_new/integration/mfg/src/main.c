@@ -188,9 +188,4 @@ ZTEST(mfg_storage, test_7sid_pal_mfg_storage_sn_get)
 	zassert_mem_equal(fake_serial_num, serial_num, SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 }
 
-ZTEST(mfg_storage, test_sanity)
-{
-	zassert_equal(true, true);
-}
-
 ZTEST_SUITE(mfg_storage, NULL, NULL, NULL, NULL, NULL);
