@@ -1,0 +1,16 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_TEMPERATURE
+	default y
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+source "Kconfig.zephyr"
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"

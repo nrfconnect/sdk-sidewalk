@@ -1,0 +1,48 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_CRYPTO
+	default y
+
+config SIDEWALK_STORAGE
+	default y
+
+config SIDEWALK_SETTINGS_UTILS
+	default y
+
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	default y
+
+config SIDEWALK_CRYPTO_LOG_LEVEL
+	default 0
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+config NVS_LOG_LEVEL
+	default 0
+
+config ZMS_LOG_LEVEL
+	default 0
+
+# Stacks
+config MAIN_STACK_SIZE
+	default 8192
+
+config ZTEST_STACK_SIZE
+	default 8192
+
+config HEAP_MEM_POOL_SIZE
+	default 4096
+
+config MBEDTLS_HEAP_SIZE
+	default 4096
+
+rsource "Kconfig.defconfig"
+source "Kconfig.zephyr"
+source "${ZEPHYR_BASE}/../sidewalk/Kconfig.dependencies"
