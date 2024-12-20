@@ -1,54 +1,51 @@
 app:
-  address: 0xc800
-  end_address: 0x84800
+  address: 0xd800
+  end_address: 0xfd000
   region: flash_primary
-  size: 0x78000
+  size: 0xef800
 mcuboot:
   address: 0x0
-  end_address: 0xc000
+  end_address: 0xd000
   placement:
     before:
     - mcuboot_primary
   region: flash_primary
-  size: 0xc000
+  size: 0xd000
 mcuboot_pad:
-  address: 0xc000
-  end_address: 0xc800
+  address: 0xd000
+  end_address: 0xd800
   placement:
     before:
     - mcuboot_primary_app
   region: flash_primary
   size: 0x800
 mcuboot_primary:
-  address: 0xc000
-  end_address: 0x84800
+  address: 0xd000
+  end_address: 0xfd000
   orig_span: &id001
   - mcuboot_pad
   - app
   region: flash_primary
-  sharers: 0x1
-  size: 0x78800
+  size: 0xf0000
   span: *id001
 mcuboot_primary_app:
-  address: 0xc800
-  end_address: 0x84800
+  address: 0xd800
+  end_address: 0xfd000
   orig_span: &id002
   - app
   region: flash_primary
-  size: 0x78000
+  size: 0xef800
   span: *id002
 mcuboot_secondary:
-  address: 0x84800
-  end_address: 0xfd000
+  address: 0x0
+  end_address: 0xf0000
   placement:
-    after:
-    - mcuboot_primary
     align:
-      start: 0x1000
-  region: flash_primary
+      start: 0x4
+  region: external_flash
   share_size:
   - mcuboot_primary
-  size: 0x78800
+  size: 0xf0000
 mfg_storage:
   address: 0xff000
   end_address: 0x100000
