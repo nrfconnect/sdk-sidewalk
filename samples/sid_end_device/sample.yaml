@@ -22,69 +22,85 @@ tests:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_FILE_TRANSFER=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
-    tags: Sidewalk hello
+    tags:
+      - Sidewalk
+      - hello
 
   sample.sidewalk.hello.release:
-    extra_args:
-      FILE_SUFFIX=release
+    extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.release"
-    tags: Sidewalk hello
+    tags:
+      - Sidewalk
+      - hello
 
   sample.sidewalk.hello.ble_only:
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
-    tags: Sidewalk hello BLE
+    tags:
+      - Sidewalk
+      - hello
+      - BLE
 
   sample.sidewalk.hello.ble_only.release:
-    extra_args:
-      FILE_SUFFIX=release
+    extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.release"
-    tags: Sidewalk hello BLE
+    tags:
+      - Sidewalk
+      - hello
+      - BLE
 
   sample.sidewalk.demo:
-    extra_args:
-      OVERLAY_CONFIG="overlay-demo.conf"
+    extra_args: OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="demo"
-    tags: Sidewalk demo
+    tags:
+      - Sidewalk
+      - demo
 
   sample.sidewalk.demo.ble_only:
     platform_allow:
       - thingy53/nrf5340/cpuapp
-    extra_args:
-      OVERLAY_CONFIG="overlay-demo.conf"
+    extra_args: OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="demo.ble_only"
     integration_platforms:
       - thingy53/nrf5340/cpuapp
-    tags: Sidewalk demo BLE
+    tags:
+      - Sidewalk
+      - demo
+      - BLE
 
   sample.sidewalk.dut:
-    extra_args:
-      OVERLAY_CONFIG="overlay-dut.conf"
+    extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
-    tags: Sidewalk cli
+    tags:
+      - Sidewalk
+      - cli
 
   sample.sidewalk.dut.ble_only:
-    extra_args:
-      OVERLAY_CONFIG="overlay-dut.conf"
+    extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
-    tags: Sidewalk cli BLE
+    tags:
+      - Sidewalk
+      - cli
+      - BLE
 
   sample.sidewalk.dut.no_secure:
-    extra_args:
-      OVERLAY_CONFIG="overlay-dut.conf"
+    extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.no_secure"
-    tags: Sidewalk cli no_secure
+    tags:
+      - Sidewalk
+      - cli
+      - no_secure
