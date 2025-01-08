@@ -68,4 +68,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args:
-            NRF_VERSION= ${{ steps.revision.outputs.REF_NAME }}"
+            NRF_VERSION= ${{ steps.revision.outputs.REF_NAME }}
