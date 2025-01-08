@@ -9,6 +9,7 @@ on:
       - main
     paths:
       - '.github/docker/**'
+      - '.github/workflow/on_docker_change.yml'
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
@@ -68,4 +69,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args:
-            NRF_VERSION= ${{ steps.revision.outputs.REF_NAME }}
+            NRF_VERSION=${{ steps.revision.outputs.REF_NAME }}
