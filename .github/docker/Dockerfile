@@ -39,6 +39,8 @@ EOT
 RUN <<EOT
     mkdir /workdir
     git clone https://github.com/nrfconnect/sdk-nrf /workdir/nrf
+    cd /workdir/nrf
+    git checkout ${NRF_VERSION}
 EOT
 
 RUN <<EOT
@@ -49,7 +51,7 @@ EOT
 WORKDIR /workdir
 SHELL ["nrfutil","toolchain-manager","launch","/bin/bash","--","-c"]
 RUN <<EOT
-    west init -l nrf --mr ${NRF_VERSION}
+    west init -l nrf 
     west update
     python3 -m pip install devicetree
     python3 -m pip install -r /workdir/nrf/scripts/requirements.txt -r /workdir/zephyr/scripts/requirements.txt 
