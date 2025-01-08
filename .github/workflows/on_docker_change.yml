@@ -10,7 +10,7 @@ on:
     paths:
       - '.github/docker/**'
     tags:
-      - '.*'
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
 
   schedule:
     - cron: "0 0 * * 0"
@@ -41,6 +41,23 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: Get revision of nrf to use
+        id: revision
+        run: |
+          REF_NAME="${{ github.ref_name }}"
+          if [ -z "$REF_NAME" ]; then
+            REF_NAME="main"  # Set your default value here
+          fi
+          echo "REF_NAME=$REF_NAME" >> $GITHUB_OUTPUT
+          echo "Ref name: $REF_NAME"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -50,3 +67,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args:
+            NRF_VERSION= ${{ steps.revision.outputs.REF_NAME }}"
