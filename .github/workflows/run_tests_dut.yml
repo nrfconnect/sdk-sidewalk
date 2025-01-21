@@ -79,7 +79,7 @@ jobs:
       - name: Build DUT test artifacts
         run: |
           source zephyr/zephyr-env.sh
-          west twister --test-config sidewalk/test_config.yaml --levels="Github_tests" --platform ${{inputs.target_board}} --testsuite-root sidewalk --filter runnable --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
+          west twister --test-config sidewalk/test_config.yaml --level="Github_tests" --platform ${{inputs.target_board}} --testsuite-root sidewalk --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
 
       - name: Print ccache stats
         run: |
