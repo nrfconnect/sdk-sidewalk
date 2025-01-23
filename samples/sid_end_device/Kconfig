@@ -44,6 +44,25 @@ config SID_END_DEVICE_CLI
       Enables Sidewalk command line interface.
       The interface commands are compatilbe with former dut sample.
 
+if SID_END_DEVICE_CLI
+
+config SHELL_CMD_BUFF_SIZE
+	default 1024
+
+config SHELL_STACK_SIZE
+	default 8192
+
+config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
+	default 128
+
+config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
+	default 1024
+
+config LOG_PROCESS_THREAD_STARTUP_DELAY_MS
+	default 50
+
+endif # SID_END_DEVICE_CLI
+
 config SID_END_DEVICE_AUTO_START
     default y
     bool "Enable automatic Sidewalk initlization and start"
@@ -110,7 +129,5 @@ config SBDT_MAX_PARALEL_TRANSFERS
     default 3
 
 endif # SIDEWALK_FILE_TRANSFER
-
-rsource "Kconfig.defconfig"
 
 source "Kconfig.zephyr"
