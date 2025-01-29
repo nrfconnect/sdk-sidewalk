@@ -85,7 +85,7 @@ void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int l
 
 void sid_pal_log_flush(void)
 {
-#ifndef CONFIG_LOG_MODE_MINIMAL
+#if defined(CONFIG_LOG) && !defined(CONFIG_LOG_MODE_MINIMAL)
 	/* Note: log_buffered_cnt is not supported in minimal log mode. */
 	while (log_buffered_cnt()) {
 		k_sleep(LOG_FLUSH_SLEEP_PERIOD);
