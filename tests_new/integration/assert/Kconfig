@@ -6,6 +6,9 @@
 config SIDEWALK_BUILD
 	default y
 
+config SIDEWALK_USE_PREBUILTS
+	default y
+
 config SIDEWALK_ASSERT
 	default y
 
