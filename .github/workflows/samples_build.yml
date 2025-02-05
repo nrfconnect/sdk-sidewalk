@@ -99,6 +99,7 @@ jobs:
             twister-out/**/.config
             twister-out/**/runners.yaml
             twister-out/**/*.dts
+          include-hidden-files: true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -113,6 +114,7 @@ jobs:
             twister-out/**/merged_domains.hex
             twister-out/**/dfu_multi_image.bin
             twister-out/**/dfu_application.zip
+          include-hidden-files: true
 
   merge_sample_artifacts:
     needs: build_samples
@@ -126,6 +128,7 @@ jobs:
           delete-merged: true
           name: sample-artifacts-meta
           pattern: sample-artifacts-meta-*
+          include-hidden-files: true
 
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@v4
@@ -134,3 +137,4 @@ jobs:
           delete-merged: true
           name: sample-artifacts
           pattern: sample-artifacts-build-*
+          include-hidden-files: true

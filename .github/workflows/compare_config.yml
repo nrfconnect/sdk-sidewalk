@@ -87,6 +87,7 @@ jobs:
           name: configuration_diff
           path: |
             config_diff.md
+          include-hidden-files: true
 
       - name: Post diff
         if: ${{ fromJSON(steps.config_diff.outputs.diff) }}

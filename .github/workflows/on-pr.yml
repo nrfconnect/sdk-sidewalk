@@ -59,6 +59,7 @@ jobs:
           name: PR_number
           path: |
             PR_number
+          include-hidden-files: true
 
   discover_target_boards:
     runs-on: ubuntu-24.04
