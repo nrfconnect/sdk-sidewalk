@@ -68,6 +68,7 @@ jobs:
             twister-out/**/handler.log
             twister-out/**/device.log
             twister-out/coverage
+          include-hidden-files: true
 
       - name: Code Coverage Summary Report
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -108,6 +109,7 @@ jobs:
           delete-merged: true
           name: tests-dut_result
           pattern: tests-dut_result_*
+          include-hidden-files: true
 
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@v4
@@ -115,3 +117,4 @@ jobs:
           delete-merged: true
           name: tests-dut_artifacts
           pattern: DUT_artifacts_*
+          include-hidden-files: true

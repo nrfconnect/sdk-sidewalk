@@ -90,6 +90,7 @@ jobs:
         with:
           path: PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2
           name: DUT_artifacts_${{steps.replace.outputs.target_board}}_${{ inputs.subset }}
+          include-hidden-files: true
 
   run_dut_ut:
     needs: [build_dut_tests]
@@ -168,6 +169,7 @@ jobs:
             twister-out/**/device.log
             twister-out/**/zephyr.hex
             twister-out/**/zephyr.elf
+          include-hidden-files: true
 
       - name: clean artifacts
         if: always()
