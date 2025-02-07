@@ -1,0 +1,744 @@
+commit 47fd60e23c90d6f7377b75af97507ce8de1a1e08
+Author: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+Date:   Thu Jan 30 18:35:37 2025 +0100
+
+    tests: use prebuilds in tests
+    
+    fix build isses
+    
+    Signed-off-by: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+
+diff --git a/tests/integration/crypto/Kconfig b/tests/integration/crypto/Kconfig
+index 44408fb68c4..863cea019b6 100644
+--- a/tests/integration/crypto/Kconfig
++++ b/tests/integration/crypto/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_CRYPTO
+ 	default y
+ 
+diff --git a/tests/integration/mfg/Kconfig b/tests/integration/mfg/Kconfig
+index e01359cf6c7..d95c86db518 100644
+--- a/tests/integration/mfg/Kconfig
++++ b/tests/integration/mfg/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_MFG_STORAGE
+ 	default y
+ 
+diff --git a/tests/integration/spi/Kconfig b/tests/integration/spi/Kconfig
+index 618b39690c4..2037c35e22e 100644
+--- a/tests/integration/spi/Kconfig
++++ b/tests/integration/spi/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_SUBGHZ_SUPPORT
+ 	default y
+ 
+diff --git a/tests/integration/storage/Kconfig b/tests/integration/storage/Kconfig
+index 07a48ff7dad..ed3e4e2ac94 100644
+--- a/tests/integration/storage/Kconfig
++++ b/tests/integration/storage/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_STORAGE
+ 	default y
+ 
+diff --git a/tests/unit_tests/pal_ble_adapter/Kconfig b/tests/unit_tests/pal_ble_adapter/Kconfig
+index 27a8672fbfa..2d0ba827974 100644
+--- a/tests/unit_tests/pal_ble_adapter/Kconfig
++++ b/tests/unit_tests/pal_ble_adapter/Kconfig
+@@ -7,6 +7,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_BLE
+ 	default y
+ 
+diff --git a/tests/unit_tests/pal_log/Kconfig b/tests/unit_tests/pal_log/Kconfig
+index 525f50604bd..a557038f508 100644
+--- a/tests/unit_tests/pal_log/Kconfig
++++ b/tests/unit_tests/pal_log/Kconfig
+@@ -7,6 +7,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_LOG
+ 	default y
+ 	imply LOG
+diff --git a/tests/unit_tests/pal_timer/Kconfig b/tests/unit_tests/pal_timer/Kconfig
+index 671ff416869..682e24fbf9c 100644
+--- a/tests/unit_tests/pal_timer/Kconfig
++++ b/tests/unit_tests/pal_timer/Kconfig
+@@ -7,6 +7,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_TIMER
+ 	default y
+ 
+diff --git a/tests/unit_tests/pal_uptime/Kconfig b/tests/unit_tests/pal_uptime/Kconfig
+index bfd5d3188c0..569d081653e 100644
+--- a/tests/unit_tests/pal_uptime/Kconfig
++++ b/tests/unit_tests/pal_uptime/Kconfig
+@@ -7,6 +7,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_UPTIME
+ 	default y
+ 
+diff --git a/tests/unit_tests/sid_ace_alloc/Kconfig b/tests/unit_tests/sid_ace_alloc/Kconfig
+index f410ba267f1..e5e5ef5b7ae 100644
+--- a/tests/unit_tests/sid_ace_alloc/Kconfig
++++ b/tests/unit_tests/sid_ace_alloc/Kconfig
+@@ -7,6 +7,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_ACE_OSAL_ZEPHYR
+ 	default y
+ 
+diff --git a/tests/unit_tests/sid_ble_adapter_callbacks/Kconfig b/tests/unit_tests/sid_ble_adapter_callbacks/Kconfig
+index 8e401ecff0d..a21cf367e85 100644
+--- a/tests/unit_tests/sid_ble_adapter_callbacks/Kconfig
++++ b/tests/unit_tests/sid_ble_adapter_callbacks/Kconfig
+@@ -7,6 +7,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_LOG_LEVEL
+ 	default 0
+ 
+diff --git a/tests/unit_tests/sid_ble_advert/Kconfig b/tests/unit_tests/sid_ble_advert/Kconfig
+index d2cf5d7e44f..5f52d01d79a 100644
+--- a/tests/unit_tests/sid_ble_advert/Kconfig
++++ b/tests/unit_tests/sid_ble_advert/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_LOG_LEVEL
+ 	default 0
+ 
+diff --git a/tests/unit_tests/sid_ble_connection/Kconfig b/tests/unit_tests/sid_ble_connection/Kconfig
+index 157cb191d0f..841cd562461 100644
+--- a/tests/unit_tests/sid_ble_connection/Kconfig
++++ b/tests/unit_tests/sid_ble_connection/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_LOG_LEVEL
+ 	default 0
+ 
+diff --git a/tests/unit_tests/sid_ble_service/Kconfig b/tests/unit_tests/sid_ble_service/Kconfig
+index 50ffb0aeed9..7f96c8c0ea2 100644
+--- a/tests/unit_tests/sid_ble_service/Kconfig
++++ b/tests/unit_tests/sid_ble_service/Kconfig
+@@ -6,6 +6,9 @@
+ config SIDEWALK_BUILD
+ 	default y
+ 
++config SIDEWALK_USE_PREBUILTS
++	default y
++
+ config SIDEWALK_LOG_LEVEL
+ 	default 0
+ 
+
+commit 817b0db699b418bb304aea2379fcaa6aa5f2ff3f
+Author: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+Date:   Wed Jan 29 15:30:51 2025 +0100
+
+    pal: fix ifdef for log flush
+    
+    if logs enalbed and different than minimal
+    
+    Signed-off-by: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+
+diff --git a/subsys/sal/sid_pal/src/sid_log.c b/subsys/sal/sid_pal/src/sid_log.c
+index dc4c62569ab..6b52cfa4c36 100644
+--- a/subsys/sal/sid_pal/src/sid_log.c
++++ b/subsys/sal/sid_pal/src/sid_log.c
+@@ -85,7 +85,7 @@ void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int l
+ 
+ void sid_pal_log_flush(void)
+ {
+-#ifndef CONFIG_LOG_MODE_MINIMAL
++#if defined(CONFIG_LOG) && !defined(CONFIG_LOG_MODE_MINIMAL)
+ 	/* Note: log_buffered_cnt is not supported in minimal log mode. */
+ 	while (log_buffered_cnt()) {
+ 		k_sleep(LOG_FLUSH_SLEEP_PERIOD);
+
+commit f29b0213288a1c728ef50b0161c8739e876194d8
+Author: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+Date:   Thu Jan 23 14:26:50 2025 +0100
+
+    samples: remove defconfig
+    
+    Move configuration to generic files
+    
+    Signed-off-by: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+
+diff --git a/Kconfig.dependencies b/Kconfig.dependencies
+index 7d490064320..8f2509074eb 100644
+--- a/Kconfig.dependencies
++++ b/Kconfig.dependencies
+@@ -14,6 +14,14 @@ config SIDEWALK_DEFAULTS
+ 	imply REQUIRES_FULL_LIBC
+ 	imply FPU
+ 	imply REBOOT
++	imply PARTITION_MANAGER_ENABLED
++
++if SIDEWALK_DEFAULTS
++
++config SPIN_VALIDATE
++    default n
++
++endif # SIDEWALK_DEFAULTS
+ 
+ config SIDEWALK_BUILD
+ 	bool
+@@ -39,6 +47,8 @@ config SIDEWALK_BLE
+ 	help
+ 		Sidewalk Bluetooth Low Energy (BLE) module
+ 
++if SIDEWALK_BLE
++
+ config SIDEWALK_BLE_NAME
+ 	string "BLE name adverticed for Sidewalk"
+ 	default "SID_APP"
+@@ -47,6 +57,49 @@ config BT_ID_MAX
+ 	default 3 if SIDEWALK_DFU
+ 	default 2 
+ 
++config BT_REMOTE_VERSION
++	default y
++
++config BT_BUF_ACL_TX_SIZE
++	default 251
++
++config BT_BUF_ACL_TX_COUNT
++	default 3
++
++config BT_BUF_ACL_RX_SIZE
++	default 251
++
++config BT_BUF_ACL_RX_COUNT_EXTRA
++	default 4
++
++config BT_L2CAP_TX_MTU
++	default 247
++
++config BT_CTLR_DATA_LENGTH_MAX
++	default 247
++
++config BT_PERIPHERAL_PREF_MIN_INT
++	default 16
++
++config BT_PERIPHERAL_PREF_MAX_INT
++	default 60
++
++config BT_PERIPHERAL_PREF_LATENCY
++	default 0
++
++config BT_PERIPHERAL_PREF_TIMEOUT
++	default 400
++
++config BT_EXT_ADV_MAX_ADV_SET
++	default 2 if SIDEWALK_DFU
++	default 1
++
++config BT_MAX_CONN
++	default 2 if SIDEWALK_DFU
++	default 1
++
++endif # SIDEWALK_BLE
++
+ config SIDEWALK_ASSERT
+ 	bool
+ 	default SIDEWALK
+@@ -127,6 +180,18 @@ config PSA_WANT_ALG_CBC_PKCS7
+ config PSA_WANT_ALG_HKDF
+ 	default n
+ 
++config PSA_USE_CC3XX_KEY_AGREEMENT_DRIVER
++	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
++
++config PSA_USE_CC3XX_ASYMMETRIC_SIGNATURE_DRIVER
++	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
++
++config PSA_USE_CC3XX_ASYMMETRIC_ENCRYPTION_DRIVER
++	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
++
++config PSA_USE_CC3XX_KEY_MANAGEMENT_DRIVER
++	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
++
+ endif #SIDEWALK_CRYPTO
+ 
+ config SIDEWALK_LOG
+@@ -136,6 +201,18 @@ config SIDEWALK_LOG
+ 	help
+ 	  Sidewalk log module
+ 
++if SIDEWALK_LOG
++
++config NVS_LOG_LEVEL
++	depends on NVS
++	default 2
++
++config ZMS_LOG_LEVEL
++	depends on ZMS
++	default 2
++
++endif # SIDEWALK_LOG
++
+ config SIDEWALK_MFG_STORAGE
+ 	bool
+ 	default SIDEWALK && !DEPRECATED_SIDEWALK_MFG_STORAGE
+@@ -170,6 +247,16 @@ config SIDEWALK_STORAGE
+ 	help
+ 	  Sidewalk storage module
+ 
++if SIDEWALK_STORAGE
++
++config NVS_LOOKUP_CACHE_SIZE
++    default 256 if NVS
++
++config ZMS_LOOKUP_CACHE_SIZE
++    default 256 if ZMS
++
++endif # SIDEWALK_STORAGE
++
+ config SIDEWALK_TIMER
+ 	bool
+ 	default SIDEWALK
+@@ -251,6 +338,9 @@ config SIDEWALK_SPI_BUS
+ 	help
+ 	  SPI bus interface for sidewalk
+ 
++config SPI_NRFX_RAM_BUFFER_SIZE
++	default 0 if SIDEWALK_SUBGHZ_SUPPORT
++
+ # Hidden configuration (experimental)
+ config SIDEWALK_SWI_PRIORITY
+ 	int
+diff --git a/samples/sid_end_device/Kconfig b/samples/sid_end_device/Kconfig
+index 9f8985e9459..fb6d3cf4837 100644
+--- a/samples/sid_end_device/Kconfig
++++ b/samples/sid_end_device/Kconfig
+@@ -44,6 +44,25 @@ config SID_END_DEVICE_CLI
+       Enables Sidewalk command line interface.
+       The interface commands are compatilbe with former dut sample.
+ 
++if SID_END_DEVICE_CLI
++
++config SHELL_CMD_BUFF_SIZE
++	default 1024
++
++config SHELL_STACK_SIZE
++	default 8192
++
++config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
++	default 128
++
++config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
++	default 1024
++
++config LOG_PROCESS_THREAD_STARTUP_DELAY_MS
++	default 50
++
++endif # SID_END_DEVICE_CLI
++
+ config SID_END_DEVICE_AUTO_START
+     default y
+     bool "Enable automatic Sidewalk initlization and start"
+@@ -111,6 +130,4 @@ config SBDT_MAX_PARALEL_TRANSFERS
+ 
+ endif # SIDEWALK_FILE_TRANSFER
+ 
+-rsource "Kconfig.defconfig"
+-
+ source "Kconfig.zephyr"
+diff --git a/samples/sid_end_device/Kconfig.defconfig b/samples/sid_end_device/Kconfig.defconfig
+deleted file mode 100644
+index 2e637681c30..00000000000
+--- a/samples/sid_end_device/Kconfig.defconfig
++++ /dev/null
+@@ -1,113 +0,0 @@
+-#
+-# Copyright (c) 2022 Nordic Semiconductor ASA
+-#
+-# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+-#
+-
+-# Bluetooth
+-config BT_REMOTE_VERSION
+-	default y
+-
+-config BT_BUF_ACL_TX_SIZE
+-	default 251
+-
+-config BT_BUF_ACL_TX_COUNT
+-	default 3
+-
+-config BT_BUF_ACL_RX_SIZE
+-	default 251
+-
+-config BT_BUF_ACL_RX_COUNT_EXTRA
+-	default 4
+-
+-config BT_L2CAP_TX_MTU
+-	default 247
+-
+-config BT_CTLR_DATA_LENGTH_MAX
+-	default 247
+-
+-config BT_PERIPHERAL_PREF_MIN_INT
+-	default 16
+-
+-config BT_PERIPHERAL_PREF_MAX_INT
+-	default 60
+-
+-config BT_PERIPHERAL_PREF_LATENCY
+-	default 0
+-
+-config BT_PERIPHERAL_PREF_TIMEOUT
+-	default 400
+-
+-config BT_EXT_ADV_MAX_ADV_SET
+-	default 2 if SIDEWALK_DFU
+-	default 1
+-
+-config BT_MAX_CONN
+-	default 2 if SIDEWALK_DFU
+-	default 1
+-
+-config NVS_LOOKUP_CACHE_SIZE
+-    default 256 if NVS
+-
+-config ZMS_LOOKUP_CACHE_SIZE
+-    default 256 if ZMS
+-
+-# Stack and Heap
+-config SYSTEM_WORKQUEUE_STACK_SIZE
+-	default 4096
+-
+-config LOG_PROCESS_THREAD_STARTUP_DELAY_MS
+-	default 50 if SHELL
+-
+-config SHELL_STACK_SIZE
+-	default 8192 if SID_END_DEVICE_CLI
+-
+-config HEAP_MEM_POOL_SIZE
+-	default 4096
+-
+-config MBEDTLS_HEAP_SIZE
+-	default 4096
+-
+-config SPI_NRFX_RAM_BUFFER_SIZE
+-	default 0
+-
+-# CLI
+-if SID_END_DEVICE_CLI
+-
+-config SHELL_CMD_BUFF_SIZE
+-	default 1024
+-
+-config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
+-	default 128
+-
+-config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
+-	default 1024
+-
+-endif # SID_END_DEVICE_CLI
+-
+-# Others
+-config SPIN_VALIDATE
+-    default n
+-
+-config PARTITION_MANAGER_ENABLED
+-	default y
+-
+-config PSA_USE_CC3XX_KEY_AGREEMENT_DRIVER
+-	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+-
+-config PSA_USE_CC3XX_ASYMMETRIC_SIGNATURE_DRIVER
+-	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+-
+-config PSA_USE_CC3XX_ASYMMETRIC_ENCRYPTION_DRIVER
+-	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+-
+-config PSA_USE_CC3XX_KEY_MANAGEMENT_DRIVER
+-	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+-
+-config NVS_LOG_LEVEL
+-	depends on NVS
+-	default 2
+-
+-config ZMS_LOG_LEVEL
+-	depends on ZMS
+-	default 2
+diff --git a/samples/sid_end_device/prj.conf b/samples/sid_end_device/prj.conf
+index ad0e83eae0a..c1d503a82a3 100644
+--- a/samples/sid_end_device/prj.conf
++++ b/samples/sid_end_device/prj.conf
+@@ -17,6 +17,11 @@ CONFIG_LOG_BUFFER_SIZE=2048
+ # Bluetooth
+ CONFIG_BT_DEVICE_NAME="Nordic"
+ 
++# Stack and Heap
++CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=4096
++CONFIG_HEAP_MEM_POOL_SIZE=4096
++CONFIG_MBEDTLS_HEAP_SIZE=4096
++
+ # Power Management
+ CONFIG_PM_DEVICE=y
+ 
+diff --git a/samples/sid_end_device/prj_release.conf b/samples/sid_end_device/prj_release.conf
+index fc82fd5e12d..4a0dbbbe283 100644
+--- a/samples/sid_end_device/prj_release.conf
++++ b/samples/sid_end_device/prj_release.conf
+@@ -12,6 +12,11 @@ CONFIG_SMF=y
+ # Bluetooth
+ CONFIG_BT_DEVICE_NAME="Nordic"
+ 
++# Stack and Heap
++CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=4096
++CONFIG_HEAP_MEM_POOL_SIZE=4096
++CONFIG_MBEDTLS_HEAP_SIZE=4096
++
+ # Disable peripherals
+ CONFIG_LOG=n
+ CONFIG_SERIAL=n
+
+commit 1dc421a50dad84ded987a90f27e756679e3d88b5
+Author: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+Date:   Thu Jan 23 14:03:10 2025 +0100
+
+    config: add sidewalk prebuilds
+    
+    [KRKNWK-15837]
+    
+    Signed-off-by: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4741cdf83b0..65a9ee60208 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -5,9 +5,11 @@
+ #
+ 
+ if(CONFIG_SIDEWALK_BUILD)
+-	add_subdirectory(lib)
+-	add_subdirectory(subsys)
+-	add_subdirectory(utils)
++    if (CONFIG_SIDEWALK_USE_PREBUILTS)
++        add_subdirectory(lib)
++    endif()
++    add_subdirectory(subsys)
++    add_subdirectory(utils)
+ endif()
+ 
+ if(CONFIG_SOC_SERIES_NRF54LX AND CONFIG_SETTINGS_NVS)
+diff --git a/Kconfig b/Kconfig
+index 2dd48b1f122..b2f3bb2cd8e 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -223,6 +223,14 @@ config SIDEWALK_NRFX_SPI_ID
+ 
+ endif # SIDEWALK_SPI_BUS
+ 
++config SIDEWALK_USE_PREBUILTS
++	bool "Use prebuilt Sidewalk libraries"
++	default y
++	help
++		Use prebuilt Sidewalk libraries.
++		Building from sources requires additional dependencies,
++		not released with nRF Connect SDK.
++
+ rsource "Kconfig.dependencies"
+ rsource "utils/Kconfig"
+ 
+diff --git a/Kconfig.dependencies b/Kconfig.dependencies
+index a35cb0ef635..7d490064320 100644
+--- a/Kconfig.dependencies
++++ b/Kconfig.dependencies
+@@ -210,7 +210,7 @@ config SIDEWALK_GPIO
+ 
+ config SIDEWALK_GPIO_MAX
+ 	int
+-	default 6 if SIDEWALK_SUBGHZ_SUPPORT
++	default 12 if SIDEWALK_SUBGHZ_SUPPORT
+ 	default 0
+ 	help
+ 	  Maximum number of GPIO assigned for use with Sidewalk GPIO API
+diff --git a/subsys/CMakeLists.txt b/subsys/CMakeLists.txt
+index 7b6c40aafcb..1b2144b8c01 100644
+--- a/subsys/CMakeLists.txt
++++ b/subsys/CMakeLists.txt
+@@ -4,10 +4,13 @@
+ # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ #
+ 
+-add_subdirectory(ace)
+-add_subdirectory(config)
+-add_subdirectory(hal)
++if (CONFIG_SIDEWALK_USE_PREBUILTS)
++    add_subdirectory(ace)
++    add_subdirectory(config)
++    add_subdirectory(hal)
++    add_subdirectory(semtech)
++endif()
++
+ add_subdirectory(sal)
+-add_subdirectory(semtech)
+ 
+ add_subdirectory_ifdef(CONFIG_SIDEWALK_DEMO_PARSER demo)
+diff --git a/subsys/sal/common/CMakeLists.txt b/subsys/sal/common/CMakeLists.txt
+index 20b96d16fd3..d5ab9a0f911 100644
+--- a/subsys/sal/common/CMakeLists.txt
++++ b/subsys/sal/common/CMakeLists.txt
+@@ -4,9 +4,12 @@
+ # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ #
+ 
+-zephyr_include_directories(sid_ifc)
+-zephyr_include_directories(sid_pal_ifc)
+-zephyr_include_directories(sid_time_ops)
++if (CONFIG_SIDEWALK_USE_PREBUILTS)
++    zephyr_include_directories(sid_ifc)
++    zephyr_include_directories(sid_pal_ifc)
++    zephyr_include_directories(sid_time_ops)
++endif()
++
+ zephyr_include_directories(sid_pal_types)
+ 
+ add_subdirectory_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT sid_on_dev_cert)
+
+commit 7ec40d709c706edf3b3135a586d9b37230edc4cb
+Author: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+Date:   Thu Jan 23 14:01:49 2025 +0100
+
+    pal: separate type headers
+    
+    [KRKNWK-15837]
+    
+    Signed-off-by: Krzysztof Taborowski <krzysztof.taborowski@nordicsemi.no>
+
+diff --git a/subsys/sal/common/CMakeLists.txt b/subsys/sal/common/CMakeLists.txt
+index 61bf74755aa..20b96d16fd3 100644
+--- a/subsys/sal/common/CMakeLists.txt
++++ b/subsys/sal/common/CMakeLists.txt
+@@ -7,5 +7,6 @@
+ zephyr_include_directories(sid_ifc)
+ zephyr_include_directories(sid_pal_ifc)
+ zephyr_include_directories(sid_time_ops)
++zephyr_include_directories(sid_pal_types)
+ 
+ add_subdirectory_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT sid_on_dev_cert)
+diff --git a/subsys/sal/common/sid_pal_ifc/sid_sdk_version.h b/subsys/sal/common/sid_pal_ifc/sid_sdk_version.h
+deleted file mode 100644
+index 57dced688d3..00000000000
+--- a/subsys/sal/common/sid_pal_ifc/sid_sdk_version.h
++++ /dev/null
+@@ -1,34 +0,0 @@
+-/*
+- * Copyright 2022 Amazon.com, Inc. or its affiliates.  All rights reserved.
+- *
+- * AMAZON PROPRIETARY/CONFIDENTIAL
+- *
+- * You may not use this file except in compliance with the terms and conditions
+- * set forth in the accompanying LICENSE.TXT file.
+- *
+- * THESE MATERIALS ARE PROVIDED ON AN "AS IS" BASIS. AMAZON SPECIFICALLY
+- * DISCLAIMS, WITH RESPECT TO THESE MATERIALS, ALL WARRANTIES, EXPRESS,
+- * IMPLIED, OR STATUTORY, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+- * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+- */
+-
+-#ifndef SID_SDK_VERSION_H
+-#define SID_SDK_VERSION_H
+-
+-#ifdef __cplusplus
+-extern "C" {
+-#endif
+-
+-#define SID_SDK_MAJOR_VERSION 1
+-
+-#define SID_SDK_MINOR_VERSION 14
+-
+-#define SID_SDK_PATCH_VERSION 0
+-
+-#define SID_SDK_BUILD_VERSION 17
+-
+-#ifdef __cplusplus
+-} /* extern "C" */
+-#endif
+-
+-#endif /* SID_SDK_VERSION_H */
+diff --git a/subsys/sal/common/sid_pal_ifc/sid_pal_common_ifc.h b/subsys/sal/common/sid_pal_types/sid_pal_common_ifc.h
+similarity index 100%
+rename from subsys/sal/common/sid_pal_ifc/sid_pal_common_ifc.h
+rename to subsys/sal/common/sid_pal_types/sid_pal_common_ifc.h
+diff --git a/subsys/sal/common/sid_pal_ifc/sid_pal_platform_init_types.h b/subsys/sal/common/sid_pal_types/sid_pal_platform_init_types.h
+similarity index 100%
+rename from subsys/sal/common/sid_pal_ifc/sid_pal_platform_init_types.h
+rename to subsys/sal/common/sid_pal_types/sid_pal_platform_init_types.h
+diff --git a/subsys/sal/common/sid_pal_ifc/sid_pal_serial_bus_spi_config.h b/subsys/sal/common/sid_pal_types/sid_pal_serial_bus_spi_config.h
+similarity index 100%
+rename from subsys/sal/common/sid_pal_ifc/sid_pal_serial_bus_spi_config.h
+rename to subsys/sal/common/sid_pal_types/sid_pal_serial_bus_spi_config.h
+diff --git a/subsys/sal/common/sid_pal_ifc/sid_pal_timer_types.h b/subsys/sal/common/sid_pal_types/sid_pal_timer_types.h
+similarity index 100%
+rename from subsys/sal/common/sid_pal_ifc/sid_pal_timer_types.h
+rename to subsys/sal/common/sid_pal_types/sid_pal_timer_types.h
+diff --git a/subsys/sal/common/sid_ifc/sid_sdk_version.h b/subsys/sal/common/sid_pal_types/sid_sdk_version.h
+similarity index 100%
+rename from subsys/sal/common/sid_ifc/sid_sdk_version.h
+rename to subsys/sal/common/sid_pal_types/sid_sdk_version.h
