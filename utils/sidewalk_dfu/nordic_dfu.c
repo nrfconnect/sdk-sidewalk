@@ -34,7 +34,7 @@ static struct k_work exit_dfu = Z_WORK_INITIALIZER(deinit_nordic_dfu);
 static struct bt_le_adv_param adv_params = { .id = BT_ID_DEFAULT,
 					     .sid = 0,
 					     .secondary_max_skip = 0,
-					     .options = BT_LE_ADV_OPT_CONNECTABLE,
+					     .options = BT_LE_ADV_OPT_CONN,
 					     .interval_min = BT_GAP_ADV_SLOW_INT_MIN,
 					     .interval_max = BT_GAP_ADV_SLOW_INT_MAX,
 					     .peer = NULL };
