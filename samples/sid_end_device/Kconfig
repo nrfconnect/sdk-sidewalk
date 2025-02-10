@@ -113,4 +113,10 @@ endif # SIDEWALK_FILE_TRANSFER
 
 rsource "Kconfig.defconfig"
 
+if IPC_SERVICE_BACKEND_ICBMSG
+
+config IPC_SERVICE_BACKEND_ICBMSG_NUM_EP
+	default 5
+endif 
+
 source "Kconfig.zephyr"
