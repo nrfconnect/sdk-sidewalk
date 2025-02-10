@@ -29,6 +29,10 @@ static void sid_thread_entry(void *context, void *unused, void *unused2)
 
 	while (1) {
 		int err = k_msgq_get(&sidewalk_thread_msgq, &event, K_FOREVER);
+#if CONFIG_SIDEWALK_TRACE_SIDEWALK_QUEUE
+		LOG_INF("sidewalk workq usage (%d/%d)", k_msgq_num_used_get(&sidewalk_thread_msgq),
+			CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
+#endif
 		if (!err) {
 			if (event.handler) {
 				event.handler(sid, event.ctx);
@@ -64,13 +68,17 @@ int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free)
 	k_timeout_t timeout = K_NO_WAIT;
 	int result = -EFAULT;
 
-#if defined(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE) && CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0
+#if defined(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE) &&                                         \
+	CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0
 	if (!k_is_in_isr()) {
 		timeout = K_MSEC(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE);
 	}
 #endif /* CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0 */
-
 	result = k_msgq_put(&sidewalk_thread_msgq, (void *)&ctx_event, timeout);
+#if CONFIG_SIDEWALK_TRACE_SIDEWALK_QUEUE
+	LOG_INF("sidewalk workq usage (%d/%d)", k_msgq_num_used_get(&sidewalk_thread_msgq),
+		CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
+#endif
 	LOG_DBG("sidewalk_event_send event = %p, context = %p, k_msgq_put result %d", (void *)event,
 		ctx, result);
 
