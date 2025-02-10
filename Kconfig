@@ -58,9 +58,12 @@ config SIDEWALK_THREAD_STACK_SIZE
 config SIDEWALK_THREAD_QUEUE_SIZE
 	int "Message queue size for the Sidewalk thread"
 	range 4 256
-	default 16
+	default 32
 	help
 	  Set the message queue size for the Sidewalk thread.
+
+config SIDEWALK_TRACE_SIDEWALK_QUEUE
+	bool "Add log messages to trace usage of workq"
 
 config SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE
 	int "Message queue timeout value in ms"
