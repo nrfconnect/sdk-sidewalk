@@ -58,7 +58,7 @@ config SIDEWALK_THREAD_STACK_SIZE
 config SIDEWALK_THREAD_QUEUE_SIZE
 	int "Message queue size for the Sidewalk thread"
 	range 4 256
-	default 16
+	default 64
 	help
 	  Set the message queue size for the Sidewalk thread.
 
