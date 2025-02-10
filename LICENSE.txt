@@ -1,5 +1,6 @@
 ############ Amazon License ############
 
+
 Amazon Sidewalk Content License
 
 ©2023 Amazon.com, Inc. or its affiliates (collectively, “Amazon”). All Rights Reserved.
