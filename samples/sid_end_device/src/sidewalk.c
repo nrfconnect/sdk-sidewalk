@@ -3,6 +3,8 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
+#include <sid_api.h>
+#include <sid_error.h>
 #include <sidewalk.h>
 
 #include <zephyr/kernel.h>
@@ -17,6 +19,7 @@ K_MSGQ_DEFINE(sidewalk_thread_msgq, sizeof(sidewalk_ctx_event_t), CONFIG_SIDEWAL
 	      4);
 
 K_SEM_DEFINE(sid_thread_started, 0, 1);
+
 static void sid_thread_entry(void *context, void *unused, void *unused2)
 {
 	ARG_UNUSED(unused);
@@ -29,15 +32,28 @@ static void sid_thread_entry(void *context, void *unused, void *unused2)
 
 	while (1) {
 		int err = k_msgq_get(&sidewalk_thread_msgq, &event, K_FOREVER);
-		if (!err) {
+		switch (err) {
+		case 0: {
+			LOG_DBG("event received %p (%s) sidewalk workq usage (%d/%d) ( after get )",
+				(void *)(event.handler), EVENT_TO_NAME(event.handler),
+				k_msgq_num_used_get(&sidewalk_thread_msgq),
+				CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
 			if (event.handler) {
 				event.handler(sid, event.ctx);
 			}
 			if (event.ctx_free) {
 				event.ctx_free(event.ctx);
 			}
-		} else {
+			break;
+		}
+		case -EAGAIN:
+		case -ENOMSG: {
+			// Do nothing, timeout
+			break;
+		}
+		default: {
 			LOG_ERR("Sidewalk msgq err %d", err);
+		}
 		}
 	}
 
@@ -64,15 +80,16 @@ int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free)
 	k_timeout_t timeout = K_NO_WAIT;
 	int result = -EFAULT;
 
-#if defined(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE) && CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0
+#if defined(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE) &&                                         \
+	CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0
 	if (!k_is_in_isr()) {
 		timeout = K_MSEC(CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE);
 	}
 #endif /* CONFIG_SIDEWALK_THREAD_QUEUE_TIMEOUT_VALUE > 0 */
-
 	result = k_msgq_put(&sidewalk_thread_msgq, (void *)&ctx_event, timeout);
-	LOG_DBG("sidewalk_event_send event = %p, context = %p, k_msgq_put result %d", (void *)event,
-		ctx, result);
+	LOG_DBG("sidewalk_event_send event = %p (%s), context = %p, k_msgq_put result %d sidewalk workq usage (%d/%d) (after put)",
+		(void *)event, EVENT_TO_NAME(event), ctx, result,
+		k_msgq_num_used_get(&sidewalk_thread_msgq), CONFIG_SIDEWALK_THREAD_QUEUE_SIZE);
 
 	return result;
 }
