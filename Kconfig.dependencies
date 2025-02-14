@@ -210,7 +210,7 @@ config SIDEWALK_GPIO
 
 config SIDEWALK_GPIO_MAX
 	int
-	default 6 if SIDEWALK_SUBGHZ_SUPPORT
+	default 12 if SIDEWALK_SUBGHZ_SUPPORT
 	default 0
 	help
 	  Maximum number of GPIO assigned for use with Sidewalk GPIO API
