@@ -7,6 +7,9 @@
 config SIDEWALK_BUILD
 	default y
 
+config SIDEWALK_USE_PREBUILTS
+	default y
+
 config SIDEWALK_ACE_OSAL_ZEPHYR
 	default y
 
