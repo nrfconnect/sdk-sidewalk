@@ -14,6 +14,14 @@ config SIDEWALK_DEFAULTS
 	imply REQUIRES_FULL_LIBC
 	imply FPU
 	imply REBOOT
+	imply PARTITION_MANAGER_ENABLED
+
+if SIDEWALK_DEFAULTS
+
+config SPIN_VALIDATE
+    default n
+
+endif # SIDEWALK_DEFAULTS
 
 config SIDEWALK_BUILD
 	bool
@@ -39,6 +47,8 @@ config SIDEWALK_BLE
 	help
 		Sidewalk Bluetooth Low Energy (BLE) module
 
+if SIDEWALK_BLE
+
 config SIDEWALK_BLE_NAME
 	string "BLE name adverticed for Sidewalk"
 	default "SID_APP"
@@ -46,6 +56,49 @@ config SIDEWALK_BLE_NAME
 config BT_ID_MAX
 	default 3 if SIDEWALK_DFU
 	default 2 
+
+config BT_REMOTE_VERSION
+	default y
+
+config BT_BUF_ACL_TX_SIZE
+	default 251
+
+config BT_BUF_ACL_TX_COUNT
+	default 3
+
+config BT_BUF_ACL_RX_SIZE
+	default 251
+
+config BT_BUF_ACL_RX_COUNT_EXTRA
+	default 4
+
+config BT_L2CAP_TX_MTU
+	default 247
+
+config BT_CTLR_DATA_LENGTH_MAX
+	default 247
+
+config BT_PERIPHERAL_PREF_MIN_INT
+	default 16
+
+config BT_PERIPHERAL_PREF_MAX_INT
+	default 60
+
+config BT_PERIPHERAL_PREF_LATENCY
+	default 0
+
+config BT_PERIPHERAL_PREF_TIMEOUT
+	default 400
+
+config BT_EXT_ADV_MAX_ADV_SET
+	default 2 if SIDEWALK_DFU
+	default 1
+
+config BT_MAX_CONN
+	default 2 if SIDEWALK_DFU
+	default 1
+
+endif # SIDEWALK_BLE
 
 config SIDEWALK_ASSERT
 	bool
@@ -127,6 +180,18 @@ config PSA_WANT_ALG_CBC_PKCS7
 config PSA_WANT_ALG_HKDF
 	default n
 
+config PSA_USE_CC3XX_KEY_AGREEMENT_DRIVER
+	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+
+config PSA_USE_CC3XX_ASYMMETRIC_SIGNATURE_DRIVER
+	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+
+config PSA_USE_CC3XX_ASYMMETRIC_ENCRYPTION_DRIVER
+	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+
+config PSA_USE_CC3XX_KEY_MANAGEMENT_DRIVER
+	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
+
 endif #SIDEWALK_CRYPTO
 
 config SIDEWALK_LOG
@@ -135,6 +200,18 @@ config SIDEWALK_LOG
 	imply LOG
 	help
 	  Sidewalk log module
+
+if SIDEWALK_LOG
+
+config NVS_LOG_LEVEL
+	depends on NVS
+	default 2
+
+config ZMS_LOG_LEVEL
+	depends on ZMS
+	default 2
+
+endif # SIDEWALK_LOG
 
 config SIDEWALK_MFG_STORAGE
 	bool
@@ -169,6 +246,16 @@ config SIDEWALK_STORAGE
 	imply SETTINGS
 	help
 	  Sidewalk storage module
+
+if SIDEWALK_STORAGE
+
+config NVS_LOOKUP_CACHE_SIZE
+    default 256 if NVS
+
+config ZMS_LOOKUP_CACHE_SIZE
+    default 256 if ZMS
+
+endif # SIDEWALK_STORAGE
 
 config SIDEWALK_TIMER
 	bool
@@ -250,6 +337,9 @@ config SIDEWALK_SPI_BUS
 	imply PM_DEVICE
 	help
 	  SPI bus interface for sidewalk
+
+config SPI_NRFX_RAM_BUFFER_SIZE
+	default 0 if SIDEWALK_SUBGHZ_SUPPORT
 
 # Hidden configuration (experimental)
 config SIDEWALK_SWI_PRIORITY
