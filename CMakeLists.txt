@@ -5,9 +5,11 @@
 #
 
 if(CONFIG_SIDEWALK_BUILD)
-	add_subdirectory(lib)
-	add_subdirectory(subsys)
-	add_subdirectory(utils)
+    if (CONFIG_SIDEWALK_USE_PREBUILTS)
+        add_subdirectory(lib)
+    endif()
+    add_subdirectory(subsys)
+    add_subdirectory(utils)
 endif()
 
 if(CONFIG_SOC_SERIES_NRF54LX AND CONFIG_SETTINGS_NVS)

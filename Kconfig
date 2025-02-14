@@ -223,6 +223,14 @@ config SIDEWALK_NRFX_SPI_ID
 
 endif # SIDEWALK_SPI_BUS
 
+config SIDEWALK_USE_PREBUILTS
+	bool "Use prebuilt Sidewalk libraries"
+	default y
+	help
+		Use prebuilt Sidewalk libraries.
+		Building from sources requires additional dependencies,
+		not released with nRF Connect SDK.
+
 rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
 
