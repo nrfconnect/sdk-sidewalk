@@ -30,16 +30,19 @@
 extern "C" {
 #endif
 
-typedef enum
-{
-    SID_PAL_LOG_SEVERITY_ERROR =    0,
-    SID_PAL_LOG_SEVERITY_WARNING =  1,
-    SID_PAL_LOG_SEVERITY_INFO =     2,
-    SID_PAL_LOG_SEVERITY_DEBUG =    3
-} sid_pal_log_severity_t;
+#define SID_PAL_LOG_SEVERITY_ERROR 0
+#define SID_PAL_LOG_SEVERITY_WARNING 1
+#define SID_PAL_LOG_SEVERITY_INFO 2
+#define SID_PAL_LOG_SEVERITY_DEBUG 3
+
+typedef uint16_t sid_pal_log_severity_t;
 
 #ifndef SID_PAL_LOG_LEVEL
-#define SID_PAL_LOG_LEVEL  SID_PAL_LOG_SEVERITY_INFO
+#define SID_PAL_LOG_LEVEL SID_PAL_LOG_SEVERITY_INFO
+#endif
+
+#ifndef SID_PAL_LOG_LEVEL_DYNAMIC
+#define SID_PAL_LOG_LEVEL_DYNAMIC SID_PAL_LOG_LEVEL
 #endif
 
 #ifndef SID_PAL_LOG_ENABLED
@@ -183,10 +186,28 @@ void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int l
 #if SID_PAL_LOG_LEVEL >= SID_PAL_LOG_SEVERITY_INFO
 #define SID_PAL_LOG_INFO(fmt_, ...)            SID_PAL_LOG(SID_PAL_LOG_SEVERITY_INFO,    fmt_, ##__VA_ARGS__)
 #if SID_PAL_LOG_LEVEL >= SID_PAL_LOG_SEVERITY_DEBUG
+#pragma message("SID_PAL_LOG_DEBUG is enabled")
 #define SID_PAL_LOG_DEBUG(fmt_, ...)           SID_PAL_LOG(SID_PAL_LOG_SEVERITY_DEBUG,   fmt_, ##__VA_ARGS__)
 #endif /* WARNING */
 #endif /* INFO */
 #endif /* DEBUG */
+
+#ifndef SID_PAL_LOG_WARNING
+#define SID_PAL_LOG_WARNING(fmt_, ...)
+#endif
+
+#ifndef SID_PAL_LOG_INFO
+#define SID_PAL_LOG_INFO(fmt_, ...)
+#endif
+
+#ifndef SID_PAL_LOG_DEBUG
+#define SID_PAL_LOG_DEBUG(fmt_, ...)
+#endif
+
+#define SID_PAL_LOG_HEXDUMP_ERROR(data_, len_) SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_ERROR, data_, len_)
+#define SID_PAL_LOG_HEXDUMP_WARNING(data_, len_) SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_WARNING, data_, len_)
+#define SID_PAL_LOG_HEXDUMP_INFO(data_, len_) SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_INFO, data_, len_)
+#define SID_PAL_LOG_HEXDUMP_DEBUG(data_, len_) SID_PAL_HEXDUMP(SID_PAL_LOG_SEVERITY_DEBUG, data_, len_)
 
 #define SID_PAL_LOG_TRACE()                    SID_PAL_LOG_INFO("%s:%i %s() TRACE --", __FILENAME__, __LINE__, __FUNCTION__)
 

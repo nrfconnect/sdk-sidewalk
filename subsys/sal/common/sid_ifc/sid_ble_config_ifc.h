@@ -102,6 +102,19 @@ typedef struct sid_ble_cfg_conn_param {
     uint16_t conn_sup_timeout;      /* Connection Supervision Timeout in 10 ms units*/
 } sid_ble_cfg_conn_param_t;
 
+enum sid_ble_user_config_type {
+    SID_BLE_USER_CFG_ADV,
+    SID_BLE_USER_CFG_CONN,
+    SID_BLE_USER_CFG_ALL,
+};
+
+typedef struct sid_ble_user_config {
+    sid_ble_cfg_adv_param_t adv_param;
+    sid_ble_cfg_conn_param_t conn_param;
+    bool is_set;                                 /* True: Set Param, False: Get Param */
+    enum sid_ble_user_config_type cfg_type;
+} sid_ble_user_config_t;
+
 enum sid_ble_cfg_mac_address_type {
     /** Address obtained from IEEE registration authority, no privacy */
     SID_BLE_CFG_MAC_ADDRESS_TYPE_PUBLIC,

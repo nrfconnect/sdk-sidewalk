@@ -120,6 +120,16 @@ struct sid_pal_ble_adapter_interface {
     sid_error_t (*init)(const sid_ble_config_t *cfg);
 
     /**
+     * Update the BLE advertising configuration.
+     *
+     * @param [in] cfg - contains BLE user configuration.
+     *
+     * @return SID_ERROR_NONE - in case method finished with success.
+     *         In case of error, the error type depend upon implementation.
+     */
+    sid_error_t (*user_config)(sid_ble_user_config_t *cfg);
+
+    /**
      * Start the service using the configuration.
      *
      * @return SID_ERROR_NONE - in case method finished with success.
@@ -213,6 +223,13 @@ struct sid_pal_ble_adapter_interface {
     sid_error_t (*set_tx_pwr)(int8_t tx_power);
 
     /**
+     * If defined, forwards the result of sid_pal_ble_data_callback_t data_callback.
+     *
+     * @param [in] result - result returned from data callback.
+     */
+    void (*received_data_result)(sid_error_t result);
+
+    /**
      * Disconnect the link.
      *
      * @return SID_ERROR_NONE - in case method finished with success.
@@ -227,6 +244,24 @@ struct sid_pal_ble_adapter_interface {
      *         In case of error, the error type depend upon implementation.
      */
     sid_error_t (*deinit)(void);
+
+    /**
+     * Notify AMA status to ble adapter
+     *
+     * @param [in] is_active   - indicate wheather AMA is active.
+     *
+     * @return void.
+     */
+    void (*notify_ama_state)(bool is_active);
+
+    /**
+     * Get BLE public mac address
+     *
+     * @param [out] addr   - current ble public mac address.
+     *
+     * @return void.
+     */
+    sid_error_t (*get_mac_addr)(uint8_t *addr);
 };
 
 /**
