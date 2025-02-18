@@ -131,11 +131,10 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	},
 
 	.state_timings = {
-		.sleep_to_full_power_us = 500,
+		.sleep_to_full_power_us = 406,
 		.full_power_to_sleep_us = 0,
 		.rx_to_tx_us = 0,
 		.tx_to_rx_us = 0,
-		.tcxo_delay_us=500
 	},
 
 	.internal_buffer = {
@@ -190,6 +189,7 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 
 struct sid_sub_ghz_links_config sub_ghz_link_config = {
 	.enable_link_metrics = true,
+	.sar_dcr = 100,
 	.registration_config = {
 		.enable = true,
 		.periodicity_s = UINT32_MAX,
