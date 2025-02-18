@@ -48,9 +48,13 @@ static sid_error_t ble_adapter_deinit(void);
 static sid_error_t ble_adapter_get_rssi(int8_t *rssi);
 static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power);
 static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power);
+static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg);
+static void ble_adapter_received_data_result(sid_error_t result);
+static void ble_adapter_notify_ama_state(bool is_active);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
+	.user_config = ble_adapter_user_config,
 	.start_service = ble_adapter_start_service,
 	.set_adv_data = ble_adapter_set_adv_data,
 	.start_adv = ble_adapter_start_advertisement,
@@ -62,6 +66,8 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.get_rssi = ble_adapter_get_rssi,
 	.get_tx_pwr = ble_adapter_get_tx_pwr,
 	.set_tx_pwr = ble_adapter_set_tx_pwr,
+	.received_data_result = ble_adapter_received_data_result,
+	.notify_ama_state = ble_adapter_notify_ama_state,
 
 };
 
@@ -460,4 +466,20 @@ sid_error_t sid_pal_ble_adapter_create(sid_pal_ble_adapter_interface_t *handle)
 	*handle = &ble_ifc;
 
 	return SID_ERROR_NONE;
+}
+
+static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg)
+{
+	LOG_WRN("Not implemented %s", __func__);
+	return SID_ERROR_NONE;
+}
+static void ble_adapter_received_data_result(sid_error_t result)
+{
+	LOG_WRN("Not implemented %s", __func__);
+	LOG_INF("result %d", result);
+}
+static void ble_adapter_notify_ama_state(bool is_active)
+{
+	LOG_WRN("Not implemented %s", __func__);
+	LOG_INF("active %s", is_active ? "yes" : "no");
 }

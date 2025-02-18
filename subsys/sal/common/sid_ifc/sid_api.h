@@ -348,11 +348,21 @@ struct sid_statistics {
 };
 
 /**
+ * The structure used to configure the delayed ack
+ */
+struct sid_delayed_ack_config {
+    /** time for the delayed ack in milliseconds. Range: 0-20000 msecs */
+    uint32_t delayed_ack;
+    /** indicates whether to get or set the delayed ack time. false: Get, true: Set */
+    bool is_set;
+};
+
+/**
  * The set of options to be used with sid_option API.
  */
 enum sid_option {
-    /** Option to configure the advertised battery level. Value is a uint8_t, 0-100 */
-    SID_OPTION_BLE_BATTERY_LEVEL = 0,
+    /** Reserved option for future use */
+    SID_OPTION_RESERVED = 0,
     /** Option to configure the device profile. Value is of type struct sid_device_profile */
     SID_OPTION_900MHZ_SET_DEVICE_PROFILE = 1,
     /** Option to get the device profile configuration. Value is of type struct sid_device_profile */
@@ -388,7 +398,14 @@ enum sid_option {
     /** Get the Sidewalk ID for the device. Since Sidewalk ID is given to the device post regsitration. This option will
      * only work post regsitration */
     SID_OPTION_GET_SIDEWALK_ID = 13,
-    /** Delimiter to enum sid_option*/
+    /** Option to set/get the time of delayed ack */
+    SID_OPTION_DELAYED_ACK_CONFIG = 14,
+    /** Option to get/set the gateway discovery policy for FSK.
+     * Value is of type struct sid_link_type_2_gw_discovery_policy_config */
+    SID_OPTION_LINK_TYPE_2_GW_DISCOVERY_POLICY = 15,
+    /** Option to get/set ble config */
+    SID_OPTION_BLE_USER_CONFIG = 16,
+    /** Delimiter to enum sid_option */
     SID_OPTION_LAST,
 };
 
@@ -415,6 +432,9 @@ enum sid_control_event_type {
     SID_CONTROL_EVENT_LOW_LATENCY_CONFIG_UPDATE = 0,
     /** Event indicating the device exceeded the traffic thresholds */
     SID_CONTROL_EVENT_TRAFFIC_THRESHOLD_RATE_EXCEEDED = 1,
+    /** Indicating gateway discovery status events. The event_data contains information about the event.
+     * See enum sid_link_type_2_gw_discovery_event for details */
+    SID_CONTROL_EVENT_LINK2_GW_DISCOVERY_STATUS = 2,
     /** Delimiter to enum sid_control_event_type */
     SID_CONTROL_EVENT_LAST,
 };

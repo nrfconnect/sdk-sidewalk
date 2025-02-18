@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2022-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -28,6 +28,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,6 +45,16 @@ enum sid_pal_serial_bus_bit_order {
 };
 
 /**
+ * Describes the client selection or deselection
+ */
+enum sid_pal_serial_bus_client_select {
+    /** Deselect the serial bus client */
+    SID_PAL_SERIAL_BUS_CLIENT_DESELECT,
+    /** Select the serial bus client */
+    SID_PAL_SERIAL_BUS_CLIENT_SELECT,
+};
+
+/**
  * Describes the configuration of the serial bus client.
  */
 struct sid_pal_serial_bus_client {
@@ -55,8 +66,22 @@ struct sid_pal_serial_bus_client {
     enum sid_pal_serial_bus_bit_order bit_order;
     /** serial bus mode.*/
     uint8_t mode;
-    /** pointer to the client selector data.*/
-    const void *client_selector_extension;
+    /**
+     * Callback to select client on serial bus
+     *
+     * If this callback if not set, then  #client_selector will be used.
+     *
+     * @param[in] client A pointer to #sid_pal_serial_bus_client, which is never NULL
+     * @param[in] select Enum value that indicates if client should be selected or not
+     * @param[in] context The context pointer given in #client_selector_context
+     *
+     * @retval true if client selection is successful, false otherwise
+     * **/
+    bool (*client_selector_cb)(const struct sid_pal_serial_bus_client *const client,
+                               enum sid_pal_serial_bus_client_select select,
+                               void *context);
+    /** Context returned back in #client_selector_cb */
+    void *client_selector_context;
 };
 
 struct sid_pal_serial_bus_iface;
