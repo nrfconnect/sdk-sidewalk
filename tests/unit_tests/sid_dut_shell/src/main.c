@@ -1493,7 +1493,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level, test_sid
 		  (struct test_sid_set_option_params){ .argc = 2,
 						       .argv = (const char *[]){ "-b", "1" },
 						       .return_code = 0,
-						       .option = SID_OPTION_BLE_BATTERY_LEVEL,
+						       .option = SID_OPTION_RESERVED,
 						       .data = &batery_level_1,
 						       .len = sizeof(batery_level_1) })
 
@@ -1502,7 +1502,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_100, test
 		  (struct test_sid_set_option_params){ .argc = 2,
 						       .argv = (const char *[]){ "-b", "100" },
 						       .return_code = 0,
-						       .option = SID_OPTION_BLE_BATTERY_LEVEL,
+						       .option = SID_OPTION_RESERVED,
 						       .data = &batery_level_100,
 						       .len = sizeof(batery_level_100) })
 
@@ -1511,7 +1511,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_255, test
 		  (struct test_sid_set_option_params){ .argc = 2,
 						       .argv = (const char *[]){ "-b", "255" },
 						       .return_code = 0,
-						       .option = SID_OPTION_BLE_BATTERY_LEVEL,
+						       .option = SID_OPTION_RESERVED,
 						       .data = &batery_level_255,
 						       .len = sizeof(batery_level_255) })
 
@@ -1519,7 +1519,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_baterry_level_ff, test_
 		  (struct test_sid_set_option_params){ .argc = 2,
 						       .argv = (const char *[]){ "-b", "0xff" },
 						       .return_code = 0,
-						       .option = SID_OPTION_BLE_BATTERY_LEVEL,
+						       .option = SID_OPTION_RESERVED,
 						       .data = &batery_level_255,
 						       .len = sizeof(batery_level_255) })
 
