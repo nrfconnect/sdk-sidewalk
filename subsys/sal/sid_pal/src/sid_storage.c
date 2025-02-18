@@ -188,7 +188,10 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
 	psa_key_id_t key_id = storage2key_id(group, key);
 	if (SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(key_id)) {
 		int err = sid_crypto_keys_new_import(key_id, (uint8_t *)p_data, len);
-		if (err) {
+		if (err == -EBADR) {
+			LOG_ERR("Key data is key id, aborting");
+			return SID_ERROR_NONE;
+		} else if (err) {
 			LOG_ERR("Failed to write secure key id %d", key_id);
 			return SID_ERROR_STORAGE_WRITE_FAIL;
 		} else {
