@@ -68,4 +68,17 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_exit(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_reboot(sidewalk_ctx_t *sid, void *ctx);
 void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx);
+
+#define EVENT_TO_NAME(event)                                                                       \
+	event == sidewalk_event_process	      ? "sidewalk_event_process" :                         \
+	event == sidewalk_event_autostart     ? "sidewalk_event_autostart" :                       \
+	event == sidewalk_event_factory_reset ? "sidewalk_event_factory_reset" :                   \
+	event == sidewalk_event_new_status    ? "sidewalk_event_new_status" :                      \
+	event == sidewalk_event_send_msg      ? "sidewalk_event_send_msg" :                        \
+	event == sidewalk_event_connect	      ? "sidewalk_event_connect" :                         \
+	event == sidewalk_event_link_switch   ? "sidewalk_event_link_switch" :                     \
+	event == sidewalk_event_exit	      ? "sidewalk_event_exit" :                            \
+	event == sidewalk_event_reboot	      ? "sidewalk_event_reboot" :                          \
+	event == sidewalk_event_platform_init ? "sidewalk_event_platform_init" :                   \
+						"use addr2line to get name of event"
 #endif /* SIDEWALK_APP_H */
