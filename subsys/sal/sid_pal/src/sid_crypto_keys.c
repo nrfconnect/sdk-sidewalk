@@ -81,6 +81,14 @@ int sid_crypto_keys_new_import(psa_key_id_t id, uint8_t *data, size_t size)
 		return -EINVAL;
 	}
 
+	/* Fix for 1.18 RC4 */
+	psa_key_id_t temp;
+	int ret = sid_crypto_keys_buffer_get(&temp, data, size);
+	if (ret == ESUCCESS) {
+		LOG_HEXDUMP_DBG(data, size, "Key data is key id, aborting");
+		return -EBADR;
+	}
+
 	/* Remove the key if any exists */
 	psa_status_t status = PSA_ERROR_GENERIC_ERROR;
 	status = psa_destroy_key(id);

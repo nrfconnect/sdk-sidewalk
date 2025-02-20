@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -14,6 +14,8 @@
 
 #ifndef SID_900_CFG_H
 #define SID_900_CFG_H
+
+#include <stdint.h>
 
 /// @cond sid_ifc_ep_en
 
@@ -197,6 +199,114 @@ struct sid_sub_ghz_links_config {
     int8_t link2_max_tx_power_in_dbm;
     int8_t link3_max_tx_power_in_dbm;
     struct sid_link_type_2_registration_config registration_config;
+};
+
+/**
+ * Describes the gateway discovery policy modes for FSK
+ */
+enum sid_link_type_2_gw_discovery_policy {
+    /** Default policy applied. The GW discovery behavior is same as 1.16 SDK release
+        which is to connect to the first beacon which has opt-in flag set to true
+     */
+    SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_DEFAULT = 0,
+    /** Policy optimized for latency to establish a connection,
+     * and therefore choose the first-one that is available.
+     */
+    SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_FAST_CONNECTION = 1,
+    /** Policy optimized for highest reliability to establish a connection,
+     * the gateway with the best RSSI and healthy connection is selected.
+     */
+    SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_RELIABLE_CONNECTION = 2,
+    /** Policy optimized for minimum power consumption. */
+    SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_POWER_SAVE = 3,
+    /** Policy for implementing a custom user scenario */
+    SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_CUSTOM = 4,
+    /** Delimiter to enum sid_link_type_2_gw_discovery_policy */
+    SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_LAST,
+};
+
+/** Defines the necessary constants for GW discovery */
+enum sid_link_type_2_gw_discovery_defines {
+    SID_LINK_TYPE_2_GWD_BACKOFF_ARRAY_MAX_SIZE = 4,
+};
+
+/** Describes parameters for gateway discovery backoff intervals */
+struct sid_link_type_2_gw_discovery_backoff_params {
+    /** Number of elements in the backoff table */
+    uint8_t retry_arr_size;
+    /** Retry threshold for transition to the next intervals */
+    uint8_t retry_threshold[SID_LINK_TYPE_2_GWD_BACKOFF_ARRAY_MAX_SIZE];
+    /** Scan duration in seconds */
+    uint16_t retry_scan_duration_s[SID_LINK_TYPE_2_GWD_BACKOFF_ARRAY_MAX_SIZE];
+    /** Sleep time in seconds between scanning */
+    uint16_t retry_sleep_time_s[SID_LINK_TYPE_2_GWD_BACKOFF_ARRAY_MAX_SIZE];
+};
+
+/**
+ * Describes parameters for the custom gateway discovery policy
+ */
+struct sid_link_type_2_gw_discovery_custom_policy_params {
+    /** Gateway discovery scanning timeout in seconds */
+    uint16_t scan_timeout_secs;
+    /** Continue to scan even after scan_timeout_secs has expired */
+    bool continue_scanning_after_fail;
+    /** Gateway discovery backoff parameters.
+     * Set this parameter to NULL to use default values.
+     */
+    struct sid_link_type_2_gw_discovery_backoff_params *backoff_params;
+    /** Minimum RSSI level at which connection is allowed.
+     * Zero means the parameter is not used
+     */
+    int8_t min_rssi_to_connect;
+    /** RSSI level at which EP initiates disconnection from the connected gateway.
+     * Should be less than min_rssi_to_connect
+     */
+    int8_t threshold_rssi_to_disconnect;
+    /** Number of beacons to calculate the average RSSI level
+     * for threshold_rssi_to_disconnect. Zero means the parameter is not used
+     */
+    int8_t threshold_rssi_msg_num;
+    /** The maximum number of consecutive beacons that can be missed
+     * before the EP notifies disconnection.
+     */
+    uint8_t max_beacon_miss;
+    /** The maximum number of beacons the EP can skip listening */
+    uint8_t max_beacon_skip;
+    /** Use gateway load to calculate gw score */
+    bool use_gateway_load_for_selection;
+    /** Gateway load at which EP initiates disconnection from the connected gateway.
+     * The range is [0,3]. Zero means the parameter is not used
+     */
+    uint8_t gateway_load_to_disconnect;
+    /** Use gateway connection health to calculate gw score */
+    bool use_gateway_connection_health_for_selection;
+    /** Use gateway transmit power rank to calculate gw score */
+    bool use_gateway_tx_power_rank_for_selection;
+};
+
+/**
+ * The structure used to configure the gateway discovery policy
+ */
+struct sid_link_type_2_gw_discovery_policy_config {
+    /** Gateway discovery policy */
+    enum sid_link_type_2_gw_discovery_policy policy;
+    /** Parameters for the custom gateway discovery policy */
+    struct sid_link_type_2_gw_discovery_custom_policy_params *policy_params;
+    /** True: Set policy config, False: Get policy config */
+    bool is_set;
+};
+
+/**
+ * Describes the LINK2 GW Discovery events.
+ * These events are notified to the developer through network control events
+ */
+enum sid_link_type_2_gw_discovery_event {
+    /** Event indicating gateway under the selected discovered policy is not found */
+    SID_LINK_TYPE_2_GW_DISCOVERY_EVENT_DISC_FAILED = 0,
+    /** Event indicating the gateway is selected and beacon sync is done */
+    SID_LINK_TYPE_2_GW_DISCOVERY_EVENT_BEACON_SYNC = 1,
+    /** Event indicating the beacon sync was lost with the selected gateway */
+    SID_LINK_TYPE_2_GW_DISCOVERY_EVENT_BEACON_SYNC_LOST = 2,
 };
 
 /** @} */

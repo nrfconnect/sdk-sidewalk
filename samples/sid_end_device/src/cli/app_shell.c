@@ -647,7 +647,7 @@ int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char *
 	}
 	data = (uint8_t)data_raw;
 
-	int err = cmd_sid_option_set(SID_OPTION_BLE_BATTERY_LEVEL, &data, sizeof(data));
+	int err = cmd_sid_option_set(SID_OPTION_RESERVED, &data, sizeof(data));
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}

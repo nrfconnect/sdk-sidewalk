@@ -29,7 +29,11 @@ config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	help
 	  The value of the trim cap. Default value works for Semtech SX1262 shield.
 
-endif 
+config SIDEWALK_PAL_RADIO_SOURCE
+	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
+	select EXPERIMENTAL
+
+endif # SIDEWALK_SUBGHZ_SUPPORT
 
 choice SIDEWALK_LINK_MASK
 	prompt "Physical link type [DEPRICATED]"
@@ -185,10 +189,6 @@ config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	  Once you flash the firmware with this config enabled,
 	  it must be enabled in every subsequent build.
 	  Otherwise, the keys will not be found and Sidewalk will not start.
-
-config SIDEWALK_PAL_RADIO_SOURCE
-	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
-	select EXPERIMENTAL
 
 if SIDEWALK_SPI_BUS
 

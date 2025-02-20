@@ -15,3 +15,8 @@ void sid_pal_delay_us(uint32_t delay)
 {
 	(void)k_busy_wait(delay);
 }
+
+void sid_pal_scheduler_delay_ms(uint32_t delay)
+{
+	(void)k_msleep(delay);
+}
