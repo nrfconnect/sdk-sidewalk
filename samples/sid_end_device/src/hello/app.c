@@ -198,6 +198,14 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 				(mode & SID_LINK_MODE_MOBILE) ? "True" : "False");
 		}
 	}
+
+#if CONFIG_SID_END_DEVICE_SEND_MSG_ON_BOOT
+	if ((status->state == SID_STATE_READY || status->state == SID_STATE_SECURE_CHANNEL_READY) &&
+	    status->detail.time_sync_status == SID_STATUS_TIME_SYNCED &&
+	    status->detail.registration_status == SID_STATUS_REGISTERED) {
+		app_btn_send_msg();
+	}
+#endif
 }
 static void free_sid_hello_event_ctx(void *ctx)
 {
