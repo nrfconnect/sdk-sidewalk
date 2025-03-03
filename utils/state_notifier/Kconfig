@@ -5,7 +5,7 @@
 #
 
 config STATE_NOTIFIER
-	bool 
+	bool "Sidewalk state notifier"
 	default SIDEWALK
 	help
 	  Stete notifier module for Sidewalk application.
