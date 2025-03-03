@@ -58,9 +58,6 @@ config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
-config LOG_PROCESS_THREAD_STARTUP_DELAY_MS
-	default 100
-
 endif # SID_END_DEVICE_CLI
 
 config SID_END_DEVICE_AUTO_START
@@ -172,5 +169,15 @@ config PSA_USE_CC3XX_KEY_MANAGEMENT_DRIVER
 	default n if SOC_NRF52840 || SOC_NRF5340_CPUAPP
 
 endif #SIDEWALK_CRYPTO
+
+if SHELL
+# TODO: Remove when merged in NCS copy of sdk-zephyr https://github.com/zephyrproject-rtos/zephyr/pull/85790
+# Workaround for missing first few logs.
+    config LOG_BACKEND_RTT
+        bool "Segger J-Link RTT backend"
+        depends on USE_SEGGER_RTT
+        default y if !SHELL_LOG_BACKEND
+        default n
+endif #SHELL
 
 source "Kconfig.zephyr"
