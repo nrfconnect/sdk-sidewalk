@@ -218,8 +218,9 @@ static void pending_adv_start(struct k_work *work)
 int nordic_dfu_ble_start(void)
 {
 	LOG_INF("Entering into DFU mode");
-
+#if defined(CONFIG_STATE_NOTIFIER)
 	application_state_dfu(&global_state_notifier, true);
+#endif
 	dk_leds_init();
 
 	int err = sid_ble_bt_enable(NULL);
@@ -295,8 +296,9 @@ int nordic_dfu_ble_stop(void)
 
 	k_timer_stop(&led_timer);
 	k_timer_stop(&exit_timer);
-
+#if defined(CONFIG_STATE_NOTIFIER)
 	application_state_dfu(&global_state_notifier, false);
+#endif
 
 	return 0;
 }
