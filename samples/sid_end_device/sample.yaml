@@ -10,14 +10,14 @@ common:
     - nrf54l15dk/nrf54l15/cpuapp
     - nrf54l15dk/nrf54l15/cpuapp/ns
     - nrf54l15dk/nrf54l10/cpuapp
-  integration_platforms:
-    - nrf52840dk/nrf52840
-    - nrf5340dk/nrf5340/cpuapp
-    - nrf54l15dk/nrf54l15/cpuapp
-    - nrf54l15dk/nrf54l15/cpuapp/ns
-    - nrf54l15dk/nrf54l10/cpuapp
 tests:
   sample.sidewalk.hello:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_FILE_TRANSFER=y
@@ -27,6 +27,12 @@ tests:
       - hello
 
   sample.sidewalk.hello.release:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
@@ -36,6 +42,12 @@ tests:
       - hello
 
   sample.sidewalk.hello.ble_only:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
@@ -45,6 +57,12 @@ tests:
       - BLE
 
   sample.sidewalk.hello.ble_only.release:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
@@ -55,6 +73,12 @@ tests:
       - BLE
 
   sample.sidewalk.demo:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
@@ -78,6 +102,12 @@ tests:
       - BLE
 
   sample.sidewalk.dut:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
@@ -86,6 +116,12 @@ tests:
       - cli
 
   sample.sidewalk.dut.ble_only:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
@@ -96,6 +132,12 @@ tests:
       - BLE
 
   sample.sidewalk.dut.no_secure:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=n
@@ -104,3 +146,64 @@ tests:
       - Sidewalk
       - cli
       - no_secure
+
+  sample.sidewalk.helloPower.ble.release:
+    platform_exclude:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args: FILE_SUFFIX=release
+    extra_configs:
+      - CONFIG_STATE_NOTIFIER=n
+      - CONFIG_SIDEWALK_LINK_MASK_BLE=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.ble"
+    tags:
+      - Sidewalk
+      - helloPower
+
+  sample.sidewalk.helloPower.fsk.release:
+    platform_exclude:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args: FILE_SUFFIX=release
+    extra_configs:
+      - CONFIG_STATE_NOTIFIER=n
+      - CONFIG_SIDEWALK_LINK_MASK_FSK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.fsk"
+    tags:
+      - Sidewalk
+      - helloPower
+
+  sample.sidewalk.helloPower.lora.release:
+    platform_exclude:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args: FILE_SUFFIX=release
+    extra_configs:
+      - CONFIG_STATE_NOTIFIER=n
+      - CONFIG_SIDEWALK_LINK_MASK_LORA=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.lora"
+    tags:
+      - Sidewalk
+      - helloPower
+
+  sample.sidewalk.helloPower.ble_only.release:
+    platform_exclude:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args: FILE_SUFFIX=release
+    extra_configs:
+      - CONFIG_STATE_NOTIFIER=n
+      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+      - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.ble_only.release"
+    tags:
+      - Sidewalk
+      - helloPower
+      - BLE
