@@ -65,9 +65,10 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message received success");
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_msg_received", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 1))))));
-
+#if defined(CONFIG_STATE_NOTIFIER)
 	application_state_receiving(&global_state_notifier, true);
 	application_state_receiving(&global_state_notifier, false);
+#endif
 
 #ifdef CONFIG_SID_END_DEVICE_ECHO_MSGS
 	if (msg_desc->type == SID_MSG_TYPE_GET || msg_desc->type == SID_MSG_TYPE_SET) {
@@ -100,7 +101,9 @@ static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const 
 			free_sid_echo_event_ctx(echo);
 			LOG_ERR("Send event err %d", err);
 		} else {
+#if defined(CONFIG_STATE_NOTIFIER)
 			application_state_sending(&global_state_notifier, true);
+#endif
 		}
 	};
 #endif /* CONFIG_SID_END_DEVICE_ECHO_MSGS */
@@ -111,8 +114,9 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 	LOG_INF("Message send success");
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_msg_sent", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
-
+#if defined(CONFIG_STATE_NOTIFIER)
 	application_state_sending(&global_state_notifier, false);
+#endif
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
@@ -123,8 +127,9 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 		"on_send_error",
 		JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
 				     JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0)))))));
-
+#if defined(CONFIG_STATE_NOTIFIER)
 	application_state_sending(&global_state_notifier, false);
+#endif
 }
 
 static void on_sidewalk_factory_reset(void *context)
@@ -152,6 +157,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 	}
 	err = sidewalk_event_send(sidewalk_event_new_status, new_status, sid_hal_free);
 
+#if defined(CONFIG_STATE_NOTIFIER)
 	switch (status->state) {
 	case SID_STATE_READY:
 	case SID_STATE_SECURE_CHANNEL_READY:
@@ -176,6 +182,7 @@ static void on_sidewalk_status_changed(const struct sid_status *status, void *co
 				     status->detail.registration_status == SID_STATUS_REGISTERED);
 	application_state_time_sync(&global_state_notifier,
 				    status->detail.time_sync_status == SID_STATUS_TIME_SYNCED);
+#endif /* CONFIG_STATE_NOTIFIER */
 
 	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
 		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
@@ -242,7 +249,9 @@ static void app_btn_send_msg(uint32_t unused)
 		free_sid_hello_event_ctx(hello);
 		LOG_ERR("Send event err %d", err);
 	} else {
+#if defined(CONFIG_STATE_NOTIFIER)
 		application_state_sending(&global_state_notifier, true);
+#endif
 	}
 }
 
@@ -349,6 +358,7 @@ void app_start(void)
 		LOG_ERR("Cannot init buttons");
 	}
 
+#if defined(CONFIG_STATE_NOTIFIER)
 #if defined(CONFIG_GPIO)
 	state_watch_init_gpio(&global_state_notifier);
 #endif
@@ -356,6 +366,7 @@ void app_start(void)
 	state_watch_init_log(&global_state_notifier);
 #endif
 	application_state_working(&global_state_notifier, true);
+#endif
 
 	static sidewalk_ctx_t sid_ctx = { 0 };
 

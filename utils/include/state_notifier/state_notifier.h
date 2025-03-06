@@ -29,6 +29,12 @@ struct notifier_state {
 };
 #undef X
 
+#if defined(CONFIG_STATE_NOTIFIER_HANDLER_MAX) && (CONFIG_STATE_NOTIFIER_HANDLER_MAX > 0)
+#define HANDLES_NO (CONFIG_STATE_NOTIFIER_HANDLER_MAX)
+#else
+#define HANDLES_NO (1)
+#endif /* CONFIG_STATE_NOTIFIER_HANDLER_MAX */
+
 /**
  * @brief Array holding the string representations of the state names
  */
@@ -74,7 +80,7 @@ typedef void (*state_change_handler)(const struct notifier_state *new_state);
  */
 struct notifier_ctx {
 	struct notifier_state app_state;
-	state_change_handler handler[CONFIG_STATE_NOTIFIER_HANDLER_MAX];
+	state_change_handler handler[HANDLES_NO];
 };
 
 #define X(name, ...) void application_state_##name(struct notifier_ctx *ctx, const uint32_t value);
