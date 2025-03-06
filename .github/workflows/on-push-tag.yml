@@ -10,11 +10,12 @@ jobs:
     uses: ./.github/workflows/samples_build.yml
 
   build_documentation:
+    needs: [build_samples]
     uses: ./.github/workflows/publish_documentation.yml
     with:
-      documentation_tag: "latest"
-      publish_to_prod: false
-      publish_to_dev: false
+      documentation_tag: ${{ github.event_name }}
+      publish_to_prod: true
+      publish_to_dev: true
 
   publish_release:
     needs: [build_documentation, build_samples]
