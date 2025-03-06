@@ -12,7 +12,7 @@ on:
         default: true
       boards_to_test:
         type: string
-        required: true
+        required: false
         default: '["nrf52840dk/nrf52840", "nrf5340dk/nrf5340/cpuapp", "nrf54l15dk/nrf54l15/cpuapp", "nrf54l15dk/nrf54l15/cpuapp/ns", "nrf54l15dk/nrf54l10/cpuapp"]'
 
 
