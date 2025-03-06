@@ -29,6 +29,9 @@ config SID_END_DEVICE_ECHO_MSGS
       Echo received messages back to Sidewlak cloud.
       Works with GET and SET messages types.
 
+config SID_END_DEVICE_SEND_MSG_ON_BOOT
+        bool "send message once device is online"
+
 endif #SID_END_DEVICE_HELLO
 
 if SID_END_DEVICE_SENSOR_MONITORING
