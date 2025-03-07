@@ -2,17 +2,71 @@ name: Build Sidewalk samples
 on:
   workflow_call:
     inputs:
-      nrf_revision:
-        type: string
+      jobs_per_subset:
+        type: number
         required: false
-        default: "main"
-      boards_to_test:
-        type: string
-        required: true
-        default: '["nrf52840dk/nrf52840", "nrf5340dk/nrf5340/cpuapp", "nrf54l15dk/nrf54l15/cpuapp", "nrf54l15dk/nrf54l15/cpuapp/ns", "nrf54l15dk/nrf54l10/cpuapp"]'
+        default: 6
 
 jobs:
+  discover_targets:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2 --privileged
+    outputs:
+      total_platforms_json: ${{ steps.subsets.outputs.total_platforms_json }}
+      subset_matrix: ${{ steps.subsets.outputs.matrix }}
+      subset_config: ${{ steps.subsets.outputs.config }}
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
+
+      - name: subsets configuration
+        id: subsets
+        run: |
+          rm -rf twister-out* max max_sorted configuration
+          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="Github_tests"  --exclude-platform native_sim --exclude-platform native_posix --exclude-platform unit_testing  --dry-run
+          total_platforms=$(jq -r '.testsuites |map({platform: .platform}) | unique | .[].platform' twister-out/testplan.json)
+          total_platforms_json=$(printf '%s' "${total_platforms[@]}" | jq -R . | jq -s -c .)
+          echo "{}" > configuration
+          for platform in $total_platforms; do
+            west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="Github_tests" --dry-run --platform $platform
+            total_jobs=$(jq '.testsuites | length' twister-out/testplan.json)
+            subsets=$(( ( total_jobs + ${{inputs.jobs_per_subset}}) / ${{inputs.jobs_per_subset}}))
+            echo $subsets >> max
+            cat configuration | jq -c --arg platform_name $platform --arg subsets $subsets '. += {($platform_name): $subsets|tonumber }' > configuration_new
+            mv configuration_new configuration
+          done
+          sort max > max_sorted
+          max_subset=$(tail -n 1 max_sorted)
+          subset_matrix="[$(seq -s ', ' 1 $max_subset)]"
+          cat configuration
+          echo $subset_matrix
+
+          echo "total_platforms_json=$total_platforms_json" >> $GITHUB_OUTPUT;
+          echo "matrix=$subset_matrix" >> $GITHUB_OUTPUT;
+          echo "config=`cat configuration`" >> $GITHUB_OUTPUT;
+
+      - name: clean
+        if: always()
+        run: |
+          rm -rf twister*
+
   build_and_run_x86_tests:
+    name: Run UT on x86
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
@@ -30,16 +84,9 @@ jobs:
 
       - name: update NRF
         run: |
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
-          cp -r /workdir/nrf nrf;
-          west init -l nrf &&
-          cd nrf &&
-          git fetch origin ${{inputs.nrf_revision}}:PR-branch &&
-          git checkout PR-branch &&
-          cd .. &&
-          west config manifest.group-filter +sidewalk &&
-          west update -n -o=--depth=1 --path-cache /workdir/ &&
-          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
 
       - name: Install Python dependencies
         run: |
@@ -84,18 +131,18 @@ jobs:
 
 
   build-and-test_on_hw:
+    needs: [discover_targets]
     strategy:
       fail-fast: false
       matrix:
-        subset: [1, 2]
-        board: ${{ fromJson(inputs.boards_to_test) }}
+        subset: ${{ fromJson(needs.discover_targets.outputs.subset_matrix) }}
+        target: ${{ fromJson(needs.discover_targets.outputs.total_platforms_json) }}
     uses: ./.github/workflows/run_tests_dut.yml
     with:
-      subset: ${{ matrix.subset }}
-      max_subsets: 2
       run_tests: true
-      target_board: ${{ matrix.board }}
-      nrf_revision: ${{ inputs.nrf_revision }}
+      target: ${{matrix.target}}
+      subset: ${{matrix.subset}}
+      subset_config: '${{needs.discover_targets.outputs.subset_config}}'
 
   merge_tests_on_hw:
     needs: build-and-test_on_hw
