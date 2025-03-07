@@ -1,12 +1,6 @@
 ## CI parameters
 
 ```yaml
-Github_actions:
-  #(branch, hash, pull/XXX/head)
-  NRF_revision: main
-
-  # Do not change after creating PR
-  Create_NRF_PR: false
 Jenkins:
   test-sdk-sidewalk: master
   # To reconfigure functional tests:

@@ -53,10 +53,7 @@ jobs:
       - name: Get revision of nrf to use
         id: revision
         run: |
-          REF_NAME="${{ github.ref_name }}"
-          if [ -z "$REF_NAME" ]; then
-            REF_NAME="main"  # Set your default value here
-          fi
+          REF_NAME=$(yq '.manifest.projects | map(select(.name == "nrf"))[0].revision' west.yml)
           echo "REF_NAME=$REF_NAME" >> $GITHUB_OUTPUT
           echo "Ref name: $REF_NAME"
 

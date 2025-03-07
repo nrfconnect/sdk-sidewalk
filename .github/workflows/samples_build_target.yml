@@ -1,0 +1,110 @@
+name: Build Sidewalk samples
+on:
+  workflow_call:
+    inputs:
+      save_images:
+        type: boolean
+        required: false
+        default: true
+      target:
+        type: string
+        required: true
+      subset_config:
+        type: string
+        required: true
+      subset:
+        type: number
+        required: true
+
+jobs:
+  build_samples:
+    name: "Build ${{inputs.subset}}/${{fromJson(inputs.subset_config)[inputs.target]}} - ${{inputs.target}}"
+    if: inputs.subset <= fromJson(inputs.subset_config)[inputs.target]
+    runs-on: ubuntu-24.04
+    container:
+      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      options: --cpus 2
+    defaults:
+      run:
+        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+
+    steps:
+      - name: get_max_subset
+        id: max_subset
+        run: |
+          echo '${{inputs.subset_config}}' > configuration.json
+          max_subsets=$(jq --arg target_name "${{inputs.target}}" '.[($target_name)]' configuration.json)
+          echo "max_subset=$max_subsets"
+          echo "max_subset=$max_subsets" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: sidewalk
+
+      - name: update NRF
+        run: |
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Replace slash with underscore
+        id: replace
+        run: |
+          TARGET_BOARD=${{ inputs.target}}
+          TARGET_BOARD=${TARGET_BOARD//\//_}
+          echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
+
+      - name: Ccache
+        id: ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-samples-${{ steps.replace.outputs.target_board}}-${{ github.run_id }}
+          restore-keys: ccache-samples-${{ steps.replace.outputs.target_board}}-
+
+      - name: Twister build samples
+        run: |
+          source zephyr/zephyr-env.sh
+          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="samples" --platform ${{ inputs.target}} --inline-logs --overflow-as-errors --enable-size-report --show-footprint -vvv --build-only --subset ${{inputs.subset}}/${{steps.max_subset.outputs.max_subset}}
+
+      - name: Print ccache stats
+        run: |
+          ccache -ps;
+
+      - name: Prepare artifacts for upload
+        run: |
+          mkdir -p subsets/${{inputs.subset}}_of_${{ steps.max_subset.outputs.max_subset }}_${{ steps.replace.outputs.target_board}}
+          cp twister-out/twister.json subsets/${{inputs.subset}}_of_${{ steps.max_subset.outputs.max_subset }}_${{ steps.replace.outputs.target_board}}
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-artifacts-meta-${{ steps.replace.outputs.target_board}}-${{inputs.subset}}
+          path: |
+            subsets
+            twister-out/**/build.log
+            twister-out/**/.config
+            twister-out/**/runners.yaml
+            twister-out/**/*.dts
+          include-hidden-files: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.save_images }}
+        with:
+          name: sample-artifacts-build-${{ steps.replace.outputs.target_board}}-${{inputs.subset}}
+          path: |
+            subsets
+            twister-out/**/zephyr.elf
+            twister-out/**/zephyr.hex
+            twister-out/**/merged.hex
+            twister-out/**/merged_domains.hex
+            twister-out/**/dfu_multi_image.bin
+            twister-out/**/dfu_application.zip
+          include-hidden-files: true

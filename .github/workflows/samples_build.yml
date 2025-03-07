@@ -2,34 +2,26 @@ name: Build Sidewalk samples
 on:
   workflow_call:
     inputs:
-      nrf_revision:
-        type: string
+      jobs_per_subset:
+        type: number
         required: false
-        default: "main"
+        default: 4
       save_images:
         type: boolean
         required: false
         default: true
-      boards_to_test:
-        type: string
-        required: false
-        default: '["nrf52840dk/nrf52840", "nrf5340dk/nrf5340/cpuapp", "nrf54l15dk/nrf54l15/cpuapp", "nrf54l15dk/nrf54l15/cpuapp/ns", "nrf54l15dk/nrf54l10/cpuapp"]'
 
 
 jobs:
-  build_samples:
-    strategy:
-      fail-fast: false
-      matrix:
-        subset: [1, 2, 3]
-        board: ${{ fromJson(inputs.boards_to_test) }}
-    env:
-      MAX_SUBSETS: 3
-
-    runs-on: ubuntu-24.04
+  discover_targets:
+    runs-on: self-hosted
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2
+      options: --cpus 2 --privileged
+    outputs:
+      total_platforms_json: ${{ steps.subsets.outputs.total_platforms_json }}
+      subset_matrix: ${{ steps.subsets.outputs.matrix }}
+      subset_config: ${{ steps.subsets.outputs.config }}
     defaults:
       run:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
@@ -43,83 +35,58 @@ jobs:
 
       - name: update NRF
         run: |
-          rm -rf .west nrf;
-          cp -r /workdir/nrf nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
-          west init -l nrf &&
-          cd nrf &&
-          git fetch origin ${{inputs.nrf_revision}}:PR-branch &&
-          git checkout PR-branch &&
-          cd .. &&
-          west config manifest.group-filter +sidewalk &&
-          west update -n -o=--depth=1 --path-cache /workdir/ &&
-          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
 
-      - name: Install Python dependencies
+      - name: subsets configuration
+        id: subsets
         run: |
-          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+          rm -rf twister-out* max max_sorted configuration
+          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="samples" --dry-run
+          total_platforms=$(jq -r '.testsuites |map({platform: .platform}) | unique | .[].platform' twister-out/testplan.json)
+          total_platforms_json=$(printf '%s' "${total_platforms[@]}" | jq -R . | jq -s -c .)
+          echo "{}" > configuration
+          for platform in $total_platforms; do
+            west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="samples" --dry-run --platform $platform
+            total_jobs=$(jq '.testsuites | length' twister-out/testplan.json)
+            subsets=$(( ( total_jobs + ${{inputs.jobs_per_subset}}) / ${{inputs.jobs_per_subset}}))
+            echo $subsets >> max
+            cat configuration | jq -c --arg platform_name $platform --arg subsets $subsets '. += {($platform_name): $subsets|tonumber }' > configuration_new
+            mv configuration_new configuration
+          done
+          sort max > max_sorted
+          max_subset=$(tail -n 1 max_sorted)
+          subset_matrix="[$(seq -s ', ' 1 $max_subset)]"
+          cat configuration
+          echo $subset_matrix
 
-      - name: Replace slash with underscore
-        id: replace
-        run: |
-          TARGET_BOARD=${{ matrix.board  }}
-          TARGET_BOARD=${TARGET_BOARD//\//_}
-          echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
+          echo "total_platforms_json=$total_platforms_json" >> $GITHUB_OUTPUT;
+          echo "matrix=$subset_matrix" >> $GITHUB_OUTPUT;
+          echo "config=`cat configuration`" >> $GITHUB_OUTPUT;
 
-      - name: Ccache
-        id: ccache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ccache
-          key: ccache-samples-${{ matrix.subset }}-${{ steps.replace.outputs.target_board}}-${{ github.run_id }}
-          restore-keys: ccache-samples-${{ matrix.subset }}-${{ steps.replace.outputs.target_board}}-
-
-      - name: Twister build samples
-        run: |
-          source zephyr/zephyr-env.sh
-          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="samples" --platform ${{ matrix.board }} --inline-logs --overflow-as-errors --enable-size-report --show-footprint -vvv --build-only --subset ${{ matrix.subset }}/${{ env.MAX_SUBSETS }}
-
-      - name: Print ccache stats
-        run: |
-          ccache -ps;
-
-      - name: Prepare artifacts for upload
-        run: |
-          mkdir -p subsets/${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}_${{ steps.replace.outputs.target_board}}
-          cp twister-out/twister.json subsets/${{ matrix.subset }}_of_${{ env.MAX_SUBSETS }}_${{ steps.replace.outputs.target_board}}
-
-      - name: Upload build metadata
-        uses: actions/upload-artifact@v4
+      - name: clean
         if: always()
-        with:
-          name: sample-artifacts-meta-${{ matrix.subset }}-${{ steps.replace.outputs.target_board}}
-          path: |
-            subsets
-            twister-out/**/build.log
-            twister-out/**/.config
-            twister-out/**/runners.yaml
-            twister-out/**/*.dts
-          include-hidden-files: true
+        run: |
+          rm -rf twister* sidewalk* max max_sorted configuration
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ inputs.save_images }}
-        with:
-          name: sample-artifacts-build-${{ matrix.subset }}-${{ steps.replace.outputs.target_board}}
-          path: |
-            subsets
-            twister-out/**/zephyr.elf
-            twister-out/**/zephyr.hex
-            twister-out/**/merged.hex
-            twister-out/**/merged_domains.hex
-            twister-out/**/dfu_multi_image.bin
-            twister-out/**/dfu_application.zip
-          include-hidden-files: true
+  build_samples:
+    needs: [discover_targets]
+    strategy:
+      fail-fast: false
+      matrix:
+        subset: ${{ fromJson(needs.discover_targets.outputs.subset_matrix) }}
+        target: ${{ fromJson(needs.discover_targets.outputs.total_platforms_json) }}
+
+    uses: ./.github/workflows/samples_build_target.yml
+    with:
+      target: ${{matrix.target}}
+      subset: ${{matrix.subset}}
+      subset_config: '${{needs.discover_targets.outputs.subset_config}}'
 
   merge_sample_artifacts:
     needs: build_samples
     runs-on: ubuntu-24.04
-    if: always()
     permissions: write-all
     steps:
       - name: Merge Artifacts

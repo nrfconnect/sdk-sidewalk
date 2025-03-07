@@ -2,21 +2,14 @@ name: Build and run DUT tests
 on:
   workflow_call:
     inputs:
-      nrf_revision:
+      target:
         type: string
-        required: false
-        default: "main"
+        required: true
+      subset_config:
+        type: string
+        required: true
       subset:
-        description: ""
-        required: true
         type: number
-      max_subsets:
-        description: ""
-        type: number
-        required: true
-      target_board:
-        description: "target board for tests"
-        type: string
         required: true
       run_tests:
         description: ""
@@ -26,7 +19,8 @@ on:
 
 jobs:
   build_dut_tests:
-    name: "Build DUT tests (${{inputs.target_board}} - ${{ inputs.subset }})"
+    if: inputs.subset <= fromJson(inputs.subset_config)[inputs.target]
+    name: "Build ${{inputs.subset}}/${{fromJson(inputs.subset_config)[inputs.target]}} - ${{inputs.target}}"
     runs-on: ubuntu-24.04
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
@@ -36,6 +30,14 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
+      - name: get_max_subset
+        id: max_subset
+        run: |
+          echo '${{inputs.subset_config}}' > configuration.json
+          max_subsets=$(jq --arg target_name "${{inputs.target}}" '.[($target_name)]' configuration.json)
+          echo "max_subset=$max_subsets"
+          echo "max_subset=$max_subsets" >> $GITHUB_OUTPUT
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -44,18 +46,9 @@ jobs:
 
       - name: update NRF
         run: |
-          rm -rf .west nrf;
-          cp -r /workdir/nrf nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
-          west init -l nrf &&
-          cd nrf &&
-          git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
-          git checkout branch_to_run &&
-          git rev-parse HEAD &&
-          cd .. &&
-          west config manifest.group-filter +sidewalk &&
-          west update -n -o=--depth=1 --path-cache /workdir/ &&
-          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
 
       - name: Install Python dependencies
         run: |
@@ -64,7 +57,7 @@ jobs:
       - name: Replace slash with underscore
         id: replace
         run: |
-          TARGET_BOARD=${{ inputs.target_board }}
+          TARGET_BOARD=${{ inputs.target }}
           TARGET_BOARD=${TARGET_BOARD//\//_}
           echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
 
@@ -73,13 +66,13 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ccache
-          key: ccache-tests_dut-${{ inputs.subset }}-${{steps.replace.outputs.target_board}}-${{ github.run_id }}
-          restore-keys: ccache-tests_dut-${{ inputs.subset }}-${{ steps.replace.outputs.target_board}}-
+          key: ccache-tests_dut-${{steps.replace.outputs.target_board}}-${{ github.run_id }}
+          restore-keys: ccache-tests_dut-${{ steps.replace.outputs.target_board}}-
 
       - name: Build DUT test artifacts
         run: |
           source zephyr/zephyr-env.sh
-          west twister --test-config sidewalk/test_config.yaml --level="Github_tests" --platform ${{inputs.target_board}} --testsuite-root sidewalk --shuffle-tests --shuffle-tests-seed 123 --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{ inputs.max_subsets }}
+          west twister --test-config sidewalk/test_config.yaml --level="Github_tests" --platform ${{inputs.target}} --testsuite-root sidewalk  --inline-logs --overflow-as-errors -vvv --prep-artifacts-for-testing --package-artifacts PACKAGE_ARTIFACTS_${{ inputs.subset }}.tar.bz2 --subset ${{ inputs.subset }}/${{steps.max_subset.outputs.max_subset}}
 
       - name: Print ccache stats
         run: |
@@ -94,9 +87,9 @@ jobs:
 
   run_dut_ut:
     needs: [build_dut_tests]
-    if: ${{ fromJson(inputs.run_tests) }}
-    name: "Run DUT tests  (${{inputs.target_board}} - ${{ inputs.subset }})"
-    runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}"]
+    if: ${{ fromJson(inputs.run_tests) }} and ${{ inputs.subset <= fromJson(inputs.subset_config)[inputs.target]}}
+    name: "Run ${{inputs.subset}}/${{fromJson(inputs.subset_config)[inputs.target]}} - ${{inputs.target}}"
+    runs-on: [self-hosted, linux, x64, "${{inputs.target}}"]
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2 --privileged
@@ -109,30 +102,29 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
+      - name: clean artifacts
+        if: always()
+        run: |
+          rm -rf PACKAGE_ARTIFACTS* twister-out*
+          rm -rf sidewalk
+          rm -rf .west
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           path: sidewalk
 
       - name: update NRF
         run: |
-          rm -rf .west nrf;
-          cp -r /workdir/nrf nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd .. &&
-          west init -l nrf &&
-          cd nrf &&
-          git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
-          git checkout branch_to_run &&
-          git rev-parse HEAD &&
-          cd .. &&
-          west config manifest.group-filter +sidewalk &&
-          west update -n -o=--depth=1 --path-cache /workdir/ &&
-          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
 
       - name: Replace slash with underscore
         id: replace
         run: |
-          TARGET_BOARD=${{ inputs.target_board }}
+          TARGET_BOARD=${{ inputs.target }}
           TARGET_BOARD=${TARGET_BOARD//\//_}
           echo "target_board=$TARGET_BOARD" >> $GITHUB_OUTPUT
 
@@ -164,7 +156,7 @@ jobs:
         with:
           name: tests-dut_result_${{steps.replace.outputs.target_board}}_${{ inputs.subset }}
           path: |
-            twister-out/${{steps.replace.outputs.target_board}}_${{ inputs.subset }}_twister.xml
+            twister-out/${{steps.replace.outputs.target_board}}_twister.xml
             twister-out/**/handler.log
             twister-out/**/device.log
             twister-out/**/zephyr.hex
@@ -174,5 +166,7 @@ jobs:
       - name: clean artifacts
         if: always()
         run: |
-          cd nrf; git checkout main; git branch -D branch_to_run; cd ..;
-          rm -rf PACKAGE_ARTIFACTS_* twister-out
+          rm -rf PACKAGE_ARTIFACTS* twister-out*
+          rm -rf sidewalk_tmp
+          rm -rf sidewalk
+          rm -rf .west

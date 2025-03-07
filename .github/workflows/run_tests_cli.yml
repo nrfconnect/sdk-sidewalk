@@ -13,7 +13,7 @@ on:
 
 jobs:
   run_dut_ut:
-    name: "Run DUT tests  (${{inputs.target_board}} - ${{ inputs.subset }})"
+    name: "Run DUT tests  (${{inputs.target_board}})"
     runs-on: [self-hosted, linux, x64, "${{inputs.target_board}}"]
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
@@ -27,24 +27,25 @@ jobs:
         shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
 
     steps:
+      - name: clean artifacts
+        if: always()
+        run: |
+          rm -rf pytest-sidewalk
+          rm -rf twister-out*
+          rm -rf sidewalk
+          rm -rf .west
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           path: sidewalk
 
       - name: update NRF
         run: |
-          rm -rf .west nrf;
-          cd sidewalk &&  git rev-parse HEAD > /workdir/sidewalk_hash && cd ..
-          west init -m https://github.com/nrfconnect/sdk-nrf --mr main . &&
-          cd nrf &&
-          git fetch origin ${{inputs.nrf_revision}}:branch_to_run &&
-          git checkout branch_to_run &&
-          git rev-parse HEAD &&
-          cd .. &&
-          west config manifest.group-filter +sidewalk &&
-          west update -n -o=--depth=1 --path-cache /workdir/ &&
-          cd sidewalk && git checkout `cat /workdir/sidewalk_hash` && rm -rf /workdir/sidewalk_hash
+          rm -rf .west;
+          west init -l sidewalk --mf west.yml &&
+          west update -n -o=--depth=1 --path-cache /workdir/
 
       - name: Replace slash with underscore
         id: replace
@@ -102,5 +103,7 @@ jobs:
         if: always()
         run: |
           rm -rf pytest-sidewalk
-          cd nrf; git checkout main; git branch -D branch_to_run;
-          rm -rf PACKAGE_ARTIFACTS_* twister-out
+          rm -rf twister-out*
+          rm -rf sidewalk_tmp
+          rm -rf sidewalk
+          rm -rf .west
