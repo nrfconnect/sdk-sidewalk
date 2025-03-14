@@ -1,0 +1,8 @@
+# This is the Jenkins ci variant of the .github/labler.yaml
+
+"__EXCLUDE__":
+  - "**/VERSION"
+  - "**/*.rst"
+
+"CI-sidewalk-test":
+  - "**/*"
