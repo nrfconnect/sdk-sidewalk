@@ -36,19 +36,19 @@ config SIDEWALK_PAL_RADIO_SOURCE
 endif # SIDEWALK_SUBGHZ_SUPPORT
 
 choice SIDEWALK_LINK_MASK
-	prompt "Physical link type [DEPRICATED]"
+	prompt "Physical link type"
 	default SIDEWALK_LINK_MASK_BLE
 	help
-	  Select the physical link type for Sidewalk connection.
+	  Choose the default physical link type for Sidewalk connection.
 
 config SIDEWALK_LINK_MASK_BLE
-	bool "Bluetooth Low Energy link [DEPRICATED]"
+	bool "Bluetooth Low Energy link"
 
 config SIDEWALK_LINK_MASK_FSK
-	bool "Sub-GHz link for FSK [DEPRICATED]"
+	bool "Sub-GHz link for FSK"
 
 config SIDEWALK_LINK_MASK_LORA
-	bool "Sub-GHz link for LORA [DEPRICATED]"
+	bool "Sub-GHz link for LORA"
 
 endchoice # SIDEWALK_LINK_MASK
 

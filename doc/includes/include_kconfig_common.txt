@@ -21,13 +21,21 @@
 
 * ``CONFIG_SIDEWALK_ON_DEV_CERT`` -- Enables the on-device certification Shell.
 
-* ``SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` - Enables secure storage for persistent Sidewalk keys.
+* ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` - Enables secure storage for persistent Sidewalk keys.
 
-* ``SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7`` - Enables support for Sidewalk manufacturing HEX in version 7 and below.
+* ``CONFIG_SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7`` - Enables support for Sidewalk manufacturing HEX in version 7 and below.
 
 * ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
 
 * ``CONFIG_SID_END_DEVICE_AUTO_CONN_REQ`` -- Enables an automatic connection request before sending a message.
   If needed, the Bluetooth LE connection request is sent automatically.
 
-* ``SID_END_DEVICE_PERSISTENT_LINK_MASK`` - Enables persistent link mask.
+* ``CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK`` - Enables persistent link mask.
+
+* ``CONFIG_SIDEWALK_LINK_MASK`` - Choose the default physical link type for Sidewalk connection to start with
+
+   * ``CONFIG_SIDEWALK_LINK_MASK_BLE`` -- Choose Bluetooth Low Energy link.
+
+   * ``CONFIG_SIDEWALK_LINK_MASK_FSK`` -- Choose Sub-GHz link for FSK.
+
+   * ``CONFIG_SIDEWALK_LINK_MASK_LORA`` -- Choose Sub-GHz link for LORA.

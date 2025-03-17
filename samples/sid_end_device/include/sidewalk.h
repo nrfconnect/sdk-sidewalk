@@ -53,7 +53,7 @@ int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free);
 #elif CONFIG_SIDEWALK_LINK_MASK_FSK
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_2)
 #elif CONFIG_SIDEWALK_LINK_MASK_LORA
-#define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1 | SID_LINK_TYPE_3)
+#define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_3)
 #else
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)
 #endif
