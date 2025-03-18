@@ -3,7 +3,7 @@ This sample can be found under :file:`samples/sid_end_device`.
 .. note::
    Before you flash your Sidewalk sample, make sure you have completed the following:
 
-      * You downloaded the Sidewalk repository and updated west according to the :ref:`dk_building_sample_app` section.
+      * You have set up the Sidewalk repository using the standalone west.yml configuration as described in the :ref:`setting_up_sdk` section.
       * You provisioned your device during the :ref:`setting_up_sidewalk_prototype`.
 
    This step needs to be completed only once.

@@ -7,8 +7,8 @@
 
    Be aware, that by downloading and including the Sidewalk repository, you accept the above-mentioned license.
 
-   Due to these restrictions, Sidewalk cannot be automatically fetched through the nRF Connect SDK and will require performing a dedicated setup.
-   All information regarding completing it is included in this guide, so ensure you follow it in order.
+   Due to these restrictions, Sidewalk is now managed through its own west.yml configuration, separate from the nRF Connect SDK manifest.
+   All information regarding completing the setup is included in this guide, so ensure you follow it in order.
 
 Welcome to the nRF Connect SDK - Amazon Sidewalk
 ################################################
@@ -41,6 +41,7 @@ Browse the content by referring to the following pages:
    :caption: Subpages:
 
    setting_up_sidewalk_environment/setting_up_environment.rst
+   setting_up_sidewalk_environment/migration_guide.rst
    samples/samples_list.rst
    compatibility_matrix.rst
    releases_and_migration.rst
