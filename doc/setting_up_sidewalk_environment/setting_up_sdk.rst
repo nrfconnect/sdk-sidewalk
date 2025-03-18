@@ -12,51 +12,55 @@ Once confirmed, follow the `Installing the nRF Connect SDK`_ instructions.
 
 .. _dk_building_sample_app:
 
-Downloading the Sidewalk repository
+Setting up the Sidewalk Repository
 ***********************************
 
-Once you have installed the nRF Connect SDK, download the Sidewalk application:
+The Sidewalk repository is now managed through its own west.yml configuration. To set up the Sidewalk development environment:
 
-1. Open a terminal window in the ncs folder.
-   Your directory structure should look as follows:
-
-   .. code-block:: console
-
-       .
-       |___ .west
-       |___ bootloader
-       |___ modules
-       |___ nrf
-       |___ nrfxlib
-       |___ zephyr
-       |___ ...
-
-#. Enable the Sidewalk group filter for west.
+1. Clone the Sidewalk repository:
 
    .. code-block:: console
 
-      $ west config manifest.group-filter "+sidewalk"
+      git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
 
-   Check for Sidewalk presence in west:
-
-   .. code-block:: console
-
-      $ west list sidewalk
-      sidewalk     sidewalk                     <sidewalk_revision> https://github.com/nrfconnect/sdk-sidewalk
-
-#. Update all repositories:
+2. If you are migrating from an existing NCS setup with Sidewalk, clean the west configuration:
 
    .. code-block:: console
 
-      $ west update
+      # Remove the .west directory to clean the west configuration
+      rm -rf .west
+      # Checkout and pull main branch in Sidewalk repository
+      cd sidewalk
+      git checkout main
+      git pull origin main
+      cd ..
+
+3. Initialize west with the new manifest:
+
+   .. code-block:: console
+
+      west init -l sidewalk
+
+4. Update all repositories:
+
+   .. code-block:: console
+
+      west update
 
    Depending on your connection, the update might take some time.
 
-#. Install Python requirements for Sidewalk.
+5. Install the toolchain and update Python packages:
 
    .. code-block:: console
 
-      $ pip install -r sidewalk/requirements.txt
+      # Get the toolchain hash and download it
+      nrf/scripts/toolchain.py
+      nrfutil toolchain install --ncs-version $(nrf/scripts/toolchain.py --ncs-version)
+      # Install Python dependencies for nRF and Zephyr
+      pip install -r nrf/scripts/requirements.txt
+      pip install -r zephyr/scripts/requirements.txt
+      # Install Sidewalk Python requirements
+      pip install -r requirements.txt
 
 Extracting nRF Command Line Tools
 *********************************
