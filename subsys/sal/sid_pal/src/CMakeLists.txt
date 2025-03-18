@@ -71,6 +71,6 @@ endif() # CONFIG_SOC_NRF52840
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK sid_common.c)
 
-zephyr_library_sources_ifdef(DEPRECATED_SIDEWALK_PAL_INIT pal_init.c)
+zephyr_library_sources_ifdef(CONFIG_DEPRECATED_SIDEWALK_PAL_INIT pal_init.c)
 
 zephyr_library_sources(bt_app_callbacks.c)
