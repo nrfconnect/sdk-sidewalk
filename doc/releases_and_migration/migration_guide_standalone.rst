@@ -1,4 +1,4 @@
-.. _migration_guide:
+.. _migration_guide_standalone:
 
 Migration Guide: Moving from NCS Manifest to Standalone west.yml
 ###############################################################
@@ -19,18 +19,6 @@ Before starting the migration, ensure you have:
 * Python 3.8 or later installed
 * The west tool installed
 * nrfutil installed
-
-Alternative Setup Method
-=======================
-
-If you prefer using VSCode, you can set up a clean environment using the NRF Connect add-on:
-
-1. Install VSCode and the NRF Connect add-on
-2. Open VSCode and click on the NRF Connect icon in the sidebar
-3. Click on "Add Application" and select "Sidewalk" from the list of available applications
-4. Follow the prompts to set up your development environment
-
-This method will automatically handle the repository setup and dependencies installation.
 
 Migration Steps
 =============
