@@ -41,7 +41,6 @@ Browse the content by referring to the following pages:
    :caption: Subpages:
 
    setting_up_sidewalk_environment/setting_up_environment.rst
-   setting_up_sidewalk_environment/migration_guide.rst
    samples/samples_list.rst
    compatibility_matrix.rst
    releases_and_migration.rst
