@@ -15,3 +15,6 @@ manifest:
       repo-path: sdk-nrf
       revision: 10dd3ddbf2560aba2da99a2dc2536b177a1498d7
       import: true
+
+  self:
+    path: sidewalk

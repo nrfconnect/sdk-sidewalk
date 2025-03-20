@@ -16,30 +16,28 @@ Setting up the Sidewalk Repository
 ***********************************
 
 The Sidewalk repository is now managed through its own west.yml configuration. To set up the Sidewalk development environment:
+There are two ways to initialize the Sidewalk repository:
 
-1. Clone the Sidewalk repository:
+.. tabs::
 
-   .. code-block:: console
+   .. tab:: Option 1: Direct Initialization (Recommended)
 
-      git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+      .. code-block:: console
 
-2. If you are migrating from an existing NCS setup with Sidewalk, clean the west configuration:
+         # Initialize west with the remote manifest
+         west init -m https://github.com/nrfconnect/sdk-sidewalk
 
-   .. code-block:: console
+   .. tab:: Option 2: Manual Clone and Initialize
 
-      # Remove the .west directory to clean the west configuration
-      rm -rf .west
-      # Checkout and pull main branch in Sidewalk repository
-      cd sidewalk
-      git checkout main
-      git pull origin main
-      cd ..
+      .. code-block:: console
 
-3. Initialize west with the new manifest:
+         # Clone the Sidewalk repository into sidewalk directory
+         git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+         # Initialize west with local manifest
+         west init -l sidewalk
 
-   .. code-block:: console
-
-      west init -l sidewalk
+.. note::
+   If you are migrating from an existing NCS setup with Sidewalk, please refer to the :ref:`migration_guide_addon_v010` for detailed migration steps.
 
 4. Update all repositories:
 
