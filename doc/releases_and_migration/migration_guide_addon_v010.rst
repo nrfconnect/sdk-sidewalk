@@ -1,7 +1,7 @@
-.. _migration_guide_standalone:
+.. _migration_guide_addon_v010:
 
-Migration Guide: Moving from NCS Manifest to Standalone west.yml
-###############################################################
+Migration Guide for moving to Sidewalk Add-on 
+############################################
 
 This guide explains how to migrate your Sidewalk development environment from using the NCS manifest to the new standalone west.yml setup.
 
@@ -23,38 +23,46 @@ Before starting the migration, ensure you have:
 Migration Steps
 =============
 
-1. Clone the New Sidewalk Repository
-----------------------------------
+1. Initialize Sidewalk Repository
+-------------------------------
 
-   .. code-block:: console
+There are three ways to initialize the Sidewalk repository:
 
-      # Clone the new Sidewalk repository into sidewalk directory
-      git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+.. tabs::
 
-2. Clean Existing West Configuration (if applicable)
--------------------------------------------------
+   .. tab:: Option 1: Direct Initialization (Recommended)
 
-   If you already have an NCS setup with Sidewalk, you need to remove the existing west configuration and ensure Sidewalk is checked out to the correct revision after the NCS separation:
+      .. code-block:: console
 
-   .. code-block:: console
+         # Initialize west with the remote manifest
+         west init -m https://github.com/nrfconnect/sdk-sidewalk
 
-      # Remove the .west directory to clean the west configuration
-      rm -rf .west
-      # Checkout and pull main branch in Sidewalk repository
-      cd sidewalk
-      git checkout main
-      git pull origin main
-      cd ..
+   .. tab:: Option 2: Manual Clone and Initialize
 
-3. Initialize West
------------------
+      .. code-block:: console
 
-   .. code-block:: console
+         # Clone the Sidewalk repository into sidewalk directory
+         git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+         # Initialize west with local manifest
+         west init -l sidewalk
 
-      # Initialize west with the new manifest
-      west init -l sidewalk
+   .. tab:: Option 3: Clean Existing Configuration
 
-4. Update Repositories
+      If you already have an NCS setup with Sidewalk, you need to remove the existing west configuration first:
+
+      .. code-block:: console
+
+         # Remove the .west directory to clean the west configuration
+         rm -rf .west
+         # Checkout and pull main branch in Sidewalk repository
+         cd sidewalk
+         git checkout main
+         git pull origin main
+         cd ..
+         # Initialize west with local manifest
+         west init -l sidewalk
+
+2. Update Repositories
 ---------------------
 
    .. code-block:: console
@@ -62,7 +70,7 @@ Migration Steps
       # Update all repositories
       west update
 
-5. Update Toolchain and Install Dependencies
+3. Update Toolchain and Install Dependencies
 ------------------------------------------
 
    .. code-block:: console
