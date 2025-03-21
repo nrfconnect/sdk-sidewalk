@@ -6,11 +6,19 @@
 
 zephyr_include_directories(
     include
+    include/semtech
 )
 
 zephyr_library_sources(
-    sx126x_empty.c
+    sx126x_hal.c
+    sx126x_radio.c
+    sx126x_radio_fsk.c
+    sx126x_radio_lora.c
+    semtech/sx126x.c
+    semtech/sx126x_halo.c
+    semtech/sx126x_timings.c
 )
 
-zephyr_compile_definitions_ifdef(CONFIG_SIDEWALK_LINK_MASK_FSK DUAL_LINK_SUPPORT=0)
-zephyr_compile_definitions_ifndef(CONFIG_SIDEWALK_LINK_MASK_FSK DUAL_LINK_SUPPORT=1)
+zephyr_library_compile_definitions(
+  DUAL_LINK_SUPPORT=1
+)

@@ -29,10 +29,6 @@ config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	help
 	  The value of the trim cap. Default value works for Semtech SX1262 shield.
 
-config SIDEWALK_PAL_RADIO_SOURCE
-	bool "Build sub-GHz radio driver from sources [EXPERIMENTAL]"
-	select EXPERIMENTAL
-
 endif # SIDEWALK_SUBGHZ_SUPPORT
 
 choice SIDEWALK_LINK_MASK

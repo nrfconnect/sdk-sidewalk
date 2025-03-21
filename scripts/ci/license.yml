@@ -26,11 +26,13 @@ license_header_size: 30
 
 licenses:
 # evaluate licenses from top to bottom
-- copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
+- copyright_regexp: Copyright \(c\) (\d{4}|\d{4}-\d{4}) Amazon\.com, Inc\. or its affiliates
   file_regexp:
-  - sidewalk.*/subsys/semtech/include/sx126x_config.h$
+  - sidewalk.*/subsys/semtech/sx126x/sx126x_.*\.c$
+  - sidewalk.*/subsys/semtech/sx126x/include/sx126x_.*\.h$
   search_license_txt:
-  - This file is exposed to each procuct configuration to customize the driver behavior
+  - All Rights Reserved
+  - radio
   spdx: null
 
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
@@ -48,10 +50,25 @@ licenses:
   - sidewalk.*/tests/validation/timer/.*(c|h)$
   - sidewalk.*/subsys/demo(/.*)+(c|h)$
   - sidewalk.*/utils/include/sid_.*\.h$
+  - sidewalk.*/subsys/semtech/sx126x/include/sid_.*\.h$
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
   - THESE MATERIALS ARE PROVIDED ON AN AS IS BASIS.
+  spdx: null
+
+- copyright_regexp: Copyright Semtech Corporation \d{4}
+  file_regexp:
+  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x\.h$
+  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_hal\.h$
+  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_halo\.h$
+  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_regs\.h$
+  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_timings\.h$
+  - sidewalk.*/subsys/semtech/sx126x/semtech/.*\.(c|h)$
+  search_license_txt:
+  - Revised BSD License
+  - Redistribution and use in source and binary forms
+  - Neither the name of the Semtech corporation
   spdx: null
 
 - copyright_regexp: Copyright \(c\) \d{4} Nordic Semiconductor ASA
