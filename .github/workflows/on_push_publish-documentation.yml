@@ -2,11 +2,13 @@
 name: Publish latest documentation
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'doc/**'
+  workflow_dispatch:
+
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'doc/**'
 
 jobs:
   deploy:

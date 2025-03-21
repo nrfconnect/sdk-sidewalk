@@ -13,7 +13,7 @@ jobs:
     needs: [build_samples]
     uses: ./.github/workflows/publish_documentation.yml
     with:
-      documentation_tag: ${{ github.event_name }}
+      documentation_tag: ${{ github.ref_name }}
       publish_to_prod: true
       publish_to_dev: true
 
@@ -32,7 +32,7 @@ jobs:
       - name: Check Tag
         id: check-tag
         run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+.[0-9]+.[0-9]+$ ]]; then
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+.[0-9]+.[0-9]+-add-on$ ]]; then
               echo "prerelease=false" >> $GITHUB_OUTPUT
           else
               echo "prerelease=true" >> $GITHUB_OUTPUT
