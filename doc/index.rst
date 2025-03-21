@@ -7,7 +7,7 @@
 
    Be aware, that by downloading and including the Sidewalk repository, you accept the above-mentioned license.
 
-   Due to these restrictions, Sidewalk is now managed through its own west.yml configuration, separate from the nRF Connect SDK manifest.
+   Due to these restrictions, Sidewalk is now managed through its own :file:`west.yml` configuration, separate from the nRF Connect SDK manifest.
    All information regarding completing the setup is included in this guide, so ensure you follow it in order.
 
 Welcome to the nRF Connect SDK - Amazon Sidewalk

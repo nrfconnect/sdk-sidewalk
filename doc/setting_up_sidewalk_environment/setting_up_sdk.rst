@@ -1,4 +1,4 @@
-.. _setting_up_dk:
+.. _setting_up_sdk:
 
 Setting up the SDK
 ##################
@@ -10,36 +10,43 @@ Setting up the SDK
 See the compatibility between the versions of Amazon Sidewalk and the nRF Connect SDK by referring to the :ref:`compatibility_matrix`.
 Once confirmed, follow the `Installing the nRF Connect SDK`_ instructions.
 
-.. _dk_building_sample_app:
+.. _setting_up_sdk_sidewalk_repository:
 
-Setting up the Sidewalk Repository
+Setting up the Sidewalk repository
 ***********************************
 
-The Sidewalk repository is now managed through its own west.yml configuration. To set up the Sidewalk development environment:
-There are two ways to initialize the Sidewalk repository:
+The Sidewalk repository is managed through its own :file:`west.yml` configuration.
 
-.. tabs::
+1. Initialize the Sidewalk repository, using one of the following methods:
 
-   .. tab:: Option 1: Direct Initialization (Recommended)
+   .. tabs::
 
-      .. code-block:: console
+      .. tab:: Direct initialization (Recommended)
 
-         # Initialize west with the remote manifest
-         west init -m https://github.com/nrfconnect/sdk-sidewalk
+         a. Initialize west with the remote manifest.
 
-   .. tab:: Option 2: Manual Clone and Initialize
+            .. code-block:: console
 
-      .. code-block:: console
+               west init -m https://github.com/nrfconnect/sdk-sidewalk
 
-         # Clone the Sidewalk repository into sidewalk directory
-         git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
-         # Initialize west with local manifest
-         west init -l sidewalk
+      .. tab:: Manual cloning and initialization
 
-.. note::
-   If you are migrating from an existing NCS setup with Sidewalk, please refer to the :ref:`migration_guide_addon_v010` for detailed migration steps.
+         a. Clone the Sidewalk repository into the sidewalk directory.
 
-4. Update all repositories:
+            .. code-block:: console
+
+               git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+
+         #. Initialize west with local manifest.
+
+            .. code-block:: console
+
+               west init -l sidewalk
+
+   .. note::
+      If you are migrating from an existing nRF Connect SDK setup with Sidewalk, refer to the :ref:`migration_guide_addon_v010` for detailed steps.
+
+#. Update all repositories, by running the following command:
 
    .. code-block:: console
 
@@ -47,17 +54,24 @@ There are two ways to initialize the Sidewalk repository:
 
    Depending on your connection, the update might take some time.
 
-5. Install the toolchain and update Python packages:
+#. Execute the following commands to get the toolchain hash and download the necessary toolchain:
 
    .. code-block:: console
 
-      # Get the toolchain hash and download it
       nrf/scripts/toolchain.py
       nrfutil toolchain install --ncs-version $(nrf/scripts/toolchain.py --ncs-version)
-      # Install Python dependencies for nRF and Zephyr
+
+#. Install the required Python packages for both nRF Connect SDK and Zephyr by running the following commands:
+
+   .. code-block:: console
+
       pip install -r nrf/scripts/requirements.txt
       pip install -r zephyr/scripts/requirements.txt
-      # Install Sidewalk Python requirements
+
+#. Install Python dependencies.
+
+   .. code-block:: console
+
       pip install -r requirements.txt
 
 Extracting nRF Command Line Tools
