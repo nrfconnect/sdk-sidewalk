@@ -7,4 +7,4 @@
 zephyr_include_directories(include)
 zephyr_include_directories(sx126x/include)
 
-add_subdirectory_ifdef(CONFIG_SIDEWALK_PAL_RADIO_SOURCE sx126x)
+add_subdirectory(sx126x)
