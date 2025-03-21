@@ -24,17 +24,21 @@ There are two ways to initialize the Sidewalk repository:
 
       .. code-block:: console
 
-         # Initialize west with the remote manifest
          west init -m https://github.com/nrfconnect/sdk-sidewalk
 
    .. tab:: Option 2: Manual Clone and Initialize
 
-      .. code-block:: console
+      1. Clone the Sidewalk repository into sidewalk directory:
 
-         # Clone the Sidewalk repository into sidewalk directory
-         git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
-         # Initialize west with local manifest
-         west init -l sidewalk
+         .. code-block:: console
+
+            git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+
+      2. Initialize west with local manifest:
+
+         .. code-block:: console
+
+            west init -l sidewalk
 
 .. note::
    If you are migrating from an existing NCS setup with Sidewalk, please refer to the :ref:`migration_guide_addon_v010` for detailed migration steps.
@@ -47,18 +51,11 @@ There are two ways to initialize the Sidewalk repository:
 
    Depending on your connection, the update might take some time.
 
-5. Install the toolchain and update Python packages:
+5. Install Sidewalk Python requirements:
 
    .. code-block:: console
 
-      # Get the toolchain hash and download it
-      nrf/scripts/toolchain.py
-      nrfutil toolchain install --ncs-version $(nrf/scripts/toolchain.py --ncs-version)
-      # Install Python dependencies for nRF and Zephyr
-      pip install -r nrf/scripts/requirements.txt
-      pip install -r zephyr/scripts/requirements.txt
-      # Install Sidewalk Python requirements
-      pip install -r requirements.txt
+      pip install -r sidewalk/requirements.txt
 
 Extracting nRF Command Line Tools
 *********************************
