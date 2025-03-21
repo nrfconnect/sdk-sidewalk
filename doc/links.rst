@@ -25,6 +25,8 @@
 .. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/installation/install_ncs.html
 .. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/libraries/security/trusted_storage.html
 .. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/nrf/libraries/security/bootloader/fprotect.html
+.. _West: https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/zephyr/develop/west/index.html
+.. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-2.9.0/page/zephyr/samples/hello_world/README.html
 
 .. ncs fixed links(do not update them)
 
@@ -46,6 +48,9 @@
 .. _nRF Command Line Tools: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs
 .. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
 .. _Board Configurator: https://docs.nordicsemi.com/bundle/nrf-connect-board-configurator/page/index.html
+.. _nRF Connect for VS Code: https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-VS-Code
+.. _nRF Util: https://www.nordicsemi.com/Products/Development-tools/nRF-Util
+.. _nRF Connect SDK Add-ons: https://nrfconnect.github.io/ncs-app-index/
 
 .. github.com
 
