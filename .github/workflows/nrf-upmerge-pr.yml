@@ -31,6 +31,9 @@ jobs:
           PR_TITLE="manifest: Update NRF"
           PR_BODY="Automated weekly update PR created by GitHub Actions"
 
+          cd sidewalk
+          git fetch --all
+
           # Check if PR branch exists
           if git show-ref --verify --quiet refs/heads/$BRANCH_NAME; then
             echo "Branch $BRANCH_NAME exists, checking PR status..."
@@ -66,9 +69,9 @@ jobs:
           fi
 
           # Run your update script here
-          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
-          nrf_hash="$(git -C nrf rev-parse HEAD)"
-          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/west.yml
+          python3 -m pip install -r scripts/ci/requirements.txt
+          nrf_hash="$(git -C ../nrf rev-parse HEAD)"
+          python3 scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash west.yml
 
           # Check if there are changes to commit
           if git status --porcelain | grep -q '^[MADRCU]'; then
