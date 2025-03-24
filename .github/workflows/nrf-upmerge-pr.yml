@@ -20,6 +20,14 @@ jobs:
           fetch-depth: 0  # Fetch all history for all branches and tags
           path: sidewalk
 
+      - name: Checkout nrf
+        uses: actions/checkout@v4
+        with:
+          repository: nrfconnect/sdk-nrf
+          path: nrf
+          ref: main
+          fetch-depth: 0
+
       - name: Configure Git
         run: |
           git config --global user.name 'sidewalk Team'
