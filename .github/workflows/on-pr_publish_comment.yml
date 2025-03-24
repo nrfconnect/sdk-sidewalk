@@ -27,13 +27,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Get artifacts from PR
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           run_id: ${{github.event.workflow_run.id}}
           path: current
 
       - name: Get artifacts from PR base
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           commit: ${{github.event.workflow_run.event.pull_request.base.sha}}
           workflow: on-commit.yml
