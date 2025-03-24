@@ -12,6 +12,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    env:
+      GH_TOKEN: ${{secrets.NCS_GITHUB_TOKEN}}
 
     steps:
       - name: Checkout repository
