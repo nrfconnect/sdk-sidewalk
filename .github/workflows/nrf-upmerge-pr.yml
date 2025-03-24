@@ -66,7 +66,9 @@ jobs:
           fi
 
           # Run your update script here
-          # ./your-update-script.sh
+          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
+          nrf_hash="$(git -C nrf rev-parse HEAD)"
+          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/west.yml
 
           # Check if there are changes to commit
           if git status --porcelain | grep -q '^[MADRCU]'; then
