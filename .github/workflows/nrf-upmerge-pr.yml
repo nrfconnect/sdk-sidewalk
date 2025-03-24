@@ -36,7 +36,7 @@ jobs:
       - name: Create or update PR
         run: |
           # Set variables
-          BRANCH_NAME="ncs-upmerge"
+          BRANCH_NAME="nrf-upmerge"
           PR_TITLE="manifest: Update NRF"
           PR_BODY="Automated weekly update PR created by GitHub Actions"
 
@@ -80,10 +80,14 @@ jobs:
           # Run your update script here
           python3 -m pip install -r scripts/ci/requirements.txt
           nrf_hash="$(git -C ../nrf rev-parse HEAD)"
+          echo "nrf hash = ${nrf_hash}"
           python3 scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash west.yml
 
+          git status
+          git diff
+
           # Check if there are changes to commit
-          if git status --porcelain | grep -q '^[MADRCU]'; then
+          if git status --porcelain | grep -q '^[ M][MADRCU]'; then
             echo "Changes detected, committing and pushing"
 
             # Add and commit changes
