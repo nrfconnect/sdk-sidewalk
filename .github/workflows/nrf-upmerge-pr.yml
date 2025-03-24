@@ -32,7 +32,7 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --global user.name 'sidewalk Team'
+          git config --global user.name 'Sidewalk Team'
           git config --global user.email 'sidewalk@nordicsemi.no'
 
       - name: Create or update PR
@@ -94,7 +94,10 @@ jobs:
 
             # Add and commit changes
             git add .
-            git commit -m "manifest: Update NRF revision in west.yml\n\nWeekly update: $(date +%Y-%m-%d)" --signoff
+            git commit \
+            -m "manifest: Update NRF revision in west.yml" \
+            -m ""\
+            -m "Weekly update: $(date +%Y-%m-%d)" --signoff
 
             # Push changes
             git push origin $BRANCH_NAME
