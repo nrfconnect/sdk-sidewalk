@@ -15,16 +15,6 @@ The Sidewalk release cycle is now separate from the nRF Connect SDK, allowing fo
 You can now find Amazon Sidewalk under the `nRF Connect SDK Add-ons`_ index.
 This solution enables an alternative setup method using the `nRF Connect for VS Code`_.
 
-Prerequisites
-*************
-
-Before you begin the migration process, you must have the following tools installed:
-
-* Git
-* Python 3.8 or later
-* The `west`_ tool
-* `nRF Util`_
-
 Migration steps
 ***************
 
@@ -32,61 +22,32 @@ To successfully migrate to Amazon Sidewalk Add-on you must choose the migration 
 If you wish to set up a clean repository, follow one of the methods outlined on the :ref:`setting_up_sdk_sidewalk_repository` page.
 If you already have an nRF Connect SDK setup with Sidewalk and wish to migrate, you must complete the following steps:
 
-#. Remove the :file:`.west` directory to clean the west configuration.
+1. Disable the Sidewalk group in the manifest.
 
    .. code-block:: console
 
-      rm -rf .west
+      west config manifest.group-filter -- "-sidewalk"
 
-#. Checkout and pull main branch in the Sidewalk repository.
-
-   .. code-block:: console
-
-      cd sidewalk
-      git checkout main
-      git pull origin main
-      cd ..
-
-#. Initialize west with local manifest.
+#. Set Sidewalk as a workspace application repository.
 
    .. code-block:: console
 
-      west init -l sidewalk
+      west config manifest.path sidewalk
 
-#. Update all repositories, by running the following command:
+
+#. Update all repositories.
 
    .. code-block:: console
 
       west update
 
-   Depending on your connection, the update might take some time.
-
-#. Execute the following commands to get the toolchain hash and download the necessary toolchain:
-
-   .. code-block:: console
-
-      nrf/scripts/toolchain.py
-      nrfutil toolchain install --ncs-version $(nrf/scripts/toolchain.py --ncs-version)
-
-#. Install the required Python packages for both nRF Connect SDK and Zephyr by running the following commands:
-
-   .. code-block:: console
-
-      pip install -r nrf/scripts/requirements.txt
-      pip install -r zephyr/scripts/requirements.txt
-
-#. Install Python dependencies.
-
-   .. code-block:: console
-
-      pip install -r requirements.txt
 
 Verification
 ************
 
 Verify if your migration was successful by completing the following steps:
 
-1. Ensure that all repositories are properly cloned.
+#. Ensure that all repositories are properly cloned.
 
    .. code-block:: console
 
@@ -146,6 +107,17 @@ If you encounter repository conflicts, do the following:
 
       west update
 
+Resolving toolchain mismatch
+============================
+
+Execute the following commands to get the toolchain hash and download the necessary toolchain:
+
+   .. code-block:: console
+
+      nrf/scripts/toolchain.py
+      nrfutil toolchain install --ncs-version $(nrf/scripts/toolchain.py --ncs-version)
+
+
 Build errors
 ============
 
@@ -154,5 +126,5 @@ If you encounter build errors, ensure the following:
  * All dependencies are installed.
  * NCS environment is sourced correctly.
  * You are using the correct board target.
- * Your build evironment is functioning correctly.
+ * Your build environment is functioning correctly.
    To do this, build the `Zephyr's Hello World`_ sample.
