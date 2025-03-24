@@ -54,25 +54,11 @@ The Sidewalk repository is managed through its own :file:`west.yml` configuratio
 
    Depending on your connection, the update might take some time.
 
-#. Execute the following commands to get the toolchain hash and download the necessary toolchain:
-
-   .. code-block:: console
-
-      nrf/scripts/toolchain.py
-      nrfutil toolchain install --ncs-version $(nrf/scripts/toolchain.py --ncs-version)
-
-#. Install the required Python packages for both nRF Connect SDK and Zephyr by running the following commands:
-
-   .. code-block:: console
-
-      pip install -r nrf/scripts/requirements.txt
-      pip install -r zephyr/scripts/requirements.txt
-
 #. Install Python dependencies.
 
    .. code-block:: console
 
-      pip install -r requirements.txt
+      pip install -r sidewalk/requirements.txt
 
 Extracting nRF Command Line Tools
 *********************************
