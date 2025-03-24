@@ -1,46 +1,91 @@
 name: NRF upmerge
 
 on:
-
+  schedule:
+    - cron: "0 0 * * 0"
   workflow_dispatch:
 
 jobs:
   change_nrf_revision:
     name: Create PR with NRF upmerge
     runs-on: ubuntu-latest
-    env:
-      CI_COMMIT_AUTHOR: Continuous Integration
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
-      - name: Checkout sidewalk
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          path: sidewalk
-          ref: nrf_upmerge
+          fetch-depth: 0  # Fetch all history for all branches and tags
 
-      - name: Checkout nrf
-        uses: actions/checkout@v3
-        with:
-          repository: nrfconnect/sdk-nrf
-          path: nrf
-          ref: main
-          fetch-depth: 0
-
-      - name: Change nrf revision
+      - name: Configure Git
         run: |
-          python3 -m pip install -r sidewalk/scripts/ci/requirements.txt
-          nrf_hash="$(git -C nrf rev-parse HEAD)"
-          python3 sidewalk/scripts/ci/replace_nrf_revision_in_west.py -r $nrf_hash sidewalk/west.yml
+          git config --global user.name 'sidewalk Team'
+          git config --global user.email 'sidewalk@nordicsemi.no'
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{secrets.NCS_GITHUB_TOKEN}}
-          path: sidewalk
-          commit-message: "NRF: upmerge\n\nupdate nrf revision in west.yml"
-          title: "NRF upmerge"
-          body: "PR created automatically by GitHub actions to update revision of NRF in west.yml"
-          delete-branch: true
-          branch: nrf_upmerge_PR
-          signoff: true
-          committer: Sidewalk Team <sidewalk@nordicsemi.no>
-          author: Sidewalk Team <sidewalk@nordicsemi.no>
+      - name: Create or update PR
+        run: |
+          # Set variables
+          BRANCH_NAME="ncs-upmerge"
+          PR_TITLE="manifest: Update NRF"
+          PR_BODY="Automated weekly update PR created by GitHub Actions"
+
+          # Check if PR branch exists
+          if git show-ref --verify --quiet refs/heads/$BRANCH_NAME; then
+            echo "Branch $BRANCH_NAME exists, checking PR status..."
+
+            # Check if PR exists and is open
+            PR_NUMBER=$(gh pr list --head $BRANCH_NAME --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+            if [ -n "$PR_NUMBER" ]; then
+              echo "PR #$PR_NUMBER exists and is open"
+
+              # Check if PR is merged
+              PR_MERGED=$(gh pr view $PR_NUMBER --json merged --jq '.merged')
+
+              if [ "$PR_MERGED" = "true" ]; then
+                echo "PR is merged, creating new branch"
+                # Delete old branch
+                git push origin --delete $BRANCH_NAME
+                # Create new branch
+                git checkout -b $BRANCH_NAME
+              else
+                echo "PR is open, updating existing branch"
+                git checkout $BRANCH_NAME
+                git pull origin $BRANCH_NAME
+              fi
+            else
+              echo "PR doesn't exist, updating existing branch"
+              git checkout $BRANCH_NAME
+              git pull origin $BRANCH_NAME
+            fi
+          else
+            echo "Creating new branch $BRANCH_NAME"
+            git checkout -b $BRANCH_NAME
+          fi
+
+          # Run your update script here
+          # ./your-update-script.sh
+
+          # Check if there are changes to commit
+          if git status --porcelain | grep -q '^[MADRCU]'; then
+            echo "Changes detected, committing and pushing"
+
+            # Add and commit changes
+            git add .
+            git commit -m "manifest: Update NRF revision in west.yml\n\nWeekly update: $(date +%Y-%m-%d)" --signoff
+
+            # Push changes
+            git push origin $BRANCH_NAME
+
+            # Create or update PR
+            if [ -n "$PR_NUMBER" ]; then
+              echo "Updating existing PR #$PR_NUMBER"
+            else
+              echo "Creating new PR"
+              gh pr create --title "$PR_TITLE" --body "$PR_BODY" --base main
+            fi
+          else
+            echo "No changes detected"
+          fi

@@ -4,11 +4,11 @@ name: Publish latest documentation
 on:
   workflow_dispatch:
 
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - 'doc/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'doc/**'
 
 jobs:
   deploy:
