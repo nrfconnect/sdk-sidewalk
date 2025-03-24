@@ -46,7 +46,7 @@ jobs:
           git fetch --all
 
           # Check if PR branch exists
-          if git show-ref --verify --quiet refs/heads/$BRANCH_NAME; then
+          if git show-ref --verify --quiet refs/remotes/origin/$BRANCH_NAME; then
             echo "Branch $BRANCH_NAME exists, checking PR status..."
 
             # Check if PR exists and is open
