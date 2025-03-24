@@ -26,14 +26,14 @@ jobs:
     steps:
 
       - name: Get artifacts from current
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           run_id: ${{inputs.current_run_id}}
           path: current
 
       - name: Get artifacts from base
         if: ${{inputs.base_commit_sha}} != ""
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           commit: ${{inputs.base_commit_sha}}
           workflow: on-commit.yml
@@ -41,7 +41,7 @@ jobs:
 
       - name: Get artifacts from base
         if: ${{inputs.base_commit_sha}} == ""
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v6
         with:
           workflow: on-commit.yml
           path: old
