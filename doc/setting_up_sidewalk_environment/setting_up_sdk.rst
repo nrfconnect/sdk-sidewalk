@@ -8,59 +8,78 @@ Setting up the SDK
    :depth: 2
 
 See the compatibility between the versions of Amazon Sidewalk and the nRF Connect SDK by referring to the :ref:`compatibility_matrix`.
-Once confirmed, follow the `Installing the nRF Connect SDK`_ instructions.
+
+Install the nRF Connect SDK
+***************************
+
+To work with the Sidewalk add-on, you need to install the nRF Connect SDK, including all its prerequisites and the nRF Connect SDK toolchain.
+Follow the `Installing the nRF Connect SDK`_ instructions, but instead of point 4. Get the nRF Connect SDK code, do :ref:`setting_up_sdk_sidewalk_repository` (described below).
+
 
 .. _setting_up_sdk_sidewalk_repository:
 
-Setting up the Sidewalk repository
-***********************************
+Get the Sidewalk Add-on code
+****************************
 
-The Sidewalk repository is managed through its own :file:`west.yml` configuration.
+The Sidewalk Add-on is distributed as a Git repository, and is managed through its own west manifest.
+The compatible nRF Connect SDK version is specified in the :file:`west.yml` file.
 
-1. Initialize the Sidewalk repository, using one of the following methods:
+.. tabs::
 
-   .. tabs::
+   .. group-tab:: nRF Connect for Visual Studio Code
 
-      .. tab:: Direct initialization (Recommended)
+      To clone the Sidewalk Add-on code, together with compatible nRF Connect SDK, complete the following steps:
 
-         a. Initialize west with the remote manifest.
+      1. Open the nRF Connect extension in Visual Studio Code by clicking its icon in the :guilabel:`Activity Bar`.
+      #. In the extension's :guilabel:`Welcome View`, click on :guilabel:`Create a new application`.
+         The list of actions appears in the Visual Studio Code's quick pick.
+      #. Click :guilabel:`Browse nRF Connect SDK Add-on Index`.
+         The list of available nRF Connect SDK Add-ons appears in the Visual Studio Code's quick pick.
+      #. Select :guilabel:`Amazon Sidewalk Add-on`.
+      #. Select the Add-on version to install.
 
-            .. code-block:: console
+      The Add-on and compatible nRF Connect SDK installation starts and it can take several minutes.
 
-               west init -m https://github.com/nrfconnect/sdk-sidewalk
+   .. group-tab:: Command line
 
-      .. tab:: Manual cloning and initialization
+      1. Initialize the Sidewalk repository, using one of the following methods:
 
-         a. Clone the Sidewalk repository into the sidewalk directory.
+         .. tabs::
 
-            .. code-block:: console
+            .. tab:: Direct initialization (Recommended)
 
-               git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
+               a. Initialize west with the remote manifest.
 
-         #. Initialize west with local manifest.
+                  .. code-block:: console
 
-            .. code-block:: console
+                     west init -m https://github.com/nrfconnect/sdk-sidewalk
 
-               west init -l sidewalk
+            .. tab:: Manual cloning and initialization
 
-   .. note::
-      If you are migrating from an existing nRF Connect SDK setup with Sidewalk, refer to the :ref:`migration_guide_addon_v010` for detailed steps.
+               a. Clone the Sidewalk repository into the sidewalk directory.
 
-#. Update all repositories, by running the following command:
+                  .. code-block:: console
 
-   .. code-block:: console
+                     git clone https://github.com/nordicsemiconductor/sidewalk.git sidewalk
 
-      west update
+               #. Initialize west with local manifest.
 
-   Depending on your connection, the update might take some time.
+                  .. code-block:: console
 
-#. Install Python dependencies.
+                     west init -l sidewalk
 
-   .. code-block:: console
+      #. Update all repositories, by running the following command:
 
-      pip install -r sidewalk/requirements.txt
+         .. code-block:: console
 
-Extracting nRF Command Line Tools
-*********************************
+            west update
 
-Download the nRF Command Line from the `nRF command line tools`_ page.
+         Depending on your connection, the update might take some time.
+
+      #. Install Python dependencies.
+
+         .. code-block:: console
+
+            pip install -r sidewalk/requirements.txt
+
+To create an application, use Sidewalk: sid_end_device sample hello app as a starting point.
