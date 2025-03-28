@@ -19,6 +19,10 @@ zephyr_library_sources(
     semtech/sx126x_timings.c
 )
 
+if(CONFIG_SIDEWALK_BUILD_DIAGNOSTICS)
+    zephyr_library_sources(sx126x_radio_test.c)
+endif()
+
 zephyr_library_compile_definitions(
   DUAL_LINK_SUPPORT=1
 )

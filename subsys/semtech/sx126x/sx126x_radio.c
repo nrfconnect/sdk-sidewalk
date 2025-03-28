@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2019-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file supports radio HAL interface
  */
@@ -392,7 +392,7 @@ int32_t sid_pal_radio_irq_process(void)
             if (drv_ctx.cad_exit_mode == SID_PAL_RADIO_CAD_EXIT_MODE_CS_LBT
                     && radio_event == SID_PAL_RADIO_EVENT_RX_TIMEOUT) {
                 drv_ctx.cad_exit_mode = SID_PAL_RADIO_CAD_EXIT_MODE_NONE;
-#if HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_BUILD_DIAGNOSTICS
                 radio_event = SID_PAL_RADIO_EVENT_CS_TIMEOUT;
 #else
                 radio_event = SID_PAL_RADIO_EVENT_UNKNOWN;
@@ -478,12 +478,6 @@ int32_t sid_pal_radio_irq_process(void)
                             break;
                         case RADIO_FSK_RX_DONE_STATUS_BAD_CRC:
                             radio_event = SID_PAL_RADIO_EVENT_RX_ERROR;
-                            break;
-                        case RADIO_FSK_RX_DONE_STATUS_OK:
-                        case RADIO_FSK_RX_DONE_STATUS_INVALID_PARAMETER:
-                        case RADIO_FSK_RX_DONE_STATUS_INVALID_LENGTH:
-                        case RADIO_FSK_RX_DONE_STATUS_TIMEOUT:
-                            // Do nothing
                             break;
                     }
                 }
@@ -616,7 +610,7 @@ int32_t sid_pal_radio_set_region(sid_pal_radio_region_code_t region)
     return err;
 }
 
-#if HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_BUILD_DIAGNOSTICS
 int32_t semtech_radio_set_sx126x_pa_config(semtech_radio_pa_cfg_t *cfg)
 {
     if (!cfg) {
@@ -657,7 +651,7 @@ int32_t sid_pal_radio_set_tx_power(int8_t power)
         return RADIO_ERROR_INVALID_STATE;
     }
 
-#if HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_BUILD_DIAGNOSTICS
     if (drv_ctx.pa_cfg_configured == false)
 #endif
     {
@@ -866,6 +860,42 @@ int32_t sid_pal_radio_set_tx_continuous_wave(uint32_t freq, int8_t power)
         }
 
         if (sx126x_set_tx_cw(&drv_ctx) != SX126X_STATUS_OK) {
+            err = RADIO_ERROR_HARDWARE_ERROR;
+            break;
+        }
+        drv_ctx.radio_state = SID_PAL_RADIO_TX;
+    } while(0);
+
+    return err;
+}
+
+int32_t sid_pal_radio_set_tx_continuous_preamble(uint32_t freq, int8_t power)
+{
+    int32_t err;
+
+    do {
+        if ((err = sid_pal_radio_set_frequency(freq) != RADIO_ERROR_NONE)) {
+            break;
+        }
+
+        if ((err = sid_pal_radio_set_tx_power(power) != RADIO_ERROR_NONE)) {
+            break;
+        }
+
+        if ((err = set_trim_cap_val_to_radio(drv_ctx.trim >> 8, drv_ctx.trim & 0xFF))
+                   != RADIO_ERROR_NONE) {
+            break;
+        }
+
+        if ((err = radio_sx126x_set_radio_mode(true, drv_ctx.pa_cfg.enable_ext_pa)) != RADIO_ERROR_NONE) {
+            break;
+        }
+
+        if ((err = radio_clear_irq_status_all()) != RADIO_ERROR_NONE) {
+            break;
+        }
+
+        if (sx126x_set_tx_cpbl(&drv_ctx) != SX126X_STATUS_OK) {
             err = RADIO_ERROR_HARDWARE_ERROR;
             break;
         }

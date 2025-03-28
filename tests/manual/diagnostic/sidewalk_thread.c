@@ -24,7 +24,7 @@
 
 #include <sid_asd_cli.h>
 #include <sid_diagnostics_cli.h>
-#include <sid_on_dev_cert_cli.h>
+// #include <sid_on_dev_cert_cli.h> TBD: on dev cert cli
 
 #include <app_subGHz_config.h>
 
@@ -62,7 +62,7 @@ static void sidewalk_thread(void *context, void *u2, void *u3)
      */
     sid_cli_init();
     sid_diagnostics_cli_init();
-    sid_on_dev_cert_cli_init();
+    // sid_on_dev_cert_cli_init(); TBD: on dev cert cli
 
     while (1) {
         sid_cli_process();
