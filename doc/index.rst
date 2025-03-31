@@ -1,5 +1,8 @@
 .. _index:
 
+Welcome to the nRF Connect SDK - Amazon Sidewalk
+################################################
+
 .. caution::
    Sidewalk protocol is owned and licensed by Amazon.
    Before continuing with the nRF Connect SDK for Sidewalk, you must familiarize yourself with the official `Amazon license`_, including all the applicable restrictions.
@@ -10,8 +13,11 @@
    Due to these restrictions, Sidewalk cannot be automatically fetched through the nRF Connect SDK and will require performing a dedicated setup.
    All information regarding completing it is included in this guide, so ensure you follow it in order.
 
-Welcome to the nRF Connect SDK - Amazon Sidewalk
-################################################
+.. note::
+	   After the release v2.9.1, Amazon Sidewalk is no longer a part of the nRF Connect SDK and has been moved to an add-on repository.
+      This transition does not affect the content or features of Sidewalk, but it does require completing a specific setup.
+      For the most recent updates, see the `Amazon Sidewalk add-on documentation`_ and consult the `Migration Guide for Sidewalk Add-On from NCS`_ to learn how to adapt your project to the latest versions.
+
 
 Amazon Sidewalk is a shared network designed to provide a stable and reliable connection to your devices allowing them to work better at your home and outside of it.
 Ring and Echo device can act as a gateway, meaning they can share a portion of internet bandwidth providing the connection and services to Sidewalk end devices.
@@ -45,3 +51,6 @@ Browse the content by referring to the following pages:
    compatibility_matrix.rst
    releases_and_migration.rst
    additional_resources.rst
+
+.. _Amazon Sidewalk add-on documentation: https://docs.nordicsemi.com/bundle/addon-sidewalk_latest/page/index.html
+.. _Migration Guide for Sidewalk Add-On from NCS: https://docs.nordicsemi.com/bundle/addon-sidewalk_latest/page/releases_and_migration/migration_guide_addon_v010.html
