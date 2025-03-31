@@ -1,5 +1,8 @@
 .. _index:
 
+Welcome to the nRF Connect SDK - Amazon Sidewalk
+################################################
+
 .. caution::
    Sidewalk protocol is owned and licensed by Amazon.
    Before continuing with the nRF Connect SDK for Sidewalk, you must familiarize yourself with the official `Amazon license`_, including all the applicable restrictions.
@@ -10,8 +13,6 @@
    Due to these restrictions, Sidewalk is now managed through its own :file:`west.yml` configuration, separate from the nRF Connect SDK manifest.
    All information regarding completing the setup is included in this guide, so ensure you follow it in order.
 
-Welcome to the nRF Connect SDK - Amazon Sidewalk
-################################################
 
 Amazon Sidewalk is a shared network designed to provide a stable and reliable connection to your devices allowing them to work better at your home and outside of it.
 Ring and Echo device can act as a gateway, meaning they can share a portion of internet bandwidth providing the connection and services to Sidewalk end devices.
