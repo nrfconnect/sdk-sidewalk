@@ -2,8 +2,8 @@
 
 # Tags for all topics:
 mapping_global:
-  - addon-sidewalk___VERSION__
-  - cluster-addon-sidewalk___VERSION__
+  - addon-sidewalk-__VERSION__
+  - cluster-addon-sidewalk-__VERSION__
 
 # Tags for individual topics:
 mapping_topics:
