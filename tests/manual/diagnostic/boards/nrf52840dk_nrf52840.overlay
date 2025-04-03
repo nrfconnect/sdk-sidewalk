@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2023 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+&spi3 {
+	status = "disabled";
+};
+
+&spi2 {
+	status = "disabled";
+};
+
+/{
+	nrfx_spi_gpios{
+		compatible = "gpio-keys";
+		nrfx_spi_sck: sck {
+			gpios = <&gpio1 0xF GPIO_ACTIVE_LOW>;
+			label = "spi_sck";
+		};
+		nrfx_spi_miso: miso {
+			gpios = <&gpio1 0xE GPIO_ACTIVE_HIGH>;
+			label = "spi_miso";
+		};
+		nrfx_spi_mosi: mosi {
+			gpios = <&gpio1 0xD GPIO_ACTIVE_HIGH>;
+			label = "spi_mosi";
+		};
+		nrfx_spi_cs: cs {
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_HIGH>;
+			label = "spi_cs";
+		};
+	};
+
+	semtech_sx1262_gpios{
+		compatible = "gpio-keys";
+		semtech_sx1262_cs: cs {
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
+			label = "semtech_sx1262 CS";
+		};
+		semtech_sx1262_reset_gpios: reset {
+			gpios = <&gpio0 0x3 GPIO_ACTIVE_LOW>;
+			label = "semtech_sx1262 Reset";
+		};
+		semtech_sx1262_busy_gpios: busy {
+			gpios = <&gpio1 0x4 GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 Busy";
+		};
+		semtech_sx1262_antenna_enable_gpios: antena_enable {
+			gpios = <&gpio1 0xa GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 Antena Enable";
+		};
+		semtech_sx1262_dio1_gpios: dio1 {
+			gpios = <&gpio1 0x6 GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 DIO1";
+		};
+	};
+
+	chosen {
+		nordic,pm-ext-flash = &mx25r64;
+	};
+};
