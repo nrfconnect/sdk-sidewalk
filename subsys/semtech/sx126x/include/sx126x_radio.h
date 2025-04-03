@@ -51,7 +51,7 @@ typedef struct {
 
     sid_pal_radio_cad_param_exit_mode_t          cad_exit_mode;
     radio_sx126x_pa_cfg_t                        pa_cfg;
-#if HALO_ENABLE_DIAGNOSTICS
+#if CONFIG_SIDEWALK_BUILD_DIAGNOSTICS
     bool                                         pa_cfg_configured;
 #endif
 

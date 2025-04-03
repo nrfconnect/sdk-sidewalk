@@ -29,6 +29,12 @@ config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	help
 	  The value of the trim cap. Default value works for Semtech SX1262 shield.
 
+config SIDEWALK_BUILD_DIAGNOSTICS
+	bool "Enable Sidewalk diagnostics"
+	default n
+	help
+	  Enable Sidewalk diagnostics for sub-GHz radio.
+
 endif # SIDEWALK_SUBGHZ_SUPPORT
 
 choice SIDEWALK_LINK_MASK
