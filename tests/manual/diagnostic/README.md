@@ -5,12 +5,77 @@ This application provides diagnostic capabilities for Sidewalk protocol testing.
 ## Prerequisites
 
 Hardware:
-- nRF52840 DK
-- Smetech SX1262MB2xAS shield
+- nRF52840 DK: https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK
+- Smetech sx126x mbed shield: https://www.semtech.com/products/wireless-rf/lora-connect/sx1262mb2cas
 
 Software:
-- nRF Connect SDK with Sidewalk Add-on
-- RTT Viewer
+- nRF Connect SDK with Sidewalk Add-on: https://docs.nordicsemi.com/bundle/sidewalk_latest/page/setting_up_sidewalk_environment/setting_up_sdk.html
+- RTT Viewer: https://www.segger.com/products/debug-probes/j-link/tools/rtt-viewer/
+
+Configuration:
+
+The pin configuration for SPI and Semtech SX1262 radio can be modified in `boards/nrf52840dk_nrf52840.overlay`. The default pin mapping is:
+
+SPI pins:
+- SCK: P1.15 (0xF)
+- MISO: P1.14 (0xE) 
+- MOSI: P1.13 (0xD)
+- CS: P1.08 (0x8)
+
+Semtech SX1262 pins:
+- CS: P1.08 (0x8)
+- Reset: P0.03 (0x3)
+- Busy: P1.04 (0x4)
+- Antenna Enable: P1.10 (0xA)
+- DIO1: P1.06 (0x6)
+
+To use different pins, modify the corresponding GPIO pin numbers in the overlay file:
+
+```dts
+	nrfx_spi_gpios{
+		compatible = "gpio-keys";
+		nrfx_spi_sck: sck {
+			gpios = <&gpio1 0xF GPIO_ACTIVE_LOW>;
+			label = "spi_sck";
+		};
+		nrfx_spi_miso: miso {
+			gpios = <&gpio1 0xE GPIO_ACTIVE_HIGH>;
+			label = "spi_miso";
+		};
+		nrfx_spi_mosi: mosi {
+			gpios = <&gpio1 0xD GPIO_ACTIVE_HIGH>;
+			label = "spi_mosi";
+		};
+		nrfx_spi_cs: cs {
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_HIGH>;
+			label = "spi_cs";
+		};
+	};
+
+	semtech_sx1262_gpios{
+		compatible = "gpio-keys";
+		semtech_sx1262_cs: cs {
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
+			label = "semtech_sx1262 CS";
+		};
+		semtech_sx1262_reset_gpios: reset {
+			gpios = <&gpio0 0x3 GPIO_ACTIVE_LOW>;
+			label = "semtech_sx1262 Reset";
+		};
+		semtech_sx1262_busy_gpios: busy {
+			gpios = <&gpio1 0x4 GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 Busy";
+		};
+		semtech_sx1262_antenna_enable_gpios: antena_enable {
+			gpios = <&gpio1 0xa GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 Antena Enable";
+		};
+		semtech_sx1262_dio1_gpios: dio1 {
+			gpios = <&gpio1 0x6 GPIO_ACTIVE_HIGH>;
+			label = "semtech_sx1262 DIO1";
+		};
+	};
+```
 
 ## Build and Test
 
