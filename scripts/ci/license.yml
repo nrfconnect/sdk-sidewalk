@@ -51,6 +51,19 @@ licenses:
   - sidewalk.*/subsys/demo(/.*)+(c|h)$
   - sidewalk.*/utils/include/sid_.*\.h$
   - sidewalk.*/subsys/semtech/sx126x/include/sid_.*\.h$
+  - sidewalk/tests/manual/diagnostic/sidewalk_thread.c
+  - sidewalk/tests/manual/diagnostic/prj.conf
+  - sidewalk/subsys/semtech/sid_utils/sid_utils.c
+  - sidewalk/subsys/semtech/sid_utils/CMakeLists.txt
+  - sidewalk/tests/manual/diagnostic/include/sid_protocol_ext_opts.h
+  - sidewalk/subsys/semtech/sid_utils/include/sid_utils.h
+  - sidewalk/tests/manual/diagnostic/rtt_io.c
+  - sidewalk/tests/manual/diagnostic/main.c
+  - sidewalk/tests/manual/diagnostic/include/sid_asd_cli.h
+  - sidewalk/tests/manual/diagnostic/include/ace/ace_status.h
+  - sidewalk/tests/manual/diagnostic/include/ace/cli.h
+  - sidewalk/tests/manual/diagnostic/include/sid_diagnostics_cli.h
+  - sidewalk/tests/manual/diagnostic/include/sidewalk_thread.h
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
