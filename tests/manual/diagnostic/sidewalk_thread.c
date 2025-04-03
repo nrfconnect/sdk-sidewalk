@@ -39,16 +39,6 @@ K_THREAD_STACK_DEFINE(sid_stack_area, CONFIG_SIDEWALK_THREAD_STACK_SIZE);
 static struct k_thread sid_thread;
 static k_tid_t sid_tid;
 
-static void log_flush(void)
-{
-#ifndef CONFIG_LOG_MODE_MINIMAL
-    /* Note: log_buffered_cnt is not supported in minimal log mode. */
-    while (log_buffered_cnt()) {
-        k_sleep(LOG_FLUSH_SLEEP_PERIOD);
-    }
-#endif
-}
-
 static void sidewalk_thread(void *context, void *u2, void *u3)
 {
     ARG_UNUSED(u2);
@@ -91,7 +81,7 @@ void sidewalk_thread_enable(void)
     sid_pal_mfg_store_init(nrf_mfg);
 
     platform_parameters_t platform_parameters = {
-        .platform_init_parameters.radio_cfg = get_radio_cfg(),
+        .platform_init_parameters.radio_cfg = (radio_sx126x_device_config_t *)get_radio_cfg(),
     };
     ret_code = sid_pal_common_init(&platform_parameters.platform_init_parameters);
     if (ret_code != SID_ERROR_NONE) {

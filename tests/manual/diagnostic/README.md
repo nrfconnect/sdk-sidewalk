@@ -14,7 +14,7 @@ Software:
 
 Configuration:
 
-The pin configuration for SPI and Semtech SX1262 radio can be modified in `boards/nrf52840dk_nrf52840.overlay`. The default pin mapping is:
+The pin configuration for SPI and Semtech SX1262 radio can be modified in the board dts files. The default pin mapping is:
 
 SPI pins:
 - SCK: P1.15 (0xF)
@@ -29,7 +29,7 @@ Semtech SX1262 pins:
 - Antenna Enable: P1.10 (0xA)
 - DIO1: P1.06 (0x6)
 
-To use different pins, modify the corresponding GPIO pin numbers in the overlay file:
+To use different pins, modify the corresponding GPIO pin numbers in the `boards/nrf52840dk_nrf52840.overlay` file:
 
 ```dts
 	nrfx_spi_gpios{
@@ -82,7 +82,7 @@ To use different pins, modify the corresponding GPIO pin numbers in the overlay 
 1. Build the application:
 
     ```bash
-    west build -b nrf52840dk -p
+    west build -b nrf52840dk/nrf52840 -p
     ```
 
 2. Flash with mass erase (recommended for first time or when experiencing issues):
@@ -92,7 +92,6 @@ To use different pins, modify the corresponding GPIO pin numbers in the overlay 
     ```
 
 3. Connect to the board via RTT:
-   - Install JLinkRTTViewer or JLinkRTTClient from SEGGER
    - Connect the nRF52840 board via USB 
    - Launch JLinkRTTViewer and configure:
      - Target Device: NRF52840_XXAA
@@ -103,7 +102,7 @@ To use different pins, modify the corresponding GPIO pin numbers in the overlay 
 
    Note: If you don't see any output, try resetting the board while RTT Viewer is connected.
 
-4. After successful flashing and connecting to RTT, you should see output similar to this (you may need to reset the board):
+4. After successful flashing and connecting to RTT, you should see output similar to this:
 
     ```log
     *** Booting My Application v2.8.99-9d8653406acf ***
