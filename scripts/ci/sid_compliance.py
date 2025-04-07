@@ -56,7 +56,7 @@ cc.get_files = get_files_overwrite
 
 
 def binaryfiles_run_overwrite(self):
-    BINARY_ALLOW_PATHS = ("doc/", "lib/")
+    BINARY_ALLOW_PATHS = ("doc/", "lib/", "tests/manual/diagnostic/libs/")
     # svg files are always detected as binary, see .gitattributes
     BINARY_ALLOW_EXT = (".jpg", ".jpeg", ".png", ".svg", ".webp", ".a")
 
