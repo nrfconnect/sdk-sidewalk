@@ -56,18 +56,18 @@ jobs:
               echo "PR #$PR_NUMBER exists and is open"
 
               # Check if PR is merged
-              PR_MERGED=$(gh pr view $PR_NUMBER --json merged --jq '.merged')
+              PR_MERGED=$(gh pr view $PR_NUMBER --json state --jq '.state')
 
-              if [ "$PR_MERGED" = "true" ]; then
+              if [ "$PR_MERGED" = "OPEN" ]; then
+                echo "PR is open, updating existing branch"
+                git checkout $BRANCH_NAME
+                git pull origin $BRANCH_NAME
+              else
                 echo "PR is merged, creating new branch"
                 # Delete old branch
                 git push origin --delete $BRANCH_NAME
                 # Create new branch
                 git checkout -b $BRANCH_NAME
-              else
-                echo "PR is open, updating existing branch"
-                git checkout $BRANCH_NAME
-                git pull origin $BRANCH_NAME
               fi
             else
               echo "PR doesn't exist, updating existing branch"
