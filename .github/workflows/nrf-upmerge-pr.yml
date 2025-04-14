@@ -21,6 +21,7 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for all branches and tags
           path: sidewalk
+          token: ${{env.GH_TOKEN}}
 
       - name: Checkout nrf
         uses: actions/checkout@v4
