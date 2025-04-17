@@ -1,56 +1,71 @@
 .. _sidewalk_testing:
 
-Sidewalk Testing
-################
+SDK testing procedures
+######################
 
-Levels of Testing
-=================
+.. contents::
+   :local:
+   :depth: 2
 
-Testing levels are essential for a structured approach to quality assurance, allowing for targeted testing at each stage of development to reduce defects and ensure software reliability.
+This following page provides an overview on the various levels of testing within the Amazon Sidewalk SDK.
+Specifically, it is designed to show what tests are available and to provide detailed instructions on how to run them.
 
-The most commonly recognized levels of testing in software development include:
+Testing procedures
+******************
 
-* **Unit Testing**: Focuses on individual functions to ensure they work correctly in isolation.
-* **Integration Testing**: Tests the interaction between integrated components to identify issues arising from their interactions.
-* **System Testing**: Validates the complete and integrated software system against specified requirements.
-* **Acceptance Testing**: Confirms that the software meets the business needs and is ready for deployment, often involving end-user validation.
+Testing levels are crucial for a structured approach to quality assurance, enabling you to conduct targeted testing at each stage of development.
+This helps to reduce defects and ensures the reliability of your software.
+
+The following are the most commonly recognized levels of testing in software development:
+
+* Unit testing - Focuses on individual functions to ensure they work correctly in isolation.
+* Integration testing - Tests the interaction between integrated components to identify issues arising from their interactions.
+* System testing - Validates the complete and integrated software system against specified requirements.
+* Acceptance testing - Confirms that the software meets the business needs and is ready for deployment, often involving end-user validation.
 
 .. note::
 
-    There is sometimes a confusion between *integration* tests and *functional* tests as they both require multiple components to interact with each other.
-    For the purposes of this document, *integration* term is used to describe tests that verify components, but not necessarily the system as a whole.
+    It is important to distinguish between *integration* tests and *functional* tests, as both involve multiple components interacting.
+    In this document, the term *integration* is specifically used to describe tests that verify the components, but not necessarily the entire system.
 
-For System Testing and Acceptance Testing, you can use Sidewalk sample variants, such as:
+For system testing and acceptance testing, you can use :ref:`Amazon Sidewalk sample variants <samples_list>`, such as:
 
-* CLI - application to test against the Sidewalk Test Specification.
-* Sensor monitoring - example of a sensor device use case, with release configuration support.
+* CLI - An application to test against the Amazon Sidewalk test specification.
+* Sensor monitoring - An example of a sensor device use case, with release configuration support.
 
-In this document we focus on Unit and Integration testing, as they are delivered as part of the sdk-sidewalk repository.
+This document primarily addresses Unit and Integration testing provided in the `sdk-sidewalk repository`_.
 
-Table below provides a comparison of Unit and Integration testing in the Sidewalk SDK:
+The following table provides a comparison of Unit and Integration testing in the Amazon Sidewalk SDK:
 
-+----------------+---------------------+--------------------------+
-|                | Unit                | Integration              |
-+================+=====================+==========================+
-| Scope          | One source file     | One module               |
-+----------------+---------------------+--------------------------+
-| Platform       | * unit_testing (PC) | * native_sim (PC)        |
-|                |                     | * nRF development boards |
-+----------------+---------------------+--------------------------+
-| Frameworks     | * Ztest             | * Ztest                  |
-|                | * Twister           | * Twister                |
-|                | * FFF               |                          |
-+----------------+---------------------+--------------------------+
-| Allows mocking | Yes                 | No                       |
-+----------------+---------------------+--------------------------+
+.. list-table:: Testing Characteristics
+   :widths: 25 25 50
+   :header-rows: 1
 
+   * - Test Attributes
+     - Unit
+     - Integration
+   * - Scope
+     - One source file
+     - One module
+   * - Platform
+     - * unit_testing (PC)
+     - * native_sim (PC)
+       * nRF development boards
+   * - Frameworks
+     - * Ztest
+       * Twister
+       * FFF
+     - * Ztest
+       * Twister
+   * - Allows mocking
+     - Yes
+     - No
 
-Unit Testing
+Unit testing
 ============
 
-Unit tests are designed to test individual functions or methods in isolation to ensure they work as expected.
-
-To run unit test:
+Unit tests are designed to verify individual functions or methods in isolation, ensuring they work as expected.
+To run the unit test, complete the following steps:
 
 #. Go to the unit test folder:
 
@@ -70,41 +85,42 @@ To run unit test:
 
       ./build/testbinary
 
-Integration Testing
+Integration testing
 ===================
 
-Integration tests are designed to verify that multiple components work together as expected.
+Integration tests are designed to ensure that multiple components function together as expected.
+The objectives of those tests are as follows:
 
-There are two main purposes of integration tests:
+* Ensuring that various files and functions operate as one module, for example, crypto, timer, and storage.
+  Those tests typically use the Sidewalk Platform Abstraction Layer (PAL) API, and have a dedicated Kconfig option that enables or disables the module.
+* Validating that the module performs correctly on the :ref:`supported SoCs <hardware_requirements>`.
+  This type of testing is occasionally referred to as *unit test on hardware*.
 
-* Verify that multiple files and functions work together as one module, e.g. crypto, timer, storage. Those tests typically operates on Sidewalk Platform Abstraction Layer (PAL) API. Usually there is a dedicated Kconfig option to enable/disable the module.
-* Verify that module works correctly on specify Nordic SoC. This type of tests was sometimes called "unit test on hardware".
-
-To run integration test:
+To run the integration test, complete the following steps based on the environment you are using:
 
 .. tabs::
 
     .. tab:: native_sim (PC)
-    
+
         #. Go to the integration test folder:
-    
+
             .. code-block:: bash
-    
+
                 cd sidewalk/tests/integration/<test_name>
-    
+
         #. Build the test application by running the following command:
-    
+
             .. code-block:: bash
-    
+
                 west build -b native_sim
-    
+
         #. Run the test application by running the following command:
-    
+
             .. code-block:: bash
-    
+
                 ./build/<test_name>/zephyr/zephyr.exe
 
-    .. tab:: nRF (development boards)
+    .. tab:: Development kits
 
         #. Go to the integration test folder:
 
@@ -120,11 +136,11 @@ To run integration test:
 
             Use your board name e.g. ``nRF52840dk/nrf52840``, ``nRF55l15dk/nrf54l15/cpuapp``.
 
-        #. Flash the test application running the following command:
+        #. Flash the test application by running the following command:
 
             .. code-block:: bash
 
                 west flash
-            
+
             Make sure your board is connected to the computer.
             Test output will be displayed on the UART console.
