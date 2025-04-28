@@ -33,9 +33,4 @@ Starting with the nRF Connect SDK release v3.0.0, the Amazon Sidewalk protocol i
   * Disabled the RTT backend.
     Logs and shell are now available on UART only.
   * Increased a log thread delay.
-  * The default bootloader signature alghoritm.
-    It has been changed from RSA (``SB_CONFIG_BOOT_SIGNATURE_TYPE_RS``) to ECDSA 512 (``SB_CONFIG_BOOT_SIGNATURE_TYPE_ECDSA_P512``).
-
-    .. note::
-      Note that the DFU can only occur when the algorithm matches.
-      Therefore, to enable DFU, ensure you have set the ``SB_CONFIG_BOOT_SIGNATURE_TYPE_RS`` Kconfig option.
+  * The bootloader signature algorithm set to RSA (``SB_CONFIG_BOOT_SIGNATURE_TYPE_RSA``).
