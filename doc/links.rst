@@ -54,6 +54,7 @@
 .. _Amazon Sidewalk Gateways: https://docs.sidewalk.amazon/introduction/sidewalk-gateways.html
 .. _Application notes: https://docs.sidewalk.amazon/app-notes/
 .. _How to manufacture and produce devices: https://docs.sidewalk.amazon/manufacturing/manufacture-provision/
+.. _Amazon Sidewalk Manufacturing Guide: https://docs.sidewalk.amazon/manufacturing/#manufacturing-amazon-sidewalk-devices-for-mass-production
 .. _Amazon Sidewalk specification: https://docs.sidewalk.amazon/specifications/
 .. _AWS IoT MQTT client: https://docs.aws.amazon.com/iot/latest/developerguide/view-mqtt-messages.html
 .. _Installing or updating the latest version of the AWS CLI: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
