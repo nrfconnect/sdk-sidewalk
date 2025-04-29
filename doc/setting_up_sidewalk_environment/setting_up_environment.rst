@@ -15,3 +15,4 @@ Once completed, you will be able to run a sample application and test it with Si
    setting_up_hardware.rst
    setting_up_sdk.rst
    setting_up_sidewalk_prototype.rst
+   setting_up_manufacturing_environment.rst

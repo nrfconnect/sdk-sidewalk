@@ -33,4 +33,4 @@ Starting with the nRF Connect SDK release v3.0.0, the Amazon Sidewalk protocol i
   * Disabled the RTT backend.
     Logs and shell are now available on UART only.
   * Increased a log thread delay.
-  * The bootloader signature algorithm set to RSA (``SB_CONFIG_BOOT_SIGNATURE_TYPE_RSA``).
+  * The bootloader signature algorithm to RSA (``SB_CONFIG_BOOT_SIGNATURE_TYPE_RSA``).
