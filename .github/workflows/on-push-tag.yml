@@ -12,6 +12,7 @@ jobs:
   build_documentation:
     needs: [build_samples]
     uses: ./.github/workflows/publish_documentation.yml
+    secrets: inherit
     with:
       documentation_tag: ${{ github.ref_name }}
       publish_to_prod: true
