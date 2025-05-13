@@ -111,6 +111,7 @@ Building and running
 ********************
 
 .. include:: ../../includes/include_building_and_running.txt
+.. include:: ../../includes/include_rak4631_flash.txt
 
 Testing
 =======
