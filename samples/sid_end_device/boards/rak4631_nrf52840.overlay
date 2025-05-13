@@ -32,10 +32,6 @@
 	status = "disabled";
 };
 
-&uart1 {
-	status = "disabled";
-};
-
 /{
 	nrfx_spi_gpios{
 		compatible = "gpio-keys";
@@ -75,5 +71,16 @@
 			gpios = <&gpio1 15 (GPIO_ACTIVE_HIGH|GPIO_PULL_DOWN)>;
 			label = "semtech_sx1262 DIO1";
 		};
+	};
+
+	chosen {
+		zephyr,console = &cdc_acm_uart0;
+		zephyr,shell-uart = &cdc_acm_uart0;
+	};
+};
+
+&zephyr_udc0 {
+	cdc_acm_uart0: cdc_acm_uart0 {
+		compatible = "zephyr,cdc-acm-uart";
 	};
 };
