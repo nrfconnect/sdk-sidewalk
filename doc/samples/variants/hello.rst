@@ -111,6 +111,11 @@ Building and running
 ********************
 
 .. include:: ../../includes/include_building_and_running.txt
+
+If you are using the RAK4631 module on the nRF52840 DK, you must :ref:`flash it separately<variant_sidewalk_hello_rak4631>`.
+
+.. _variant_sidewalk_hello_rak4631:
+
 .. include:: ../../includes/include_rak4631_flash.txt
 
 Testing

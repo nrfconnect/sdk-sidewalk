@@ -15,6 +15,7 @@
 .. _nrf5340dk: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/nrf5340dk/doc/index.html
 .. _thingy53_nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/thingy53/doc/index.html
 .. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
+.. _rak4631: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/rakwireless/rak4631/doc/index.html
 .. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/programming.html
 .. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/test_and_optimize.html
 .. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/bootloaders/index.html

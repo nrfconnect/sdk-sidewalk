@@ -1,4 +1,7 @@
-To flash the RAK4631 use the flowing commands (instead of `west flash`):
+Programming with RAK4631 on the nRF52840 DK
+===========================================
+
+To program with the `RAK4631`_ module, run the flowing commands instead of ``west flash``:
 
 .. code-block:: console
 
@@ -7,7 +10,9 @@ To flash the RAK4631 use the flowing commands (instead of `west flash`):
    pyocd flash -t nrf52840 mfg.hex
    pyocd reset -t nrf52840
 
-The RAK4631 using RTT as a terminal, to see the logs use:
+The RAK4631 module uses RTT as a terminal.
+To view the logs, execute the command:
 
 .. code-block:: console
+
    pyocd rtt -t nrf52840 -M attach
