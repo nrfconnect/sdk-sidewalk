@@ -32,3 +32,6 @@ KRKNWK-19119: Multi-image DFU fails to restore after a sample reset.
   The multi-image DFU does not successfully restore following a sample reset.
 
   **Workaround:** If the device is reset during the DFU process, the DFU always restarts from the beginning.
+
+KRKNWK-20330: The Amazon Sidewalk application crashes on startup when the ``CONFIG_NANOPB`` Kconfig option is enabled
+  The Amazon Sidewalk libraries include a nanopb implementation that conflicts with the one in Zephyr, causing the application to crash immediately after startup.
