@@ -82,6 +82,22 @@
 			gpios = <&gpio1 0x6 (GPIO_ACTIVE_HIGH|GPIO_PULL_DOWN)>;
 			label = "semtech_sx1262 DIO1";
 		};
+        radio_gnss_lna: gnss_lna {
+            gpios = <&gpio0 0x1d GPIO_ACTIVE_HIGH>;
+            label = "gnss antenna";
+        };
+        radio_led_sniff: led_sniff {
+            gpios = <&gpio1 0x5 GPIO_ACTIVE_HIGH>;
+            label = "yellow LED";
+        };
+		radio_led_tx: led_tx {
+			gpios = <&gpio0 0x1e GPIO_ACTIVE_HIGH>;
+			label = "red tx LED";
+		};
+		radio_led_rx: led_rx {
+			gpios = <&gpio0 0x1f GPIO_ACTIVE_HIGH>;
+			label = "green rx LED";
+		};
 	};
 
 	chosen {

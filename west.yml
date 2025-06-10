@@ -15,6 +15,10 @@ manifest:
       repo-path: sdk-nrf
       revision: v3.0.0
       import: true
+    - name: swsd006
+      url: https://github.com/Lora-net/SWSD006
+      revision: v2.6.1
+      import: false
 
   self:
     path: sidewalk
