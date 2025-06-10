@@ -5,6 +5,8 @@
 #
 
 zephyr_include_directories(include)
-zephyr_include_directories(sx126x/include)
 
-add_subdirectory(sx126x)
+if(CONFIG_RADIO_SX126X)
+    zephyr_include_directories(sx126x/include)
+    add_subdirectory(sx126x)
+endif()

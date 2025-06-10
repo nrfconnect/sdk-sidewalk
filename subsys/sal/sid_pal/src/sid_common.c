@@ -12,8 +12,12 @@
 #endif /* defined(CONFIG_SOC_SERIES_NRF53X) && defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+#if defined(CONFIG_RADIO_LR11XX)
+#include <lr11xx_config.h>
+#else
 #include <sx126x_config.h>
-#endif
+#endif /* CONFIG_RADIO_LR11XX */
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 
 #include <zephyr/kernel.h>
 #include <zephyr/storage/flash_map.h>
@@ -31,7 +35,11 @@ sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platf
 		return SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+#if defined(CONFIG_RADIO_LR11XX)
+	set_radio_lr11xx_device_config(platform_init_parameters->radio_cfg);
+#else
 	set_radio_sx126x_device_config(platform_init_parameters->radio_cfg);
+#endif
 #if defined(CONFIG_SOC_SERIES_NRF53X)
 	(void)bt_enable(NULL);
 	(void)bt_disable();
