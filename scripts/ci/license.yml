@@ -13,12 +13,10 @@ ignore_license_in_files:
 - build.*
 - \.github
 - \.devcontainer
-- license.json$
 - \.git/
 - __pycache__
 - __init__.py
 - version.conf$
-- tools/.*
 - twister-out.*
 
 
@@ -26,7 +24,7 @@ license_header_size: 30
 
 licenses:
 # evaluate licenses from top to bottom
-- copyright_regexp: Copyright \(c\) (\d{4}|\d{4}-\d{4}) Amazon\.com, Inc\. or its affiliates
+- copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
   file_regexp:
   - sidewalk.*/subsys/semtech/sx126x/sx126x_.*\.c$
   - sidewalk.*/subsys/semtech/sx126x/include/sx126x_.*\.h$
@@ -35,35 +33,36 @@ licenses:
   - radio
   spdx: null
 
-- copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon.com, Inc. or its affiliates.
+- copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
   file_regexp:
   - sidewalk.*/subsys/ace(/.*)+h$
   - sidewalk.*/subsys/config(/.*)+(c|h)$
   - sidewalk.*/subsys/config/common/.*(c|h)$
   - sidewalk.*/subsys/config/common/src/.*(c|h)$
+  - sidewalk.*/subsys/demo(/.*)+(c|h)$
   - sidewalk.*/subsys/hal(/.*)+h$
   - sidewalk.*/subsys/hal/src/memory.c$
   - sidewalk.*/subsys/sal/common/.*/sid_.*(c|h)$
   - sidewalk.*/subsys/semtech/include/semtech_radio_ifc.h$
-  - sidewalk.*/tools/.*
+  - sidewalk.*/subsys/semtech/sx126x/include/sid_.*\.h$
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
   - sidewalk.*/tests/validation/timer/.*(c|h)$
-  - sidewalk.*/subsys/demo(/.*)+(c|h)$
   - sidewalk.*/utils/include/sid_.*\.h$
-  - sidewalk.*/subsys/semtech/sx126x/include/sid_.*\.h$
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
   - THESE MATERIALS ARE PROVIDED ON AN AS IS BASIS.
   spdx: null
 
+- copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
+  file_regexp:
+  - sidewalk.*/tools/.*\.py$
+  search_license_txt: null
+  spdx: MIT-0
+
 - copyright_regexp: Copyright Semtech Corporation \d{4}
   file_regexp:
-  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x\.h$
-  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_hal\.h$
-  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_halo\.h$
-  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_regs\.h$
-  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x_timings\.h$
+  - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x.*\.h$
   - sidewalk.*/subsys/semtech/sx126x/semtech/.*\.(c|h)$
   search_license_txt:
   - Revised BSD License
