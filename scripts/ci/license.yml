@@ -18,6 +18,7 @@ ignore_license_in_files:
 - __init__.py
 - version.conf$
 - twister-out.*
+- subsys/ace/include/nanopb/.*
 
 
 license_header_size: 30
