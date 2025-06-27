@@ -1,0 +1,13 @@
+#
+# Copyright (c) 2022 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config SIDEWALK_NANOPB
+	bool "Nanopb headers to use with Sidewalk library [EXPERIMENTAL]"
+	depends on SIDEWALK
+	select EXPERIMENTAL
+	help
+	  Nanopb headers to use nanopb from the Sidewalk library.
+	  This option is experimental and may be removed in the future.
