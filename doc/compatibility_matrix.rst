@@ -16,6 +16,14 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - Supported platforms
      - The Amazon Sidewalk Protocol Implementation Conformance Statement (PICS)
      - Amazon qualification status
+   * - v1.0.1
+     - v3.0.0
+     - v.1.18
+     - * `nRF52840 DK`_
+       * `nRF5340 DK`_
+       * `nRF54L15 DK`_
+     - --
+     - Planned
    * - v1.0.0
      - v3.0.0
      - v.1.18
@@ -23,7 +31,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF5340 DK`_
        * `nRF54L15 DK`_
      - --
-     - --
+     - Not planned
    * - --
      - v2.9.0
      - v1.17.0
