@@ -11,6 +11,7 @@ For details, refer the following release notes:
    :glob:
    :caption: Release notes:
 
+   releases_and_migration/release_notes_addon_v101.rst
    releases_and_migration/release_notes_addon_v100.rst
 
 Migration guides

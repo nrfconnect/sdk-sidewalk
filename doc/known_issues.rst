@@ -19,7 +19,7 @@ A known issue can list one or both of the following entries:
   Some known issues have a workaround.
   Sometimes, they are discovered later and added over time.
 
-List of known issues for v1.0.0
+List of known issues for v1.0.1
 *******************************
 
 KRKNWK-19950: SBDT speed degrades when using the v1.18 libraries
@@ -35,3 +35,6 @@ KRKNWK-19119: Multi-image DFU fails to restore after a sample reset.
 
 KRKNWK-20330: The Amazon Sidewalk application crashes on startup when the ``CONFIG_NANOPB`` Kconfig option is enabled
   The Amazon Sidewalk libraries include a nanopb implementation that conflicts with the one in Zephyr, causing the application to crash immediately after startup.
+
+  **Workaround:** Disable the ``CONFIG_NANOPB`` Kconfig option and enable the ``CONFIG_SIDEWALK_NANOPB`` Kconfig option instead.
+  This configuration uses the nanopb implementation from the Amazon Sidewalk libraries, allowing the application to start successfully.
