@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#if CONFIG_BOARD_NATIVE_POSIX
+#if CONFIG_BOARD_NATIVE_SIM
 #define FIXED_PARTITION_OFFSET(x) 0xFF000
 #else
 #include "flash_map_pm.h"
