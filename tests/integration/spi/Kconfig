@@ -27,7 +27,7 @@ config SIDEWALK_GPIO
 	default y
 
 config SIDEWALK_GPIO_MAX
-    default 6
+	default 6
 
 config SIDEWALK_GPIO_IRQ_PRIORITY
 	default 1

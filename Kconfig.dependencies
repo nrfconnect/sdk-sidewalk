@@ -253,7 +253,6 @@ endif # SIDEWALK_CRITICAL_REGION
 config SIDEWALK_GPIO
 	bool
 	default SIDEWALK_SUBGHZ_SUPPORT
-	imply SIDEWALK_LOG
 	help
 	  Sidewalk GPIO module
 
