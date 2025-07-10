@@ -2,4 +2,5 @@
 app-server-ed25519.public.bin
 __pycache__/
 certificate_*
+certificate.json
 *.s37

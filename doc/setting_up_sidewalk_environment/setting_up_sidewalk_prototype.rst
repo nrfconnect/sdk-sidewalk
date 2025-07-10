@@ -74,7 +74,7 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
             .. parsed-literal::
                :class: highlight
 
-               python3 provision.py nordic aws --output_bin mfg.bin --certificate_json certificate.json --addr 0x17c000
+               python3 provision.py nordic aws --output_bin mfg.bin --certificate_json certificate.json --addr 0x17c000 --output_hex nordic_aws_nrf54l15.hex
 
          * If you are using separate device JSON files obtained as responses from the GetDeviceProfile and GetWirelessDevice API operations, use the ``wireless_device_json`` and ``device_profile_json`` parameters.
            This will specify both files as input when running the provisioning script.
@@ -82,11 +82,7 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
             .. parsed-literal::
                :class: highlight
 
-               python3 provision.py nordic aws --output_bin mfg.bin
-               --wireless_device_json wireless_device.json
-               --device_profile_json device_profile.json
-               --addr 0x17c000
-               --output_hex nordic_aws_nrf54l15.hex
+               python3 provision.py nordic aws --output_bin mfg.bin --wireless_device_json wireless_device.json --device_profile_json device_profile.json --addr 0x17c000 --output_hex nordic_aws_nrf54l15.hex
 
             .. note::
 
