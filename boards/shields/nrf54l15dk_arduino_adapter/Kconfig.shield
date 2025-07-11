@@ -1,0 +1,10 @@
+# Copyright (c) 2024 Nordic Semiconductor
+# SPDX-License-Identifier: Apache-2.0
+
+config SHIELD_NRF54L15DK_ARDUINO_ADAPTER
+	def_bool $(shields_list_contains,nrf54l15dk_arduino_adapter)
+	depends on BOARD_NRF54L15DK_NRF54L15_CPUAPP
+	help
+	  Arduino header adapter shield for nrf54l15dk.
+	  This shield maps nrf54l15dk pins to Arduino header format,
+	  allowing standard Arduino shields to work on nrf54l15dk.

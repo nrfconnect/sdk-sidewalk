@@ -71,6 +71,14 @@ licenses:
   - Neither the name of the Semtech corporation
   spdx: null
 
+- copyright_regexp: Copyright \(c\) \d{4} Semtech Corporation
+  file_regexp:
+  - sidewalk.*/boards/shields/semtech_.*/.*$
+  - sidewalk.*/dts/bindings/lora_lbm/.*\.yaml$
+  - sidewalk.*/include/zephyr/dt-bindings/lora_lbm/.*\.h$
+  search_license_txt: null
+  spdx: Apache-2.0
+
 - copyright_regexp: Copyright \(c\) \d{4} Nordic Semiconductor ASA
   file_regexp:
   - .*
