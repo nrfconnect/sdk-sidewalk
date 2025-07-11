@@ -76,10 +76,10 @@ The compatible nRF Connect SDK version is specified in the :file:`west.yml` file
 
          Depending on your connection, the update might take some time.
 
-      #. Install Python dependencies.
+To install the Python dependencies for the Sidewalk tools, you can use the following command:
 
-         .. code-block:: console
+.. code-block:: console
 
-            pip install -r sidewalk/requirements.txt
+   pip install -r sidewalk/requirements.txt
 
 To create an application, use Sidewalk: sid_end_device sample hello app as a starting point.
