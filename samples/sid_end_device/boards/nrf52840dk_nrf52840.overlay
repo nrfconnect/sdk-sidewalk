@@ -11,6 +11,7 @@
 sid_semtech: &spi2 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
+	cs-gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
 	pinctrl-0 = <&spi2_default>;
 	pinctrl-1 = <&spi2_sleep>;
 	pinctrl-names = "default", "sleep";
