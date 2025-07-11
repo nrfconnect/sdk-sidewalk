@@ -70,7 +70,7 @@
 .. _iOS: https://apps.apple.com/us/app/amazon-alexa/id944011620
 .. _Android: https://play.google.com/store/apps/details?id=com.amazon.dee.app
 .. _Amazon Sidewalk IoT Prerequisites: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#prerequisites
-.. _Onbarding your Sidewalk devices: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-gs-workflow.html
+.. _Onbarding your Sidewalk devices: https://docs.aws.amazon.com/iot-wireless/latest/developerguide/iot-sidewalk-onboard.html
 .. _Provision your Sidewalk endpoint and flash the binary image: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-provision-endpoint.html
 .. _AWS: https://aws.amazon.com/
 .. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html

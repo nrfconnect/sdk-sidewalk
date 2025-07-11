@@ -87,4 +87,4 @@ The compatible nRF Connect SDK version is specified in the :file:`west.yml` file
 
             pip install -r sidewalk/requirements.txt
 
-To create an application, use Sidewalk: sid_end_device sample hello app as a starting point.
+To create an application, start with the Sidewalk :ref:`variant_sidewalk_hello` sample.
