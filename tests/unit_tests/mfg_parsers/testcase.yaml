@@ -2,14 +2,14 @@ tests:
   sidewalk.test.unit.mfg_parser:
     sysbuild: true
     platform_allow:
-      - native_posix
+      - native_sim
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l10/cpuapp
     tags: Sidewalk
     integration_platforms:
-      - native_posix
+      - native_sim
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp
@@ -17,9 +17,9 @@ tests:
 
   sidewalk.test.unit.mfg_parser_psa_storage:
     sysbuild: true
-    platform_allow: native_posix
+    platform_allow: native_sim
     tags: Sidewalk
     integration_platforms:
-      - native_posix
+      - native_sim
     extra_configs:
       - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=y
