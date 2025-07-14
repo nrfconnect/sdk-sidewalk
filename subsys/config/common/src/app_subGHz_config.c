@@ -121,7 +121,7 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
-		.ctrl = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), tcxo_wakeup_time, 0) > 0 ? 
+		.ctrl = DT_PROP(DT_NODELABEL(lora_semtech_sx126xmb2xxs), dio3_as_tcxo_control) ?
 			SX126X_TCXO_CTRL_DIO3 : SX126X_TCXO_CTRL_NONE,
 		.voltage = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), tcxo_voltage, SX126X_TCXO_CTRL_1_8V),
 		.timeout = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), tcxo_wakeup_time, 0),
@@ -159,7 +159,6 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 	radio_sx1262_cfg.gpio_radio_busy =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
 			DT_NODELABEL(lora_semtech_sx126xmb2xxs), busy_gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.gpio_rf_sw_ena = GPIO_UNUSED_PIN;
 	radio_sx1262_cfg.bus_selector.client_selector = 
 		sid_gpio_utils_register_gpio(
 			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(arduino_spi), cs_gpios, INVALID_DT_GPIO));
@@ -172,6 +171,7 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 	__ASSERT(radio_sx1262_cfg.bus_selector.client_selector < GPIO_UNUSED_PIN, "client_selector invalid GPIO");
 	__ASSERT(radio_sx1262_cfg.bus_selector.speed_hz != 0, "invalid speed of SPI = %d", radio_sx1262_cfg.bus_selector.speed_hz);
 
+	radio_sx1262_cfg.gpio_rf_sw_ena = GPIO_UNUSED_PIN;
 	radio_sx1262_cfg.gpio_tx_bypass = GPIO_UNUSED_PIN;
 
 	__ASSERT(radio_sx1262_cfg.gpio_tx_bypass <= GPIO_UNUSED_PIN, "gpio_tx_bypass invalid GPIO");
