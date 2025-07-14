@@ -16,7 +16,7 @@ config MAIN_STACK_SIZE
 
 config SIDEWALK_SUBGHZ_SUPPORT
 	bool "Enable Sub-GHz link type support in Sidewalk libraries"
-	default y
+	default y if $(dt_chosen_enabled,zephyr_lora_transceiver)
 	help
 	  Use Sidewalk with support for BLE, LoRa and FSK.
 
