@@ -24,7 +24,7 @@
 
     lora_semtech_sx126xmb2xxs: lora@0 {
         reg = <0>;
-        spi-max-frequency = <DT_FREQ_M(4)>;
+        spi-max-frequency = <DT_FREQ_M(8)>;
 
         reset-gpios = <&arduino_header 0 GPIO_ACTIVE_LOW>;
 

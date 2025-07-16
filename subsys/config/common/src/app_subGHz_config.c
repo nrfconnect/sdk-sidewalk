@@ -46,12 +46,9 @@
 #define RADIO_MAX_CAD_SYMBOL SID_PAL_RADIO_LORA_CAD_04_SYMBOL
 #define RADIO_ANT_GAIN(X) ((X) * 100)
 
-#define NULL_STRUCT_INITIALIZER                                                                    \
-	{                                                                                          \
-		0                                                                                  \
-	}
+#define NULL_STRUCT_INITIALIZER { 0 }
 #define INVALID_DT_GPIO NULL_STRUCT_INITIALIZER
-#define SPI_FREQUENCY_DEFAULT (8UL*1000*1000)
+#define SPI_FREQUENCY_DEFAULT (8UL * 1000 * 1000)
 
 /* Default values for optional DTS properties */
 #define SX126X_DEFAULT_XTAL_CAP_XTA 0x12
@@ -146,6 +143,9 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 		.p = radio_sx1262_buffer,
 		.size = sizeof(radio_sx1262_buffer),
 	},
+
+	.bus_selector.speed_hz =
+		DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), spi_max_frequency, SPI_FREQUENCY_DEFAULT),
 };
 
 const radio_sx126x_device_config_t *get_radio_cfg(void)
@@ -159,17 +159,18 @@ const radio_sx126x_device_config_t *get_radio_cfg(void)
 	radio_sx1262_cfg.gpio_radio_busy =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
 			DT_NODELABEL(lora_semtech_sx126xmb2xxs), busy_gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.client_selector = 
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(arduino_spi), cs_gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.speed_hz =
-		DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), spi_max_frequency, SPI_FREQUENCY_DEFAULT);
+	radio_sx1262_cfg.bus_selector.client_selector =
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
+			DT_NODELABEL(arduino_spi), cs_gpios, INVALID_DT_GPIO));
 
 	__ASSERT(radio_sx1262_cfg.gpio_power < GPIO_UNUSED_PIN, "gpio_power invalid GPIO");
 	__ASSERT(radio_sx1262_cfg.gpio_int1 < GPIO_UNUSED_PIN, "gpio_int1 invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.gpio_radio_busy < GPIO_UNUSED_PIN, "gpio_radio_busy invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.bus_selector.client_selector < GPIO_UNUSED_PIN, "client_selector invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.bus_selector.speed_hz != 0, "invalid speed of SPI = %d", radio_sx1262_cfg.bus_selector.speed_hz);
+	__ASSERT(radio_sx1262_cfg.gpio_radio_busy < GPIO_UNUSED_PIN,
+		 "gpio_radio_busy invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.bus_selector.client_selector < GPIO_UNUSED_PIN,
+		 "client_selector invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.bus_selector.speed_hz != 0, "invalid speed of SPI = %d",
+		 radio_sx1262_cfg.bus_selector.speed_hz);
 
 	radio_sx1262_cfg.gpio_rf_sw_ena = GPIO_UNUSED_PIN;
 	radio_sx1262_cfg.gpio_tx_bypass = GPIO_UNUSED_PIN;
