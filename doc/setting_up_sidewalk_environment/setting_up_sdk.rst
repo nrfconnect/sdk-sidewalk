@@ -37,6 +37,11 @@ The compatible nRF Connect SDK version is specified in the :file:`west.yml` file
          The list of available nRF Connect SDK Add-ons appears in the Visual Studio Code's quick pick.
       #. Select :guilabel:`Amazon Sidewalk Add-on`.
       #. Select the Add-on version to install.
+      #. Install Python dependencies.
+
+         .. code-block:: console
+
+            pip install -r sidewalk/requirements.txt
 
       The Add-on and compatible nRF Connect SDK installation starts and it can take several minutes.
 
