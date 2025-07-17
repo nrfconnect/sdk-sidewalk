@@ -22,10 +22,6 @@
 #include <sid_gpio_utils.h>
 #include <sx126x_config.h>
 
-#if CONFIG_SOC_NRF52840
-#include <nrfx_spi.h>
-#endif /* CONFIG_SOC_NRF52840 */
-
 #include <app_subGHz_config.h>
 
 #define REGION_US915
@@ -50,12 +46,15 @@
 #define RADIO_MAX_CAD_SYMBOL SID_PAL_RADIO_LORA_CAD_04_SYMBOL
 #define RADIO_ANT_GAIN(X) ((X) * 100)
 
-#define NULL_STRUCT_INITIALIZER                                                                    \
-	{                                                                                          \
-		0                                                                                  \
-	}
+#define NULL_STRUCT_INITIALIZER { 0 }
 #define INVALID_DT_GPIO NULL_STRUCT_INITIALIZER
-#define SPI_FREQUENCY_DEFAULT (DT_FREQ_M(8))
+#define SPI_FREQUENCY_DEFAULT (8UL * 1000 * 1000)
+
+/* Default values for optional DTS properties */
+#define SX126X_DEFAULT_XTAL_CAP_XTA 0x12
+#define SX126X_DEFAULT_XTAL_CAP_XTB 0x12
+#define SX126X_DEFAULT_TX_POWER_OFFSET 0
+#define SX126X_DEFAULT_RX_BOOSTED false
 
 static uint8_t radio_sx1262_buffer[RADIO_SX1262_SPI_BUFFER_SIZE] = { 0 };
 
@@ -111,16 +110,19 @@ const radio_sx126x_regional_param_t radio_sx126x_regional_param[] = {
 
 static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	.id = SEMTECH_ID_SX1262,                     // chip id register not supported
-	.regulator_mode = RADIO_SX126X_REGULATOR_DCDC,
-	.rx_boost = false,
+	.regulator_mode = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), reg_mode, RADIO_SX126X_REGULATOR_DCDC),
+	.rx_boost = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), rx_boosted, SX126X_DEFAULT_RX_BOOSTED),
 	.lna_gain = RADIO_RX_LNA_GAIN,
 	.bus_factory = &radio_spi_factory,
 
 	.pa_cfg_callback = radio_sx1262_pa_cfg,
 
 	.tcxo = {
-        	.ctrl = SX126X_TCXO_CTRL_NONE,
-    	},
+		.ctrl = DT_PROP(DT_NODELABEL(lora_semtech_sx126xmb2xxs), dio3_as_tcxo_control) ?
+			SX126X_TCXO_CTRL_DIO3 : SX126X_TCXO_CTRL_NONE,
+		.voltage = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), tcxo_voltage, SX126X_TCXO_CTRL_1_8V),
+		.timeout = DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), tcxo_wakeup_time, 0),
+	},
 
 	.trim_cap_val_callback = radio_sx1262_trim_val,
 
@@ -141,46 +143,37 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 		.p = radio_sx1262_buffer,
 		.size = sizeof(radio_sx1262_buffer),
 	},
+
+	.bus_selector.speed_hz =
+		DT_PROP_OR(DT_NODELABEL(lora_semtech_sx126xmb2xxs), spi_max_frequency, SPI_FREQUENCY_DEFAULT),
 };
 
 const radio_sx126x_device_config_t *get_radio_cfg(void)
 {
 	radio_sx1262_cfg.gpio_power =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_reset_gpios), gpios, INVALID_DT_GPIO));
+			DT_NODELABEL(lora_semtech_sx126xmb2xxs), reset_gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_int1 =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_dio1_gpios), gpios, INVALID_DT_GPIO));
+			DT_NODELABEL(lora_semtech_sx126xmb2xxs), dio1_gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.gpio_radio_busy =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_busy_gpios), gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.gpio_rf_sw_ena =
-		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_antenna_enable_gpios), gpios, INVALID_DT_GPIO));
-#if CONFIG_SOC_NRF52840
+			DT_NODELABEL(lora_semtech_sx126xmb2xxs), busy_gpios, INVALID_DT_GPIO));
 	radio_sx1262_cfg.bus_selector.client_selector =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(nrfx_spi_cs), gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.speed_hz = NRF_SPI_FREQ_8M;
-#else /* CONFIG_SOC_NRF52840 */
-
-	radio_sx1262_cfg.bus_selector.client_selector = 
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(sid_semtech), cs_gpios, INVALID_DT_GPIO));
-	radio_sx1262_cfg.bus_selector.speed_hz =
-		DT_PROP_OR(DT_NODELABEL(sid_semtech), clock_frequency, SPI_FREQUENCY_DEFAULT);
-#endif /* CONFIG_SOC_NRF52840 */
+			DT_NODELABEL(arduino_spi), cs_gpios, INVALID_DT_GPIO));
 
 	__ASSERT(radio_sx1262_cfg.gpio_power < GPIO_UNUSED_PIN, "gpio_power invalid GPIO");
 	__ASSERT(radio_sx1262_cfg.gpio_int1 < GPIO_UNUSED_PIN, "gpio_int1 invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.gpio_radio_busy < GPIO_UNUSED_PIN, "gpio_radio_busy invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.gpio_rf_sw_ena < GPIO_UNUSED_PIN, "gpio_rf_sw_ena invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.bus_selector.client_selector < GPIO_UNUSED_PIN, "client_selector invalid GPIO");
-	__ASSERT(radio_sx1262_cfg.bus_selector.speed_hz != 0, "invalid speed of SPI = %d", radio_sx1262_cfg.bus_selector.speed_hz);
+	__ASSERT(radio_sx1262_cfg.gpio_radio_busy < GPIO_UNUSED_PIN,
+		 "gpio_radio_busy invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.bus_selector.client_selector < GPIO_UNUSED_PIN,
+		 "client_selector invalid GPIO");
+	__ASSERT(radio_sx1262_cfg.bus_selector.speed_hz != 0, "invalid speed of SPI = %d",
+		 radio_sx1262_cfg.bus_selector.speed_hz);
 
-	radio_sx1262_cfg.gpio_tx_bypass =
-		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(semtech_sx1262_tx_bypass), gpios, INVALID_DT_GPIO));
+	radio_sx1262_cfg.gpio_rf_sw_ena = GPIO_UNUSED_PIN;
+	radio_sx1262_cfg.gpio_tx_bypass = GPIO_UNUSED_PIN;
 
 	__ASSERT(radio_sx1262_cfg.gpio_tx_bypass <= GPIO_UNUSED_PIN, "gpio_tx_bypass invalid GPIO");
 
