@@ -16,7 +16,7 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
 
-#define SPI_NODE DT_NODELABEL(sid_semtech)
+#define SPI_NODE DT_PARENT(DT_CHOSEN(zephyr_lora_transceiver))
 
 #define SPI_OPTIONS                                                                                \
 	(uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX)
