@@ -12,3 +12,5 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"

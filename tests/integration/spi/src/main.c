@@ -17,10 +17,8 @@
 #include <sid_pal_serial_bus_ifc.h>
 #include <sid_pal_serial_bus_spi_config.h>
 
-#if defined(CONFIG_SOC_POSIX)
 #define NULL_STRUCT_INITIALIZER { 0 }
 #define INVALID_DT_GPIO NULL_STRUCT_INITIALIZER
-#endif /* CONFIG_SOC_POSIX */
 
 ZTEST(spi_bus, test_init_spi)
 {
