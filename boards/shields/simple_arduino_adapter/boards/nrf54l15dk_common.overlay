@@ -1,0 +1,122 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+/*
+ * Arduino header adapter shield for nrf54l15dk
+ * This shield maps nrf54l15dk pins to Arduino header format
+ * allowing standard Arduino shields to work on nrf54l15dk
+ */
+
+/ {
+    arduino_header: connector {
+        compatible = "arduino-header-r3";
+        #gpio-cells = <2>;
+        gpio-map-mask = <0xffffffff 0xffffffc0>;
+        gpio-map-pass-thru = <0 0x3f>;
+        gpio-map = <0 0 &gpio2 8 0>, /* A0 - NRESET*/
+                   <1 0 &gpio0 10 0>, /* A1 */
+                   <2 0 &gpio0 11 0>, /* A2 */
+                   <3 0 &gpio1 4 0>, /* A3 - GNSS_LNA */
+                   <4 0 &gpio0 13 0>, /* A4 */
+                   <5 0 &gpio0 14 0>, /* A5 */
+                   <6 0 &gpio0 7 0>, /* D0 - UART RX */
+                   <7 0 &gpio0 6 0>, /* D1 - UART TX */
+                   <8 0 &gpio0 15 0>, /* D2 */
+                   <9 0 &gpio2 6 0>, /* D3 - BUSY */
+                   <10 0 &gpio1 10 0>, /* D4 */
+                   <11 0 &gpio1 11 0>, /* D5 - DIO1 */
+                   <12 0 &gpio1 12 0>, /* D6 */
+                   <13 0 &gpio0 0 0>, /* D7 - NSS (Semtech CS) */
+                   <14 0 &gpio2 10 0>, /* D8 - ANT_SW */
+                   <15 0 &gpio0 9 0>, /* D9  */
+                   <16 0 &gpio0 8 0>, /* D10 - (Arduino CS) */
+                   <17 0 &gpio0 1 0>, /* D11 - SPI MOSI */
+                   <18 0 &gpio0 2 0>, /* D12 - SPI MISO */
+                   <19 0 &gpio0 3 0>, /* D13 - SPI SCK */
+                   <20 0 &gpio0 4 0>, /* D14 - I2C SDA */
+                   <21 0 &gpio0 5 0>;  /* D15 - I2C SCL */
+    };
+};
+
+arduino_spi: &spi30 {
+    status = "okay";
+    pinctrl-0 = <&spi30_default_alt>;
+    pinctrl-1 = <&spi30_sleep_alt>;
+    pinctrl-names = "default", "sleep";
+};
+
+arduino_i2c: &i2c20 {
+    status = "okay";
+    pinctrl-0 = <&i2c20_default_alt>;
+    pinctrl-1 = <&i2c20_sleep_alt>;
+    pinctrl-names = "default", "sleep";
+};
+
+arduino_serial: &uart21 {
+    status = "okay";
+    current-speed = <115200>;
+    pinctrl-0 = <&uart21_default_alt>;
+    pinctrl-1 = <&uart21_sleep_alt>;
+    pinctrl-names = "default", "sleep";
+};
+
+&pinctrl {
+    spi30_default_alt: spi30_default_alt {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 3)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 2)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 1)>;
+        };
+    };
+
+    spi30_sleep_alt: spi30_sleep_alt {
+        group1 {
+            psels = <NRF_PSEL(SPIM_SCK, 0, 3)>,
+                    <NRF_PSEL(SPIM_MISO, 0, 2)>,
+                    <NRF_PSEL(SPIM_MOSI, 0, 1)>;
+            low-power-enable;
+        };
+    };
+    i2c20_default_alt: i2c20_default_alt {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 5)>;
+        };
+    };
+
+    i2c20_sleep_alt: i2c20_sleep_alt {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 5)>;
+            low-power-enable;
+        };
+    };
+
+    uart21_default_alt: uart21_default_alt {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 6)>,
+                    <NRF_PSEL(UART_RX, 0, 7)>;
+        };
+    };
+
+    uart21_sleep_alt: uart21_sleep_alt {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 6)>,
+                    <NRF_PSEL(UART_RX, 0, 7)>;
+            low-power-enable;
+        };
+    };
+};
+
+/ {
+    aliases {
+        smtc-hal-uart = &uart20;
+        smtc-watchdog = &wdt31;
+    };
+};
+
+&wdt31 {
+    status = "okay";
+};
