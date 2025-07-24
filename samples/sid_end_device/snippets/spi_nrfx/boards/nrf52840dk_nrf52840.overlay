@@ -1,0 +1,31 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+&spi2 {
+	status = "disabled";
+};
+
+/{
+	nrfx_spi_gpios{
+		compatible = "gpio-keys";
+		nrfx_spi_sck: sck {
+			gpios = <&gpio1 0xF GPIO_ACTIVE_HIGH>;
+			label = "spi_sck";
+		};
+		nrfx_spi_miso: miso {
+			gpios = <&gpio1 0xE GPIO_ACTIVE_HIGH>;
+			label = "spi_miso";
+		};
+		nrfx_spi_mosi: mosi {
+			gpios = <&gpio1 0xD GPIO_ACTIVE_HIGH>;
+			label = "spi_mosi";
+		};
+		nrfx_spi_cs: cs {
+			gpios = <&gpio1 0x8 GPIO_ACTIVE_LOW>;
+			label = "spi_cs";
+		};
+	};
+};
