@@ -29,6 +29,12 @@ config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	help
 	  The value of the trim cap. Default value works for Semtech SX1262 shield.
 
+config SIDEWALK_SUBGHZ_TCXO_CTRL_DIO3
+	bool "Enable TCXO control via DIO3 for SX1262 [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	help
+	  Enable TCXO control via DIO3 for SX1262.
+
 endif # SIDEWALK_SUBGHZ_SUPPORT
 
 choice SIDEWALK_LINK_MASK
