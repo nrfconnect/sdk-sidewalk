@@ -13,7 +13,7 @@ manifest:
     - name: nrf
       remote: ncs
       repo-path: sdk-nrf
-      revision: v3.0.0
+      revision: fc5cbb2f31a56ea3a17bdcc6e5ee691cdc309888
       import: true
 
   self:
