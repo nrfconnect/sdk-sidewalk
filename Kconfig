@@ -14,9 +14,11 @@ if SIDEWALK
 config MAIN_STACK_SIZE
 	default 2048
 
+DT_CHOSEN_Z_LORA_TRANSCEIVER := zephyr,lora-transceiver
+
 config SIDEWALK_SUBGHZ_SUPPORT
 	bool "Enable Sub-GHz link type support in Sidewalk libraries"
-	default y
+	default y if $(dt_chosen_enabled,$(DT_CHOSEN_Z_LORA_TRANSCEIVER))
 	help
 	  Use Sidewalk with support for BLE, LoRa and FSK.
 
