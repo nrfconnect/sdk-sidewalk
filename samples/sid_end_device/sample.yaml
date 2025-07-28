@@ -18,6 +18,9 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-hello.conf"
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_FILE_TRANSFER=y
@@ -33,7 +36,10 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
-    extra_args: FILE_SUFFIX=release
+    extra_args:
+      - FILE_SUFFIX=release
+      - OVERLAY_CONFIG="overlay-hello.conf"
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.release"
@@ -49,7 +55,6 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
     extra_configs:
-      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
     tags:
       - Sidewalk
@@ -65,7 +70,6 @@ tests:
       - nrf54l15dk/nrf54l10/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
-      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.release"
     tags:
       - Sidewalk
@@ -79,7 +83,9 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
-    extra_args: OVERLAY_CONFIG="overlay-demo.conf"
+    extra_args:
+      - OVERLAY_CONFIG="overlay-demo.conf"
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="demo"
@@ -92,7 +98,6 @@ tests:
       - thingy53/nrf5340/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
-      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="demo.ble_only"
     integration_platforms:
       - thingy53/nrf5340/cpuapp
@@ -108,7 +113,9 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
-    extra_args: OVERLAY_CONFIG="overlay-dut.conf"
+    extra_args:
+      - OVERLAY_CONFIG="overlay-dut.conf"
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
     tags:
@@ -124,7 +131,6 @@ tests:
       - nrf54l15dk/nrf54l10/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
-      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
     tags:
       - Sidewalk
@@ -138,7 +144,9 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
-    extra_args: OVERLAY_CONFIG="overlay-dut.conf"
+    extra_args:
+      - OVERLAY_CONFIG="overlay-dut.conf"
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.no_secure"
@@ -168,7 +176,9 @@ tests:
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
-    extra_args: FILE_SUFFIX=release
+    extra_args:
+      - FILE_SUFFIX=release
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
       - CONFIG_SIDEWALK_LINK_MASK_FSK=y
@@ -183,7 +193,9 @@ tests:
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
-    extra_args: FILE_SUFFIX=release
+    extra_args:
+      - FILE_SUFFIX=release
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
       - CONFIG_SIDEWALK_LINK_MASK_LORA=y
@@ -201,7 +213,6 @@ tests:
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
-      - CONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
       - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.ble_only.release"
     tags:
       - Sidewalk
