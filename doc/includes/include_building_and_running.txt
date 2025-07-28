@@ -10,3 +10,25 @@ This sample can be found under :file:`samples/sid_end_device`.
    You do not have to repeat it for every sample rebuild.
 
 To build the sample, follow the steps in the `Building and programming an application`_ documentation.
+
+To build the sample for sub-GHz (LoRa/FSK) operation, use the ``--shield`` option with ``west build``. This configures the correct device tree overlays and pin mappings for the Semtech SX1262 shield, and enables the correct Sidewalk radio configuration.
+
+.. tabs::
+
+   .. tab:: nrf52840dk/nrf52840
+
+      .. code-block:: console
+
+         west build -b nrf52840dk/nrf52840 --shield semtech_sx1262mb2cas
+
+   .. tab:: nrf5340dk/nrf5340/cpuapp
+
+      .. code-block:: console
+
+         west build -b nrf5340dk/nrf5340/cpuapp --shield semtech_sx1262mb2cas
+
+   .. tab:: nrf54l15dk/nrf54l15/cpuapp
+
+      .. code-block:: console
+
+         west build -b nrf54l15dk/nrf54l15/cpuapp --shield nrf54l15dk_arduino_adapter --shield semtech_sx1262mb2cas
