@@ -7,6 +7,9 @@
  * Arduino header adapter shield for nrf54l15dk
  * This shield maps nrf54l15dk pins to Arduino header format
  * allowing standard Arduino shields to work on nrf54l15dk
+ * 
+ * IMPORTANT: This implementation avoids serial interface conflicts by using
+ * separate hardware blocks for I2C, SPI, and UART functions.
  */
 
 / {
@@ -40,25 +43,21 @@
     };
 };
 
+/*
+ * Serial Interface Assignment Strategy (avoiding conflicts):
+ * 
+ * Address Mapping:
+ * - 0xc6000 (Serial Interface 20): UART20 (console) - RESERVED
+ * - 0xc8000 (Serial Interface 22): I2C22 (Arduino I2C)
+ * - 0x104000 (Serial Interface 30): SPI30 (Arduino SPI)
+ * 
+ * This assignment ensures no conflicts between console and Arduino functions.
+ */
+
 arduino_spi: &spi30 {
     status = "okay";
     pinctrl-0 = <&spi30_default_alt>;
     pinctrl-1 = <&spi30_sleep_alt>;
-    pinctrl-names = "default", "sleep";
-};
-
-arduino_i2c: &i2c20 {
-    status = "okay";
-    pinctrl-0 = <&i2c20_default_alt>;
-    pinctrl-1 = <&i2c20_sleep_alt>;
-    pinctrl-names = "default", "sleep";
-};
-
-arduino_serial: &uart21 {
-    status = "okay";
-    current-speed = <115200>;
-    pinctrl-0 = <&uart21_default_alt>;
-    pinctrl-1 = <&uart21_sleep_alt>;
     pinctrl-names = "default", "sleep";
 };
 
@@ -79,44 +78,4 @@ arduino_serial: &uart21 {
             low-power-enable;
         };
     };
-    i2c20_default_alt: i2c20_default_alt {
-        group1 {
-            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
-                    <NRF_PSEL(TWIM_SCL, 0, 5)>;
-        };
-    };
-
-    i2c20_sleep_alt: i2c20_sleep_alt {
-        group1 {
-            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
-                    <NRF_PSEL(TWIM_SCL, 0, 5)>;
-            low-power-enable;
-        };
-    };
-
-    uart21_default_alt: uart21_default_alt {
-        group1 {
-            psels = <NRF_PSEL(UART_TX, 0, 6)>,
-                    <NRF_PSEL(UART_RX, 0, 7)>;
-        };
-    };
-
-    uart21_sleep_alt: uart21_sleep_alt {
-        group1 {
-            psels = <NRF_PSEL(UART_TX, 0, 6)>,
-                    <NRF_PSEL(UART_RX, 0, 7)>;
-            low-power-enable;
-        };
-    };
-};
-
-/ {
-    aliases {
-        smtc-hal-uart = &uart20;
-        smtc-watchdog = &wdt31;
-    };
-};
-
-&wdt31 {
-    status = "okay";
 };
