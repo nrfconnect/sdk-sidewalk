@@ -1,0 +1,10 @@
+# Copyright (c) 2024 Nordic Semiconductor
+# SPDX-License-Identifier: Apache-2.0
+
+config SHIELD_SIMPLE_ARDUINO_ADAPTER
+	def_bool $(shields_list_contains,simple_arduino_adapter)
+	help
+	  This shield maps nrf board pins to Arduino header format,
+	  allowing standard Arduino shields to work on every nrf board.
+	  It can be realized with a cable connection between the board
+	  and the Arduino shield.

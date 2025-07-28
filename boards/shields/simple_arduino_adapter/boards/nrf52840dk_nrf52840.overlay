@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2024 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* It is a way to reassign the node label arduino_spi from spi2 to spi3.
+ * spi2 draws way less current than spi3.
+ */
+
+/delete-node/ &arduino_spi;
+
+arduino_spi: &spi2 {
+    status = "okay";
+    pinctrl-0 = <&spi3_default>;
+    pinctrl-1 = <&spi3_sleep>;
+    pinctrl-names = "default", "sleep";
+};
