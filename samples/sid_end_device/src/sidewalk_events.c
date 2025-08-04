@@ -65,7 +65,11 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 		.platform_init_parameters.radio_cfg =
+#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
 			(radio_sx126x_device_config_t *)get_radio_cfg(),
+#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
+			(radio_lr1110_device_config_t *)get_radio_cfg(),
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 #endif
 	};
 
