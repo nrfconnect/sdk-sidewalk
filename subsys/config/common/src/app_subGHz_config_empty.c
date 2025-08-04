@@ -15,7 +15,7 @@
 
 #include <app_subGHz_config.h>
 
-const radio_sx126x_device_config_t *get_radio_cfg(void)
+const void *get_radio_cfg(void)
 {
 	return NULL;
 }

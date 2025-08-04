@@ -24,6 +24,22 @@ config SIDEWALK_SUBGHZ_SUPPORT
 
 if SIDEWALK_SUBGHZ_SUPPORT
 
+choice SIDEWALK_SUBGHZ_RADIO
+	prompt "Sub-GHz radio type"
+	default SIDEWALK_SUBGHZ_RADIO_SX126X if SHIELD_SEMTECH_SX126xMB2xxS
+	default SIDEWALK_SUBGHZ_RADIO_LR1110 if SHIELD_SEMTECH_LR1110MB1xxS
+	help
+	  Choose the sub-GHz radio type for Sidewalk.
+
+config SIDEWALK_SUBGHZ_RADIO_SX126X
+	bool "Semtech SX126X"
+
+config SIDEWALK_SUBGHZ_RADIO_LR1110
+	bool "Semtech LR1110 [EXPERIMENTAL]"
+	select EXPERIMENTAL
+
+endchoice # SIDEWALK_SUBGHZ_RADIO
+
 config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	hex "value for trim cap used by subGHz radio"
 	range 0x0 0xFFFF
