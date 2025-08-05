@@ -9,5 +9,5 @@
 lora_semtech_lr1110mb1xxs: &lora_semtech_lr11xxmb1xxs {
 	compatible = "semtech,lr1110";
 
-	tcxo-wakeup-time = <8>;
+	tcxo-wakeup-time = <14>;
 };
