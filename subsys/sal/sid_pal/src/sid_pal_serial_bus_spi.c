@@ -109,7 +109,8 @@ sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus
 	}
 
 	*iface = &bus_ops;
-	bus_serial_ctx.cfg.frequency = get_radio_cfg()->bus_selector.speed_hz;
+	bus_serial_ctx.cfg.frequency = DT_PROP_OR(DT_CHOSEN(zephyr_lora_transceiver),
+						  spi_max_frequency, SPI_FREQUENCY_DEFAULT);
 	bus_serial_ctx.cfg.cs.delay = 0;
 	bus_serial_ctx.cfg.cs.gpio = (struct gpio_dt_spec)GPIO_DT_SPEC_GET(SPI_NODE, cs_gpios);
 
