@@ -143,7 +143,7 @@ static radio_lr1110_device_config_t radio_lr1110_cfg = {
                 LR1110_TCXO_CTRL_DIO3 : LR1110_TCXO_CTRL_NONE,
             .tune = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), tcxo_voltage, LR1110_SYSTEM_TCXO_CTRL_1_8V),
             // Convert ms to 30.25 us ticks (1 ms = 33.06 ticks)
-            .timeout = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), tcxo_wakeup_time, 0) * 33,
+            .timeout = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), tcxo_wakeup_time, 0),
         },
 
     .rfswitch =
