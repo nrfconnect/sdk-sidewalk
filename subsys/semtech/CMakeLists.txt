@@ -5,6 +5,8 @@
 #
 
 zephyr_include_directories(include)
-zephyr_include_directories(sx126x/include)
+zephyr_include_directories_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X sx126x/include)
+zephyr_include_directories_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr1110/include)
 
-add_subdirectory(sx126x)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X sx126x)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr1110)

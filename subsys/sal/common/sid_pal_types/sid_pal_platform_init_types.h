@@ -16,15 +16,21 @@
 #ifndef SID_PAL_PLATFORM_INIT_TYPES_H
 #define SID_PAL_PLATFORM_INIT_TYPES_H
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
 #include <sx126x_config.h>
-#endif
+#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
+#include <lr1110_config.h>
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 
 typedef struct {
 //place holder for platform specific init parameters
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
     radio_sx126x_device_config_t * radio_cfg;
-#endif
+#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
+    radio_lr1110_device_config_t * radio_cfg;
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 } platform_specific_init_parameters_t;
 
-#endif
+#endif /* SID_PAL_PLATFORM_INIT_TYPES_H */

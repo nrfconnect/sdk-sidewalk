@@ -155,6 +155,22 @@ tests:
       - cli
       - no_secure
 
+  sample.sidewalk.dut.semtech_lr1110:
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf5340dk/nrf5340/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-dut.conf"
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+    extra_configs:
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
+    tags:
+      - Sidewalk
+      - cli
+
   sample.sidewalk.helloPower.ble.release:
     platform_exclude:
       - nrf52840dk/nrf52840
