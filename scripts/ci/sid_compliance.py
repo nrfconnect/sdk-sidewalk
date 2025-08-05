@@ -22,11 +22,10 @@ sidewalk_specials = [
     r"subsys/hal(/.*)+h",
     r"subsys/hal/src/memory.c",
     r"subsys/sal/common(/.*)+h",
-    r"subsys/semtech/include/semtech_radio_ifc.h",
     r"tests/validation/storage_kv/.*(c|h)",
     r"tests/validation/timer/.*(c|h)",
     r"subsys/demo(/.*)+(c|h)",
-    r"subsys/semtech/include/sx126x_config.h"
+    r"subsys/semtech/.*",
 ]
 
 

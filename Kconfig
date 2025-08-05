@@ -253,6 +253,7 @@ config SIDEWALK_USE_PREBUILTS
 
 rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
+rsource "boards/shields/*/Kconfig.shield"
 
 endif # SIDEWALK
 
