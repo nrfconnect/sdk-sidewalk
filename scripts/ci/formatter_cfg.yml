@@ -7,6 +7,8 @@ ignored_files_regexp:
 - subsys/hal/src/memory.c$
 - subsys/sal/common(/.*)+h$
 - subsys/semtech/include/.*h$
+- subsys/semtech/lr1110/.*
+- subsys/semtech/sx126x/.*
 - tools/.*
 - tests/validation/storage_kv/.*(c|h)$
 - tests/validation/timer/.*(c|h)$

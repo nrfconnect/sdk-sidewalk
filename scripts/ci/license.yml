@@ -29,9 +29,11 @@ licenses:
   file_regexp:
   - sidewalk.*/subsys/semtech/sx126x/sx126x_.*\.c$
   - sidewalk.*/subsys/semtech/sx126x/include/sx126x_.*\.h$
+  - sidewalk.*/subsys/semtech/lr1110/lr1110.*\.c$
+  - sidewalk.*/subsys/semtech/lr1110/include/lr1110.*\.h$
+  - sidewalk.*/subsys/semtech/lr1110/include/halo_lr1110.*\.h$
   search_license_txt:
   - All Rights Reserved
-  - radio
   spdx: null
 
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
@@ -45,6 +47,7 @@ licenses:
   - sidewalk.*/subsys/hal/src/memory.c$
   - sidewalk.*/subsys/sal/common/.*/sid_.*(c|h)$
   - sidewalk.*/subsys/semtech/include/semtech_radio_ifc.h$
+  - sidewalk.*/subsys/semtech/include/sid_clock_ifc.h$
   - sidewalk.*/subsys/semtech/sx126x/include/sid_.*\.h$
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
   - sidewalk.*/tests/validation/timer/.*(c|h)$
@@ -65,8 +68,9 @@ licenses:
   file_regexp:
   - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x.*\.h$
   - sidewalk.*/subsys/semtech/sx126x/semtech/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/lr1110/include/semtech/.*\.h$
+  - sidewalk.*/subsys/semtech/lr1110/semtech/.*\.(c|h)$
   search_license_txt:
-  - Revised BSD License
   - Redistribution and use in source and binary forms
   - Neither the name of the Semtech corporation
   spdx: null

@@ -3,4 +3,3 @@
 
 config SHIELD_SEMTECH_LR1110MB1xxS
 	def_bool $(shields_list_contains,semtech_lr1110mb1xxs)
-
