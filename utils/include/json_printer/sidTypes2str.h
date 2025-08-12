@@ -10,7 +10,7 @@
 #define SID_ERROR_T_STR(err)                                                                       \
 	(((-(err)) > -(SID_ERROR_INVALID_STATE)) || ((-(err)) < 0)) ?                              \
 		"UNKNOWN" :                                                                        \
-		((char *[]){                                                                       \
+		((const char *[]){                                                             \
 			"SID_ERROR_NONE",                                                          \
 			"SID_ERROR_GENERIC",                                                       \
 			"SID_ERROR_TIMEOUT",                                                       \
@@ -55,7 +55,7 @@
 		}[(-(err))])
 
 #define SID_MSG_TYPE_STR(val)                                                                      \
-	((char *[]){ "SID_MSG_TYPE_GET", "SID_MSG_TYPE_SET", "SID_MSG_TYPE_NOTIFY",                \
+	((const char *[]){ "SID_MSG_TYPE_GET", "SID_MSG_TYPE_SET", "SID_MSG_TYPE_NOTIFY",              \
 		     "SID_MSG_TYPE_RESPONSE" }[(val)])
 
 #define SID_LINK_MODE_STR(val)                                                                     \
@@ -83,7 +83,7 @@
 #define SIDEWALK_APP_EVENT_T_STR(val)                                                              \
 	((val) > (SID_EVENT_LAST)) ?                                                               \
 		"UNKNOWN" :                                                                        \
-		((char *[]){ "DUT_EVENT_INIT", "DUT_EVENT_DEINIT", "DUT_EVENT_START",              \
+		((const char *[]){ "DUT_EVENT_INIT", "DUT_EVENT_DEINIT", "DUT_EVENT_START",        \
 			     "DUT_EVENT_STOP", "DUT_EVENT_GET_MTU", "DUT_EVENT_GET_TIME",          \
 			     "DUT_EVENT_GET_STATUS", "DUT_EVENT_GET_OPTION",                       \
 			     "DUT_EVENT_SET_OPTION", "DUT_EVENT_SET_DEST_ID",                      \
@@ -97,7 +97,7 @@
 		"UNKNOWN" :                                                                        \
 	((val) >= (SID_EVENT_LAST)) ?                                                              \
 		SIDEWALK_APP_EVENT_T_STR(val) :                                                    \
-		((char *[]){ "SID_EVENT_SIDEWALK", "SID_EVENT_FACTORY_RESET",                      \
+		((const char *[]){ "SID_EVENT_SIDEWALK", "SID_EVENT_FACTORY_RESET",                \
 			     "SID_EVENT_NEW_STATUS", "SID_EVENT_SEND_MSG", "SID_EVENT_CONNECT",    \
 			     "SID_EVENT_LINK_SWITCH", "SID_EVENT_NORDIC_DFU",                      \
 			     "SID_EVENT_FILE_TRANSFER", "SID_EVENT_LAST" }[val])
