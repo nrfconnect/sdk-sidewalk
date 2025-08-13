@@ -18,6 +18,14 @@
 
 #include <sid_ble_link_config_ifc.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const sid_ble_link_config_t* app_get_ble_config(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //APP_BLE_CONFIG_H

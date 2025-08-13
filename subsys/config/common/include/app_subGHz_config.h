@@ -20,7 +20,16 @@
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_900_cfg.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const radio_sx126x_device_config_t* get_radio_cfg(void);
 const sid_pal_mfg_store_region_t* get_mfg_cfg(void);
 struct sid_sub_ghz_links_config* app_get_sub_ghz_config(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
