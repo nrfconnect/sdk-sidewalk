@@ -11,6 +11,10 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/gatt.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief check if attr is for SMP service
  * 
@@ -63,5 +67,9 @@ enum sid_ble_id_values {
 #if defined(CONFIG_BT_ID_MAX)
 BUILD_ASSERT(_BT_ID_MAX <= CONFIG_BT_ID_MAX,
 	     "Too many BT Ids! increase CONFIG_BT_ID_MAX, to match _BT_ID_MAX");
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 #endif

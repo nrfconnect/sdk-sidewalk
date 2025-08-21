@@ -10,6 +10,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DEPRECATED_DFU_FLAG_SETTINGS_KEY)
 typedef enum { DFU_APPLICATION, SIDEWALK_APPLICATION } app_start_t;
 app_start_t application_to_start(void);
@@ -52,5 +56,9 @@ int settings_utils_get_value_size(const char *name, size_t *len);
  * @return int number of readed bytes or negative errno on fail.
  */
 int settings_utils_load_immediate_value(const char *name, void *dest, size_t len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SETTINGS_UTILS_H */
