@@ -6,10 +6,9 @@
 /*
  * Arduino header adapter shield for nrf54l15dk
  * This shield maps nrf54l15dk pins to Arduino header format
- * allowing standard Arduino shields to work on nrf54l15dk
- * 
- * IMPORTANT: This implementation avoids serial interface conflicts by using
- * separate hardware blocks for I2C, SPI, and UART functions.
+ * allowing standard Arduino shields to work on nrf54l15dk.
+ * It can be realized with a cable connection between the board
+ * and the Arduino shield.
  */
 
 / {
@@ -42,17 +41,6 @@
                    <21 0 &gpio0 5 0>;  /* D15 - I2C SCL */
     };
 };
-
-/*
- * Serial Interface Assignment Strategy (avoiding conflicts):
- * 
- * Address Mapping:
- * - 0xc6000 (Serial Interface 20): UART20 (console) - RESERVED
- * - 0xc8000 (Serial Interface 22): I2C22 (Arduino I2C)
- * - 0x104000 (Serial Interface 30): SPI30 (Arduino SPI)
- * 
- * This assignment ensures no conflicts between console and Arduino functions.
- */
 
 arduino_spi: &spi30 {
     status = "okay";

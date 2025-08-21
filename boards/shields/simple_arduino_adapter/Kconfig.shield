@@ -6,5 +6,3 @@ config SHIELD_SIMPLE_ARDUINO_ADAPTER
 	help
 	  This shield maps nrf board pins to Arduino header format,
 	  allowing standard Arduino shields to work on every nrf board.
-	  It can be realized with a cable connection between the board
-	  and the Arduino shield.
