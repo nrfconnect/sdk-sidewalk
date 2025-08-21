@@ -16,11 +16,6 @@
 #ifndef APP_900_CONFIG_H
 #define APP_900_CONFIG_H
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
-#include <sx126x_config.h>
-#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
-#include <lr1110_config.h>
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_900_cfg.h>
 
@@ -28,11 +23,7 @@
 extern "C" {
 #endif
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
-const radio_sx126x_device_config_t* get_radio_cfg(void);
-#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
-const radio_lr1110_device_config_t* get_radio_cfg(void);
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
+const void* get_radio_cfg(void);
 const sid_pal_mfg_store_region_t* get_mfg_cfg(void);
 struct sid_sub_ghz_links_config* app_get_sub_ghz_config(void);
 

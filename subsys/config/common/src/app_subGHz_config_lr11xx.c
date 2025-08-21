@@ -201,7 +201,7 @@ static radio_lr1110_device_config_t radio_lr1110_cfg = {
         },
 };
 
-const radio_lr1110_device_config_t *get_radio_cfg(void)
+const void *get_radio_cfg(void)
 {
 	radio_lr1110_cfg.gpios.power =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(

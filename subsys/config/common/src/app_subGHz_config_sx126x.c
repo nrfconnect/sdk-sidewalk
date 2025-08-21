@@ -148,7 +148,7 @@ static radio_sx126x_device_config_t radio_sx1262_cfg = {
 	},
 };
 
-const radio_sx126x_device_config_t *get_radio_cfg(void)
+const void *get_radio_cfg(void)
 {
 	radio_sx1262_cfg.gpio_power =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
