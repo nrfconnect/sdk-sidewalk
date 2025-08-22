@@ -22,10 +22,6 @@
 #include <sid_gpio_utils.h>
 #include <lr1110_config.h>
 
-#if CONFIG_SOC_NRF52840
-#include <nrfx_spi.h>
-#endif /* CONFIG_SOC_NRF52840 */
-
 #include <app_subGHz_config.h>
 
 #define RADIO_MAX_CAD_SYMBOL SID_PAL_RADIO_LORA_CAD_04_SYMBOL
@@ -201,7 +197,7 @@ static radio_lr1110_device_config_t radio_lr1110_cfg = {
         },
 };
 
-const radio_lr1110_device_config_t *get_radio_cfg(void)
+const void *get_radio_cfg(void)
 {
 	radio_lr1110_cfg.gpios.power =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(

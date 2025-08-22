@@ -10,13 +10,6 @@
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) && defined(CONFIG_SOC_SERIES_NRF53X)
 #include <zephyr/bluetooth/bluetooth.h>
 #endif /* defined(CONFIG_SOC_SERIES_NRF53X) && defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
-#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
-#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
-#include <sx126x_config.h>
-#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
-#include <lr1110_config.h>
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 
 #include <zephyr/kernel.h>
 #include <zephyr/storage/flash_map.h>
@@ -24,21 +17,31 @@
 
 LOG_MODULE_REGISTER(sid_common, CONFIG_SIDEWALK_LOG_LEVEL);
 
+#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
+#include <sx126x_config.h>
+static void set_radio_config(const void *cfg)
+{
+	set_radio_sx126x_device_config((const radio_sx126x_device_config_t *)cfg);
+}
+#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
+#include <lr1110_config.h>
+static void set_radio_config(const void *cfg)
+{
+	set_radio_lr1110_device_config((const radio_lr1110_device_config_t *)cfg);
+}
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
+
 sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platform_init_parameters)
 {
-	if (!platform_init_parameters
-#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
-	    || !platform_init_parameters->radio_cfg
-#endif
-	) {
+	if (!platform_init_parameters) {
 		return SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
+
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
-#if defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
-	set_radio_sx126x_device_config(platform_init_parameters->radio_cfg);
-#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
-	set_radio_lr1110_device_config(platform_init_parameters->radio_cfg);
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
+	if (!platform_init_parameters->radio_cfg) {
+		return SID_ERROR_INCOMPATIBLE_PARAMS;
+	}
+	set_radio_config(platform_init_parameters->radio_cfg);
 #if defined(CONFIG_SOC_SERIES_NRF53X)
 	(void)bt_enable(NULL);
 	(void)bt_disable();
