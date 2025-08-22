@@ -22,10 +22,6 @@
 #include <sid_gpio_utils.h>
 #include <lr1110_config.h>
 
-#if CONFIG_SOC_NRF52840
-#include <nrfx_spi.h>
-#endif /* CONFIG_SOC_NRF52840 */
-
 #include <app_subGHz_config.h>
 
 #define RADIO_MAX_CAD_SYMBOL SID_PAL_RADIO_LORA_CAD_04_SYMBOL
