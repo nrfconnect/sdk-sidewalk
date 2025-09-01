@@ -23,4 +23,5 @@ See the available migration guides that will assist you in the transitioning fro
    :maxdepth: 1
    :glob:
 
+   releases_and_migration/migration_guide_addon_v110.rst
    releases_and_migration/migration_guide_addon_v010.rst
