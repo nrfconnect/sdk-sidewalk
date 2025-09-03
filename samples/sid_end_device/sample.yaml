@@ -11,7 +11,7 @@ common:
     - nrf54l15dk/nrf54l15/cpuapp/ns
     - nrf54l15dk/nrf54l10/cpuapp
 tests:
-  sample.sidewalk.hello:
+  sample.sidewalk.hello.sx1262:
     integration_platforms:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
@@ -28,8 +28,29 @@ tests:
     tags:
       - Sidewalk
       - hello
+      - sx1262
 
-  sample.sidewalk.hello.release:
+  sample.sidewalk.hello.lr1110:
+    platform_exclude:
+      - nrf5340dk/nrf5340/cpuapp
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-hello.conf"
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_FILE_TRANSFER=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
+    tags:
+      - Sidewalk
+      - hello
+      - lr1110
+
+  sample.sidewalk.hello.release.sx1262:
     integration_platforms:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
@@ -46,6 +67,28 @@ tests:
     tags:
       - Sidewalk
       - hello
+      - sx1262
+
+  sample.sidewalk.hello.release.lr1110:
+    platform_exclude:
+      - nrf5340dk/nrf5340/cpuapp
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+      - OVERLAY_CONFIG="overlay-hello.conf"
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.release"
+    tags:
+      - Sidewalk
+      - hello
+      - lr1110
 
   sample.sidewalk.hello.ble_only:
     integration_platforms:
@@ -76,7 +119,7 @@ tests:
       - hello
       - BLE
 
-  sample.sidewalk.demo:
+  sample.sidewalk.demo.sx1262:
     integration_platforms:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
@@ -92,6 +135,26 @@ tests:
     tags:
       - Sidewalk
       - demo
+      - sx1262
+
+  sample.sidewalk.demo.lr1110:
+    platform_exclude:
+      - nrf5340dk/nrf5340/cpuapp
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-demo.conf"
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="demo"
+    tags:
+      - Sidewalk
+      - demo
+      - lr1110
 
   sample.sidewalk.demo.ble_only:
     platform_allow:
@@ -106,7 +169,7 @@ tests:
       - demo
       - BLE
 
-  sample.sidewalk.dut:
+  sample.sidewalk.dut.sx1262:
     integration_platforms:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
@@ -121,6 +184,25 @@ tests:
     tags:
       - Sidewalk
       - cli
+      - sx1262
+
+  sample.sidewalk.dut.lr1110:
+    platform_exclude:
+      - nrf5340dk/nrf5340/cpuapp
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54l15dk/nrf54l15/cpuapp/ns
+      - nrf54l15dk/nrf54l10/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-dut.conf"
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+    extra_configs:
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
+    tags:
+      - Sidewalk
+      - cli
+      - lr1110
 
   sample.sidewalk.dut.ble_only:
     integration_platforms:
@@ -155,22 +237,6 @@ tests:
       - cli
       - no_secure
 
-  sample.sidewalk.dut.semtech_lr1110:
-    integration_platforms:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf54l15dk/nrf54l10/cpuapp
-    extra_args:
-      - OVERLAY_CONFIG="overlay-dut.conf"
-      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
-    extra_configs:
-      - CONFIG_SIDEWALK_APPLICATION_NAME="dut"
-    tags:
-      - Sidewalk
-      - cli
-
   sample.sidewalk.helloPower.ble.release:
     platform_exclude:
       - nrf52840dk/nrf52840
@@ -186,7 +252,7 @@ tests:
       - Sidewalk
       - helloPower
 
-  sample.sidewalk.helloPower.fsk.release:
+  sample.sidewalk.helloPower.fsk.release.sx1262:
     platform_exclude:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
@@ -202,8 +268,9 @@ tests:
     tags:
       - Sidewalk
       - helloPower
+      - sx1262
 
-  sample.sidewalk.helloPower.lora.release:
+  sample.sidewalk.helloPower.lora.release.sx1262:
     platform_exclude:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
@@ -219,6 +286,7 @@ tests:
     tags:
       - Sidewalk
       - helloPower
+      - sx1262
 
   sample.sidewalk.helloPower.ble_only.release:
     platform_exclude:
