@@ -16,6 +16,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/drivers/spi.h>
 
 #include <sid_pal_serial_bus_ifc.h>
 #include <sid_pal_serial_bus_spi_config.h>
@@ -53,6 +54,7 @@
 	}
 #define INVALID_DT_GPIO NULL_STRUCT_INITIALIZER
 #define SPI_FREQUENCY_DEFAULT (8UL*1000*1000)
+#define LORA_DT DT_NODELABEL(lora_semtech_lr11xxmb1xxs)
 
 /* Default values for optional DTS properties */
 #define LR1110_DEFAULT_TX_POWER_OFFSET 0
@@ -124,34 +126,34 @@ static const radio_lr1110_regional_param_t radio_lr1110_regional_param[] = {
 };
 
 static radio_lr1110_device_config_t radio_lr1110_cfg = {
-    .regulator_mode = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), reg_mode, LR1110_SYSTEM_REG_MODE_DCDC),
-    .rx_boost = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rx_boosted, LR1110_DEFAULT_RX_BOOSTED),
+    .regulator_mode = DT_PROP_OR(LORA_DT, reg_mode, LR1110_SYSTEM_REG_MODE_DCDC),
+    .rx_boost = DT_PROP_OR(LORA_DT, rx_boosted, LR1110_DEFAULT_RX_BOOSTED),
     .lna_gain = RADIO_RX_LNA_GAIN,
     .bus_factory = &radio_spi_factory,
 
-    .lfclock_cfg = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), lf_clk, LR1110_SYSTEM_LFCLK_XTAL),
+    .lfclock_cfg = DT_PROP_OR(LORA_DT, lf_clk, LR1110_SYSTEM_LFCLK_XTAL),
 
     .wakeup_delay_us = LR1110_DEFAULT_WAKEUP_DELAY_US,
     .pa_cfg_callback = radio_lr1110_pa_cfg,
     .tcxo_config =
         {
-            .ctrl = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), tcxo_wakeup_time, 0) > 0 ? 
+            .ctrl = DT_PROP_OR(LORA_DT, tcxo_wakeup_time, 0) > 0 ?
                 LR1110_TCXO_CTRL_DIO3 : LR1110_TCXO_CTRL_NONE,
-            .tune = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), tcxo_voltage, LR1110_SYSTEM_TCXO_CTRL_1_8V),
+            .tune = DT_PROP_OR(LORA_DT, tcxo_voltage, LR1110_SYSTEM_TCXO_CTRL_1_8V),
             // Convert ms to 30.25 us ticks (1 ms = 33.06 ticks)
-            .timeout = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), tcxo_wakeup_time, 0),
+            .timeout = DT_PROP_OR(LORA_DT, tcxo_wakeup_time, 0),
         },
 
     .rfswitch =
         {
-            .enable = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_enable, 0),
-            .standby = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_standby_mode, 0),
-            .rx = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_rx_mode, 0),
-            .tx = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_tx_mode, 0),
-            .tx_hp = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_tx_hp_mode, 0),
-            .tx_hf = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_tx_hf_mode, 0),
-            .gnss = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_gnss_mode, 0),
-            .wifi = DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), rf_sw_wifi_mode, 0),
+            .enable = DT_PROP_OR(LORA_DT, rf_sw_enable, 0),
+            .standby = DT_PROP_OR(LORA_DT, rf_sw_standby_mode, 0),
+            .rx = DT_PROP_OR(LORA_DT, rf_sw_rx_mode, 0),
+            .tx = DT_PROP_OR(LORA_DT, rf_sw_tx_mode, 0),
+            .tx_hp = DT_PROP_OR(LORA_DT, rf_sw_tx_hp_mode, 0),
+            .tx_hf = DT_PROP_OR(LORA_DT, rf_sw_tx_hf_mode, 0),
+            .gnss = DT_PROP_OR(LORA_DT, rf_sw_gnss_mode, 0),
+            .wifi = DT_PROP_OR(LORA_DT, rf_sw_wifi_mode, 0),
         },
 
     .rssi_no_signal_offset = LR1110_DEFAULT_RSSI_NO_SIGNAL_OFFSET,
@@ -201,23 +203,22 @@ const void *get_radio_cfg(void)
 {
 	radio_lr1110_cfg.gpios.power =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(lora_semtech_lr11xxmb1xxs), reset_gpios, INVALID_DT_GPIO));
+			LORA_DT, reset_gpios, INVALID_DT_GPIO));
 	radio_lr1110_cfg.gpios.int1 =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(lora_semtech_lr11xxmb1xxs), event_gpios, INVALID_DT_GPIO));
+			LORA_DT, event_gpios, INVALID_DT_GPIO));
 	radio_lr1110_cfg.gpios.radio_busy =
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(
-			DT_NODELABEL(lora_semtech_lr11xxmb1xxs), busy_gpios, INVALID_DT_GPIO));
+			LORA_DT, busy_gpios, INVALID_DT_GPIO));
 	radio_lr1110_cfg.gpios.rf_sw_ena = GPIO_UNUSED_PIN;
 	radio_lr1110_cfg.gpios.tx_bypass = GPIO_UNUSED_PIN;
 	radio_lr1110_cfg.gpios.txrx = GPIO_UNUSED_PIN;
 	radio_lr1110_cfg.gpios.power_cb = NULL;
 	radio_lr1110_cfg.gpios.arg = NULL;
 	radio_lr1110_cfg.bus_selector.client_selector = 
-		sid_gpio_utils_register_gpio(
-			(struct gpio_dt_spec)GPIO_DT_SPEC_GET_OR(DT_NODELABEL(arduino_spi), cs_gpios, INVALID_DT_GPIO));
+		sid_gpio_utils_register_gpio((struct gpio_dt_spec)SPI_CS_GPIOS_DT_SPEC_GET(LORA_DT));
 	radio_lr1110_cfg.bus_selector.speed_hz = 
-		DT_PROP_OR(DT_NODELABEL(lora_semtech_lr11xxmb1xxs), spi_max_frequency, SPI_FREQUENCY_DEFAULT);
+		DT_PROP_OR(LORA_DT, spi_max_frequency, SPI_FREQUENCY_DEFAULT);
 
 	__ASSERT(radio_lr1110_cfg.gpios.power < GPIO_UNUSED_PIN, "gpio_power invalid GPIO");
 	__ASSERT(radio_lr1110_cfg.gpios.int1 < GPIO_UNUSED_PIN, "gpio_int1 invalid GPIO");
