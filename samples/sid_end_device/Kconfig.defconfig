@@ -19,8 +19,8 @@ config BT_BUF_ACL_RX_SIZE
 	default 251
 	default 502 if SIDEWALK_DFU_BLE_FAST
 
-config BT_BUF_ACL_RX_COUNT
-	default 6
+config BT_BUF_ACL_RX_COUNT_EXTRA
+	default 5
 
 config BT_L2CAP_TX_MTU
 	default 247
