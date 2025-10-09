@@ -51,6 +51,8 @@ static int sid_mfg_storage_secure_read(uint16_t *p_value, uint8_t *buffer, uint1
 #endif
 #endif /* DEV_ID_REG */
 
+#define SID_SMSN_SIZE 32
+
 static const struct device *flash_dev;
 static uint32_t sid_mfg_version = INVALID_VERSION;
 tlv_ctx tlv_flash;
@@ -161,6 +163,14 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		LOG_ERR("Flash protect failed %d", err);
 	}
 #endif // CONFIG_FPROTECT AND NOT CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+
+	uint8_t smsn_buffer[SID_SMSN_SIZE] = { 0 };
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_SMSN, smsn_buffer, SID_SMSN_SIZE);
+	if (memcmp(smsn_buffer, (const uint8_t[SID_SMSN_SIZE]){ 0 }, SID_SMSN_SIZE) == 0) {
+		LOG_ERR("SMSN is not initialized");
+	} else {
+		LOG_HEXDUMP_DBG(smsn_buffer, SID_SMSN_SIZE, "Initialized with SMSN KEY: ");
+	}
 }
 
 void sid_pal_mfg_store_deinit(void)
