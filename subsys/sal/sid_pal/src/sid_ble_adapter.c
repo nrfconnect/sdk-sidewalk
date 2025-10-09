@@ -46,8 +46,8 @@ static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_
 static sid_error_t ble_adapter_disconnect(void);
 static sid_error_t ble_adapter_deinit(void);
 static sid_error_t ble_adapter_get_rssi(int8_t *rssi);
-static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power);
-static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power);
+static sid_error_t ble_adapter_get_tx_pwr(int16_t *tx_power);
+static sid_error_t ble_adapter_set_tx_pwr(int16_t tx_power);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
@@ -126,14 +126,14 @@ static void set_tx_power(uint8_t handle_type, uint16_t handle, int8_t tx_pwr_lvl
 	net_buf_unref(rsp);
 }
 
-static void get_tx_power(uint8_t handle_type, uint16_t handle, int8_t *tx_pwr_lvl)
+static void get_tx_power(uint8_t handle_type, uint16_t handle, int16_t *tx_pwr_lvl)
 {
 	struct bt_hci_cp_vs_read_tx_power_level *cp;
 	struct bt_hci_rp_vs_read_tx_power_level *rp;
 	struct net_buf *buf, *rsp = NULL;
 	int err;
 
-	*tx_pwr_lvl = 0xFF;
+	*tx_pwr_lvl = 0xFFFF;
 	buf = bt_hci_cmd_create(BT_HCI_OP_VS_READ_TX_POWER_LEVEL, sizeof(*cp));
 	if (!buf) {
 		LOG_ERR("Unable to allocate command buffer\n");
@@ -177,7 +177,7 @@ static sid_error_t ble_adapter_get_rssi(int8_t *rssi)
 	return SID_ERROR_NONE;
 }
 
-static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power)
+static sid_error_t ble_adapter_get_tx_pwr(int16_t *tx_power)
 {
 	uint16_t conn_handle = 0;
 
@@ -196,7 +196,7 @@ static sid_error_t ble_adapter_get_tx_pwr(int8_t *tx_power)
 	return SID_ERROR_NONE;
 }
 
-static sid_error_t ble_adapter_set_tx_pwr(int8_t tx_power)
+static sid_error_t ble_adapter_set_tx_pwr(int16_t tx_power)
 {
 	uint16_t conn_handle = 0;
 

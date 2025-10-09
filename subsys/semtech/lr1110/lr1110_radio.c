@@ -19,6 +19,7 @@
 #include <sid_time_ops.h>
 #include <sid_clock_ifc.h>
 #include <sid_pal_delay_ifc.h>
+#include <sid_utils.h>
 
 #define LR1110_DEFAULT_LORA_IRQ_MASK       (LR1110_SYSTEM_IRQ_ALL_MASK & ~(LR1110_SYSTEM_IRQ_PREAMBLE_DETECTED | \
                                             LR1110_SYSTEM_IRQ_SYNC_WORD_HEADER_VALID))
@@ -427,7 +428,7 @@ static const freq_band_t bands[] = {
 
 static const freq_band_t* lr1110_get_freq_band(uint32_t freq)
 {
-    for (size_t i = 0; i < sizeof(bands)/sizeof(bands[0]); i++) {
+    for (size_t i = 0; i < countof(bands); i++) {
         if (freq >= bands[i].start && freq <= bands[i].stop) {
             return &bands[i];
         }

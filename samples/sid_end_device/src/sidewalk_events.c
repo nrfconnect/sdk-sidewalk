@@ -13,6 +13,9 @@
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 #include <app_subGHz_config.h>
 #include <sid_pal_radio_ifc.h>
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
+#include <app_location_lr11xx_config.h>
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 #endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 
 #include <zephyr/logging/log.h>
@@ -65,7 +68,11 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 		.platform_init_parameters.radio_cfg = get_radio_cfg(),
-#endif
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
+		.platform_init_parameters.gnss_wifi_cfg =
+			(lr11xx_gnss_wifi_config_t *)get_location_cfg(),
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 	};
 
 	sid_error_t e = sid_platform_init(&platform_parameters);

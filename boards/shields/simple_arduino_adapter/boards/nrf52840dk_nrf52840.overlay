@@ -16,3 +16,12 @@ arduino_spi: &spi2 {
     pinctrl-1 = <&spi3_sleep>;
     pinctrl-names = "default", "sleep";
 };
+
+/{
+    zephyr,user {
+        led-sniff-gpios = <&arduino_header 10 GPIO_ACTIVE_HIGH>;
+        led-tx-gpios = <&arduino_header 4 GPIO_ACTIVE_HIGH>;
+        led-rx-gpios = <&arduino_header 5 GPIO_ACTIVE_HIGH>;
+        debug-gpios = <&arduino_header 8 GPIO_ACTIVE_HIGH>;
+    };
+};

@@ -35,8 +35,7 @@ config SIDEWALK_SUBGHZ_RADIO_SX126X
 	bool "Semtech SX126X"
 
 config SIDEWALK_SUBGHZ_RADIO_LR1110
-	bool "Semtech LR1110 [EXPERIMENTAL]"
-	select EXPERIMENTAL
+	bool "Semtech LR1110"
 
 endchoice # SIDEWALK_SUBGHZ_RADIO
 

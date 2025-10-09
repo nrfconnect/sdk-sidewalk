@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2018-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -116,6 +116,19 @@ typedef enum {
     STORAGE_KV_BULK_DATA_TRANSFER_LAST_BLOCK_SEQ_NUM_SIZE = 4,
     STORAGE_KV_BULK_DATA_TRANSFER_LAST_BLOCK_CHUNK_SIZE_SIZE = 2,
 } storage_kv_bulk_data_transfer_value_size_t;
+
+typedef enum {
+    STORAGE_KV_EP_METRICS_DATA = 1,   // 1
+} storage_kv_metrics_ep_data_key_t;
+
+typedef enum {
+    STORAGE_KV_DIAG_SETUP_FAILURE = 1,
+    STORAGE_KV_DIAG_SETUP_PRODUCT_SPECIFIC_FAILURE = 2,
+    STORAGE_KV_DIAG_SETUP_SESSION = 3,
+    STORAGE_KV_DIAG_SETUP_START_REASON = 4,
+    STORAGE_KV_DIAG_SETUP_INDEX = 5,
+    STORAGE_KV_DIAG_SETUP_FAILURE_COUNT = 6,
+} storage_kv_diag_key_t;
 
 #ifdef __cplusplus
 }

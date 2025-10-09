@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2019-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -23,9 +23,10 @@
  * @details Interface for timers for sidewalk SDK
  */
 
-#include <sid_error.h>
 #include <sid_pal_timer_types.h>
 #include <sid_time_types.h>
+
+#include <sid_error.h>
 
 #include <stdbool.h>
 

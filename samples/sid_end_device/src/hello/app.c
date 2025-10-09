@@ -352,6 +352,14 @@ static const struct bt_gatt_authorization_cb gatt_authorization_callbacks = {
 	.write_authorize = gatt_authorize,
 };
 
+#define MAX_TIME_SYNC_INTERVALS 10
+static uint16_t default_sync_intervals_h[MAX_TIME_SYNC_INTERVALS] = { 2, 4, 8,
+								      12 }; // default GCS intervals
+static struct sid_time_sync_config default_time_sync_config = {
+	.adaptive_sync_intervals_h = default_sync_intervals_h,
+	.num_intervals = sizeof(default_sync_intervals_h) / sizeof(default_sync_intervals_h[0]),
+};
+
 void app_start(void)
 {
 	if (app_buttons_init()) {
@@ -392,6 +400,8 @@ void app_start(void)
 		.callbacks = &event_callbacks,
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
+		.log_config = NULL,
+		.time_sync_config = &default_time_sync_config,
 	};
 
 	int err = bt_gatt_authorization_cb_register(&gatt_authorization_callbacks);

@@ -33,6 +33,24 @@ properties:
       This signal is high to indicate an event is available on the radio. It
       becomes low when all events are cleared.
 
+  antena-gpios:
+    type: phandle-array
+
+  gnss-lna-gpios:
+    type: phandle-array
+
+  led-sniff-gpios:
+    type: phandle-array
+
+  led-tx-gpios:
+    type: phandle-array
+
+  led-rx-gpios:
+    type: phandle-array
+
+  debug-gpios:
+    type: phandle-array
+
   lf-tx-path:
     type: int
     required: true

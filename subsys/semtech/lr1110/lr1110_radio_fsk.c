@@ -33,7 +33,8 @@
 #define LR1110_FSK_SYNC_WORD_LENGTH_IN_RX       3
 #define MAX_PAYLOAD_LENGTH_WITH_FCS_TYPE_0      251
 #define MAX_PAYLOAD_LENGTH_WITH_FCS_TYPE_1      253
-
+#define LR1110_FSK_PROCESS_DELAY_US_MIN 1000
+#define LR1110_FSK_PROCESS_DELAY_US_MAX 5000
 #define LR1110_FSK_TX_PROCESS_DELAY_US 1000
 #define LR1110_FSK_RX_PROCESS_DELAY_US 1000
 
@@ -487,10 +488,18 @@ uint32_t sid_pal_radio_fsk_get_fsk_number_of_symbols(const sid_pal_radio_fsk_mod
 
 uint32_t sid_pal_radio_get_fsk_tx_process_delay(void)
 {
-    return LR1110_FSK_TX_PROCESS_DELAY_US;
+    halo_drv_semtech_ctx_t *drv_ctx = lr1110_get_drv_ctx();
+    return (drv_ctx->config->state_timings.tx_delay_us < LR1110_FSK_PROCESS_DELAY_US_MIN
+            || drv_ctx->config->state_timings.tx_delay_us > LR1110_FSK_PROCESS_DELAY_US_MAX)
+               ? LR1110_FSK_TX_PROCESS_DELAY_US
+               : drv_ctx->config->state_timings.tx_delay_us;
 }
 
 uint32_t sid_pal_radio_get_fsk_rx_process_delay(void)
 {
-    return LR1110_FSK_RX_PROCESS_DELAY_US;
+    halo_drv_semtech_ctx_t *drv_ctx = lr1110_get_drv_ctx();
+    return (drv_ctx->config->state_timings.rx_delay_us < LR1110_FSK_PROCESS_DELAY_US_MIN
+            || drv_ctx->config->state_timings.rx_delay_us > LR1110_FSK_PROCESS_DELAY_US_MAX)
+               ? LR1110_FSK_RX_PROCESS_DELAY_US
+               : drv_ctx->config->state_timings.rx_delay_us;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2019-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file supports radio HAL interface
  */
@@ -208,6 +208,13 @@ static int32_t set_trim_cap_val_to_radio(uint8_t xta, uint8_t xtb)
             err = RADIO_ERROR_HARDWARE_ERROR;
             goto ret;
         }
+
+        if (drv_ctx.config->dio3_cfg_callback) {
+            if (drv_ctx.config->dio3_cfg_callback(2) != SID_ERROR_NONE) {
+                err = RADIO_ERROR_HARDWARE_ERROR;
+                goto ret;
+            }
+        }
     }
 
     // trim cappacitors can be set only in standby_xosc mode. switching standby
@@ -321,7 +328,15 @@ int32_t radio_sx126x_set_radio_mode(bool rf_en, bool tx_en)
         }
 
         if (drv_ctx.config->gpio_tx_bypass != HALO_GPIO_NOT_CONNECTED) {
-            if (sid_pal_gpio_write(drv_ctx.config->gpio_tx_bypass, tx_en) != SID_ERROR_NONE) {
+            if (sid_pal_gpio_write(drv_ctx.config->gpio_tx_bypass, (tx_en ? drv_ctx.pa_cfg.enable_ext_pa : tx_en))
+                != SID_ERROR_NONE) {
+                err = RADIO_ERROR_IO_ERROR;
+                break;
+            }
+        }
+
+        if (drv_ctx.config->band_sel_cfg_callback) {
+            if (drv_ctx.config->band_sel_cfg_callback(tx_en) != SID_ERROR_NONE) {
                 err = RADIO_ERROR_IO_ERROR;
                 break;
             }
@@ -479,11 +494,8 @@ int32_t sid_pal_radio_irq_process(void)
                         case RADIO_FSK_RX_DONE_STATUS_BAD_CRC:
                             radio_event = SID_PAL_RADIO_EVENT_RX_ERROR;
                             break;
-                        case RADIO_FSK_RX_DONE_STATUS_OK:
-                        case RADIO_FSK_RX_DONE_STATUS_INVALID_PARAMETER:
-                        case RADIO_FSK_RX_DONE_STATUS_INVALID_LENGTH:
-                        case RADIO_FSK_RX_DONE_STATUS_TIMEOUT:
-                            // Do nothing
+						default:
+                            // TODO WHAT here?
                             break;
                     }
                 }
@@ -738,6 +750,13 @@ int32_t sid_pal_radio_sleep(uint32_t sleep_us)
             break;
         }
 
+        if (drv_ctx.config->dio3_cfg_callback) {
+            if (drv_ctx.config->dio3_cfg_callback(1) != SID_ERROR_NONE) {
+                err = RADIO_ERROR_HARDWARE_ERROR;
+                break;
+            }
+        }
+
         if (sx126x_set_sleep(&drv_ctx, SX126X_SLEEP_CFG_WARM_START)
                       != SX126X_STATUS_OK) {
             err = RADIO_ERROR_HARDWARE_ERROR;
@@ -764,6 +783,13 @@ int32_t sid_pal_radio_standby(void)
             if (sx126x_wakeup(&drv_ctx) != SX126X_STATUS_OK) {
                 err = RADIO_ERROR_HARDWARE_ERROR;
                 break;
+            }
+
+            if (drv_ctx.config->dio3_cfg_callback) {
+                if (drv_ctx.config->dio3_cfg_callback(2) != SID_ERROR_NONE) {
+                    err = RADIO_ERROR_HARDWARE_ERROR;
+                    break;
+                }
             }
 
             if (drv_ctx.radio_state == SID_PAL_RADIO_SLEEP) {
@@ -820,7 +846,7 @@ int32_t sid_pal_radio_start_tx(uint32_t timeout)
             break;
         }
 
-        if ((err = radio_sx126x_set_radio_mode(true, drv_ctx.pa_cfg.enable_ext_pa)) != RADIO_ERROR_NONE) {
+        if ((err = radio_sx126x_set_radio_mode(true, true)) != RADIO_ERROR_NONE) {
             break;
         }
 
@@ -857,7 +883,7 @@ int32_t sid_pal_radio_set_tx_continuous_wave(uint32_t freq, int8_t power)
             break;
         }
 
-        if ((err = radio_sx126x_set_radio_mode(true, drv_ctx.pa_cfg.enable_ext_pa)) != RADIO_ERROR_NONE) {
+        if ((err = radio_sx126x_set_radio_mode(true, true)) != RADIO_ERROR_NONE) {
             break;
         }
 
@@ -866,6 +892,42 @@ int32_t sid_pal_radio_set_tx_continuous_wave(uint32_t freq, int8_t power)
         }
 
         if (sx126x_set_tx_cw(&drv_ctx) != SX126X_STATUS_OK) {
+            err = RADIO_ERROR_HARDWARE_ERROR;
+            break;
+        }
+        drv_ctx.radio_state = SID_PAL_RADIO_TX;
+    } while(0);
+
+    return err;
+}
+
+int32_t sid_pal_radio_set_tx_continuous_preamble(uint32_t freq, int8_t power)
+{
+    int32_t err;
+
+    do {
+        if ((err = sid_pal_radio_set_frequency(freq) != RADIO_ERROR_NONE)) {
+            break;
+        }
+
+        if ((err = sid_pal_radio_set_tx_power(power) != RADIO_ERROR_NONE)) {
+            break;
+        }
+
+        if ((err = set_trim_cap_val_to_radio(drv_ctx.trim >> 8, drv_ctx.trim & 0xFF))
+                   != RADIO_ERROR_NONE) {
+            break;
+        }
+
+        if ((err = radio_sx126x_set_radio_mode(true, true)) != RADIO_ERROR_NONE) {
+            break;
+        }
+
+        if ((err = radio_clear_irq_status_all()) != RADIO_ERROR_NONE) {
+            break;
+        }
+
+        if (sx126x_set_tx_cpbl(&drv_ctx) != SX126X_STATUS_OK) {
             err = RADIO_ERROR_HARDWARE_ERROR;
             break;
         }
@@ -1336,7 +1398,7 @@ int32_t sid_pal_radio_init(sid_pal_radio_event_notify_t notify, sid_pal_radio_ir
         }
 
         if (drv_ctx.config->dio3_cfg_callback) {
-            if ((err = drv_ctx.config->dio3_cfg_callback()) != RADIO_ERROR_NONE) {
+            if (drv_ctx.config->dio3_cfg_callback(0) != SID_ERROR_NONE) {
                 break;
             }
         }

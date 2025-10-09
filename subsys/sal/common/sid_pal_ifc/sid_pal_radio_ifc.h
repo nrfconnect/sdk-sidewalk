@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -173,6 +173,8 @@ typedef struct sid_pal_radio_state_transition_timings {
     uint32_t rx_to_tx_us;
     uint32_t tx_to_rx_us;
     uint32_t tcxo_delay_us;
+    uint16_t tx_delay_us;
+    uint16_t rx_delay_us;
 } sid_pal_radio_state_transition_timings_t;
 
 /** Radio event callback*/
@@ -355,6 +357,18 @@ int32_t sid_pal_radio_set_rx_duty_cycle(uint32_t rx_time, uint32_t sleep_time);
  *  @retval  On success RADIO_ERROR_NONE, on error a negative number is returned
  */
 int32_t sid_pal_radio_set_tx_continuous_wave(uint32_t freq, int8_t power);
+
+/** @brief Set the transmit continuous preamble wave.
+ *
+ *  Confiure the radio to transmit a continuous preamble wave. This API is used for
+ *  diagnostics mode only
+ *
+ *  @param[in]   freq frequency in Hz on which to transmit a continuous preamble wave.
+ *  @param[in]   power power in dB at which the continuous preamble wave has to be
+ *           transmitted
+ *  @retval  On success RADIO_ERROR_NONE, on error a negative number is returned
+ */
+int32_t sid_pal_radio_set_tx_continuous_preamble(uint32_t freq, int8_t power);
 
 /** @brief Set transmit payload for the radio to transmit.
  *

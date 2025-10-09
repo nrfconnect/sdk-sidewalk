@@ -310,3 +310,4 @@ int16_t semtech_radio_get_fsk_crc_type_idx(uint8_t crc)
     }
     return -1;
 }
+

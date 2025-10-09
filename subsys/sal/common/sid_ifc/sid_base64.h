@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -65,19 +65,19 @@ extern "C" {
 #endif
 
 struct sid_base64_ctx {
-	const uint8_t *next_in;
-	size_t avail_in;
-	size_t total_in;
+    const uint8_t *next_in;
+    size_t avail_in;
+    size_t total_in;
 
-	uint8_t *next_out;
-	size_t avail_out;
-	size_t total_out;
+    uint8_t *next_out;
+    size_t avail_out;
+    size_t total_out;
 
-	// Private fields for implementation:
+    // Private fields for implementation:
 
-	uint32_t temp; // FIFO of decoded bits
-	uint8_t temp_len; // size in bits
-	int state;
+    uint32_t temp;      // FIFO of decoded bits
+    uint8_t temp_len;   // size in bits
+    int state;
 };
 
 /*

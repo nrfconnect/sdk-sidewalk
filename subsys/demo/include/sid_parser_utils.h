@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -56,7 +56,7 @@ struct tl_in_tlv {
  * Store TLV header structure into user defined buffer
  * @param tl - TLV record to store
  * @param buf - buffer start, will be advanced by number of bytes used to store value
- * @param end - pointer to the end of user buffer
+ * @param end - pointer to the end of user buffer (must be from same array as *buf)
  *
  * @return SID_ERROR_NONE if operation was successful or one of errors below
  * @retval SID_ERROR_OOM - in case if buffer size is too small to store data
@@ -67,7 +67,7 @@ sid_error_t set_and_shift_tl_bytes_in_tlv(const struct tl_in_tlv *tl, uint8_t **
  * Parse TLV header structure into user defined buffer
  * @param buf - buffer start, will be advanced by number of bytes read during parse
  * @param tl - TLV record to store parsed result
- * @param end - pointer to the end of user buffer
+ * @param end - pointer to the end of user buffer (must be from same array as *buf)
  *
  * @return SID_ERROR_NONE if operation was successful or one of errors below
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - in case if buffer does not have enough data
@@ -126,7 +126,7 @@ sid_error_t set_bit_to_field16(uint16_t *buf, uint16_t val, uint16_t mask, uint8
  * Validates if buffer has more than byte available to store data
  *
  * @param start - buffer start
- * @param end - buffer end
+ * @param end - buffer end (must be from same array as start)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space available
@@ -137,7 +137,7 @@ sid_error_t check_has_memory(const uint8_t *start, const uint8_t *end);
  * Validates if buffer at least a byte available to store data
  *
  * @param start - buffer start
- * @param end - buffer end
+ * @param end - buffer end (must be from same array as start)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space available
@@ -148,7 +148,7 @@ sid_error_t check_has_memory_at_offset(const uint8_t *start, const uint8_t *end)
  * Validates if buffer has more than byte available to read from
  *
  * @param start - buffer start
- * @param end - buffer end
+ * @param end - buffer end (must be from same array as start)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data available
@@ -159,7 +159,7 @@ sid_error_t check_has_data(const uint8_t *start, const uint8_t *end);
  * Validates if buffer has at least 1 byte available to read from
  *
  * @param start - buffer start
- * @param end - buffer end
+ * @param end - buffer end (must be from same array as start)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data available
@@ -171,7 +171,7 @@ sid_error_t check_has_data_at_offset(const uint8_t *start, const uint8_t *end);
  *
  * @param buf - reference to data buffer
  * @param ret - vale to read data into
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data to process
@@ -183,7 +183,7 @@ sid_error_t get_and_shift_uint8(const uint8_t **buf, uint8_t *ret, const uint8_t
  *
  * @param val - to store
  * @param buf - to store vale
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -195,7 +195,7 @@ sid_error_t set_and_shift_uint8(const uint8_t val, uint8_t **buf, const uint8_t 
  *
  * @param buf - reference to data buffer
  * @param ret - vale to read data into
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data to process
@@ -211,7 +211,7 @@ sid_error_t get_and_shift_uint16(const uint8_t **buf, uint16_t *ret, const uint8
  *
  * @param val - to store
  * @param buf - to store vale
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -226,7 +226,7 @@ sid_error_t set_and_shift_uint16(const uint16_t val, uint8_t **buf, const uint8_
  *
  * @param buf - reference to data buffer
  * @param ret - vale to read data into
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data to process
@@ -239,7 +239,7 @@ sid_error_t get_and_shift_uint24(const uint8_t **buf, uint32_t *ret, const uint8
  *
  * @param val - to store
  * @param buf - to store vale
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -251,7 +251,7 @@ sid_error_t set_and_shift_uint24(const uint32_t val, uint8_t **buf, const uint8_
  *
  * @param buf - reference to data buffer
  * @param ret - vale to read data into
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data to process
@@ -267,7 +267,7 @@ sid_error_t get_and_shift_uint32(const uint8_t **buf, uint32_t *ret, const uint8
  *
  * @param val - to store
  * @param buf - to store vale
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -281,7 +281,7 @@ sid_error_t set_and_shift_uint32(const uint32_t val, uint8_t **buf, const uint8_
  *
  * @param buf - reference to data buffer
  * @param ret - vale to read data into
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_PARAM_OUT_OF_RANGE - no more data to process
@@ -293,7 +293,7 @@ sid_error_t get_and_shift_block(const uint8_t **buf, const size_t len, uint8_t *
  *
  * @param val - to store
  * @param buf - to store vale
- * @param end - end of data buffer
+ * @param end - end of data buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -304,7 +304,7 @@ sid_error_t set_and_shift_block(const uint8_t *block, const size_t len, uint8_t 
  * Parse prefix sized array of uint8_t value into user array
  *
  * @param rover - data to parse
- * @param end - end of data block
+ * @param end - end of data block (must be from same array as *rover)
  * @param max_len - capacity of user array
  * @param array_size - parsed array size
  * @param array - user array
@@ -324,7 +324,7 @@ sid_error_t get_and_shift_array_prefix_size_uint8(const uint8_t **rover,
  * @param tag - value tag
  * @param val - value
  * @param buf - buffer to serialize data
- * @param end - end of serialize buffer
+ * @param end - end of serialize buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -339,7 +339,7 @@ sid_error_t set_and_shift_uint8_tlv(uint8_t tag, uint8_t val, uint8_t **buf, con
  * @param tag - value tag
  * @param val - value
  * @param buf - buffer to serialize data
- * @param end - end of serialize buffer
+ * @param end - end of serialize buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -356,7 +356,7 @@ sid_error_t set_and_shift_uint16_tlv(uint8_t tag, uint16_t val, uint8_t **buf, c
  * @param tag - value tag
  * @param val - value
  * @param buf - buffer to serialize data
- * @param end - end of serialize buffer
+ * @param end - end of serialize buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -371,7 +371,7 @@ sid_error_t set_and_shift_uint32_tlv(uint8_t tag, uint32_t val, uint8_t **buf, c
  * @param tag - value tag
  * @param val - value
  * @param buf - buffer to serialize data
- * @param end - end of serialize buffer
+ * @param end - end of serialize buffer (must be from same array as *buf)
  *
  * @retval SID_ERROR_NONE
  * @retval SID_ERROR_OOM - no more space left to store data
@@ -727,15 +727,6 @@ int32_t utils_parse_input_num(uint8_t *buf);
  */
 int16_t utils_parse_hex_in_str(uint8_t *out_buf, uint8_t *buf);
 
-/** @brief convert buffer in hex string format to
- *  decimal string format
- *
- *  @param pointer to hex string buffer
- *  @param output buffer pointer to decimal string
- *  @return number of bytes filled in output buffer
- */
-int8_t utils_hex_str_to_bin(uint8_t *str, uint8_t *dst);
-
 /** @brief convert buffer in decimal string format to
  *  hex string format
  *
@@ -775,6 +766,16 @@ bool utils_set_clr_chk_bit(uint32_t *val, int n, bit_opt_t opr);
  * @return 0-0xF if hex ascii param is valid or 0xFF if param is invalid
  */
 uint8_t utils_parse_mac_str(const uint8_t *str, uint8_t *out);
+
+/**
+ * @brief Convert hex string into uint8_t buffer
+ *
+ * @param str_p poitner to hex string buffer
+ * @param data_p Output byte buffer
+ * @param buf_len size input buffer
+ * return -1 if error, size of converted data for success
+ */
+int utils_parse_hexstr(const char *str_p, uint8_t *data_p, size_t buf_len);
 
 /** @brief Read 2 bytes from a buffer
  *

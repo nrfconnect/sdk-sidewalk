@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -11,7 +11,6 @@
  * IMPLIED, OR STATUTORY, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
  */
-
 
 #ifndef SID_PAL_MFG_STORE_IFC_H
 #define SID_PAL_MFG_STORE_IFC_H
@@ -85,6 +84,7 @@ typedef enum {
     SID_PAL_MFG_STORE_AMZN_PUB_ED25519 = 36,
     SID_PAL_MFG_STORE_AMZN_PUB_P256R1 = 37,
     SID_PAL_MFG_STORE_APID = 38,
+    SID_PAL_MFG_STORE_DTID = 39,
 
     /*
      * This arbitrary value is the number of value identifiers
@@ -100,44 +100,45 @@ typedef enum {
 
 /* Value sizes in bytes */
 typedef enum {
-    SID_PAL_MFG_STORE_DEVID_SIZE                        = 5,
-    SID_PAL_MFG_STORE_VERSION_SIZE                      = 4,
-    SID_PAL_MFG_STORE_SERIAL_NUM_SIZE                   = 17,
-    SID_PAL_MFG_STORE_SMSN_SIZE                         = 32,
-    SID_PAL_MFG_STORE_APP_PUB_ED25519_SIZE              = 32,
-    SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_SIZE          = 32,
-    SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIZE           = 32,
+    SID_PAL_MFG_STORE_DEVID_SIZE = 5,
+    SID_PAL_MFG_STORE_VERSION_SIZE = 4,
+    SID_PAL_MFG_STORE_SERIAL_NUM_SIZE = 17,
+    SID_PAL_MFG_STORE_SMSN_SIZE = 32,
+    SID_PAL_MFG_STORE_APP_PUB_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIZE = 32,
     SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE_SIZE = 64,
-    SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_SIZE           = 32,
-    SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIZE            = 64,
-    SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE_SIZE  = 64,
-    SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIZE              = 32,
-    SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE_SIZE    = 64,
-    SID_PAL_MFG_STORE_DAK_ED25519_SERIAL_SIZE           = 4,
-    SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIZE               = 64,
-    SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE_SIZE     = 64,
-    SID_PAL_MFG_STORE_DAK_P256R1_SERIAL_SIZE            = 4,
-    SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIZE          = 32,
-    SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIGNATURE_SIZE= 64,
-    SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL_SIZE       = 4,
-    SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIZE           = 64,
+    SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1_SIZE = 32,
+    SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIZE = 64,
+    SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_DAK_ED25519_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIZE = 64,
+    SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_DAK_P256R1_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIZE = 64,
     SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIGNATURE_SIZE = 64,
-    SID_PAL_MFG_STORE_PRODUCT_P256R1_SERIAL_SIZE        = 4,
-    SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIZE              = 32,
-    SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE_SIZE    = 64,
-    SID_PAL_MFG_STORE_MAN_ED25519_SERIAL_SIZE           = 4,
-    SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIZE               = 64,
-    SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE_SIZE     = 64,
-    SID_PAL_MFG_STORE_MAN_P256R1_SERIAL_SIZE            = 4,
-    SID_PAL_MFG_STORE_SW_PUB_ED25519_SIZE               = 32,
-    SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE_SIZE     = 64,
-    SID_PAL_MFG_STORE_SW_ED25519_SERIAL_SIZE            = 4,
-    SID_PAL_MFG_STORE_SW_PUB_P256R1_SIZE                = 64,
-    SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE_SIZE      = 64,
-    SID_PAL_MFG_STORE_SW_P256R1_SERIAL_SIZE             = 4,
-    SID_PAL_MFG_STORE_AMZN_PUB_ED25519_SIZE             = 32,
-    SID_PAL_MFG_STORE_AMZN_PUB_P256R1_SIZE              = 64,
-    SID_PAL_MFG_STORE_APID_SIZE                         = 4,
+    SID_PAL_MFG_STORE_PRODUCT_P256R1_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_MAN_ED25519_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIZE = 64,
+    SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_MAN_P256R1_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_SW_PUB_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_SW_ED25519_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_SW_PUB_P256R1_SIZE = 64,
+    SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE_SIZE = 64,
+    SID_PAL_MFG_STORE_SW_P256R1_SERIAL_SIZE = 4,
+    SID_PAL_MFG_STORE_AMZN_PUB_ED25519_SIZE = 32,
+    SID_PAL_MFG_STORE_AMZN_PUB_P256R1_SIZE = 64,
+    SID_PAL_MFG_STORE_APID_SIZE = 4,
+    SID_PAL_MFG_STORE_DTID_SIZE = 14,
 } sid_pal_mfg_store_value_size_t;
 
 
@@ -146,6 +147,8 @@ typedef enum {
 /* Basic I/O and setup */
 
 typedef uint32_t (*sid_pal_mfg_store_app_value_to_offset_t)(int value);
+
+typedef bool (*sid_pal_mfg_store_overwrite_read_t)(uint16_t value, uint8_t *buffer, uint16_t length);
 
 /* Type which holds the start and end addresses of the manufacturing store */
 typedef struct {
@@ -166,6 +169,13 @@ typedef struct {
      *  provided value.
      */
     sid_pal_mfg_store_app_value_to_offset_t app_value_to_offset;
+
+    /*
+     *  This function allows to overwrite read calls and call the callback function
+     *  defined by overwrite_read, if the value is overwritten then it returns true
+     *  else false
+     */
+    sid_pal_mfg_store_overwrite_read_t overwrite_read;
 } sid_pal_mfg_store_region_t;
 
 /** Prepare the manufacturing store for use. Must be called before
@@ -214,7 +224,6 @@ bool sid_pal_mfg_store_is_empty(void);
  */
 int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t length);
 
-
 /** Read from mfg store.
  *
  *  @param[in]  value  Enum constant for the desired value. Use values from
@@ -223,8 +232,6 @@ int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t 
  *  @param[out] buffer Buffer to which the value will be copied.
  *  @param[in]  length Length of the value in bytes. Use values from
  *                     sid_pal_mfg_store_value_size_t here.
- *
- *
  */
 void sid_pal_mfg_store_read(uint16_t value, uint8_t *buffer, uint16_t length);
 

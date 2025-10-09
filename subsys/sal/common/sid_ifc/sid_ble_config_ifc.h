@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -105,7 +105,8 @@ typedef struct sid_ble_cfg_conn_param {
 enum sid_ble_user_config_type {
     SID_BLE_USER_CFG_ADV,
     SID_BLE_USER_CFG_CONN,
-    SID_BLE_USER_CFG_ALL,
+    SID_BLE_USER_CFG_ADV_AND_CONN,
+    SID_BLE_USER_CFG_INACTIVITY_TIMEOUT,
 };
 
 typedef struct sid_ble_user_config {
@@ -113,7 +114,13 @@ typedef struct sid_ble_user_config {
     sid_ble_cfg_conn_param_t conn_param;
     bool is_set;                                 /* True: Set Param, False: Get Param */
     enum sid_ble_user_config_type cfg_type;
+    uint32_t inactivity_timeout;
 } sid_ble_user_config_t;
+
+typedef struct sid_ble_d2d_config {
+    bool is_set;
+    bool set_d2d_only;
+} sid_ble_d2d_config_t;
 
 enum sid_ble_cfg_mac_address_type {
     /** Address obtained from IEEE registration authority, no privacy */
@@ -128,6 +135,35 @@ enum sid_ble_cfg_mac_address_type {
      * remote. Used when bonding is enabled */
     SID_BLE_CFG_MAC_ADDRESS_TYPE_RANDOM_PRIVATE_RESOLVABLE,
 };
+
+enum sid_ble_llc_optimization_policy {
+    /** Optimizes BLE long lived connection for power */
+    SID_BLE_LLC_POWER_OPTIMIZED,
+    /** Optimizes BLE long lived connection for latency */
+    SID_BLE_LLC_LATENCY_OPTIMIZED,
+    /** Maximum value for validation and iteration purposes */
+    SID_BLE_LLC_MAX,
+};
+
+enum sid_ble_conn_policy {
+    /** Default connection policy with user configured advertisement
+     * intervals and connection parameters */
+    SID_BLE_CONN_POLICY_DEFAULT,
+    /** Tries to maintain connection all the time with option to
+     * choose between policy optimized for power or latency */
+    SID_BLE_CONN_POLICY_LONG_LIVED_CONNECTION,
+    /** Uses fast advertising for certain duration and then switches to
+     * user configured advertisement intervals and connection parameters */
+    SID_BLE_CONN_POLICY_OPTIMAL_ADVERTISING,
+    /** Maximum value for validation and iteration purposes */
+    SID_BLE_CONN_POLICY_MAX,
+};
+
+typedef struct sid_ble_connection_policy {
+    bool is_set;
+    enum sid_ble_llc_optimization_policy llc_policy;
+    enum sid_ble_conn_policy conn_policy;
+} sid_ble_connection_policy_t;
 
 typedef struct sid_ble_config {
     const char *name;
@@ -146,6 +182,7 @@ typedef struct sid_ble_config {
      * configuring to 0 will disable the retries of the message
      */
     uint8_t metrics_msg_retries;
+    uint32_t inactivity_timeout;
 } sid_ble_config_t;
 
 /** @} */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -183,7 +183,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - In case method is successful
      *          In case of error, the error type depends on implementation
      */
-    sid_error_t (*get_tx_pwr)(int8_t *tx_power);
+    sid_error_t (*get_tx_pwr)(int16_t *tx_power);
 
     /**
      * Sends the data provided by the Network Interface over the air.
@@ -220,7 +220,7 @@ struct sid_pal_ble_adapter_interface {
      * @return SID_ERROR_NONE - in case method finished with success.
      *         In case of error, the error type depend upon implementation.
      */
-    sid_error_t (*set_tx_pwr)(int8_t tx_power);
+    sid_error_t (*set_tx_pwr)(int16_t tx_power);
 
     /**
      * If defined, forwards the result of sid_pal_ble_data_callback_t data_callback.

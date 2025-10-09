@@ -30,15 +30,19 @@
 
         event-gpios = <&arduino_header 11 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
 
+        antena-gpios = <&arduino_header 14 GPIO_ACTIVE_HIGH>;
+
+        gnss-lna-gpios = <&arduino_header 3 GPIO_ACTIVE_HIGH>;
+
         lf-tx-path = <LR11XX_TX_PATH_LF_LP_HP>;
 
         lf-clk = <LR11XX_LFCLK_XTAL>;
         reg-mode = <LR11XX_REG_MODE_DCDC>;
 
-        rf-sw-enable = <(LR11XX_DIO7)>;
-        rf-sw-rx-mode = <0>;
-        rf-sw-tx-mode = <0>;
-        rf-sw-tx-hp-mode = <0>;
+        rf-sw-enable = <(LR11XX_DIO5 | LR11XX_DIO6 | LR11XX_DIO7)>;
+        rf-sw-rx-mode = <LR11XX_DIO5>;
+        rf-sw-tx-mode = <(LR11XX_DIO5 | LR11XX_DIO6)>;
+        rf-sw-tx-hp-mode = <LR11XX_DIO6>;
         rf-sw-gnss-mode = <LR11XX_DIO7>;
 
         tcxo-voltage = <LR11XX_TCXO_SUPPLY_1_8V>;
