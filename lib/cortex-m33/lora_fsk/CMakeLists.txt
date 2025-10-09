@@ -6,4 +6,8 @@
 
 set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib/cortex-m33/lora_fsk)
 
-zephyr_library_link_libraries(${SID_LIB_DIR}/libsid_protocol_all.a)
+zephyr_library_link_libraries(
+    ${SID_LIB_DIR}/libsid_protocol_all.a 
+    ${SID_LIB_DIR}/libsmtc_lbm.a
+    ${SID_LIB_DIR}/libsid_fsk_tpc.a
+)

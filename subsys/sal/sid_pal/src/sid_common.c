@@ -11,6 +11,10 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #endif /* defined(CONFIG_SOC_SERIES_NRF53X) && defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
+#include <lr11xx_gnss_wifi_config.h>
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
+
 #include <zephyr/kernel.h>
 #include <zephyr/storage/flash_map.h>
 #include <zephyr/logging/log.h>
@@ -24,10 +28,10 @@ static void set_radio_config(const void *cfg)
 	set_radio_sx126x_device_config((const radio_sx126x_device_config_t *)cfg);
 }
 #elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
-#include <lr1110_config.h>
+#include <lr11xx_config.h>
 static void set_radio_config(const void *cfg)
 {
-	set_radio_lr1110_device_config((const radio_lr1110_device_config_t *)cfg);
+	set_radio_lr11xx_device_config((const radio_lr11xx_device_config_t *)cfg);
 }
 #endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 
@@ -55,6 +59,9 @@ sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platf
 	}
 #endif
 
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
+	set_lr11xx_gnss_wifi_config(platform_init_parameters->gnss_wifi_cfg);
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 	return SID_ERROR_NONE;
 }
 

@@ -58,6 +58,12 @@ config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
+config SID_END_DEVICE_CLI_ALIVE_MAKRER
+    bool "Enable alive marker"
+    help
+        Enable alive marker that periodically prints "alive" message to log.
+        Useful to verify that application is running and not stuck.
+
 endif # SID_END_DEVICE_CLI
 
 config SID_END_DEVICE_AUTO_START
@@ -127,6 +133,13 @@ config SBDT_MAX_PARALEL_TRANSFERS
 
 endif # SIDEWALK_FILE_TRANSFER
 
+config SIDEWALK_LOCATION_SHELL
+    bool "Enable Sidewalk Location CLI"
+    depends on SID_END_DEVICE_CLI
+    help
+        Enables Sidewalk location and dult command line interface.
+        Provides commands for location services and unwanted location tracking.
+
 if SIDEWALK_CRYPTO
 
 choice CC3XX_LOCK_VARIANT
@@ -178,5 +191,7 @@ if SHELL
         default y if !SHELL_LOG_BACKEND
         default n
 endif #SHELL
+
+
 
 source "Kconfig.zephyr"

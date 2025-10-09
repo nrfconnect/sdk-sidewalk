@@ -3,6 +3,10 @@
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
 .. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/index.html
+.. _nrf52840: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/app_dev/device_guides/nrf52/index.html
+.. _nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
+.. _nRF54L15: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/app_dev/device_guides/nrf54l/index.html
+.. _nRF54L10: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/app_dev/device_guides/nrf54l/index.html
 .. _nrf52840 DK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
 .. _nrf5340 DK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
 .. _Thingy53: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html

@@ -27,8 +27,8 @@
 extern "C" {
 #endif
 
-#if defined(__LITTLE_ENDIAN__) || (defined(BYTE_ORDER) && BYTE_ORDER == LITTLE_ENDIAN) ||          \
-	(defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+#if defined(__LITTLE_ENDIAN__) || (defined(BYTE_ORDER) && BYTE_ORDER == LITTLE_ENDIAN) \
+    || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 
 /**
  * Converts from host byte order (32-bit) to network byte order.

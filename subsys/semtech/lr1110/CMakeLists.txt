@@ -28,4 +28,5 @@ zephyr_library_sources(
 
 zephyr_library_compile_definitions(
   DUAL_LINK_SUPPORT=1
+  LR11XX_DISABLE_WARNINGS=1
 )

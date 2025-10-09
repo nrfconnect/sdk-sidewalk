@@ -18,21 +18,21 @@
         gpio-map-mask = <0xffffffff 0xffffffc0>;
         gpio-map-pass-thru = <0 0x3f>;
         gpio-map = <0 0 &gpio2 8 0>, /* A0 - NRESET*/
-                   <1 0 &gpio0 10 0>, /* A1 */
-                   <2 0 &gpio0 11 0>, /* A2 */
-                   <3 0 &gpio1 4 0>, /* A3 - GNSS_LNA */
-                   <4 0 &gpio0 13 0>, /* A4 */
-                   <5 0 &gpio0 14 0>, /* A5 */
+                   <1 0 &gpio0 99 0>, /* A1 - UNUSED - SET AS INVALID*/ 
+                   <2 0 &gpio0 15 0>, /* A2 - UNUSED - SET AS INVALID*/
+                   <3 0 &gpio1 12 0>, /* A3 - GNSS_LNA */
+                   <4 0 &gpio0 99 0>, /* A4 - UNUSED - SET AS INVALID*/
+                   <5 0 &gpio0 99 0>, /* A5 - UNUSED - SET AS INVALID*/
                    <6 0 &gpio0 7 0>, /* D0 - UART RX */
                    <7 0 &gpio0 6 0>, /* D1 - UART TX */
-                   <8 0 &gpio0 15 0>, /* D2 */
+                   <8 0 &gpio0 99 0>, /* D2 - UNUSED - SET AS INVALID*/
                    <9 0 &gpio2 6 0>, /* D3 - BUSY */
-                   <10 0 &gpio1 10 0>, /* D4 */
+                   <10 0 &gpio0 99 0>, /* D4 - UNUSED - SET AS INVALID*/
                    <11 0 &gpio1 11 0>, /* D5 - DIO1 */
-                   <12 0 &gpio1 12 0>, /* D6 */
+                   <12 0 &gpio0 99 0>, /* D6 - UNUSED - SET AS INVALID*/
                    <13 0 &gpio0 0 0>, /* D7 - NSS (Semtech CS) */
                    <14 0 &gpio2 10 0>, /* D8 - ANT_SW */
-                   <15 0 &gpio0 9 0>, /* D9  */
+                   <15 0 &gpio0 99 0>, /* D9  - UNUSED - SET AS INVALID*/
                    <16 0 &gpio0 8 0>, /* D10 - (Arduino CS) */
                    <17 0 &gpio0 1 0>, /* D11 - SPI MOSI */
                    <18 0 &gpio0 2 0>, /* D12 - SPI MISO */

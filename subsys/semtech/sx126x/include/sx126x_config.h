@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2019-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file is exposed to each procuct configuration to customize the driver behavior
  */
@@ -91,7 +91,10 @@ typedef int32_t (*radio_sx126x_get_pa_cfg_t)(int8_t tx_power, radio_sx126x_pa_cf
 typedef int32_t (*radio_sx126x_get_mfg_trim_val_t)(uint16_t *trim);
 
 // DIO3 out voltage to supply antenna switch power.
-typedef int32_t (*radio_sx126x_get_dio3_cfg_t)(void);
+typedef int32_t (*radio_sx126x_get_dio3_cfg_t)(uint8_t radio_state);
+
+// Band select logical control to support RF TRX band switch.
+typedef int32_t (*radio_sx126x_band_select_logical_cfg_t)(bool tx_en);
 
 typedef struct {
     uint8_t id;
@@ -101,6 +104,7 @@ typedef struct {
     const radio_sx126x_get_pa_cfg_t pa_cfg_callback;
     const radio_sx126x_get_mfg_trim_val_t trim_cap_val_callback;
     const radio_sx126x_get_dio3_cfg_t dio3_cfg_callback;
+    const radio_sx126x_band_select_logical_cfg_t band_sel_cfg_callback;
     const struct sid_pal_serial_bus_factory *bus_factory;
 
     uint32_t gpio_power;

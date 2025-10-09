@@ -19,19 +19,39 @@ ignore_license_in_files:
 - version.conf$
 - twister-out.*
 - utils/nanopb/include.*
-
+- sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/ansi.h
+- sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_simplicity_sdk/util/third_party/mbedtls/library/check_crypto_config.h
 
 license_header_size: 30
 
 licenses:
+- copyright_regexp: Copyright \(c\) \d{4} Nordic Semiconductor ASA
+  file_regexp:
+  - sidewalk/subsys/semtech/lr1110_location/CMakeLists.txt
+  search_license_txt: null
+  spdx: LicenseRef-Nordic-5-Clause
+
 # evaluate licenses from top to bottom
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
   file_regexp:
   - sidewalk.*/subsys/semtech/sx126x/sx126x_.*\.c$
   - sidewalk.*/subsys/semtech/sx126x/include/sx126x_.*\.h$
   - sidewalk.*/subsys/semtech/lr1110/lr1110.*\.c$
+  - sidewalk.*/subsys/semtech/lr1110/lr11xx.*\.c$
   - sidewalk.*/subsys/semtech/lr1110/include/lr1110.*\.h$
   - sidewalk.*/subsys/semtech/lr1110/include/halo_lr1110.*\.h$
+  - sidewalk.*/subsys/semtech/lr1110_location/.*
+  - sidewalk/subsys/semtech/lr11xx/lr11xx_radio.c$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/lr11xx_hal/halo_lr11xx_radio.h$
+  - sidewalk/subsys/semtech/lr11xx/lr11xx_config.h$
+  - sidewalk/subsys/semtech/lr11xx/lr11xx_hal.c$
+  - sidewalk/subsys/semtech/sx126x_location/sid_pal_gnss_wifi_impl.c$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/sl_sidewalk_log_app.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/lr11xx_hal/lr11xx_config.h$
+  - sidewalk/subsys/semtech/lr11xx/halo_lr11xx_radio.h$
+  - sidewalk/subsys/semtech/lr11xx/lr11xx_radio_fsk.c$
+  - sidewalk/subsys/semtech/lr1110/include/lr11xx_config.h$
+  - sidewalk/subsys/semtech/lr11xx/lr11xx_radio_lora.c$
   search_license_txt:
   - All Rights Reserved
   spdx: null
@@ -52,6 +72,9 @@ licenses:
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
   - sidewalk.*/tests/validation/timer/.*(c|h)$
   - sidewalk.*/utils/include/sid_.*\.h$
+  - sidewalk/subsys/semtech/sx126x_location/sid_pal_gnss_wifi_impl.c$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/sid_pal_serial_bus_ifc.h$
+
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
@@ -64,15 +87,32 @@ licenses:
   search_license_txt: null
   spdx: MIT-0
 
+- copyright_regexp: Copyright \d{4} Silicon Laboratories Inc
+  file_regexp:
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/config/app_subghz_config.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/sl_spidrv_exp_config.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sidewalk_ext/component/overridden_gsdk_components/app/common/util/app_log/app_log.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/app_gpio_config.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/gpio.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_simplicity_sdk/platform/emlib/inc/em_gpio.h$
+  search_license_txt: null
+  spdx: Zlib
+
 - copyright_regexp: Copyright Semtech Corporation \d{4}
   file_regexp:
   - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x.*\.h$
   - sidewalk.*/subsys/semtech/sx126x/semtech/.*\.(c|h)$
-  - sidewalk.*/subsys/semtech/lr1110/include/semtech/.*\.h$
-  - sidewalk.*/subsys/semtech/lr1110/semtech/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/lr1110/.*\.h$
+  - sidewalk.*/subsys/semtech/lr1110/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/lr11xx/.*\.h$
+  - sidewalk.*/subsys/semtech/lr11xx/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/SWDR007_v1-3-1/.*\.(c|h)$
+  - sidewalk.*/subsys/sal/common/sid_ifc/wifi_helpers_defs.h$
+  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/RALBSP/smtc_board_ralf.h$
+  - sidewalk/subsys/sal/common/sid_ifc/gnss_helpers_defs.h
+
   search_license_txt:
   - Redistribution and use in source and binary forms
-  - Neither the name of the Semtech corporation
   spdx: null
 
 - copyright_regexp: Copyright \(c\) \d{4} Semtech Corporation

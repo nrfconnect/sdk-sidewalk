@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -34,12 +34,17 @@
 
 #include <sid_error.h>
 #include <stdint.h>
+#include <sid_sdk_config.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define SID_PAL_KV_STORE_MAX_LENGTH_BYTES 48
+#if defined(SID_SDK_CONFIG_ENABLE_METRICS_PERSISTENCE) && SID_SDK_CONFIG_ENABLE_METRICS_PERSISTENCE
+#define SID_PAL_KV_STORE_MAX_LENGTH_BYTES 200
+#else
+#define SID_PAL_KV_STORE_MAX_LENGTH_BYTES 60
+#endif
 
 /**
  * Initialize the key value storage subsystem
@@ -55,7 +60,6 @@ sid_error_t sid_pal_storage_kv_init(void);
  */
 sid_error_t sid_pal_storage_kv_deinit(void);
 
-
 /**
  * Get a value using its group and key IDs
  *
@@ -66,8 +70,7 @@ sid_error_t sid_pal_storage_kv_deinit(void);
  *
  * @retval SID_ERROR_NONE in case of success
  */
-sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void * p_data, uint32_t len);
-
+sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_data, uint32_t len);
 
 /**
  * Get the size of a value using its group and key IDs
@@ -78,8 +81,7 @@ sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void * p
  *
  * @retval SID_ERROR_NONE in case of success
  */
-sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint32_t * p_len);
-
+sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint32_t *p_len);
 
 /**
  * Set a value using its group and key IDs
@@ -91,8 +93,7 @@ sid_error_t sid_pal_storage_kv_record_get_len(uint16_t group, uint16_t key, uint
  *
  * @retval SID_ERROR_NONE in case of success
  */
-sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void const * p_data, uint32_t len);
-
+sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void const *p_data, uint32_t len);
 
 /**
  * Delete a value using its group and key IDs
@@ -104,7 +105,6 @@ sid_error_t sid_pal_storage_kv_record_set(uint16_t group, uint16_t key, void con
  */
 sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key);
 
-
 /**
  * Delete all values in a group
  *
@@ -113,7 +113,6 @@ sid_error_t sid_pal_storage_kv_record_delete(uint16_t group, uint16_t key);
  * @retval SID_ERROR_NONE in case of success
  */
 sid_error_t sid_pal_storage_kv_group_delete(uint16_t group);
-
 
 #ifdef __cplusplus
 }

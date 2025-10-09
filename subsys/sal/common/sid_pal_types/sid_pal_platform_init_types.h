@@ -15,11 +15,17 @@
 
 #ifndef SID_PAL_PLATFORM_INIT_TYPES_H
 #define SID_PAL_PLATFORM_INIT_TYPES_H
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
+#include <lr11xx_gnss_wifi_config.h>
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 
 typedef struct {
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
     const void * radio_cfg;
 #endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
+lr11xx_gnss_wifi_config_t *gnss_wifi_cfg;
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 } platform_specific_init_parameters_t;
 
 #endif /* SID_PAL_PLATFORM_INIT_TYPES_H */

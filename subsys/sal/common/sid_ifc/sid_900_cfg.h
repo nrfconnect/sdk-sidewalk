@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -52,12 +52,17 @@ enum sid_device_profile_id {
 enum sid_rx_window_count {
     /** Used to indicate device opens infinite RX windows */
     SID_RX_WINDOW_CNT_INFINITE = 0,
+    /** Used to indicate device opens zero RX windows for asynchronous mode profile A */
+    SID_RX_WINDOW_CNT_ZERO = 0,
     /** Used to indicate device opens 5 RX windows */
     SID_RX_WINDOW_CNT_2 = 5,
     SID_RX_WINDOW_CNT_3 = 10,
     SID_RX_WINDOW_CNT_4 = 15,
     SID_RX_WINDOW_CNT_5 = 20,
-   /** Used to indicate device is in continuous RX mode */
+    /** RTC drift is 100 ppm, Max time drift for asynchronous mode profile A is 300 seconds */
+    SID_RX_WINDOW_CNT_PROFILE_A_MAX = 60,
+
+    /** Used to indicate device is in continuous RX mode */
     SID_RX_WINDOW_CONTINUOUS = 0xFFFF,
 };
 
@@ -86,13 +91,6 @@ enum sid_link2_rx_window_separation_ms {
 
 
 /**
- * Describes the Link Allocation Duration for FSK-WAN Link Profile 2 (Allocated)
- */
-enum sid_link2_allocation_duration {
-    SID_LINK2_ALLOCATION_DURATION_1HOUR = 0
-};
-
-/**
  * Describes the frequency of RX windows opened by the device (in ms) in asynchronous mode
  */
 enum sid_link3_rx_window_separation_ms {
@@ -114,6 +112,12 @@ enum sid_unicast_wakeup_type {
     SID_TX_AND_RX_WAKEUP = 3
 };
 
+enum sid_link2_beacon_interval_unit {
+    SID_LINK2_BEACON_INTERVAL_UNIT_1 = 1,
+    SID_LINK2_BEACON_INTERVAL_UNIT_2 = 2,
+    SID_LINK2_BEACON_INTERVAL_UNIT_3 = 3
+};
+
 /**
  * Describes unicast attributes of the device's configuration
  */
@@ -122,6 +126,8 @@ struct sid_device_profile_unicast_params {
     enum sid_device_profile_id device_profile_id;
     /** Used to indicate the number of RX windows opened by the device */
     enum sid_rx_window_count rx_window_count;
+    /** Used to indicate the beacon interval in units (10080ms per unit) */
+    uint8_t beacon_interval_unit;
     /** Used to indicate the frequency of RX windows opened by the device (in ms) */
     union sid_unicast_window_interval {
         /** Used to indicate the frequency of RX windows opened by the device (in ms) in synchronous mode */
@@ -131,6 +137,8 @@ struct sid_device_profile_unicast_params {
     } unicast_window_interval;
     /** Used to indicate the TX/RX wake up configuration of the device */
     enum sid_unicast_wakeup_type wakeup_type;
+    /** Used to indicate the RX windows open duration of the device (in sec) in synchronous mode */
+    uint32_t l2_rx_duration_sec;
 };
 
 /**
@@ -187,6 +195,24 @@ struct sid_link_type_2_registration_config {
     uint32_t periodicity_s;
 };
 
+/**
+ * Describes the DL route validity time (in mins)
+ */
+enum sid_dl_route_validity_time_mins {
+    MIN_DL_ROUTE_VALIDITY_TIME_MINS = 1,
+    DEF_DL_ROUTE_VALIDITY_TIME_MINS = 15,
+    MAX_DL_ROUTE_VALIDITY_TIME_MINS = 1440,
+};
+
+/**
+ * Describes the time of Link3 profile B network sync time (in mins)
+ */
+enum sid_link3_profile_b_nw_sync_time_mins {
+    MIN_LINK3_PROFILE_B_NW_SYNC_TIME_MINS = 1,
+    DEF_LINK3_PROFILE_B_NW_SYNC_TIME_MINS = 5,
+    MAX_LINK3_PROFILE_B_NW_SYNC_TIME_MINS = 240,
+};
+
 struct sid_sub_ghz_links_config {
     /** Enable transmission Sidewalk stack metrics to Sidewalk cloud services using explicit commands */
     bool enable_link_metrics;
@@ -196,6 +222,11 @@ struct sid_sub_ghz_links_config {
     uint8_t metrics_msg_retries;
     /** sar dcr config*/
     uint8_t sar_dcr;
+    /** DL route validity (1 ~ 1440 mins, default: 15 mins) */
+    uint16_t link2_dlrv_time;
+    uint16_t link3_dlrv_time;
+    /** link3 profile b NW sync time (1 ~ 240 mins, default: 5 mins) */
+    uint8_t link3_b_nwsync_time;
     int8_t link2_max_tx_power_in_dbm;
     int8_t link3_max_tx_power_in_dbm;
     struct sid_link_type_2_registration_config registration_config;
@@ -234,7 +265,8 @@ enum sid_link_type_2_gw_discovery_defines {
 struct sid_link_type_2_gw_discovery_backoff_params {
     /** Number of elements in the backoff table */
     uint8_t retry_arr_size;
-    /** Retry threshold for transition to the next intervals */
+    /** Retry threshold for transition to the next intervals.
+     * A value of 255 means infinite number of retries */
     uint8_t retry_threshold[SID_LINK_TYPE_2_GWD_BACKOFF_ARRAY_MAX_SIZE];
     /** Scan duration in seconds */
     uint16_t retry_scan_duration_s[SID_LINK_TYPE_2_GWD_BACKOFF_ARRAY_MAX_SIZE];
@@ -307,6 +339,19 @@ enum sid_link_type_2_gw_discovery_event {
     SID_LINK_TYPE_2_GW_DISCOVERY_EVENT_BEACON_SYNC = 1,
     /** Event indicating the beacon sync was lost with the selected gateway */
     SID_LINK_TYPE_2_GW_DISCOVERY_EVENT_BEACON_SYNC_LOST = 2,
+};
+
+/**
+ * Describes the SUB-GHZ user control commands.
+ */
+enum sid_sub_ghz_ctl_cmd {
+    SID_SUB_GHZ_CTL_CMD_RESERVED,
+    SID_SUB_GHZ_CTL_CMD_RX_TERMINATE_REQUEST,
+    SID_SUB_GHZ_CTL_CMD_MAX,
+};
+
+struct sid_sub_ghz_user_control {
+    enum sid_sub_ghz_ctl_cmd sub_ghz_ctl_cmd;
 };
 
 /** @} */
