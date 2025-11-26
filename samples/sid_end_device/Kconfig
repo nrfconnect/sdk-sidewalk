@@ -137,8 +137,8 @@ config SIDEWALK_LOCATION_SHELL
     bool "Enable Sidewalk Location CLI"
     depends on SID_END_DEVICE_CLI
     help
-        Enables Sidewalk location and dult command line interface.
-        Provides commands for location services and unwanted location tracking.
+        Enables Sidewalk location command line interface.
+        Provides commands for location services.
 
 if SIDEWALK_CRYPTO
 
