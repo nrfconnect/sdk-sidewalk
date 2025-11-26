@@ -22,42 +22,56 @@ A known issue can list one or both of the following entries:
 List of known issues for v1.1.0
 *******************************
 
-.. warning::
-   SDK v1.19 introduces several new issues. Thorough testing is recommended before production use.
-
-**High Priority Issues:**
-
 KRKNWK-20869: Intermittent downlink message reception issues with multilink configurations
   When multiple transport types are enabled (multilink), downlink messages from the cloud may not be received by the device.
-  Sometimes messages arrive via a different transport than expected. Uplink messages work as expected.
+  Sometimes, messages arrive through a different transport than expected.
+  Uplink messages work as expected.
 
-  
-  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield
-  
-  **Note:** The exact set of affected platforms that show this behavior is not constant, and reproduction of this issue is not consistent.
-  
-  **Impact:** Moderate - affects message reliability in multilink scenarios
+  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield (the exact set of affected platforms is not constant, and reproduction is not consistent)
 
-**Lower Priority Issues:**
+KRKNWK-20851: Cannot initialize location when LoRa or FSK transport is initialized in Amazon Sidewalk
+  Device fails to initialize location when using LoRa or FSK transport.
+
+  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield (issue reproduction is inconsistent)
+
+  **Workaround:** If the device freezes when location initialization fails, restart the device.
+    Ensure that location services are initialized only after the Sidewalk stack is ready, and deinitialized before Sidewalk stack is deinitialized.
 
 KRKNWK-20863: Increased boot time due to bootloader configuration
-  Boot time increased on all platforms due to recent bootloader configuration changes.
-  The impact is most noticeable on nRF52840 (~3 seconds vs expected <1 second), but all platforms experience
-  increased boot time.
-  
-  **Root Cause:** The increased boot time is caused by bootloader configuration changes that affect the
-  initialization sequence across all platforms.
-  
-  **Technical Details:** 
-  - **Commit:** `99ed5147cb7543c1f8f9a116da801d3909a92e83` - "use rsa keys for all SoCs"
-  - **Change:** Sets default config of `BOOT_SIGNATURE_TYPE` to `BOOT_SIGNATURE_TYPE_RSA`
-  - **Impact:** RSA signature verification is computationally more expensive than the previous default,
-    causing increased boot time across all platforms
-  
-  **Note:** This issue is not related to specific radio configurations (LoRa, BLE, etc.) but affects
-  the general boot process on all platforms.
-  
-  **Affected platforms:** All platforms (most significant impact on nRF52840)
+  Boot time has increased on all platforms due to bootloader configuration changes.
+  It now uses RSA keys for signature verification ((the default config of ``BOOT_SIGNATURE_TYPE`` is changed to ``BOOT_SIGNATURE_TYPE_RSA``), significantly increasing the boot time (commit 99ed5147cb7543c1f8f9a116da801d3909a92e83, "use rsa keys for all SoCs").
+  The effect is most noticeable on the nRF52840 SoC (around 3 seconds to start up instead of the expected less than 1 second).
+  This issue is unrelated to specific radio configurations (LoRa, Bluetooth LE) but affects the general boot process.
+
+  **Affected platforms:** All platforms
+
+KRKNWK-20856: GNSS scan enters endless loop
+  The GNSS scan operation may enter an endless loop.
+  Reproduction of the issue is inconsistent.
+  It does not occur with the location send command.
+
+  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield
+
+  **Workaround:** Reset device when freezes in endless GNSS loop.
+
+KRKNWK-20857: Location modem stays busy when scan operation overlaps with deinit
+  The location modem does not recover if a scan runs concurrently with a deinitialization operation.
+
+  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield
+
+  **Workaround:** If the location modem stays busy, and cannot perform scan restart the device.
+    Ensure the location service deinit is triggered when no ongoing scan.
+
+KRKNWK-21159: Crash in ``sid_location_run`` due to invalid context in Wi-Fi callback
+  The application may crash if ``sid_location_run`` is called in an invalid context during a Wi-Fi callback.
+
+  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield
+
+KRKNWK-21160: Semtech interrupt pin remains high blocking the Wi-Fi scan.
+
+  **Affected platforms:** nRF52840, nRF54L15 with LR1110 shield
+
+  **Workaround:** Clear event pin interrupt in Semtech hal after each occurrence.
 
 List of known issues for v1.0.1
 *******************************

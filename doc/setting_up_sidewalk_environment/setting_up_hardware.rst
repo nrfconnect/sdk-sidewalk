@@ -21,11 +21,19 @@ Depending on the device, refer to the getting started guide for setup instructio
 * `Getting started with nRF53 Series`_
 * `Getting started with nRF54L Series`_
 
-Semtech SX1262
-**************
+Sub-GHz radio transceivers
+**************************
 
 Sidewalk samples use sub-GHz radio transceivers to support LoRa and (G)FSK modulation.
 You will need it to run :ref:`LoRa and FSK applications <samples_list>`.
+
+The following radio shields are supported:
+
+* Semtech SX1262 - For LoRa and FSK applications
+* Semtech LR1110 - For LoRa, FSK, and location services (Wi-Fi and GNSS scanning)
+
+Semtech SX1262
+==============
 
 For evaluation, use the `Semtech SX1262MB2CAS`_ Arduino Shield.
 
@@ -131,6 +139,83 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
       +---------------+--------------+
       | SPI SCK       | P0.3         |
       +---------------+--------------+
+
+Semtech LR1110
+==============
+
+For evaluation, use the Semtech LR1110MB1LCKS Arduino Shield.
+
+The LR1110 shield supports Wi-Fi and GNSS scanning for location services in addition to LoRa and FSK communication.
+
+The minimum version of Semtech LR1110 firmware is ``0x0401``.
+The version is reported in Sidewalk logs during sub-GHz radio initialization:
+
+.. code-block:: console
+
+      <inf> sidewalk: LR11xx: VER HW 0x22 FW 0x0401 type 1
+
+.. _setting_up_hardware_lr1110_pinout:
+
+Pinout
+------
+
+Connect the Semtech LR1110 shield to the Arduino-compatible headers on the development kit.
+
+.. tabs::
+
+   .. tab:: nRF52840 DK
+
+    Refer to the pinout assignment for the nRF52840 DK:
+
+    +---------------+-------------+
+    | LR1110 shield | nRF52840 DK |
+    +===============+=============+
+    | NRESET        | P0.3        |
+    +---------------+-------------+
+    | BUSY          | P1.11       |
+    +---------------+-------------+
+    | DIO1/Event    | P1.13       |
+    +---------------+-------------+
+    | Antenna       | P0.26       |
+    +---------------+-------------+
+    | GNSS LNA      | P0.29       |
+    +---------------+-------------+
+    | SPI NSS       | P1.15       |
+    +---------------+-------------+
+    | SPI MOSI      | P1.13       |
+    +---------------+-------------+
+    | SPI MISO      | P1.14       |
+    +---------------+-------------+
+    | SPI SCK       | P1.15       |
+    +---------------+-------------+
+
+   .. tab:: nRF54L15 DK
+
+      The nRF54L15 DK requires the ``simple_arduino_adapter`` shield to connect the LR1110 shield.
+
+      Refer to the pinout assignment for the nRF54L15 DK with Arduino adapter:
+
+      +---------------+-------------+
+      | LR1110 shield | nRF54L15 DK |
+      +===============+=============+
+      | NRESET        | P2.8        |
+      +---------------+-------------+
+      | BUSY          | P2.6        |
+      +---------------+-------------+
+      | DIO1/Event    | P1.11       |
+      +---------------+-------------+
+      | Antenna       | P2.10       |
+      +---------------+-------------+
+      | GNSS LNA      | P1.12       |
+      +---------------+-------------+
+      | SPI NSS       | P0.0        |
+      +---------------+-------------+
+      | SPI MOSI      | P0.1        |
+      +---------------+-------------+
+      | SPI MISO      | P0.2        |
+      +---------------+-------------+
+      | SPI SCK       | P0.3        |
+      +---------------+-------------+
 
 .. _setting_up_sidewalk_gateway:
 

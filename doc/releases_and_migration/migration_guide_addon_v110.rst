@@ -8,145 +8,131 @@ This guide assists you in migrating from Amazon Sidewalk Add-On v1.0.x to v1.1.0
 Overview
 ********
 
-Amazon Sidewalk Add-On v1.1.0 introduces the latest Amazon Sidewalk SDK v1.19 libraries with a new radio architecture based on Zephyr shields for SubGHz radio configuration.
+Amazon Sidewalk Add-On v1.1.0 introduces support for the latest Amazon Sidewalk SDK v1.19 and brings several important changes to radio configuration and hardware support.
 
-What's New in v1.1.0
-*********************
+Key updates in this release include:
 
-* **Amazon Sidewalk SDK v1.19**: Latest SDK version with new features and API updates
-* **New Radio Architecture**: Zephyr shields for SubGHz radio configuration
-* **Hardware Abstraction**: Automatic DTS configuration with shield system
-* **Performance Regressions**: Boot time increased on some configurations
-
-Migration Requirements
-**********************
-
-.. note::
-   **Recommended:** It is recommended to set all struct fields to known values for better code safety.
-   New fields in the ``sid_config`` structure should be initialized to NULL to avoid potential issues.
+* Upgrading to Amazon Sidewalk SDK v1.19, which adds new features and updates to the API.
+* Adopting a new radio architecture that uses Zephyr shields for Sub-GHz radio configuration, simplifying hardware integration.
+* Enabling hardware abstraction by automatically configuring device tree settings through the Zephyr shield system.
+* Experiencing performance regressions in some configurations, including increased boot time due to changes in the bootloader.
 
 Migration Steps
 ***************
 
-**Step 1: Update your Add-on version**
+#. Update your west configuration to use the latest Add-on version:
 
-Update your west configuration to use the latest Add-on version:
+   .. code-block:: console
 
-.. code-block:: console
+      west update
 
-   west update
+#. (Recommended) Update your application code.
+   Initialize new fields in your ``sid_config`` structure to NULL for better code safety:
 
-**Step 2: Update your application code (RECOMMENDED)**
+   .. code-block:: c
 
-Initialize new fields in your ``sid_config`` structure to NULL for better code safety:
+      struct sid_config config = {
+         .link_mask = persistent_link_mask,
+         .dev_ch = dev_ch,
+         .callbacks = &event_callbacks,
+         .link_config = app_get_ble_config(),
+         .sub_ghz_link_config = app_get_sub_ghz_config(),
+         .log_config = NULL,        // NEW: Must be set to NULL
+         .time_sync_config = NULL,  // NEW: Must be set to NULL
+      };
 
-.. code-block:: c
-   struct sid_config config = {
-       .link_mask = persistent_link_mask,
-       .dev_ch = dev_ch,
-       .callbacks = &event_callbacks,
-       .link_config = app_get_ble_config(),
-       .sub_ghz_link_config = app_get_sub_ghz_config(),
-       .log_config = NULL,        // NEW: Must be set to NULL
-       .time_sync_config = NULL,  // NEW: Must be set to NULL
-   };
+#. Update build configuration for Sub-GHz support (if applicable).
+   For applications using SubGHz (LoRa and FSK) radios, use the new shield-based build commands:
 
-**Step 3: Update build configuration for SubGHz support (if applicable)**
+   .. code-block:: console
 
-For applications using SubGHz (LoRa/FSK) radios, use the new shield-based build commands:
+      # For SX1262 shield on nRF52840
+      west build -b nrf52840dk/nrf52840 samples/sid_end_device --shield simple_arduino_adapter --shield semtech_sx1262mb2cas
 
-.. code-block:: console
+      # For LR1110 shield on nRF52840
+      west build -b nrf52840dk/nrf52840 samples/sid_end_device --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
 
-   # For SX1262 shield on nRF52840
-   west build -b nrf52840dk/nrf52840 samples/sid_end_device --shield simple_arduino_adapter --shield semtech_sx1262mb2cas
-   
-   # For LR1110 shield on nRF52840 
-   west build -b nrf52840dk/nrf52840 samples/sid_end_device --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
-   
-   # For SX1262 shield on nRF54L15
-   west build -b nrf54l15dk/nrf54l15/cpuapp samples/sid_end_device --shield simple_arduino_adapter --shield semtech_sx1262mb2cas
-   
-   # For LR1110 shield on nRF54L15
-   west build -b nrf54l15dk/nrf54l15/cpuapp samples/sid_end_device --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
+      # For SX1262 shield on nRF54L15
+      west build -b nrf54l15dk/nrf54l15/cpuapp samples/sid_end_device --shield simple_arduino_adapter --shield semtech_sx1262mb2cas
 
-**Step 4: Test your application**
+      # For LR1110 shield on nRF54L15
+      west build -b nrf54l15dk/nrf54l15/cpuapp samples/sid_end_device --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
 
-Thoroughly test your application with the new v1.19 libraries to ensure optimal performance.
+#. Test your application with the new v1.19 libraries to ensure optimal performance.
 
 New Radio Architecture
-***********************
+**********************
 
-The v1.1.0 release introduces a new radio architecture based on Zephyr shields that provides better hardware abstraction and automatic device tree configuration for SubGHz radios.
+The v1.1.0 release introduces a new radio architecture based on Zephyr shields that provides better hardware abstraction and automatic device tree configuration for Sub-GHz radios:
 
-**Key Benefits:**
+* Automatic DTS configuration - Shields automatically configure device tree overlays with correct pin mappings.
+* Hardware abstraction - No need to manually specify GPIO pins or SPI configurations.
+* Kconfig integration - Shield selection automatically enables the correct radio type in Kconfig.
+* Multi-shield support - Use multiple shields (for example, Arduino adapter with radio shield).
+* Simplified build process - Single command builds with automatic configuration.
 
-* **Automatic DTS Configuration**: Shields automatically configure device tree overlays with correct pin mappings
-* **Hardware Abstraction**: No need to manually specify GPIO pins or SPI configurations  
-* **Kconfig Integration**: Shield selection automatically enables the correct radio type in Kconfig
-* **Multi-shield Support**: Use multiple shields (e.g., Arduino adapter + radio shield)
-* **Simplified Build Process**: Single command builds with automatic configuration
+The following shields are supported:
 
-
-**Supported Shields:**
-
-* ``simple_arduino_adapter`` - Arduino header adapter for nRF52840 and nRF54L15
+* ``simple_arduino_adapter`` - Arduino header adapter for nRF52840 and nRF54L15 DK
 * ``semtech_sx1262mb2cas`` - SX1262 LoRa radio shield
 * ``semtech_lr1110mb1xxs`` - LR1110 LoRa radio shield
 
-Build Configuration Examples
+Build configuration examples
 ****************************
 
-**BLE-Only Configuration (Minimal Libraries)**
-==============================================
+The following examples demonstrate how to configure and build the sample for different radio and library combinations.
 
-For applications that only need BLE transport:
+Bluetooth LE-Only Configuration (minimal libraries)
+===================================================
+
+For applications that only need Bluetooth LE transport, run the following command:
 
 .. code-block:: console
 
    west build -b nrf52840dk/nrf52840 samples/sid_end_device -- -DCONFIG_SID_END_DEVICE_DUT=y
 
-**Resulting Configuration:**
+This will result in the following configuration:
 
-* **Libraries**: Minimal BLE-only Sidewalk libraries
-* **Transport**: BLE only
+* Libraries - Minimal Bluetooth LE-only Sidewalk libraries
+* Transport - Bluetooth LE only
 
-**SX1262 Configuration (Full Libraries with LoRa/FSK)**
-======================================================
+SX1262 Configuration (Full Libraries with LoRa/FSK)
+===================================================
 
-For applications requiring LoRa and FSK transport with SX1262 radio:
+For applications requiring LoRa and FSK transport with SX1262 radio, run the following command:
 
 .. code-block:: console
 
    west build -b nrf52840dk/nrf52840 samples/sid_end_device --shield simple_arduino_adapter --shield semtech_sx1262mb2cas
 
-**Resulting Configuration:**
+This will result in the following configuration:
 
-* **Libraries**: Full Sidewalk libraries (BLE + LoRa + FSK)
-* **Transport**: BLE, LoRa, FSK
-* **Radio**: SX1262 LoRa transceiver
+* Libraries - Full Sidewalk libraries (Bluetooth LE, LoRa, and FSK)
+* Transport - Bluetooth LE, LoRa, FSK
+* Radio - SX1262 LoRa transceiver
 
-**LR1110 Configuration (Full Libraries)**
-=========================================
+LR1110 Configuration (Full Libraries)
+=====================================
 
-For applications requiring LoRa/FSK transport with LR1110 radio:
+For applications requiring LoRa/FSK transport with LR1110 radio, run the following command:
 
 .. code-block:: console
 
    west build -b nrf52840dk/nrf52840 samples/sid_end_device --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
 
-**Resulting Configuration:**
+This will result in the following configuration:
 
-* **Libraries**: Full Sidewalk libraries (BLE + LoRa + FSK)
-* **Transport**: BLE, LoRa, FSK
-* **Radio**: LR1110 LoRa transceiver
+* Libraries - Full Sidewalk libraries (Bluetooth LE, LoRa, and FSK)
+* Transport - Bluetooth LE, LoRa, FSK
+* Radio - LR1110 LoRa transceiver
 
-**Library Comparison Summary:**
-==============================
+Library Comparison Summary:
+===========================
 
 +------------------+------------------+------------------+
 | Configuration    | BLE Libraries    | SubGHz Libraries |
 +==================+==================+==================+
-| BLE-Only         | ✓                | ✗                |
+| Bluetooth LE-Only| ✓                | ✗                |
 +------------------+------------------+------------------+
 | SX1262           | ✓                | ✓ (LoRa/FSK)     |
 +------------------+------------------+------------------+
@@ -156,106 +142,106 @@ For applications requiring LoRa/FSK transport with LR1110 radio:
 API Changes for Developers
 **************************
 
-This section details the significant API changes between Sidewalk SDK v1.18 and v1.19 that developers need to be aware of when integrating the new version.
+This section details significant API changes between Sidewalk SDK v1.18 and v1.19 that you need to be aware of when integrating the new version.
 
-**Enhanced Configuration Structure**
-===================================
+Enhanced configuration structure
+================================
 
 The ``sid_config`` structure has been enhanced with new optional fields:
 
-**File Path:** ``sidewalk/subsys/sal/common/sid_ifc/sid_api.h``
+* File path: ``sidewalk/subsys/sal/common/sid_ifc/sid_api.h``
+* The following, new fields:
 
-**New Fields Added:**
+   * ``const struct sid_diag_log_config *log_config`` - Diagnostic logging configuration
+   * ``const struct sid_time_sync_config *time_sync_config`` - Time synchronization configuration
 
-* ``const struct sid_diag_log_config *log_config`` - Diagnostic logging configuration
-* ``const struct sid_time_sync_config *time_sync_config`` - Time synchronization configuration
+* New supporting structure:
 
-**New Supporting Structure:**
+   * ``struct sid_time_sync_config`` - Adaptive time sync intervals configuration
 
-* ``struct sid_time_sync_config`` - Adaptive time sync intervals configuration
+* File path: ``sidewalk/subsys/sal/common/sid_ifc/sid_time_sync_config.h``
 
-**File Path:** ``sidewalk/subsys/sal/common/sid_ifc/sid_time_sync_config.h``
-
-**New Configuration Options**
-============================
+New configuration options
+=========================
 
 Two new options have been added to the ``sid_option`` enum:
 
-**File Path:** ``sidewalk/subsys/sal/common/sid_ifc/sid_api.h``
+* File path: ``sidewalk/subsys/sal/common/sid_ifc/sid_api.h``
+* Options:
 
-**New Options:**
+   * ``SID_OPTION_DL_ROUTE_VALIDITY = 19`` - Configure downlink route validity settings
+   * ``SID_OPTION_SUB_GHZ_USER_CONTROL = 20`` - Set user control for SubGHz operations
 
-* ``SID_OPTION_DL_ROUTE_VALIDITY = 19`` - Configure downlink route validity settings
-* ``SID_OPTION_SUB_GHZ_USER_CONTROL = 20`` - Set user control for SubGHz operations
+* New supporting structures:
 
-**New Supporting Structures:**
+   * ``struct sid_dlrv_config`` - Downlink route validity configuration
+   * ``struct sid_link_type_2_gw_discovery_policy_config`` - Gateway discovery policy
 
-* ``struct sid_dlrv_config`` - Downlink route validity configuration
-* ``struct sid_link_type_2_gw_discovery_policy_config`` - Gateway discovery policy
+* File path: ``sidewalk/subsys/sal/common/sid_ifc/sid_900_cfg.h``
 
-**File Path:** ``sidewalk/subsys/sal/common/sid_ifc/sid_900_cfg.h``
-
-**Enhanced Control Events**
-===========================
+Enhanced control events
+=======================
 
 New control event types have been added:
 
-**File Path:** ``sidewalk/subsys/sal/common/sid_ifc/sid_api.h``
+* File path: ``sidewalk/subsys/sal/common/sid_ifc/sid_api.h``
+* New event: ``SID_CONTROL_EVENT_DL_ROUTE_VALIDITY_CONFIG_UPDATE = 3`` (DL route validity configuration changes)
 
-**New Events:**
+New gateway discovery policies
+==============================
 
-* ``SID_CONTROL_EVENT_DL_ROUTE_VALIDITY_CONFIG_UPDATE = 3`` - DL route validity configuration changes
+Enhanced gateway discovery options for FSK (Link type 2):
 
-**New Gateway Discovery Policies**
-=================================
+* File path: ``sidewalk/subsys/sal/common/sid_ifc/sid_900_cfg.h``
 
-Enhanced gateway discovery options for FSK (Link Type 2):
+* New policies:
 
-**File Path:** ``sidewalk/subsys/sal/common/sid_ifc/sid_900_cfg.h``
+   * ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_FAST_CONNECTION = 1``
+   * ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_RELIABLE_CONNECTION = 2``
+   * ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_POWER_SAVE = 3``
+   * ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_CUSTOM = 4``
 
-**New Policies:**
+Backward compatibility
+======================
 
-* ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_FAST_CONNECTION = 1``
-* ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_RELIABLE_CONNECTION = 2``
-* ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_OPTIMIZED_FOR_POWER_SAVE = 3``
-* ``SID_LINK_TYPE_2_GW_DISCOVERY_POLICY_CUSTOM = 4``
+The following points outline the backward compatibility considerations when migrating from Sidewalk SDK v1.18 to v1.19.
 
-**Backward Compatibility**
-=========================
+* API compatibility:
 
-**API Compatibility:**
+   * All existing function signatures remain unchanged.
+   * Existing data structures are preserved.
+   * All v1.18 code will compile without modification.
 
-* All existing function signatures remain unchanged
-* Existing data structures are preserved
-* All v1.18 code will compile without modification
+* Migration requirements:
 
-**Migration Requirements:**
+   * Code changes required – New fields must be explicitly initialized to avoid crashes.
+   * New features are opt-in but require proper initialization to maintain v1.18 behavior.
 
-* **Code changes required** - New fields must be explicitly initialized to avoid crashes
-* New features are opt-in but require proper initialization to maintain v1.18 behavior
+* Integration notes:
 
-**Integration Notes:**
-
-* Time sync configuration is optional (defaults used if not provided)
-* New options are backward compatible (can be ignored by existing code)
+   * Time sync configuration is optional (defaults used if not provided)
+   * New options are backward compatible (can be ignored by existing code)
 
 Troubleshooting
 ***************
 
-If you encounter issues during migration:
+This section provides steps to help resolve common issues that may occur during migration to the new SDK version.
 
-1. **Clean build**: Perform a clean build of your application:
+1. Perform a clean build of your application:
 
-   .. code-block:: console
+   .. parsed-literal::
+      :class: highlight
 
       west build -b *board_target* *your_application* --pristine
 
-2. **Verify dependencies**: Ensure all dependencies are properly updated:
+#. Ensure all dependencies are properly updated:
 
    .. code-block:: console
 
       west update
 
-3. **Check configuration**: Verify that your application configuration is compatible with the new SDK version.
+#.  Verify that your application configuration is compatible with the new SDK version.
 
-For additional support, refer to the :ref:`known_issues` page or consult the Amazon Sidewalk documentation.
+.. note::
+
+   For additional support, refer to the :ref:`known_issues` page or consult the Amazon Sidewalk documentation.

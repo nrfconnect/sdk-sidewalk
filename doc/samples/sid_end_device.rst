@@ -42,6 +42,8 @@ The supported modules are as follows:
 +============+===============+============+
 | `SX1262`_  | SX126xMB2xAS  | SPI @ 8Mhz |
 +------------+---------------+------------+
+| `LR1110`_  | LR1110MB1LCKS | SPI @ 8Mhz |
++------------+---------------+------------+
 
 .. note::
    To use sub-GHz radio, the Semtech shield must be connected to the development kit header, and the antenna must be connected to the radio module.
