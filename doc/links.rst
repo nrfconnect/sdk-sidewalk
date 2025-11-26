@@ -78,10 +78,14 @@
 .. _Provision your Sidewalk endpoint and flash the binary image: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-provision-endpoint.html
 .. _AWS: https://aws.amazon.com/
 .. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html
+.. _Introducing AWS IoT Core Device Location Integration with Amazon Sidewalk: https://aws.amazon.com/blogs/aws/introducing-aws-iot-core-device-location-integration-with-amazon-sidewalk/
+.. _Amazon Sidewalk Location Library Developer Guide: https://docs.sidewalk.amazon/assets/pdf/Amazon_Sidewalk_Location_Library_Developer_Guide-1.0-rev-A.pdf
+
 
 .. Other links and additional resources
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
+.. _LR1110: https://www.semtech.com/products/wireless-rf/lora-edge/lr1110
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
 .. _PICS v2.9.0 - BLE only: https://docs.nordicsemi.com/bundle/Amazon-Sidewalk-Protocol-PICS---BLE-only/resource/Amazon_Sidewalk_Protocol_PICS_-_BLE_only.pdf
 .. _PICS v2.9.0: https://docs.nordicsemi.com/bundle/Amazon-Sidewalk-Protocol-PICS/resource/Amazon_Sidewalk_Protocol_PICS.pdf

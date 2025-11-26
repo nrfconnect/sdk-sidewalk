@@ -348,65 +348,6 @@ Sending message to AWS MQTT
 
          .. figure:: /images/Step7-MQTT-Subscribe.png
 
-Receiving message from AWS MQTT
--------------------------------
-
-#. To be able to use AWS CLI, you must first complete `Installing or updating the latest version of the AWS CLI`_.
-
-#. Run the following command to send a message to your Sidewalk Endpoint:
-
-   .. code-block:: console
-
-      aws iotwireless send-data-to-wireless-device --id=<wireless-device-id> --transmit-mode 0 --payload-data="<payload-data>" --wireless-metadata "Sidewalk={Seq=<sequence-number>}"
-
-   * ``<wireless-device-id>`` is the Wireless Device ID of your Sidewalk Device.
-
-     You can find it in the :file:`WirelessDevice.json` file, generated with the :file:`Nordic_MFG.hex` file during :ref:`setting_up_sidewalk_prototype`.
-     If you have sent a message before, you can also find your Wireless Device ID in the messages sent from your device to AWS.
-
-   * ``<payload-data>`` is base64 encoded.
-   * ``<sequence-number>`` is an integer and should be different for each subsequent request.
-
-#. Prepare a message payload in the base64 format by running the following command:
-
-   .. code-block:: console
-
-      python -c "import sys,base64;print(base64.b64encode(sys.argv[1].encode('utf-8')).decode('utf-8'))" "Hello   Sidewalk!"
-      SGVsbG8gICBTaWRld2FsayE=
-
-#. Increase a sequence number on every message.
-   The device will not receive a message with lower or equal sequence number.
-
-   Once you have populated the command with data, it should look similar to the following:
-
-   .. code-block:: console
-
-      aws iotwireless send-data-to-wireless-device --id=5153dd3a-c78f-4e9e-9d8c-3d84fabb8911 --transmit-mode 0 --payload-data="SGVsbG8gICBTaWRld2FsayE=" --wireless-metadata "Sidewalk={Seq=1}"
-
-   Successfully sent response should look as follows:
-
-   .. code-block:: console
-
-      {
-          "MessageId": "eabea2c7-a818-4680-8421-7a5fa322460e"
-      }
-
-   In case you receive the following error, make sure your IAM user or role has permissions to send data to your wireless device:
-
-   .. code-block:: console
-
-      {
-         "Message": "User: arn:aws:iam::[AWS Account ID]:user/console_user is not authorized to perform:
-         iotwireless:SendDataToWirelessDevice on resource: arn:aws:iotwireless:us-east-1:[AWS Account ID]:
-         WirelessDevice/[Wireless Device ID]"
-      }
-
-   Data will be received in Sidewalk logs:
-
-   .. code-block:: console
-
-       [00:06:56.338,134] <inf> sid_thread: Message data:
-                                     48 65 6c 6c 6f 20 20 20  53 69 64 65 77 61 6c 6b |Hello    Sidewalk
-                                     21                                               |!
+.. include:: ../../includes/include_testing_receiving_message.txt
 
 .. include:: ../../includes/include_testing_nordic_dfu.txt

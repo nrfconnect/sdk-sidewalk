@@ -13,20 +13,19 @@ Changelog
 
 This release introduces the latest Amazon Sidewalk SDK v1.19 libraries.
 
-
-
 * Added:
 
   * Latest integration of Amazon Sidewalk v1.19 libraries.
-  * **LR1110 radio support** as transport for LoRa and FSK.
-  * **DTS (Device Tree) changes** to accommodate LR1110 radio configuration.
-  * **New radio architecture** with Zephyr shields for SubGHz radio configuration.
-  * **Migration guide** for new radio architecture and shield system.
+  * Support for Sidewalk location service.
+  * LR1110 radio support as transport for LoRa and FSK.
+  * New radio architecture with Zephyr shields for Sub-GHz radio configuration.
+  * Migration guide for new radio architecture and shield system.
 
 * Updated:
 
   * Amazon Sidewalk MCU SDK from v1.18 to v1.19.
-  * **Build system** to use Zephyr shields for SubGHz radio configuration.
+  * Build system to use Zephyr shields for Sub-GHz radio configuration.
+  * Devicetree to accommodate LR1110 radio configuration.
 
 * Fixed:
 
