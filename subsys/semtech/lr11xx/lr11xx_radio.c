@@ -1820,7 +1820,11 @@ int sid_pal_radio_hold_scan()
     if( sid_pal_gpio_read( drv_ctx.config->gpios.int1, &pinState ) == SID_ERROR_NONE ) {
 		if (pinState) {
 			SL_SID_LOG_APP_WARNING(BYEL "hold scan: int1 high"COLOR_RESET);
-			return -1;
+            SL_SID_LOG_APP_INFO("Clearing irq");
+            if(radio_clear_irq_status_all()){
+                SL_SID_LOG_APP_ERROR(BYEL "Failed to clear IRQ");
+                return -1;
+            }
 		}
 	} else {
 		SL_SID_LOG_APP_ERROR("hold scan: gpio read fail");
