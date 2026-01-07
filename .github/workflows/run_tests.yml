@@ -129,6 +129,15 @@ jobs:
         run: |
           cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
 
+      - name: Cleanup
+        run: |
+          rm -rf sidewalk
+          rm -rf zephyr
+          rm -rf nrf
+          rm -rf test
+          rm -rf tools
+          rm -rf nrfxlib
+          rm -rf modules
 
   build-and-test_on_hw:
     needs: [discover_targets]
