@@ -89,7 +89,13 @@ static sid_error_t schedule_lbm_timer(uint32_t delay_ms) {
 }
 
 void app_event_run_engine() {
-    location_state.wifi_cfg.on_wifi_event(location_state.gnss_cfg.ctx, EVENT_TYPE_LBM, 0);
+    if(location_state.wifi_cfg.on_wifi_event) {
+        location_state.wifi_cfg.on_wifi_event(location_state.wifi_cfg.ctx, EVENT_TYPE_LBM, 0);
+    } else if(location_state.gnss_cfg.on_gnss_event) {
+        location_state.gnss_cfg.on_gnss_event(location_state.gnss_cfg.ctx, EVENT_TYPE_LBM, 0);
+    } else {
+        SID_PAL_LOG_WARNING("Location event callback not set");
+    }
 }
 
 sid_error_t sid_pal_common_process_event() {
