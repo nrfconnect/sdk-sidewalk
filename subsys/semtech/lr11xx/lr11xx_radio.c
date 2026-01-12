@@ -1624,24 +1624,24 @@ int32_t sid_pal_radio_init( sid_pal_radio_event_notify_t notify, sid_pal_radio_i
 		if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1110) {
 			if (drv_ctx.ver.fw < 0x0401) {
 				SL_SID_LOG_APP_ERROR("LR1110 firmware not up-to-date");
-				err = RADIO_ERROR_IO_ERROR;
+				err = RADIO_ERROR_FW_NOT_UP_TO_DATE;
 				break;
 			}
 		} else if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1120) {
 			if (drv_ctx.ver.fw < 0x0201) {
 				SL_SID_LOG_APP_ERROR("LR1120 firmware not up-to-date");
-				err = RADIO_ERROR_IO_ERROR;
+				err = RADIO_ERROR_FW_NOT_UP_TO_DATE;
 				break;
 			}
 		} else if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1121) {
 			if (drv_ctx.ver.fw < 0x0103) {
 				SL_SID_LOG_APP_ERROR("LR1121 firmware not up-to-date");
-				err = RADIO_ERROR_IO_ERROR;
+				err = RADIO_ERROR_FW_NOT_UP_TO_DATE;
 				break;
 			}
 		} else {
 			SL_SID_LOG_APP_ERROR("unknown use case %x", drv_ctx.ver.type);
-			err = RADIO_ERROR_IO_ERROR;
+			err = RADIO_ERROR_FW_TYPE_NOT_SUPPORTED;
 			break;
 		}
 

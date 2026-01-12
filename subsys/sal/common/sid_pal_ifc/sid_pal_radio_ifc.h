@@ -50,6 +50,8 @@ extern "C" {
 #define    RADIO_ERROR_GENERIC             -8  // Errors reported by library calls
 #define    RADIO_ERROR_PKT_CHECK_DCR_LIMIT -9  // DCR check fail
 #define    RADIO_ERROR_PKT_CHECK_REG_LIMIT -10 // Regulatory check fail
+#define    RADIO_ERROR_FW_NOT_UP_TO_DATE    -11 // Firmware not up to date
+#define    RADIO_ERROR_FW_TYPE_NOT_SUPPORTED -12 // Firmware type not supported
 #define    RADIO_ERROR_VENDOR_FIRST        -64 // Add vendor error codes between -64 and -255
 #define    RADIO_ERROR_VENDOR_LAST         -255
 
