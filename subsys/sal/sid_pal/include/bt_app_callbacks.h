@@ -44,16 +44,18 @@ int sid_ble_bt_enable(bt_ready_cb_t cb);
 
 /**
  * @brief Wrapper for @bt_disable.
- * This function removes internal reference.
- * If the internal reference counter shows 0, real @bt_disable is called
- * 
- * @return int result from @bt_disable or 0 if sid_ble_bt_enable has been called more than sid_ble_bt_disable
+ * This function removes an internal reference. 
+ * If the internal reference counter reaches 0, the real @bt_disable is called.
+ *
+ * @return int 0 on successful disable,
+ *        Negative error codes as returned by @bt_disable,
+ *        Positive number indicating the number of connections left.
  */
 int sid_ble_bt_disable();
 
 /**
  * @brief BT ids used for extended advertising. 
- * This allows to identify connections from different extended adverticements.
+ * This allows to identify connections from different extended advertisements.
  */
 enum sid_ble_id_values {
 	_BT_ID_DEFAULT = BT_ID_DEFAULT,
