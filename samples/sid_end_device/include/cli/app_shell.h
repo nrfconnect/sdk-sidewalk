@@ -229,6 +229,13 @@
 #define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 1
 #define CMD_SID_OPTION_GSI_ARG_REQUIRED 1
 #define CMD_SID_OPTION_GSI_ARG_OPTIONAL 0
+#define CMD_SID_OPTION_BLE_CFG_DESCRIPTION                                                       \
+	"set <cfg_type> [inactivity_timeout]\n"                                                   \
+	"Set BLE user config (SID_OPTION_BLE_USER_CONFIG).\n"                                     \
+	"<cfg_type> 0=ADV, 1=CONN, 2=ADV_AND_CONN, 3=INACTIVITY_TIMEOUT.\n"                       \
+	"For cfg_type 3, <inactivity_timeout> (seconds) is required."
+#define CMD_SID_OPTION_BLE_CFG_ARG_REQUIRED 2
+#define CMD_SID_OPTION_BLE_CFG_ARG_OPTIONAL 1
 #define CMD_SID_LAST_STATUS_ARG_REQUIRED 1
 #define CMD_SID_LAST_STATUS_ARG_OPTIONAL 0
 #define CMD_SID_CONN_REQUEST_ARG_REQUIRED 2
@@ -271,6 +278,7 @@ int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_sid_id(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv);

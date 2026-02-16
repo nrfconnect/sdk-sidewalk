@@ -9,6 +9,7 @@
  */
 
 #include <sid_error.h>
+#include <sid_ble_config_ifc.h>
 #include <sid_pal_ble_adapter_ifc.h>
 #include <sid_ble_service.h>
 #include <sid_ble_ama_service.h>
@@ -31,7 +32,9 @@
 #include <zephyr/settings/settings.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/byteorder.h>
+#include <zephyr/sys/util.h>
 #include <zephyr/bluetooth/hci_vs.h>
+#include <string.h>
 
 LOG_MODULE_REGISTER(sid_ble, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
@@ -48,21 +51,28 @@ static sid_error_t ble_adapter_deinit(void);
 static sid_error_t ble_adapter_get_rssi(int8_t *rssi);
 static sid_error_t ble_adapter_get_tx_pwr(int16_t *tx_power);
 static sid_error_t ble_adapter_set_tx_pwr(int16_t tx_power);
+static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg);
+static void ble_adapter_received_data_result(sid_error_t result);
+static void ble_adapter_notify_ama_state(bool is_active);
+static sid_error_t ble_adapter_get_mac_addr(uint8_t *addr);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
 	.start_service = ble_adapter_start_service,
+	.user_config = ble_adapter_user_config,
 	.set_adv_data = ble_adapter_set_adv_data,
 	.start_adv = ble_adapter_start_advertisement,
 	.stop_adv = ble_adapter_stop_advertisement,
-	.send = ble_adapter_send_data,
-	.set_callback = ble_adapter_set_callback,
-	.disconnect = ble_adapter_disconnect,
-	.deinit = ble_adapter_deinit,
 	.get_rssi = ble_adapter_get_rssi,
 	.get_tx_pwr = ble_adapter_get_tx_pwr,
+	.send = ble_adapter_send_data,
+	.set_callback = ble_adapter_set_callback,
 	.set_tx_pwr = ble_adapter_set_tx_pwr,
-
+	.received_data_result = ble_adapter_received_data_result,
+	.disconnect = ble_adapter_disconnect,
+	.deinit = ble_adapter_deinit,
+	.notify_ama_state = ble_adapter_notify_ama_state,
+	.get_mac_addr = ble_adapter_get_mac_addr,
 };
 
 static void read_conn_rssi(uint16_t handle, int8_t *rssi)
@@ -376,6 +386,44 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 	} else if (0 > err_code) {
 		return SID_ERROR_GENERIC;
 	}
+	return SID_ERROR_NONE;
+}
+
+static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg)
+{
+	ARG_UNUSED(cfg);
+	LOG_DBG("BLE user config: not implemented");
+	return SID_ERROR_NOSUPPORT;
+}
+
+static void ble_adapter_received_data_result(sid_error_t result)
+{
+	ARG_UNUSED(result);
+	LOG_DBG("received_data_result: not implemented");
+}
+
+static void ble_adapter_notify_ama_state(bool is_active)
+{
+	ARG_UNUSED(is_active);
+	LOG_DBG("notify_ama_state: not implemented");
+}
+
+static sid_error_t ble_adapter_get_mac_addr(uint8_t *addr)
+{
+	if (!addr) {
+		return SID_ERROR_NULL_POINTER;
+	}
+
+	bt_addr_le_t addrs[BT_ID_SIDEWALK + 1];
+	size_t count = ARRAY_SIZE(addrs);
+
+	bt_id_get(addrs, &count);
+	if (count <= BT_ID_SIDEWALK) {
+		LOG_WRN("get_mac_addr: Sidewalk identity not present (count=%zu)", count);
+		return SID_ERROR_NOT_FOUND;
+	}
+
+	memcpy(addr, addrs[BT_ID_SIDEWALK].a.val, BLE_ADDR_MAX_LEN);
 	return SID_ERROR_NONE;
 }
 

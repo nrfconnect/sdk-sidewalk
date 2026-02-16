@@ -16,6 +16,7 @@
 
 #include <sid_api.h>
 #include <sid_900_cfg.h>
+#include <sid_ble_config_ifc.h>
 #include <sid_hal_memory_ifc.h>
 
 #include <cli/app_shell.h>
@@ -79,6 +80,9 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      CMD_SID_SET_OPTION_GC_ARG_REQUIRED, CMD_SID_SET_OPTION_GC_ARG_OPTIONAL),
 	SHELL_CMD_ARG(-gsi, NULL, CMD_SID_OPTION_GSI_DESCRIPTION, cmd_sid_option_sid_id,
 		      CMD_SID_OPTION_GSI_ARG_REQUIRED, CMD_SID_OPTION_GSI_ARG_OPTIONAL),
+	SHELL_CMD_ARG(-ble_cfg, NULL, CMD_SID_OPTION_BLE_CFG_DESCRIPTION,
+		      cmd_sid_option_ble_cfg_set, CMD_SID_OPTION_BLE_CFG_ARG_REQUIRED,
+		      CMD_SID_OPTION_BLE_CFG_ARG_OPTIONAL),
 
 	SHELL_SUBCMD_SET_END);
 
@@ -982,6 +986,70 @@ int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv
 
 	int err = cmd_sid_option_get_input_data(SID_OPTION_GET_LINK_POLICY_AUTO_CONNECT_PARAMS,
 						&link_mask, sizeof(uint32_t));
+	if (err) {
+		shell_error(shell, "event err %d", err);
+	}
+
+	return 0;
+}
+
+#define BLE_CFG_MS_TO_ADV_INTERVAL(ms) ((uint32_t)(((ms) * 8U) / 5U))
+#define BLE_CFG_MS_TO_CONN_INTERVAL(ms) ((uint16_t)(((ms) * 8U) / 5U))
+
+int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const char **argv)
+{
+	CHECK_ARGUMENT_COUNT(argc, CMD_SID_OPTION_BLE_CFG_ARG_REQUIRED,
+			     CMD_SID_OPTION_BLE_CFG_ARG_OPTIONAL);
+
+	if (strcmp(argv[1], "set") != 0) {
+		shell_error(shell, "First argument must be 'set'");
+		return -EINVAL;
+	}
+
+	long cfg_type_raw = 0l;
+	char *end = NULL;
+	cfg_type_raw = strtol(argv[2], &end, 0);
+	if (end == argv[2] || !IN_RANGE(cfg_type_raw, SID_BLE_USER_CFG_ADV,
+					SID_BLE_USER_CFG_INACTIVITY_TIMEOUT)) {
+		shell_error(shell, "cfg_type must be 0..3 (ADV, CONN, ADV_AND_CONN, INACTIVITY_TIMEOUT)");
+		return -EINVAL;
+	}
+
+	struct sid_ble_user_config cfg = {
+		.adv_param = {
+			.type = AMA_SERVICE,
+			.fast_enabled = true,
+			.slow_enabled = true,
+			.fast_interval = BLE_CFG_MS_TO_ADV_INTERVAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
+			.fast_timeout = CONFIG_SIDEWALK_BLE_ADV_INT_TRANSITION * 100, /* seconds to 10ms */
+			.slow_interval = BLE_CFG_MS_TO_ADV_INTERVAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
+			.slow_timeout = 0,
+		},
+		.conn_param = {
+			.min_conn_interval = BLE_CFG_MS_TO_CONN_INTERVAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
+			.max_conn_interval = BLE_CFG_MS_TO_CONN_INTERVAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
+			.slave_latency = CONFIG_BT_PERIPHERAL_PREF_LATENCY,
+			.conn_sup_timeout = CONFIG_BT_PERIPHERAL_PREF_TIMEOUT,
+		},
+		.is_set = true,
+		.cfg_type = (enum sid_ble_user_config_type)cfg_type_raw,
+		.inactivity_timeout = 0,
+	};
+
+	if (cfg.cfg_type == SID_BLE_USER_CFG_INACTIVITY_TIMEOUT) {
+		if (argc < 4) {
+			shell_error(shell, "inactivity_timeout required for cfg_type 3");
+			return -EINVAL;
+		}
+		unsigned long timeout = strtoul(argv[3], &end, 0);
+		if (end == argv[3] || timeout > UINT32_MAX) {
+			shell_error(shell, "Invalid inactivity_timeout");
+			return -EINVAL;
+		}
+		cfg.inactivity_timeout = (uint32_t)timeout;
+	}
+
+	int err = cmd_sid_option_set(SID_OPTION_BLE_USER_CONFIG, &cfg, sizeof(cfg));
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
