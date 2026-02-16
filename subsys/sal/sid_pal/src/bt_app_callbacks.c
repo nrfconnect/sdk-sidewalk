@@ -42,7 +42,7 @@ int sid_ble_bt_disable()
 		return bt_disable();
 	} else {
 		bt_enable_count--;
-		return 0;
+		return bt_enable_count;
 	}
 }
 

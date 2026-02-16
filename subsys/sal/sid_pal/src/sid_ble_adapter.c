@@ -441,11 +441,13 @@ static sid_error_t ble_adapter_deinit(void)
 	sid_ble_advert_deinit();
 	bt_id_delete(BT_ID_SIDEWALK);
 	bt_id_reset(BT_ID_SIDEWALK, NULL, NULL);
-	int err = sid_ble_bt_disable();
+	int ret = sid_ble_bt_disable();
 
-	if (err) {
-		LOG_ERR("BT disable failed (error %d)", err);
+	if (ret < 0) {
+		LOG_ERR("BT disable failed (error %d)", ret);
 		return SID_ERROR_GENERIC;
+	} else if (ret > 0) {
+		LOG_WRN("Sidewalk ble adapter disabled, but BT still enabled (ret=%d)", ret);
 	}
 
 	return SID_ERROR_NONE;
