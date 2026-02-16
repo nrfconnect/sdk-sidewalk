@@ -14,7 +14,27 @@ config SIDEWALK_LOG_LEVEL
 
 
 config SBDT_MAX_PARALEL_TRANSFERS
-	int 
+	int
 	default 3
+
+config SIDEWALK_BLE_ADV_INT_FAST
+	int "Fast advertise interval in ms"
+	default 160
+
+config SIDEWALK_BLE_ADV_INT_SLOW
+	int "Slow advertise interval in ms"
+	default 1000
+
+config SIDEWALK_BLE_ADV_INT_TRANSITION
+	int "Duration of fast advertisement after sid_start in seconds"
+	default 30
+
+config BT_PERIPHERAL_PREF_LATENCY
+	int "Preferred slave latency"
+	default 0
+
+config BT_PERIPHERAL_PREF_TIMEOUT
+	int "Preferred supervision timeout in 10 ms units"
+	default 400
 
 source "Kconfig.zephyr"

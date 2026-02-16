@@ -73,6 +73,11 @@ KRKNWK-21160: Semtech interrupt pin remains high blocking the Wi-Fi scan.
 
   **Workaround:** Clear event pin interrupt in Semtech hal after each occurrence.
 
+KRKNWK-21514: Sidewalk option for Bluetooth LE config (``SID_OPTION_BLE_USER_CONFIG``) is not supported in the NCS
+  Calling the Sidewalk Kconfig option ``SID_OPTION_BLE_USER_CONFIG`` causes the application to crash.
+
+  **Affected platforms:** All platforms.
+
 List of known issues for v1.0.1
 *******************************
 
