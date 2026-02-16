@@ -26,3 +26,15 @@ See the available migration guides that will assist you in the transitioning fro
 
    releases_and_migration/migration_guide_addon_v110.rst
    releases_and_migration/migration_guide_addon_v010.rst
+
+Software maturity
+*****************
+
+In the nRF Connect SDK, maturity levels are defined for each feature and component.
+For more information about definitions and other support, see the `nRF Connect SDK software maturity levels documentation`_.
+
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   releases_and_migration/software_maturity
