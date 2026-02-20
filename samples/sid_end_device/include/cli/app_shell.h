@@ -194,6 +194,15 @@
 
 #define CMD_SID_SDK_CONFIG_DESCRIPTION "Print sid sdk config"
 
+#define CMD_SID_EP_CFG_DESCRIPTION "Print endpoint configuration"
+
+#define CMD_SID_PRINT_METRICS_DESCRIPTION                                                          \
+	"<category>\n"                                                                             \
+	"print metrics on logging interface."
+#define CMD_SID_CLEAR_METRICS_DESCRIPTION                                                          \
+	"<category>\n"                                                                             \
+	"clear metrics."
+
 #define CMD_NORDIC_DFU_ARG_REQUIRED 1
 #define CMD_NORDIC_DFU_ARG_OPTIONAL 0
 
@@ -253,6 +262,15 @@
 #define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED 1
 #define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL 0
 
+#define CMD_SID_EP_CFG_DESCRIPTION_ARG_REQUIRED 1
+#define CMD_SID_EP_CFG_DESCRIPTION_ARG_OPTIONAL 0
+
+#define CMD_SID_PRINT_METRICS_DESCRIPTION_ARG_REQUIRED 2
+#define CMD_SID_PRINT_METRICS_DESCRIPTION_ARG_OPTIONAL 0
+#define CMD_SID_CLEAR_METRICS_DESCRIPTION_ARG_REQUIRED 2
+#define CMD_SID_CLEAR_METRICS_DESCRIPTION_ARG_OPTIONAL 0
+
+
 int cmd_nordic_dfu(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv);
@@ -288,6 +306,11 @@ int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **
 int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **argv);
+
+int cmd_sid_ep_cfg(const struct shell *shell, int32_t argc, const char **argv);
+
+int cmd_sid_print_metrics(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_clear_metrics(const struct shell *shell, int32_t argc, const char **argv);
 
 #ifdef CONFIG_SIDEWALK_TRACE_HEAP
 int cmd_sid_print_heap_stats(const struct shell *shell, int32_t argc, const char **argv);
