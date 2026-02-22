@@ -38,7 +38,7 @@ jobs:
         id: subsets
         run: |
           rm -rf twister-out* max max_sorted configuration
-          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="Github_tests"  --exclude-platform native_sim --exclude-platform native_posix --exclude-platform unit_testing  --dry-run
+          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="Github_tests"  --exclude-platform native_sim --exclude-platform unit_testing  --dry-run
           total_platforms=$(jq -r '.testsuites |map({platform: .platform}) | unique | .[].platform' twister-out/testplan.json)
           total_platforms_json=$(printf '%s' "${total_platforms[@]}" | jq -R . | jq -s -c .)
           echo "{}" > configuration
@@ -103,7 +103,7 @@ jobs:
       - name: Twister build and run x86 tests
         run: |
           source zephyr/zephyr-env.sh
-          west twister --test-config sidewalk/test_config.yaml --level="Github_tests" --testsuite-root sidewalk --platform native_sim --platform native_posix --platform unit_testing --coverage --coverage-basedir sidewalk --coverage-formats html,xml --enable-ubsan --enable-lsan --enable-asan --inline-logs --overflow-as-errors -vvv
+          west twister --test-config sidewalk/test_config.yaml --level="Github_tests" --testsuite-root sidewalk --platform native_sim --platform unit_testing --coverage --coverage-basedir sidewalk --coverage-formats html,xml --enable-ubsan --enable-lsan --enable-asan --inline-logs --overflow-as-errors -vvv
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
