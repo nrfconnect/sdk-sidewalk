@@ -25,6 +25,7 @@
 
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
 #include <bt_app_callbacks.h>
 
 #include <zephyr/bluetooth/gatt.h>
@@ -170,7 +171,7 @@ static void get_tx_power(uint8_t handle_type, uint16_t handle, int16_t *tx_pwr_l
 
 static sid_error_t ble_adapter_get_rssi(int8_t *rssi)
 {
-	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	const sid_ble_conn_data_t *params = sid_ble_conn_data_get();
 	if (params == NULL || params->conn == NULL) {
 		return SID_ERROR_GENERIC;
 	}
@@ -191,7 +192,7 @@ static sid_error_t ble_adapter_get_tx_pwr(int16_t *tx_power)
 {
 	uint16_t conn_handle = 0;
 
-	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	const sid_ble_conn_data_t *params = sid_ble_conn_data_get();
 	if (params == NULL || params->conn == NULL) {
 		return SID_ERROR_GENERIC;
 	}
@@ -210,7 +211,7 @@ static sid_error_t ble_adapter_set_tx_pwr(int16_t tx_power)
 {
 	uint16_t conn_handle = 0;
 
-	const sid_ble_conn_params_t *params = sid_ble_conn_params_get();
+	const sid_ble_conn_data_t *params = sid_ble_conn_data_get();
 	if (params == NULL || params->conn == NULL) {
 		return SID_ERROR_GENERIC;
 	}
@@ -345,7 +346,7 @@ static sid_ble_srv_params_t get_srv_params(sid_ble_cfg_service_identifier_t id)
 	switch (id) {
 	case AMA_SERVICE:
 		return (sid_ble_srv_params_t){
-			.conn = sid_ble_conn_params_get()->conn,
+			.conn = sid_ble_conn_data_get()->conn,
 			.service = (struct bt_gatt_service_static *)sid_ble_get_ama_service(),
 			.uuid = uuid_ama_service
 		};
@@ -429,9 +430,18 @@ static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg)
 
 		if (cfg->cfg_type == SID_BLE_USER_CFG_CONN ||
 		    cfg->cfg_type == SID_BLE_USER_CFG_ADV_AND_CONN) {
-	ARG_UNUSED(cfg);
-	LOG_DBG("BLE user config: not implemented");
-	return SID_ERROR_NOSUPPORT;
+			struct bt_le_conn_param conn_params = {
+				.interval_min = cfg->conn_param.min_conn_interval,
+				.interval_max = cfg->conn_param.max_conn_interval,
+				.latency = cfg->conn_param.slave_latency,
+				.timeout = cfg->conn_param.conn_sup_timeout,
+			};
+			err = sid_ble_conn_param_update(&conn_params);
+
+			if (err) {
+				LOG_ERR("sid_ble_conn_param_update failed (err %d)", err);
+				return SID_ERROR_GENERIC;
+			}
 		}
 	} else { /* get config */
 		if (cfg->cfg_type == SID_BLE_USER_CFG_ADV ||
@@ -454,6 +464,18 @@ static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg)
 
 		if (cfg->cfg_type == SID_BLE_USER_CFG_CONN ||
 		    cfg->cfg_type == SID_BLE_USER_CFG_ADV_AND_CONN) {
+			struct bt_le_conn_param conn_params = { 0 };
+
+			err = sid_ble_conn_param_get(&conn_params);
+			if (err) {
+				LOG_ERR("sid_ble_conn_param_get failed (err %d)", err);
+				return SID_ERROR_GENERIC;
+			}
+
+			cfg->conn_param.min_conn_interval = conn_params.interval_min;
+			cfg->conn_param.max_conn_interval = conn_params.interval_max;
+			cfg->conn_param.slave_latency = conn_params.latency;
+			cfg->conn_param.conn_sup_timeout = conn_params.timeout;
 		}
 	}
 

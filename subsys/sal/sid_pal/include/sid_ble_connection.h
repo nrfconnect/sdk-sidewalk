@@ -15,7 +15,7 @@
 typedef struct {
 	struct bt_conn *conn;
 	uint8_t addr[BT_ADDR_SIZE];
-} sid_ble_conn_params_t;
+} sid_ble_conn_data_t;
 
 /**
  * @brief Initialize ble connection module.
@@ -37,8 +37,24 @@ void sid_ble_conn_deinit(void);
 /**
  * @brief The function returns current connection paramters.
  *
- * @return connection paramters as defined in @ref sid_ble_conn_params_t.
+ * @return connection data as defined in @ref sid_ble_conn_data_t.
  */
-const sid_ble_conn_params_t *sid_ble_conn_params_get(void);
+const sid_ble_conn_data_t *sid_ble_conn_data_get(void);
+
+/**
+ * @brief Request LE connection parameter update.
+ *
+ * @param param Requested connection parameters.
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_conn_param_get(struct bt_le_conn_param *param);
+
+/**
+ * @brief Request LE connection parameter update.
+ *
+ * @param param Requested connection parameters.
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_conn_param_update(const struct bt_le_conn_param *param);
 
 #endif /* NRF_BLE_CONNECTION_H */
