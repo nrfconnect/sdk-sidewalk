@@ -9,7 +9,6 @@
 #include <sid_ble_advert.h>
 #include <sid_ble_uuid.h>
 
-#include <sid_ble_uuid.h>
 #include <bt_app_callbacks.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
@@ -20,7 +19,7 @@
 
 LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 
-#define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
+#define MS_TO_INTERVAL_VAL(ms) (uint16_t)(((uint32_t)(ms) * 8U) / 5U)
 
 #define AMA_ADV_OPTIONS (BT_LE_ADV_OPT_CONN)
 
@@ -35,24 +34,27 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 #error "CONFIG_SIDEWALK_BLE_ADV_INT_FAST should be smaller than CONFIG_SIDEWALK_BLE_ADV_INT_SLOW"
 #endif
 
-/* Advertising parameters. */
+/* Default: same units as sid_ble_cfg_adv_param_t (0.625 ms, 10 ms). */
+static sid_ble_advert_params_t advert_params = {
+	.fast_enabled = true,
+	.slow_enabled = true,
+	.fast_interval = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
+	.fast_timeout = CONFIG_SIDEWALK_BLE_ADV_INT_TRANSITION * 100U,
+	.slow_interval = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
+	.slow_timeout = 0,
+};
+
 static struct bt_le_adv_param adv_param_fast = {
 	.id = BT_ID_SIDEWALK,
-	.options = (AMA_ADV_OPTIONS),
-	.interval_min = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
-	.interval_max = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST +
-					   CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION),
+	.options = (AMA_ADV_OPTIONS)
 };
 
 static struct bt_le_adv_param adv_param_slow = {
 	.id = BT_ID_SIDEWALK,
 	.options = (AMA_ADV_OPTIONS),
-	.interval_min = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
-	.interval_max = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW +
-					   CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION),
 };
 
-static struct bt_le_ext_adv *adv_set = NULL;
+static struct bt_le_ext_adv *adv_set;
 
 /**
  * @brief Advertising data items values size in bytes.
@@ -93,8 +95,46 @@ static const struct bt_data sd[] = {
 		sizeof(CONFIG_SIDEWALK_BLE_NAME) - 1),
 };
 
+static void adv_param_set_interval(struct bt_le_adv_param *param, uint32_t interval)
+{
+	param->interval_min = (uint16_t)interval;
+	param->interval_max = (uint16_t)(interval + MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_PRECISION));
+}
+
+static int start_adv_with_param(struct bt_le_adv_param *param, sid_ble_adv_state_t new_state,
+				uint32_t timeout_10ms)
+{
+	struct bt_le_ext_adv_start_param ext_adv_start_param = { 0 };
+	int err;
+
+	err = bt_le_ext_adv_create(param, NULL, &adv_set);
+	if (err) {
+		LOG_ERR("Failed to create adv set errno %d (%s)", err, strerror(err));
+		return err;
+	}
+	err = bt_le_ext_adv_set_data(adv_set, adv_data, ARRAY_SIZE(adv_data), sd, ARRAY_SIZE(sd));
+	if (err) {
+		bt_le_ext_adv_delete(adv_set);
+		adv_set = NULL;
+		LOG_ERR("Failed to set adv data errno %d (%s)", err, strerror(err));
+		return err;
+	}
+	err = bt_le_ext_adv_start(adv_set, &ext_adv_start_param);
+	if (err) {
+		bt_le_ext_adv_delete(adv_set);
+		adv_set = NULL;
+		LOG_ERR("Failed to start adv errno %d (%s)", err, strerror(err));
+		return err;
+	}
+	atomic_set(&adv_state, new_state);
+	if (timeout_10ms > 0) {
+		k_work_reschedule(&change_adv_work, K_MSEC((uint32_t)timeout_10ms * 10U));
+	}
+	return 0;
+}
+
 /**
- * @brief The function copy manufacturing data to static buffer used in BLE avertising.
+ * @brief The function copy manufacturing data to static buffer used in BLE advertising.
  *
  * @param data buffer with data to copy.
  * @param data_len number of bytes to copy.
@@ -116,69 +156,56 @@ static uint8_t advert_manuf_data_copy(uint8_t *data, uint8_t data_len)
 static void change_advertisement_interval(struct k_work *work)
 {
 	ARG_UNUSED(work);
+	int err;
+
 	LOG_INF("Change advertisement interval");
 
-	struct bt_le_ext_adv_start_param ext_adv_start_param = { 0 };
+	if (!adv_set) {
+		return;
+	}
+	err = bt_le_ext_adv_stop(adv_set);
+	if (err) {
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
+		LOG_ERR("Failed to stop adv errno %d (%s)", err, strerror(err));
+		return;
+	}
+	err = bt_le_ext_adv_delete(adv_set);
+	if (err) {
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
+		LOG_ERR("Failed to delete adv set errno %d", err);
+		return;
+	}
+	adv_set = NULL;
 
-	if (BLE_ADV_FAST == atomic_get(&adv_state)) {
-		int err = 0;
-		err = bt_le_ext_adv_stop(adv_set);
+	sid_ble_adv_state_t prev = atomic_get(&adv_state);
+	if (prev == BLE_ADV_FAST && advert_params.slow_enabled) {
+		adv_param_set_interval(&adv_param_slow, advert_params.slow_interval);
+		err = start_adv_with_param(&adv_param_slow, BLE_ADV_SLOW,
+					   advert_params.slow_timeout);
 		if (err) {
 			atomic_set(&adv_state, BLE_ADV_DISABLE);
-			LOG_ERR("Failed to stop fast adv errno %d (%s)", err, strerror(err));
+			LOG_DBG("Failed to switch to slow advertising, err %d", err);
 			return;
 		}
-		err = bt_le_ext_adv_delete(adv_set);
-		if (err) {
-			atomic_set(&adv_state, BLE_ADV_DISABLE);
-			LOG_ERR("Failed to delete adv set");
-			return;
+		LOG_DBG("Switched to slow advertising, err %d", err);
+	} else {
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
+		if (prev == BLE_ADV_SLOW) {
+			LOG_DBG("Slow advertising timeout, stopped");
 		}
-		adv_set = NULL;
-		err = bt_le_ext_adv_create(&adv_param_slow, NULL, &adv_set);
-		if (err) {
-			atomic_set(&adv_state, BLE_ADV_DISABLE);
-			LOG_ERR("Failed to create slow adv set");
-			return;
-		}
-		err = bt_le_ext_adv_set_data(adv_set, adv_data, ARRAY_SIZE(adv_data), sd,
-					     ARRAY_SIZE(sd));
-		if (err) {
-			atomic_set(&adv_state, BLE_ADV_DISABLE);
-			LOG_ERR("Failed to set adv data to slow adv errno %d (%s)", err,
-				strerror(err));
-			return;
-		}
-		err = bt_le_ext_adv_start(adv_set, &ext_adv_start_param);
-		if (err) {
-			atomic_set(&adv_state, BLE_ADV_DISABLE);
-			LOG_ERR("Failed to start slow adv errno %d (%s)", err, strerror(err));
-			return;
-		}
-
-		atomic_set(&adv_state, BLE_ADV_SLOW);
-		LOG_DBG("Change succesful");
+		LOG_DBG("BLE advertising disabled");
 	}
 }
 
 int sid_ble_advert_init(void)
 {
-	int ret;
-	if (adv_set == NULL) {
-		ret = bt_le_ext_adv_create(&adv_param_fast, NULL, &adv_set);
-		if (ret) {
-			LOG_ERR("Failed to create fast advertising set errno %d (%s)", ret,
-				strerror(ret));
-			return ret;
-		}
-	}
-
+	/* No initialization needed, left for backward compatibility */
 	return 0;
 }
 
 int sid_ble_advert_deinit(void)
 {
-	if (adv_set != NULL) {
+	if (adv_set) {
 		int err = bt_le_ext_adv_delete(adv_set);
 		if (err) {
 			LOG_ERR("Failed to delete adv_set_fast errno %d (%s)", err, strerror(err));
@@ -192,40 +219,77 @@ int sid_ble_advert_deinit(void)
 
 void sid_ble_advert_notify_connection(void)
 {
-	LOG_DBG("Conneciton has been made, cancel change adv");
+	LOG_DBG("Connection has been made, cancel change adv");
 	k_work_cancel_delayable(&change_adv_work);
 }
 
 int sid_ble_advert_start(void)
 {
-	struct bt_le_ext_adv_start_param ext_adv_start_param = { 0 };
-	int err = 0;
-	// make sure to always start with fast advertising set
-	sid_ble_advert_deinit();
-	sid_ble_advert_init();
-	err = bt_le_ext_adv_set_data(adv_set, adv_data, ARRAY_SIZE(adv_data), sd, ARRAY_SIZE(sd));
-	if (err) {
+	struct bt_le_adv_param *param;
+	sid_ble_adv_state_t state;
+	uint32_t timeout;
+	int err;
+
+	if (adv_set != NULL) {
+		struct k_work_sync sync;
+
+		(void)k_work_cancel_delayable_sync(&change_adv_work, &sync);
+		(void)bt_le_ext_adv_stop(adv_set);
+		(void)bt_le_ext_adv_delete(adv_set);
+		adv_set = NULL;
 		atomic_set(&adv_state, BLE_ADV_DISABLE);
-		LOG_ERR("Failed to set fast adv data errno: %d (%s)", err, strerror(err));
-		return err;
 	}
 
-	err = bt_le_ext_adv_start(adv_set, &ext_adv_start_param);
-	if (err) {
-		atomic_set(&adv_state, BLE_ADV_DISABLE);
-		LOG_ERR("Failed to start fast adv errno: %d (%s)", err, strerror(err));
-		return err;
+	if (advert_params.fast_enabled) {
+		adv_param_set_interval(&adv_param_fast, advert_params.fast_interval);
+		param = &adv_param_fast;
+		state = BLE_ADV_FAST;
+		timeout = advert_params.fast_timeout;
+	} else if (advert_params.slow_enabled) {
+		adv_param_set_interval(&adv_param_slow, advert_params.slow_interval);
+		param = &adv_param_slow;
+		state = BLE_ADV_SLOW;
+		timeout = advert_params.slow_timeout;
+	} else {
+		LOG_WRN("No advertising enabled");
+		return 0;
 	}
 
-	atomic_set(&adv_state, BLE_ADV_FAST);
-	k_work_reschedule(&change_adv_work, K_SECONDS(CONFIG_SIDEWALK_BLE_ADV_INT_TRANSITION));
-
+	err = start_adv_with_param(param, state, timeout);
 	return err;
+}
+
+int sid_ble_advert_params_set(sid_ble_advert_params_t *params)
+{
+	if (!params) {
+		return -EINVAL;
+	}
+	LOG_DBG("sid_ble_advert_params_set: fast_enabled=%d, slow_enabled=%d, fast_interval=%d, fast_timeout=%d, slow_interval=%d, slow_timeout=%d",
+		params->fast_enabled, params->slow_enabled, params->fast_interval, params->fast_timeout, params->slow_interval, params->slow_timeout);
+
+	memcpy(&advert_params, params, sizeof(advert_params));
+	return 0;
+}
+
+int sid_ble_advert_params_get(sid_ble_advert_params_t *params)
+{
+	if (!params) {
+		return -EINVAL;
+	}
+	memcpy(params, &advert_params, sizeof(advert_params));
+	return 0;
 }
 
 int sid_ble_advert_stop(void)
 {
-	k_work_cancel_delayable(&change_adv_work);
+	struct k_work_sync sync;
+
+	/* Sync with change_adv_work so it cannot run in parallel and clear adv_set. */
+	(void)k_work_cancel_delayable_sync(&change_adv_work, &sync);
+	if (adv_set == NULL) {
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
+		return 0;
+	}
 	int err = bt_le_ext_adv_stop(adv_set);
 
 	if (0 == err) {

@@ -12,6 +12,13 @@ set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
 target_sources(app PRIVATE ${SIDEWALK_BASE}/subsys/sal/sid_pal/src/sid_ble_connection.c ${SIDEWALK_BASE}/subsys/sal/sid_pal/src/hci_utils.c)
 
+target_compile_definitions(app PRIVATE
+  CONFIG_BT_PERIPHERAL_PREF_MIN_INT=16
+  CONFIG_BT_PERIPHERAL_PREF_MAX_INT=60
+  CONFIG_BT_PERIPHERAL_PREF_LATENCY=0
+  CONFIG_BT_PERIPHERAL_PREF_TIMEOUT=400
+)
+
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_adapter_callbacks.h)
 
 # add test file
