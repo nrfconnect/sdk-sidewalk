@@ -41,4 +41,16 @@ config SIDEWALK_BLE_NAME
 	string "BLE name adverticed for Sidewalk"
 	default "SID_APP"
 
+config BT_PERIPHERAL_PREF_MIN_INT
+	default 16
+
+config BT_PERIPHERAL_PREF_MAX_INT
+	default 60
+
+config BT_PERIPHERAL_PREF_LATENCY
+	default 0
+
+config BT_PERIPHERAL_PREF_TIMEOUT
+	default 400
+
 source "Kconfig.zephyr"
