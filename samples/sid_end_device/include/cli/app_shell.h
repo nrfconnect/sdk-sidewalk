@@ -238,13 +238,23 @@
 #define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 1
 #define CMD_SID_OPTION_GSI_ARG_REQUIRED 1
 #define CMD_SID_OPTION_GSI_ARG_OPTIONAL 0
-#define CMD_SID_OPTION_BLE_CFG_DESCRIPTION                                                       \
-	"set <cfg_type> [inactivity_timeout]\n"                                                   \
-	"Set BLE user config (SID_OPTION_BLE_USER_CONFIG).\n"                                     \
-	"<cfg_type> 0=ADV, 1=CONN, 2=ADV_AND_CONN, 3=INACTIVITY_TIMEOUT.\n"                       \
-	"For cfg_type 3, <inactivity_timeout> (seconds) is required."
-#define CMD_SID_OPTION_BLE_CFG_ARG_REQUIRED 2
-#define CMD_SID_OPTION_BLE_CFG_ARG_OPTIONAL 1
+#define CMD_SID_OPTION_BLE_CFG_DESCRIPTION                                                         \
+	"set | get - BLE user config (SID_OPTION_BLE_USER_CONFIG)."
+#define CMD_SID_OPTION_BLE_CFG_SET_DESCRIPTION                                                     \
+	"set <cfg_type> [params...]\n"                                                             \
+	"<cfg_type> 0=ADV, 1=CONN, 2=ADV_AND_CONN, 3=INACTIVITY_TIMEOUT.\n"                        \
+	"Optional (intervals in 0,625ms units, timeouts in 10ms units):\n"                         \
+	"  ADV: fast_int fast_to slow_int slow_to\n"                                               \
+	"  CONN: min_conn max_conn latency conn_to\n"                                              \
+	"  ADV_AND_CONN: adv params then conn params (8 total)."                                   \
+	"  INACTIVITY_TIMEOUT: inactivity_timeout_sec"
+#define CMD_SID_OPTION_BLE_CFG_SET_ARG_REQUIRED 2
+#define CMD_SID_OPTION_BLE_CFG_SET_ARG_OPTIONAL 9
+#define CMD_SID_OPTION_BLE_CFG_GET_DESCRIPTION                                                     \
+	"get <cfg_type> - Get BLE user config.\n"                                                  \
+	"<cfg_type> 0=ADV, 1=CONN, 2=ADV_AND_CONN, 3=INACTIVITY_TIMEOUT."
+#define CMD_SID_OPTION_BLE_CFG_GET_ARG_REQUIRED 2
+#define CMD_SID_OPTION_BLE_CFG_GET_ARG_OPTIONAL 0
 #define CMD_SID_LAST_STATUS_ARG_REQUIRED 1
 #define CMD_SID_LAST_STATUS_ARG_OPTIONAL 0
 #define CMD_SID_CONN_REQUEST_ARG_REQUIRED 2
@@ -269,7 +279,6 @@
 #define CMD_SID_PRINT_METRICS_DESCRIPTION_ARG_OPTIONAL 0
 #define CMD_SID_CLEAR_METRICS_DESCRIPTION_ARG_REQUIRED 2
 #define CMD_SID_CLEAR_METRICS_DESCRIPTION_ARG_OPTIONAL 0
-
 
 int cmd_nordic_dfu(const struct shell *shell, int32_t argc, const char **argv);
 
@@ -297,6 +306,7 @@ int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv
 int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_sid_id(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_ble_cfg_get(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_last_status(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **argv);
