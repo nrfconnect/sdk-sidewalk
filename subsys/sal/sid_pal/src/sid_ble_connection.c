@@ -27,7 +27,12 @@ static void ble_mtu_cb(struct bt_conn *conn, uint16_t tx_mtu, uint16_t rx_mtu);
 
 static sid_ble_conn_data_t conn_data;
 static sid_ble_conn_data_t *conn_data_ptr;
-static struct bt_le_conn_param conn_params_next;
+static struct bt_le_conn_param conn_params_next = {
+	.interval_min = CONFIG_BT_PERIPHERAL_PREF_MIN_INT,
+	.interval_max = CONFIG_BT_PERIPHERAL_PREF_MAX_INT,
+	.latency = CONFIG_BT_PERIPHERAL_PREF_LATENCY,
+	.timeout = CONFIG_BT_PERIPHERAL_PREF_TIMEOUT,
+};
 static struct bt_le_conn_param conn_params_prev = {
 	.interval_min = CONFIG_BT_PERIPHERAL_PREF_MIN_INT,
 	.interval_max = CONFIG_BT_PERIPHERAL_PREF_MAX_INT,
