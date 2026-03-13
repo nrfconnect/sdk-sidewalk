@@ -17,7 +17,6 @@ cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_connection.h)
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_adapter_callbacks.h)
 cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_service.h)
 
-
 # add test file
 target_sources(app PRIVATE src/main.c)
 
