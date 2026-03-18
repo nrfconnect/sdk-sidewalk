@@ -14,7 +14,7 @@ on:
 
 jobs:
   discover_targets:
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04
     container:
       image: ghcr.io/nrfconnect/sdk-sidewalk:main
       options: --cpus 2 --privileged
@@ -43,16 +43,21 @@ jobs:
         id: subsets
         run: |
           rm -rf twister-out* max max_sorted configuration
-          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="samples" --dry-run
-          total_platforms=$(jq -r '.testsuites |map({platform: .platform}) | unique | .[].platform' twister-out/testplan.json)
+          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk \
+            --level="samples" --dry-run
+          total_platforms=$(jq -r \
+            '.testsuites |map({platform: .platform}) | unique | .[].platform' \
+            twister-out/testplan.json)
           total_platforms_json=$(printf '%s' "${total_platforms[@]}" | jq -R . | jq -s -c .)
           echo "{}" > configuration
           for platform in $total_platforms; do
-            west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="samples" --dry-run --platform $platform
+            west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk \
+              --level="samples" --dry-run --platform $platform
             total_jobs=$(jq '.testsuites | length' twister-out/testplan.json)
             subsets=$(( ( total_jobs + ${{inputs.jobs_per_subset}}) / ${{inputs.jobs_per_subset}}))
             echo $subsets >> max
-            cat configuration | jq -c --arg platform_name $platform --arg subsets $subsets '. += {($platform_name): $subsets|tonumber }' > configuration_new
+            cat configuration | jq -c --arg platform_name $platform --arg subsets $subsets \
+              '. += {($platform_name): $subsets|tonumber }' > configuration_new
             mv configuration_new configuration
           done
           sort max > max_sorted

@@ -8,63 +8,7 @@ on:
         default: 6
 
 jobs:
-  discover_targets:
-    runs-on: self-hosted
-    container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2 --privileged
-    outputs:
-      total_platforms_json: ${{ steps.subsets.outputs.total_platforms_json }}
-      subset_matrix: ${{ steps.subsets.outputs.matrix }}
-      subset_config: ${{ steps.subsets.outputs.config }}
-    defaults:
-      run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: sidewalk
-
-      - name: update NRF
-        run: |
-          rm -rf .west;
-          west init -l sidewalk --mf west.yml &&
-          west update -n -o=--depth=1 --path-cache /workdir/
-
-      - name: subsets configuration
-        id: subsets
-        run: |
-          rm -rf twister-out* max max_sorted configuration
-          west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="Github_tests"  --exclude-platform native_sim --exclude-platform native_posix --exclude-platform unit_testing  --dry-run
-          total_platforms=$(jq -r '.testsuites |map({platform: .platform}) | unique | .[].platform' twister-out/testplan.json)
-          total_platforms_json=$(printf '%s' "${total_platforms[@]}" | jq -R . | jq -s -c .)
-          echo "{}" > configuration
-          for platform in $total_platforms; do
-            west twister --test-config sidewalk/test_config.yaml --testsuite-root sidewalk --level="Github_tests" --dry-run --platform $platform
-            total_jobs=$(jq '.testsuites | length' twister-out/testplan.json)
-            subsets=$(( ( total_jobs + ${{inputs.jobs_per_subset}}) / ${{inputs.jobs_per_subset}}))
-            echo $subsets >> max
-            cat configuration | jq -c --arg platform_name $platform --arg subsets $subsets '. += {($platform_name): $subsets|tonumber }' > configuration_new
-            mv configuration_new configuration
-          done
-          sort max > max_sorted
-          max_subset=$(tail -n 1 max_sorted)
-          subset_matrix="[$(seq -s ', ' 1 $max_subset)]"
-          cat configuration
-          echo $subset_matrix
-
-          echo "total_platforms_json=$total_platforms_json" >> $GITHUB_OUTPUT;
-          echo "matrix=$subset_matrix" >> $GITHUB_OUTPUT;
-          echo "config=`cat configuration`" >> $GITHUB_OUTPUT;
-
-      - name: clean
-        if: always()
-        run: |
-          rm -rf twister*
-
+  # discover_targets and build-and-test_on_hw removed: they require self-hosted runners
   build_and_run_x86_tests:
     name: Run UT on x86
     runs-on: ubuntu-24.04
@@ -90,7 +34,10 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python3 -m pip install -r nrf/scripts/requirements.txt -r zephyr/scripts/requirements.txt -r sidewalk/scripts/ci/requirements.txt
+          python3 -m pip install \
+            -r nrf/scripts/requirements.txt \
+            -r zephyr/scripts/requirements.txt \
+            -r sidewalk/scripts/ci/requirements.txt
 
       - name: Ccache
         id: ccache
@@ -103,7 +50,12 @@ jobs:
       - name: Twister build and run x86 tests
         run: |
           source zephyr/zephyr-env.sh
-          west twister --test-config sidewalk/test_config.yaml --level="Github_tests" --testsuite-root sidewalk --platform native_sim --platform native_posix --platform unit_testing --coverage --coverage-basedir sidewalk --coverage-formats html,xml --enable-ubsan --enable-lsan --enable-asan --inline-logs --overflow-as-errors -vvv
+          west twister --test-config sidewalk/test_config.yaml \
+            --level="Github_tests" --testsuite-root sidewalk \
+            --platform native_sim --platform native_posix --platform unit_testing \
+            --coverage --coverage-basedir sidewalk --coverage-formats html,xml \
+            --enable-ubsan --enable-lsan --enable-asan --inline-logs \
+            --overflow-as-errors -vvv
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -138,39 +90,3 @@ jobs:
           rm -rf tools
           rm -rf nrfxlib
           rm -rf modules
-
-  build-and-test_on_hw:
-    needs: [discover_targets]
-    strategy:
-      fail-fast: false
-      matrix:
-        subset: ${{ fromJson(needs.discover_targets.outputs.subset_matrix) }}
-        target: ${{ fromJson(needs.discover_targets.outputs.total_platforms_json) }}
-    uses: ./.github/workflows/run_tests_dut.yml
-    with:
-      run_tests: true
-      target: ${{matrix.target}}
-      subset: ${{matrix.subset}}
-      subset_config: '${{needs.discover_targets.outputs.subset_config}}'
-
-  merge_tests_on_hw:
-    needs: build-and-test_on_hw
-    runs-on: ubuntu-24.04
-    if: always()
-    permissions: write-all
-    steps:
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          delete-merged: true
-          name: tests-dut_result
-          pattern: tests-dut_result_*
-          include-hidden-files: true
-
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          delete-merged: true
-          name: tests-dut_artifacts
-          pattern: DUT_artifacts_*
-          include-hidden-files: true

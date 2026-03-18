@@ -13,6 +13,7 @@ cscope.*
 .dir
 venv
 .venv
+.venv*
 .cache
 
 /*.patch
@@ -23,6 +24,7 @@ tags
 .xxproject
 .envrc
 .vscode
+.cursor
 .devcontainer
 sanity-out*
 twister-out*
