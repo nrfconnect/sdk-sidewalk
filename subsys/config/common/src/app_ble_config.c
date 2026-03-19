@@ -28,7 +28,7 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/sys/util.h>
 
-#define MS_TO_INTERVAL_VAL(ms) (uint16_t)((ms) / 0.625f)
+#define MS_TO_INTERVAL_VAL(ms) (uint16_t)(((uint32_t)(ms) * 8U) / 5U)
 
 #if defined(CONFIG_BT_CTLR_TX_PWR_DBM)
 #define TX_PWR_DBM (CONFIG_BT_CTLR_TX_PWR_DBM)
@@ -83,14 +83,14 @@ static const sid_ble_cfg_adv_param_t adv_param = {
 	.type = AMA_SERVICE,
 	.fast_enabled = true,
 	.slow_enabled = true,
-	.fast_interval = 256,
-	.fast_timeout = 3000,
-	.slow_interval = 1600,
+	.fast_interval = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
+	.fast_timeout = CONFIG_SIDEWALK_BLE_ADV_INT_TRANSITION * 100U,
+	.slow_interval = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
 	.slow_timeout = 0,
 };
 static const sid_ble_cfg_conn_param_t conn_param = {
-	.min_conn_interval = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_SLOW),
-	.max_conn_interval = MS_TO_INTERVAL_VAL(CONFIG_SIDEWALK_BLE_ADV_INT_FAST),
+	.min_conn_interval = CONFIG_BT_PERIPHERAL_PREF_MIN_INT,
+	.max_conn_interval = CONFIG_BT_PERIPHERAL_PREF_MAX_INT,
 	.slave_latency = CONFIG_BT_PERIPHERAL_PREF_LATENCY,
 	.conn_sup_timeout = CONFIG_BT_PERIPHERAL_PREF_TIMEOUT,
 };
