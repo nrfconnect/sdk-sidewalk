@@ -267,7 +267,7 @@ int sid_ble_advert_params_set(sid_ble_advert_params_t *params)
 	LOG_DBG("sid_ble_advert_params_set: fast_enabled=%d, slow_enabled=%d, fast_interval=%d, fast_timeout=%d, slow_interval=%d, slow_timeout=%d",
 		params->fast_enabled, params->slow_enabled, params->fast_interval, params->fast_timeout, params->slow_interval, params->slow_timeout);
 
-	memcpy(&advert_params, params, sizeof(advert_params));
+	advert_params = *params;
 	return 0;
 }
 
@@ -276,7 +276,7 @@ int sid_ble_advert_params_get(sid_ble_advert_params_t *params)
 	if (!params) {
 		return -EINVAL;
 	}
-	memcpy(params, &advert_params, sizeof(advert_params));
+	*params = advert_params;
 	return 0;
 }
 
