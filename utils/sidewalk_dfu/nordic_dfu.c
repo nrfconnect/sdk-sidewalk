@@ -45,7 +45,7 @@ static const struct bt_data ad[] = {
 };
 
 static const struct bt_data sd[] = {
-	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
+	BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_SIDEWALK_DFU_BLE_NAME, sizeof(CONFIG_SIDEWALK_DFU_BLE_NAME) - 1),
 };
 
 static enum led_status_e {
