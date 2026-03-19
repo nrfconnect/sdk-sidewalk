@@ -13,6 +13,7 @@
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
 #include <errno.h>
+#include <string.h>
 
 DEFINE_FFF_GLOBALS;
 
@@ -24,7 +25,7 @@ FAKE_VALUE_FUNC(int, bt_le_ext_adv_set_data, struct bt_le_ext_adv *, const struc
 FAKE_VALUE_FUNC(int, bt_le_ext_adv_delete, struct bt_le_ext_adv *);
 FAKE_VALUE_FUNC(int, bt_le_ext_adv_create, const struct bt_le_adv_param *,
 		const struct bt_le_ext_adv_cb *, struct bt_le_ext_adv **);
-FAKE_VALUE_FUNC(const sid_ble_conn_params_t *, sid_ble_conn_params_get);
+FAKE_VALUE_FUNC(const sid_ble_conn_data_t *, sid_ble_conn_data_get);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_le_ext_adv_start)                                                                  \
@@ -32,11 +33,26 @@ FAKE_VALUE_FUNC(const sid_ble_conn_params_t *, sid_ble_conn_params_get);
 	FAKE(bt_le_ext_adv_set_data)                                                               \
 	FAKE(bt_le_ext_adv_delete)                                                                 \
 	FAKE(bt_le_ext_adv_create)                                                                 \
-	FAKE(sid_ble_conn_params_get)
+	FAKE(sid_ble_conn_data_get)
 
 #define ESUCCESS (0)
 #define TEST_BUFFER_LEN (100)
 #define BT_COMP_ID_LEN 2
+
+/* Opaque type: use a byte so create fake can set a non-NULL adv_set for the module */
+static char dummy_adv_set_storage;
+
+static int bt_le_ext_adv_create_custom_fake(const struct bt_le_adv_param *a,
+					    const struct bt_le_ext_adv_cb *b,
+					    struct bt_le_ext_adv **out)
+{
+	(void)a;
+	(void)b;
+	if (out != NULL) {
+		*out = (struct bt_le_ext_adv *)&dummy_adv_set_storage;
+	}
+	return bt_le_ext_adv_create_fake.return_val;
+}
 
 void setUp(void)
 {
@@ -61,17 +77,26 @@ void test_sid_ble_advert_start(void)
 
 void test_sid_ble_advert_stop(void)
 {
-	size_t adv_stop_call_count = 0;
+	/* No adv set or clear leftover: stop() returns 0 (may or may not call API) */
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
+	size_t count_after_first = bt_le_ext_adv_stop_fake.call_count;
 
+	/* Start then stop: one more stop call, success (create fake sets adv_set so stop() calls API) */
+	bt_le_ext_adv_create_fake.custom_fake = bt_le_ext_adv_create_custom_fake;
+	bt_le_ext_adv_create_fake.return_val = 0;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
 	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
-	adv_stop_call_count++;
-	TEST_ASSERT_EQUAL(adv_stop_call_count, bt_le_ext_adv_stop_fake.call_count);
+	TEST_ASSERT_EQUAL(count_after_first + 1, bt_le_ext_adv_stop_fake.call_count);
 
+	/* Start then stop with error return (start() also calls stop() to clear previous adv_set) */
+	bt_le_ext_adv_create_fake.custom_fake = bt_le_ext_adv_create_custom_fake;
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
 	bt_le_ext_adv_stop_fake.return_val = -ENOENT;
 	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_stop());
-	adv_stop_call_count++;
-	TEST_ASSERT_EQUAL(adv_stop_call_count, bt_le_ext_adv_stop_fake.call_count);
+	TEST_ASSERT_EQUAL(count_after_first + 3, bt_le_ext_adv_stop_fake.call_count);
 }
 
 void test_sid_ble_advert_update(void)
@@ -194,6 +219,37 @@ void test_sid_ble_advert_update_value(void)
 	check_sid_ble_advert_update(test_data, sizeof(test_data));
 	check_sid_ble_advert_update(test_data_short, sizeof(test_data_short));
 	check_sid_ble_advert_update(test_data_very_long, sizeof(test_data_very_long));
+}
+
+void test_sid_ble_advert_params_set_get(void)
+{
+	sid_ble_advert_params_t in = {
+		.fast_enabled = true,
+		.slow_enabled = false,
+		.fast_interval = 100,
+		.fast_timeout = 200,
+		.slow_interval = 500,
+		.slow_timeout = 0,
+	};
+	sid_ble_advert_params_t out = { 0 };
+
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_params_set(&in));
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_params_get(&out));
+	TEST_ASSERT_EQUAL(in.fast_enabled, out.fast_enabled);
+	TEST_ASSERT_EQUAL(in.slow_enabled, out.slow_enabled);
+	TEST_ASSERT_EQUAL(in.fast_interval, out.fast_interval);
+	TEST_ASSERT_EQUAL(in.fast_timeout, out.fast_timeout);
+	TEST_ASSERT_EQUAL(in.slow_interval, out.slow_interval);
+	TEST_ASSERT_EQUAL(in.slow_timeout, out.slow_timeout);
+
+	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_params_set(NULL));
+	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_params_get(NULL));
+}
+
+void test_sid_ble_advert_notify_connection(void)
+{
+	sid_ble_advert_notify_connection();
+	/* No crash; implementation cancels delayed work. */
 }
 
 extern int unity_main(void);

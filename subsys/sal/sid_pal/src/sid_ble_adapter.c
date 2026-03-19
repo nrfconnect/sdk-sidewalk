@@ -391,9 +391,73 @@ static sid_error_t ble_adapter_send_data(sid_ble_cfg_service_identifier_t id, ui
 
 static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg)
 {
+	int err = 0;
+
+	if (!cfg) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+
+	if (cfg->is_set) {
+		if (cfg->cfg_type == SID_BLE_USER_CFG_ADV ||
+		    cfg->cfg_type == SID_BLE_USER_CFG_ADV_AND_CONN) {
+			sid_ble_advert_params_t adv_params = {
+				.fast_enabled = cfg->adv_param.fast_enabled,
+				.slow_enabled = cfg->adv_param.slow_enabled,
+				.fast_interval = cfg->adv_param.fast_interval,
+				.fast_timeout = cfg->adv_param.fast_timeout,
+				.slow_interval = cfg->adv_param.slow_interval,
+				.slow_timeout = cfg->adv_param.slow_timeout,
+			};
+
+			err = sid_ble_advert_params_set(&adv_params);
+			if (err) {
+				LOG_ERR("sid_ble_advert_params_set failed (err %d)", err);
+				return SID_ERROR_GENERIC;
+			}
+
+			err = sid_ble_advert_stop();
+			if (err) {
+				LOG_WRN("sid_ble_advert_stop failed (err %d)", err);
+			}
+
+			err = sid_ble_advert_start();
+			if (err) {
+				LOG_ERR("sid_ble_advert_start failed (err %d)", err);
+				return SID_ERROR_IO_ERROR;
+			}
+		}
+
+		if (cfg->cfg_type == SID_BLE_USER_CFG_CONN ||
+		    cfg->cfg_type == SID_BLE_USER_CFG_ADV_AND_CONN) {
 	ARG_UNUSED(cfg);
 	LOG_DBG("BLE user config: not implemented");
 	return SID_ERROR_NOSUPPORT;
+		}
+	} else { /* get config */
+		if (cfg->cfg_type == SID_BLE_USER_CFG_ADV ||
+		    cfg->cfg_type == SID_BLE_USER_CFG_ADV_AND_CONN) {
+			sid_ble_advert_params_t adv_params = { 0 };
+
+			err = sid_ble_advert_params_get(&adv_params);
+			if (err) {
+				LOG_ERR("sid_ble_advert_params_get failed (err %d)", err);
+				return SID_ERROR_GENERIC;
+			}
+
+			cfg->adv_param.fast_enabled = adv_params.fast_enabled;
+			cfg->adv_param.slow_enabled = adv_params.slow_enabled;
+			cfg->adv_param.fast_interval = adv_params.fast_interval;
+			cfg->adv_param.fast_timeout = adv_params.fast_timeout;
+			cfg->adv_param.slow_interval = adv_params.slow_interval;
+			cfg->adv_param.slow_timeout = adv_params.slow_timeout;
+		}
+
+		if (cfg->cfg_type == SID_BLE_USER_CFG_CONN ||
+		    cfg->cfg_type == SID_BLE_USER_CFG_ADV_AND_CONN) {
+		}
+	}
+
+	return SID_ERROR_NONE;
 }
 
 static void ble_adapter_received_data_result(sid_error_t result)

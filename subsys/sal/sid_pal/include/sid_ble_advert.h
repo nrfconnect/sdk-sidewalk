@@ -8,6 +8,17 @@
 #define NRF_BLE_ADVERT_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
+/** Advertising parameters. Intervals in 0.625 ms units, timeouts in 10 ms units. */
+typedef struct sid_ble_advert_params {
+    bool fast_enabled;
+    bool slow_enabled;
+    uint32_t fast_interval;
+    uint32_t fast_timeout;
+    uint32_t slow_interval;
+    uint32_t slow_timeout;
+} sid_ble_advert_params_t;
 
 /**
  * @brief Initialize Bluetooth Advertising.
@@ -50,11 +61,29 @@ int sid_ble_advert_stop(void);
  * Data may be trimmed to meet bluetooth advertising size requirements.
  * Too long manufacuring data may affect Device Name.
  *
- * @param data buffor of data to be updated.
+ * @param data buffer of data to be updated.
  * @param data_len length of data to be updated in bytes.
  *
  * @return Zero on success or (negative) error code on failure.
  */
 int sid_ble_advert_update(uint8_t *data, uint8_t data_len);
+
+/**
+ * @brief Set advertising parameters.
+ *
+ * @param params advertising parameters.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_advert_params_set(sid_ble_advert_params_t *params);
+
+/**
+ * @brief Get advertising parameters.
+ *
+ * @param params advertising parameters.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_advert_params_get(sid_ble_advert_params_t *params);
 
 #endif /* NRF_BLE_ADVERT_H */
