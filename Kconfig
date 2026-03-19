@@ -144,6 +144,10 @@ config DEPRECATED_SIDEWALK_PAL_INIT
 	  This implementation is DEPRECATED.
 
 # BLE
+config SIDEWALK_BLE_NAME
+	string "BLE name advertised for Sidewalk"
+	default "SID_APP"
+
 config SIDEWALK_BLE_ADV_INT_PRECISION
 	int "Precision of advertisement interval in ms"
 	range 1 1000

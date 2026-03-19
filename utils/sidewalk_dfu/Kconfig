@@ -47,6 +47,10 @@ config SIDEWALK_DFU_IMG_UTILS
 
 if SIDEWALK_DFU_SERVICE_BLE
 
+config SIDEWALK_DFU_BLE_NAME
+	string "BLE name advertised for Nordic DFU"
+	default "Nordic"
+
 config DFU_UPLOAD_START_TIMEOUT
 	int
 	default 5
