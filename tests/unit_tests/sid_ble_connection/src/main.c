@@ -15,6 +15,7 @@
 
 #include <stdbool.h>
 #include <errno.h>
+#include <string.h>
 #include <bt_app_callbacks.h>
 
 DEFINE_FFF_GLOBALS;
@@ -27,6 +28,7 @@ FAKE_VALUE_FUNC(const bt_addr_le_t *, bt_conn_get_dst, const struct bt_conn *);
 FAKE_VALUE_FUNC(int, bt_conn_disconnect, struct bt_conn *, uint8_t);
 FAKE_VALUE_FUNC(int, bt_conn_get_info, const struct bt_conn *, struct bt_conn_info *);
 FAKE_VOID_FUNC(sid_ble_advert_notify_connection);
+FAKE_VALUE_FUNC(int, bt_conn_le_param_update, struct bt_conn *, const struct bt_le_conn_param *);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_conn_cb_register)                                                                  \
@@ -36,7 +38,8 @@ FAKE_VOID_FUNC(sid_ble_advert_notify_connection);
 	FAKE(bt_conn_get_dst)                                                                      \
 	FAKE(bt_conn_disconnect)                                                                   \
 	FAKE(bt_conn_get_info)                                                                     \
-	FAKE(sid_ble_advert_notify_connection)
+	FAKE(sid_ble_advert_notify_connection)                                                     \
+	FAKE(bt_conn_le_param_update)
 
 #define CONNECTED (true)
 #define DISCONNECTED (false)
@@ -90,20 +93,20 @@ void test_sid_ble_conn_init(void)
 	TEST_ASSERT_NOT_NULL(sid_bt_gatt_cb->att_mtu_updated);
 }
 
-void test_sid_ble_conn_params_get(void)
+void test_sid_ble_conn_data_get(void)
 {
-	const sid_ble_conn_params_t *params = NULL;
+	const sid_ble_conn_data_t *params = NULL;
 
 	sid_ble_conn_init();
 	sid_ble_conn_deinit();
 	sid_ble_conn_deinit();
 
 	sid_ble_conn_init();
-	params = sid_ble_conn_params_get();
+	params = sid_ble_conn_data_get();
 	TEST_ASSERT_NOT_NULL(params);
 
 	sid_ble_conn_deinit();
-	params = sid_ble_conn_params_get();
+	params = sid_ble_conn_data_get();
 	TEST_ASSERT_NULL(params);
 }
 
@@ -113,11 +116,24 @@ int bt_conn_get_info_fake1(const struct bt_conn *a, struct bt_conn_info *b)
 	return 0;
 }
 
+static uint16_t param_get_fake_interval = 24;
+static uint16_t param_get_fake_latency = 1;
+static uint16_t param_get_fake_timeout = 400;
+
+int bt_conn_get_info_fake_param_get(const struct bt_conn *a, struct bt_conn_info *b)
+{
+	b->id = BT_ID_SIDEWALK;
+	b->le.interval = param_get_fake_interval;
+	b->le.latency = param_get_fake_latency;
+	b->le.timeout = param_get_fake_timeout;
+	return 0;
+}
+
 void test_sid_ble_conn_positive(void)
 {
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
-	const sid_ble_conn_params_t *params = NULL;
+	const sid_ble_conn_data_t *params = NULL;
 	struct bt_conn test_conn = { .dummy = 0xDC };
 	const bt_addr_le_t test_addr = {
 		.type = BT_ADDR_LE_RANDOM,
@@ -136,7 +152,7 @@ void test_sid_ble_conn_positive(void)
 	__cmock_sid_ble_adapter_conn_connected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
 
-	params = sid_ble_conn_params_get();
+	params = sid_ble_conn_data_get();
 	TEST_ASSERT_EQUAL_PTR(&test_conn, params->conn);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
@@ -148,7 +164,7 @@ void test_sid_ble_set_conn_cb_positive(void)
 {
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
-	const sid_ble_conn_params_t *params = NULL;
+	const sid_ble_conn_data_t *params = NULL;
 	struct bt_conn test_conn = { .dummy = 0xDC };
 	const bt_addr_le_t test_addr = {
 		.type = BT_ADDR_LE_RANDOM,
@@ -169,7 +185,7 @@ void test_sid_ble_set_conn_cb_positive(void)
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
 
-	params = sid_ble_conn_params_get();
+	params = sid_ble_conn_data_get();
 	TEST_ASSERT_EQUAL_PTR(&test_conn, params->conn);
 	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
@@ -312,11 +328,129 @@ void test_sid_ble_conn_mtu_callback_curent_connection(void)
 
 void test_sid_ble_conn_disconnect(void)
 {
+	struct bt_conn test_conn = { .dummy = 0xDC };
+	const bt_addr_le_t test_addr = {
+		.type = BT_ADDR_LE_RANDOM,
+		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
+	};
+
+	/* Ensure no connection so first disconnect yields -ENOENT (clear from previous test) */
+	sid_ble_conn_init();
+	const sid_ble_conn_data_t *data = sid_ble_conn_data_get();
+	if (data != NULL && data->conn != NULL) {
+		/* disconnected callback uses ble_conn_is_valid() -> bt_conn_get_info(); must pass */
+		int (*get_info_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {
+			bt_conn_get_info_fake1,
+			bt_conn_get_info_fake1,
+		};
+		SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, get_info_fakes, 2);
+		__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
+		sid_bt_conn_cb->disconnected(data->conn, 0);
+	}
+	/* Deinit so conn_data_ptr is NULL; conn_data.conn cleared by disconnected above */
+	sid_ble_conn_deinit();
+	sid_ble_conn_init();
+
+	/* No connection: expect -ENOENT */
+	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_conn_disconnect());
+
+	/* Establish connection then test disconnect return values */
+	sid_ble_conn_init();
+	bt_conn_get_dst_fake.return_val = &test_addr;
+	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *,
+			      struct bt_conn_info *) = { bt_conn_get_info_fake1 };
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
+
+	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
+	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
+
 	bt_conn_disconnect_fake.return_val = ESUCCESS;
 	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_disconnect());
 
+	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
+	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
 	bt_conn_disconnect_fake.return_val = -ENOTCONN;
-	TEST_ASSERT_NOT_EQUAL(ESUCCESS, sid_ble_conn_disconnect());
+	TEST_ASSERT_EQUAL(-ENOTCONN, sid_ble_conn_disconnect());
+}
+
+void test_sid_ble_conn_param_get(void)
+{
+	struct bt_le_conn_param param_out = { 0 };
+
+	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_conn_param_get(NULL));
+
+	sid_ble_conn_deinit();
+	sid_ble_conn_init();
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_get(&param_out));
+	/* With no connection, returns static defaults (conn_params_prev) */
+
+	struct bt_conn test_conn = { .dummy = 0xDC };
+	const bt_addr_le_t test_addr = {
+		.type = BT_ADDR_LE_RANDOM,
+		.a = { { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 } },
+	};
+	bt_conn_get_dst_fake.return_val = &test_addr;
+	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *,
+			      struct bt_conn_info *) = { bt_conn_get_info_fake_param_get };
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
+
+	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
+	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
+
+	memset(&param_out, 0, sizeof(param_out));
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_get(&param_out));
+	TEST_ASSERT_EQUAL_UINT16(param_get_fake_interval, param_out.interval_min);
+	TEST_ASSERT_EQUAL_UINT16(param_get_fake_interval, param_out.interval_max);
+	TEST_ASSERT_EQUAL_UINT16(param_get_fake_latency, param_out.latency);
+	TEST_ASSERT_EQUAL_UINT16(param_get_fake_timeout, param_out.timeout);
+}
+
+void test_sid_ble_conn_param_update(void)
+{
+	const struct bt_le_conn_param param_in = {
+		.interval_min = 18,
+		.interval_max = 24,
+		.latency = 0,
+		.timeout = 500,
+	};
+
+	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_conn_param_update(NULL));
+
+	sid_ble_conn_deinit();
+	sid_ble_conn_init();
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_update(&param_in));
+
+	struct bt_conn test_conn = { .dummy = 0xDD };
+	const bt_addr_le_t test_addr = {
+		.type = BT_ADDR_LE_RANDOM,
+		.a = { { 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f } },
+	};
+	bt_conn_get_dst_fake.return_val = &test_addr;
+	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *,
+			      struct bt_conn_info *) = { bt_conn_get_info_fake1 };
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
+
+	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
+	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
+
+	/* Connect callback also calls bt_conn_le_param_update; count only our calls from here */
+	bt_conn_le_param_update_fake.call_count = 0;
+	bt_conn_le_param_update_fake.return_val = ESUCCESS;
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_update(&param_in));
+	TEST_ASSERT_EQUAL(1, bt_conn_le_param_update_fake.call_count);
+	TEST_ASSERT_EQUAL_PTR(&test_conn, bt_conn_le_param_update_fake.arg0_val);
+	TEST_ASSERT_EQUAL_UINT16(param_in.interval_min,
+				 bt_conn_le_param_update_fake.arg1_val->interval_min);
+	TEST_ASSERT_EQUAL_UINT16(param_in.interval_max,
+				 bt_conn_le_param_update_fake.arg1_val->interval_max);
+
+	/* Implementation always returns 0; it only logs when bt_conn_le_param_update fails */
+	bt_conn_le_param_update_fake.return_val = -EINVAL;
+	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_update(&param_in));
+	TEST_ASSERT_EQUAL(2, bt_conn_le_param_update_fake.call_count);
 }
 
 extern int unity_main(void);
