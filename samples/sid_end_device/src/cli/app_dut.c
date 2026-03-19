@@ -203,43 +203,42 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 		}
 		struct sid_ble_user_config *res = (struct sid_ble_user_config *)buf;
 		switch (res->cfg_type) {
-		case SID_BLE_USER_CFG_ADV:
-			LOG_INF("BLE adv, fast_int %d(%dms), fast_to %d(%dms), slow_int %d(%dms), slow_to %d(%dms)",
-				res->adv_param.fast_interval,
-				(int)(res->adv_param.fast_interval * 0.625),
-				res->adv_param.fast_timeout,
-				(int)(res->adv_param.fast_timeout * 10),
-				res->adv_param.slow_interval,
-				(int)(res->adv_param.slow_interval * 0.625),
-				res->adv_param.slow_timeout,
-				(int)(res->adv_param.slow_timeout * 10));
+		case SID_BLE_USER_CFG_ADV: {
+			uint32_t fi = (uint32_t)res->adv_param.fast_interval * 625U;
+			uint32_t si = (uint32_t)res->adv_param.slow_interval * 625U;
+			LOG_INF("BLE adv, fast_int %d(%u.%03ums), fast_to %d(%dms), slow_int %d(%u.%03ums), slow_to %d(%dms)",
+				res->adv_param.fast_interval, fi / 1000U, fi % 1000U,
+				res->adv_param.fast_timeout, (int)(res->adv_param.fast_timeout * 10),
+				res->adv_param.slow_interval, si / 1000U, si % 1000U,
+				res->adv_param.slow_timeout, (int)(res->adv_param.slow_timeout * 10));
 			break;
-		case SID_BLE_USER_CFG_CONN:
-			LOG_INF("BLE conn, min_int %d(%dms), max_int %d(%dms), sl %d, timeout %d(%dms)",
-				res->conn_param.min_conn_interval,
-				(int)(res->conn_param.min_conn_interval * 1.25),
-				res->conn_param.max_conn_interval,
-				(int)(res->conn_param.max_conn_interval * 1.25),
+		}
+		case SID_BLE_USER_CFG_CONN: {
+			uint32_t mi = (uint32_t)res->conn_param.min_conn_interval * 1250U;
+			uint32_t ma = (uint32_t)res->conn_param.max_conn_interval * 1250U;
+			LOG_INF("BLE conn, min_int %d(%u.%03ums), max_int %d(%u.%03ums), sl %d, timeout %d(%dms)",
+				res->conn_param.min_conn_interval, mi / 1000U, mi % 1000U,
+				res->conn_param.max_conn_interval, ma / 1000U, ma % 1000U,
 				res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,
 				(int)(res->conn_param.conn_sup_timeout * 10));
 			break;
-		case SID_BLE_USER_CFG_ADV_AND_CONN:
-			LOG_INF("BLE adv and conn, fast_int %d(%dms), fast_to %d(%dms), slow_int %d(%dms), slow_to %d(%dms), min_int %d(%dms), max_int %d(%dms), sl %d, timeout %d(%dms)",
-				res->adv_param.fast_interval,
-				(int)(res->adv_param.fast_interval * 0.625),
-				res->adv_param.fast_timeout,
-				(int)(res->adv_param.fast_timeout * 10),
-				res->adv_param.slow_interval,
-				(int)(res->adv_param.slow_interval * 0.625),
-				res->adv_param.slow_timeout,
-				(int)(res->adv_param.slow_timeout * 10),
-				res->conn_param.min_conn_interval,
-				(int)(res->conn_param.min_conn_interval * 1.25),
-				res->conn_param.max_conn_interval,
-				(int)(res->conn_param.max_conn_interval * 1.25),
+		}
+		case SID_BLE_USER_CFG_ADV_AND_CONN: {
+			uint32_t fi = (uint32_t)res->adv_param.fast_interval * 625U;
+			uint32_t si = (uint32_t)res->adv_param.slow_interval * 625U;
+			uint32_t mi = (uint32_t)res->conn_param.min_conn_interval * 1250U;
+			uint32_t ma = (uint32_t)res->conn_param.max_conn_interval * 1250U;
+			LOG_INF("BLE adv and conn, fast_int %d(%u.%03ums), fast_to %d(%dms), slow_int %d(%u.%03ums), slow_to %d(%dms), min_int %d(%u.%03ums), max_int %d(%u.%03ums), sl %d, timeout %d(%dms)",
+				res->adv_param.fast_interval, fi / 1000U, fi % 1000U,
+				res->adv_param.fast_timeout, (int)(res->adv_param.fast_timeout * 10),
+				res->adv_param.slow_interval, si / 1000U, si % 1000U,
+				res->adv_param.slow_timeout, (int)(res->adv_param.slow_timeout * 10),
+				res->conn_param.min_conn_interval, mi / 1000U, mi % 1000U,
+				res->conn_param.max_conn_interval, ma / 1000U, ma % 1000U,
 				res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,
 				(int)(res->conn_param.conn_sup_timeout * 10));
 			break;
+		}
 		case SID_BLE_USER_CFG_INACTIVITY_TIMEOUT:
 			LOG_INF("BLE inactivity timeout %d(%dms)", res->inactivity_timeout,
 				(int)(res->inactivity_timeout * 10));
