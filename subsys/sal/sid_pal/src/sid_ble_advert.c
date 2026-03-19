@@ -62,12 +62,11 @@ static struct bt_le_ext_adv *adv_set;
  */
 #define AD_FLAGS_LEN 1
 #define AD_SERVICES_LEN 2
-#define AD_NAME_SHORT_LEN 2
 #define AD_TLV_TYPE_AND_LENGTH 2
 #define AD_TLV_LEN(x) (x + AD_TLV_TYPE_AND_LENGTH)
 #define AD_MANUF_DATA_LEN_MAX                                                                      \
 	(BT_GAP_ADV_MAX_ADV_DATA_LEN - AD_TLV_TYPE_AND_LENGTH - AD_TLV_LEN(AD_FLAGS_LEN) -         \
-	 AD_TLV_LEN(AD_SERVICES_LEN) - AD_TLV_LEN(AD_NAME_SHORT_LEN))
+	 AD_TLV_LEN(AD_SERVICES_LEN))
 
 enum adv_data_items { ADV_DATA_FLAGS, ADV_DATA_SERVICES, ADV_DATA_MANUF_DATA, ADV_DATA_NAME };
 
@@ -86,8 +85,6 @@ static struct bt_data adv_data[] = {
 		BT_DATA_BYTES(BT_DATA_UUID16_ALL, BT_UUID_16_ENCODE(AMA_SERVICE_UUID_VAL)),
 	[ADV_DATA_MANUF_DATA] =
 		BT_DATA(BT_DATA_MANUFACTURER_DATA, &bt_adv_manuf_data, AD_MANUF_DATA_LEN_MAX),
-	[ADV_DATA_NAME] = BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_SIDEWALK_BLE_NAME,
-				  sizeof(CONFIG_SIDEWALK_BLE_NAME) - 1),
 };
 
 static const struct bt_data sd[] = {
@@ -313,8 +310,7 @@ int sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 
 	if (BLE_ADV_DISABLE != state) {
 		/* Update currently advertised set, the other one will be set on start/transition */
-		err = bt_le_ext_adv_set_data(adv_set, adv_data, ARRAY_SIZE(adv_data), sd,
-					     ARRAY_SIZE(sd));
+		err = bt_le_ext_adv_set_data(adv_set, adv_data, ARRAY_SIZE(adv_data), sd, ARRAY_SIZE(sd));
 	}
 
 	return err;
