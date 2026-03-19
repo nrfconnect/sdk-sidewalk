@@ -61,6 +61,7 @@ FAKE_VALUE_FUNC(int, bt_hci_get_conn_handle, const struct bt_conn *, uint16_t *)
 FAKE_VALUE_FUNC(void *, net_buf_simple_add, struct net_buf_simple *, size_t);
 FAKE_VOID_FUNC(net_buf_unref, struct net_buf *);
 FAKE_VALUE_FUNC(int, bt_conn_get_info, const struct bt_conn *, struct bt_conn_info *);
+FAKE_VALUE_FUNC(int, bt_conn_le_param_update, struct bt_conn *, const struct bt_le_conn_param *);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
 	FAKE(bt_enable)                                                                            \
@@ -89,7 +90,8 @@ FAKE_VALUE_FUNC(int, bt_conn_get_info, const struct bt_conn *, struct bt_conn_in
 	FAKE(bt_le_ext_adv_stop)                                                                   \
 	FAKE(bt_le_ext_adv_set_data)                                                               \
 	FAKE(bt_le_ext_adv_start)                                                                  \
-	FAKE(bt_conn_get_info)
+	FAKE(bt_conn_get_info)                                                                     \
+	FAKE(bt_conn_le_param_update)
 
 #define ESUCCESS (0)
 #define FAKE_SERVICE (9)
@@ -342,12 +344,12 @@ void test_ble_adapter_adapter_callback_fail(void)
 void test_ble_adapter_send_data_pass(void)
 {
 	uint8_t data[TEST_DATA_CHUNK];
-	const sid_ble_conn_params_t test_conn_params;
+	const sid_ble_conn_data_t test_conn_data;
 	sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__cmock_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
+	__cmock_sid_ble_conn_data_get_IgnoreAndReturn(&test_conn_data);
 	__cmock_sid_ble_send_data_IgnoreAndReturn(0);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, p_test_ble_ifc->send(AMA_SERVICE, data, sizeof(data)));
@@ -356,12 +358,12 @@ void test_ble_adapter_send_data_pass(void)
 void test_ble_adapter_send_data_fail(void)
 {
 	uint8_t data[TEST_DATA_CHUNK];
-	const sid_ble_conn_params_t test_conn_params;
+	const sid_ble_conn_data_t test_conn_data;
 	sid_pal_ble_adapter_interface_t p_test_ble_ifc;
 
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, sid_pal_ble_adapter_create(&p_test_ble_ifc));
 
-	__cmock_sid_ble_conn_params_get_IgnoreAndReturn(&test_conn_params);
+	__cmock_sid_ble_conn_data_get_IgnoreAndReturn(&test_conn_data);
 	__cmock_sid_ble_send_data_IgnoreAndReturn(-EINVAL);
 
 	TEST_ASSERT_EQUAL(SID_ERROR_INVALID_ARGS,
