@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+config PARTITION_MANAGER
+	default y if SOC_SERIES_NRF53X || (SOC_NRF54L15 && BOARD_NRF54L15DK_NRF54L15_CPUAPP_NS)
+	default n
+
 choice BOOTLOADER
 	default BOOTLOADER_MCUBOOT
 endchoice
@@ -48,16 +52,6 @@ config DFU_MULTI_IMAGE_PACKAGE_NET
 	default y
 
 endif # SOC_SERIES_NRF53X
-
-if SOC_SERIES_NRF54LX
-
-# TODO: NCSDK-28931: Cannot use fprotect twice, so disable it in MCUboot to
-# test protecting factory data. It can be enabled while there is a support
-# for protection more than one region.
-config MCUBOOT_FPROTECT_ALLOW_COMBINED_REGIONS
-	default n
-
-endif # SOC_SERIES_NRF54LX
 
 endif # BOOTLOADER_MCUBOOT
 
