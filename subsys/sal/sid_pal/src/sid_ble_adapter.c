@@ -23,6 +23,7 @@
 #include <sid_ble_advert.h>
 #include <sid_ble_connection.h>
 
+#include <zephyr/kernel.h>
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
@@ -84,7 +85,7 @@ static void read_conn_rssi(uint16_t handle, int8_t *rssi)
 
 	int err;
 
-	buf = bt_hci_cmd_create(BT_HCI_OP_READ_RSSI, sizeof(*cp));
+	buf = bt_hci_cmd_alloc(K_FOREVER);
 	if (!buf) {
 		LOG_ERR("Unable to allocate command buffer\n");
 		return;
@@ -112,7 +113,7 @@ static void set_tx_power(uint8_t handle_type, uint16_t handle, int8_t tx_pwr_lvl
 	struct net_buf *buf, *rsp = NULL;
 	int err;
 
-	buf = bt_hci_cmd_create(BT_HCI_OP_VS_WRITE_TX_POWER_LEVEL, sizeof(*cp));
+	buf = bt_hci_cmd_alloc(K_FOREVER);
 	if (!buf) {
 		LOG_ERR("Unable to allocate command buffer\n");
 		return;
@@ -145,7 +146,7 @@ static void get_tx_power(uint8_t handle_type, uint16_t handle, int16_t *tx_pwr_l
 	int err;
 
 	*tx_pwr_lvl = 0xFFFF;
-	buf = bt_hci_cmd_create(BT_HCI_OP_VS_READ_TX_POWER_LEVEL, sizeof(*cp));
+	buf = bt_hci_cmd_alloc(K_FOREVER);
 	if (!buf) {
 		LOG_ERR("Unable to allocate command buffer\n");
 		return;

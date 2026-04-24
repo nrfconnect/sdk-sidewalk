@@ -24,6 +24,7 @@ tags
 .xxproject
 .envrc
 .vscode
+.claude
 .cursor
 .devcontainer
 sanity-out*
@@ -46,6 +47,7 @@ ext/BSEC_*
 
 YAMLLint.txt
 Gitlint.txt
+KconfigBasic.txt
 compliance.xml
 
 tools/provision/*.hex

@@ -37,6 +37,52 @@
 	};
 
 	chosen {
-		nordic,pm-ext-flash = &mx25r64;
+		/* nordic,pm-ext-flash removed; slot1 is DTS-defined on &mx25r64 */
+	};
+};
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(28)>;
+		};
+
+		slot0_partition: partition@7000 {
+			label = "image-0";
+			reg = <0x7000 0xf6000>;
+		};
+
+		storage_partition: partition@fd000 {
+			label = "storage";
+			reg = <0xfd000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: hw_unique_key_partition: partition@ff000 {
+			label = "mfg_storage";
+			reg = <0xff000 DT_SIZE_K(4)>;
+		};
+	};
+};
+
+&mx25r64 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot1_partition: partition@0 {
+			label = "image-1";
+			reg = <0x0 0xf6000>;
+		};
 	};
 };

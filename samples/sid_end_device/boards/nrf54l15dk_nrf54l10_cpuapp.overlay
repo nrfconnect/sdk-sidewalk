@@ -13,7 +13,7 @@
 	};
 
 	chosen {
-		nordic,pm-ext-flash = &mx25r64;
+		/* nordic,pm-ext-flash removed; slot1 is DTS-defined on &mx25r64 */
 	};
 };
 
@@ -51,4 +51,50 @@
 // TODO: re-enable HWFC once it's fixed
 &uart20 {
 	/delete-property/ hw-flow-control;
+};
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&cpuapp_rram {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(52)>;
+		};
+
+		slot0_partition: partition@d000 {
+			label = "image-0";
+			reg = <0xd000 DT_SIZE_K(960)>;
+		};
+
+		storage_partition: partition@fd000 {
+			label = "storage";
+			reg = <0xfd000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: partition@ff000 {
+			label = "mfg_storage";
+			reg = <0xff000 DT_SIZE_K(4)>;
+		};
+	};
+};
+
+&mx25r64 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot1_partition: partition@0 {
+			label = "image-1";
+			reg = <0x0 DT_SIZE_K(960)>;
+		};
+	};
 };
