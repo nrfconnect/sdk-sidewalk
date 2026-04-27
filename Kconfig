@@ -5,7 +5,7 @@
 #
 
 menuconfig SIDEWALK
-	bool "Enable Amazon Sidewalk"
+	bool "Amazon Sidewalk support"
 	imply SIDEWALK_DFU
 
 if SIDEWALK
@@ -17,7 +17,7 @@ config MAIN_STACK_SIZE
 DT_CHOSEN_Z_LORA_TRANSCEIVER := zephyr,lora-transceiver
 
 config SIDEWALK_SUBGHZ_SUPPORT
-	bool "Enable Sub-GHz link type support in Sidewalk libraries"
+	bool "Sub-GHz link type support in Sidewalk libraries"
 	default y if $(dt_chosen_enabled,$(DT_CHOSEN_Z_LORA_TRANSCEIVER))
 	help
 	  Use Sidewalk with support for BLE, LoRa and FSK.
@@ -137,7 +137,7 @@ module-str = Sidewalk spi bus interface
 source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
 
 config DEPRECATED_SIDEWALK_PAL_INIT
-	bool "Enable Sidewalk platform init module  [DEPRICATED]"
+	bool "Sidewalk platform init module [DEPRECATED]"
 	help
 	  Sidewalk 1.16 stack introduces new sid api sid_platform_init.
 	  Now new api togehter with sid_common pal are used by default.
@@ -169,27 +169,27 @@ config SIDEWALK_BLE_ADV_INT_TRANSITION
 	default 30
 
 config SIDEWALK_VENDOR_SERVICE
-	bool "Enable Sidewalk BLE vendor service"
+	bool "Sidewalk BLE vendor service"
 
 config SIDEWALK_LOGGING_SERVICE
-	bool "Enable Sidewalk BLE logging service"
+	bool "Sidewalk BLE logging service"
 
 config SIDEWALK_DEMO_PARSER
-	bool "Enable sensor monitoring demo parser module"
+	bool "Sensor monitoring demo parser module"
 
 config SIDEWALK_ON_DEV_CERT
-	bool "Enable Sidewalk on device certification"
+	bool "Sidewalk on device certification"
 	depends on SHELL
 
 config DEPRECATED_SIDEWALK_MFG_STORAGE
-	bool "Enable previous implementation of manufacturing module [DEPREACATED]"
+	bool "Previous implementation of manufacturing module [DEPRECATED]"
 	imply FLASH
 	help
 	  Previous Sidewalk manufacturing storage module
 	  This implementation is DEPRECATED.
 
 config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
-	bool "Enable support for old Sidewalk manufaturing hex format"
+	bool "Support for old Sidewalk manufacturing hex format"
 	default y
 	depends on SIDEWALK_MFG_STORAGE
 	help
@@ -198,7 +198,7 @@ config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
 	  and will be supported after enabling this configuration.
 
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-	bool "Enable psa crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
+	bool "PSA crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
 	default SIDEWALK
 	select EXPERIMENTAL
 	help
@@ -225,15 +225,15 @@ choice SIDEWALK_NRFX_SPI_INSTANCE_ID
 
 config SIDEWALK_NRFX_SPI0
 	bool "SPI0"
-	select NRFX_SPI0
+	select NRFX_SPI
 
 config SIDEWALK_NRFX_SPI1
 	bool "SPI1"
-	select NRFX_SPI1
+	select NRFX_SPI
 
 config SIDEWALK_NRFX_SPI2
 	bool "SPI2"
-	select NRFX_SPI2
+	select NRFX_SPI
 
 endchoice # SIDEWALK_NRFX_SPI_INSTANCE_ID
 

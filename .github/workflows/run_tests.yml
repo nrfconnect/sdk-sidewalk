@@ -52,7 +52,7 @@ jobs:
           source zephyr/zephyr-env.sh
           west twister --test-config sidewalk/test_config.yaml \
             --level="Github_tests" --testsuite-root sidewalk \
-            --platform native_sim --platform native_posix --platform unit_testing \
+            --platform native_sim --platform unit_testing \
             --coverage --coverage-basedir sidewalk --coverage-formats html,xml \
             --enable-ubsan --enable-lsan --enable-asan --inline-logs \
             --overflow-as-errors -vvv

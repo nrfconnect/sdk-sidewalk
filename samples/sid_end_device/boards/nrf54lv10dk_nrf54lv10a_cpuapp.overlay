@@ -1,35 +1,25 @@
 /*
- * Copyright (c) 2024 Nordic Semiconductor ASA
+ * Copyright (c) 2025 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/{
+/ {
 	aliases {
 		state-notifier-connected = &led0;
 		state-notifier-time-sync = &led1;
 		state-notifier-registered = &led2;
 		state-notifier-working = &led3;
 	};
-
-};
-
-&cpuapp_rram {
-	reg = <0x0 DT_SIZE_K(1524)>;
-};
-
-&cpuapp_sram {
-	reg = <0x20000000 DT_SIZE_K(256)>;
-	ranges = <0x0 0x20000000  0x40000>;
 };
 
 &adc {
 	status = "disabled";
 };
-&uart21 {
+&uart20 {
 	status = "disabled";
 };
-&pwm20 {
+&uart21 {
 	status = "disabled";
 };
 &i2c20 {
@@ -38,13 +28,11 @@
 &spi20 {
 	status = "disabled";
 };
-&spi22 {
+&i2c21 {
 	status = "disabled";
 };
-
-// TODO: re-enable HWFC once it's fixed
-&uart20 {
-	/delete-property/ hw-flow-control;
+&spi21 {
+	status = "disabled";
 };
 
 /delete-node/ &boot_partition;
@@ -65,22 +53,22 @@
 
 		slot0_partition: partition@c000 {
 			label = "image-0";
-			reg = <0xc000 DT_SIZE_K(732)>;
+			reg = <0xc000 DT_SIZE_K(444)>;
 		};
 
-		slot1_partition: partition@c3000 {
+		slot1_partition: partition@7b000 {
 			label = "image-1";
-			reg = <0xc3000 DT_SIZE_K(732)>;
+			reg = <0x7b000 DT_SIZE_K(444)>;
 		};
 
-		storage_partition: partition@17a000 {
+		storage_partition: partition@ea000 {
 			label = "storage";
-			reg = <0x17a000 DT_SIZE_K(8)>;
+			reg = <0xea000 DT_SIZE_K(8)>;
 		};
 
-		mfg_storage: partition@17c000 {
+		mfg_storage: partition@ec000 {
 			label = "mfg_storage";
-			reg = <0x17c000 DT_SIZE_K(4)>;
+			reg = <0xec000 DT_SIZE_K(4)>;
 		};
 	};
 };

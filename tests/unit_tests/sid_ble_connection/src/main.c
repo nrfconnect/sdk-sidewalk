@@ -123,7 +123,7 @@ static uint16_t param_get_fake_timeout = 400;
 int bt_conn_get_info_fake_param_get(const struct bt_conn *a, struct bt_conn_info *b)
 {
 	b->id = BT_ID_SIDEWALK;
-	b->le.interval = param_get_fake_interval;
+	b->le.interval_us = (uint32_t)param_get_fake_interval * 1250U;
 	b->le.latency = param_get_fake_latency;
 	b->le.timeout = param_get_fake_timeout;
 	return 0;

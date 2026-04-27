@@ -41,9 +41,9 @@ enum state {
 	STATE_APP_NOTIFY_DATA,
 };
 
-static void state_init(void *o);
-static void state_notify_capability(void *o);
-static void state_notify_data(void *o);
+static enum smf_state_result state_init(void *o);
+static enum smf_state_result state_notify_capability(void *o);
+static enum smf_state_result state_notify_data(void *o);
 static void button_timer_cb(struct k_timer *timer_id);
 
 static const struct smf_state app_states[] = {
@@ -170,7 +170,7 @@ static int app_tx_response_send(struct sid_demo_action_resp *resp)
 	return app_tx_demo_msg_send(&state, msg_buffer, &resp_desc, &resp_sid_desc);
 }
 
-static void state_init(void *o)
+static enum smf_state_result state_init(void *o)
 {
 	app_sm_t *sm = (app_sm_t *)o;
 
@@ -186,9 +186,10 @@ static void state_init(void *o)
 	case APP_EVENT_RESP_LED_OFF:
 		break;
 	}
+	return SMF_EVENT_HANDLED;
 }
 
-static void state_notify_capability(void *o)
+static enum smf_state_result state_notify_capability(void *o)
 {
 	app_sm_t *sm = (app_sm_t *)o;
 
@@ -246,9 +247,10 @@ static void state_notify_capability(void *o)
 	case APP_EVENT_TIME_SYNC_FAIL:
 		break;
 	}
+	return SMF_EVENT_HANDLED;
 }
 
-static void state_notify_data(void *o)
+static enum smf_state_result state_notify_data(void *o)
 {
 	app_sm_t *sm = (app_sm_t *)o;
 
@@ -422,6 +424,7 @@ static void state_notify_data(void *o)
 	case APP_EVENT_CAPABILITY_SUCCESS:
 		break;
 	}
+	return SMF_EVENT_HANDLED;
 }
 
 void app_tx_last_link_mask_set(uint32_t link_mask)

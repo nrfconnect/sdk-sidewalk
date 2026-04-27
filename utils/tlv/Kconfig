@@ -5,20 +5,20 @@
 #
 
 menuconfig SIDEWALK_TLV
-        bool "Enables Sidewalk TLV utils module"
+        bool "Sidewalk TLV utils module"
 	default n
 	help
 	  Sidewalk module to parse/write TLV data
 
 if SIDEWALK_TLV
 config SIDEWALK_TLV_RAM
-	bool "Enables RAM backend for TLV"
+	bool "RAM backend for TLV"
 	default n
 	help
 	  RAM backend for Sidewalk TLV module
 
 config SIDEWALK_TLV_FLASH
-	bool "Enables FLASH backend for TLV"
+	bool "FLASH backend for TLV"
 	default n
         imply FLASH
 	help

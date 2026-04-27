@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+config PARTITION_MANAGER
+	default n if (SOC_NRF54L15 && !BOARD_NRF54L15DK_NRF54L15_CPUAPP_NS) || SOC_NRF54L10 || SOC_NRF52840
+
 choice BOOTLOADER
 	default BOOTLOADER_MCUBOOT
 endchoice
