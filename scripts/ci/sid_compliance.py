@@ -84,22 +84,21 @@ def binaryfiles_run_overwrite(self):
 cc.BinaryFiles.run = binaryfiles_run_overwrite
 
 
-_orig_check_disallowed_defconfigs = cc.KconfigBasicCheck.check_disallowed_defconfigs
+if hasattr(cc.KconfigBasicCheck, 'check_disallowed_defconfigs'):
+    _orig_check_disallowed_defconfigs = cc.KconfigBasicCheck.check_disallowed_defconfigs
 
+    def check_disallowed_defconfigs_overwrite(self, kconf):
+        # check_disallowed_defconfigs uses git grep --perl-regexp, which requires
+        # git compiled with USE_LIBPCRE. Skip gracefully when PCRE is unavailable
+        # (e.g. when the NCS toolchain git is first in PATH).
+        try:
+            _orig_check_disallowed_defconfigs(self, kconf)
+        except SystemExit as e:
+            if "USE_LIBPCRE" in str(e):
+                return
+            raise
 
-def check_disallowed_defconfigs_overwrite(self, kconf):
-    # check_disallowed_defconfigs uses git grep --perl-regexp, which requires
-    # git compiled with USE_LIBPCRE. Skip gracefully when PCRE is unavailable
-    # (e.g. when the NCS toolchain git is first in PATH).
-    try:
-        _orig_check_disallowed_defconfigs(self, kconf)
-    except SystemExit as e:
-        if "USE_LIBPCRE" in str(e):
-            return
-        raise
-
-
-cc.KconfigBasicCheck.check_disallowed_defconfigs = check_disallowed_defconfigs_overwrite
+    cc.KconfigBasicCheck.check_disallowed_defconfigs = check_disallowed_defconfigs_overwrite
 
 if __name__ == "__main__":
     cc.main(sys.argv[1:])
