@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2025 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/ {
+	aliases {
+		state-notifier-connected = &led0;
+		state-notifier-time-sync = &led1;
+		state-notifier-registered = &led2;
+		state-notifier-working = &led3;
+	};
+};
+
+&adc {
+	status = "disabled";
+};
+&uart20 {
+	status = "disabled";
+};
+&uart21 {
+	status = "disabled";
+};
+&i2c20 {
+	status = "disabled";
+};
+&spi20 {
+	status = "disabled";
+};
+&i2c21 {
+	status = "disabled";
+};
+&spi21 {
+	status = "disabled";
+};
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&cpuapp_rram {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(48)>;
+		};
+
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0xc000 DT_SIZE_K(444)>;
+		};
+
+		slot1_partition: partition@7b000 {
+			label = "image-1";
+			reg = <0x7b000 DT_SIZE_K(444)>;
+		};
+
+		storage_partition: partition@ea000 {
+			label = "storage";
+			reg = <0xea000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: partition@ec000 {
+			label = "mfg_storage";
+			reg = <0xec000 DT_SIZE_K(4)>;
+		};
+	};
+};

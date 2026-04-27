@@ -32,7 +32,7 @@ config MERGED_HEX_FILES
 	default y
 
 config PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY
-	default y if !SOC_NRF54L15
+	default y if !SOC_NRF54L15 && !SOC_NRF54LV10A
 
 if SOC_SERIES_NRF53X
 

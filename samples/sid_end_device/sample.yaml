@@ -10,6 +10,7 @@ common:
     - nrf54l15dk/nrf54l15/cpuapp
     - nrf54l15dk/nrf54l15/cpuapp/ns
     - nrf54l15dk/nrf54l10/cpuapp
+    - nrf54lv10dk/nrf54lv10a/cpuapp
 tests:
   sample.sidewalk.hello.sx1262:
     integration_platforms:
@@ -102,12 +103,14 @@ tests:
     build_only: false
     platform_allow:
       - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lv10dk/nrf54lv10a/cpuapp
     integration_platforms:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
+      - nrf54lv10dk/nrf54lv10a/cpuapp
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
     harness: console
@@ -127,6 +130,7 @@ tests:
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
+      - nrf54lv10dk/nrf54lv10a/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.release"
@@ -232,12 +236,14 @@ tests:
     build_only: false
     platform_allow:
       - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lv10dk/nrf54lv10a/cpuapp
     integration_platforms:
       - nrf52840dk/nrf52840
       - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
       - nrf54l15dk/nrf54l10/cpuapp
+      - nrf54lv10dk/nrf54lv10a/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
