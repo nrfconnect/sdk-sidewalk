@@ -16,7 +16,7 @@
 
 #include <zephyr/kernel.h>
 #include <fprotect.h>
-#include <pm_config.h>
+#include <zephyr/storage/flash_map.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/flash.h>
 #include <zephyr/sys/byteorder.h>
@@ -158,7 +158,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	}
 
 #if defined(CONFIG_FPROTECT) && !defined(CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC)
-	err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
+	err = fprotect_area(FIXED_PARTITION_OFFSET(mfg_storage), FIXED_PARTITION_SIZE(mfg_storage));
 	if (err) {
 		LOG_ERR("Flash protect failed %d", err);
 	}
