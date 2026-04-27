@@ -1,3 +1,4 @@
+name: sidewalk
 build:
   cmake: .
   kconfig: Kconfig
