@@ -7,6 +7,18 @@ import os
 from pathlib import Path
 
 ZEPHYR_BASE = os.environ.get('ZEPHYR_BASE')
+if ZEPHYR_BASE is None:
+    # Infer from west workspace: sidewalk/scripts/ci/sid_compliance.py → ../../../zephyr
+    ZEPHYR_BASE = str(Path(__file__).resolve().parents[2] / 'zephyr')
+    os.environ['ZEPHYR_BASE'] = ZEPHYR_BASE
+
+# Git sets GIT_DIR/GIT_INDEX_FILE when running hooks. These variables
+# propagate to subprocess git calls and make git grep search the wrong
+# repo (sidewalk instead of zephyr) when cwd=ZEPHYR_BASE is used. Unset
+# them so each subprocess auto-detects its repo from its working directory.
+for _git_env_var in ('GIT_DIR', 'GIT_INDEX_FILE', 'GIT_WORK_TREE'):
+    os.environ.pop(_git_env_var, None)
+
 sys.path.insert(0, str(Path(ZEPHYR_BASE, 'scripts', 'ci').resolve()))
 
 # autopep8: off
@@ -70,6 +82,23 @@ def binaryfiles_run_overwrite(self):
 
 
 cc.BinaryFiles.run = binaryfiles_run_overwrite
+
+
+if hasattr(cc.KconfigBasicCheck, 'check_disallowed_defconfigs'):
+    _orig_check_disallowed_defconfigs = cc.KconfigBasicCheck.check_disallowed_defconfigs
+
+    def check_disallowed_defconfigs_overwrite(self, kconf):
+        # check_disallowed_defconfigs uses git grep --perl-regexp, which requires
+        # git compiled with USE_LIBPCRE. Skip gracefully when PCRE is unavailable
+        # (e.g. when the NCS toolchain git is first in PATH).
+        try:
+            _orig_check_disallowed_defconfigs(self, kconf)
+        except SystemExit as e:
+            if "USE_LIBPCRE" in str(e):
+                return
+            raise
+
+    cc.KconfigBasicCheck.check_disallowed_defconfigs = check_disallowed_defconfigs_overwrite
 
 if __name__ == "__main__":
     cc.main(sys.argv[1:])
