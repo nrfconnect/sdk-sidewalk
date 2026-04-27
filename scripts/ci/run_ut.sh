@@ -43,7 +43,7 @@ descr () {
     echo "    -s  Path to the SIDEWALK SDK. If not passed, CURRENT_DIR/../.. is used"
     echo "    -t  Overwrite testcase-root to use. If not passed, testcase-root=SIDEWALK_SDK_DIR"
     echo "    -b build without running any test. Use testcase-root SIDEWALK_SDK_DIR/samples"
-    echo "    -u run unit tests on native_posix. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
+    echo "    -u run unit tests on native_sim. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
     echo "    -f run unit tests functional on nRF HW. Use testcase-root SIDEWALK_SDK_DIR/tests/functional"
     echo "    -a run build or tests only for entries with selected tag. It can be passed multiple times, ones per tag. e.g. -a Sidewalk -a Sidewalk_cli"
     echo "    -p run build or tests only for selected platforms. It can be passed multiple times, e.g. -p nrf5340dk/nrf5340/cpuapp"    
@@ -134,12 +134,12 @@ function run_build ()
 
 function run_ut ()
 {
-    echo -e "\n***********************************\nUT on POSIX\n"
+    echo -e "\n***********************************\nUT on native_sim\n"
     if [ $RUN_UT = false ]; then
         echo "[INFO]: Run unit tests not executed"
         return 0
     fi
-    run_twister --platform native_posix --platform unit_testing --coverage --coverage-tool lcov --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
+    run_twister --platform native_sim --platform unit_testing --coverage --coverage-tool lcov --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
     status=$?
     echo "[INFO]: Remove files from coverage that are not under test and regenerate html report"
     lcov -q --remove "${CURRENT_DIR}/twister-out/coverage.info" "${LCOV_EXCLUDE[@]}" -o "${CURRENT_DIR}/twister-out/new_coverage.info"

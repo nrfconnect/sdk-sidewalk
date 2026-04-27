@@ -9,6 +9,7 @@
 #include <sid_pal_ble_adapter_ifc.h>
 
 #include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/bluetooth/addr.h>
@@ -54,7 +55,7 @@ FAKE_VALUE_FUNC(int, bt_id_create, bt_addr_le_t *, uint8_t *);
 FAKE_VALUE_FUNC(int, bt_id_reset, uint8_t, bt_addr_le_t *, uint8_t *);
 FAKE_VALUE_FUNC(int, bt_id_delete, uint8_t);
 
-FAKE_VALUE_FUNC(struct net_buf *, bt_hci_cmd_create, uint16_t, uint8_t);
+FAKE_VALUE_FUNC(struct net_buf *, bt_hci_cmd_alloc, k_timeout_t);
 FAKE_VALUE_FUNC(int, bt_hci_cmd_send_sync, uint16_t, struct net_buf *, struct net_buf **);
 
 FAKE_VALUE_FUNC(int, bt_hci_get_conn_handle, const struct bt_conn *, uint16_t *);
@@ -82,7 +83,7 @@ FAKE_VALUE_FUNC(int, bt_conn_le_param_update, struct bt_conn *, const struct bt_
 	FAKE(bt_gatt_attr_read_chrc)                                                               \
 	FAKE(bt_gatt_attr_read_ccc)                                                                \
 	FAKE(bt_gatt_attr_write_ccc)                                                               \
-	FAKE(bt_hci_cmd_create)                                                                    \
+	FAKE(bt_hci_cmd_alloc)                                                                     \
 	FAKE(bt_hci_cmd_send_sync)                                                                 \
 	FAKE(bt_hci_get_conn_handle)                                                               \
 	FAKE(net_buf_simple_add)                                                                   \
