@@ -19,6 +19,28 @@ A known issue can list one or both of the following entries:
   Some known issues have a workaround.
   Sometimes, they are discovered later and added over time.
 
+List of known issues for v1.2.0
+*******************************
+
+KRKNWK-21792: BLE endpoint does not transition to ``SID_STATE_NOT_READY`` after initial time sync
+  After completing the initial time sync and reaching ``SID_STATE_READY``, the BLE endpoint does not
+  transition back to ``SID_STATE_NOT_READY`` within the expected timeout.
+
+  **Affected platforms:** nRF54L15
+
+KRKNWK-20869: Downlink messages via Bluetooth LE are intermittently not received by the device
+  Downlink messages sent from the cloud to the device via Bluetooth LE are intermittently not received,
+  while uplink messages work as expected.
+  The issue is not observed with LoRa transport.
+
+  **Affected platforms:** nRF52840, nRF54L15
+
+KRKNWK-16256: BLE endpoint does not drop connection when receiving a downlink packet with a duplicated sequence number
+  When the device receives a downlink message with a sequence number that was already processed,
+  it does not drop the Bluetooth LE connection and does not transition to ``SID_STATE_NOT_READY`` as required.
+
+  **Affected platforms:** nRF52840, nRF54L15
+
 List of known issues for v1.1.0
 *******************************
 
