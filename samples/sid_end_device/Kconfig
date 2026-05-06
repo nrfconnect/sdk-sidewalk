@@ -38,7 +38,7 @@ rsource "Kconfig.sensor_monitoring"
 endif #SID_END_DEVICE_SENSOR_MONITORING
 
 config SID_END_DEVICE_CLI
-    bool "Enable Sidewalk CLI (DUT)"
+    bool "Sidewalk CLI (DUT)"
     imply SHELL
     help
       Enables Sidewalk command line interface.
@@ -59,7 +59,7 @@ config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
 config SID_END_DEVICE_CLI_ALIVE_MAKRER
-    bool "Enable alive marker"
+    bool "Alive marker"
     help
         Enable alive marker that periodically prints "alive" message to log.
         Useful to verify that application is running and not stuck.
@@ -68,14 +68,14 @@ endif # SID_END_DEVICE_CLI
 
 config SID_END_DEVICE_AUTO_START
     default y
-    bool "Enable automatic Sidewalk initlization and start"
+    bool "Automatic Sidewalk initialization and start"
 
 config SID_END_DEVICE_AUTO_CONN_REQ
     default y
-    bool "Enable automatic connection request before message send"
+    bool "Automatic connection request before message send"
 
 config SID_END_DEVICE_PERSISTENT_LINK_MASK
-    bool "Enable persitent link mask"
+    bool "Persistent link mask"
     help
       The Sidewalk link mask persists after a device reset
       but defaults after a factory reset.
@@ -87,7 +87,7 @@ config SID_END_DEVICE_EVENT_HEAP_SIZE
 
 config SIDEWALK_FILE_TRANSFER
     select EXPERIMENTAL
-    bool "Enable Sidewalk file transfer"
+    bool "Sidewalk file transfer"
     help
       Add support for Sidewalk Bulk Data Transfer (SBDT)
       in application.
@@ -134,7 +134,7 @@ config SBDT_MAX_PARALEL_TRANSFERS
 endif # SIDEWALK_FILE_TRANSFER
 
 config SIDEWALK_LOCATION_SHELL
-    bool "Enable Sidewalk Location CLI"
+    bool "Sidewalk Location CLI"
     depends on SID_END_DEVICE_CLI
     help
         Enables Sidewalk location and dult command line interface.
