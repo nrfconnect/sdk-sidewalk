@@ -6,7 +6,6 @@
 
 #include <sid_hal_memory_ifc.h>
 #include <string.h>
-#include <zephyr/syscall.h>
 #include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(scratch_buffer);
