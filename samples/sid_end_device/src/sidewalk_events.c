@@ -89,10 +89,10 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 	}
 
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-	int32_t err = 0;
-	err = sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &radio_rx_packet);
+	int32_t err = sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &radio_rx_packet);
 	if (err) {
 		LOG_ERR("radio init err %d", err);
+		return;
 	}
 	err = sid_pal_radio_sleep(0);
 	if (err) {
