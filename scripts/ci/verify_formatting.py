@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 import subprocess
 import re
+
 logger = logging.getLogger(__name__)
 
 
@@ -16,15 +17,23 @@ def argument_parser():
 
     :return:
     """
-    parser_ = argparse.ArgumentParser()
-    parser_.add_argument("-c", "--config", required=True,
-                         help="YAML configuration file")
-    parser_.add_argument("-d", "--debug", action="store_true", default=False, required=False,
-                         help="Enable debug mode, more logs.")
+    parser_ = argparse.ArgumentParser(allow_abbrev=False)
+    parser_.add_argument(
+        "-c", "--config", required=True, help="YAML configuration file"
+    )
+    parser_.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        default=False,
+        required=False,
+        help="Enable debug mode, more logs.",
+    )
     action = parser_.add_mutually_exclusive_group(required=True)
-    action.add_argument("-s", "--scan-root", nargs=1,
-                        help="Check all files in directory")
-    action.add_argument("-f", "--files", nargs='+', help="files to check")
+    action.add_argument(
+        "-s", "--scan-root", nargs=1, help="Check all files in directory"
+    )
+    action.add_argument("-f", "--files", nargs="+", help="files to check")
     return parser_
 
 
@@ -47,18 +56,13 @@ class Configuration:
 
 def split_files_for_languages(files):
     return {
-        "source": [
-            f for f in files if f[-2:] == ".h" or f[-2:] == ".c"
-        ],
-        "python": [
-            f for f in files if f[-3:] == ".py"
-        ]
+        "source": [f for f in files if f[-2:] == ".h" or f[-2:] == ".c"],
+        "python": [f for f in files if f[-3:] == ".py"],
     }
 
 
 def get_files_from_git() -> dict():
-    git_files_run = subprocess.run(
-        "git ls-files".split(" "), capture_output=True)
+    git_files_run = subprocess.run("git ls-files".split(" "), capture_output=True)
 
     git_files = git_files_run.stdout.decode("utf8").split("\n")
 
@@ -98,13 +102,14 @@ if __name__ == "__main__":
         files = split_files_for_languages(args.files)
 
     C_files_filtered = filter_files(
-        files.get("source"), cfg._config["ignored_files_regexp"])
+        files.get("source"), cfg._config["ignored_files_regexp"]
+    )
 
-    py_filtered = filter_files(
-        files.get("python"), cfg._config["ignored_files_regexp"])
+    py_filtered = filter_files(files.get("python"), cfg._config["ignored_files_regexp"])
 
     top_level_cmd = subprocess.run(
-        "git rev-parse --show-toplevel".split(" "), capture_output=True)
+        "git rev-parse --show-toplevel".split(" "), capture_output=True
+    )
     top_level = Path(top_level_cmd.stdout.decode("utf8").strip())
 
     logger.debug(f"checking {len(C_files_filtered)} C files")
@@ -115,11 +120,17 @@ if __name__ == "__main__":
     if len(C_files_filtered) > 0:
         filtered_files_str = " ".join([str(f) for f in C_files_filtered])
         formatting_check = subprocess.run(
-            f"clang-format --dry-run -Werror {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
+            f"clang-format --dry-run -Werror {filtered_files_str}".split(" "),
+            cwd=top_level,
+            capture_output=True,
+        )
 
         if formatting_check.returncode != 0:
             subprocess.run(
-                f"clang-format -i {filtered_files_str}".split(" "), cwd=top_level, capture_output=True)
+                f"clang-format -i {filtered_files_str}".split(" "),
+                cwd=top_level,
+                capture_output=True,
+            )
             print_diff = True
 
     if len(py_filtered) > 0:
@@ -129,13 +140,17 @@ if __name__ == "__main__":
 
         filtered_py_files_str = " ".join([str(f) for f in py_filtered])
         autopep_check = subprocess.run(
-            f"autopep8 -i --exit-code {filtered_py_files_str}".split(" "), cwd=top_level, capture_output=True)
+            f"autopep8 -i --exit-code {filtered_py_files_str}".split(" "),
+            cwd=top_level,
+            capture_output=True,
+        )
         if autopep_check.returncode != 0:
             print_diff = True
 
     if print_diff:
         changes = subprocess.run(
-            f"git diff".split(" "), cwd=top_level, capture_output=True)
+            "git diff".split(" "), cwd=top_level, capture_output=True
+        )
         logger.error(changes.stdout.decode("utf-8"))
         exit(1)
 

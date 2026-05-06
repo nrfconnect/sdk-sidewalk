@@ -8,26 +8,26 @@ mainmenu "Sidewalk End Device nRF Connect Application"
 
 choice SID_END_DEVICE
 	prompt "Select application variant to run"
-    default SID_END_DEVICE_HELLO
+	default SID_END_DEVICE_HELLO
 config SID_END_DEVICE_HELLO
-    bool "Sidewalk hello world application"
+	bool "Sidewalk hello world application"
 config SID_END_DEVICE_SENSOR_MONITORING
-    bool "Demo sensor monitoring application"
-    imply SIDEWALK_DEMO_PARSER
-    imply SENSOR
-    imply TEMP_NRF5
+	bool "Demo sensor monitoring application"
+	imply SIDEWALK_DEMO_PARSER
+	imply SENSOR
+	imply TEMP_NRF5
 config SID_END_DEVICE_DUT
-    bool "Device under test application"
+	bool "Device under test application"
 endchoice #SID_END_DEVICE
 
 if SID_END_DEVICE_HELLO
 
 config SID_END_DEVICE_ECHO_MSGS
-    bool "Eable message echo feature"
-    default y
-    help
-      Echo received messages back to Sidewlak cloud.
-      Works with GET and SET messages types.
+	bool "Enable message echo feature"
+	default y
+	help
+	  Echo received messages back to Sidewalk cloud.
+	  Works with GET and SET messages types.
 
 endif #SID_END_DEVICE_HELLO
 
@@ -38,11 +38,11 @@ rsource "Kconfig.sensor_monitoring"
 endif #SID_END_DEVICE_SENSOR_MONITORING
 
 config SID_END_DEVICE_CLI
-    bool "Sidewalk CLI (DUT)"
-    imply SHELL
-    help
-      Enables Sidewalk command line interface.
-      The interface commands are compatilbe with former dut sample.
+	bool "Sidewalk CLI (DUT)"
+	imply SHELL
+	help
+	  Enables Sidewalk command line interface.
+	  The interface commands are compatible with former dut sample.
 
 if SID_END_DEVICE_CLI
 
@@ -58,87 +58,87 @@ config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
-config SID_END_DEVICE_CLI_ALIVE_MAKRER
-    bool "Alive marker"
-    help
-        Enable alive marker that periodically prints "alive" message to log.
-        Useful to verify that application is running and not stuck.
+config SID_END_DEVICE_CLI_ALIVE_MARKER
+	bool "Alive marker"
+	help
+	    Enable alive marker that periodically prints "alive" message to log.
+	    Useful to verify that application is running and not stuck.
 
 endif # SID_END_DEVICE_CLI
 
 config SID_END_DEVICE_AUTO_START
-    default y
-    bool "Automatic Sidewalk initialization and start"
+	default y
+	bool "Automatic Sidewalk initialization and start"
 
 config SID_END_DEVICE_AUTO_CONN_REQ
-    default y
-    bool "Automatic connection request before message send"
+	default y
+	bool "Automatic connection request before message send"
 
 config SID_END_DEVICE_PERSISTENT_LINK_MASK
-    bool "Persistent link mask"
-    help
-      The Sidewalk link mask persists after a device reset
-      but defaults after a factory reset.
-      This could affect the flash lifespan.
+	bool "Persistent link mask"
+	help
+	  The Sidewalk link mask persists after a device reset
+	  but defaults after a factory reset.
+	  This could affect the flash lifespan.
 
 config SID_END_DEVICE_EVENT_HEAP_SIZE
-    int "Heap for Sidewalk event contexts"
-    default 2048
+	int "Heap for Sidewalk event contexts"
+	default 2048
 
 config SIDEWALK_FILE_TRANSFER
-    select EXPERIMENTAL
-    bool "Sidewalk file transfer"
-    help
-      Add support for Sidewalk Bulk Data Transfer (SBDT)
-      in application.
+	select EXPERIMENTAL
+	bool "Sidewalk file transfer"
+	help
+	  Add support for Sidewalk Bulk Data Transfer (SBDT)
+	  in application.
 
 if SIDEWALK_FILE_TRANSFER
 
 config SIDEWALK_FILE_TRANSFER_HEAP_SIZE
-    int "Sidewalk file transfer heap size"
-    default 10240
-    help
-        Heap size in bytes to be allocated
-        for Sidewalk Bulk Data Transfer (SBDT).
+	int "Sidewalk file transfer heap size"
+	default 10240
+	help
+	    Heap size in bytes to be allocated
+	    for Sidewalk Bulk Data Transfer (SBDT).
 
 choice SIDEWALK_FILE_TRANSFER_IMPL
-    prompt "Select which implementation of SBDT to use"
-    default SIDEWALK_FILE_TRANSFER_DFU
+	prompt "Select which implementation of SBDT to use"
+	default SIDEWALK_FILE_TRANSFER_DFU
 
 config SIDEWALK_FILE_TRANSFER_DFU
-    bool "Sidewalk file transfer and dfu"
-    imply SIDEWALK_DFU_IMG_UTILS
-    imply DFU_MULTI_IMAGE
-    imply DFU_TARGET
-    imply DFU_TARGET_MCUBOOT
-    imply STREAM_FLASH
-    imply STREAM_FLASH_ERASE
-    help
-        Save recived data to flash. Expect CBOR manifest.
-        Autoatically reset device after file transfer.
+	bool "Sidewalk file transfer and dfu"
+	imply SIDEWALK_DFU_IMG_UTILS
+	imply DFU_MULTI_IMAGE
+	imply DFU_TARGET
+	imply DFU_TARGET_MCUBOOT
+	imply STREAM_FLASH
+	imply STREAM_FLASH_ERASE
+	help
+	    Save received data to flash. Expect CBOR manifest.
+	    Automatically reset device after file transfer.
 
 config SIDEWALK_FILE_TRANSFER_SHELL
-    bool "SBDT cli backend for file transfer"
-    imply SHELL
-    help
-        Use shell commands to controll file transfer.
-        This implementation does not save received data,
-        but allows user to controll the sbdt behaviour form shell.
+	bool "SBDT cli backend for file transfer"
+	imply SHELL
+	help
+	    Use shell commands to control file transfer.
+	    This implementation does not save received data,
+	    but allows user to control the sbdt behaviour from shell.
 
 endchoice
 
-config SBDT_MAX_PARALEL_TRANSFERS
-    int "maximum number of sbdt paralel transfers"
-    default 3
+config SBDT_MAX_PARALLEL_TRANSFERS
+	int "maximum number of sbdt parallel transfers"
+	default 3
 
 endif # SIDEWALK_FILE_TRANSFER
 
 config SIDEWALK_LOCATION_SHELL
-    bool "Sidewalk Location CLI"
-    depends on SID_END_DEVICE_CLI
-    help
-        Enables Sidewalk location and dult command line interface.
-        Provides commands for location services and unwanted location tracking.
+	bool "Sidewalk Location CLI"
+	depends on SID_END_DEVICE_CLI
+	help
+	    Enables Sidewalk location and dult command line interface.
+	    Provides commands for location services and unwanted location tracking.
 
 if SIDEWALK_CRYPTO
 
@@ -185,11 +185,11 @@ endif #SIDEWALK_CRYPTO
 if SHELL
 # TODO: Remove when merged in NCS copy of sdk-zephyr https://github.com/zephyrproject-rtos/zephyr/pull/85790
 # Workaround for missing first few logs.
-    config LOG_BACKEND_RTT
-        bool "Segger J-Link RTT backend"
-        depends on USE_SEGGER_RTT
-        default y if !SHELL_LOG_BACKEND
-        default n
+config LOG_BACKEND_RTT
+	bool "Segger J-Link RTT backend"
+	depends on USE_SEGGER_RTT
+	default y if !SHELL_LOG_BACKEND
+	default n
 endif #SHELL
 
 

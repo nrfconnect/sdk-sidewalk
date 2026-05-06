@@ -13,9 +13,13 @@ config SIDEWALK_LOG_LEVEL
 	default 0
 
 
-config SBDT_MAX_PARALEL_TRANSFERS
+config SBDT_MAX_PARALLEL_TRANSFERS
 	int
 	default 3
+
+config SIDEWALK_GENERATE_VERSION_MINIMAL
+	bool
+	default n
 
 config SIDEWALK_BLE_ADV_INT_FAST
 	int "Fast advertise interval in ms"

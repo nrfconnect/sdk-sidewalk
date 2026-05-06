@@ -56,6 +56,7 @@ void sidewalk_event_process(sidewalk_ctx_t *sid, void *ctx)
 		return;
 	}
 	sid_error_t e = sid_process(sid->handle);
+
 	if (e) {
 		LOG_ERR("sid process err  %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
@@ -76,7 +77,8 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 	};
 
 	sid_error_t e = sid_platform_init(&platform_parameters);
-	if (SID_ERROR_NONE != e) {
+
+	if (e != SID_ERROR_NONE) {
 		LOG_ERR("Sidewalk Platform Init err:  %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		return;
 	}
@@ -90,6 +92,7 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 	int32_t err = sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &radio_rx_packet);
+
 	if (err) {
 		LOG_ERR("radio init err %d", err);
 		return;
@@ -116,6 +119,7 @@ void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
 	}
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	int err = settings_utils_link_mask_get(&sid->config.link_mask);
+
 	if (err <= 0) {
 		LOG_WRN("Link mask get failed %d", err);
 		sid->config.link_mask = 0;
@@ -131,6 +135,7 @@ void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
 					      (SID_LINK_TYPE_2 & sid->config.link_mask) ? "FSK" :
 											  "BLE");
 	sid_error_t e = sid_init(&sid->config, &sid->handle);
+
 	if (e) {
 		LOG_ERR("sid init err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		return;
@@ -168,6 +173,7 @@ void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
 #endif /* CONFIG_SID_END_DEVICE_AUTO_CONN_REQ */
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	int dfu_err = boot_write_img_confirmed();
+
 	if (dfu_err) {
 		LOG_ERR("img confirm fail %d", dfu_err);
 	}
@@ -183,8 +189,9 @@ void sidewalk_event_factory_reset(sidewalk_ctx_t *sid, void *ctx)
 	}
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	(void)settings_utils_link_mask_set(0);
-#endif /* CONFIG_SIDEWALK_PERSISTENT_LINK_MASK */
+#endif /* CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK */
 	sid_error_t e = sid_set_factory_reset(sid->handle);
+
 	if (e) {
 		LOG_ERR("sid factory reset err  %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
@@ -193,6 +200,7 @@ void sidewalk_event_factory_reset(sidewalk_ctx_t *sid, void *ctx)
 void sidewalk_event_new_status(sidewalk_ctx_t *sid, void *ctx)
 {
 	struct sid_status *p_status = (struct sid_status *)ctx;
+
 	if (!p_status) {
 		LOG_ERR("sid new status is NULL");
 		return;
@@ -207,12 +215,14 @@ void sidewalk_event_send_msg(sidewalk_ctx_t *sid, void *ctx)
 		return;
 	}
 	sidewalk_msg_t *p_msg = (sidewalk_msg_t *)ctx;
+
 	if (!p_msg) {
 		LOG_ERR("sid send msg is NULL");
 		return;
 	}
 
 	sid_error_t e = sid_put_msg(sid->handle, &p_msg->msg, &p_msg->desc);
+
 	if (e) {
 		LOG_ERR("sid send err %d", (int)e);
 		return;
@@ -230,6 +240,7 @@ void sidewalk_event_connect(sidewalk_ctx_t *sid, void *ctx)
 		return;
 	}
 	sid_error_t e = sid_ble_bcn_connection_request(sid->handle, true);
+
 	if (e) {
 		LOG_ERR("sid conn req err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}
@@ -260,6 +271,7 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 										  "BLE");
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 	int err = settings_utils_link_mask_set(new_link_mask);
+
 	if (err) {
 		LOG_ERR("New link mask set err %d", err);
 	}
@@ -271,12 +283,14 @@ void sidewalk_event_link_switch(sidewalk_ctx_t *sid, void *ctx)
 #endif
 		(void)sid_process(sid->handle);
 		sid_error_t e = sid_deinit(sid->handle);
+
 		if (e) {
 			LOG_ERR("sid deinit err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 		}
 	}
 
 	sid_error_t e = sid_init(&sid->config, &sid->handle);
+
 	if (e) {
 		LOG_ERR("sid init err %d (%s)", (int)e, SID_ERROR_T_STR(e));
 	}

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-config SBDT_MAX_PARALEL_TRANSFERS
+config SBDT_MAX_PARALLEL_TRANSFERS
 	int 
 	default 3
 

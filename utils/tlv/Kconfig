@@ -5,7 +5,7 @@
 #
 
 menuconfig SIDEWALK_TLV
-        bool "Sidewalk TLV utils module"
+	    bool "Sidewalk TLV utils module"
 	default n
 	help
 	  Sidewalk module to parse/write TLV data
@@ -20,7 +20,7 @@ config SIDEWALK_TLV_RAM
 config SIDEWALK_TLV_FLASH
 	bool "FLASH backend for TLV"
 	default n
-        imply FLASH
+	    imply FLASH
 	help
 	  FLASH backend for Sidewalk TLV module
 
