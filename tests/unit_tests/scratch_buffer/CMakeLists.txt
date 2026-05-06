@@ -10,6 +10,7 @@ set(BOARD unit_testing)
 project(scratch_buffer)
 find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -O0")
+add_definitions(--include ztest.h)
 set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
 target_sources(testbinary PRIVATE src/main.c ${SIDEWALK_BASE}/samples/sid_end_device/src/sbdt/scratch_buffer.c mock/log_minimal.c)
