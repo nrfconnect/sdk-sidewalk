@@ -792,7 +792,6 @@ void test_sid_pal_gpio_irq_enable()
 		sid_gpio_utils_register_gpio((struct gpio_dt_spec){ .port = &dev, .pin = 2 });
 	TEST_ASSERT_GREATER_OR_EQUAL(0, gpio);
 
-	__cmock_gpio_pin_interrupt_configure_ExpectAndReturn(&dev, 2, 0, 0);
 	sid_error_t err = sid_pal_gpio_irq_enable(gpio);
 	TEST_ASSERT_EQUAL(SID_ERROR_NONE, err);
 }
