@@ -225,15 +225,15 @@ choice SIDEWALK_NRFX_SPI_INSTANCE_ID
 
 config SIDEWALK_NRFX_SPI0
 	bool "SPI0"
-	select NRFX_SPI0
+	select NRFX_SPI
 
 config SIDEWALK_NRFX_SPI1
 	bool "SPI1"
-	select NRFX_SPI1
+	select NRFX_SPI
 
 config SIDEWALK_NRFX_SPI2
 	bool "SPI2"
-	select NRFX_SPI2
+	select NRFX_SPI
 
 endchoice # SIDEWALK_NRFX_SPI_INSTANCE_ID
 
