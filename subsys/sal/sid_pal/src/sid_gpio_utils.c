@@ -247,6 +247,9 @@ int sid_gpio_utils_irq_set(uint32_t gpio_number, bool set)
 	gpio_flags_t flags = GPIO_INT_DISABLE;
 	if (set) {
 		flags = ctx.supported_pins[gpio_number].configuration_cache & GPIO_INT_MASK;
+		if (flags == 0) {
+			return 0;
+		}
 	}
 
 	int erc = gpio_pin_interrupt_configure(port_pin->port, port_pin->pin, flags);
