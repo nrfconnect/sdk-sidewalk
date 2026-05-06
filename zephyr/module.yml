@@ -4,3 +4,10 @@ build:
   settings:
     board_root: .
     dts_root: .
+
+# Used by Zephyr check_compliance Kconfig scans to treat in-tree sample/test
+# Kconfig symbols as defined (see get_defined_syms / module_kconfigs).
+samples:
+  - samples
+tests:
+  - tests

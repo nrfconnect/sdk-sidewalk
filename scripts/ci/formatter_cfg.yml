@@ -1,4 +1,8 @@
 ignored_files_regexp:
+# Formatted with Ruff (Zephyr compliance); autopep8 line breaks conflict with ruff format.
+- scripts/ci/sid_compliance.py$
+- scripts/ci/verify_formatting.py$
+- scripts/ci/verify_license.py$
 - subsys/ace(/.*)+h$
 - subsys/config(/.*)+(c|h)$
 - subsys/config/common/.*(c|h)$

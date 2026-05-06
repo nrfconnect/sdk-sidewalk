@@ -24,11 +24,11 @@ LOG_MODULE_REGISTER(sid_sbdt_file_transfer, CONFIG_SIDEWALK_LOG_LEVEL);
 #define FILE_TRANSFER_CRC_GROUP 0xB
 #define FILE_TRANSFER_CRC_KEY 1
 
-struct sbdt_file_info transfer_info[CONFIG_SBDT_MAX_PARALEL_TRANSFERS] = {};
+struct sbdt_file_info transfer_info[CONFIG_SBDT_MAX_PARALLEL_TRANSFERS] = {};
 
 struct sbdt_file_info *get_file_info_by_id(uint32_t file_id)
 {
-	for (size_t i = 0; i < CONFIG_SBDT_MAX_PARALEL_TRANSFERS; i++) {
+	for (size_t i = 0; i < CONFIG_SBDT_MAX_PARALLEL_TRANSFERS; i++) {
 		if (transfer_info[i].file_id == file_id && transfer_info[i].is_consumed) {
 			return &transfer_info[i];
 		}
@@ -38,7 +38,7 @@ struct sbdt_file_info *get_file_info_by_id(uint32_t file_id)
 
 static struct sbdt_file_info *allocate_new_info_instance(uint32_t file_id)
 {
-	for (size_t i = 0; i < CONFIG_SBDT_MAX_PARALEL_TRANSFERS; i++) {
+	for (size_t i = 0; i < CONFIG_SBDT_MAX_PARALLEL_TRANSFERS; i++) {
 		if (transfer_info[i].is_consumed == false) {
 			transfer_info[i] = (struct sbdt_file_info){ .is_consumed = true,
 								    .file_id = file_id,

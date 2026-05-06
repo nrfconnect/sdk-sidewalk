@@ -48,6 +48,16 @@ ext/BSEC_*
 YAMLLint.txt
 Gitlint.txt
 KconfigBasic.txt
+Kconfig.txt
+KconfigHWMv2.txt
+KconfigBasicNoModules.txt
+SysbuildKconfigBasicNoModules.txt
+Checkpatch.txt
+LicenseAndCopyrightCheck.txt
+Nits.txt
+Ruff.txt
+Pylint.txt
+PythonCompat.txt
 compliance.xml
 
 tools/provision/*.hex

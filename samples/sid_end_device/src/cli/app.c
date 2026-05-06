@@ -189,10 +189,10 @@ void app_start(void)
 	sidewalk_start(&sid_ctx);
 	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);
 
-#if CONFIG_SID_END_DEVICE_CLI_ALIVE_MAKRER
+#if CONFIG_SID_END_DEVICE_CLI_ALIVE_MARKER
 	while (true) {
 		k_sleep(K_MSEC(10000));
 		LOG_INF("alive");
 	}
-#endif /* CONFIG_ALIVE_MAKRER */
+#endif /* CONFIG_SID_END_DEVICE_CLI_ALIVE_MARKER */
 }

@@ -18,7 +18,7 @@ try:
         combined = json.load(f)
 
 except FileNotFoundError:
-    print(f"Failed to open file {file}")
+    print(f"Failed to open file {first_file}")
 
 for file in files_to_combine:
     try:

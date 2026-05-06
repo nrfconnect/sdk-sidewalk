@@ -246,6 +246,7 @@ static int cmd_sid_option_handle_set_link3_profile(const char *value,
 static void free_sid_option_event_ctx(void *ctx)
 {
 	sidewalk_option_t *p_opt = (sidewalk_option_t *)ctx;
+
 	if (p_opt == NULL) {
 		return;
 	}
@@ -258,6 +259,7 @@ static void free_sid_option_event_ctx(void *ctx)
 static int cmd_sid_option(event_handler_t event, enum sid_option option, void *data, size_t len)
 {
 	sidewalk_option_t *p_opt = sid_hal_malloc(sizeof(sidewalk_option_t));
+
 	if (!p_opt) {
 		return -ENOMEM;
 	}
@@ -275,6 +277,7 @@ static int cmd_sid_option(event_handler_t event, enum sid_option option, void *d
 	}
 
 	int err = sidewalk_event_send(event, p_opt, free_sid_option_event_ctx);
+
 	if (err) {
 		free_sid_option_event_ctx(p_opt);
 		err = -ENOMSG;
@@ -301,12 +304,14 @@ static int cmd_sid_option_get_input_data(enum sid_option option, void *data, siz
 static int cmd_sid_simple_param(event_handler_t event, uint32_t *data)
 {
 	uint32_t *event_ctx = sid_hal_malloc(sizeof(uint32_t));
+
 	if (!event_ctx) {
 		return -ENOMEM;
 	}
 	memcpy(event_ctx, data, sizeof(uint32_t));
 
 	int err = sidewalk_event_send(event, event_ctx, sid_hal_free);
+
 	if (err) {
 		sid_hal_free(event_ctx);
 		return -ENOMSG;
@@ -316,6 +321,7 @@ static int cmd_sid_simple_param(event_handler_t event, uint32_t *data)
 static void app_event_enter_dfu_mode(sidewalk_ctx_t *sid, void *ctx)
 {
 	int err = -ENOTSUP;
+
 	shell_info((const struct shell *)ctx, "Entering into DFU mode");
 #if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
 	err = nordic_dfu_ble_start();
@@ -399,6 +405,7 @@ int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv)
 static void free_sid_send_event_ctx(void *ctx)
 {
 	sidewalk_msg_t *send = (sidewalk_msg_t *)ctx;
+
 	if (send == NULL) {
 		return;
 	}
@@ -495,6 +502,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 				return -EINVAL;
 			}
 			uint8_t msg_buffer[strlen(argv[opt]) / 2];
+
 			memset(msg_buffer, 0, sizeof(msg_buffer));
 			msg.size = hex2bin(argv[opt], strlen(argv[opt]), msg_buffer,
 					   sizeof(msg_buffer));
@@ -530,6 +538,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			}
 			char *end = NULL;
 			long data_raw = strtol(argv[opt], &end, 0);
+
 			if (!IN_RANGE(data_raw, 0, UINT16_MAX) || end == argv[opt]) {
 				shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
 					    argv[opt], (unsigned int)UINT16_MAX);
@@ -549,6 +558,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			const char *ttl = argv[++opt];
 			char *end = NULL;
 			long ack_val = strtol(ack, &end, 0);
+
 			if (!IN_RANGE(ack_val, 0, 1) || end == ack) {
 				shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
 					    ack, 1);
@@ -557,6 +567,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			desc.msg_desc_attr.tx_attr.request_ack = (bool)ack_val;
 
 			long retry_val = strtol(retry, &end, 0);
+
 			if (!IN_RANGE(ack_val, 0, UINT8_MAX) || end == ack) {
 				shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
 					    retry, (unsigned int)UINT8_MAX);
@@ -565,6 +576,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			desc.msg_desc_attr.tx_attr.num_retries = (uint8_t)retry_val;
 
 			long ttl_val = strtol(ttl, &end, 0);
+
 			if (!IN_RANGE(ttl_val, 0, UINT16_MAX) || end == ack) {
 				shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
 					    ttl, (unsigned int)UINT16_MAX);
@@ -589,6 +601,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 	}
 
 	sidewalk_msg_t *send = sid_hal_malloc(sizeof(sidewalk_msg_t));
+
 	if (!send) {
 		sid_hal_free(msg.data);
 		return -ENOMEM;
@@ -598,6 +611,7 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 	memcpy(&send->desc, &desc, sizeof(struct sid_msg_desc));
 
 	int err = sidewalk_event_send(sidewalk_event_send_msg, send, free_sid_send_event_ctx);
+
 	if (err) {
 		free_sid_send_event_ctx(send);
 		return -ENOMSG;
@@ -612,6 +626,7 @@ int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **
 			     CMD_SID_FACTORY_RESET_ARG_OPTIONAL);
 
 	int err = sidewalk_event_send(sidewalk_event_factory_reset, NULL, NULL);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -670,6 +685,7 @@ int cmd_sid_option_battery(const struct shell *shell, int32_t argc, const char *
 	data = (uint8_t)data_raw;
 
 	int err = cmd_sid_option_set(SID_OPTION_RESERVED, &data, sizeof(data));
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -700,6 +716,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 	dev_profile = (enum sid_device_profile_id)data_raw;
 
 	struct sid_device_profile dev_cfg = { 0 };
+
 	dev_cfg.unicast_params.device_profile_id = dev_profile;
 	dev_cfg.unicast_params.wakeup_type = SID_TX_AND_RX_WAKEUP;
 
@@ -720,6 +737,7 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 	} break;
 	case SID_LINK2_PROFILE_2: {
 		long window_separation_ms_raw = 0;
+
 		dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms =
 			SID_LINK2_RX_WINDOW_SEPARATION_1;
 		if (argc == 3) {
@@ -801,7 +819,7 @@ int cmd_sid_option_d(const struct shell *shell, int32_t argc, const char **argv)
 	data_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1] || !IN_RANGE(data_raw, 0, 1)) {
 		shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
-			    argv[1] == NULL ? "NULL" : argv[1], (unsigned int)1);
+			    argv[1] == NULL ? "NULL" : argv[1], 1U);
 		return -EINVAL;
 	}
 	data = (uint8_t)data_raw;
@@ -820,6 +838,7 @@ int cmd_sid_option_gd(const struct shell *shell, int32_t argc, const char **argv
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_get(SID_OPTION_GET_MSG_POLICY_FILTER_DUPLICATES);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -832,6 +851,7 @@ int cmd_sid_option_gm(const struct shell *shell, int32_t argc, const char **argv
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_get(SID_OPTION_GET_LINK_CONNECTION_POLICY);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -844,6 +864,7 @@ int cmd_sid_option_gml(const struct shell *shell, int32_t argc, const char **arg
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_get(SID_OPTION_GET_LINK_POLICY_MULTI_LINK_POLICY);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -856,6 +877,7 @@ int cmd_sid_option_sid_id(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_get(SID_OPTION_GET_SIDEWALK_ID);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -868,6 +890,7 @@ int cmd_sid_option_st_get(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_get(SID_OPTION_GET_STATISTICS);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -880,6 +903,7 @@ int cmd_sid_option_st_clear(const struct shell *shell, int32_t argc, const char 
 	CHECK_ARGUMENT_COUNT(argc, 1, 0);
 
 	int err = cmd_sid_option_set(SID_OPTION_CLEAR_STATISTICS, NULL, 0);
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -898,12 +922,13 @@ int cmd_sid_option_m(const struct shell *shell, int32_t argc, const char **argv)
 	data_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1] || !IN_RANGE(data_raw, 0, 2)) {
 		shell_error(shell, "Invalid argument [%s], must be value <0, %x>",
-			    argv[1] == NULL ? "NULL" : argv[1], (unsigned int)2);
+			    argv[1] == NULL ? "NULL" : argv[1], 2U);
 		return -EINVAL;
 	}
 	data = (uint8_t)data_raw;
 
 	int err = cmd_sid_option_set(SID_OPTION_SET_LINK_CONNECTION_POLICY, &data, sizeof(data));
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -916,11 +941,13 @@ int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_OPTION_C_ARG_REQUIRED,
 			     CMD_SID_SET_OPTION_C_ARG_OPTIONAL);
 	struct sid_link_auto_connect_params params = {};
+
 	params.priority = UINT8_MAX;
 	params.connection_attempt_timeout_seconds = UINT16_MAX;
 
 	long link_type = 0l;
 	char *end = NULL;
+
 	link_type = strtol(argv[1], &end, 0);
 	if (end == argv[1] || !IN_RANGE(link_type, CLI_CMD_OPT_LINK_BLE, CLI_CMD_OPT_LINK_ANY)) {
 		shell_error(shell, "parameter link type invalid");
@@ -929,6 +956,7 @@ int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
 	cli_parse_link_mask_opt((uint8_t)link_type, (uint32_t *)&params.link_type);
 
 	long enable = strtol(argv[2], &end, 0);
+
 	if (end == argv[2] || !IN_RANGE(enable, 0, 1)) {
 		shell_error(shell, "parameter enable invalid");
 		return -EINVAL;
@@ -936,6 +964,7 @@ int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
 	params.enable = enable;
 	if (argc >= 4) {
 		long priority = strtol(argv[3], &end, 0);
+
 		if (end == argv[3] || !IN_RANGE(priority, 0, 255)) {
 			shell_error(shell, "parameter priority invalid");
 			return -EINVAL;
@@ -945,6 +974,7 @@ int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
 
 	if (argc >= 5) {
 		long timeout = strtol(argv[4], &end, 0);
+
 		if (end == argv[4] || !IN_RANGE(timeout, 0, UINT16_MAX)) {
 			shell_error(shell, "parameter timeout invalid");
 			return -EINVAL;
@@ -968,6 +998,7 @@ int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv
 	long policy_raw = 0l;
 	uint8_t policy;
 	char *end = NULL;
+
 	policy_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1] || !IN_RANGE(policy_raw, 0, 4)) {
 		shell_error(shell, "parameter policy invalid");
@@ -990,12 +1021,14 @@ int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv
 			     CMD_SID_SET_OPTION_GC_ARG_OPTIONAL);
 	long link_type = 0l;
 	char *end = NULL;
+
 	link_type = strtol(argv[1], &end, 0);
 	if (end == argv[1] || !IN_RANGE(link_type, CLI_CMD_OPT_LINK_BLE, CLI_CMD_OPT_LINK_ANY)) {
 		shell_error(shell, "parameter link type invalid");
 		return -EINVAL;
 	}
 	uint32_t link_mask = 0;
+
 	if (!cli_parse_link_mask_opt((uint8_t)link_type, &link_mask)) {
 		shell_error(shell, "Can not parse link mask");
 		return -EINVAL;
@@ -1104,6 +1137,7 @@ int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const ch
 
 	long cfg_type_raw = 0l;
 	char *end = NULL;
+
 	cfg_type_raw = strtol(argv[1], &end, 0);
 	if (end == argv[1] ||
 	    !IN_RANGE(cfg_type_raw, SID_BLE_USER_CFG_ADV, SID_BLE_USER_CFG_INACTIVITY_TIMEOUT)) {
@@ -1113,6 +1147,7 @@ int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const ch
 	}
 
 	struct sid_ble_user_config cfg;
+
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.is_set = true;
 	cfg.cfg_type = (enum sid_ble_user_config_type)cfg_type_raw;
@@ -1123,6 +1158,7 @@ int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const ch
 			return -EINVAL;
 		}
 		unsigned long timeout = strtoul(argv[2], &end, 0);
+
 		if (end == argv[2] || timeout > UINT32_MAX) {
 			shell_error(shell, "Invalid inactivity_timeout");
 			return -EINVAL;
@@ -1148,6 +1184,7 @@ int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const ch
 	}
 
 	int err = cmd_sid_option_set(SID_OPTION_BLE_USER_CONFIG, &cfg, sizeof(cfg));
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -1162,6 +1199,7 @@ int cmd_sid_option_ble_cfg_get(const struct shell *shell, int32_t argc, const ch
 
 	char *end = NULL;
 	long cfg_type_raw = strtol(argv[1], &end, 0);
+
 	if (end == argv[1] ||
 	    !IN_RANGE(cfg_type_raw, SID_BLE_USER_CFG_ADV, SID_BLE_USER_CFG_INACTIVITY_TIMEOUT)) {
 		shell_error(shell,
@@ -1170,11 +1208,13 @@ int cmd_sid_option_ble_cfg_get(const struct shell *shell, int32_t argc, const ch
 	}
 
 	struct sid_ble_user_config cfg;
+
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.is_set = false;
 	cfg.cfg_type = (enum sid_ble_user_config_type)cfg_type_raw;
 
 	int err = cmd_sid_option_get_input_data(SID_OPTION_BLE_USER_CONFIG, &cfg, sizeof(cfg));
+
 	if (err) {
 		shell_error(shell, "event err %d", err);
 	}
@@ -1198,6 +1238,7 @@ int cmd_sid_conn_request(const struct shell *shell, int32_t argc, const char **a
 			     CMD_SID_CONN_REQUEST_ARG_OPTIONAL);
 
 	uint32_t conn_req = 0;
+
 	switch (argv[1][0]) {
 	case '1':
 		conn_req = 1U;
@@ -1231,6 +1272,7 @@ int cmd_sid_set_dst_id(const struct shell *shell, int32_t argc, const char **arg
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SET_DST_ID_ARG_REQUIRED,
 			     CMD_SID_SET_DST_ID_ARG_OPTIONAL);
 	uint32_t dst_id = atoi(argv[1]);
+
 	return cmd_sid_simple_param(dut_event_set_dest_id, &dst_id);
 }
 
@@ -1361,6 +1403,7 @@ int cmd_sid_ep_cfg(const struct shell *shell, int32_t argc, const char **argv)
 			     CMD_SID_EP_CFG_DESCRIPTION_ARG_OPTIONAL);
 
 	struct sid_ep_cap cap = {};
+
 	sid_ep_cfg_get_active_cap(&cap, false);
 
 	shell_info(shell, "Endpoint capabilities:");
@@ -1376,15 +1419,13 @@ int cmd_sid_ep_cfg(const struct shell *shell, int32_t argc, const char **argv)
 	shell_info(shell, "features_support 0x%04x", cap.features_support);
 	shell_info(
 		shell,
-		"Features support Static device %d Mobile Device %d Battery powered %d Line Powered %d ffs over "
-		"fsk %d metrics enabled %d",
+		"Features support Static device %d Mobile Device %d Battery powered %d Line Powered %d ffs over fsk %d metrics enabled %d",
 		((cap.features_support & 0x1) == 0x01), ((cap.features_support & 0x2) == 0x02),
 		((cap.features_support & 0x4) == 0x04), ((cap.features_support & 0x8) == 0x08),
 		((cap.features_support & 0x10) == 0x10), ((cap.features_support & 0x20) == 0x20));
 	shell_info(
 		shell,
-		"Features support Coverage test %d Lora low latency %d Auto connect %d MLM %d SBDT %d Traffic "
-		"throttling enabled %d",
+		"Features support Coverage test %d Lora low latency %d Auto connect %d MLM %d SBDT %d Traffic throttling enabled %d",
 		((cap.features_support & 0x40) == 0x40), ((cap.features_support & 0x80) == 0x80),
 		((cap.features_support & 0x100) == 0x100),
 		((cap.features_support & 0x200) == 0x200),
@@ -1407,6 +1448,7 @@ int cmd_sid_ep_cfg(const struct shell *shell, int32_t argc, const char **argv)
 	shell_info(shell, "-------------------------------------------------------------");
 
 	struct sid_ep_cfg cfg = {};
+
 	sid_ep_cfg_get_active_cfg(&cfg, false);
 	shell_info(shell, "threshold table id %d", cfg.traffic_thresholds_table.table_id);
 

@@ -13,7 +13,6 @@ import sys
 import os
 import shutil
 import subprocess
-from ctypes import Structure, c_ubyte
 import traceback
 import yaml
 from intelhex import IntelHex
@@ -1232,15 +1231,14 @@ def get_default_memory_value(platform: SidPlatformArgs, __group__: SidInputGroup
 def valid_json_file(val: str) -> dict:
     if val:
         try:
-            json_file = open(val, "r")
-        except:
-            raise argparse.ArgumentTypeError(f"Opening json file {val} failed !")
-        try:
-            json_data = json.load(json_file)
+            with open(val, "r", encoding="utf-8") as json_file:
+                json_data = json.load(json_file)
             json_data["_SidewalkFileName"] = val
             return json_data
-        except:
-            raise argparse.ArgumentTypeError(f"Invalid json file {val}")
+        except OSError as exc:
+            raise argparse.ArgumentTypeError(f"Opening json file {val} failed !") from exc
+        except json.JSONDecodeError as exc:
+            raise argparse.ArgumentTypeError(f"Invalid json file {val}") from exc
     else:
         return dict({"_SidewalkFileName": val})
 
@@ -1248,13 +1246,12 @@ def valid_json_file(val: str) -> dict:
 def valid_yaml_file(val: str) -> dict:
     if val:
         try:
-            yaml_file = open(val, "r")
-        except:
-            raise argparse.ArgumentTypeError(f"Opening yaml file {val} failed !")
-        try:
-            return yaml.safe_load(yaml_file)
-        except:
-            raise argparse.ArgumentTypeError(f"Invalid yaml file {val}")
+            with open(val, "r", encoding="utf-8") as yaml_file:
+                return yaml.safe_load(yaml_file)
+        except OSError as exc:
+            raise argparse.ArgumentTypeError(f"Opening yaml file {val} failed !") from exc
+        except yaml.YAMLError as exc:
+            raise argparse.ArgumentTypeError(f"Invalid yaml file {val}") from exc
     return dict({})
 
 
@@ -1283,7 +1280,7 @@ def auto_int(x) -> int:
     return int(x, 0)
 
 
-CONFIG_FILE_ARG = SidArgument(
+PROVISION_CONFIG_FILE_ARG = SidArgument(
     name="--config",
     intype=valid_yaml_file,
     required=False,
@@ -1464,7 +1461,7 @@ ARG_GROUPS = [
             BB_INPUT_GROUP_FORMAT,
             AWS_INPUT_GROUP_FORMAT,
         ],
-        addtional_input_args=[CONFIG_FILE_ARG, PLATFORM_ADDRESS_ARG],
+        addtional_input_args=[PROVISION_CONFIG_FILE_ARG, PLATFORM_ADDRESS_ARG],
         output_args=[OUTPUT_BIN_ARG, OUTPUT_HEX_ARG],
         config_file=Path("config/nordic/nrf528xx_dk/config.yaml"),
         chips=[SidChipAddr(name="nrf52840", offset_addr=0xFD000, default=True)],
@@ -1476,7 +1473,7 @@ ARG_GROUPS = [
             BB_INPUT_GROUP_FORMAT,
             AWS_INPUT_GROUP_FORMAT,
         ],
-        addtional_input_args=[CONFIG_FILE_ARG, PLATFORM_ADDRESS_ARG],
+        addtional_input_args=[PROVISION_CONFIG_FILE_ARG, PLATFORM_ADDRESS_ARG],
         output_args=[
             OUTPUT_BIN_ARG,
             OUTPUT_HEX_ARG,
@@ -1515,7 +1512,7 @@ ARG_GROUPS = [
             BB_INPUT_GROUP_FORMAT,
             AWS_INPUT_GROUP_FORMAT,
         ],
-        addtional_input_args=[CONFIG_FILE_ARG],
+        addtional_input_args=[PROVISION_CONFIG_FILE_ARG],
         output_args=[OUTPUT_BIN_ARG],
     ),
 ]

@@ -1,4 +1,5 @@
 """Verify existence of license file headers in files according to yaml configuration file."""
+
 # Copyright (c) 2022 Nordic Semiconductor ASA
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
@@ -10,8 +11,11 @@ import subprocess
 import re
 import argparse
 import sys
+
 MIN_PYTHON = (3, 8)
-assert sys.version_info >= MIN_PYTHON, f"requires Python {'.'.join([str(n) for n in MIN_PYTHON])} or newer"
+assert sys.version_info >= MIN_PYTHON, (
+    f"requires Python {'.'.join([str(n) for n in MIN_PYTHON])} or newer"
+)
 
 
 class Configuration:
@@ -86,15 +90,16 @@ class Configuration:
         if "ignore_license_in_files" not in self._config:
             self._config["ignore_license_in_files"] = or_default
         if not isinstance(self._config["ignore_license_in_files"], list):
-            raise ValueError(
-                "ignore_license_in_files must be array of strings")
+            raise ValueError("ignore_license_in_files must be array of strings")
         for element in self._config["ignore_license_in_files"]:
             if not isinstance(element, str):
                 raise ValueError(
-                    "ignore_license_in_files, can contain only array of strings")
+                    "ignore_license_in_files, can contain only array of strings"
+                )
             if not self._validate_regular_expression_str(element):
                 raise ValueError(
-                    f"ignore_license_in_files = {element} is not valid regular expression")
+                    f"ignore_license_in_files = {element} is not valid regular expression"
+                )
 
     def _validate_supported_files(self, or_default):
         """validate supported files field
@@ -109,16 +114,17 @@ class Configuration:
             self._config["supported_file_extensions"] = or_default
 
         if not isinstance(self._config["supported_file_extensions"], list):
-            raise ValueError(
-                "supported_file_extensions must be array of strings")
+            raise ValueError("supported_file_extensions must be array of strings")
 
         for element in self._config["supported_file_extensions"]:
             if not isinstance(element, str):
                 raise ValueError(
-                    "supported_file_extensions, can contain only array of strings")
+                    "supported_file_extensions, can contain only array of strings"
+                )
             if not self._validate_regular_expression_str(element):
                 raise ValueError(
-                    f"supported_file_extensions = {element} is not valid regular expression")
+                    f"supported_file_extensions = {element} is not valid regular expression"
+                )
 
     def _validate_header_size(self, or_default):
         """validate supported files field
@@ -146,8 +152,7 @@ class Configuration:
         if "licenses" not in self._config:
             raise KeyError("licences missing")
         if not isinstance(self._config["licenses"], list):
-            raise ValueError(
-                "licenses has to contain array of license objects")
+            raise ValueError("licenses has to contain array of license objects")
 
         for license_ in self._config["licenses"]:
             if (
@@ -160,27 +165,30 @@ class Configuration:
 
             if not isinstance(license_["copyright_regexp"], str):
                 raise ValueError(
-                    "copyright_regexp, has to be regular expression string")
+                    "copyright_regexp, has to be regular expression string"
+                )
 
             if license_["spdx"] is None and license_["search_license_txt"] is None:
                 raise ValueError(
-                    "specify expected spdx, or provide license string to search in file")
+                    "specify expected spdx, or provide license string to search in file"
+                )
 
             if not isinstance(license_["spdx"], (str, type(None))):
                 raise ValueError("spdx can only be string or null")
 
             if not isinstance(license_["search_license_txt"], (list, type(None))):
                 raise ValueError(
-                    "search_license_txt can only be array of strings, or null")
+                    "search_license_txt can only be array of strings, or null"
+                )
 
             if not isinstance(license_["file_regexp"], list):
-                raise ValueError(
-                    "file_regexp must be array of regular expressions")
+                raise ValueError("file_regexp must be array of regular expressions")
 
             for element in license_["file_regexp"]:
                 if not self._validate_regular_expression_str(element):
                     raise ValueError(
-                        f"file_regexp = {element} is not valid regular expression")
+                        f"file_regexp = {element} is not valid regular expression"
+                    )
 
 
 class FileListManager:
@@ -193,7 +201,7 @@ class FileListManager:
 
         Args:
             configuration (Configuration): configuration object that contains rules for filtering
-            files (set): set of file paths 
+            files (set): set of file paths
         """
         self.ignore_files = configuration.ignore_files
         self.supported_files = configuration.supported_file_extensions
@@ -209,13 +217,21 @@ class FileListManager:
         return False
 
     def _remove_ignored_files(self):
-        new_file_set = set(filter(lambda file: not self._file_match_any_regexp(
-            file, self.ignore_files), self.files))
+        new_file_set = set(
+            filter(
+                lambda file: not self._file_match_any_regexp(file, self.ignore_files),
+                self.files,
+            )
+        )
         self.files = new_file_set
 
     def _remove_not_supported_files(self):
-        new_file_set = set(filter(lambda file: self._file_match_any_regexp(
-            file, self.supported_files), self.files))
+        new_file_set = set(
+            filter(
+                lambda file: self._file_match_any_regexp(file, self.supported_files),
+                self.files,
+            )
+        )
         self.files = new_file_set
 
     @property
@@ -237,7 +253,7 @@ class LicenseVerificator:
         """Create LicenseVerificator object
 
         Args:
-            configuration (Configuration): Instance of Configuration 
+            configuration (Configuration): Instance of Configuration
         """
         self.licenses = configuration.licenses
         self.read_lines = configuration.header_lines_limit
@@ -279,7 +295,8 @@ class LicenseVerificator:
         """
         for txt in license_txt:
             normalized_header = re.sub(
-                r"[^A-Za-z0-9().,\s]", " ", "".join(file_header.split("\n")))
+                r"[^A-Za-z0-9().,\s]", " ", "".join(file_header.split("\n"))
+            )
             normalized_header = re.sub(r"\s+", " ", normalized_header)
             if not re.search(txt, normalized_header, re.IGNORECASE):
                 logger.error(f"\tLicense text: {txt} could not be found")
@@ -301,8 +318,7 @@ class LicenseVerificator:
         if spdx:
             spdx = spdx.groups()[0]
         if spdx != expect_spdx:
-            logger.error(
-                f"\tInvalid spdx found {spdx}, expected {expect_spdx}")
+            logger.error(f"\tInvalid spdx found {spdx}, expected {expect_spdx}")
             return 1
         return 0
 
@@ -318,7 +334,7 @@ class LicenseVerificator:
             int: return 1 if the copyright regular expression could not be matched with file header, otherwise 0
         """
         if not re.search(copyright_regexp, file_header):
-            logger.error(f"\tMissing or invalid Copyright")
+            logger.error("\tMissing or invalid Copyright")
             return 1
         return 0
 
@@ -336,12 +352,15 @@ class LicenseVerificator:
         file_header = "".join(header)
 
         return_value += self.find_copyright(
-            expected_license["copyright_regexp"], file_header)
-        return_value += self.find_spdx(
-            expected_license["spdx"], file_header) if expected_license["spdx"] else 0
+            expected_license["copyright_regexp"], file_header
+        )
         return_value += (
-            self.find_license_txt(
-                expected_license["search_license_txt"], file_header)
+            self.find_spdx(expected_license["spdx"], file_header)
+            if expected_license["spdx"]
+            else 0
+        )
+        return_value += (
+            self.find_license_txt(expected_license["search_license_txt"], file_header)
             if expected_license["search_license_txt"]
             else 0
         )
@@ -358,7 +377,8 @@ class LicenseVerificator:
         expected_license = self._find_expected_license(self.file_path)
         if expected_license is None:
             logger.warning(
-                f"File {self.file_path} is not covered by any license in the configuration!")
+                f"File {self.file_path} is not covered by any license in the configuration!"
+            )
         file_header = self._read_header(self.file_path)
         logger.debug(f"checking file {self.file_path}")
         ret = self.validate_file_header(file_header, expected_license)
@@ -373,19 +393,28 @@ def argument_parser():
 
     :return:
     """
-    parser_ = argparse.ArgumentParser()
-    parser_.add_argument("-c", "--config", required=True,
-                         help="YAML configuration file")
-    parser_.add_argument("-d", "--debug", action="store_true", default=False, required=False,
-                         help="Enable debug mode, more logs.")
-    source_of_files_to_scan = parser_.add_mutually_exclusive_group(
-        required=True)
+    parser_ = argparse.ArgumentParser(allow_abbrev=False)
+    parser_.add_argument(
+        "-c", "--config", required=True, help="YAML configuration file"
+    )
+    parser_.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        default=False,
+        required=False,
+        help="Enable debug mode, more logs.",
+    )
+    source_of_files_to_scan = parser_.add_mutually_exclusive_group(required=True)
     source_of_files_to_scan.add_argument(
-        "-g", "--git-diff", action="store_true", help="check only staged files")
+        "-g", "--git-diff", action="store_true", help="check only staged files"
+    )
     source_of_files_to_scan.add_argument(
-        "-f", "--files", nargs="+", help="Check only selected files")
+        "-f", "--files", nargs="+", help="Check only selected files"
+    )
     source_of_files_to_scan.add_argument(
-        "-s", "--scan-root", nargs=1, help="Check all files in repository")
+        "-s", "--scan-root", nargs=1, help="Check all files in repository"
+    )
     return parser_
 
 
@@ -414,15 +443,12 @@ if __name__ == "__main__":
         ]
     elif args.git_diff:
         # get root folder of git repo
-        out = subprocess.run(
-            ["git", "rev-parse", "--show-cdup"], capture_output=True)
+        out = subprocess.run(["git", "rev-parse", "--show-cdup"], capture_output=True)
         repo_root_path = (
-            Path(out.stdout.decode("utf-8").split("\n")
-                 [0]).absolute().resolve()
+            Path(out.stdout.decode("utf-8").split("\n")[0]).absolute().resolve()
         )
         # get list of staged files
-        git_cmd_args = ["git", "diff", "--name-only",
-                        "--staged", "--diff-filter=AMR"]
+        git_cmd_args = ["git", "diff", "--name-only", "--staged", "--diff-filter=AMR"]
         git_output = subprocess.run(
             git_cmd_args, capture_output=True, cwd=repo_root_path
         )
@@ -442,7 +468,8 @@ if __name__ == "__main__":
     if error_count > 0:
         logger.error(f"END WITH {error_count} ERRORS")
         logger.error(
-            f"Check if new files are correctly represented in sidewalk/ci/license.yml")
+            "Check if new files are correctly represented in sidewalk/ci/license.yml"
+        )
     else:
         logger.info("END WITH NO ERRORS")
     exit(error_count)

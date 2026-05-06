@@ -258,6 +258,22 @@ rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
 rsource "boards/shields/*/Kconfig.shield"
 
+config LR11XX_CLI
+	bool
+	help
+	  Enables LR11XX CLI-related hooks in Sub-GHz configuration.
+
+config RADIO_LOCK_TEST
+	bool
+	help
+	  Enables radio lock test instrumentation in the LR11XX driver.
+
+config SIDEWALK_MFG_STORAGE_WRITE
+	bool
+	default n
+	help
+	  Enables write paths in deprecated manufacturing storage helpers.
+
 endif # SIDEWALK
 
 config SIDEWALK_MFG_PARSER_MAX_ELEMENT_SIZE
