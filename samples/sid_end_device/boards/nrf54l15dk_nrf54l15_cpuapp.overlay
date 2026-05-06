@@ -46,3 +46,41 @@
 &uart20 {
 	/delete-property/ hw-flow-control;
 };
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&cpuapp_rram {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(48)>;
+		};
+
+		slot0_partition: partition@c000 {
+			label = "image-0";
+			reg = <0xc000 DT_SIZE_K(732)>;
+		};
+
+		slot1_partition: partition@c3000 {
+			label = "image-1";
+			reg = <0xc3000 DT_SIZE_K(732)>;
+		};
+
+		storage_partition: partition@17a000 {
+			label = "storage";
+			reg = <0x17a000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: partition@17c000 {
+			label = "mfg_storage";
+			reg = <0x17c000 DT_SIZE_K(4)>;
+		};
+	};
+};

@@ -4,6 +4,37 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+/*
+ * Override simple_arduino_adapter pinctrl: use a self-contained config for
+ * spi2 on Arduino header pins (P1.13/P1.14/P1.15) instead of borrowing
+ * spi3_default, which gained H0H1 drive in NCS 3.3.0.
+ */
+#include <zephyr/dt-bindings/pinctrl/nrf-pinctrl.h>
+
+&pinctrl {
+	spi2_arduino_default: spi2_arduino_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+				<NRF_PSEL(SPIM_MOSI, 1, 13)>,
+				<NRF_PSEL(SPIM_MISO, 1, 14)>;
+		};
+	};
+
+	spi2_arduino_sleep: spi2_arduino_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+				<NRF_PSEL(SPIM_MOSI, 1, 13)>,
+				<NRF_PSEL(SPIM_MISO, 1, 14)>;
+			low-power-enable;
+		};
+	};
+};
+
+&spi2 {
+	pinctrl-0 = <&spi2_arduino_default>;
+	pinctrl-1 = <&spi2_arduino_sleep>;
+};
+
 /{
 	state_notifier_gpios{
 		compatible = "gpio-keys";
@@ -35,8 +66,50 @@
 		state-notifier-sending = &state_notifier_sending;
 		state-notifier-receiving = &state_notifier_receiving;
 	};
+};
 
-	chosen {
-		nordic,pm-ext-flash = &mx25r64;
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(28)>;
+		};
+
+		slot0_partition: partition@7000 {
+			label = "image-0";
+			reg = <0x7000 DT_SIZE_K(984)>;
+		};
+
+		storage_partition: partition@fd000 {
+			label = "storage";
+			reg = <0xfd000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: hw_unique_key_partition: partition@ff000 {
+			label = "mfg_storage";
+			reg = <0xff000 DT_SIZE_K(4)>;
+		};
+	};
+};
+
+&mx25r64 {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot1_partition: partition@0 {
+			label = "image-1";
+			reg = <0x0 DT_SIZE_K(984)>;
+		};
 	};
 };

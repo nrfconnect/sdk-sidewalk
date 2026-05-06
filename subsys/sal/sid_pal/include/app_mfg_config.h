@@ -6,6 +6,12 @@
 
 #include <stdbool.h>
 #include <sid_pal_mfg_store_ifc.h>
+
+#if USE_PARTITION_MANAGER
+#include <pm_config.h>
+#define APP_MFG_CFG_FLASH_START PM_MFG_STORAGE_ADDRESS
+#define APP_MFG_CFG_FLASH_SIZE PM_MFG_STORAGE_SIZE
+#else
 #include <zephyr/storage/flash_map.h>
 
 #if !FIXED_PARTITION_EXISTS(mfg_storage)
@@ -14,6 +20,8 @@
 
 #define APP_MFG_CFG_FLASH_START FIXED_PARTITION_OFFSET(mfg_storage)
 #define APP_MFG_CFG_FLASH_SIZE FIXED_PARTITION_SIZE(mfg_storage)
+#endif /* USE_PARTITION_MANAGER */
+
 #define APP_MFG_CFG_FLASH_END (APP_MFG_CFG_FLASH_START + APP_MFG_CFG_FLASH_SIZE)
 
 #define EMPTY_MFG_HEX_PARTITION (0xFFFFFFFF)
