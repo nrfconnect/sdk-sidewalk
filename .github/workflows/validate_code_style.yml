@@ -64,6 +64,10 @@ jobs:
           west init -l sidewalk --mf west.yml &&
           west update -n -o=--depth=1 --path-cache /workdir/
 
+      - name: Install compliance requirements
+        run: |
+          pip3 install -r zephyr/scripts/requirements-compliance.txt
+
       - name: Run Compliance Tests
         run: |
           source zephyr/zephyr-env.sh
