@@ -55,8 +55,8 @@ static int ble_conn_param_get(struct bt_conn *conn, struct bt_le_conn_param *par
 		return err;
 	}
 
-	param->interval_max = info.le.interval;
-	param->interval_min = info.le.interval;
+	param->interval_max = info.le.interval_us / 1250U;
+	param->interval_min = info.le.interval_us / 1250U;
 	param->latency = info.le.latency;
 	param->timeout = info.le.timeout;
 
