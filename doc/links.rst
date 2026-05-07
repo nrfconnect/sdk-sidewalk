@@ -2,39 +2,39 @@
 
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
-.. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/index.html
-.. _nrf52840: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/app_dev/device_guides/nrf52/index.html
-.. _nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
-.. _nRF54L15: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/app_dev/device_guides/nrf54l/index.html
-.. _nRF54L10: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/app_dev/device_guides/nrf54l/index.html
-.. _nrf52840 DK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
-.. _nrf5340 DK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
-.. _Thingy53: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
-.. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
-.. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/gsg_guides/nrf52_gs.html
-.. _Getting started with nRF53 Series: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/gsg_guides/nrf5340_gs.html
-.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/gsg_guides/gsg_other.html
-.. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/installation.html
-.. _nRF52840dk: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/nrf52840dk/doc/index.html
-.. _nrf5340dk: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/nrf5340dk/doc/index.html
-.. _thingy53_nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/thingy53/doc/index.html
-.. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
-.. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/board_support/board_names.html
-.. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/programming.html
-.. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/test_and_optimize.html
-.. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/config_and_build/bootloaders/index.html
-.. _Zephyr SMP Server: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/services/device_mgmt/ota.html#smp_server
-.. _Zephyr SMP Server sample: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/samples/subsys/mgmt/mcumgr/smp_svr/README.html
-.. _Zephyr State Machine Framework: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/services/smf/index.html
-.. _Zephyr Memory Storage (ZMS): https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/services/storage/zms/zms.html
+.. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/index.html
+.. _nrf52840: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/device_guides/nrf52/index.html
+.. _nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _nRF54L15: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/device_guides/nrf54l/index.html
+.. _nRF54L10: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/device_guides/nrf54l/index.html
+.. _nrf52840 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _nrf5340 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _Thingy53: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf52_gs.html
+.. _Getting started with nRF53 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf5340_gs.html
+.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/gsg_other.html
+.. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation.html
+.. _nRF52840dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf52840dk/doc/index.html
+.. _nrf5340dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf5340dk/doc/index.html
+.. _thingy53_nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/thingy53/doc/index.html
+.. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
+.. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/programming.html
+.. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/test_and_optimize.html
+.. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/bootloaders/index.html
+.. _Zephyr SMP Server: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/services/device_mgmt/ota.html#smp_server
+.. _Zephyr SMP Server sample: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/samples/subsys/mgmt/mcumgr/smp_svr/README.html
+.. _Zephyr State Machine Framework: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/services/smf/index.html
+.. _Zephyr Memory Storage (ZMS): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/services/storage/zms/zms.html
 .. _Settings subsystem: https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/services/settings/index.html
-.. _NCS testing applications: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/test_and_optimize.html
-.. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/installation/install_ncs.html
-.. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/libraries/security/trusted_storage.html
-.. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/libraries/security/bootloader/fprotect.html
-.. _West: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/develop/west/index.html
-.. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/zephyr/samples/hello_world/README.html
-.. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.0.0/page/nrf/releases_and_maturity/software_maturity.html
+.. _NCS testing applications: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/test_and_optimize.html
+.. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation/install_ncs.html
+.. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/libraries/security/trusted_storage.html
+.. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/libraries/security/bootloader/fprotect.html
+.. _West: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/develop/west/index.html
+.. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/samples/hello_world/README.html
+.. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/software_maturity.html
 
 .. nordicsemi.com
 
