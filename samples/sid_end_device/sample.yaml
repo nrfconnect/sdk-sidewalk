@@ -172,6 +172,7 @@ tests:
     build_only: false
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
+      - nrf54l15dk/nrf54l10/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
