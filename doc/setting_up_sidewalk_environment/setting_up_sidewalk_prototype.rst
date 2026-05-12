@@ -64,7 +64,7 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
       1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
 
-         The nRF54L10 and nRF54LV10 share the same ``mfg_storage`` layout: 4 KB located at the end of the App-core RRAM.
+         The nRF54L10 and nRF54LV10 DKs share the same ``mfg_storage`` layout: 4 KB located at the end of the application core RRAM.
 
          * If you are using the combined device JSON file obtained from the AWS IoT console, use the ``certificate_json`` parameter.
            It will specify this file as an input when running the provisioning script.
@@ -92,11 +92,11 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
            To do this, perform a factory reset by long pressing **Button 0**.
            This will allow you to register a new product (new :file:`nordic_aws_nrf54l10.hex`) in the Sidewalk network.
 
-   .. group-tab:: nRF54LV10
+   .. group-tab:: nRF54LV10 DK
 
       1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
 
-         The nRF54LV10 uses the same ``mfg_storage`` address as the nRF54L10 (4 KB at the end of the 1012 KB App-core RRAM).
+         The nRF54LV10 DK uses the same ``mfg_storage`` address as the nRF54L10 DK (4 KB at the end of the 1012 KB application core RRAM).
 
          * If you are using the combined device JSON file obtained from the AWS IoT console, use the ``certificate_json`` parameter.
            It will specify this file as an input when running the provisioning script.
