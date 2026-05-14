@@ -120,8 +120,7 @@ static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 
 	int err = ble_conn_param_get(conn, &conn_params_prev);
 	if (err) {
-		LOG_ERR("Connection param get failed (err=%d)", err);
-		return;
+		LOG_WRN("Connection param get failed (err=%d)", err);
 	}
 
 	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_data.addr);
