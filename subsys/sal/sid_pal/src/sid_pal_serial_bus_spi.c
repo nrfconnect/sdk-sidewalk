@@ -16,15 +16,26 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
 
-#define SPI_NODE DT_PARENT(DT_CHOSEN(zephyr_lora_transceiver))
+#define LORA_DT_NODE DT_CHOSEN(zephyr_lora_transceiver)
+#define SPI_NODE DT_PARENT(LORA_DT_NODE)
 
 #define SPI_OPTIONS                                                                                \
 	(uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX)
 
+/*
+ * Use a DT-derived spi_dt_spec rather than a hand-built spi_config. Zephyr's nrfx
+ * SPIM driver uses POINTER equality on `spi_config*` in spi_context_configured()
+ * to decide if it can skip a full reconfigure. Passing a different (but
+ * content-identical) spi_config pointer than a previous caller triggers
+ * nrfx_spim_uninit() + nrfx_spim_init(skip_psel_cfg=true), which on the
+ * 320 MHz SPIM30 of nRF54L15 leaves the peripheral in a state where MISO is
+ * read as constant 0x00. Sticking to a single, stable spi_config pointer (the
+ * one synthesized by SPI_DT_SPEC_GET) keeps the driver on the fast path.
+ */
+static const struct spi_dt_spec bus_serial_spec = SPI_DT_SPEC_GET(LORA_DT_NODE, SPI_OPTIONS, 0);
+
 struct bus_serial_ctx_t {
 	const struct sid_pal_serial_bus_iface *iface;
-	const struct device *device;
-	struct spi_config cfg;
 };
 
 static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
@@ -39,8 +50,6 @@ static const struct sid_pal_serial_bus_iface bus_ops = {
 
 static struct bus_serial_ctx_t bus_serial_ctx = {
 	.iface = &bus_ops,
-	.device = DEVICE_DT_GET(SPI_NODE),
-	.cfg = (struct spi_config){ .operation = SPI_OPTIONS },
 };
 
 static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *iface,
@@ -74,8 +83,8 @@ static sid_error_t bus_serial_spi_xfer(const struct sid_pal_serial_bus_iface *if
 
 	struct spi_buf_set rx_set = { .buffers = rx_buff, .count = 1 };
 
-	int err = spi_transceive(bus_serial_ctx.device, &bus_serial_ctx.cfg,
-				 ((tx) ? &tx_set : NULL), ((rx) ? &rx_set : NULL));
+	int err = spi_transceive_dt(&bus_serial_spec, ((tx) ? &tx_set : NULL),
+				    ((rx) ? &rx_set : NULL));
 
 	if (err < 0) {
 		LOG_ERR("spi xfer err %d", err);
@@ -103,16 +112,12 @@ sid_error_t sid_pal_serial_bus_nordic_spi_create(const struct sid_pal_serial_bus
 		return SID_ERROR_INVALID_ARGS;
 	}
 
-	if (!device_is_ready(bus_serial_ctx.device)) {
+	if (!spi_is_ready_dt(&bus_serial_spec)) {
 		LOG_ERR("SPI device not ready");
 		return SID_ERROR_IO_ERROR;
 	}
 
 	*iface = &bus_ops;
-	bus_serial_ctx.cfg.frequency = DT_PROP_OR(DT_CHOSEN(zephyr_lora_transceiver),
-						  spi_max_frequency, SPI_FREQUENCY_DEFAULT);
-	bus_serial_ctx.cfg.cs.delay = 0;
-	bus_serial_ctx.cfg.cs.gpio = (struct gpio_dt_spec)GPIO_DT_SPEC_GET(SPI_NODE, cs_gpios);
 
 	return SID_ERROR_NONE;
 }
