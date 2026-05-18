@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2025 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/ {
+	aliases {
+		state-notifier-connected = &led0;
+		state-notifier-time-sync = &led1;
+		state-notifier-registered = &led2;
+		state-notifier-working = &led3;
+	};
+};
+
+&adc {
+	status = "disabled";
+};
+
+/* Disable SPI NOR flash - not needed for BLE-only */
+&spi00 {
+	status = "disabled";
+};
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&cpuapp_rram {
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		boot_partition: partition@0 {
+			label = "mcuboot";
+			reg = <0x0 DT_SIZE_K(64)>;
+		};
+
+		slot0_partition: partition@10000 {
+			label = "image-0";
+			reg = <0x10000 DT_SIZE_K(920)>;
+		};
+
+		slot1_partition: partition@f6000 {
+			label = "image-1";
+			reg = <0xf6000 DT_SIZE_K(920)>;
+		};
+
+		storage_partition: partition@1dc000 {
+			label = "storage";
+			reg = <0x1dc000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: partition@1de000 {
+			label = "mfg_storage";
+			reg = <0x1de000 DT_SIZE_K(4)>;
+		};
+	};
+};

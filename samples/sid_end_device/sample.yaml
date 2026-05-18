@@ -80,6 +80,7 @@ tests:
     build_only: false
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
     harness: console
@@ -94,6 +95,7 @@ tests:
   sample.sidewalk.hello.ble_only.release:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.release"
@@ -172,7 +174,7 @@ tests:
     build_only: false
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
-      - nrf54l15dk/nrf54l10/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
@@ -199,11 +201,9 @@ tests:
       - no_secure
 
   sample.sidewalk.helloPower.ble.release:
-    platform_exclude:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf54l15dk/nrf54l10/cpuapp
+    platform_allow:
+      - nrf54lv10dk/nrf54lv10a/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
@@ -213,11 +213,6 @@ tests:
       - helloPower
 
   sample.sidewalk.helloPower.fsk.release.sx1262:
-    platform_exclude:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf54l15dk/nrf54l10/cpuapp
     extra_args:
       - FILE_SUFFIX=release
       - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
@@ -230,11 +225,6 @@ tests:
       - sx1262
 
   sample.sidewalk.helloPower.lora.release.sx1262:
-    platform_exclude:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf54l15dk/nrf54l10/cpuapp
     extra_args:
       - FILE_SUFFIX=release
       - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
@@ -247,13 +237,9 @@ tests:
       - sx1262
 
   sample.sidewalk.helloPower.ble_only.release:
-    platform_exclude:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf54l15dk/nrf54l10/cpuapp
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
