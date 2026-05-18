@@ -15,7 +15,7 @@ Onboarding
 
 To correctly set up your Sidewalk device, first you have to onboard it.
 To onboard your device, you need to have a Sidewalk account and a Sidewalk device.
-Complete the `Onbarding your Sidewalk devices`_ steps described in the Amazon Sidewalk documentation.
+Complete the `Onboarding your Sidewalk devices`_ steps described in the Amazon Sidewalk documentation.
 As a result, you will have a device JSON file named :file:`certificate.json`, or two JSON files named :file:`wireless_device.json` and :file:`device_profile.json`.
 
 Provisioning
