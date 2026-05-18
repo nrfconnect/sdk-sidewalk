@@ -32,7 +32,7 @@ LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
  * read as constant 0x00. Sticking to a single, stable spi_config pointer (the
  * one synthesized by SPI_DT_SPEC_GET) keeps the driver on the fast path.
  */
-static const struct spi_dt_spec bus_serial_spec = SPI_DT_SPEC_GET(LORA_DT_NODE, SPI_OPTIONS, 0);
+static const struct spi_dt_spec bus_serial_spec = SPI_DT_SPEC_GET(LORA_DT_NODE, SPI_OPTIONS);
 
 struct bus_serial_ctx_t {
 	const struct sid_pal_serial_bus_iface *iface;

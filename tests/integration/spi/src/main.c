@@ -196,7 +196,7 @@ ZTEST(spi_bus, test_lr11xx_get_version)
 	 */
 	static const struct spi_dt_spec spi = SPI_DT_SPEC_GET(
 		LR11XX_NODE,
-		SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX, 0);
+		SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX);
 
 	zassert_true(spi_is_ready_dt(&spi), "SPI device not ready");
 
