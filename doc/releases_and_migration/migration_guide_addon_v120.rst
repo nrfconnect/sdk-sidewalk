@@ -3,6 +3,10 @@
 Migration guide for Amazon Sidewalk Add-On v1.2.0
 ##################################################
 
+.. contents::
+   :local:
+   :depth: 2
+
 This guide assists you in migrating from Amazon Sidewalk Add-On v1.1.0 to v1.2.0, which includes the upgrade to NCS v3.3.0 and the transition from Partition Manager to devicetree-based flash partitioning.
 
 Overview
@@ -12,11 +16,11 @@ Amazon Sidewalk Add-On v1.2.0 introduces support for two new hardware platforms 
 
 Key updates in this release include:
 
-* New board support for nRF54LV10 and nRF54LM20 in Sidewalk BLE-only samples.
-* Flash layout migrated from ``pm_static*.yml`` files to devicetree overlays for supported boards.
-* NCS updated from v3.0.0 to v3.3.0.
+* Including new board support for the nRF54LV10 and nRF54LM20 SoCs in Bluetooth LE-only samples.
+* Migration of flash layout from :file:`pm_static*.yml` files to devicetree overlays for supported boards.
+* Updating the nRF Connect SDK from v3.0.0 to v3.3.0.
 
-Migration Steps
+Migration steps
 ***************
 
 #. Update your west configuration to use the latest Add-on version:
@@ -31,22 +35,22 @@ Migration Steps
 
       west build -p -b <board_target> <your_application>
 
-#. If you maintain a custom board with a ``pm_static*.yml`` file, follow the `Migrating partition configuration from Partition Manager to devicetree (DTS) <https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/releases_and_maturity/migration/migration_partitions.html>`_ guide in the NCS documentation.
+#. If you maintain a custom board with a :file:`pm_static*.yml` file, see the `Migrating partition configuration from Partition Manager to devicetree (DTS)`_ page in the NCS documentation.
 
-Backward Compatibility
+Backward compatibility
 **********************
 
 This release preserves backward compatibility for the application-facing Sidewalk API, with the following exceptions:
 
-* **nRF54L10 flash layout changed** — manufacturing hex location updated.
+* nRF54L10 flash layout — Updated the manufacturing HEX file location.
   Custom board configurations must update their DTS overlays accordingly.
-* **BLE PAL connection symbols renamed** in ``subsys/sal/sid_pal/include/sid_ble_connection.h``.
+* Bluetooth LE PAL connection symbols has been renamed in :file:`subsys/sal/sid_pal/include/sid_ble_connection.h``.
   Applications that use these PAL symbols directly must update to the new names.
 
 Troubleshooting
 ***************
 
-#. Perform a pristine build if you encounter unexpected partition or linker errors:
+#. If you encounter unexpected partition or linker errors, perform a pristine build:
 
    .. code-block:: console
 

@@ -3,6 +3,10 @@
 Release notes for Amazon Sidewalk Add-On v1.2.0
 ###############################################
 
+.. contents::
+   :local:
+   :depth: 2
+
 This page tracks changes and updates as compared to the latest official release.
 For more information refer to the following section.
 
@@ -11,40 +15,35 @@ For the list of potential issues, see the :ref:`known_issues` page.
 Changelog
 *********
 
-This release introduces support for nRF54LM20 and nRF54LV10 for Sidewalk (BLE only).
+This release introduces support for the nRF54LM20 and nRF54LV10 DKs for Sidewalk (Bluetooth LE only).
 
 * Added:
 
-  * Support for nrf54lv10 in Sidewalk BLE-only samples.
-  * Support for nrf54lm20 in Sidewalk BLE-only samples.
-  * BLE adapter callbacks to allow changing BLE parameters at runtime via Sidewalk options.
+  * Support for the nRF54LV10 SoC in Bluetooth LE-only samples.
+  * Support for the nRF54LM20 SoC in Bluetooth LE-only samples.
+  * Bluetooth LE adapter callbacks to allow changing Bluetooth LE parameters at runtime through Sidewalk options.
 
 * Updated:
 
-  * NCS updated from v3.0.0 to v3.3.0.
-  * Flash layout: moved from ``pm_static*.yml`` into DTS overlays (except for nrf53, nrf54l10, and non-secure boards).
-  * Common BLE device naming and configuration cleanup.
+  * the nRF Connect SDK from v3.0.0 to v3.3.0.
+  * Flash layout, by moving :file:`pm_static*.yml` into DTS overlays (except for the nRF53 Series, nRF54L10, and non-secure boards).
+  * Cleaned up common Bluetooth LE device naming and configuration.
 
 * Fixed:
 
-  * Flash layout on nrf54l10 (manufacturing hex location changes).
+  * Flash layout on nRF54L10 (changed location of manufacturing HEX file).
   * Crash when running app event engine with WiFi location scan path.
-  * Sample: radio initialization failure handling; now bails out on failure instead of continuing.
+  * Sample - radio initialization failures now cause the sample to exit instead of continuing in an invalid state.
 
-Backward Compatibility
+Backward compatibility
 **********************
 
 .. note::
-   **Partition Manager deprecation**
-   Nordic is transitioning flash partitioning to Zephyr's default devicetree-based partitioning (DTS), and new Nordic designs are recommended to use DTS instead of Partition Manager.
-   For custom board designs, it is strongly recommended to update and validate the Sidewalk partition layout in board DTS overlays during migration from ``pm_static*.yml``.
+   Partition Manager deprecation - Nordic Semiconductor is transitioning flash partitioning to Zephyr's default devicetree-based partitioning (DTS), and new Nordic designs are recommended to use DTS instead of Partition Manager.
+   For custom board designs, it is strongly recommended to update and validate the Sidewalk partition layout in board DTS overlays during migration from :file:`pm_static*.yml`.
 
 This release preserves backward compatibility for the application-facing Sidewalk API.
-
-Compatibility exceptions and integration updates:
-
-* nrf54l10 flash layout changed (manufacturing hex location update).
-* BLE PAL connection symbols were renamed in ``subsys/sal/sid_pal/include/sid_ble_connection.h``. Applications or integrations that use these PAL symbols directly must update to the new names.
+For details, see the :ref:`migration_guide_addon_v120` page.
 
 .. note::
-   While this release mostly maintains API compatibility, it is recommended to test your applications and board configurations thoroughly after upgrading.
+   While this release mostly maintains API compatibility, ensure to test your applications and board configurations thoroughly after upgrading.
