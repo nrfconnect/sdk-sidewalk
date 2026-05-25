@@ -81,6 +81,7 @@ tests:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only"
     harness: console
@@ -96,6 +97,7 @@ tests:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.release"
@@ -175,6 +177,7 @@ tests:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-dut.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only"
@@ -204,6 +207,7 @@ tests:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
@@ -240,6 +244,7 @@ tests:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
       - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
