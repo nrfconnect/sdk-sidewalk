@@ -94,7 +94,7 @@
 			reg = <0xfd000 DT_SIZE_K(8)>;
 		};
 
-		mfg_storage: hw_unique_key_partition: partition@ff000 {
+		mfg_storage: partition@ff000 {
 			label = "mfg_storage";
 			reg = <0xff000 DT_SIZE_K(4)>;
 		};
