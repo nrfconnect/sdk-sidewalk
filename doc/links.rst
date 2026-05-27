@@ -3,17 +3,11 @@
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
 .. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/index.html
-.. _nrf52840: https://www.nordicsemi.com/Products/nRF52840
-.. _nrf5340: https://www.nordicsemi.com/Products/nRF5340
-.. _nRF54L15: https://www.nordicsemi.com/Products/nRF54L15
-.. _nRF54L10: https://www.nordicsemi.com/Products/nRF54L10
-.. _nRF54LV10A: https://www.nordicsemi.com/Products/nRF54LV10A
-.. _nRF54LM20A: https://www.nordicsemi.com/Products/nRF54LM20A
-.. _nRF54LM20B: https://www.nordicsemi.com/Products/nRF54LM20B
 .. _nrf52840 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
 .. _nrf5340 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
 .. _Thingy53: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
-.. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/board_names.html
+.. _nrf54lm20dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/board_names.html
 .. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf52_gs.html
 .. _Getting started with nRF53 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf5340_gs.html
 .. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/gsg_other.html
@@ -48,6 +42,14 @@
 .. _nRF Connect for VS Code: https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-VS-Code
 .. _nRF Util: https://www.nordicsemi.com/Products/Development-tools/nRF-Util
 .. _nRF Connect SDK Add-ons: https://nrfconnect.github.io/ncs-app-index/
+.. _Thingy53 Product Page: https://www.nordicsemi.com/Products/Development-hardware/Nordic-Thingy-53
+.. _nrf52840 Product Page: https://www.nordicsemi.com/Products/nRF52840
+.. _nrf5340 Product Page: https://www.nordicsemi.com/Products/nRF5340
+.. _nRF54L15 Product Page: https://www.nordicsemi.com/Products/nRF54L15
+.. _nRF54L10 Product Page: https://www.nordicsemi.com/Products/nRF54L10
+.. _nRF54LV10A Product Page: https://www.nordicsemi.com/Products/nRF54LV10A
+.. _nRF54LM20A Product Page: https://www.nordicsemi.com/Products/nRF54LM20A
+.. _nRF54LM20B Product Page: https://www.nordicsemi.com/Products/nRF54LM20B
 
 .. github.com
 

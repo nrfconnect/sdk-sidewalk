@@ -63,3 +63,9 @@ plantuml = 'java -jar /usr/local/bin/plantuml.jar'
 rst_epilog = """
 .. include:: /links.rst
 """
+
+# -- Options for sphinx_ncs_theme -------------------------------------------
+html_theme_options = {
+    "docset": "sidewalk",
+    "docsets": {},
+}

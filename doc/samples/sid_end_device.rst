@@ -18,24 +18,42 @@ Requirements
 
 This sample supports the following development kits:
 
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| Hardware platforms                   | PCA      | Board name        | Build target                        |
-+======================================+==========+===================+=====================================+
-| nRF52840 DK                          | PCA10056 | `nrf52840dk`_     | ``nrf52840dk/nrf52840``             |
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| nRF5340 DK                           | PCA10095 | `nrf5340dk`_      | ``nrf5340dk/nrf5340/cpuapp``        |
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| Thingy53                             | PCA20053 | `thingy53`_       | ``thingy53/nrf5340/cpuapp``         |
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| nRF54L15 DK                          | PCA10156 | `nrf54l15dk`_     | ``nrf54l15dk/nrf54l15/cpuapp``      |
-|                                      |          |                   | ``nrf54l15dk/nrf54l15/cpuapp/ns``   |
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| nRF54L10 (emulating on nRF54L15 DK)  | PCA10156 | `nrf54l15dk`_     | ``nrf54l15dk/nrf54l10/cpuapp``      |
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| nRF54LV10 DK                         | PCA10188 | `nrf54lv10dk`_    | ``nrf54lv10dk/nrf54lv10a/cpuapp``   |
-+--------------------------------------+----------+-------------------+-------------------------------------+
-| nRF54LM20 DK                         | PCA10184 | `nrf54lm20dk`_    | ``nrf54lm20dk/nrf54lm20a/cpuapp``   |
-+--------------------------------------+----------+-------------------+-------------------------------------+
+.. list-table::
+   :header-rows: 1
+
+   * - Hardware platforms
+     - PCA
+     - Board name
+     - Build target
+   * - `nRF52840 DK <nrf52840 Product Page_>`_
+     - PCA10056
+     - `nrf52840dk`_
+     - ``nrf52840dk/nrf52840``
+   * - `nRF5340 DK <nrf5340 Product Page_>`_
+     - PCA10095
+     - `nrf5340dk`_
+     - ``nrf5340dk/nrf5340/cpuapp``
+   * - `Thingy:53 <Thingy53 Product Page_>`_
+     - PCA20053
+     - `thingy53_nrf5340`_
+     - ``thingy53/nrf5340/cpuapp``
+   * - `nRF54L15 DK <nRF54L15 Product Page_>`_
+     - PCA10156
+     - `nrf54l15dk`_
+     - | ``nrf54l15dk/nrf54l15/cpuapp``
+       | ``nrf54l15dk/nrf54l15/cpuapp/ns``
+   * - `nRF54L10 (emulating on nRF54L15 DK) <nRF54L10 Product Page_>`_
+     - PCA10156
+     - `nrf54l15dk`_
+     - ``nrf54l15dk/nrf54l10/cpuapp``
+   * - `nRF54LV10 DK <nRF54LV10A Product Page_>`_
+     - PCA10188
+     - `nrf54lv10dk`_
+     - ``nrf54lv10dk/nrf54lv10a/cpuapp``
+   * - `nRF54LM20 DK <nRF54LM20A Product Page_>`_
+     - PCA10184
+     - `nrf54lm20dk`_
+     - ``nrf54lm20dk/nrf54lm20a/cpuapp``
 
 To run the sample in the Bluetooth LE link mode, you only need the development kit.
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
