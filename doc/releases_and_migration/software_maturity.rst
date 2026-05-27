@@ -70,13 +70,17 @@ The following table indicates the software maturity levels of the support for Si
            - nRF54L15
            - nRF54L05
            - nRF54LM20A
+           - nRF54LM20B
            - nRF54LV10A
+           - nRF54LS05A
            - nRF54LS05B
          * - **Sidewalk**
            - Supported
            - Supported
            - --
-           - --
+           - Supported
+           - Supported
+           - Experimental
            - --
            - --
 
@@ -224,20 +228,26 @@ The following table indicates the software maturity levels of the support for ea
            - nRF54L15
            - nRF54L05
            - nRF54LM20A
+           - nRF54LM20B
            - nRF54LV10A
+           - nRF54LS05A
            - nRF54LS05B
          * - **Sidewalk - OTA DFU over Bluetooth LE**
            - Supported
            - Supported
            - --
-           - --
+           - Supported
+           - Supported
+           - Experimental
            - --
            - --
          * - **Sidewalk File Transfer (FUOTA)**
            - Experimental
            - Experimental
            - --
-           - --
+           - Experimental
+           - Experimental
+           - Experimental
            - --
            - --
          * - **Sidewalk Multi-link + Auto-connect**
@@ -247,18 +257,24 @@ The following table indicates the software maturity levels of the support for ea
            - --
            - --
            - --
+           - --
+           - --
          * - **Sidewalk on-device certification**
            - Supported
            - Supported
            - --
-           - --
+           - Supported
+           - Supported
+           - Experimental
            - --
            - --
          * - **Sidewalk over Bluetooth LE**
            - Supported
            - Supported
            - --
-           - --
+           - Supported
+           - Supported
+           - Experimental
            - --
            - --
          * - **Sidewalk over FSK**
@@ -268,9 +284,13 @@ The following table indicates the software maturity levels of the support for ea
            - --
            - --
            - --
+           - --
+           - --
          * - **Sidewalk over LORA**
            - Supported
            - Supported
+           - --
+           - --
            - --
            - --
            - --

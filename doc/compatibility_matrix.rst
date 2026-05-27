@@ -15,7 +15,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - Amazon specification (Sidewalk MCU SDK version)
      - Supported platforms
      - The Amazon Sidewalk Protocol Implementation Conformance Statement (PICS)
-     - Amazon qualification status [1]_
+     - Amazon qualification status
    * - v1.2.0
      - v3.3.0
      - v1.19
@@ -26,7 +26,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF54LM20A <nRF54LM20A Product Page_>`_
        * `nRF54LM20B <nRF54LM20B Product Page_>`_
      - --
-     - Compliant
+     - Compliant [1]_
    * - v1.1.0
      - v3.0.0
      - v1.19
@@ -34,7 +34,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF54L15 <nRF54L15 Product Page_>`_
        * `nRF54L10 <nRF54L10 Product Page_>`_
      - --
-     - Compliant
+     - Compliant [1]_
    * - v1.0.1
      - v3.0.0
      - v1.18
@@ -43,7 +43,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF54L15 <nRF54L15 Product Page_>`_
        * `nRF54L10 <nRF54L10 Product Page_>`_
      - --
-     - Compliant
+     - Compliant [1]_
    * - v1.0.0
      - v3.0.0
      - v1.18
@@ -51,7 +51,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF5340 <nrf5340 Product Page_>`_
        * `nRF54L15 <nRF54L15 Product Page_>`_
      - --
-     - Compliant
+     - Compliant [1]_
    * - --
      - v2.9.0
      - v1.17.0
@@ -60,7 +60,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF54L15 <nRF54L15 Product Page_>`_
      - * `PICS v2.9.0 - BLE only`_
        * `PICS v2.9.0`_
-     - Compliant
+     - Compliant [1]_
    * - --
      - v2.8.0
      - v1.17.0
@@ -68,7 +68,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF5340 <nrf5340 Product Page_>`_
        * `nRF54L15 <nRF54L15 Product Page_>`_
      - --
-     - Compliant
+     - Compliant [1]_
    * - --
      - v2.7.0
      - v1.16.2
