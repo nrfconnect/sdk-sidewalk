@@ -6,7 +6,7 @@
 
 zephyr_include_directories(
     include
-    include/semtech
+    semtech
 )
 
 zephyr_library_sources(
