@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
 """Script to generate hardware map used by twister based on userdev_conf file or connected DKs."""
+import json
 import subprocess
 
 import yaml
@@ -25,15 +26,47 @@ pca_to_board = {
     "PCA10156": "nrf54l15dk/nrf54l15/cpuapp"
 }
 
-family_to_pca = {
-    "NRF52840": "PCA10056",
-    "NRF52833": "PCA10100",
-    "NRF21540": "PCA10112",
-    "NRF52840DONGLE": "PCA10059",
-    "NRF5340": "PCA10095",
-    "THINGY53": "PCA20053",
-    "NRF54L15": "PCA10156"
-}
+def _load_connected_devices() -> list:
+    """Fetch connected J-Link devices from nrfutil in JSON mode."""
+    command = ["nrfutil", "device", "list", "--traits", "jlink", "--json"]
+    result = subprocess.run(command, capture_output=True, text=True)
+    if result.returncode != 0:
+        logging.warning(f"Failed to list devices with nrfutil: {result.stderr.strip()}")
+        return []
+
+    parsed_devices = []
+    for raw_line in result.stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        try:
+            message = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if message.get("type") not in ("task_end", "info"):
+            continue
+        data = message.get("data", {})
+        devices = data.get("devices", [])
+        if isinstance(devices, list) and devices:
+            parsed_devices = devices
+    return parsed_devices
+
+
+def _build_serial_to_pca_map() -> dict:
+    """Build serial number to PCA mapping based on nrfutil discovery data."""
+    serial_to_pca = {}
+    for device in _load_connected_devices():
+        serial_number = str(device.get("serialNumber", "")).strip()
+        if not serial_number:
+            continue
+        devkit = device.get("devkit", {}) or {}
+        pca = devkit.get("boardVersion", "")
+        if not pca:
+            continue
+        # Keep both original and zero-stripped forms to match varying map formats.
+        serial_to_pca[serial_number] = pca
+        serial_to_pca[serial_number.lstrip("0")] = pca
+    return serial_to_pca
 
 
 def main(hardware_map_path: str, userdev_conf_path: str):
@@ -65,11 +98,13 @@ def main(hardware_map_path: str, userdev_conf_path: str):
 
     with open(hardware_map_path) as hw_file:
         hardware_map = yaml.safe_load(hw_file)
+    serial_to_pca = _build_serial_to_pca_map() if userdev_conf_path.upper() == "AUTO" else {}
     to_remove = []
     for hw_entry in hardware_map:
-        hw_entry["runner"] = "nrfjprog"
+        hw_entry["runner"] = "nrfutil"
         hw_entry["connected"] = True
         segger = hw_entry["id"].lstrip("0")
+        segger_with_zeros = hw_entry["id"]
         matched_pcas = []
         if userdev_conf_path.upper() != "AUTO":
             matched_pcas = [
@@ -78,37 +113,29 @@ def main(hardware_map_path: str, userdev_conf_path: str):
                 if str(ud_entry.get("segger")) == segger and "pca" in ud_entry
             ]
         else:
-            # Read out device family
-            if segger.startswith("10508"):
-                device_version_cmd = [
-                    "nrfjprog", "--deviceversion", "--snr", segger, "--family", "nrf54h"]
-            else:
-                device_version_cmd = ["nrfjprog",
-                                      "--deviceversion", "--snr", segger]
-            out = subprocess.run(device_version_cmd, capture_output=True)
-            family_string = out.stdout.decode("utf-8").split("_")[0]
-            logging.info(
-                f"{segger=}, {family_string=}, out={out.stdout.decode('utf-8')}")
-            matched_pcas = (
-                [family_to_pca[family_string]
-                 ] if out.returncode == 0 and family_string in family_to_pca else []
-            )
+            matched_pca = serial_to_pca.get(segger_with_zeros) or serial_to_pca.get(segger)
+            matched_pcas = [matched_pca] if matched_pca else []
         if matched_pcas:
             # recover DK
-            if not segger.startswith("10508"):
-                logging.debug(
-                    "Call nrfjprog --recover to check if board is operable.")
-                recover = subprocess.run(
-                    ["nrfjprog", "--recover", "--snr", segger], capture_output=True)
-                if recover.returncode != 0:
-                    # it is OK to continue if recovery fail. This DK will not be taken to test
-                    logging.warning(
-                        f"Not possible to recover {segger} board, remove from available boards.")
-                    to_remove.append(hw_entry)
-                    continue
-            else:
+            logging.debug(
+                "Call nrfutil device recover to check if board is operable.")
+            recover = subprocess.run(
+                [
+                    "nrfutil",
+                    "device",
+                    "recover",
+                    "--serial-number",
+                    segger_with_zeros,
+                    "--json",
+                ],
+                capture_output=True,
+            )
+            if recover.returncode != 0:
+                # it is OK to continue if recovery fail. This DK will not be taken to test
                 logging.warning(
-                    "Recover on NRF54H family is not supported yet.")
+                    f"Not possible to recover {segger} board, remove from available boards.")
+                to_remove.append(hw_entry)
+                continue
 
             try:
                 hw_entry["platform"] = pca_to_board[matched_pcas[0]]

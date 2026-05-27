@@ -4,6 +4,12 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 SIDEWALK_PATH=$(git rev-parse --show-toplevel)
+
+if [ -f "$SIDEWALK_PATH/../ncs-env.sh" ]; then
+    # Load NCS environment so west/zephyr paths are available in hook checks.
+    . "$SIDEWALK_PATH/../ncs-env.sh"
+fi
+
 python3 $SIDEWALK_PATH/scripts/ci/sid_compliance.py --annotate --loglevel 'WARNING' -m yamllint -m kconfigbasic -m devicetreebindings -m binaryfiles -m imagesize -m nits -m identity -c HEAD
 if [ $? -ne 0 ]; then
     exit 1
