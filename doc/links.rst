@@ -37,6 +37,8 @@
 .. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/samples/hello_world/README.html
 .. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/software_maturity.html
 .. _Migrating partition configuration from Partition Manager to devicetree (DTS): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/migration/migration_partitions.html
+.. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/libraries/security/trusted_storage.html#trusted-storage-readme
+.. _nRF Secure Immutable Bootloader (NSIB): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/samples/bootloader/README.html
 
 .. nordicsemi.com
 
