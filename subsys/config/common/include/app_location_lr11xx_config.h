@@ -16,8 +16,16 @@
 #ifndef APP_LOCATION_LR11XX_CONFIG_H
 #define APP_LOCATION_LR11XX_CONFIG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <lr11xx_gnss_wifi_config.h>
 
 const lr11xx_gnss_wifi_config_t *get_location_cfg(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
