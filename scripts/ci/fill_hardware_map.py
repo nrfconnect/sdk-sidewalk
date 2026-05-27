@@ -22,7 +22,9 @@ pca_to_board = {
     "PCA10059": "nrf52840dongle/nrf52840",
     "PCA10095": "nrf5340dk/nrf5340/cpuapp",
     "PCA20053": "thingy53/nrf5340/cpuapp",
-    "PCA10156": "nrf54l15dk/nrf54l15/cpuapp"
+    "PCA10156": "nrf54l15dk/nrf54l15/cpuapp",
+    "PCA10188": "nrf54lv10dk/nrf54lv10a/cpuapp",
+    "PCA10184": "nrf54lm20dk/nrf54lm20a/cpuapp"
 }
 
 family_to_pca = {
@@ -32,7 +34,9 @@ family_to_pca = {
     "NRF52840DONGLE": "PCA10059",
     "NRF5340": "PCA10095",
     "THINGY53": "PCA20053",
-    "NRF54L15": "PCA10156"
+    "NRF54L15": "PCA10156",
+    "NRF54LV10": "PCA10188",
+    "NRF54LM20": "PCA10184"
 }
 
 
@@ -97,9 +101,9 @@ def main(hardware_map_path: str, userdev_conf_path: str):
             # recover DK
             if not segger.startswith("10508"):
                 logging.debug(
-                    "Call nrfjprog --recover to check if board is operable.")
+                    "Call nrfutil device recover to check if board is operable.")
                 recover = subprocess.run(
-                    ["nrfjprog", "--recover", "--snr", segger], capture_output=True)
+                    ["nrfutil", "device", "recover", "--serial-number", segger], capture_output=True)
                 if recover.returncode != 0:
                     # it is OK to continue if recovery fail. This DK will not be taken to test
                     logging.warning(
