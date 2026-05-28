@@ -1,6 +1,3 @@
-.. image:: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/on-commit.yml/badge.svg?branch=main
- :target: https://github.com/nrfconnect/sdk-sidewalk/actions/workflows/on-commit.yml
-
 nRF Connect SDK: sdk-sidewalk
 #############################
 
@@ -11,7 +8,7 @@ Documentation
 
 Browse the official Sidewalk documentation:
 
-* To see the official nRF Connect SDK documentation, go to https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/protocols/amazon_sidewalk/index.html
+* Sidewalk Add-on in nRF Connect SDK https://docs.nordicsemi.com/bundle/addon-sidewalk-latest/page/index.html
 
 * Amazon Sidewalk: https://docs.sidewalk.amazon
 
