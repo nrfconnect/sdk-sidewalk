@@ -141,8 +141,12 @@ Testing Location Services
 
       uart:~$ location init
       <inf> location_shell_events: location_event_init returned 0
+      <inf> location_shell_events: loc send result: 0
+      <inf> location_shell_events: loc effort mode: 0
+      <inf> location_shell_events: loc link type: 0
 
    You should see a log message with a success status.
+   It may take a few seconds to get location stats (effort mode, link type).
 
 #. Send the location depending on the protocol used:
 
