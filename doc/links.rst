@@ -7,16 +7,18 @@
 .. _nrf5340 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
 .. _Thingy53: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
 .. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/board_names.html
-.. _nrf54lm20dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/board_names.html
 .. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf52_gs.html
 .. _Getting started with nRF53 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf5340_gs.html
-.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/gsg_other.html
+.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides.html
 .. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation.html
 .. _nRF52840dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf52840dk/doc/index.html
 .. _nrf5340dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf5340dk/doc/index.html
 .. _thingy53_nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/thingy53/doc/index.html
 .. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
-.. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
+.. _nRF54LV10 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
+.. _nRF54LM20 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
+.. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
+.. _nrf54lm20dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
 .. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/programming.html
 .. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/test_and_optimize.html
 .. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/bootloaders/index.html
@@ -32,6 +34,8 @@
 .. _West: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/develop/west/index.html
 .. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/samples/hello_world/README.html
 .. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/software_maturity.html
+.. _Migrating partition configuration from Partition Manager to devicetree (DTS): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/migration/migration_partitions.html
+.. _nRF Secure Immutable Bootloader (NSIB): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/samples/bootloader/README.html
 
 .. nordicsemi.com
 
