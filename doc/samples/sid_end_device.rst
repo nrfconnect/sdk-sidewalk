@@ -53,7 +53,8 @@ This sample supports the following development kits:
    * - `nRF54LM20 DK <nRF54LM20A Product Page_>`_
      - PCA10184
      - `nrf54lm20dk`_
-     - ``nrf54lm20dk/nrf54lm20a/cpuapp``
+     - | ``nrf54lm20dk/nrf54lm20a/cpuapp``
+       | ``nrf54lm20dk/nrf54lm20b/cpuapp``
 
 To run the sample in the Bluetooth LE link mode, you only need the development kit.
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
