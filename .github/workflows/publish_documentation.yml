@@ -29,67 +29,44 @@ on:
         default: true
 
 jobs:
-  Publish_Documentation:
-    env:
-      ARCHIVE: "addon-sidewalk_${{inputs.documentation_tag}}.zip"
+  build:
+    uses: ./.github/workflows/documentation_build.yml
+    with:
+      documentation_tag: ${{ inputs.documentation_tag }}
 
+  publish:
+    name: Publish documentation to Zoomin
+    needs: build
+    if: inputs.publish_to_dev || inputs.publish_to_prod
     runs-on: ubuntu-24.04
-    container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
-      options: --cpus 2
-    defaults:
-      run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+    env:
+      ARCHIVE: "addon-sidewalk_${{ inputs.documentation_tag }}.zip"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: sidewalk
-
-      - name: Build documentation
-        run: |
-          cd sidewalk/doc
-          ./build_local.sh
-
-          cp custom.properties build/html
-          sed -i 's/__VERSION__/'"${{inputs.documentation_tag}}"'/g' build/html/custom.properties
-
-          cp tags.yml build/html
-          sed -i 's/__VERSION__/'"${{inputs.documentation_tag}}"'/g' build/html/tags.yml
-
-          cd build/html
-          zip -rq "${{env.ARCHIVE}}" .
-          mv "${{env.ARCHIVE}}" /workdir/${{env.ARCHIVE}}
-          ls -lah /workdir
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+      - name: Download documentation archive
+        uses: actions/download-artifact@v4
         with:
           name: documentation
-          path: |
-            /workdir/${{env.ARCHIVE}}
 
       - name: Prepare Key
         run: |
-          mkdir -p /root/.ssh
-          ssh-keyscan ${{ vars.NCS_ZOOMIN_SERVER }} >> /root/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ vars.NCS_ZOOMIN_SERVER }} >> ~/.ssh/known_hosts
           echo "${{ secrets.NCS_ZOOMIN_KEY }}" > zoomin_key
           chmod 600 zoomin_key
 
       - name: Publish documentation - dev
-        if: ${{inputs.publish_to_dev}}
+        if: inputs.publish_to_dev
         run: |
-          sftp -v -i zoomin_key ${{vars.NCS_ZOOMIN_USER}}@${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
-            cd ${{ vars.NCS_ZOOMIN_DEPLOY_DEV_PATH}}
-            put /workdir/${{env.ARCHIVE}}
+          sftp -v -i zoomin_key ${{ vars.NCS_ZOOMIN_USER }}@${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
+            cd ${{ vars.NCS_ZOOMIN_DEPLOY_DEV_PATH }}
+            put ${{ env.ARCHIVE }}
           EOF
 
       - name: Publish documentation - prod
-        if: ${{inputs.publish_to_prod}}
+        if: inputs.publish_to_prod
         run: |
-          sftp -v -i zoomin_key ${{vars.NCS_ZOOMIN_USER}}@${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
-            cd ${{ vars.NCS_ZOOMIN_DEPLOY_PROD_PATH}}
-            put /workdir/${{env.ARCHIVE}}
+          sftp -v -i zoomin_key ${{ vars.NCS_ZOOMIN_USER }}@${{ vars.NCS_ZOOMIN_SERVER }} <<EOF
+            cd ${{ vars.NCS_ZOOMIN_DEPLOY_PROD_PATH }}
+            put ${{ env.ARCHIVE }}
           EOF
