@@ -1,0 +1,167 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <zephyr/dt-bindings/lora_lbm/lr11xx.h>
+
+/ {
+	chosen {
+		zephyr,lora-transceiver = &lora_semtech_lr11xxmb1xxs;
+	};
+
+	aliases {
+		lora-transceiver = &lora_semtech_lr11xxmb1xxs;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		sidewalk_eb_led: sidewalk_eb_led {
+			gpios = <&nordic_expansion_header 8 GPIO_ACTIVE_HIGH>;
+			label = "Sidewalk EB LED";
+		};
+	};
+};
+
+&nordic_expansion_spi {
+	status = "okay";
+	cs-gpios = <&nordic_expansion_header 10 GPIO_ACTIVE_LOW>;
+
+	lora_semtech_lr11xxmb1xxs: lora@0 {
+		compatible = "semtech,lr1110";
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(8)>;
+
+		reset-gpios = <&nordic_expansion_header 12 GPIO_ACTIVE_LOW>;
+		busy-gpios = <&nordic_expansion_header 14 GPIO_ACTIVE_HIGH>;
+		event-gpios = <&nordic_expansion_header 13 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;
+		gnss-lna-gpios = <&nordic_expansion_header 9 GPIO_ACTIVE_HIGH>;
+
+		lf-tx-path = <LR11XX_TX_PATH_LF_LP_HP>;
+		lf-clk = <LR11XX_LFCLK_XTAL>;
+		reg-mode = <LR11XX_REG_MODE_DCDC>;
+
+		rf-sw-enable = <(LR11XX_DIO5 | LR11XX_DIO6 | LR11XX_DIO7)>;
+		rf-sw-rx-mode = <LR11XX_DIO5>;
+		rf-sw-tx-mode = <(LR11XX_DIO5 | LR11XX_DIO6)>;
+		rf-sw-tx-hp-mode = <LR11XX_DIO6>;
+		rf-sw-gnss-mode = <LR11XX_DIO7>;
+
+		tcxo-voltage = <LR11XX_TCXO_SUPPLY_1_8V>;
+		tcxo-wakeup-time = <14>;
+
+		tx-power-cfg-lf-lp =
+			< (-15) 0x00 0x00>,
+			< (-14) 0x00 0x00>,
+			< (-13) 0x00 0x00>,
+			< (-12) 0x00 0x00>,
+			< (-11) 0x00 0x00>,
+			<  (-9) 0x00 0x00>,
+			<  (-8) 0x00 0x00>,
+			<  (-7) 0x00 0x00>,
+			<  (-6) 0x00 0x00>,
+			<  (-5) 0x00 0x00>,
+			<  (-4) 0x00 0x00>,
+			<  (-3) 0x00 0x00>,
+			<  (-2) 0x00 0x00>,
+			<  (-1) 0x00 0x00>,
+			<  ( 0) 0x00 0x00>,
+			<  ( 1) 0x00 0x00>,
+			<  ( 2) 0x00 0x00>,
+			<  ( 3) 0x00 0x00>,
+			<  ( 3) 0x01 0x00>,
+			<  ( 4) 0x01 0x00>,
+			<  ( 7) 0x00 0x00>,
+			<  ( 8) 0x00 0x00>,
+			<  ( 9) 0x00 0x00>,
+			< ( 10) 0x00 0x00>,
+			< ( 12) 0x00 0x00>,
+			< ( 13) 0x00 0x00>,
+			< ( 14) 0x00 0x00>,
+			< ( 13) 0x01 0x00>,
+			< ( 13) 0x02 0x00>,
+			< ( 14) 0x02 0x00>,
+			< ( 14) 0x03 0x00>,
+			< ( 14) 0x04 0x00>,
+			< ( 14) 0x07 0x00>;
+
+		tx-power-cfg-lf-hp =
+			< (  9) 0x00 0x00>,
+			< ( 10) 0x00 0x00>,
+			< ( 11) 0x00 0x00>,
+			< ( 12) 0x00 0x00>,
+			< ( 13) 0x00 0x00>,
+			< ( 13) 0x01 0x00>,
+			< ( 13) 0x02 0x00>,
+			< ( 17) 0x02 0x00>,
+			< ( 14) 0x04 0x00>,
+			< ( 12) 0x00 0x01>,
+			< ( 13) 0x00 0x01>,
+			< ( 13) 0x01 0x01>,
+			< ( 13) 0x02 0x01>,
+			< ( 15) 0x00 0x02>,
+			< ( 15) 0x04 0x01>,
+			< ( 14) 0x02 0x02>,
+			< ( 14) 0x01 0x03>,
+			< ( 17) 0x04 0x02>,
+			< ( 22) 0x00 0x01>,
+			< ( 22) 0x01 0x01>,
+			< ( 22) 0x02 0x01>,
+			< ( 22) 0x03 0x01>,
+			< ( 22) 0x00 0x03>,
+			< ( 22) 0x01 0x03>,
+			< ( 22) 0x04 0x02>,
+			< ( 22) 0x01 0x04>,
+			< ( 22) 0x02 0x04>,
+			< ( 22) 0x01 0x06>,
+			< ( 22) 0x03 0x05>,
+			< ( 22) 0x03 0x07>,
+			< ( 22) 0x04 0x06>,
+			< ( 22) 0x04 0x07>;
+
+		tx-power-cfg-hf =
+			< (-18) 0x04 0x00>,
+			< (-18) 0x04 0x00>,
+			< (-17) 0x04 0x00>,
+			< (-16) 0x04 0x00>,
+			< (-15) 0x04 0x00>,
+			< (-14) 0x04 0x00>,
+			< (-14) 0x04 0x00>,
+			< (-12) 0x04 0x00>,
+			< (-10) 0x04 0x00>,
+			< ( -9) 0x04 0x00>,
+			< ( -8) 0x04 0x00>,
+			< ( -7) 0x04 0x00>,
+			< ( -6) 0x04 0x00>,
+			< ( -5) 0x04 0x00>,
+			< ( -4) 0x04 0x00>,
+			< ( -3) 0x04 0x00>,
+			< ( -2) 0x03 0x00>,
+			< ( -1) 0x04 0x00>,
+			< (  0) 0x04 0x00>,
+			< (  1) 0x00 0x00>,
+			< (  2) 0x00 0x00>,
+			< (  4) 0x04 0x00>,
+			< (  5) 0x04 0x00>,
+			< (  6) 0x04 0x00>,
+			< (  7) 0x04 0x00>,
+			< (  8) 0x04 0x00>,
+			< (  9) 0x04 0x00>,
+			< ( 10) 0x04 0x00>,
+			< ( 11) 0x04 0x00>,
+			< ( 12) 0x03 0x00>,
+			< ( 13) 0x04 0x00>,
+			< ( 13) 0x00 0x00>;
+
+		rssi-calibration-lf-offset = <0>;
+		rssi-calibration-lf-tune = <12 12 14 0 1 3 4 4 3 6 6 6 6 6 6 6 6>;
+
+		rssi-calibration-mf-offset = <0>;
+		rssi-calibration-mf-tune = <2 2 2 3 3 4 5 4 4 6 5 5 6 6 6 7 6>;
+
+		rssi-calibration-hf-offset = <2030>;
+		rssi-calibration-hf-tune = <6 7 6 4 3 4 14 12 14 12 12 12 12 8 8 9 9>;
+	};
+};
