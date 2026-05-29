@@ -3,6 +3,9 @@
 Welcome to the nRF Connect SDK - Amazon Sidewalk
 ################################################
 
+.. note::
+   Test documentation build
+
 .. caution::
    Sidewalk protocol is owned and licensed by Amazon.
    Before continuing with the nRF Connect SDK for Sidewalk, you must familiarize yourself with the official `Amazon license`_, including all the applicable restrictions.
