@@ -31,6 +31,7 @@ The following radio shields are supported:
 
 * Semtech SX1262 - For LoRa and FSK applications
 * Semtech LR1110 - For LoRa, FSK, and location services (Wi-Fi and GNSS scanning)
+* nRF Sidewalk EB - Nordic Semiconductor expansion board with LR1110 for the nRF54L15 DK and nRF54LM20 DK
 
 Semtech SX1262
 ==============
@@ -216,6 +217,21 @@ Connect the Semtech LR1110 shield to the Arduino-compatible headers on the devel
       +---------------+-------------+
       | SPI SCK       | P0.3        |
       +---------------+-------------+
+
+nRF Sidewalk EB
+===============
+
+The nRF Sidewalk EB mounts on the Nordic Semiconductor DK expansion port and integrates an LR1110 radio module with antennas for LoRa, Wi-Fi, and GNSS.
+
+Set ``-DSHIELD=nrf_sidewalk_eb`` when building Sidewalk samples for these development kits.
+
+For supported boards, pin assignment, and usage requirements, refer to :ref:`nrf_sidewalk_eb`.
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+
+   ../../boards/shields/nrf_sidewalk_eb/doc/index
 
 .. _setting_up_sidewalk_gateway:
 

@@ -37,9 +37,6 @@
 &spi20 {
 	status = "disabled";
 };
-&spi22 {
-	status = "disabled";
-};
 
 // TODO: re-enable HWFC once it's fixed
 &uart20 {

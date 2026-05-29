@@ -37,9 +37,6 @@
 &spi20 {
 	status = "disabled";
 };
-&spi22 {
-	status = "disabled";
-};
 &mx25r64 {
 	status = "okay";
 };

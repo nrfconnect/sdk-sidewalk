@@ -1,0 +1,28 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/*
+ * UART20 RTS/CTS (P1.06/P1.07) conflict with LR1110 SPI MOSI/MISO.
+ */
+&uart20 {
+	/delete-property/ hw-flow-control;
+};
+
+/*
+ * Button 0/1/2 conflict with LR1110 EVENT/GNSS LNA/shield LED.
+ */
+/ {
+	aliases {
+		/delete-property/ sw0;
+		/delete-property/ sw1;
+		/delete-property/ sw2;
+		/delete-property/ mcuboot-button0;
+	};
+};
+
+/delete-node/ &button0;
+/delete-node/ &button1;
+/delete-node/ &button2;
