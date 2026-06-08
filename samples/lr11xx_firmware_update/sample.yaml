@@ -1,0 +1,29 @@
+sample:
+  name: LR11xx firmware update sample
+  description: Sample for updating Semtech LR11xx transceiver firmware
+
+common:
+  sysbuild: true
+  build_only: true
+  tags:
+    - Sidewalk
+    - lr1110
+
+tests:
+  sample.lr11xx_firmware_update.lr1110:
+    platform_allow:
+      - nrf52840dk/nrf52840
+    integration_platforms:
+      - nrf52840dk/nrf52840
+    extra_args:
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+
+  sample.lr11xx_firmware_update.nrf_sidewalk_eb:
+    platform_allow:
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+    extra_args:
+      - SHIELD="nrf_sidewalk_eb"

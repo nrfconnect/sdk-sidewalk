@@ -155,6 +155,8 @@ The version is reported in Sidewalk logs during sub-GHz radio initialization:
 
       <inf> sidewalk: LR11xx: VER HW 0x22 FW 0x0401 type 1
 
+If you need to update the LR1110 firmware, use :ref:`lr11xx_firmware_update`.
+
 .. _setting_up_hardware_lr1110_pinout:
 
 Pinout
@@ -221,7 +223,7 @@ Connect the Semtech LR1110 shield to the Arduino-compatible headers on the devel
 nRF Sidewalk EB
 ===============
 
-The nRF Sidewalk EB mounts on the Nordic Semiconductor DK expansion port and integrates an LR1110 radio module with antennas for LoRa, Wi-Fi, and GNSS.
+The nRF Sidewalk EB mounts on the nRF54L series development kits' expansion port and integrates an LR1110 radio module with antennas for LoRa, Wi-Fi, and GNSS.
 
 Set ``-DSHIELD=nrf_sidewalk_eb`` when building Sidewalk samples for these development kits.
 
@@ -232,6 +234,15 @@ For supported boards, pin assignment, and usage requirements, refer to :ref:`nrf
    :hidden:
 
    ../../boards/shields/nrf_sidewalk_eb/doc/index
+
+The minimum version of Semtech LR1110 firmware is ``0x0401``.
+The version is reported in Sidewalk logs during sub-GHz radio initialization:
+
+.. code-block:: console
+
+      <inf> sidewalk: LR11xx: VER HW 0x22 FW 0x0401 type 1
+
+If you need to update the LR1110 firmware, use :ref:`lr11xx_firmware_update`.
 
 .. _setting_up_sidewalk_gateway:
 

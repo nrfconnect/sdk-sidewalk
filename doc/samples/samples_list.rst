@@ -5,7 +5,7 @@ Samples overview
 
 In the Sidewalk repository, all samples are placed in the :file:`samples` directory.
 
-The current sample structure includes the :ref:`sidewalk_end_device` sample with available variants.
+The current sample structure includes the :ref:`sidewalk_end_device` sample with available variants, and the :ref:`lr11xx_firmware_update` sample.
 The following table demonstrates the variants' configuration for the supported development kits:
 
 +-----------------------------------+------------------------------------------+-------------------------------------------+---------------------------------------------------------------------------+-----------------------------------------------+---------------------------+

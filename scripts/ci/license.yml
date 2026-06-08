@@ -110,6 +110,9 @@ licenses:
   - sidewalk.*/subsys/sal/common/sid_ifc/wifi_helpers_defs.h$
   - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/RALBSP/smtc_board_ralf.h$
   - sidewalk/subsys/sal/common/sid_ifc/gnss_helpers_defs.h
+  - sidewalk.*/samples/lr11xx_firmware_update/include/lr11xx_firmware_update\.h$
+  - sidewalk.*/samples/lr11xx_firmware_update/include/lr1110_transceiver_0401\.h$
+  - sidewalk.*/samples/lr11xx_firmware_update/src/lr11xx_firmware_update\.c$
 
   search_license_txt:
   - Redistribution and use in source and binary forms
