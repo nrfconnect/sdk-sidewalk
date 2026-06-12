@@ -31,6 +31,9 @@ manifest:
           - trusted-firmware-m
           - zcbor
           - zephyr
+          # nRF53 only: ipc_radio uses IPC_SERVICE/RPMsg on the network core.
+          - libmetal
+          - open-amp
 
   self:
     path: sidewalk
