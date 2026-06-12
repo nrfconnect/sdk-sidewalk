@@ -14,7 +14,23 @@ manifest:
       remote: ncs
       repo-path: sdk-nrf
       revision: v3.3.0
-      import: true
+      import:
+        name-allowlist:
+          - azure-sdk-for-c
+          - cjson
+          - cmsis
+          - cmsis_6
+          - hal_nordic
+          - mbedtls
+          - mcuboot
+          - memfault-firmware-sdk
+          - nrfxlib
+          - oberon-psa-crypto
+          - openthread
+          - qcbor
+          - trusted-firmware-m
+          - zcbor
+          - zephyr
 
   self:
     path: sidewalk
