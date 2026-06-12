@@ -80,6 +80,11 @@ The compatible nRF Connect SDK version is specified in the :file:`west.yml` file
             west update
 
          Depending on your connection, the update might take some time.
+         For a faster download fetches only the pinned revisions as shallow clones (no git history).
+
+         .. code-block:: console
+
+            west update --narrow --fetch-opt=--depth=1
 
       #. Install Python dependencies.
 
