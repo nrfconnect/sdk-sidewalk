@@ -16,22 +16,20 @@ manifest:
       revision: v3.3.0
       import:
         name-allowlist:
-          - azure-sdk-for-c
-          - cjson
           - cmsis
           - cmsis_6
           - hal_nordic
           - mbedtls
           - mcuboot
-          - memfault-firmware-sdk
           - nrfxlib
           - oberon-psa-crypto
-          - openthread
           - qcbor
           - trusted-firmware-m
           - zcbor
           - zephyr
-          # nRF53 only: ipc_radio uses IPC_SERVICE/RPMsg on the network core.
+          # legacy unit tests:
+          - cmock
+          # nRF53 only (multicore):
           - libmetal
           - open-amp
 
