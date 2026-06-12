@@ -86,6 +86,67 @@ if not _git_supports_perl_regexes():
     # enforced.
     cc.KconfigCheck.check_disallowed_defconfigs = lambda self, kconf: None  # noqa: E731
 
+SIDEWALK_ROOT = Path(__file__).resolve().parents[2]
+_REFERENCED_AT_RE = re.compile(r"Referenced at (.+?):\d+:")
+
+
+def _referenced_paths(warning_block: str) -> list[Path]:
+    paths = []
+    for match in _REFERENCED_AT_RE.finditer(warning_block):
+        try:
+            paths.append(Path(match.group(1)).resolve())
+        except OSError:
+            paths.append(Path(match.group(1)))
+    return paths
+
+
+def _sidewalk_kconfig_undef_warnings(warnings: str) -> str:
+    """
+    Keep undefined-symbol warnings only when Sidewalk Kconfig references them.
+
+    The trimmed west manifest does not import every NCS module. KconfigBasic
+    still parses the full NCS tree, so missing optional modules can surface as
+    undefined symbols in nrf/ or zephyr/ Kconfig. Those are not Sidewalk bugs.
+    """
+    if not warnings.strip():
+        return ""
+
+    blocks = re.split(r"(?=\n warning: undefined symbol)", "\n" + warnings)
+    kept = []
+
+    for block in blocks:
+        block = block.strip()
+        if not block:
+            continue
+
+        refs = _referenced_paths(block)
+        if not refs:
+            kept.append(block)
+            continue
+
+        if any(
+            str(path).startswith(str(SIDEWALK_ROOT) + os.sep) for path in refs
+        ):
+            kept.append(block)
+
+    return "\n\n\n".join(kept)
+
+
+def _scoped_check_no_undef_within_kconfig(self, kconf):
+    undef_ref_warnings = "\n\n\n".join(
+        warning for warning in kconf.warnings if "undefined symbol" in warning
+    )
+    undef_ref_warnings = _sidewalk_kconfig_undef_warnings(undef_ref_warnings)
+
+    if undef_ref_warnings:
+        self.failure(f"Undefined Kconfig symbols:\n\n {undef_ref_warnings}")
+
+
+cc.KconfigBasicCheck.check_no_undef_within_kconfig = _scoped_check_no_undef_within_kconfig
+cc.SysbuildKconfigBasicCheck.check_no_undef_within_kconfig = (
+    _scoped_check_no_undef_within_kconfig
+)
+
 sidewalk_specials = [
     r"tools/.*",
     r"subsys/ace(/.*)+h",
@@ -158,6 +219,11 @@ if __name__ == "__main__":
             "KconfigBasicNoModules",
             "--exclude-module",
             "SysbuildKconfigBasicNoModules",
+            # Full Kconfig scans reference NCS/Zephyr symbols outside Sidewalk.
+            "--exclude-module",
+            "Kconfig",
+            "--exclude-module",
+            "SysbuildKconfig",
         ]
 
     cc.main(argv)
