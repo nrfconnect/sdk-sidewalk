@@ -13,4 +13,17 @@ config SIDEWALK_USE_PREBUILTS
 config SIDEWALK_TIMER
 	default y
 
+config SIDEWALK_UPTIME
+	default y
+
+config SIDEWALK_LOG
+	default y
+	imply LOG
+
+config SIDEWALK_LOG_LEVEL
+	default 0
+
+config SIDEWALK_LOG_MSG_LENGTH_MAX
+	default 80
+
 source "Kconfig.zephyr"

@@ -19,10 +19,6 @@ target_compile_definitions(app PRIVATE
   CONFIG_BT_PERIPHERAL_PREF_TIMEOUT=400
 )
 
-cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/sid_ble_adapter_callbacks.h)
+target_include_directories(app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-# add test file
 target_sources(app PRIVATE src/main.c)
-
-# generate runner for the test
-test_runner_generate(src/main.c)

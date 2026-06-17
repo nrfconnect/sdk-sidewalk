@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include <unity.h>
+#include <zephyr/ztest.h>
 #include <zephyr/fff.h>
 
 #include <sid_ble_advert.h>
@@ -54,31 +54,35 @@ static int bt_le_ext_adv_create_custom_fake(const struct bt_le_adv_param *a,
 	return bt_le_ext_adv_create_fake.return_val;
 }
 
-void setUp(void)
+static void before_test(void *fixture)
 {
+	ARG_UNUSED(fixture);
+
 	FFF_FAKES_LIST(RESET_FAKE);
 	FFF_RESET_HISTORY();
 }
 
-void test_sid_ble_advert_start(void)
+ZTEST_SUITE(ble_advert, NULL, NULL, before_test, NULL, NULL);
+
+ZTEST(ble_advert, test_sid_ble_advert_start)
 {
 	size_t adv_start_call_count = 0;
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
 	adv_start_call_count++;
-	TEST_ASSERT_EQUAL(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
+	zassert_equal(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
 
 	bt_le_ext_adv_start_fake.return_val = -ENOENT;
-	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_start());
+	zassert_equal(-ENOENT, sid_ble_advert_start());
 	adv_start_call_count++;
-	TEST_ASSERT_EQUAL(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
+	zassert_equal(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
 }
 
-void test_sid_ble_advert_stop(void)
+ZTEST(ble_advert, test_sid_ble_advert_stop)
 {
 	/* No adv set or clear leftover: stop() returns 0 (may or may not call API) */
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
+	zassert_equal(ESUCCESS, sid_ble_advert_stop());
 	size_t count_after_first = bt_le_ext_adv_stop_fake.call_count;
 
 	/* Start then stop: one more stop call, success (create fake sets adv_set so stop() calls API) */
@@ -86,66 +90,66 @@ void test_sid_ble_advert_stop(void)
 	bt_le_ext_adv_create_fake.return_val = 0;
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
 	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
-	TEST_ASSERT_EQUAL(count_after_first + 1, bt_le_ext_adv_stop_fake.call_count);
+	zassert_equal(ESUCCESS, sid_ble_advert_stop());
+	zassert_equal(count_after_first + 1, bt_le_ext_adv_stop_fake.call_count);
 
 	/* Start then stop with error return (start() also calls stop() to clear previous adv_set) */
 	bt_le_ext_adv_create_fake.custom_fake = bt_le_ext_adv_create_custom_fake;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
 	bt_le_ext_adv_stop_fake.return_val = -ENOENT;
-	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_stop());
-	TEST_ASSERT_EQUAL(count_after_first + 3, bt_le_ext_adv_stop_fake.call_count);
+	zassert_equal(-ENOENT, sid_ble_advert_stop());
+	zassert_equal(count_after_first + 3, bt_le_ext_adv_stop_fake.call_count);
 }
 
-void test_sid_ble_advert_update(void)
+ZTEST(ble_advert, test_sid_ble_advert_update)
 {
 	uint8_t test_data[] = "Lorem ipsum.";
 	size_t adv_update_call_count = 0;
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
 	adv_update_call_count++;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 	adv_update_call_count++;
-	TEST_ASSERT_EQUAL(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
+	zassert_equal(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
 
 	bt_le_ext_adv_set_data_fake.return_val = -ENOENT;
-	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(-ENOENT, sid_ble_advert_update(test_data, sizeof(test_data)));
 	adv_update_call_count++;
-	TEST_ASSERT_EQUAL(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
+	zassert_equal(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
 
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_update(NULL, sizeof(test_data)));
-	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_update(test_data, 0));
+	zassert_equal(-EINVAL, sid_ble_advert_update(NULL, sizeof(test_data)));
+	zassert_equal(-EINVAL, sid_ble_advert_update(test_data, 0));
 }
 
-void test_sid_ble_advert_update_in_every_state(void)
+ZTEST(ble_advert, test_sid_ble_advert_update_in_every_state)
 {
 	uint8_t test_data[] = "Lorem ipsum.";
 
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
 	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(ESUCCESS, sid_ble_advert_stop());
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 }
 
-bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t *result,
-				uint8_t *result_len)
+static bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t *result,
+				       uint8_t *result_len)
 {
 	for (size_t i = 0; i < ad_len; i++) {
 		if (ad[i].type == BT_DATA_MANUFACTURER_DATA) {
-			TEST_ASSERT_GREATER_OR_EQUAL_UINT8(BT_COMP_ID_LEN, ad[i].data_len);
-			TEST_ASSERT_EQUAL_UINT8(((BT_COMP_ID_AMA)&0xff), ad[i].data[0]);
-			TEST_ASSERT_EQUAL_UINT8((((BT_COMP_ID_AMA) >> 8) & 0xff), ad[i].data[1]);
+			zassert_true(ad[i].data_len >= BT_COMP_ID_LEN);
+			zassert_equal(((BT_COMP_ID_AMA) & 0xff), ad[i].data[0]);
+			zassert_equal((((BT_COMP_ID_AMA) >> 8) & 0xff), ad[i].data[1]);
 
 			*result_len = ad[i].data_len - BT_COMP_ID_LEN;
 			memcpy(result, &ad[i].data[BT_COMP_ID_LEN], *result_len);
@@ -155,7 +159,7 @@ bool advert_data_manuf_data_get(const struct bt_data *ad, size_t ad_len, uint8_t
 	return false;
 }
 
-void test_sid_ble_advert_update_before_start(void)
+ZTEST(ble_advert, test_sid_ble_advert_update_before_start)
 {
 	uint8_t test_result[TEST_BUFFER_LEN] = { 0 };
 	uint8_t test_result_size;
@@ -165,27 +169,27 @@ void test_sid_ble_advert_update_before_start(void)
 	bool found;
 
 	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_stop());
+	zassert_equal(ESUCCESS, sid_ble_advert_stop());
 
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
 
 	advert_data = bt_le_ext_adv_set_data_fake.arg1_val;
 	advert_data_size = bt_le_ext_adv_set_data_fake.arg2_val;
-	TEST_ASSERT_NOT_NULL(advert_data);
-	TEST_ASSERT_GREATER_THAN_size_t(0, advert_data_size);
+	zassert_not_null(advert_data);
+	zassert_true(advert_data_size > 0);
 
 	found = advert_data_manuf_data_get(advert_data, advert_data_size, test_result,
 					   &test_result_size);
-	TEST_ASSERT_MESSAGE(found, "Manufacturer data not found in advertising data.");
-	TEST_ASSERT_EQUAL_UINT8(sizeof(test_data), test_result_size);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_data, test_result, sizeof(test_data));
+	zassert_true(found, "Manufacturer data not found in advertising data.");
+	zassert_equal(sizeof(test_data), test_result_size);
+	zassert_mem_equal(test_data, test_result, sizeof(test_data));
 }
 
-void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
+static void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 {
 	uint8_t test_result[TEST_BUFFER_LEN] = { 0 };
 	uint8_t test_result_size;
@@ -195,22 +199,22 @@ void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_start());
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_update(data, data_len));
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
+	zassert_equal(ESUCCESS, sid_ble_advert_update(data, data_len));
 
 	advert_data = bt_le_ext_adv_set_data_fake.arg1_val;
 	advert_data_size = bt_le_ext_adv_set_data_fake.arg2_val;
-	TEST_ASSERT_NOT_NULL(advert_data);
-	TEST_ASSERT_GREATER_THAN_size_t(0, advert_data_size);
+	zassert_not_null(advert_data);
+	zassert_true(advert_data_size > 0);
 
 	found = advert_data_manuf_data_get(advert_data, advert_data_size, test_result,
 					   &test_result_size);
-	TEST_ASSERT_MESSAGE(found, "Manufacturer data not found in advertising data.");
-	TEST_ASSERT_EQUAL_UINT8(data_len, test_result_size);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(data, test_result, data_len);
+	zassert_true(found, "Manufacturer data not found in advertising data.");
+	zassert_equal(data_len, test_result_size);
+	zassert_mem_equal(data, test_result, data_len);
 }
 
-void test_sid_ble_advert_update_value(void)
+ZTEST(ble_advert, test_sid_ble_advert_update_value)
 {
 	uint8_t test_data[] = "normal";
 	uint8_t test_data_short[] = "s";
@@ -221,7 +225,7 @@ void test_sid_ble_advert_update_value(void)
 	check_sid_ble_advert_update(test_data_very_long, sizeof(test_data_very_long));
 }
 
-void test_sid_ble_advert_params_set_get(void)
+ZTEST(ble_advert, test_sid_ble_advert_params_set_get)
 {
 	sid_ble_advert_params_t in = {
 		.fast_enabled = true,
@@ -233,28 +237,21 @@ void test_sid_ble_advert_params_set_get(void)
 	};
 	sid_ble_advert_params_t out = { 0 };
 
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_params_set(&in));
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_advert_params_get(&out));
-	TEST_ASSERT_EQUAL(in.fast_enabled, out.fast_enabled);
-	TEST_ASSERT_EQUAL(in.slow_enabled, out.slow_enabled);
-	TEST_ASSERT_EQUAL(in.fast_interval, out.fast_interval);
-	TEST_ASSERT_EQUAL(in.fast_timeout, out.fast_timeout);
-	TEST_ASSERT_EQUAL(in.slow_interval, out.slow_interval);
-	TEST_ASSERT_EQUAL(in.slow_timeout, out.slow_timeout);
+	zassert_equal(ESUCCESS, sid_ble_advert_params_set(&in));
+	zassert_equal(ESUCCESS, sid_ble_advert_params_get(&out));
+	zassert_equal(in.fast_enabled, out.fast_enabled);
+	zassert_equal(in.slow_enabled, out.slow_enabled);
+	zassert_equal(in.fast_interval, out.fast_interval);
+	zassert_equal(in.fast_timeout, out.fast_timeout);
+	zassert_equal(in.slow_interval, out.slow_interval);
+	zassert_equal(in.slow_timeout, out.slow_timeout);
 
-	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_params_set(NULL));
-	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_advert_params_get(NULL));
+	zassert_equal(-EINVAL, sid_ble_advert_params_set(NULL));
+	zassert_equal(-EINVAL, sid_ble_advert_params_get(NULL));
 }
 
-void test_sid_ble_advert_notify_connection(void)
+ZTEST(ble_advert, test_sid_ble_advert_notify_connection)
 {
 	sid_ble_advert_notify_connection();
 	/* No crash; implementation cancels delayed work. */
-}
-
-extern int unity_main(void);
-
-int main(void)
-{
-	return unity_main();
 }

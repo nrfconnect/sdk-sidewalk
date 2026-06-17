@@ -5,16 +5,26 @@
 #
 
 cmake_minimum_required(VERSION 3.20.0)
-
-find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
+set(BOARD unit_testing)
+find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_test_uptime)
 set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 
-cmock_handle(${SIDEWALK_BASE}/subsys/sal/sid_pal/include/zephyr_time.h)
+add_definitions(--include ztest.h)
+add_definitions(-DARCH_STACK_PTR_ALIGN=8)
+target_compile_definitions(testbinary PRIVATE CONFIG_SIDEWALK_LOG_LEVEL=0)
 
-# add test file
 FILE(GLOB app_sources src/*.c)
-target_sources(app PRIVATE ${app_sources})
+target_sources(testbinary PRIVATE
+	${app_sources}
+	mock/zephyr_time.c
+	mock/log_minimal.c
+	${SIDEWALK_BASE}/subsys/sal/sid_pal/src/sid_uptime.c
+)
 
-# generate runner for the test
-test_runner_generate(${app_sources})
+target_include_directories(testbinary PRIVATE
+	${SIDEWALK_BASE}/subsys/sal/sid_pal/include
+	${SIDEWALK_BASE}/subsys/sal/common/sid_pal_ifc
+	${SIDEWALK_BASE}/subsys/sal/common/sid_ifc
+	${SIDEWALK_BASE}/subsys/sal/common/sid_time_ops
+)

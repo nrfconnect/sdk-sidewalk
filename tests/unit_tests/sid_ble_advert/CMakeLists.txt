@@ -13,8 +13,4 @@ set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
 target_include_directories(app PRIVATE ${SIDEWALK_BASE}/subsys/sal/common/sid_pal_ifc)
 target_sources(app PRIVATE ${SIDEWALK_BASE}/subsys/sal/sid_pal/src/sid_ble_advert.c)
 
-# add test file
 target_sources(app PRIVATE src/main.c)
-
-# generate runner for the test
-test_runner_generate(src/main.c)

@@ -3,12 +3,12 @@
  *
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
-#include <unity.h>
+#include <zephyr/ztest.h>
 #include <zephyr/fff.h>
 
 #include <sid_ble_connection.h>
 
-#include <cmock_sid_ble_adapter_callbacks.h>
+#include <mock/ble_callbacks_mock.h>
 
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/gatt.h>
@@ -31,6 +31,7 @@ FAKE_VOID_FUNC(sid_ble_advert_notify_connection);
 FAKE_VALUE_FUNC(int, bt_conn_le_param_update, struct bt_conn *, const struct bt_le_conn_param *);
 
 #define FFF_FAKES_LIST(FAKE)                                                                       \
+	FFF_FAKES_LIST_BLE_CALLBACKS(FAKE)                                                         \
 	FAKE(bt_conn_cb_register)                                                                  \
 	FAKE(bt_gatt_cb_register)                                                                  \
 	FAKE(bt_conn_ref)                                                                          \
@@ -59,58 +60,30 @@ static connection_callback_test_t conn_cb_test;
 static struct bt_conn_cb *sid_bt_conn_cb;
 static struct bt_gatt_cb *sid_bt_gatt_cb;
 
-void setUp(void)
+static void before_test(void *fixture)
 {
+	ARG_UNUSED(fixture);
+
 	FFF_FAKES_LIST(RESET_FAKE);
 	FFF_RESET_HISTORY();
 	memset(&conn_cb_test, 0x00, sizeof(conn_cb_test));
-	cmock_sid_ble_adapter_callbacks_Init();
 }
 
-void tearDown(void)
-{
-	cmock_sid_ble_adapter_callbacks_Verify();
-}
+ZTEST_SUITE(sid_ble_connection, NULL, NULL, before_test, NULL, NULL);
 
-static void connection_callback(const uint8_t *ble_addr, int cmock_num_calls)
+static void connection_callback_connected(const uint8_t *ble_addr)
 {
 	conn_cb_test.num_calls++;
 	conn_cb_test.addr = (uint8_t *)ble_addr;
 }
 
-void test_sid_ble_conn_init(void)
+static void connection_callback_disconnected(const uint8_t *ble_addr)
 {
-	sid_ble_conn_init();
-	TEST_ASSERT_EQUAL(1, bt_conn_cb_register_fake.call_count);
-	TEST_ASSERT_EQUAL(1, bt_gatt_cb_register_fake.call_count);
-
-	sid_bt_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
-	TEST_ASSERT_NOT_NULL(sid_bt_conn_cb);
-	TEST_ASSERT_NOT_NULL(sid_bt_conn_cb->connected);
-	TEST_ASSERT_NOT_NULL(sid_bt_conn_cb->disconnected);
-	sid_bt_gatt_cb = bt_gatt_cb_register_fake.arg0_history[0];
-	TEST_ASSERT_NOT_NULL(sid_bt_gatt_cb);
-	TEST_ASSERT_NOT_NULL(sid_bt_gatt_cb->att_mtu_updated);
+	conn_cb_test.num_calls++;
+	conn_cb_test.addr = (uint8_t *)ble_addr;
 }
 
-void test_sid_ble_conn_data_get(void)
-{
-	const sid_ble_conn_data_t *params = NULL;
-
-	sid_ble_conn_init();
-	sid_ble_conn_deinit();
-	sid_ble_conn_deinit();
-
-	sid_ble_conn_init();
-	params = sid_ble_conn_data_get();
-	TEST_ASSERT_NOT_NULL(params);
-
-	sid_ble_conn_deinit();
-	params = sid_ble_conn_data_get();
-	TEST_ASSERT_NULL(params);
-}
-
-int bt_conn_get_info_fake1(const struct bt_conn *a, struct bt_conn_info *b)
+static int bt_conn_get_info_fake1(const struct bt_conn *a, struct bt_conn_info *b)
 {
 	b->id = BT_ID_SIDEWALK;
 	return 0;
@@ -120,7 +93,7 @@ static uint16_t param_get_fake_interval = 24;
 static uint16_t param_get_fake_latency = 1;
 static uint16_t param_get_fake_timeout = 400;
 
-int bt_conn_get_info_fake_param_get(const struct bt_conn *a, struct bt_conn_info *b)
+static int bt_conn_get_info_fake_param_get(const struct bt_conn *a, struct bt_conn_info *b)
 {
 	b->id = BT_ID_SIDEWALK;
 	b->le.interval_us = (uint32_t)param_get_fake_interval * 1250U;
@@ -129,14 +102,46 @@ int bt_conn_get_info_fake_param_get(const struct bt_conn *a, struct bt_conn_info
 	return 0;
 }
 
-int bt_conn_get_info_fake_error(const struct bt_conn *a, struct bt_conn_info *b)
+static int bt_conn_get_info_fake_error(const struct bt_conn *a, struct bt_conn_info *b)
 {
 	ARG_UNUSED(a);
 	ARG_UNUSED(b);
 	return -ENOTCONN;
 }
 
-void test_sid_ble_conn_positive(void)
+ZTEST(sid_ble_connection, test_01_sid_ble_conn_init)
+{
+	sid_ble_conn_init();
+	zassert_equal(bt_conn_cb_register_fake.call_count, 1);
+	zassert_equal(bt_gatt_cb_register_fake.call_count, 1);
+
+	sid_bt_conn_cb = bt_conn_cb_register_fake.arg0_history[0];
+	zassert_not_null(sid_bt_conn_cb);
+	zassert_not_null(sid_bt_conn_cb->connected);
+	zassert_not_null(sid_bt_conn_cb->disconnected);
+	sid_bt_gatt_cb = bt_gatt_cb_register_fake.arg0_history[0];
+	zassert_not_null(sid_bt_gatt_cb);
+	zassert_not_null(sid_bt_gatt_cb->att_mtu_updated);
+}
+
+ZTEST(sid_ble_connection, test_02_sid_ble_conn_data_get)
+{
+	const sid_ble_conn_data_t *params = NULL;
+
+	sid_ble_conn_init();
+	sid_ble_conn_deinit();
+	sid_ble_conn_deinit();
+
+	sid_ble_conn_init();
+	params = sid_ble_conn_data_get();
+	zassert_not_null(params);
+
+	sid_ble_conn_deinit();
+	params = sid_ble_conn_data_get();
+	zassert_is_null(params);
+}
+
+ZTEST(sid_ble_connection, test_03_sid_ble_conn_positive)
 {
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
@@ -156,18 +161,22 @@ void test_sid_ble_conn_positive(void)
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
+	zassert_equal(sid_ble_adapter_conn_connected_fake.call_count, 1);
+	zassert_mem_equal(test_addr.a.val, sid_ble_adapter_conn_connected_fake.arg0_val,
+			  BT_ADDR_SIZE);
 
 	params = sid_ble_conn_data_get();
-	TEST_ASSERT_EQUAL_PTR(&test_conn, params->conn);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
+	zassert_equal(params->conn, &test_conn);
+	zassert_mem_equal(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
-	__cmock_sid_ble_adapter_conn_disconnected_ExpectWithArray(test_addr.a.val, BT_ADDR_SIZE);
 	sid_bt_conn_cb->disconnected(&test_conn, test_reason);
+	zassert_equal(sid_ble_adapter_conn_disconnected_fake.call_count, 1);
+	zassert_mem_equal(test_addr.a.val, sid_ble_adapter_conn_disconnected_fake.arg0_val,
+			  BT_ADDR_SIZE);
 }
 
-void test_sid_ble_set_conn_cb_positive(void)
+ZTEST(sid_ble_connection, test_04_sid_ble_set_conn_cb_positive)
 {
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
 	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
@@ -185,24 +194,22 @@ void test_sid_ble_set_conn_cb_positive(void)
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_init();
-	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
-	__cmock_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
+	sid_ble_adapter_conn_connected_fake.custom_fake = connection_callback_connected;
+	sid_ble_adapter_conn_disconnected_fake.custom_fake = connection_callback_disconnected;
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
+	zassert_mem_equal(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
 
 	params = sid_ble_conn_data_get();
-	TEST_ASSERT_EQUAL_PTR(&test_conn, params->conn);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, params->addr, BT_ADDR_SIZE);
+	zassert_equal(params->conn, &test_conn);
+	zassert_mem_equal(test_addr.a.val, params->addr, BT_ADDR_SIZE);
 
-	__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	sid_bt_conn_cb->disconnected(&test_conn, test_reason);
-	TEST_ASSERT_EQUAL(DISCONNECTED, conn_cb_test.state);
-	TEST_ASSERT_EQUAL_UINT8_ARRAY(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
+	zassert_equal(conn_cb_test.state, DISCONNECTED);
+	zassert_mem_equal(test_addr.a.val, conn_cb_test.addr, BT_ADDR_SIZE);
 }
 
-void test_sid_ble_conn_cb_set_call_count(void)
+ZTEST(sid_ble_connection, test_05_sid_ble_conn_cb_set_call_count)
 {
 	size_t conn_cb_cnt_expected = 0;
 	uint8_t test_no_error = BT_HCI_ERR_SUCCESS;
@@ -218,29 +225,26 @@ void test_sid_ble_conn_cb_set_call_count(void)
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_init();
-	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
-	__cmock_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
+	sid_ble_adapter_conn_connected_fake.custom_fake = connection_callback_connected;
+	sid_ble_adapter_conn_disconnected_fake.custom_fake = connection_callback_disconnected;
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 
-	__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	sid_bt_conn_cb->disconnected(&test_conn, test_reason);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, test_error_timeout);
 
 	bt_conn_get_dst_fake.return_val = NULL;
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 }
 
-void test_sid_ble_disconnected_wrong_conn(void)
+ZTEST(sid_ble_connection, test_06_sid_ble_disconnected_wrong_conn)
 {
 	size_t conn_cb_cnt_expected = 0;
 	struct bt_conn test_wrong_conn;
@@ -256,24 +260,22 @@ void test_sid_ble_disconnected_wrong_conn(void)
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
 	sid_ble_conn_init();
-	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
-	__cmock_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
+	sid_ble_adapter_conn_connected_fake.custom_fake = connection_callback_connected;
+	sid_ble_adapter_conn_disconnected_fake.custom_fake = connection_callback_disconnected;
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, test_no_error);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 
 	sid_bt_conn_cb->disconnected(&test_wrong_conn, test_no_error);
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 
-	__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	sid_bt_conn_cb->disconnected(&test_conn, test_reason);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 }
 
-void test_sid_ble_cb_set_before_init(void)
+ZTEST(sid_ble_connection, test_07_sid_ble_cb_set_before_init)
 {
 	size_t conn_cb_cnt_expected = 0;
 	struct bt_conn test_conn = { .dummy = 0xDC };
@@ -285,21 +287,19 @@ void test_sid_ble_cb_set_before_init(void)
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
-	__cmock_sid_ble_adapter_conn_connected_StubWithCallback(connection_callback);
-	__cmock_sid_ble_adapter_conn_disconnected_StubWithCallback(connection_callback);
+	sid_ble_adapter_conn_connected_fake.custom_fake = connection_callback_connected;
+	sid_ble_adapter_conn_disconnected_fake.custom_fake = connection_callback_disconnected;
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, 0);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 
-	__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	sid_bt_conn_cb->disconnected(&test_conn, 19);
 	conn_cb_cnt_expected++;
-	TEST_ASSERT_EQUAL(conn_cb_cnt_expected, conn_cb_test.num_calls);
+	zassert_equal(conn_cb_test.num_calls, conn_cb_cnt_expected);
 }
 
-void test_sid_ble_conn_mtu_callback(void)
+ZTEST(sid_ble_connection, test_08_sid_ble_conn_mtu_callback)
 {
 	struct bt_conn test_conn = { .dummy = 0xDC };
 
@@ -307,11 +307,12 @@ void test_sid_ble_conn_mtu_callback(void)
 
 	uint16_t tx_mtu = 32, rx_mtu = 44;
 
-	__cmock_sid_ble_adapter_mtu_changed_Expect(tx_mtu);
 	sid_bt_gatt_cb->att_mtu_updated(&test_conn, tx_mtu, rx_mtu);
+	zassert_equal(sid_ble_adapter_mtu_changed_fake.call_count, 1);
+	zassert_equal(sid_ble_adapter_mtu_changed_fake.arg0_val, tx_mtu);
 }
 
-void test_sid_ble_conn_mtu_callback_curent_connection(void)
+ZTEST(sid_ble_connection, test_09_sid_ble_conn_mtu_callback_curent_connection)
 {
 	struct bt_conn curr_conn = { 0 };
 	struct bt_conn unknow_conn = { 0 };
@@ -322,18 +323,19 @@ void test_sid_ble_conn_mtu_callback_curent_connection(void)
 			      struct bt_conn_info *) = { bt_conn_get_info_fake1 };
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&curr_conn, 0);
 
 	uint16_t tx_mtu = 32, rx_mtu = 44;
 
-	__cmock_sid_ble_adapter_mtu_changed_Expect(tx_mtu);
 	sid_bt_gatt_cb->att_mtu_updated(&curr_conn, tx_mtu, rx_mtu);
+	zassert_equal(sid_ble_adapter_mtu_changed_fake.call_count, 1);
+	zassert_equal(sid_ble_adapter_mtu_changed_fake.arg0_val, tx_mtu);
 
 	sid_bt_gatt_cb->att_mtu_updated(&unknow_conn, tx_mtu, rx_mtu);
+	zassert_equal(sid_ble_adapter_mtu_changed_fake.call_count, 1);
 }
 
-void test_sid_ble_conn_disconnect(void)
+ZTEST(sid_ble_connection, test_10_sid_ble_conn_disconnect)
 {
 	struct bt_conn test_conn = { .dummy = 0xDC };
 	const bt_addr_le_t test_addr = {
@@ -341,27 +343,21 @@ void test_sid_ble_conn_disconnect(void)
 		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
 	};
 
-	/* Ensure no connection so first disconnect yields -ENOENT (clear from previous test) */
 	sid_ble_conn_init();
 	const sid_ble_conn_data_t *data = sid_ble_conn_data_get();
 	if (data != NULL && data->conn != NULL) {
-		/* disconnected callback uses ble_conn_is_valid() -> bt_conn_get_info(); must pass */
 		int (*get_info_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {
 			bt_conn_get_info_fake1,
 			bt_conn_get_info_fake1,
 		};
 		SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, get_info_fakes, 2);
-		__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 		sid_bt_conn_cb->disconnected(data->conn, 0);
 	}
-	/* Deinit so conn_data_ptr is NULL; conn_data.conn cleared by disconnected above */
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
 
-	/* No connection: expect -ENOENT */
-	TEST_ASSERT_EQUAL(-ENOENT, sid_ble_conn_disconnect());
+	zassert_equal(sid_ble_conn_disconnect(), -ENOENT);
 
-	/* Establish connection then test disconnect return values */
 	sid_ble_conn_init();
 	bt_conn_get_dst_fake.return_val = &test_addr;
 	bt_conn_ref_fake.return_val = &test_conn;
@@ -369,19 +365,17 @@ void test_sid_ble_conn_disconnect(void)
 			      struct bt_conn_info *) = { bt_conn_get_info_fake1 };
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
 
 	bt_conn_disconnect_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_disconnect());
+	zassert_equal(sid_ble_conn_disconnect(), ESUCCESS);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
 	bt_conn_disconnect_fake.return_val = -ENOTCONN;
-	TEST_ASSERT_EQUAL(-ENOTCONN, sid_ble_conn_disconnect());
+	zassert_equal(sid_ble_conn_disconnect(), -ENOTCONN);
 }
 
-void test_sid_ble_disconnect_cb_still_cleans_up_when_conn_param_get_fails(void)
+ZTEST(sid_ble_connection, test_11_sid_ble_disconnect_cb_still_cleans_up_when_conn_param_get_fails)
 {
 	uint8_t test_reason = BT_HCI_ERR_CONN_TIMEOUT;
 	struct bt_conn test_conn = { .dummy = 0xAB };
@@ -402,27 +396,23 @@ void test_sid_ble_disconnect_cb_still_cleans_up_when_conn_param_get_fails(void)
 	};
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 3);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
-
-	__cmock_sid_ble_adapter_conn_disconnected_ExpectAnyArgs();
 	sid_bt_conn_cb->disconnected(&test_conn, test_reason);
 
 	const sid_ble_conn_data_t *params = sid_ble_conn_data_get();
-	TEST_ASSERT_NOT_NULL(params);
-	TEST_ASSERT_NULL(params->conn);
+	zassert_not_null(params);
+	zassert_is_null(params->conn);
 }
 
-void test_sid_ble_conn_param_get(void)
+ZTEST(sid_ble_connection, test_12_sid_ble_conn_param_get)
 {
 	struct bt_le_conn_param param_out = { 0 };
 
-	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_conn_param_get(NULL));
+	zassert_equal(sid_ble_conn_param_get(NULL), -EINVAL);
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_get(&param_out));
-	/* With no connection, returns static defaults (conn_params_prev) */
+	zassert_equal(sid_ble_conn_param_get(&param_out), ESUCCESS);
 
 	struct bt_conn test_conn = { .dummy = 0xDC };
 	const bt_addr_le_t test_addr = {
@@ -435,18 +425,17 @@ void test_sid_ble_conn_param_get(void)
 			      struct bt_conn_info *) = { bt_conn_get_info_fake_param_get };
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
 
 	memset(&param_out, 0, sizeof(param_out));
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_get(&param_out));
-	TEST_ASSERT_EQUAL_UINT16(param_get_fake_interval, param_out.interval_min);
-	TEST_ASSERT_EQUAL_UINT16(param_get_fake_interval, param_out.interval_max);
-	TEST_ASSERT_EQUAL_UINT16(param_get_fake_latency, param_out.latency);
-	TEST_ASSERT_EQUAL_UINT16(param_get_fake_timeout, param_out.timeout);
+	zassert_equal(sid_ble_conn_param_get(&param_out), ESUCCESS);
+	zassert_equal(param_out.interval_min, param_get_fake_interval);
+	zassert_equal(param_out.interval_max, param_get_fake_interval);
+	zassert_equal(param_out.latency, param_get_fake_latency);
+	zassert_equal(param_out.timeout, param_get_fake_timeout);
 }
 
-void test_sid_ble_conn_param_update(void)
+ZTEST(sid_ble_connection, test_13_sid_ble_conn_param_update)
 {
 	const struct bt_le_conn_param param_in = {
 		.interval_min = 18,
@@ -455,11 +444,11 @@ void test_sid_ble_conn_param_update(void)
 		.timeout = 500,
 	};
 
-	TEST_ASSERT_EQUAL(-EINVAL, sid_ble_conn_param_update(NULL));
+	zassert_equal(sid_ble_conn_param_update(NULL), -EINVAL);
 
 	sid_ble_conn_deinit();
 	sid_ble_conn_init();
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_update(&param_in));
+	zassert_equal(sid_ble_conn_param_update(&param_in), ESUCCESS);
 
 	struct bt_conn test_conn = { .dummy = 0xDD };
 	const bt_addr_le_t test_addr = {
@@ -472,29 +461,17 @@ void test_sid_ble_conn_param_update(void)
 			      struct bt_conn_info *) = { bt_conn_get_info_fake1 };
 	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 1);
 
-	__cmock_sid_ble_adapter_conn_connected_ExpectAnyArgs();
 	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
 
-	/* Connect callback also calls bt_conn_le_param_update; count only our calls from here */
 	bt_conn_le_param_update_fake.call_count = 0;
 	bt_conn_le_param_update_fake.return_val = ESUCCESS;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_update(&param_in));
-	TEST_ASSERT_EQUAL(1, bt_conn_le_param_update_fake.call_count);
-	TEST_ASSERT_EQUAL_PTR(&test_conn, bt_conn_le_param_update_fake.arg0_val);
-	TEST_ASSERT_EQUAL_UINT16(param_in.interval_min,
-				 bt_conn_le_param_update_fake.arg1_val->interval_min);
-	TEST_ASSERT_EQUAL_UINT16(param_in.interval_max,
-				 bt_conn_le_param_update_fake.arg1_val->interval_max);
+	zassert_equal(sid_ble_conn_param_update(&param_in), ESUCCESS);
+	zassert_equal(bt_conn_le_param_update_fake.call_count, 1);
+	zassert_equal(bt_conn_le_param_update_fake.arg0_val, &test_conn);
+	zassert_equal(bt_conn_le_param_update_fake.arg1_val->interval_min, param_in.interval_min);
+	zassert_equal(bt_conn_le_param_update_fake.arg1_val->interval_max, param_in.interval_max);
 
-	/* Implementation always returns 0; it only logs when bt_conn_le_param_update fails */
 	bt_conn_le_param_update_fake.return_val = -EINVAL;
-	TEST_ASSERT_EQUAL(ESUCCESS, sid_ble_conn_param_update(&param_in));
-	TEST_ASSERT_EQUAL(2, bt_conn_le_param_update_fake.call_count);
-}
-
-extern int unity_main(void);
-
-int main(void)
-{
-	return unity_main();
+	zassert_equal(sid_ble_conn_param_update(&param_in), ESUCCESS);
+	zassert_equal(bt_conn_le_param_update_fake.call_count, 2);
 }

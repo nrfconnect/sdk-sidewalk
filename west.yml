@@ -27,8 +27,6 @@ manifest:
           - trusted-firmware-m
           - zcbor
           - zephyr
-          # legacy unit tests:
-          - cmock
           # nRF53 only (multicore):
           - libmetal
           - open-amp
