@@ -5,8 +5,61 @@
  */
 
 #include <zephyr/ztest.h>
+#include <zephyr/fff.h>
+#include <zephyr/sys/sys_heap.h>
 #include <osal_alloc.h>
 #include <ace/ace_status.h>
+#include <sid_hal_memory_ifc.h>
+
+DEFINE_FFF_GLOBALS;
+
+FAKE_VALUE_FUNC(void *, sid_hal_malloc, size_t);
+FAKE_VOID_FUNC(sid_hal_free, void *);
+
+#ifndef CONFIG_SIDEWALK_HEAP_SIZE
+#define CONFIG_SIDEWALK_HEAP_SIZE 1024
+#endif
+
+static uint8_t heap_mem[CONFIG_SIDEWALK_HEAP_SIZE];
+static struct sys_heap sid_heap;
+
+static void heap_reset(void)
+{
+	sys_heap_init(&sid_heap, heap_mem, sizeof(heap_mem));
+}
+
+static void *fake_sid_hal_malloc(size_t size)
+{
+	return sys_heap_alloc(&sid_heap, size);
+}
+
+static void fake_sid_hal_free(void *ptr)
+{
+	if (ptr) {
+		sys_heap_free(&sid_heap, ptr);
+	}
+}
+
+static void fakes_reset(void)
+{
+	RESET_FAKE(sid_hal_malloc);
+	RESET_FAKE(sid_hal_free);
+	sid_hal_malloc_fake.custom_fake = fake_sid_hal_malloc;
+	sid_hal_free_fake.custom_fake = fake_sid_hal_free;
+	heap_reset();
+}
+
+static void *suite_setup(void)
+{
+	fakes_reset();
+	return NULL;
+}
+
+static void before_test(void *fixture)
+{
+	ARG_UNUSED(fixture);
+	fakes_reset();
+}
 
 typedef struct {
 	uint32_t field32b;
@@ -176,4 +229,4 @@ ZTEST(sid_ace_alloc, test_sanity)
 	zassert_true(true);
 }
 
-ZTEST_SUITE(sid_ace_alloc, NULL, NULL, NULL, NULL, NULL);
+ZTEST_SUITE(sid_ace_alloc, NULL, suite_setup, before_test, NULL, NULL);
