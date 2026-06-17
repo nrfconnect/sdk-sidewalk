@@ -1,15 +1,5 @@
 tests:
   sidewalk.test.unit.ace.alloc:
-    sysbuild: true
-    platform_allow:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
-      - native_sim
-      - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l10/cpuapp
+    sysbuild: false
     tags: Sidewalk
-    integration_platforms:
-      - native_sim
-      - nrf52840dk/nrf52840
-      - nrf54l15dk/nrf54l15/cpuapp
-      - nrf54l15dk/nrf54l10/cpuapp
+    type: unit
