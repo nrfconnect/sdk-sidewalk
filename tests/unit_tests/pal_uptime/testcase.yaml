@@ -1,7 +1,5 @@
 tests:
   sidewalk.test.unit.uptime:
-    sysbuild: true
-    platform_allow: native_sim
+    sysbuild: false
     tags: Sidewalk
-    integration_platforms:
-      - native_sim
+    type: unit
