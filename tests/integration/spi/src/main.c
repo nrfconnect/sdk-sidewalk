@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+/* TODO: on-device run requires Semtech shield (simple_arduino_adapter + sx1262/lr1110). */
 #include <zephyr/ztest.h>
 
 #include <zephyr/kernel.h>
@@ -19,10 +20,7 @@
 #include <sid_pal_serial_bus_ifc.h>
 #include <sid_pal_serial_bus_spi_config.h>
 
-#define NULL_STRUCT_INITIALIZER                                                                    \
-	{                                                                                          \
-		0                                                                                  \
-	}
+#define NULL_STRUCT_INITIALIZER { 0 }
 #define INVALID_DT_GPIO NULL_STRUCT_INITIALIZER
 
 ZTEST(spi_bus, test_init_spi)

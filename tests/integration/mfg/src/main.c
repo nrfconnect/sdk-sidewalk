@@ -8,7 +8,13 @@
 
 #include <sid_pal_mfg_store_ifc.h>
 #include <sid_error.h>
-#include <zephyr/storage/flash_map.h>
+#include <zephyr/devicetree.h>
+
+#define MFG_STORAGE_NODE DT_NODELABEL(mfg_storage)
+
+#if !DT_NODE_EXISTS(MFG_STORAGE_NODE)
+#error "mfg_storage fixed partition must be defined in the board overlay"
+#endif
 
 ZTEST(mfg, test_mfg_storage_read_write)
 {
@@ -16,14 +22,16 @@ ZTEST(mfg, test_mfg_storage_read_write)
 	uint8_t read_data[SID_PAL_MFG_STORE_DEVID_SIZE] = { 0 };
 
 	sid_pal_mfg_store_region_t mfg_store_region = {
-		.addr_start = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage)),
-		.addr_end = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage) +
-					FIXED_PARTITION_SIZE(mfg_storage)),
+		.addr_start = (uintptr_t)DT_REG_ADDR(MFG_STORAGE_NODE),
+		.addr_end =
+			(uintptr_t)(DT_REG_ADDR(MFG_STORAGE_NODE) + DT_REG_SIZE(MFG_STORAGE_NODE)),
 		.app_value_to_offset = NULL
 	};
 	sid_pal_mfg_store_init(mfg_store_region);
 
-	zassert_equal(SID_ERROR_NONE, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_SERIAL_NUM, write_data, sizeof(write_data)));
+	/* TODO: verify whether SERIAL_NUM write + DEVID read is intentional test semantics */
+	zassert_equal(SID_ERROR_NONE, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_SERIAL_NUM,
+							      write_data, sizeof(write_data)));
 
 	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, read_data, sizeof(read_data));
 	zassert_mem_equal(write_data, read_data, sizeof(write_data),
