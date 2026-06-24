@@ -1,0 +1,43 @@
+name: Post documentation comment to PR
+
+on:
+  workflow_run:
+    workflows: ["Build documentation on PR"]
+    types:
+      - completed
+
+jobs:
+  post_documentation_comment:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event.pull_request != null &&
+      github.event.workflow_run.repository.full_name == github.repository
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Find documentation comment
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.workflow_run.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: "<!-- documentation-build -->"
+
+      - name: Update documentation comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.workflow_run.event.pull_request.number }}
+          edit-mode: replace
+          body: |
+            <!-- documentation-build -->
+            ### Documentation build
+
+            Sphinx documentation built successfully for this PR.
+
+            | Resource | Link |
+            | --- | --- |
+            | Workflow run | [${{ github.event.workflow_run.name }} #${{ github.event.workflow_run.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}) |
+            | Documentation (zip) | [Download `documentation`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}#artifacts) — unzip and open `index.html` |
