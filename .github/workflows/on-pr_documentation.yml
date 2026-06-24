@@ -3,7 +3,8 @@ name: Build documentation on PR
 on:
   pull_request:
     paths:
-      - 'doc/**'
+      - '**/doc/**'
+      - '**/*.rst'
 
 concurrency:
   group: docs-pr-${{ github.event.pull_request.number }}
