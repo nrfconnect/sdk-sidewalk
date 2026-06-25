@@ -25,18 +25,6 @@ You can also build the sample with specific configurations:
 
    .. tabs::
 
-      .. tab:: nrf52840dk/nrf52840
-
-         .. code-block:: console
-
-            west build -b nrf52840dk/nrf52840 --shield semtech_sx1262mb2cas
-
-      .. tab:: nrf5340dk/nrf5340/cpuapp
-
-         .. code-block:: console
-
-            west build -b nrf5340dk/nrf5340/cpuapp --shield semtech_sx1262mb2cas
-
       .. tab:: nrf54l15dk/nrf54l15/cpuapp
 
          .. code-block:: console
@@ -46,12 +34,6 @@ You can also build the sample with specific configurations:
 * For sub-GHz (LoRa and FSK) operation and location scanning over WiFi and GNSS, use the ``lr1110mb1lcks`` shield.
 
    .. tabs::
-
-      .. tab:: nrf52840dk/nrf52840
-
-         .. code-block:: console
-
-            west build -b nrf52840dk/nrf52840 --shield semtech_lr1110mb1xxs
 
       .. tab:: nrf54l15dk/nrf54l15/cpuapp
 

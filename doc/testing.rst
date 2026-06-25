@@ -134,7 +134,7 @@ To run the integration test, complete the following steps based on the environme
 
                 west build -b <board_name>
 
-            Use your board name e.g. ``nRF52840dk/nrf52840``, ``nRF55l15dk/nrf54l15/cpuapp``.
+            Use your board name e.g. ``nrf54l15dk/nrf54l15/cpuapp``.
 
         #. Flash the test application by running the following command:
 

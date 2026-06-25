@@ -16,38 +16,6 @@ The following table indicates the software maturity levels of the support for Si
 
 .. tabs::
 
-   .. group-tab:: nRF52 Series
-
-      .. list-table::
-         :widths: auto
-         :header-rows: 1
-
-         * -
-           - nRF52840
-           - nRF52810
-           - nRF52811
-           - nRF52820
-           - nRF52832
-           - nRF52833
-         * - **Sidewalk**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-
-   .. group-tab:: nRF53 Series
-
-      .. list-table::
-         :widths: auto
-         :header-rows: 1
-
-         * -
-           - nRF5340
-         * - **Sidewalk**
-           - Supported
-
    .. group-tab:: nRF54H Series
 
       .. list-table::
@@ -107,92 +75,6 @@ Amazon Sidewalk features support
 The following table indicates the software maturity levels of the support for each Amazon Sidewalk feature:
 
 .. tabs::
-
-   .. group-tab:: nRF52 Series
-
-      .. list-table::
-         :widths: auto
-         :header-rows: 1
-
-         * -
-           - nRF52840
-           - nRF52810
-           - nRF52811
-           - nRF52820
-           - nRF52832
-           - nRF52833
-         * - **Sidewalk - OTA DFU over Bluetooth LE**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-         * - **Sidewalk File Transfer (FUOTA)**
-           - Experimental
-           - --
-           - --
-           - --
-           - --
-           - --
-         * - **Sidewalk Multi-link + Auto-connect**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-         * - **Sidewalk on-device certification**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-         * - **Sidewalk over Bluetooth LE**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-         * - **Sidewalk over FSK**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-         * - **Sidewalk over LORA**
-           - Supported
-           - --
-           - --
-           - --
-           - --
-           - --
-
-   .. group-tab:: nRF53 Series
-
-      .. list-table::
-         :widths: auto
-         :header-rows: 1
-
-         * -
-           - nRF5340
-         * - **Sidewalk - OTA DFU over Bluetooth LE**
-           - Supported
-         * - **Sidewalk File Transfer (FUOTA)**
-           - Experimental
-         * - **Sidewalk Multi-link + Auto-connect**
-           - Supported
-         * - **Sidewalk on-device certification**
-           - Supported
-         * - **Sidewalk over Bluetooth LE**
-           - Supported
-         * - **Sidewalk over FSK**
-           - Supported
-         * - **Sidewalk over LORA**
-           - Supported
 
    .. group-tab:: nRF54H Series
 
