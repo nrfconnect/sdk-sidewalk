@@ -7,9 +7,6 @@
 #include <sid_error.h>
 #include <sid_pal_common_ifc.h>
 #include <sid_pal_temperature_ifc.h>
-#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) && defined(CONFIG_SOC_SERIES_NRF53X)
-#include <zephyr/bluetooth/bluetooth.h>
-#endif /* defined(CONFIG_SOC_SERIES_NRF53X) && defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
 #ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
 #include <lr11xx_gnss_wifi_config.h>
@@ -46,10 +43,6 @@ sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platf
 		return SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
 	set_radio_config(platform_init_parameters->radio_cfg);
-#if defined(CONFIG_SOC_SERIES_NRF53X)
-	(void)bt_enable(NULL);
-	(void)bt_disable();
-#endif /* defined(CONFIG_SOC_SERIES_NRF53X) */
 #endif /* defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
 #if defined(CONFIG_SIDEWALK_TEMPERATURE)

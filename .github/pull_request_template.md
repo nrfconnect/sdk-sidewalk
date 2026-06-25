@@ -9,7 +9,7 @@ Jenkins:
   # Use YAML Filters. Helper side to set filters: https://tester-pc.nordicsemi.no:8080/test_mgmt
   # Filters (place copied YAML filters here):
   #  - filter1:
-  #     board: nrf52
+  #     board: nrf54l
 ```
 
 ## Description

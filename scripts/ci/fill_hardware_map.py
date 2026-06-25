@@ -1,5 +1,4 @@
-# Copyright (c) 2022 Nordic Semiconductor ASA
-#
+# Copyright (c) 2026 Nordic Semiconductor ASA
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
 """Script to generate hardware map used by twister based on userdev_conf file or connected DKs."""
@@ -9,31 +8,15 @@ import yaml
 import argparse
 import logging
 
-from packaging import version
-
 logging.basicConfig(level=logging.INFO)
 
-MIN_PCA10056_REVISION = "2.0.0"
-
 pca_to_board = {
-    "PCA10056": "nrf52840dk/nrf52840",
-    "PCA10100": "nrf52833dk/nrf52833",
-    "PCA10112": "nrf21540dk/nrf52840",
-    "PCA10059": "nrf52840dongle/nrf52840",
-    "PCA10095": "nrf5340dk/nrf5340/cpuapp",
-    "PCA20053": "thingy53/nrf5340/cpuapp",
     "PCA10156": "nrf54l15dk/nrf54l15/cpuapp",
     "PCA10188": "nrf54lv10dk/nrf54lv10a/cpuapp",
     "PCA10184": "nrf54lm20dk/nrf54lm20a/cpuapp"
 }
 
 family_to_pca = {
-    "NRF52840": "PCA10056",
-    "NRF52833": "PCA10100",
-    "NRF21540": "PCA10112",
-    "NRF52840DONGLE": "PCA10059",
-    "NRF5340": "PCA10095",
-    "THINGY53": "PCA20053",
     "NRF54L15": "PCA10156",
     "NRF54LV10": "PCA10188",
     "NRF54LM20": "PCA10184"
@@ -59,12 +42,6 @@ def main(hardware_map_path: str, userdev_conf_path: str):
             if ud_entry.get("boards", None):
                 # remove io_testers. We don't want to run tests on io_testers
                 logging.info(f"remove io_tester {ud_entry}")
-                userdev_conf.remove(ud_entry)
-            elif ud_entry.get("pca", None) == "PCA10056" and version.parse(
-                ud_entry.get("revision", "0.0.1")
-            ) < version.parse(MIN_PCA10056_REVISION):
-                # remove too old gravitons
-                logging.info(f"remove {ud_entry} since is too old")
                 userdev_conf.remove(ud_entry)
 
     with open(hardware_map_path) as hw_file:
@@ -121,30 +98,7 @@ def main(hardware_map_path: str, userdev_conf_path: str):
                     f"platform not known or not supported {segger}")
                 to_remove.append(hw_entry)
                 continue
-            # Collect all entries for nRF53 DKs
-            if "nrf5340dk/nrf5340/cpuapp" in hw_entry["platform"]:
-                # If older nRF53 board (3 serial IFs), remove first and second serial interface
-                if segger.startswith("9601"):
-                    logging.info(
-                        f"Remove first and second serial interface for old nRF53 board {segger}")
-                    if hw_entry["serial"] and "-if00" in hw_entry["serial"]:
-                        to_remove.append(hw_entry)
-                    elif hw_entry["serial"] and "-if02" in hw_entry["serial"]:
-                        to_remove.append(hw_entry)
-                # If newer nRF53 board, remove only first serial interface
-                elif segger.startswith("10500"):
-                    logging.info(
-                        f"Remove first serial interface for nRF53 board {segger}")
-                    if "-if00" in hw_entry["serial"]:
-                        to_remove.append(hw_entry)
-                else:
-                    logging.warning(
-                        f"Unrecognized version of nRF53 board {segger}")
-            elif "nrf52840dk/nrf52840" in hw_entry["platform"]:
-                # If newer nRF52 board, remove first serial interface
-                if segger.startswith("1050") and "-if02" in hw_entry["serial"]:
-                    to_remove.append(hw_entry)
-            elif "nrf54l15dk/nrf54l15/cpuapp" in hw_entry["platform"]:
+            if "nrf54l15dk/nrf54l15/cpuapp" in hw_entry["platform"]:
                 # If nRF54l board, remove only first serial interface
                 hw_entry["runner"] = "nrfutil"
                 if segger.startswith("1057") and "-if00" in hw_entry["serial"]:
