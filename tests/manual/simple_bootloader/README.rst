@@ -20,7 +20,7 @@ Requirements
 ************
 
 This application requires:
-* nrf52840 DK
+* nrf54l15 DK
 * mcumgr tool (cli or mobile app)
 
 Building and running
