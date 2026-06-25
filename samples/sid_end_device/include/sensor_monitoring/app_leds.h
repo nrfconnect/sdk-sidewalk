@@ -11,11 +11,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
-#define APP_LEDS_MAX 3
-#else
 #define APP_LEDS_MAX 4
-#endif
 #define LED_ACTION_REPONSE_PAYLOAD_SIZE_MAX 32
 
 enum leds_id_t {

@@ -8,10 +8,7 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/device.h>
 
-#ifdef CONFIG_BOARD_THINGY53_NRF5340_CPUAPP
-#define TEMP_CHANNEL SENSOR_CHAN_AMBIENT_TEMP
-static const struct device *temp_dev = DEVICE_DT_GET_ONE(bosch_bme680);
-#elif CONFIG_TEMP_NRF5
+#ifdef CONFIG_TEMP_NRF5
 #define TEMP_CHANNEL SENSOR_CHAN_DIE_TEMP
 static const struct device *temp_dev = DEVICE_DT_GET_ONE(nordic_nrf_temp);
 #else

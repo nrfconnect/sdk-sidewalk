@@ -6,8 +6,6 @@ common:
   sysbuild: true
   build_only: true
   platform_allow:
-    - nrf52840dk/nrf52840
-    - nrf5340dk/nrf5340/cpuapp
     - nrf54l15dk/nrf54l15/cpuapp
     - nrf54l15dk/nrf54l15/cpuapp/ns
     - nrf54l15dk/nrf54l10/cpuapp
@@ -31,8 +29,6 @@ tests:
 
   sample.sidewalk.hello.lr1110:
     build_only: false
-    platform_exclude:
-      - nrf5340dk/nrf5340/cpuapp
     extra_args:
       - OVERLAY_CONFIG="overlay-hello.conf"
       - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
@@ -62,8 +58,6 @@ tests:
       - sx1262
 
   sample.sidewalk.hello.release.lr1110:
-    platform_exclude:
-      - nrf5340dk/nrf5340/cpuapp
     extra_args:
       - FILE_SUFFIX=release
       - OVERLAY_CONFIG="overlay-hello.conf"
@@ -117,8 +111,6 @@ tests:
       - sx1262
 
   sample.sidewalk.demo.lr1110:
-    platform_exclude:
-      - nrf5340dk/nrf5340/cpuapp
     extra_args:
       - OVERLAY_CONFIG="overlay-demo.conf"
       - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
@@ -130,13 +122,9 @@ tests:
       - lr1110
 
   sample.sidewalk.demo.ble_only:
-    platform_allow:
-      - thingy53/nrf5340/cpuapp
     extra_args: OVERLAY_CONFIG="overlay-demo.conf"
     extra_configs:
       - CONFIG_SIDEWALK_APPLICATION_NAME="demo.ble_only"
-    integration_platforms:
-      - thingy53/nrf5340/cpuapp
     tags:
       - demo
       - BLE
@@ -154,10 +142,7 @@ tests:
   sample.sidewalk.dut.lr1110:
     build_only: false
     platform_exclude:
-      - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
-    integration_platforms:
-      - nrf52840dk/nrf52840
     extra_args:
       - OVERLAY_CONFIG="overlay-dut.conf"
       - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
@@ -174,8 +159,6 @@ tests:
 
   sample.sidewalk.dut.nrf_sidewalk_eb:
     platform_exclude:
-      - nrf52840dk/nrf52840
-      - nrf5340dk/nrf5340/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
@@ -209,8 +192,6 @@ tests:
       - BLE
 
   sample.sidewalk.dut.no_secure:
-    integration_platforms:
-      - nrf52840dk/nrf52840
     extra_args:
       - OVERLAY_CONFIG="overlay-dut.conf"
       - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
