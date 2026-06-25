@@ -10,11 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#if defined(CONFIG_BOARD_THINGY53_NRF5340_CPUAPP)
-#define APP_BUTTONS_MAX 1
-#else
 #define APP_BUTTONS_MAX 4
-#endif
 
 enum demo_btn_id {
 	DEMO_BTN_ID_0,

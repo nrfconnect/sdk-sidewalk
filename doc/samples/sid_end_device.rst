@@ -25,18 +25,6 @@ This sample supports the following development kits:
      - PCA
      - Board name
      - Build target
-   * - `nRF52840 DK <nrf52840 Product Page_>`_
-     - PCA10056
-     - `nrf52840dk`_
-     - ``nrf52840dk/nrf52840``
-   * - `nRF5340 DK <nrf5340 Product Page_>`_
-     - PCA10095
-     - `nrf5340dk`_
-     - ``nrf5340dk/nrf5340/cpuapp``
-   * - `Thingy:53 <Thingy53 Product Page_>`_
-     - PCA20053
-     - `thingy53_nrf5340`_
-     - ``thingy53/nrf5340/cpuapp``
    * - `nRF54L15 DK <nRF54L15 Product Page_>`_
      - PCA10156
      - `nrf54l15dk`_
@@ -149,7 +137,7 @@ For example:
 
 .. code-block:: console
 
-   $ west build -b nrf52840dk/nrf52840 -- -DFILE_SUFFIX=release
+   $ west build -b nrf54l15dk/nrf54l15/cpuapp -- -DFILE_SUFFIX=release
 
 .. note::
     Selecting a build type is optional.
@@ -220,7 +208,7 @@ For example, to build the Sidewalk DUT configuration overlay, run the following 
 
 .. code-block:: console
 
-   $ west build -b nrf52840dk/nrf52840 -- -DOVERLAY_CONFIG="overlay-dut.conf"
+   $ west build -b nrf54l15dk/nrf54l15/cpuapp -- -DOVERLAY_CONFIG="overlay-dut.conf"
 
 See the details on running and testing individual variants, as well as enabling available Kconfig options:
 

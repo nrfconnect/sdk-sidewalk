@@ -25,10 +25,6 @@ The sample supports the following development kits:
      - PCA
      - Board name
      - Build target
-   * - `nRF52840 DK <nrf52840 Product Page_>`_
-     - PCA10056
-     - `nrf52840dk`_
-     - ``nrf52840dk/nrf52840``
    * - `nRF54L15 DK <nRF54L15 Product Page_>`_
      - PCA10156
      - `nrf54l15dk`_
@@ -71,13 +67,6 @@ Semtech LR1110 Arduino shield
 =============================
 
 .. tabs::
-
-   .. tab:: nrf52840dk/nrf52840
-
-      .. code-block:: console
-
-         west build -b nrf52840dk/nrf52840 --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
-         west flash
 
    .. tab:: nrf54l15dk/nrf54l15/cpuapp
 

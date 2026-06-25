@@ -45,34 +45,12 @@ For example:
 
 .. code-block:: console
 
-   $ west build -b nrf5340dk/nrf5340/cpuapp -- -DCONFIG_SID_END_DEVICE_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
+   $ west build -b nrf54lv10dk/nrf54lv10a/cpuapp -- -DCONFIG_SID_END_DEVICE_SENSOR_MONITORING=y -DCONFIG_SIDEWALK_SUBGHZ_SUPPORT=n
 
 User Interface
 **************
 
 .. tabs::
-
-   .. group-tab:: nRF52 and nRF53 DKs
-
-      Button 1 (long press):
-         Enter DFU state - This action disables the Sidewalk stack and starts the Bluetooth LE SMP Server.
-         You can update the firmware image using the nRF Connect for mobile application.
-         To exit the DFU state, long press **Button 1**.
-
-      Button 2 (long press):
-         Factory reset - The application informs the Sidewalk stack about the factory reset event.
-         The Sidewalk library clears its configuration from the non-volatile storage.
-         After a successful reset, the device needs to be registered with the cloud services again.
-
-      Button 3 (long press):
-         Toggles the Sidewalk link mask - This action switches from Bluetooth LE to FSK, from FSK to LoRa, and from LoRa to Bluetooth LE.
-         A log message informs about the link mask switch and the status of the operation.
-
-      Button 1-4 (short press):
-         Send button action message - This action works after the application successfully sends capability message.
-
-      LED 1-4:
-         Notify LED action message - Works after the application successfully sends capability message.
 
    .. group-tab:: nRF54 DKs
 
