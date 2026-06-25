@@ -36,18 +36,10 @@ LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 #define FLASH_MEM_CHUNK (128)
 
 #ifndef DEV_ID_REG
-#if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(NRF52832_XXAA)
-#define DEV_ID_REG (uint32_t)(NRF_FICR->DEVICEID[0])
-#elif defined(NRF5340_XXAA)
-#if defined(NRF_APPLICATION)
-#define DEV_ID_REG (uint32_t)(NRF_FICR_S->INFO.DEVICEID[0])
-#elif defined(NRF_NETWORK)
-#define DEV_ID_REG (uint32_t)(NRF_FICR_NS->INFO.DEVICEID[0])
-#endif /* NRF5340_XXAA */
-#elif defined(NRF54L15_ENGA_XXAA)
+#if defined(NRF54L15_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54LV10A_XXAA) || defined(NRF54LM20A_XXAA)
 #define DEV_ID_REG (uint32_t)(NRF_FICR->INFO.DEVICEID[0])
 #else
-#error "Unknow Device ID register."
+#error "Unknown Device ID register."
 #endif
 #endif /* DEV_ID_REG */
 

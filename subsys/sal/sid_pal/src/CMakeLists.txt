@@ -57,17 +57,13 @@ zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature.c)
 else()
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_TEMPERATURE sid_temperature_mock.c)
 message("Note: Sidewalk uses MOCK temperature implementation")
-endif() # CONFIG_SOC_SERIES_NRF53X
+endif() # CONFIG_HAS_HW_NRF_TEMP
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SW_INTERRUPTS sid_sw_interrupts.c)
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DELAY sid_delay.c)
 
-if(CONFIG_SIDEWALK_SPI_BUS_NRFX)
-zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SPI_BUS sid_pal_serial_bus_nrfx_spi.c)
-else()
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_SPI_BUS sid_pal_serial_bus_spi.c)
-endif() # CONFIG_SIDEWALK_SPI_BUS_NRFX
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK sid_common.c)
 
