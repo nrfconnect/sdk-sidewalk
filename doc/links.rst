@@ -3,17 +3,9 @@
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
 .. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/index.html
-.. _nrf52840 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
-.. _nrf5340 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
-.. _Thingy53: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/board_support/board_names.html
 .. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/board_names.html
-.. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf52_gs.html
-.. _Getting started with nRF53 Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides/nrf5340_gs.html
 .. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides.html
 .. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation.html
-.. _nRF52840dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf52840dk/doc/index.html
-.. _nrf5340dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf5340dk/doc/index.html
-.. _thingy53_nrf5340: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/thingy53/doc/index.html
 .. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
 .. _nRF54LV10 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
 .. _nRF54LM20 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
@@ -39,14 +31,13 @@
 
 .. nordicsemi.com
 
-.. _Nordic nRF52840 DK: https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK
+.. _Nordic nRF54L15 DK: https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF54L15-DK
 .. _nRF Command Line Tools: https://www.nordicsemi.com/Software-and-Tools/Development-Tools/nRF-Command-Line-Tools/Download#infotabs
 .. _DevZone DFU guide: https://devzone.nordicsemi.com/guides/nrf-connect-sdk-guides/b/software/posts/ncs-dfu#ble_testing
 .. _Board Configurator: https://docs.nordicsemi.com/bundle/nrf-connect-board-configurator/page/index.html
 .. _nRF Connect for VS Code: https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-VS-Code
 .. _nRF Util: https://www.nordicsemi.com/Products/Development-tools/nRF-Util
 .. _nRF Connect SDK Add-ons: https://nrfconnect.github.io/ncs-app-index/
-.. _Thingy53 Product Page: https://www.nordicsemi.com/Products/Development-hardware/Nordic-Thingy-53
 .. _nrf52840 Product Page: https://www.nordicsemi.com/Products/nRF52840
 .. _nrf5340 Product Page: https://www.nordicsemi.com/Products/nRF5340
 .. _nRF54L15 Product Page: https://www.nordicsemi.com/Products/nRF54L15
@@ -109,8 +100,6 @@
 .. _API Reference: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-aws-api-reference.html
 .. _Sidewalk Mobile SDK Developer Guide: https://docs.sidewalk.amazon/mobile-sdk
 .. _Manufacturing Provisioning: https://docs.sidewalk.amazon/manufacturing/
-.. _nRF52 Production Programming: https://docs.nordicsemi.com/bundle/nwp_027/page/WP/nwp_027/intro.html
-.. _nRF53 Production Programming: https://docs.nordicsemi.com/bundle/nan_042/page/APP/nan_production_programming/intro.html
 .. _Registering and testing your Sidewalk endpoint: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-register-endpoint.html
 .. _AWS Terms of Use: https://aws.amazon.com/service-terms/
 .. _Sidewalk Terms of Use: https://docs.sidewalk.amazon/sidewalk-terms-and-agreements/

@@ -17,8 +17,6 @@ For the list of supported DKs per sample, see the :ref:`samples_list`.
 
 Depending on the device, refer to the getting started guide for setup instructions:
 
-* `Getting started with nRF52 Series`_
-* `Getting started with nRF53 Series`_
 * `Getting started with nRF54L Series`_
 
 Sub-GHz radio transceivers
@@ -49,54 +47,6 @@ Connect the Semtech shield to the Arduino-compatible headers on the development 
 
 
 .. tabs::
-
-   .. tab:: nRF52840 DK
-
-    Refer to the pinout assignment for the nRF52840 DK:
-
-    +---------------+-------------+
-    | SX126X shield | nRF52840 DK |
-    +===============+=============+
-    | BUSY          | P1.4        |
-    +---------------+-------------+
-    | DIO1          | P1.6        |
-    +---------------+-------------+
-    | NSS           | P1.8        |
-    +---------------+-------------+
-    | ANT_SW        | P1.10       |
-    +---------------+-------------+
-    | SPI MOSI      | P1.13       |
-    +---------------+-------------+
-    | SPI MISO      | P1.14       |
-    +---------------+-------------+
-    | SPI SCK       | P1.15       |
-    +---------------+-------------+
-    | NRESET        | P0.3        |
-    +---------------+-------------+
-
-   .. tab:: nRF5340 DK
-
-    Refer to the pinout assignment for the nRF5340 DK:
-
-    +---------------+-------------+
-    | SX126X shield | nRF5340 DK  |
-    +===============+=============+
-    | BUSY          | P1.5        |
-    +---------------+-------------+
-    | DIO1          | P1.7        |
-    +---------------+-------------+
-    | NSS           | P1.9        |
-    +---------------+-------------+
-    | ANT_SW        | P1.10       |
-    +---------------+-------------+
-    | SPI MOSI      | P1.13       |
-    +---------------+-------------+
-    | SPI MISO      | P1.14       |
-    +---------------+-------------+
-    | SPI SCK       | P1.15       |
-    +---------------+-------------+
-    | NRESET        | P0.4        |
-    +---------------+-------------+
 
    .. tab:: nRF54L15 DK
 
@@ -165,32 +115,6 @@ Pinout
 Connect the Semtech LR1110 shield to the Arduino-compatible headers on the development kit.
 
 .. tabs::
-
-   .. tab:: nRF52840 DK
-
-    Refer to the pinout assignment for the nRF52840 DK:
-
-    +---------------+-------------+
-    | LR1110 shield | nRF52840 DK |
-    +===============+=============+
-    | NRESET        | P0.3        |
-    +---------------+-------------+
-    | BUSY          | P1.11       |
-    +---------------+-------------+
-    | DIO1/Event    | P1.13       |
-    +---------------+-------------+
-    | Antenna       | P0.26       |
-    +---------------+-------------+
-    | GNSS LNA      | P0.29       |
-    +---------------+-------------+
-    | SPI NSS       | P1.15       |
-    +---------------+-------------+
-    | SPI MOSI      | P1.13       |
-    +---------------+-------------+
-    | SPI MISO      | P1.14       |
-    +---------------+-------------+
-    | SPI SCK       | P1.15       |
-    +---------------+-------------+
 
    .. tab:: nRF54L15 DK
 

@@ -30,36 +30,6 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
 .. tabs::
 
-   .. group-tab:: nRF52 and nRF53 DKs
-
-      1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
-
-         * If you are using the combined device JSON file obtained from the AWS IoT console, use the ``certificate_json`` parameter.
-           It will specify this file as an input when running the provisioning script.
-
-            .. parsed-literal::
-               :class: highlight
-
-               python3 provision.py nordic aws --output_bin mfg.bin --certificate_json certificate.json --addr 0xFF000
-
-         * If you are using separate device JSON files obtained as responses from the GetDeviceProfile and GetWirelessDevice API operations, use the ``wireless_device_json`` and ``device_profile_json`` parameters.
-           This will specify both files as input when running the provisioning script.
-
-            .. parsed-literal::
-               :class: highlight
-
-               python3 provision.py nordic aws --output_bin mfg.bin --wireless_device_json wireless_device.json --device_profile_json device_profile.json --addr 0xFF000
-
-      #. Flash the generated :file:`nordic_aws_nrf52840.hex` file with the provisioning data:
-
-         .. code-block:: console
-
-            nrfjprog --sectorerase --program nordic_aws_nrf52840.hex --reset
-
-         * If you reflashed the :file:`nordic_aws_nrf52840.hex` file on an already working device, you need to deregister the previously flashed device.
-           To do this, perform a factory reset by long pressing **Button 1**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf52840.hex`) in the Sidewalk network.
-
    .. group-tab:: nRF54L10
 
       1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
