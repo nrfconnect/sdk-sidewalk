@@ -98,6 +98,7 @@
 
 .. _SX1262: https://os.mbed.com/components/SX126xMB2xAS/
 .. _LR1110: https://www.semtech.com/products/wireless-rf/lora-edge/lr1110
+.. _Semtech LR1110MB1LCKS: https://www.semtech.com/products/wireless-rf/lora-edge/lr1110mb1lcks
 .. _Semtech SX1262MB2CAS: https://www.semtech.com/products/wireless-rf/lora-transceivers/sx1262mb2cas
 .. _PICS v2.9.0 - BLE only: https://docs.nordicsemi.com/bundle/Amazon-Sidewalk-Protocol-PICS---BLE-only/resource/Amazon_Sidewalk_Protocol_PICS_-_BLE_only.pdf
 .. _PICS v2.9.0: https://docs.nordicsemi.com/bundle/Amazon-Sidewalk-Protocol-PICS/resource/Amazon_Sidewalk_Protocol_PICS.pdf
