@@ -18,7 +18,26 @@ Requirements
 
 The sample supports the following development kits:
 
-.. table-from-sample-yaml::
+.. list-table::
+   :header-rows: 1
+
+   * - Hardware platforms
+     - PCA
+     - Board name
+     - Build target
+   * - `nRF52840 DK <nrf52840 Product Page_>`_
+     - PCA10056
+     - `nrf52840dk`_
+     - ``nrf52840dk/nrf52840``
+   * - `nRF54L15 DK <nRF54L15 Product Page_>`_
+     - PCA10156
+     - `nrf54l15dk`_
+     - ``nrf54l15dk/nrf54l15/cpuapp``
+   * - `nRF54LM20 DK <nRF54LM20A Product Page_>`_
+     - PCA10184
+     - `nrf54lm20dk`_
+     - | ``nrf54lm20dk/nrf54lm20a/cpuapp``
+       | ``nrf54lm20dk/nrf54lm20b/cpuapp``
 
 You also need one of the following LR1110 radio boards:
 
@@ -42,6 +61,10 @@ The firmware image with the version ``0x0401`` is already a part of the sample.
 Building and running
 ********************
 
+This sample can be found under :file:`samples/lr11xx_firmware_update`.
+
+For general instructions on building the sample, follow the steps in the `Building and programming an application`_ documentation.
+
 Build and flash the sample for your board and shield combination.
 
 Semtech LR1110 Arduino shield
@@ -51,21 +74,17 @@ Semtech LR1110 Arduino shield
 
    .. tab:: nrf52840dk/nrf52840
 
-      .. zephyr-app-commands::
-         :app: sidewalk/samples/lr11xx_firmware_update
-         :board: nrf52840dk/nrf52840
-         :shield: simple_arduino_adapter;semtech_lr1110mb1xxs
-         :goals: build flash
-         :compact:
+      .. code-block:: console
+
+         west build -b nrf52840dk/nrf52840 --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
+         west flash
 
    .. tab:: nrf54l15dk/nrf54l15/cpuapp
 
-      .. zephyr-app-commands::
-         :app: sidewalk/samples/lr11xx_firmware_update
-         :board: nrf54l15dk/nrf54l15/cpuapp
-         :shield: simple_arduino_adapter;semtech_lr1110mb1xxs
-         :goals: build flash
-         :compact:
+      .. code-block:: console
+
+         west build -b nrf54l15dk/nrf54l15/cpuapp --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
+         west flash
 
 nRF Sidewalk EB shield
 ======================
@@ -74,30 +93,24 @@ nRF Sidewalk EB shield
 
    .. tab:: nrf54l15dk/nrf54l15/cpuapp
 
-      .. zephyr-app-commands::
-         :app: sidewalk/samples/lr11xx_firmware_update
-         :board: nrf54l15dk/nrf54l15/cpuapp
-         :shield: nrf_sidewalk_eb
-         :goals: build flash
-         :compact:
+      .. code-block:: console
+
+         west build -b nrf54l15dk/nrf54l15/cpuapp --shield nrf_sidewalk_eb
+         west flash
 
    .. tab:: nrf54lm20dk/nrf54lm20a/cpuapp
 
-      .. zephyr-app-commands::
-         :app: sidewalk/samples/lr11xx_firmware_update
-         :board: nrf54lm20dk/nrf54lm20a/cpuapp
-         :shield: nrf_sidewalk_eb
-         :goals: build flash
-         :compact:
+      .. code-block:: console
+
+         west build -b nrf54lm20dk/nrf54lm20a/cpuapp --shield nrf_sidewalk_eb
+         west flash
 
    .. tab:: nrf54lm20dk/nrf54lm20b/cpuapp
 
-      .. zephyr-app-commands::
-         :app: sidewalk/samples/lr11xx_firmware_update
-         :board: nrf54lm20dk/nrf54lm20b/cpuapp
-         :shield: nrf_sidewalk_eb
-         :goals: build flash
-         :compact:
+      .. code-block:: console
+
+         west build -b nrf54lm20dk/nrf54lm20b/cpuapp --shield nrf_sidewalk_eb
+         west flash
 
 Testing
 *******

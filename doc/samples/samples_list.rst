@@ -37,4 +37,5 @@ The following table demonstrates the variants' configuration for the supported d
    :glob:
    :caption: Subpages:
 
+   lr11xx_firmware_update.rst
    sid_end_device.rst

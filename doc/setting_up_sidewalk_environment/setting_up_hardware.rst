@@ -233,7 +233,7 @@ For supported boards, pin assignment, and usage requirements, refer to :ref:`nrf
    :maxdepth: 1
    :hidden:
 
-   ../../boards/shields/nrf_sidewalk_eb/doc/index
+   ../boards/shields/nrf_sidewalk_eb/index.rst
 
 The minimum version of Semtech LR1110 firmware is ``0x0401``.
 The version is reported in Sidewalk logs during sub-GHz radio initialization:

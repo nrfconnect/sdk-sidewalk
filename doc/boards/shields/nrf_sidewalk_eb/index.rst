@@ -1,4 +1,4 @@
-.. nrf_sidewalk_eb:
+.. _nrf_sidewalk_eb:
 
 nRF Sidewalk EB shield
 ######################
