@@ -7,16 +7,14 @@ LR11xx firmware update
    :local:
    :depth: 2
 
-This sample updates the Semtech LR1110 transceiver firmware to version ``0x0401``.
-The minimum LR1110 firmware version required by Sidewalk is ``0x0401``.
-
-Use this sample when the LR1110 module runs an older firmware version and Sidewalk sub-GHz samples fail during radio initialization.
+This sample updates the Semtech LR1110 transceiver firmware to version ``0x0401``, which is the minimum version required by Sidewalk.
+Use it when the LR1110 module runs older firmware and Sidewalk sub-GHz samples fail during radio initialization.
 After a successful update, flash a Sidewalk application such as :ref:`sidewalk_end_device`.
 
 Requirements
 ************
 
-The sample supports the following development kits:
+This sample supports the following development kits:
 
 .. list-table::
    :header-rows: 1
@@ -49,10 +47,10 @@ The sample initializes the Sidewalk radio platform, resets the LR1110 into bootl
 It then verifies that the transceiver reports the expected firmware version.
 
 The sample does not start the Sidewalk stack or connect to a gateway.
-It is intended to be run once before flashing a full Sidewalk application.
+Run it once before flashing a full Sidewalk application.
 
 The LR1110 firmware images are available in the `LR11xx firmware images repository`_.
-The firmware image with the version ``0x0401`` is already a part of the sample.
+The sample already includes the ``0x0401`` firmware image.
 
 Building and running
 ********************
@@ -61,7 +59,7 @@ This sample can be found under :file:`samples/lr11xx_firmware_update`.
 
 For general instructions on building the sample, follow the steps in the `Building and programming an application`_ documentation.
 
-Build and flash the sample for your board and shield combination.
+Build and flash the sample for your board and shield combination using the following commands.
 
 Semtech LR1110 Arduino shield
 =============================
@@ -102,10 +100,14 @@ nRF Sidewalk EB shield
          west flash
 
 Testing
-*******
+=======
+
+See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
+
+After building and flashing the sample, complete the following steps to verify the update:
 
 #. Connect the development kit to your PC using a USB cable.
-#. Connect the LR1110 radio shield to the development kit.
+#. Connect the LR1110 radio board to the development kit.
 #. Connect to the kit with a terminal emulator (115200 baud, 8 data bits, 1 stop bit, no parity).
 #. Build and flash the sample.
 #. Observe the log output.
