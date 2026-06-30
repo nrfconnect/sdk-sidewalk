@@ -31,9 +31,6 @@ config DFU_MULTI_IMAGE_PACKAGE_APP
 config MERGED_HEX_FILES
 	default y
 
-config PM_EXTERNAL_FLASH_MCUBOOT_SECONDARY
-	default y if !SOC_NRF54L15 && !SOC_NRF54LV10A && !SOC_NRF54LM20A
-
 endif # BOOTLOADER_MCUBOOT
 
 source "${ZEPHYR_BASE}/share/sysbuild/Kconfig"
