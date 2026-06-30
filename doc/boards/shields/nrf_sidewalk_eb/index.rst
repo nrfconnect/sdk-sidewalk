@@ -3,13 +3,13 @@
 nRF Sidewalk EB shield
 ######################
 
+The nRF Sidewalk EB shield is a Nordic Semiconductor expansion board for the nRF54L15 DK and nRF54LM20 DK.
+
 Overview
 ********
 
-The nRF Sidewalk EB shield is a Nordic Semiconductor expansion board for the
-nRF54L15 DK and nRF54LM20 DK. It mounts on the DK expansion port and carries
-an LR1110 radio module (LBAA0XV2DT) with antennas for LoRa, Wi-Fi, and GNSS,
-plus a status LED.
+The shield mounts on the DK expansion port. 
+It includes an LR1110 radio module (LBAA0XV2DT) with LoRa, Wi-Fi, and GNSS antennas, and a status LED.
 
 .. figure:: /images/nrf-sidewalk-eb.webp
    :align: center
@@ -18,6 +18,8 @@ plus a status LED.
 
 Supported boards
 ================
+
+Use one of the following board targets when building with this shield:
 
 * ``nrf54l15dk/nrf54l15/cpuapp``
 * ``nrf54l15dk/nrf54l15/cpuapp/ns``
@@ -28,8 +30,9 @@ Supported boards
 Pin assignment
 ==============
 
-Control signals use the ``nordic_expansion_header`` pin indices from the shield
-devicetree. SPI uses the ``nordic_expansion_spi`` bus on the DK.
+Control signals follow ``nordic_expansion_header`` pin indices from the shield devicetree.
+SPI uses the ``nordic_expansion_spi`` bus on the DK.
+Pin mappings differ depending on the development kit you are using.
 
 .. tabs::
 
@@ -94,27 +97,28 @@ devicetree. SPI uses the ``nordic_expansion_spi`` bus on the DK.
 Requirements
 ************
 
+Mount the shield on the correct expansion header and avoid pin conflicts with on-board DK peripherals.
+The following constraints apply to the nRF54L15 DK.
+
 nRF54L15 DK
 ===========
 
-The shield connects to the **Port P1** expansion header. Several on-board DK
-resources share pins with the LR1110:
+Connect the shield to the **Port P1** expansion header.
+Several on-board DK resources share pins with the LR1110 and are unavailable while the shield is connected:
 
 * Do not press **Button 0** (P1.13), **Button 1** (P1.09), or **Button 2** (P1.08)
-  while the shield is connected. These pins are used for LR1110 EVENT, GNSS LNA,
-  and the shield LED, respectively.
-* **LED 1** (P1.10) and **LED 3** (P1.14) share pins with LR1110 SPI NSS and BUSY
-  and are unavailable while the shield is connected.
-* Do not enable **UART20** hardware flow control. RTS and CTS are routed to
-  P1.06 and P1.07, which are used for SPI MOSI and MISO.
+  while the shield is connected. 
+  These pins are used for LR1110 EVENT, GNSS LNA, and the shield LED, respectively.
+* **LED 1** (P1.10) and **LED 3** (P1.14) share pins with LR1110 SPI NSS and BUSY and are unavailable while the shield is connected.
+* Do not enable **UART20** hardware flow control. 
+  RTS and CTS are routed to P1.06 and P1.07, which are used for SPI MOSI and MISO.
 
 Programming
 ***********
 
-Set ``-DSHIELD=nrf_sidewalk_eb`` when you invoke ``west build``. For example:
+Set ``-DSHIELD=nrf_sidewalk_eb`` when you invoke ``west build``.
+For example:
 
-.. zephyr-app-commands::
-   :zephyr-app: samples/subsys/lorawan/class_a
-   :board: nrf54lm20dk/nrf54lm20b/cpuapp
-   :shield: nrf_sidewalk_eb
-   :goals: build
+.. code-block:: console
+
+   west build -b nrf54lm20dk/nrf54lm20b/cpuapp --shield nrf_sidewalk_eb samples/sid_end_device
