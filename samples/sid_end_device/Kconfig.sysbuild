@@ -18,10 +18,6 @@ choice MCUBOOT_MODE
 	default MCUBOOT_MODE_OVERWRITE_ONLY
 endchoice
 
-choice BOOT_SIGNATURE_TYPE
-	default BOOT_SIGNATURE_TYPE_RSA
-endchoice
-
 config DFU_MULTI_IMAGE_PACKAGE_BUILD
 	default y
 
