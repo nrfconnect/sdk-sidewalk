@@ -11,6 +11,7 @@ For details, refer the following release notes:
    :glob:
    :caption: Release notes:
 
+   releases_and_migration/release_notes_addon_changelog.rst
    releases_and_migration/release_notes_addon_v120.rst
    releases_and_migration/release_notes_addon_v110.rst
    releases_and_migration/release_notes_addon_v101.rst
@@ -25,6 +26,7 @@ See the available migration guides that will assist you in the transitioning fro
    :maxdepth: 1
    :glob:
 
+   releases_and_migration/migration_guide_addon_changelog.rst
    releases_and_migration/migration_guide_addon_v120.rst
    releases_and_migration/migration_guide_addon_v110.rst
    releases_and_migration/migration_guide_addon_v010.rst
