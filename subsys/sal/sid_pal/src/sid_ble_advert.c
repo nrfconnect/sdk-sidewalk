@@ -84,6 +84,20 @@ static struct bt_le_adv_param adv_param_slow = {
 typedef enum { BLE_ADV_DISABLE, BLE_ADV_FAST, BLE_ADV_SLOW } sid_ble_adv_state_t;
 static atomic_t adv_state = ATOMIC_INIT(BLE_ADV_DISABLE);
 
+static const char *adv_state_str(sid_ble_adv_state_t state)
+{
+	switch (state) {
+	case BLE_ADV_DISABLE:
+		return "DISABLE";
+	case BLE_ADV_FAST:
+		return "FAST";
+	case BLE_ADV_SLOW:
+		return "SLOW";
+	default:
+		return "UNKNOWN";
+	}
+}
+
 static void adv_interval_change(struct k_work *);
 K_WORK_DELAYABLE_DEFINE(change_adv_work, adv_interval_change);
 
@@ -184,7 +198,7 @@ static uint8_t adv_manuf_data_copy(uint8_t *data, uint8_t data_len)
 
 int sid_ble_advert_init(void)
 {
-	/* No initialization needed, left for backward compatibility */
+	atomic_set(&adv_state, BLE_ADV_DISABLE);
 	return 0;
 }
 
@@ -234,20 +248,32 @@ int sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 
 	ad[ADV_DATA_MANUF_DATA].data_len = adv_manuf_data_copy(data, data_len);
 
-	int err = 0;
-
-	if (BLE_ADV_DISABLE != state) {
-		/* Update currently advertised set, the other one will be set on start/transition */
-		err = bt_le_ext_adv_set_data(adv_set, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+	if (BLE_ADV_DISABLE == state) {
+		return 0;
 	}
 
-	return err;
+	if (adv_set == NULL) {
+		LOG_WRN("update: stale state=%s adv_set=NULL, cached mfg data only",
+			adv_state_str(state));
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
+		return 0;
+	}
+
+	return bt_le_ext_adv_set_data(adv_set, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
 }
 
 void sid_ble_advert_notify_connection(void)
 {
-	LOG_DBG("Connection has been made, cancel change adv");
+	sid_ble_adv_state_t state = atomic_get(&adv_state);
+
+	LOG_DBG("Connection made, cancel change adv (state=%s adv_set=%p)", adv_state_str(state),
+		adv_set);
 	k_work_cancel_delayable(&change_adv_work);
+	if (state != BLE_ADV_DISABLE) {
+		LOG_DBG("notify_connection: state %s -> DISABLE (adv stopped by stack)",
+			adv_state_str(state));
+		atomic_set(&adv_state, BLE_ADV_DISABLE);
+	}
 }
 
 int sid_ble_advert_params_set(sid_ble_advert_params_t *params)
@@ -293,14 +319,36 @@ int sid_ble_advert_stop(void)
 
 int sid_ble_advert_deinit(void)
 {
+	struct k_work_sync sync;
+	sid_ble_adv_state_t prev_state = atomic_get(&adv_state);
+
+	(void)k_work_cancel_delayable_sync(&change_adv_work, &sync);
+
+	if (prev_state != BLE_ADV_DISABLE || adv_set != NULL) {
+		LOG_INF("deinit: state=%s adv_set=%p", adv_state_str(prev_state), adv_set);
+	}
+
 	if (adv_set) {
-		int err = bt_le_ext_adv_delete(adv_set);
+		int err = bt_le_ext_adv_stop(adv_set);
+
 		if (err) {
-			LOG_ERR("Failed to delete adv_set_fast errno %d (%s)", err, strerror(err));
+			LOG_DBG("deinit: bt_le_ext_adv_stop err %d (continuing to delete)", err);
+		}
+		err = bt_le_ext_adv_delete(adv_set);
+
+		if (err) {
+			LOG_ERR("Failed to delete adv_set errno %d (%s)", err, strerror(err));
+			adv_set = NULL;
+			atomic_set(&adv_state, BLE_ADV_DISABLE);
 			return err;
 		}
 		adv_set = NULL;
 	}
+
+	if (prev_state != BLE_ADV_DISABLE) {
+		LOG_WRN("deinit: reset stale adv_state %s -> DISABLE", adv_state_str(prev_state));
+	}
+	atomic_set(&adv_state, BLE_ADV_DISABLE);
 
 	return 0;
 }

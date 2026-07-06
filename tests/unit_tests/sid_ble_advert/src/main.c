@@ -54,11 +54,27 @@ static int bt_le_ext_adv_create_custom_fake(const struct bt_le_adv_param *a,
 	return bt_le_ext_adv_create_fake.return_val;
 }
 
+static void advert_start_with_fakes(void)
+{
+	bt_le_ext_adv_create_fake.custom_fake = bt_le_ext_adv_create_custom_fake;
+	bt_le_ext_adv_create_fake.return_val = 0;
+	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_delete_fake.return_val = ESUCCESS;
+	zassert_equal(ESUCCESS, sid_ble_advert_start());
+}
+
 static void before_test(void *fixture)
 {
 	ARG_UNUSED(fixture);
 
 	FFF_FAKES_LIST(RESET_FAKE);
+	FFF_RESET_HISTORY();
+
+	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
+	bt_le_ext_adv_delete_fake.return_val = ESUCCESS;
+	(void)sid_ble_advert_deinit();
 	FFF_RESET_HISTORY();
 }
 
@@ -68,12 +84,13 @@ ZTEST(ble_advert, test_sid_ble_advert_start)
 {
 	size_t adv_start_call_count = 0;
 
-	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
-	zassert_equal(ESUCCESS, sid_ble_advert_start());
-	adv_start_call_count++;
-	zassert_equal(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
+	advert_start_with_fakes();
+	adv_start_call_count = bt_le_ext_adv_start_fake.call_count;
 
+	bt_le_ext_adv_create_fake.custom_fake = bt_le_ext_adv_create_custom_fake;
+	bt_le_ext_adv_create_fake.return_val = 0;
 	bt_le_ext_adv_start_fake.return_val = -ENOENT;
+	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	zassert_equal(-ENOENT, sid_ble_advert_start());
 	adv_start_call_count++;
 	zassert_equal(adv_start_call_count, bt_le_ext_adv_start_fake.call_count);
@@ -108,10 +125,8 @@ ZTEST(ble_advert, test_sid_ble_advert_update)
 	uint8_t test_data[] = "Lorem ipsum.";
 	size_t adv_update_call_count = 0;
 
-	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
-	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	zassert_equal(ESUCCESS, sid_ble_advert_start());
-	adv_update_call_count++;
+	advert_start_with_fakes();
+	adv_update_call_count = bt_le_ext_adv_set_data_fake.call_count;
 	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 	adv_update_call_count++;
 	zassert_equal(adv_update_call_count, bt_le_ext_adv_set_data_fake.call_count);
@@ -134,7 +149,7 @@ ZTEST(ble_advert, test_sid_ble_advert_update_in_every_state)
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	zassert_equal(ESUCCESS, sid_ble_advert_start());
+	advert_start_with_fakes();
 	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
 	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
@@ -174,8 +189,7 @@ ZTEST(ble_advert, test_sid_ble_advert_update_before_start)
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
 	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
 
-	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
-	zassert_equal(ESUCCESS, sid_ble_advert_start());
+	advert_start_with_fakes();
 
 	advert_data = bt_le_ext_adv_set_data_fake.arg1_val;
 	advert_data_size = bt_le_ext_adv_set_data_fake.arg2_val;
@@ -199,7 +213,7 @@ static void check_sid_ble_advert_update(uint8_t *data, uint8_t data_len)
 
 	bt_le_ext_adv_start_fake.return_val = ESUCCESS;
 	bt_le_ext_adv_set_data_fake.return_val = ESUCCESS;
-	zassert_equal(ESUCCESS, sid_ble_advert_start());
+	advert_start_with_fakes();
 	zassert_equal(ESUCCESS, sid_ble_advert_update(data, data_len));
 
 	advert_data = bt_le_ext_adv_set_data_fake.arg1_val;
@@ -252,6 +266,99 @@ ZTEST(ble_advert, test_sid_ble_advert_params_set_get)
 
 ZTEST(ble_advert, test_sid_ble_advert_notify_connection)
 {
+	uint8_t test_data[] = "connected";
+	size_t set_data_calls;
+
+	advert_start_with_fakes();
+	set_data_calls = bt_le_ext_adv_set_data_fake.call_count;
+
 	sid_ble_advert_notify_connection();
-	/* No crash; implementation cancels delayed work. */
+
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(set_data_calls, bt_le_ext_adv_set_data_fake.call_count,
+		      "update must not touch HCI after connection");
+}
+
+ZTEST(ble_advert, test_sid_ble_advert_deinit_idle)
+{
+	zassert_equal(ESUCCESS, sid_ble_advert_deinit());
+	zassert_equal(0, bt_le_ext_adv_stop_fake.call_count);
+	zassert_equal(0, bt_le_ext_adv_delete_fake.call_count);
+}
+
+ZTEST(ble_advert, test_sid_ble_advert_deinit_active)
+{
+	size_t stop_before;
+	size_t delete_before;
+
+	advert_start_with_fakes();
+	stop_before = bt_le_ext_adv_stop_fake.call_count;
+	delete_before = bt_le_ext_adv_delete_fake.call_count;
+	zassert_equal(ESUCCESS, sid_ble_advert_deinit());
+	zassert_equal(stop_before + 1, bt_le_ext_adv_stop_fake.call_count,
+		      "deinit must stop active advertising once");
+	zassert_equal(delete_before + 1, bt_le_ext_adv_delete_fake.call_count,
+		      "deinit must delete active advertising set once");
+}
+
+ZTEST(ble_advert, test_sid_ble_advert_deinit_stop_error)
+{
+	advert_start_with_fakes();
+	bt_le_ext_adv_stop_fake.return_val = -EIO;
+	bt_le_ext_adv_delete_fake.return_val = ESUCCESS;
+
+	zassert_equal(ESUCCESS, sid_ble_advert_deinit());
+	zassert_equal(1, bt_le_ext_adv_stop_fake.call_count);
+	zassert_equal(1, bt_le_ext_adv_delete_fake.call_count);
+}
+
+ZTEST(ble_advert, test_sid_ble_advert_deinit_delete_fails)
+{
+	advert_start_with_fakes();
+	bt_le_ext_adv_delete_fake.return_val = -EINVAL;
+
+	zassert_equal(-EINVAL, sid_ble_advert_deinit());
+	zassert_equal(1, bt_le_ext_adv_stop_fake.call_count);
+	zassert_equal(1, bt_le_ext_adv_delete_fake.call_count);
+}
+
+ZTEST(ble_advert, test_sid_ble_advert_connected_deinit_restart)
+{
+	uint8_t test_data[] = "reinit";
+	size_t set_data_calls;
+
+	advert_start_with_fakes();
+	sid_ble_advert_notify_connection();
+
+	zassert_equal(ESUCCESS, sid_ble_advert_deinit());
+	zassert_equal(1, bt_le_ext_adv_stop_fake.call_count);
+	zassert_equal(1, bt_le_ext_adv_delete_fake.call_count);
+
+	set_data_calls = bt_le_ext_adv_set_data_fake.call_count;
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(set_data_calls, bt_le_ext_adv_set_data_fake.call_count,
+		      "update must cache mfg data only before restart");
+
+	advert_start_with_fakes();
+}
+
+ZTEST(ble_advert, test_sid_ble_advert_stop_fail_deinit_restart)
+{
+	uint8_t test_data[] = "after stop fail";
+	size_t set_data_calls;
+
+	advert_start_with_fakes();
+	bt_le_ext_adv_stop_fake.return_val = -EIO;
+	zassert_equal(-EIO, sid_ble_advert_stop());
+
+	bt_le_ext_adv_delete_fake.return_val = ESUCCESS;
+	zassert_equal(ESUCCESS, sid_ble_advert_deinit());
+
+	set_data_calls = bt_le_ext_adv_set_data_fake.call_count;
+	zassert_equal(ESUCCESS, sid_ble_advert_update(test_data, sizeof(test_data)));
+	zassert_equal(set_data_calls, bt_le_ext_adv_set_data_fake.call_count,
+		      "deinit must reset stale state after failed stop");
+
+	bt_le_ext_adv_stop_fake.return_val = ESUCCESS;
+	advert_start_with_fakes();
 }
