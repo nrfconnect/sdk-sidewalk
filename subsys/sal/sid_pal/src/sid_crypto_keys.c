@@ -41,13 +41,13 @@ static void sid_crypto_keys_attributes_set(sid_crypto_key_id_t sid_key_id,
 
 	switch (sid_key_id) {
 	case SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID:
-		usage_flags = PSA_KEY_USAGE_SIGN_HASH;
+		usage_flags = PSA_KEY_USAGE_SIGN_MESSAGE;
 		alg = PSA_ALG_PURE_EDDSA;
 		type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_TWISTED_EDWARDS);
 		key_bits = 255;
 		break;
 	case SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID:
-		usage_flags = PSA_KEY_USAGE_SIGN_HASH;
+		usage_flags = PSA_KEY_USAGE_SIGN_MESSAGE;
 		alg = PSA_ALG_ECDSA(PSA_ALG_SHA_256);
 		type = PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1);
 		key_bits = 256;
