@@ -21,6 +21,14 @@ config SIDEWALK_SETTINGS_UTILS
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	default y
 
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU
+	bool "Store persistent Sidewalk keys in nRF54L KMU"
+	default y
+
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START
+	depends on SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU
+	default 173
+
 config SIDEWALK_CRYPTO_LOG_LEVEL
 	default 0
 

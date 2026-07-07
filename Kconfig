@@ -207,6 +207,25 @@ config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	  it must be enabled in every subsequent build.
 	  Otherwise, the keys will not be found and Sidewalk will not start.
 
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU
+	bool "Store persistent Sidewalk keys in KMU"
+	depends on SIDEWALK_CRYPTO_PSA_KEY_STORAGE
+	depends on CRACEN_LIB_KMU
+	default y
+	help
+	  Store persistent Sidewalk PSA keys in the CRACEN Key Management Unit (KMU)
+	  instead of the default PSA trusted storage backend.
+
+config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START
+	int "Start of the Sidewalk KMU slot range"
+	depends on SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU
+	range 0 173
+	default 128
+	help
+	  First KMU slot used by Sidewalk persistent keys. Sidewalk reserves five
+	  consecutive key IDs starting from this value. Some keys span multiple
+	  KMU slots, so the range occupies seven consecutive KMU slots.
+
 config SIDEWALK_USE_PREBUILTS
 	bool "Use prebuilt Sidewalk libraries"
 	default y

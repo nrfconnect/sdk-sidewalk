@@ -9,20 +9,41 @@
 
 #include <psa/crypto.h>
 
-#define SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(_id)                                                    \
-	(PSA_KEY_ID_USER_MIN <= _id && _id < SID_CRYPTO_KEY_ID_LAST)
+#if defined(CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU)
+#include <cracen_psa_kmu.h>
+
+#define SID_CRYPTO_KMU_KEY_ID(_offset)                                                             \
+	PSA_KEY_HANDLE_FROM_CRACEN_KMU_SLOT(                                                       \
+		CRACEN_KMU_KEY_USAGE_SCHEME_RAW,                                                   \
+		CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START + (_offset))
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU */
 
 /**
  * @brief Persistent psa key ids used in Sidewalk.
  */
 typedef enum {
+#if defined(CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU)
+	SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID = SID_CRYPTO_KMU_KEY_ID(0), /* occupies 2 KMU slots */
+	SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID = SID_CRYPTO_KMU_KEY_ID(2), /* occupies 2 KMU slots */
+	SID_CRYPTO_KV_WAN_MASTER_KEY_ID = SID_CRYPTO_KMU_KEY_ID(4),
+	SID_CRYPTO_KV_APP_KEY_KEY_ID = SID_CRYPTO_KMU_KEY_ID(5),
+	SID_CRYPTO_KV_D2D_KEY_ID = SID_CRYPTO_KMU_KEY_ID(6),
+	SID_CRYPTO_KEY_ID_LAST
+#else
 	SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID = PSA_KEY_ID_USER_MIN,
 	SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID,
 	SID_CRYPTO_KV_WAN_MASTER_KEY_ID,
 	SID_CRYPTO_KV_APP_KEY_KEY_ID,
 	SID_CRYPTO_KV_D2D_KEY_ID,
 	SID_CRYPTO_KEY_ID_LAST
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU */
 } sid_crypto_key_id_t;
+
+#define SID_CRYPTO_KEYS_ID_IS_SIDEWALK_KEY(_id)                                                    \
+	((_id) == SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID ||                                            \
+	 (_id) == SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID ||                                         \
+	 (_id) == SID_CRYPTO_KV_WAN_MASTER_KEY_ID || (_id) == SID_CRYPTO_KV_APP_KEY_KEY_ID ||      \
+	 (_id) == SID_CRYPTO_KV_D2D_KEY_ID)
 
 /**
  * @brief Init secure key storage for Sidewalk keys.
