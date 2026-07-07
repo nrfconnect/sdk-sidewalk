@@ -35,14 +35,15 @@ Perform a pristine build of the application after adding this override.
 Persistent Sidewalk keys in KMU
 *******************************
 
-This release stores persistent Sidewalk cryptographic keys in the Key Management Unit (KMU) by default on supported nRF54L Series platforms.
-The feature is controlled by the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option.
+Persistent Sidewalk cryptographic keys are now stored in the Key Management Unit (KMU) by default on supported nRF54L Series platforms.
+Use the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option to control this feature.
 
 If you update devices that already have keys stored by an earlier firmware version, set ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU=n`` to keep the keys accessible.
-Switching an already-provisioned product from the default PSA trusted storage backend to KMU changes the PSA key IDs used by Sidewalk, as well as the storage location, so existing keys will not be found.
+Switching a provisioned product from the PSA trusted storage to KMU changes both the storage location and the PSA key IDs, so Sidewalk cannot find the existing keys.
 
-For new products, use the KMU default and make sure that your application does not use the same KMU slots for other keys.
-Sidewalk starts at ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START`` and reserves seven consecutive KMU slots:
+For new products, use the KMU default.
+Make sure that your application does not use the same KMU slots for other keys.
+Sidewalk starts at the slot defined by the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START`` Kconfig option and reserves seven consecutive KMU slots:
 
 * Two slots for the manufacturing ED25519 private key.
 * Two slots for the manufacturing secp256r1 private key.

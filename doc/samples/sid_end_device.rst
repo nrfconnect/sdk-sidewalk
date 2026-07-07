@@ -149,15 +149,15 @@ Secure Key Storage support
 The Sidewalk Platform Abstraction Layer for nRF Connect SDK supports a trusted storage mechanism to securely store non-volatile Sidewalk keys.
 The feature is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option.
 
-The trusted storage can be configured to store the keys in one of the following locations:
+Configure the trusted storage to store the keys in one of the following locations:
 
-* Key Management Unit (KMU), enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option.
-* Settings partition, otherwise.
+* Key Management Unit (KMU) - Enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option.
+* Settings partition - Used when the KMU option is disabled.
 
 .. note::
 
-   Once keys are moved to the trusted storage, it is impossible to read them back and move into MFG storage.
-   Therefore, do not update your firmware to versions that do not support the trusted storage, or use a different storage backend.
+   Once keys are moved to the trusted storage, you cannot read them back and move into MFG storage.
+   For this reason, do not update your firmware to versions that do not support the trusted storage, or use a different storage backend.
 
 Device Firmware Upgrade support
 ===============================
