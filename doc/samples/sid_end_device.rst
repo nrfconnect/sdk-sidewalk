@@ -146,18 +146,18 @@ For example:
 Secure Key Storage support
 ==========================
 
-The Sidewalk Platform Abstraction Layer for nRF Connect SDK supports a trusted storage mechanism for non-volatile Sidewalk keys, ensuring they are stored persistently and confidentially.
+The Sidewalk Platform Abstraction Layer for nRF Connect SDK supports a trusted storage mechanism to securely store non-volatile Sidewalk keys.
 The feature is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option.
+
+The trusted storage can be configured to store the keys in one of the following locations:
+
+* Key Management Unit (KMU), enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option.
+* Settings partition, otherwise.
 
 .. note::
 
-   Once keys are moved to trusted storage, it is impossible to retrieve them back into MFG storage.
-   Therefore, you must not update your firmware to versions that do not support trusted storage for non-volatile Sidewalk keys.
-
-.. warning::
-  Once keys are moved to trusted storage, you MUST NOT change the settings backend. Otherwise, you will lose data, and the device will become inoperable!
-
-  E.g. when ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` is enabled you MUST NOT switch from `CONFIG_NVS <https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/services/storage/nvs/nvs.html>`_ to `CONFIG_ZMS <https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/services/storage/zms/zms.html>`_.
+   Once keys are moved to the trusted storage, it is impossible to read them back and move into MFG storage.
+   Therefore, do not update your firmware to versions that do not support the trusted storage, or use a different storage backend.
 
 Device Firmware Upgrade support
 ===============================

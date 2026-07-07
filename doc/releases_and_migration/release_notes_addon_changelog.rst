@@ -25,6 +25,8 @@ Changelog
     On the nRF54L Series platforms, the bootloader now uses ED25519 instead of RSA.
     This reduces MCUboot boot time compared to RSA-based verification.
   * MCUboot configuration to align with NCS recommendations: picolibc and link-time optimization (LTO).
+  * Persistent Sidewalk key storage to use Key Management Unit (KMU) by default.
+    Use ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU=n`` to keep the default settings-based PSA trusted storage backend.
 
 * Removed:
 

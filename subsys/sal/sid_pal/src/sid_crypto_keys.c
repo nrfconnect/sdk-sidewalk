@@ -70,7 +70,13 @@ static void sid_crypto_keys_attributes_set(sid_crypto_key_id_t sid_key_id,
 	psa_set_key_type(attr, type);
 	psa_set_key_bits(attr, key_bits);
 
+#if defined(CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU)
+	psa_set_key_lifetime(attr, PSA_KEY_LIFETIME_FROM_PERSISTENCE_AND_LOCATION(
+					   PSA_KEY_PERSISTENCE_DEFAULT,
+					   PSA_KEY_LOCATION_CRACEN_KMU));
+#else
 	psa_set_key_lifetime(attr, PSA_KEY_LIFETIME_PERSISTENT);
+#endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU */
 	psa_set_key_id(attr, sid_key_id);
 }
 
