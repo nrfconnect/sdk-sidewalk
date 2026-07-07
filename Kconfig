@@ -198,9 +198,8 @@ config SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7
 	  and will be supported after enabling this configuration.
 
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-	bool "PSA crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
+	bool "PSA crypto storage for persistent Sidewalk keys"
 	default SIDEWALK
-	select EXPERIMENTAL
 	help
 	  Use secure key storage for persistent Sidewalk keys.
 	  Once you flash the firmware with this config enabled,
@@ -220,7 +219,7 @@ config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START
 	int "Start of the Sidewalk KMU slot range"
 	depends on SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU
 	range 0 173
-	default 128
+	default 173
 	help
 	  First KMU slot used by Sidewalk persistent keys. Sidewalk reserves five
 	  consecutive key IDs starting from this value. Some keys span multiple
