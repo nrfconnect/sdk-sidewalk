@@ -1,0 +1,110 @@
+name: Documentation Build
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - 'v*-branch'
+    paths:
+      - '.github/workflows/doc_build.yml'
+      - 'doc/**'
+  push:
+    branches:
+      - main
+      - 'v*-branch'
+    tags:
+      - v*
+    paths:
+      - '.github/workflows/doc_build.yml'
+      - 'doc/**'
+
+env:
+  DOXYGEN_VERSION: 1.12.0
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: ncs/sidewalk
+
+      - name: Install system dependencies
+        run: |
+          sudo apt update
+          sudo apt-get install -y graphviz plantuml
+          wget --no-verbose "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION//./_}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz"
+          sudo tar xf doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz -C /opt
+          echo "/opt/doxygen-${DOXYGEN_VERSION}/bin" >> $GITHUB_PATH
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: 3.12
+          cache: pip
+          cache-dependency-path: ncs/sidewalk/doc/requirements-doc.txt
+          pip-install: |
+            -r ncs/sidewalk/doc/requirements-doc.txt
+
+      - name: Build
+        working-directory: ncs/sidewalk/doc
+        run: |
+          make html
+
+      - name: Check version
+        run: |
+          VERSION_REGEX="^v([0-9a-zA-Z\.\-]+)$"
+          if [[ ${GITHUB_REF#refs/tags/} =~ $VERSION_REGEX ]]; then
+            VERSION=${BASH_REMATCH[1]}
+          elif [[ ${GITHUB_REF#refs/heads/} == "main" ]]; then
+            VERSION="latest"
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            VERSION="pr-${{ github.event.number }}"
+          fi
+          echo "VERSION=${VERSION}"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Prepare Azure upload
+        working-directory: ncs/sidewalk
+        run: |
+          PUBLISH="$PWD/publish"
+          mkdir -p "$PUBLISH"
+
+          MONITOR="monitor_${{ github.run_id }}.txt"
+
+          # Create documentation upload files
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ARCHIVE="addon-sidewalk-pr-${{ github.event.number }}.zip"
+            echo "publish2 dev PR-${{ github.event.number }} ${ARCHIVE}" > "${MONITOR}"
+            echo "${{ github.event.number }}" > pr.txt
+          else
+            ARCHIVE="addon-sidewalk-${VERSION}.zip"
+            echo "publish2 main ${VERSION} ${ARCHIVE}" > "${MONITOR}"
+          fi
+
+          pushd "doc/build/html"
+          zip -rq "${ARCHIVE}" .
+          mv "${ARCHIVE}" "$PUBLISH"
+          popd
+
+          mv "${MONITOR}" "$PUBLISH"
+          if [[ -f pr.txt ]]; then mv pr.txt "$PUBLISH"; fi
+
+      - name: Store
+        if: ${{ !contains(github.event.pull_request.labels.*.name, 'external') || contains(github.event.pull_request.labels.*.name, 'CI-trusted-author') }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: docs
+          retention-days: 5
+          path: |
+            ncs/sidewalk/publish/*
