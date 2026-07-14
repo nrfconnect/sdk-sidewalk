@@ -18,8 +18,10 @@
 # -- Project information -----------------------------------------------------
 
 project = 'nRF Connect SDK - Amazon Sidewalk'
-copyright = '2024, Nordic Semiconductor'
+copyright = '2026, Nordic Semiconductor'
 author = 'Nordic Semiconductor'
+release = '1.2.99'
+version = '1.2.99'
 
 # -- General configuration ---------------------------------------------------
 
@@ -66,6 +68,15 @@ rst_epilog = """
 
 # -- Options for sphinx_ncs_theme -------------------------------------------
 html_theme_options = {
-    "docset": "sidewalk",
-    "docsets": {},
+    'docsets': {},
+    "ncs_url": "https://nrfconnectdocs.nordicsemi.com/ncs/latest/nrf/",
+    "ncs_label": "nRF Connect SDK Docs",
+    "addons_url": "https://nrfconnect.github.io/ncs-app-index/",
+    "bare_metal_url": "",
+    "logo_url": "https://docs.nordicsemi.com",
 }
+
+html_show_sphinx = False
+
+# Copied into the HTML output for the hosted documentation version switcher.
+html_extra_path = ['versions.json']
