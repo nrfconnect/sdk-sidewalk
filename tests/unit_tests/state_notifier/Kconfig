@@ -7,5 +7,5 @@
 config STATE_NOTIFIER_HANDLER_MAX
 	default 2
 
-source "${ZEPHYR_BASE}/../sidewalk/utils/Kconfig"
+source "$(APPLICATION_SOURCE_DIR)/../../../utils/Kconfig"
 source "Kconfig.zephyr"

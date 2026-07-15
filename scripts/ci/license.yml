@@ -19,15 +19,21 @@ ignore_license_in_files:
 - version.conf$
 - twister-out.*
 - utils/nanopb/include.*
-- sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/ansi.h
-- sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_simplicity_sdk/util/third_party/mbedtls/library/check_crypto_config.h
+- sidewalk.*/subsys/semtech/lbm_port/config/app_subghz_config.h
+- sidewalk.*/subsys/semtech/smtc_lbm/.*CMakeLists.txt$
 
 license_header_size: 30
 
 licenses:
 - copyright_regexp: Copyright \(c\) \d{4} Nordic Semiconductor ASA
   file_regexp:
-  - sidewalk/subsys/semtech/lr1110_location/CMakeLists.txt
+  - sidewalk.*/subsys/semtech/CMakeLists.txt
+  - sidewalk.*/subsys/semtech/lbm_v1-3-1.cmake
+  - sidewalk.*/subsys/semtech/lr1110_location/lr11xx_radio_scan.c$
+  - sidewalk.*/subsys/semtech/lr1110/include/lr1110_location_bridge.h$
+  - sidewalk.*/subsys/semtech/lr11xx/CMakeLists.txt$
+  - sidewalk.*/subsys/semtech/lr1110_location/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/CMakeLists.txt$
   search_license_txt: null
   spdx: LicenseRef-Nordic-5-Clause
 
@@ -38,27 +44,56 @@ licenses:
   - sidewalk.*/subsys/semtech/sx126x/include/sx126x_.*\.h$
   - sidewalk.*/subsys/semtech/lr1110/lr1110.*\.c$
   - sidewalk.*/subsys/semtech/lr1110/lr11xx.*\.c$
+  - sidewalk.*/subsys/semtech/lr11xx/lr11xx_hal.c$
+  - sidewalk.*/subsys/semtech/lr11xx/lr11xx_radio_fsk.c$
+  - sidewalk.*/subsys/semtech/lr11xx/lr11xx_radio_lora.c$
   - sidewalk.*/subsys/semtech/lr1110/include/lr1110.*\.h$
   - sidewalk.*/subsys/semtech/lr1110/include/halo_lr1110.*\.h$
-  - sidewalk.*/subsys/semtech/lr1110_location/.*
-  - sidewalk/subsys/semtech/lr11xx/lr11xx_radio.c$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/lr11xx_hal/halo_lr11xx_radio.h$
-  - sidewalk/subsys/semtech/lr11xx/lr11xx_config.h$
-  - sidewalk/subsys/semtech/lr11xx/lr11xx_hal.c$
-  - sidewalk/subsys/semtech/sx126x_location/sid_pal_gnss_wifi_impl.c$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/sl_sidewalk_log_app.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/lr11xx_hal/lr11xx_config.h$
-  - sidewalk/subsys/semtech/lr11xx/halo_lr11xx_radio.h$
-  - sidewalk/subsys/semtech/lr11xx/lr11xx_radio_fsk.c$
-  - sidewalk/subsys/semtech/lr1110/include/lr11xx_config.h$
-  - sidewalk/subsys/semtech/lr11xx/lr11xx_radio_lora.c$
+  - sidewalk.*/subsys/semtech/lr1110/CMakeLists.txt$
+  - sidewalk.*/subsys/semtech/sx126x/CMakeLists.txt$
+  - sidewalk.*/subsys/semtech/common/CMakeLists.txt$
+  - sidewalk.*/subsys/semtech/lr1110_location/sid_pal_gnss_wifi_impl.c$
+  - sidewalk.*/subsys/semtech/lr1110_location/sid_pal_gnss_wifi.h$
+  - sidewalk.*/subsys/semtech/lr1110_location/smtc_modem.h$
+  - sidewalk.*/subsys/semtech/lr1110_location/include/lr11xx_gnss_wifi_config.h$
+  - sidewalk.*/subsys/semtech/sx126x_location/sid_pal_gnss_wifi_impl.c$
+  - sidewalk.*/subsys/semtech/lr1110_location/smtc_modem_impl.c$
+  - sidewalk.*/subsys/semtech/lr11xx/lr11xx_radio.c$
+  - sidewalk.*/subsys/semtech/lbm_port/sl_sidewalk_log_app.h$
+  - sidewalk.*/subsys/semtech/lr11xx/lr11xx_config.h$
+  - sidewalk.*/subsys/semtech/lr11xx/halo_lr11xx_radio.h$
   search_license_txt:
   - All Rights Reserved
   spdx: null
 
+- copyright_regexp: Copyright \(c\) (\d{4}|\d{4}-\d{4}), Troy D\. Hanson
+  file_regexp:
+  - sidewalk.*/subsys/sal/common/ace/include/ace/uthash\.h$
+  search_license_txt:
+  - Redistribution and use in source and binary forms
+  spdx: null
+
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
   file_regexp:
-  - sidewalk.*/subsys/ace(/.*)+h$
+  - sidewalk.*/subsys/sal/common/public/sid_ifc/sid_on_dev_cert/.*\.h$
+  search_license_txt:
+  - PROPRIETARY CONFIDENTIAL
+  - THESE MATERIALS ARE PROVIDED ON AN AS IS BASIS.
+  spdx: null
+
+- copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
+  file_regexp:
+  - sidewalk.*/subsys/sal/common/ace(/.*)+(c|h)$
+  - sidewalk.*/subsys/sal/common/ace/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/internal(/.*)+(c|h)$
+  - sidewalk.*/subsys/sal/common/internal/.*CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/sid_base64/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/sid_time_ops/CMakeLists.txt$
+  - sidewalk.*/subsys/app_utils/config(/.*)+(c|h)$
+  - sidewalk.*/subsys/app_utils/hal(/.*)+h$
+  - sidewalk.*/subsys/app_utils/hal/src/memory.c$
+  - sidewalk.*/subsys/sal/common/public(/.*)+(c|h)$
+  - sidewalk.*/subsys/sal/common/public/.*CMakeLists.txt$
   - sidewalk.*/subsys/config(/.*)+(c|h)$
   - sidewalk.*/subsys/config/common/.*(c|h)$
   - sidewalk.*/subsys/config/common/src/.*(c|h)$
@@ -66,15 +101,13 @@ licenses:
   - sidewalk.*/subsys/hal(/.*)+h$
   - sidewalk.*/subsys/hal/src/memory.c$
   - sidewalk.*/subsys/sal/common/.*/sid_.*(c|h)$
-  - sidewalk.*/subsys/semtech/include/semtech_radio_ifc.h$
-  - sidewalk.*/subsys/semtech/include/sid_clock_ifc.h$
+  - sidewalk.*/subsys/sal/sid_pal/sid_pal_types/.*\.h$
+  - sidewalk.*/subsys/sal/sid_pal/sid_on_dev_cert/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/common/semtech_radio_ifc.h$
   - sidewalk.*/subsys/semtech/sx126x/include/sid_.*\.h$
   - sidewalk.*/tests/validation/storage_kv/.*(c|h)$
   - sidewalk.*/tests/validation/timer/.*(c|h)$
   - sidewalk.*/utils/include/sid_.*\.h$
-  - sidewalk/subsys/semtech/sx126x_location/sid_pal_gnss_wifi_impl.c$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/sid_pal_serial_bus_ifc.h$
-
   search_license_txt:
   - AMAZON PROPRIETARY CONFIDENTIAL
   - You may not use this file except in compliance with the terms and conditions
@@ -87,33 +120,21 @@ licenses:
   search_license_txt: null
   spdx: MIT-0
 
-- copyright_regexp: Copyright \d{4} Silicon Laboratories Inc
-  file_regexp:
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/config/app_subghz_config.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/sl_spidrv_exp_config.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sidewalk_ext/component/overridden_gsdk_components/app/common/util/app_log/app_log.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/app_gpio_config.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/gpio.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_simplicity_sdk/platform/emlib/inc/em_gpio.h$
-  search_license_txt: null
-  spdx: Zlib
-
 - copyright_regexp: Copyright Semtech Corporation \d{4}
   file_regexp:
+  - sidewalk.*/samples/lr11xx_firmware_update/include/lr1110_transceiver_0401\.h$
+  - sidewalk.*/samples/lr11xx_firmware_update/include/lr11xx_firmware_update\.h$
+  - sidewalk.*/samples/lr11xx_firmware_update/src/lr11xx_firmware_update\.c$
+  - sidewalk.*/subsys/semtech/lr1110/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/lr1110/.*\.h$
+  - sidewalk.*/subsys/semtech/lr11xx/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/lr11xx/.*\.h$
+  - sidewalk.*/subsys/semtech/lr11xx/semtech/CMakeLists.txt$
+  - sidewalk.*/subsys/semtech/smtc_lbm/.*\.(c|h)$
+  - sidewalk.*/subsys/semtech/lbm_port/RALBSP/smtc_board_ralf.h$
   - sidewalk.*/subsys/semtech/sx126x/include/semtech/sx126x.*\.h$
   - sidewalk.*/subsys/semtech/sx126x/semtech/.*\.(c|h)$
-  - sidewalk.*/subsys/semtech/lr1110/.*\.h$
-  - sidewalk.*/subsys/semtech/lr1110/.*\.(c|h)$
-  - sidewalk.*/subsys/semtech/lr11xx/.*\.h$
-  - sidewalk.*/subsys/semtech/lr11xx/.*\.(c|h)$
-  - sidewalk.*/subsys/semtech/SWDR007_v1-3-1/.*\.(c|h)$
-  - sidewalk.*/subsys/sal/common/sid_ifc/wifi_helpers_defs.h$
-  - sidewalk/subsys/semtech/SWDR007_v1-3-1/swdr007_silabs_sid_pal_lr11xx/RALBSP/smtc_board_ralf.h$
   - sidewalk/subsys/sal/common/sid_ifc/gnss_helpers_defs.h
-  - sidewalk.*/samples/lr11xx_firmware_update/include/lr11xx_firmware_update\.h$
-  - sidewalk.*/samples/lr11xx_firmware_update/include/lr1110_transceiver_0401\.h$
-  - sidewalk.*/samples/lr11xx_firmware_update/src/lr11xx_firmware_update\.c$
-
   search_license_txt:
   - Redistribution and use in source and binary forms
   spdx: null

@@ -40,7 +40,8 @@ static int sid_mfg_storage_secure_read(uint16_t *p_value, uint8_t *buffer, uint1
 #define FLASH_MEM_CHUNK (128)
 
 #ifndef DEV_ID_REG
-#if defined(NRF54L15_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54LV10A_XXAA) || defined(NRF54LM20A_XXAA)
+#if defined(NRF54L15_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54LV10A_XXAA) ||                \
+	defined(NRF54LM20A_XXAA)
 #define DEV_ID_REG (uint32_t)(NRF_FICR->INFO.DEVICEID[0])
 #else
 #error "Unknown Device ID register."

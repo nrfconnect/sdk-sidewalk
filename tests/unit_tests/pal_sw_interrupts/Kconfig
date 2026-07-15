@@ -4,4 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED
+	default y
+
 source "Kconfig.zephyr"

@@ -99,8 +99,8 @@ sid_error_t sid_metrics_core_cli_print_cat_by_priority(enum sid_metrics_category
 }
 
 sid_error_t sid_metrics_core_cli_execute_action(enum sid_metrics_core_actions action,
-					       enum sid_metrics_category_ids category,
-					       uint32_t raw_bitmask)
+						enum sid_metrics_category_ids category,
+						uint32_t raw_bitmask)
 {
 	(void)action;
 	(void)category;

@@ -1,4 +1,10 @@
 config SIDEWALK_LOG_LEVEL
         default 3
 
+config SIDEWALK_BUILD
+	default y
+
+config SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED
+	default y
+
 source "Kconfig.zephyr"

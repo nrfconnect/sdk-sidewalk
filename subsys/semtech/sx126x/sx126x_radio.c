@@ -494,9 +494,6 @@ int32_t sid_pal_radio_irq_process(void)
                         case RADIO_FSK_RX_DONE_STATUS_BAD_CRC:
                             radio_event = SID_PAL_RADIO_EVENT_RX_ERROR;
                             break;
-						default:
-                            // TODO WHAT here?
-                            break;
                     }
                 }
             }

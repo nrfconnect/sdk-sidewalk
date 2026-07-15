@@ -11,8 +11,11 @@ project(scratch_buffer)
 find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -O0")
 add_definitions(--include ztest.h)
-set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
+get_filename_component(SIDEWALK_BASE ${CMAKE_CURRENT_LIST_DIR}/../../.. ABSOLUTE)
 
 target_sources(testbinary PRIVATE src/main.c ${SIDEWALK_BASE}/samples/sid_end_device/src/sbdt/scratch_buffer.c mock/log_minimal.c)
 
-target_include_directories(testbinary PRIVATE ${SIDEWALK_BASE}/samples/sid_end_device/include  ${SIDEWALK_BASE}/subsys/hal/include)
+target_include_directories(testbinary PRIVATE
+	${SIDEWALK_BASE}/samples/sid_end_device/include
+	${SIDEWALK_BASE}/subsys/app_utils/hal/include
+)

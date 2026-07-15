@@ -12,4 +12,11 @@ project(sidewalk_spi_test)
 # add test file
 FILE(GLOB app_sources src/main.c)
 target_sources(app PRIVATE ${app_sources})
-target_include_directories(app PRIVATE .)
+target_include_directories(app PRIVATE
+	.
+	${SIDEWALK_BASE}/subsys/sal/sid_pal/include
+)
+
+target_link_options(app PRIVATE "LINKER:--start-group")
+target_link_libraries(app PRIVATE sidewalk_pal)
+target_link_options(app PRIVATE "LINKER:--end-group")

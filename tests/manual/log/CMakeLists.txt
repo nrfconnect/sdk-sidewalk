@@ -10,3 +10,6 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk)
 
 target_sources(app PRIVATE src/main.c)
+target_link_options(app PRIVATE "LINKER:--start-group")
+target_link_libraries(app PRIVATE sidewalk_pal)
+target_link_options(app PRIVATE "LINKER:--end-group")

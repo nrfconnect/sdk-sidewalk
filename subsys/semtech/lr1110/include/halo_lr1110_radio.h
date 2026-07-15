@@ -21,7 +21,7 @@ extern "C" {
 #include <sid_pal_radio_ifc.h>
 #include <sid_pal_gpio_ifc.h>
 
-#include "semtech/lr1110_system.h"
+#include "lr1110_system.h"
 
 #define LP_MAX_POWER                       14
 #define LP_MIN_POWER                       -17

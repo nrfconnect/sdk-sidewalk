@@ -225,7 +225,7 @@ config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START
 	  consecutive key IDs starting from this value. Some keys span multiple
 	  KMU slots, so the range occupies seven consecutive KMU slots.
 
-config SIDEWALK_USE_PREBUILTS
+config SIDEWALK_USE_PREBUILT_LIBRARIES
 	bool "Use prebuilt Sidewalk libraries"
 	default y
 	help

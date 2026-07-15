@@ -7,6 +7,10 @@
 config LOG
 	default false
 
+config SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED
+	bool
+	default y
+
 config SIDEWALK_LOG_LEVEL
 	default 0
 
@@ -14,5 +18,5 @@ config SIDEWALK_LOG_LEVEL
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	bool "PSA crypto storage for persistent Sidewalk keys [EXPERIMENTAL]"
 
-source "${ZEPHYR_BASE}/../sidewalk/utils/Kconfig"
+source "$(APPLICATION_SOURCE_DIR)/../../../utils/Kconfig"
 source "Kconfig.zephyr"

@@ -12,12 +12,12 @@
 
 /** Advertising parameters. Intervals in 0.625 ms units, timeouts in 10 ms units. */
 typedef struct sid_ble_advert_params {
-    bool fast_enabled;
-    bool slow_enabled;
-    uint32_t fast_interval;
-    uint32_t fast_timeout;
-    uint32_t slow_interval;
-    uint32_t slow_timeout;
+	bool fast_enabled;
+	bool slow_enabled;
+	uint32_t fast_interval;
+	uint32_t fast_timeout;
+	uint32_t slow_interval;
+	uint32_t slow_timeout;
 } sid_ble_advert_params_t;
 
 /**

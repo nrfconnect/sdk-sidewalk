@@ -9,7 +9,8 @@ cmake_minimum_required(VERSION 3.20.0)
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sid_validation_storage_kv)
 
-# add test file
-FILE(GLOB app_sources src/*.c)
-target_sources(app PRIVATE ${app_sources})
+target_sources(app PRIVATE src/main.c)
 target_include_directories(app PRIVATE src)
+target_link_options(app PRIVATE "LINKER:--start-group")
+target_link_libraries(app PRIVATE sidewalk_pal)
+target_link_options(app PRIVATE "LINKER:--end-group")

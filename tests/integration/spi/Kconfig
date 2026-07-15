@@ -6,8 +6,9 @@
 config SIDEWALK_BUILD
 	default y
 
-config SIDEWALK_USE_PREBUILTS
+config SIDEWALK_USE_PREBUILT_LIBRARIES
 	default y
+
 
 config SIDEWALK_SUBGHZ_SUPPORT
 	default y
@@ -35,8 +36,16 @@ config SIDEWALK_GPIO_IRQ_PRIORITY
 config SIDEWALK_GPIO_IRQ_STACK_SIZE
 	default 2048
 
+config SIDEWALK_LOG
+	default y
+	imply LOG
+
 config SIDEWALK_LOG_LEVEL
 	default 0
+
+config SIDEWALK_LOG_MSG_LENGTH_MAX
+	default 80
+
 
 config SPI_BUS_LOG_LEVEL
 	default 0

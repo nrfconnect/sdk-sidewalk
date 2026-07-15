@@ -62,3 +62,7 @@ if(CONFIG_SID_END_DEVICE_CLI)
         src/cli/location_shell_events.c
     )
 endif()
+
+if(CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
+    target_link_libraries(app PRIVATE sidewalk)
+endif()
