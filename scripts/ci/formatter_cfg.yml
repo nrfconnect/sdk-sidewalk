@@ -3,19 +3,29 @@ ignored_files_regexp:
 - scripts/ci/sid_compliance.py$
 - scripts/ci/verify_formatting.py$
 - scripts/ci/verify_license.py$
-- subsys/ace(/.*)+h$
-- subsys/config(/.*)+(c|h)$
-- subsys/config/common/.*(c|h)$
-- subsys/config/common/src/.*(c|h)$
-- subsys/hal(/.*)+h$
-- subsys/hal/src/memory.c$
-- subsys/sal/common(/.*)+h$
+
+# Third-party / upstream sources: keep license.yml entries and formatting out of sync.
+# Patterns mirror scripts/ci/license.yml Amazon and Semtech file_regexp entries
+# (without the sidewalk.*/ prefix used there).
+- samples/lr11xx_firmware_update/.*
+- boards/shields/semtech_.*/.*
+- dts/bindings/lora_lbm/.*
+- include/zephyr/dt-bindings/lora_lbm/.*
 - subsys/semtech/.*
+- subsys/sal/common/ace/.*
+- subsys/sal/common/internal/.*
+- subsys/sal/common/public/.*
+- subsys/app_utils/.*
+- subsys/config/.*
+- subsys/hal/.*
+- subsys/demo/.*
+- subsys/sal/sid_pal/sid_pal_types/.*
+- subsys/sal/sid_pal/sid_on_dev_cert/.*
+- utils/include/sid_.*\.h$
 - tools/.*
-- tests/validation/storage_kv/.*(c|h)$
-- tests/validation/timer/.*(c|h)$
-- subsys/demo/include/.*(c|h)$
-- subsys/demo/.*(c|h)$
+- tests/validation/storage_kv/.*
+- tests/validation/timer/.*
+
 - venv/.*
 - site-packages/.*
 - twister-out.*

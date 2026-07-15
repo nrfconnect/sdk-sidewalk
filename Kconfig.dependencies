@@ -29,6 +29,15 @@ config SIDEWALK_BUILD
 	help
 	  An internal config to build the NCS Sidewalk Sources.
 
+config SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED
+	bool "Disable PAL Zephyr library registration"
+	default n
+	depends on SIDEWALK_BUILD
+	help
+	  When enabled, PAL implementation sources are not registered as Zephyr
+	  libraries. Use in unit tests that compile PAL sources directly into
+	  the application target.
+
 config SIDEWALK_TFM_SUPPORT
 	bool "Sidewalk support for TF-M [EXPERIMENTAL]"
 	select EXPERIMENTAL

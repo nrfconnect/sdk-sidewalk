@@ -11,15 +11,17 @@ set(BOARD unit_testing)
 project(sidewalk_test_critical_region)
 find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
-set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
+get_filename_component(SIDEWALK_BASE ${CMAKE_CURRENT_LIST_DIR}/../../.. ABSOLUTE)
+include(${SIDEWALK_BASE}/tests/cmake/sidewalk_test_ifc.cmake)
 
 add_definitions(--include ztest.h)
 
 target_include_directories(testbinary PRIVATE
-    src
-    ${SIDEWALK_BASE}/subsys/sal/common/sid_pal_ifc
-    ${SIDEWALK_BASE}/subsys/sal/common/sid_ifc
+	src
+	${SIDEWALK_BASE}/subsys/sal/sid_pal/include
 )
+
+sidewalk_link_test_ifc(testbinary ${SIDEWALK_BASE} ${CMAKE_CURRENT_BINARY_DIR} sid_pal_swi_ifc)
 
 target_compile_definitions(testbinary PRIVATE CONFIG_SIDEWALK_SWI_PRIORITY=1 CONFIG_SIDEWALK_SWI_STACK_SIZE=2048)
 

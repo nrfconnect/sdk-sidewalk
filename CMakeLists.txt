@@ -5,11 +5,12 @@
 #
 
 if(CONFIG_SIDEWALK_BUILD)
-    if (CONFIG_SIDEWALK_USE_PREBUILTS)
+    if (CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
         add_subdirectory(lib)
     endif()
     add_subdirectory(subsys)
     add_subdirectory(utils)
+    include(${CMAKE_CURRENT_LIST_DIR}/cmake/sidewalk.cmake)
 endif()
 
 if(CONFIG_SOC_SERIES_NRF54LX AND CONFIG_SETTINGS_NVS)

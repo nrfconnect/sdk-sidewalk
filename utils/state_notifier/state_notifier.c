@@ -19,10 +19,7 @@ const char *application_state_name[] = { X_APPLICAITON_STATES };
 		action(APPLICATION_STATE_ENUM(name), s2->name);                                    \
 	}
 void enumerate_differences(const struct notifier_state *s1, const struct notifier_state *s2,
-			   const enumerate_function action)
-{
-	X_APPLICAITON_STATES
-}
+			   const enumerate_function action){ X_APPLICAITON_STATES }
 
 #undef X
 

@@ -36,16 +36,16 @@ void assert_post_action(const char *file, unsigned int line)
 
 ZTEST(assert_tests, test_sid_pal_assert_true)
 {
-    should_assert = false;
-    SID_PAL_ASSERT(true);
-    zassert_false(should_assert, "No assert when it should be.");
+	should_assert = false;
+	SID_PAL_ASSERT(true);
+	zassert_false(should_assert, "No assert when it should be.");
 }
 
 ZTEST(assert_tests, test_sid_pal_assert_false)
 {
-    should_assert = true;
-    SID_PAL_ASSERT(false);
-    zassert_false(should_assert, "Asserted, but should not.");
+	should_assert = true;
+	SID_PAL_ASSERT(false);
+	zassert_false(should_assert, "Asserted, but should not.");
 }
 
 ZTEST_SUITE(assert_tests, NULL, NULL, suite_setup, NULL, NULL);

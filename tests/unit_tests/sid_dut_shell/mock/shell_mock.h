@@ -9,7 +9,5 @@
 
 DEFINE_FFF_GLOBALS;
 
-FAKE_VOID_FUNC_VARARG(shell_fprintf_info, const struct shell *,
-		      const char *, ...);
-FAKE_VOID_FUNC_VARARG(shell_fprintf_error, const struct shell *,
-		      const char *, ...);
+FAKE_VOID_FUNC_VARARG(shell_fprintf_info, const struct shell *, const char *, ...);
+FAKE_VOID_FUNC_VARARG(shell_fprintf_error, const struct shell *, const char *, ...);

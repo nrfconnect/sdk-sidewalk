@@ -336,7 +336,14 @@ lr1110_status_t lr1110_radio_set_gfsk_sync_word( const void*   context,
 }
 
 #ifndef LR1110_DISABLE_WARNINGS
-#pragma message("The function lr1110_radio_set_lora_sync_word replaces the deprecated function lr1110_radio_set_lora_public_network. lr1110_radio_set_lora_sync_word, however, is incompatible with chip firmware versions prior to 0x303. For those legacy chips only, please use lr1110_radio_set_lora_public_network. To deactivate this warning, define C preprocessor symbol LR1110_DISABLE_WARNINGS.")
+#warning \
+    "The function lr1110_radio_set_lora_sync_word replaces the \
+deprecated function lr1110_radio_set_lora_public_network. \
+lr1110_radio_set_lora_sync_word, however, is incompatible \
+with chip firmware versions prior to 0x303. For those legacy chips \
+only, please use lr1110_radio_set_lora_public_network. \
+To deactivate this warning, define C preprocessor symbol \
+LR1110_DISABLE_WARNINGS."
 #endif
 lr1110_status_t lr1110_radio_set_lora_sync_word( const void* context, const uint8_t sync_word )
 {

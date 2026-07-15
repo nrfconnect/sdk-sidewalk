@@ -128,7 +128,6 @@ function run_build ()
     status=$?
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-build"
 
-    python3 ${CURRENT_DIR}/memory_requirements.py --twister-out-dir "${CURRENT_DIR}/twister-out-build" --ncs-dir "${ZEPHYR_BASE}/../" > "${CURRENT_DIR}/twister-out-build/memory_report.rst"
     return $status
 }
 

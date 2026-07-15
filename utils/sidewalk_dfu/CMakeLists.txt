@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
+zephyr_include_directories(${ZEPHYR_CURRENT_MODULE_DIR}/subsys/sal/sid_pal/include)
+
 zephyr_library()
 
 zephyr_library_sources_ifdef(CONFIG_SIDEWALK_DFU_SERVICE_BLE nordic_dfu.c)

@@ -197,7 +197,7 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 			buf_len = p_option->data_len;
 		}
 		sid_error_t e = sid_option(sid->handle, opt, buf, buf_len);
-		if(e) {
+		if (e) {
 			LOG_ERR("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
 			break;
 		}
@@ -208,9 +208,11 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 			uint32_t si = (uint32_t)res->adv_param.slow_interval * 625U;
 			LOG_INF("BLE adv, fast_int %d(%u.%03ums), fast_to %d(%dms), slow_int %d(%u.%03ums), slow_to %d(%dms)",
 				res->adv_param.fast_interval, fi / 1000U, fi % 1000U,
-				res->adv_param.fast_timeout, (int)(res->adv_param.fast_timeout * 10),
+				res->adv_param.fast_timeout,
+				(int)(res->adv_param.fast_timeout * 10),
 				res->adv_param.slow_interval, si / 1000U, si % 1000U,
-				res->adv_param.slow_timeout, (int)(res->adv_param.slow_timeout * 10));
+				res->adv_param.slow_timeout,
+				(int)(res->adv_param.slow_timeout * 10));
 			break;
 		}
 		case SID_BLE_USER_CFG_CONN: {
@@ -230,9 +232,11 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 			uint32_t ma = (uint32_t)res->conn_param.max_conn_interval * 1250U;
 			LOG_INF("BLE adv and conn, fast_int %d(%u.%03ums), fast_to %d(%dms), slow_int %d(%u.%03ums), slow_to %d(%dms), min_int %d(%u.%03ums), max_int %d(%u.%03ums), sl %d, timeout %d(%dms)",
 				res->adv_param.fast_interval, fi / 1000U, fi % 1000U,
-				res->adv_param.fast_timeout, (int)(res->adv_param.fast_timeout * 10),
+				res->adv_param.fast_timeout,
+				(int)(res->adv_param.fast_timeout * 10),
 				res->adv_param.slow_interval, si / 1000U, si % 1000U,
-				res->adv_param.slow_timeout, (int)(res->adv_param.slow_timeout * 10),
+				res->adv_param.slow_timeout,
+				(int)(res->adv_param.slow_timeout * 10),
 				res->conn_param.min_conn_interval, mi / 1000U, mi % 1000U,
 				res->conn_param.max_conn_interval, ma / 1000U, ma % 1000U,
 				res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,

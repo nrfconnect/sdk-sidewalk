@@ -42,7 +42,22 @@ def _resolve_zephyr_base() -> Path:
     sys.exit(1)
 
 
+def _sanitize_git_worktree_env(zephyr_base: Path) -> None:
+    """Git worktrees break west manifest import during KconfigBasic."""
+
+    if "worktrees" not in os.environ.get("GIT_DIR", ""):
+        return
+
+    os.environ.pop("GIT_DIR", None)
+    os.environ.pop("GIT_WORK_TREE", None)
+
+    west_top = zephyr_base.parent
+    if (west_top / ".west").is_dir():
+        os.environ["WEST_TOPDIR"] = str(west_top)
+
+
 ZEPHYR_BASE = _resolve_zephyr_base()
+_sanitize_git_worktree_env(ZEPHYR_BASE)
 sys.path.insert(0, str(ZEPHYR_BASE / "scripts" / "ci"))
 
 # autopep8: off
@@ -75,6 +90,8 @@ def _git_supports_perl_regexes() -> bool:
         check=False,
     )
     if proc.returncode == 128 and "USE_LIBPCRE" in (proc.stderr or ""):
+        return False
+    if proc.returncode != 0:
         return False
     return True
 
@@ -149,7 +166,9 @@ cc.SysbuildKconfigBasicCheck.check_no_undef_within_kconfig = (
 
 sidewalk_specials = [
     r"tools/.*",
-    r"subsys/ace(/.*)+h",
+    r"subsys/sal/common/ace(/.*)+h",
+    r"subsys/app_utils(/.*)+(c|h)",
+    r"subsys/sal/common/public(/.*)+\.c",
     r"subsys/config(/.*)+(c|h)",
     r"subsys/config/common/.*(c|h)",
     r"subsys/config/common/src/.*(c|h)",

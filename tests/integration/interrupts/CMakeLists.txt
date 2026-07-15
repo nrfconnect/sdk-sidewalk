@@ -11,3 +11,6 @@ project(sidewalk_interrupts_test)
 
 target_sources(app PRIVATE src/main.c)
 target_include_directories(app PRIVATE .)
+target_link_options(app PRIVATE "LINKER:--start-group")
+target_link_libraries(app PRIVATE sidewalk_pal)
+target_link_options(app PRIVATE "LINKER:--end-group")

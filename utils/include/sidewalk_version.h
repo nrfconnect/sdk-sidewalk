@@ -11,7 +11,8 @@
 
 #ifdef CONFIG_DT_HAS_SEMTECH_LR1110_ENABLED
 #define SHIELD_NAME "Semtech lr1110"
-#elif defined(CONFIG_DT_HAS_SEMTECH_SX1262_ENABLED) | defined(CONFIG_DT_HAS_SEMTECH_SX1262_NEW_ENABLED)
+#elif defined(CONFIG_DT_HAS_SEMTECH_SX1262_ENABLED) |                                              \
+	defined(CONFIG_DT_HAS_SEMTECH_SX1262_NEW_ENABLED)
 #define SHIELD_NAME "Semtech sx1262"
 #endif
 

@@ -4,10 +4,14 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-set(SID_LIB_DIR ${ZEPHYR_BASE}/../sidewalk/lib/cortex-m33/lora_fsk)
+set(SID_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-zephyr_library_link_libraries(
-    ${SID_LIB_DIR}/libsid_protocol_all.a 
-    ${SID_LIB_DIR}/libsmtc_lbm.a
-    ${SID_LIB_DIR}/libsid_fsk_tpc.a
+add_library(sidewalk_sdk INTERFACE)
+
+target_link_libraries(sidewalk_sdk INTERFACE
+	${SID_LIB_DIR}/libsid_protocol_all.a
+	${SID_LIB_DIR}/libsmtc_lbm.a
+	${SID_LIB_DIR}/libsid_fsk_tpc.a
+	sid_sdk_component_ifc
+	ace
 )

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <stdint.h>
 #include <sid_on_dev_cert.h>
 #include <sid_base64.h>
 #include <sid_hal_memory_ifc.h>

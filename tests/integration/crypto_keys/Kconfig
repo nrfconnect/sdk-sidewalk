@@ -6,8 +6,9 @@
 config SIDEWALK_BUILD
 	default y
 
-config SIDEWALK_USE_PREBUILTS
+config SIDEWALK_USE_PREBUILT_LIBRARIES
 	default y
+
 
 config SIDEWALK_CRYPTO
 	default y
@@ -32,8 +33,16 @@ config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START
 config SIDEWALK_CRYPTO_LOG_LEVEL
 	default 0
 
+config SIDEWALK_LOG
+	default y
+	imply LOG
+
 config SIDEWALK_LOG_LEVEL
 	default 0
+
+config SIDEWALK_LOG_MSG_LENGTH_MAX
+	default 80
+
 
 config NVS_LOG_LEVEL
 	default 0

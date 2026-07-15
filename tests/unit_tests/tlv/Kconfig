@@ -4,5 +4,5 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-source "${ZEPHYR_BASE}/../sidewalk/utils/Kconfig"
+source "$(APPLICATION_SOURCE_DIR)/../../../utils/Kconfig"
 source "Kconfig.zephyr"

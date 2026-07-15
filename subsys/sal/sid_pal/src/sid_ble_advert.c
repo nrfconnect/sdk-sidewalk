@@ -26,7 +26,7 @@ LOG_MODULE_REGISTER(sid_ble_advert, CONFIG_SIDEWALK_BLE_ADAPTER_LOG_LEVEL);
 #define AD_SERVICES_LEN 2
 #define AD_TLV_TYPE_AND_LENGTH 2
 #define AD_TLV_LEN(x) (x + AD_TLV_TYPE_AND_LENGTH)
-#define AD_MANUF_DATA_LEN_MAX                                                                  \
+#define AD_MANUF_DATA_LEN_MAX                                                                      \
 	(BT_GAP_ADV_MAX_ADV_DATA_LEN - AD_TLV_TYPE_AND_LENGTH - AD_TLV_LEN(AD_FLAGS_LEN) -         \
 	 AD_TLV_LEN(AD_SERVICES_LEN))
 static uint8_t bt_adv_manuf_data[AD_MANUF_DATA_LEN_MAX];

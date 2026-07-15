@@ -12,3 +12,6 @@ project(sidewalk_delay_test)
 # add test file
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
+target_link_options(app PRIVATE "LINKER:--start-group")
+target_link_libraries(app PRIVATE sidewalk_pal)
+target_link_options(app PRIVATE "LINKER:--end-group")

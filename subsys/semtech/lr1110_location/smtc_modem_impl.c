@@ -296,9 +296,6 @@ void smtc_modem_hal_print_trace(const char *fmt, ...)
           subsequent = false;
       }
   }
-#if SID_PLATFORM_NORDIC
-  SID_PAL_LOG_FLUSH();
-#endif
 }
 
 void smtc_modem_hal_disable_modem_irq(void)

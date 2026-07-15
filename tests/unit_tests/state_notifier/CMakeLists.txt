@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(BOARD unit_testing)
 project(state_notifier)
 find_package(Zephyr COMPONENTS unittest REQUIRED HINTS $ENV{ZEPHYR_BASE})
-set(SIDEWALK_BASE $ENV{ZEPHYR_BASE}/../sidewalk)
+get_filename_component(SIDEWALK_BASE ${CMAKE_CURRENT_LIST_DIR}/../../.. ABSOLUTE)
 
 target_sources(testbinary PRIVATE src/main.c ${SIDEWALK_BASE}/utils/state_notifier/state_notifier.c)
 

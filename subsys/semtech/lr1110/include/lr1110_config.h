@@ -11,10 +11,10 @@
 extern "C" {
 #endif
 
-#include "semtech/lr1110_gnss.h"
-#include "semtech/lr1110_radio_types.h"
-#include "semtech/lr1110_system_types.h"
-#include "semtech/lr1110_wifi.h"
+#include "lr1110_gnss.h"
+#include "lr1110_radio_types.h"
+#include "lr1110_system_types.h"
+#include "lr1110_wifi.h"
 
 #include <sid_time_types.h>
 #include <semtech_radio_ifc.h>
