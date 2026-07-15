@@ -28,6 +28,7 @@
 .. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/releases_and_maturity/software_maturity.html
 .. _Migrating partition configuration from Partition Manager to devicetree (DTS): https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/releases_and_maturity/migration/migration_partitions.html
 .. _nRF Secure Immutable Bootloader (NSIB): https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/samples/bootloader/README.html
+.. _Secure bootloader chain: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/bootloaders_dfu/mcuboot_nsib/bootloader.html
 
 .. nordicsemi.com
 
