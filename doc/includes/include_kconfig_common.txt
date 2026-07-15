@@ -1,11 +1,3 @@
-* ``CONFIG_SIDEWALK`` -- Enables support for the Sidewalk protocol and its dependencies.
-
-* ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` -- Enables using Sidewalk libraries with Bluetooth LE, LoRa and FSK support.
-  Disabling this option results in using Sidewalk libraries with only Bluetooth LE support.
-  While this results in a smaller memory footprint for the application, it also limits its functionality, as connectivity over LoRa or FSK is not available.
-
-* ``CONFIG_SIDEWALK_DFU`` -- Enables the nRF Connect SDK bootloader and DFU service over Bluetooth LE.
-
 * Application variant is selected by the ``SID_END_DEVICE`` Kconfig choice (mutually exclusive options below).
 
    * ``CONFIG_SID_END_DEVICE_HELLO`` -- Enables the Hello Sidewalk application.
@@ -18,12 +10,6 @@
 
 * ``CONFIG_SID_END_DEVICE_CLI`` -- Enables Sidewalk CLI.
   To see the list of available commands, flash the sample and type ``sid help``.
-
-* ``CONFIG_SIDEWALK_ON_DEV_CERT`` -- Enables the on-device certification Shell.
-
-* ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` - Enables secure storage for persistent Sidewalk keys.
-
-* ``CONFIG_SIDEWALK_MFG_STORAGE_SUPPORT_HEX_v7`` - Enables support for Sidewalk manufacturing HEX in version 7 and below.
 
 * ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
 
@@ -39,5 +25,3 @@
    * ``CONFIG_SID_END_DEVICE_LINK_MASK_FSK`` -- Choose Sub-GHz link for FSK.
 
    * ``CONFIG_SID_END_DEVICE_LINK_MASK_LORA`` -- Choose Sub-GHz link for LORA.
-
-   * ``CONFIG_SIDEWALK_LINK_MASK_LORA`` -- Choose Sub-GHz link for LORA.

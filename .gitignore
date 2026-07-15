@@ -9,6 +9,7 @@
 build
 build-*
 build_*
+_build/
 cscope.*
 .dir
 venv
