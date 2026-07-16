@@ -21,6 +21,8 @@ Changelog
 
 * Updated:
 
+  * The nRF Connect SDK from v3.3.0 to v3.4.0.
+  * Flash layout for the ``nrf54l15dk/nrf54l15/cpuapp/ns`` board target, by completing the migration from Partition Manager to devicetree overlays.
   * MCUboot signature type to follow the recommended defaults in the nRF Connect SDK.
     On the nRF54L Series platforms, the bootloader now uses ED25519 instead of RSA.
     This reduces MCUboot boot time compared to RSA-based verification.

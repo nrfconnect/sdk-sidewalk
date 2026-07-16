@@ -14,12 +14,12 @@
 #else
 #include <zephyr/storage/flash_map.h>
 
-#if !FIXED_PARTITION_EXISTS(mfg_storage)
+#if !PARTITION_EXISTS(mfg_storage)
 #error "Flash partition is not defined for the Sidewalk manufacturing storage!"
 #endif
 
-#define APP_MFG_CFG_FLASH_START FIXED_PARTITION_OFFSET(mfg_storage)
-#define APP_MFG_CFG_FLASH_SIZE FIXED_PARTITION_SIZE(mfg_storage)
+#define APP_MFG_CFG_FLASH_START PARTITION_OFFSET(mfg_storage)
+#define APP_MFG_CFG_FLASH_SIZE PARTITION_SIZE(mfg_storage)
 #endif /* USE_PARTITION_MANAGER */
 
 #define APP_MFG_CFG_FLASH_END (APP_MFG_CFG_FLASH_START + APP_MFG_CFG_FLASH_SIZE)

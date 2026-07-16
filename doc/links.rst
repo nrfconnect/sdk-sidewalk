@@ -2,32 +2,32 @@
 
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
-.. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/index.html
-.. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/app_dev/board_names.html
-.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/gsg_guides.html
-.. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation.html
-.. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
-.. _nRF54LV10 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
-.. _nRF54LM20 DK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
-.. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
-.. _nrf54lm20dk: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
-.. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/programming.html
-.. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/test_and_optimize.html
-.. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/config_and_build/bootloaders/index.html
-.. _Zephyr SMP Server: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/services/device_mgmt/ota.html#smp_server
-.. _Zephyr SMP Server sample: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/samples/subsys/mgmt/mcumgr/smp_svr/README.html
-.. _Zephyr State Machine Framework: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/services/smf/index.html
-.. _Zephyr Memory Storage (ZMS): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/services/storage/zms/zms.html
+.. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/index.html
+.. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/app_dev/board_names.html
+.. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/gsg_guides.html
+.. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/installation.html
+.. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
+.. _nRF54LV10 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
+.. _nRF54LM20 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
+.. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
+.. _nrf54lm20dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
+.. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/config_and_build/programming.html
+.. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/test_and_optimize.html
+.. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/config_and_build/bootloaders/index.html
+.. _Zephyr SMP Server: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/services/device_mgmt/ota.html#smp_server
+.. _Zephyr SMP Server sample: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/samples/subsys/mgmt/mcumgr/smp_svr/README.html
+.. _Zephyr State Machine Framework: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/services/smf/index.html
+.. _Zephyr Memory Storage (ZMS): https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/services/storage/zms/zms.html
 .. _Settings subsystem: https://docs.nordicsemi.com/bundle/ncs-latest/page/zephyr/services/settings/index.html
-.. _NCS testing applications: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/test_and_optimize.html
-.. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/installation/install_ncs.html
-.. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/libraries/security/trusted_storage.html
-.. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/libraries/security/bootloader/fprotect.html
-.. _West: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/develop/west/index.html
-.. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/zephyr/samples/hello_world/README.html
-.. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/software_maturity.html
-.. _Migrating partition configuration from Partition Manager to devicetree (DTS): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/releases_and_maturity/migration/migration_partitions.html
-.. _nRF Secure Immutable Bootloader (NSIB): https://docs.nordicsemi.com/bundle/ncs-3.3.0/page/nrf/samples/bootloader/README.html
+.. _NCS testing applications: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/test_and_optimize.html
+.. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/installation/install_ncs.html
+.. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/libraries/security/trusted_storage.html
+.. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/libraries/security/bootloader/fprotect.html
+.. _West: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/develop/west/index.html
+.. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/samples/hello_world/README.html
+.. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/releases_and_maturity/software_maturity.html
+.. _Migrating partition configuration from Partition Manager to devicetree (DTS): https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/releases_and_maturity/migration/migration_partitions.html
+.. _nRF Secure Immutable Bootloader (NSIB): https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/samples/bootloader/README.html
 
 .. nordicsemi.com
 

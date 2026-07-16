@@ -8,7 +8,4 @@ choice BOOTLOADER
 	default BOOTLOADER_NONE
 endchoice
 
-config PARTITION_MANAGER
-	default n
-
 source "${ZEPHYR_BASE}/share/sysbuild/Kconfig"

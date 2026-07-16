@@ -1,5 +1,0 @@
-mfg_storage:
-  address: 0xff000
-  end_address: 0x100000
-  region: flash_primary
-  size: 0x1000
