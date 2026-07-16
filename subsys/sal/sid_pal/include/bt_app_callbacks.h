@@ -25,7 +25,7 @@ extern "C" {
 bool sid_ble_bt_attr_is_SMP(const struct bt_gatt_attr *attr);
 
 /**
- * @brief check if attr is for one of Sidewlak services
+ * @brief check if attr is for one of Sidewalk services
  * 
  * @param attr 
  * @return true if attr is
