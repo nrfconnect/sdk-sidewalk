@@ -102,6 +102,8 @@ struct sid_on_dev_cert_info {
     const char *dsn;
     /** Advertised product ID */
     const char *apid;
+    /** Board ID (optional) */
+    const char *board_id;
 };
 
 /**
