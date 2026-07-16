@@ -67,7 +67,14 @@ target_compile_definitions(smtc_lbm INTERFACE
 )
 
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X sx126x)
-add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X sx126x_location)
+
+# When the nRF70 Wi-Fi PAL is active it provides the GNSS/Wi-Fi PAL symbols
+# instead of the sx126x_location NOSUPPORT stub, so skip the stub to avoid
+# duplicate symbol definitions.
+if(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X AND NOT CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
+	add_subdirectory(sx126x_location)
+endif()
+
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr11xx)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr1110)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr1110_location)

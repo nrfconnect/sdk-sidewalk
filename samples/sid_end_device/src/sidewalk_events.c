@@ -107,7 +107,7 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 void sidewalk_event_autostart(sidewalk_ctx_t *sid, void *ctx)
 {
 	if (sid->handle != NULL) {
-		LOG_INF("Sidewlak is already running");
+		LOG_INF("Sidewalk is already running");
 		return;
 	}
 	if (app_mfg_cfg_is_empty()) {
