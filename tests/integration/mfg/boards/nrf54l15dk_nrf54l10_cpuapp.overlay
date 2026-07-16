@@ -24,26 +24,30 @@
 
 &cpuapp_rram {
 	partitions {
-		compatible = "fixed-partitions";
+		ranges;
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
 			label = "mcuboot";
 			reg = <0x0 DT_SIZE_K(52)>;
 		};
 
 		slot0_partition: partition@d000 {
+			compatible = "zephyr,mapped-partition";
 			label = "image-0";
 			reg = <0xd000 DT_SIZE_K(960)>;
 		};
 
 		storage_partition: partition@fd000 {
+			compatible = "zephyr,mapped-partition";
 			label = "storage";
 			reg = <0xfd000 DT_SIZE_K(8)>;
 		};
 
 		mfg_storage: partition@ff000 {
+			compatible = "zephyr,mapped-partition";
 			label = "mfg_storage";
 			reg = <0xff000 DT_SIZE_K(4)>;
 		};

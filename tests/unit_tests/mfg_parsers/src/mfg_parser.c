@@ -5,9 +5,9 @@
  */
 
 #if CONFIG_BOARD_NATIVE_SIM
-#define FIXED_PARTITION_OFFSET(x) 0xFF000
+#define PARTITION_OFFSET(x) 0xFF000
 #else
-#include "flash_map_pm.h"
+#include <zephyr/storage/flash_map.h>
 #endif
 #include "sid_hal_memory_ifc.h"
 #include "zephyr/drivers/flash.h"
@@ -544,22 +544,22 @@ ZTEST(real_case, test_valid_mfg_hex_v8_flash)
 
 	const struct device *flash_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_flash_controller));
 
-	tlv_ctx tlv = (tlv_ctx){ .start_offset = FIXED_PARTITION_OFFSET(mfg_storage),
-				 .end_offset = FIXED_PARTITION_OFFSET(mfg_storage) + 0x1000,
+	tlv_ctx tlv = (tlv_ctx){ .start_offset = PARTITION_OFFSET(mfg_storage),
+				 .end_offset = PARTITION_OFFSET(mfg_storage) + 0x1000,
 				 .tlv_storage_start_marker_size = 8,
 				 .storage_impl = { .ctx = (void *)flash_dev,
 						   .read = tlv_storage_flash_read,
 						   .erase = tlv_storage_flash_erase,
 						   .write = tlv_storage_flash_write } };
 
-	flash_erase(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), 0x1000);
-	flash_write(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
+	flash_erase(flash_dev, PARTITION_OFFSET(mfg_storage), 0x1000);
+	flash_write(flash_dev, PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
 	memset(TLV_RAM_STORAGE, 0xff, sizeof(TLV_RAM_STORAGE));
 
 	int ret = parse_mfg_raw_tlv(&tlv);
 	zassert_equal(ret, 0);
 
-	flash_read(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
+	flash_read(flash_dev, PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
 
 	zassert_mem_equal(TLV_RAM_STORAGE, expected_parsed_mfg, sizeof(expected_parsed_mfg));
 	uint32_t empty_bytes_after_tlv_size = sizeof(TLV_RAM_STORAGE) - sizeof(expected_parsed_mfg);
@@ -715,22 +715,22 @@ ZTEST(real_case, test_valid_mfg_hex_v7_flash)
 
 	const struct device *flash_dev = DEVICE_DT_GET_OR_NULL(DT_CHOSEN(zephyr_flash_controller));
 
-	tlv_ctx tlv = (tlv_ctx){ .start_offset = FIXED_PARTITION_OFFSET(mfg_storage),
-				 .end_offset = FIXED_PARTITION_OFFSET(mfg_storage) + 0x1000,
+	tlv_ctx tlv = (tlv_ctx){ .start_offset = PARTITION_OFFSET(mfg_storage),
+				 .end_offset = PARTITION_OFFSET(mfg_storage) + 0x1000,
 				 .tlv_storage_start_marker_size = 8,
 				 .storage_impl = { .ctx = (void *)flash_dev,
 						   .read = tlv_storage_flash_read,
 						   .erase = tlv_storage_flash_erase,
 						   .write = tlv_storage_flash_write } };
 
-	flash_erase(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), 0x1000);
-	flash_write(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
+	flash_erase(flash_dev, PARTITION_OFFSET(mfg_storage), 0x1000);
+	flash_write(flash_dev, PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
 	memset(TLV_RAM_STORAGE, 0xff, sizeof(TLV_RAM_STORAGE));
 
 	int ret = parse_mfg_const_offsets(&tlv);
 	zassert_equal(ret, 0);
 
-	flash_read(flash_dev, FIXED_PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
+	flash_read(flash_dev, PARTITION_OFFSET(mfg_storage), TLV_RAM_STORAGE, 0x1000);
 
 	zassert_mem_equal(TLV_RAM_STORAGE, expected_parsed_mfg, sizeof(expected_parsed_mfg));
 	uint32_t empty_bytes_after_tlv_size = sizeof(TLV_RAM_STORAGE) - sizeof(expected_parsed_mfg);

@@ -13,7 +13,7 @@ manifest:
     - name: nrf
       remote: ncs
       repo-path: sdk-nrf
-      revision: v3.3.0
+      revision: v3.4.0
       import:
         name-allowlist:
           - cmsis
@@ -24,13 +24,11 @@ manifest:
           - nrfxlib
           - oberon-psa-crypto
           - qcbor
+          - tf-psa-crypto
           - trusted-firmware-m
           - zcbor
           - zephyr
           - cmock
-          # nRF53 only (multicore):
-          - libmetal
-          - open-amp
 
   self:
     path: sidewalk

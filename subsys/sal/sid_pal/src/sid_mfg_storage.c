@@ -158,7 +158,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 #if USE_PARTITION_MANAGER
 	err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
 #else
-	err = fprotect_area(FIXED_PARTITION_OFFSET(mfg_storage), FIXED_PARTITION_SIZE(mfg_storage));
+	err = fprotect_area(PARTITION_OFFSET(mfg_storage), PARTITION_SIZE(mfg_storage));
 #endif
 	if (err) {
 		LOG_ERR("Flash protect failed %d", err);

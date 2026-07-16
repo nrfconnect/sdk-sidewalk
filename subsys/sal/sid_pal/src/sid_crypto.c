@@ -75,14 +75,14 @@ static const uint8_t secpxxx_key_prefix[SECPxxx_KEY_PREFIX_LEN] = { 0x04 };
 static sid_error_t get_error(psa_status_t psa_erc, const char *func_name);
 static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t key_bits,
 				psa_key_usage_t usage_flags, psa_algorithm_t alg,
-				psa_key_type_t type, psa_key_handle_t *key_handle);
+				psa_key_type_t type, psa_key_id_t *key_handle);
 static psa_status_t aes_execute(psa_cipher_operation_t *operation, sid_pal_aes_params_t *params);
-static psa_status_t aes_encrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params);
-static psa_status_t aes_decrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params);
+static psa_status_t aes_encrypt(psa_key_id_t key_handle, sid_pal_aes_params_t *params);
+static psa_status_t aes_decrypt(psa_key_id_t key_handle, sid_pal_aes_params_t *params);
 static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t *params);
-static psa_status_t aead_encrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+static psa_status_t aead_encrypt(psa_key_id_t key_handle, sid_pal_aead_params_t *params,
 				 psa_algorithm_t alg);
-static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+static psa_status_t aead_decrypt(psa_key_id_t key_handle, sid_pal_aead_params_t *params,
 				 psa_algorithm_t alg);
 
 /**
@@ -145,7 +145,7 @@ static sid_error_t get_error(psa_status_t psa_erc, const char *func_name)
  */
 static psa_status_t prepare_key(const uint8_t *key, size_t key_length, size_t key_bits,
 				psa_key_usage_t usage_flags, psa_algorithm_t alg,
-				psa_key_type_t type, psa_key_handle_t *key_handle)
+				psa_key_type_t type, psa_key_id_t *key_handle)
 {
 	psa_key_attributes_t attributes = PSA_KEY_ATTRIBUTES_INIT;
 	psa_status_t status;
@@ -213,7 +213,7 @@ static psa_status_t aes_execute(psa_cipher_operation_t *operation, sid_pal_aes_p
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aes_encrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params)
+static psa_status_t aes_encrypt(psa_key_id_t key_handle, sid_pal_aes_params_t *params)
 {
 	psa_status_t status;
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
@@ -242,7 +242,7 @@ static psa_status_t aes_encrypt(psa_key_handle_t key_handle, sid_pal_aes_params_
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aes_decrypt(psa_key_handle_t key_handle, sid_pal_aes_params_t *params)
+static psa_status_t aes_decrypt(psa_key_id_t key_handle, sid_pal_aes_params_t *params)
 {
 	psa_status_t status;
 	psa_cipher_operation_t operation = PSA_CIPHER_OPERATION_INIT;
@@ -330,7 +330,7 @@ static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aead_encrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+static psa_status_t aead_encrypt(psa_key_id_t key_handle, sid_pal_aead_params_t *params,
 				 psa_algorithm_t alg)
 {
 	psa_aead_operation_t op = PSA_AEAD_OPERATION_INIT;
@@ -356,7 +356,7 @@ static psa_status_t aead_encrypt(psa_key_handle_t key_handle, sid_pal_aead_param
  *
  * @return PSA_SUCCESS when success, otherwise error code.
  */
-static psa_status_t aead_decrypt(psa_key_handle_t key_handle, sid_pal_aead_params_t *params,
+static psa_status_t aead_decrypt(psa_key_id_t key_handle, sid_pal_aead_params_t *params,
 				 psa_algorithm_t alg)
 {
 	psa_aead_operation_t op = PSA_AEAD_OPERATION_INIT;
@@ -456,7 +456,7 @@ sid_error_t sid_pal_crypto_hmac(sid_pal_hmac_params_t *params)
 	psa_status_t status;
 	psa_mac_operation_t operation = PSA_MAC_OPERATION_INIT;
 	psa_algorithm_t alg_sha;
-	psa_key_handle_t key_handle;
+	psa_key_id_t key_handle;
 
 	if (!is_initialized) {
 		return SID_ERROR_UNINITIALIZED;
@@ -538,7 +538,7 @@ sid_error_t sid_pal_crypto_aes_crypt(sid_pal_aes_params_t *params)
 	psa_status_t status = PSA_ERROR_NOT_SUPPORTED;
 	psa_algorithm_t alg;
 	size_t key_len = BYTE_TO_BITS(AES_128_KEY_LENGTH);
-	psa_key_handle_t key_handle;
+	psa_key_id_t key_handle;
 
 	if (!is_initialized) {
 		return SID_ERROR_UNINITIALIZED;
@@ -622,7 +622,7 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 {
 	psa_status_t status = PSA_ERROR_NOT_SUPPORTED;
 	psa_algorithm_t alg;
-	psa_key_handle_t key_handle;
+	psa_key_id_t key_handle;
 	size_t key_len = BYTE_TO_BITS(AES_128_KEY_LENGTH);
 
 	if (!is_initialized) {
@@ -702,7 +702,7 @@ sid_error_t sid_pal_crypto_aead_crypt(sid_pal_aead_params_t *params)
 sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 {
 	psa_status_t status;
-	psa_key_handle_t key_handle;
+	psa_key_id_t key_handle;
 	psa_algorithm_t alg;
 	psa_ecc_family_t type;
 	size_t key_len;
@@ -796,7 +796,7 @@ sid_error_t sid_pal_crypto_ecc_dsa(sid_pal_dsa_params_t *params)
 sid_error_t sid_pal_crypto_ecc_ecdh(sid_pal_ecdh_params_t *params)
 {
 	psa_status_t status;
-	psa_key_handle_t priv_key_handle;
+	psa_key_id_t priv_key_handle;
 	psa_ecc_family_t type;
 	size_t key_len;
 	uint8_t pub_key[EC_MAX_KEY_LENGTH];
@@ -872,7 +872,7 @@ sid_error_t sid_pal_crypto_ecc_key_gen(sid_pal_ecc_key_gen_params_t *params)
 	psa_algorithm_t alg;
 	psa_key_type_t type;
 	psa_status_t status;
-	psa_key_handle_t keys_handle;
+	psa_key_id_t keys_handle;
 	size_t key_len;
 	uint8_t pub_key_offset = 0;
 

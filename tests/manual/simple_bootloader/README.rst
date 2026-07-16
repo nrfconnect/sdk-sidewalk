@@ -14,7 +14,7 @@ Maintenance notes
 
 Configuration:
    * prj.conf - From Kconfig.dependencies config SIDEWALK_DFU_BOOTLOADER
-   * pm_static.yaml - copied from sid_end_device. Setting storage added as static partition (values from ninja partition_manager_report) to keep application footprint small.
+   * boards/*.overlay - flash partition layout copied from sid_end_device.
 
 Requirements
 ************

@@ -49,9 +49,9 @@ sid_error_t application_pal_init(void)
 	}
 #endif
 	static const sid_pal_mfg_store_region_t mfg_store_region = {
-		.addr_start = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage)),
-		.addr_end = (uintptr_t)(FIXED_PARTITION_OFFSET(mfg_storage) +
-					FIXED_PARTITION_SIZE(mfg_storage)),
+		.addr_start = (uintptr_t)(PARTITION_OFFSET(mfg_storage)),
+		.addr_end =
+			(uintptr_t)(PARTITION_OFFSET(mfg_storage) + PARTITION_SIZE(mfg_storage)),
 	};
 
 	sid_pal_mfg_store_init(mfg_store_region);
@@ -59,8 +59,8 @@ sid_error_t application_pal_init(void)
 	if (sid_pal_mfg_store_get_version() == EMPTY_MFG_HEX_PARTITION) {
 		LOG_ERR("The mfg.hex version mismatch");
 		LOG_ERR("Check if the file has been generated and flashed properly");
-		LOG_ERR("START ADDRESS: 0x%08x", FIXED_PARTITION_OFFSET(mfg_storage));
-		LOG_ERR("SIZE: 0x%08x", FIXED_PARTITION_SIZE(mfg_storage));
+		LOG_ERR("START ADDRESS: 0x%08x", PARTITION_OFFSET(mfg_storage));
+		LOG_ERR("SIZE: 0x%08x", PARTITION_SIZE(mfg_storage));
 		return SID_ERROR_NOT_FOUND;
 	}
 

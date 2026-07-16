@@ -12,31 +12,36 @@
 &cpuapp_rram {
 	reg = <0x0 DT_SIZE_K(1012)>;
 	partitions {
-		compatible = "fixed-partitions";
+		ranges;
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		boot_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
 			label = "mcuboot";
 			reg = <0x0 DT_SIZE_K(52)>;
 		};
 
 		slot0_partition: partition@d000 {
+			compatible = "zephyr,mapped-partition";
 			label = "image-0";
 			reg = <0xd000 DT_SIZE_K(472)>;
 		};
 
 		slot1_partition: partition@83000 {
+			compatible = "zephyr,mapped-partition";
 			label = "image-1";
 			reg = <0x83000 DT_SIZE_K(472)>;
 		};
 
 		storage_partition: partition@f9000 {
+			compatible = "zephyr,mapped-partition";
 			label = "storage";
 			reg = <0xf9000 DT_SIZE_K(12)>;
 		};
 
 		mfg_storage: partition@fc000 {
+			compatible = "zephyr,mapped-partition";
 			label = "mfg_storage";
 			reg = <0xfc000 DT_SIZE_K(4)>;
 		};

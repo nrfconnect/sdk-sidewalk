@@ -11,21 +11,24 @@
 
 &cpuapp_rram {
 	partitions {
-		compatible = "fixed-partitions";
+		ranges;
 		#address-cells = <1>;
 		#size-cells = <1>;
 
 		slot0_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
 			label = "image-0";
 			reg = <0x0 DT_SIZE_K(1904)>;
 		};
 
 		storage_partition: partition@1dc000 {
+			compatible = "zephyr,mapped-partition";
 			label = "storage";
 			reg = <DT_SIZE_K(1904) DT_SIZE_K(8)>;
 		};
 
 		mfg_storage: partition@1de000 {
+			compatible = "zephyr,mapped-partition";
 			label = "mfg_storage";
 			reg = <DT_SIZE_K(1912) DT_SIZE_K(4)>;
 		};
