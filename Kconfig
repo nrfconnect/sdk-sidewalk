@@ -233,6 +233,139 @@ config SIDEWALK_USE_PREBUILT_LIBRARIES
 		Building from sources requires additional dependencies,
 		not released with nRF Connect SDK.
 
+if SHIELD_NRF7002EB2
+
+config WIFI
+	default y
+
+config NETWORKING
+	default y
+
+config NET_L2_ETHERNET
+	default y
+
+config NET_OFFLOAD
+	default y
+
+config WIFI_NRF70
+	default y
+
+# NRF70_SCAN_ONLY and NRF_WIFI_PATCHES_EXT_FLASH_DISABLED are choice members
+# (NRF70_OPER_MODES / NRF_WIFI_PATCHES_EXT_FLASH_SUPPORT), so the default has
+# to be set on the choice itself, not on the member config.
+choice NRF70_OPER_MODES
+	default NRF70_SCAN_ONLY
+endchoice
+
+choice NRF_WIFI_PATCHES_EXT_FLASH_SUPPORT
+	default NRF_WIFI_PATCHES_EXT_FLASH_DISABLED
+endchoice
+
+endif # SHIELD_NRF7002EB2
+
+config SIDEWALK_WIFI_LOCATION_NRF70
+	bool "nRF70 Wi-Fi location PAL"
+	depends on WIFI
+	default y
+	# NETWORKING is already forced on via `if SHIELD_NRF7002EB2` above;
+	# selecting it again here would create a WIFI -> NETWORKING -> WIFI
+	# Kconfig dependency loop (NETWORKING's select is conditioned on WIFI).
+	select NET_MGMT
+	select NET_MGMT_EVENT
+	select NET_MGMT_EVENT_INFO
+	help
+	  Provide the Sidewalk Wi-Fi PAL (sid_pal_wifi_ifc.h) backed by an
+	  asynchronous Zephyr net_mgmt Wi-Fi scan on the nRF70. This lets the
+	  Sidewalk location library drive the Wi-Fi scan by itself
+	  (init/schedule_scan/get_scan_payload).
+
+	  When SIDEWALK_SUBGHZ_RADIO_SX126X is also selected this PAL replaces
+	  the sx126x_location NOSUPPORT stub, so the (lora_fsk) Sidewalk library
+	  actually invokes the Wi-Fi PAL.
+
+	  This PAL can also coexist with SIDEWALK_SUBGHZ_RADIO_LR1110 (for
+	  example the nRF Sidewalk EB together with an nRF7002 EB): whenever WIFI
+	  is enabled the nRF70 provides the Wi-Fi PAL (taking priority), while the
+	  LR1110 keeps providing the GNSS PAL and the sub-GHz radio. When WIFI is
+	  disabled the LR1110 provides the Wi-Fi PAL itself.
+
+if SIDEWALK_WIFI_LOCATION_NRF70
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TIMEOUT_MS
+	int "nRF70 Wi-Fi scan timeout (ms)"
+	default 20000
+	range 1000 60000
+	help
+	  Backstop timeout for a single nRF70 Wi-Fi scan. If the net_mgmt
+	  scan-done event does not arrive within this window the scan is
+	  abandoned and reported as timed out, so the Wi-Fi PAL cannot get
+	  stuck busy. Increase it for slow passive or multi-band scans.
+
+choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_FILTER
+	prompt "nRF70 Wi-Fi location scan band filter"
+	# nrf7002eb2 is only verified/tuned for 2.4 GHz so far; other Wi-Fi
+	# hardware defaults to scanning both bands.
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ if SHIELD_NRF7002EB2
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ
+	help
+	  Select which Wi-Fi frequency bands the nRF70 location scan covers.
+	  Band filtering is applied via wifi_scan_params.bands. See the nRF
+	  Connect SDK "Optimizing scan operation" guide for scan time/energy
+	  trade-offs per profile.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ
+	bool "2.4 GHz only"
+	help
+	  Scan only the 2.4 GHz band. Matches the "2.4 GHz Active" profile
+	  in the nRF Connect SDK scan optimization guide.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ
+	bool "2.4 and 5 GHz"
+	help
+	  Scan both the 2.4 GHz and 5 GHz bands. This is the typical profile
+	  for Wi-Fi location when dual-band AP visibility is needed.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_ALL
+	bool "All regulatory bands (2.4/5/6 GHz)"
+	help
+	  Do not restrict wifi_scan_params.bands; scan every band the
+	  regulatory domain allows.
+
+endchoice
+
+choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TYPE
+	prompt "nRF70 Wi-Fi location scan type"
+	# nrf7002eb2 is only verified/tuned for passive scanning so far; other
+	# Wi-Fi hardware defaults to active scanning.
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE if SHIELD_NRF7002EB2
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE
+	help
+	  Sets the scan_type hint passed to the driver. It's only a hint -
+	  the chip or the regulatory domain can still fall back to passive
+	  scanning on channels where active probing isn't allowed (e.g.
+	  2.4 GHz channels 12-14). Also make sure
+	  CONFIG_WIFI_MGMT_FORCED_PASSIVE_SCAN stays disabled (its default),
+	  since it overrides this hint and forces passive scanning on every
+	  channel regardless of what you pick here.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE
+	bool "Active"
+	help
+	  Sends probe requests (WIFI_SCAN_TYPE_ACTIVE). Faster than passive,
+	  but draws more instantaneous transmit power.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE
+	bool "Passive"
+	help
+	  Only listens for beacons, no probe requests
+	  (WIFI_SCAN_TYPE_PASSIVE). Slower than active, but uses less
+	  instantaneous transmit power and works on channels where active
+	  probing is restricted.
+
+endchoice
+
+endif # SIDEWALK_WIFI_LOCATION_NRF70
+
 rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
 rsource "boards/shields/*/Kconfig.shield"

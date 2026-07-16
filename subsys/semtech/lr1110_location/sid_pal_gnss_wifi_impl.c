@@ -230,10 +230,12 @@ sid_error_t sid_pal_gnss_process_event(uint8_t event_id)
     return sid_pal_common_process_event();
 }
 
+#if !defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
 sid_error_t sid_pal_wifi_process_event(uint8_t event_id)
 {
     return sid_pal_common_process_event();
 }
+#endif /* !CONFIG_SIDEWALK_WIFI_LOCATION_NRF70 */
 
 sid_error_t sid_pal_gnss_alm_demod_start() {
     smtc_modem_almanac_demodulation_start(LBM_STACK_ID);
@@ -318,6 +320,11 @@ sid_error_t sid_pal_gnss_get_scan_payload(struct sid_pal_gnss_payload *gnss_scan
 // END OF GNSS SPECIFIC PAL IMPLEMENTATION
 
 // WIFI SPECIFIC PAL IMPLEMENTATION
+//
+// When SIDEWALK_WIFI_LOCATION_NRF70 is enabled the nRF70 provides the Wi-Fi PAL
+// (it takes priority), so the LR1110 Wi-Fi entry points are compiled out here to
+// avoid duplicate sid_pal_wifi_* symbols. The LR1110 still provides GNSS.
+#if !defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
 
 sid_error_t sid_pal_wifi_init(struct sid_pal_wifi_config *config) {
     location_state.wifi_cfg = *config;
@@ -364,4 +371,6 @@ sid_error_t sid_pal_wifi_get_scan_payload(struct sid_pal_wifi_payload *wifi_scan
     wifi_scan_payload->nbr_results = location_state.wifi_scan_done_data.nbr_results;
     return SID_ERROR_NONE;
 }
+
+#endif /* !CONFIG_SIDEWALK_WIFI_LOCATION_NRF70 */
 // END OF WIFI PAL IMPLEMENTATION
