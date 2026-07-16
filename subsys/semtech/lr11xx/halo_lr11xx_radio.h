@@ -46,6 +46,13 @@ typedef enum
     RADIO_FSK_RX_DONE_STATUS_SW_MARK_NOT_PRESENT = 6,
 } radio_fsk_rx_done_status_t;
 
+typedef enum
+{
+	TIMEOUT_SIM_OFF = 0,
+	TIMEOUT_SIM_RX,
+	TIMEOUT_SIM_TX
+} timeout_sim_t;
+
 typedef struct
 {
     lr11xx_wifi_channel_mask_t channel_mask;
@@ -78,10 +85,11 @@ typedef struct
 #if HALO_ENABLE_DIAGNOSTICS
     bool pa_cfg_configured;
 #endif
-    bool rx_timeout_sim;
+    uint8_t timeout_sim;
 	bool aborted;
     bool sleeping;
     uint32_t deferred_timeout;
+    uint32_t time_on_air;
 #ifdef RADIO_SEMAPHORE
     SemaphoreHandle_t hal_lock;
 #endif /* RADIO_SEMAPHORE */
