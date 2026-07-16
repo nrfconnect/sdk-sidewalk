@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Amazon.com, Inc. or its affiliates.  All rights reserved.
+ * Copyright 2025-2026 Amazon.com, Inc. or its affiliates.  All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -26,7 +26,37 @@ extern "C" {
 #include <stdlib.h>
 
 /**
- * Structure containing device information
+ * @brief Device information type enumeration
+ */
+enum sid_device_info_type {
+    SID_DEVICE_INFO_TYPE_ENV = 1,            /**< Environment information type */
+    SID_DEVICE_INFO_TYPE_BATTERY_LEVEL = 2,  /**< Battery Level type */
+    SID_DEVICE_INFO_TYPE_OTA_BLOCK_SIZE = 3, /**< OTA block size type */
+};
+
+/**
+ * @brief Device environment enumeration
+ */
+enum sid_device_env {
+    SID_DEVICE_ENV_PROD = 1,  /**< Production environment */
+    SID_DEVICE_ENV_GAMMA = 2, /**< Gamma environment */
+    SID_DEVICE_ENV_DEV = 3,   /**< Development environment */
+};
+
+/**
+ * @brief Dynamic device information structure
+ */
+struct sid_device_dyn_info {
+    enum sid_device_info_type type; /**< Type of device information */
+    union {
+        enum sid_device_env env; /**< Device environment */
+        uint8_t battery_level;   /**< Battery level in % */
+        uint32_t ota_block_size; /**< OTA block size in bytes */
+    };
+};
+
+/**
+ * @brief Static device information structure
  */
 struct sid_device_info {
     /** Size of serial number (max 32 bytes) */
@@ -55,20 +85,50 @@ struct sid_device_info {
 };
 
 /**
- * Initializes the device information module and registers the GET_DEVICE_INFORMATION command handler.
- *
- * @param[in] config    Pointer to device information configuration structure. The pointed-to
- *                      configuration data must remain valid for the lifetime of the application.
- * @param[in] handle    A pointer to the handle returned by sid_init()
- *
- * @returns returns SID_ERROR_NONE in case of success.
+ * @brief Device information callback functions
  */
-sid_error_t sid_device_information_init(const struct sid_device_info *config, struct sid_handle *handle);
+struct sid_device_info_callbacks {
+    /**
+     * @brief Callback function to get device information
+     * @param[out] info Pointer to device information structure to populate
+     * @param[in] context User-defined context pointer
+     */
+    bool (*get_info)(struct sid_device_dyn_info *info, void *context);
+
+    /**
+     * @brief Callback function to set device information
+     * @param[in] info Pointer to device information structure to set
+     * @param[in] context User-defined context pointer
+     * @return true if successful, false otherwise
+     */
+    bool (*set_info)(const struct sid_device_dyn_info *info, void *context);
+
+    void *context; /**< User-defined context pointer */
+};
 
 /**
- * Deinitializes the device information module and deregisters the GET_DEVICE_INFORMATION command handler.
+ * @brief Device information configuration structure
+ */
+struct sid_device_info_config {
+    const struct sid_device_info *info;          /**< Pointer to static device information */
+    struct sid_device_info_callbacks *callbacks; /**< Pointer to callback functions */
+};
+
+/**
+ * @brief Initializes the device information module and registers the GET_DEVICE_INFORMATION command handler
  *
- * @return SID_ERROR_NONE
+ * @param[in] config Pointer to device information configuration structure. The pointed-to
+ *                   configuration data must remain valid for the lifetime of the application.
+ * @param[in] handle A pointer to the handle returned by sid_init()
+ *
+ * @return SID_ERROR_NONE on success, error code otherwise
+ */
+sid_error_t sid_device_information_init(const struct sid_device_info_config *config, struct sid_handle *handle);
+
+/**
+ * @brief Deinitializes the device information module and deregisters the GET_DEVICE_INFORMATION command handler
+ *
+ * @return SID_ERROR_NONE on success
  */
 sid_error_t sid_device_information_deinit(void);
 

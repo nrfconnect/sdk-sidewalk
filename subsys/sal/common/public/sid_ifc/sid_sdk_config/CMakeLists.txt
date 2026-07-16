@@ -22,5 +22,5 @@ target_include_directories(sid_sdk_config_ifc
 
 target_sources(sid_sdk_config_ifc
   INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/sid_sdk_config.h
+    sid_sdk_config.h
 )

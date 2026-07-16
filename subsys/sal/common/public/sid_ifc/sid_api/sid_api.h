@@ -425,8 +425,10 @@ enum sid_option {
     SID_OPTION_BLE_CONNECTION_POLICY = 18,
     /** Option to get/set DL route validity settings for the device */
     SID_OPTION_DL_ROUTE_VALIDITY = 19,
-    /** Option to set user control for sub-ghz  */
+    /** Option to set user control for sub-ghz */
     SID_OPTION_SUB_GHZ_USER_CONTROL = 20,
+    /** Option to set transmit power control config for LoRa */
+    SID_OPTION_LINK_TYPE_3_TRANSMIT_POWER_CONTROL_CONFIG = 21,
     /** Delimiter to enum sid_option */
     SID_OPTION_LAST,
 };

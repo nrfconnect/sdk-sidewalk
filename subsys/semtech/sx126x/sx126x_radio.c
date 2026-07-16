@@ -335,8 +335,8 @@ int32_t radio_sx126x_set_radio_mode(bool rf_en, bool tx_en)
             }
         }
 
-        if (drv_ctx.config->band_sel_cfg_callback) {
-            if (drv_ctx.config->band_sel_cfg_callback(tx_en) != SID_ERROR_NONE) {
+        if (drv_ctx.config->rf_switch_cfg_callback) {
+            if (drv_ctx.config->rf_switch_cfg_callback(rf_en, tx_en) != SID_ERROR_NONE) {
                 err = RADIO_ERROR_IO_ERROR;
                 break;
             }

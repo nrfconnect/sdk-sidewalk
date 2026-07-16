@@ -69,11 +69,15 @@ void update_gnss_ng_header(uint8_t *ref, bool end) {
 }
 
 void _app_event_lbm_gnss(enum sid_pal_gnss_events event) {
-    location_state.gnss_cfg.on_gnss_event(location_state.gnss_cfg.ctx, event, 0);
+    if (location_state.gnss_cfg.on_gnss_event) {
+        location_state.gnss_cfg.on_gnss_event(location_state.gnss_cfg.ctx, event, 0);
+    }
 }
 
 void _app_event_lbm_wifi(enum sid_pal_wifi_events event) {
-    location_state.wifi_cfg.on_wifi_event(location_state.wifi_cfg.ctx, event, 0);
+    if (location_state.wifi_cfg.on_wifi_event) {
+        location_state.wifi_cfg.on_wifi_event(location_state.wifi_cfg.ctx, event, 0);
+    }
 }
 
 static sid_error_t schedule_lbm_timer(uint32_t delay_ms) {
@@ -89,12 +93,12 @@ static sid_error_t schedule_lbm_timer(uint32_t delay_ms) {
 }
 
 void app_event_run_engine() {
-    if (location_state.wifi_cfg.on_wifi_event) {
+    if(location_state.wifi_cfg.on_wifi_event) {
         location_state.wifi_cfg.on_wifi_event(location_state.wifi_cfg.ctx, EVENT_TYPE_LBM, 0);
-    } else if (location_state.gnss_cfg.on_gnss_event) {
+    } else if(location_state.gnss_cfg.on_gnss_event) {
         location_state.gnss_cfg.on_gnss_event(location_state.gnss_cfg.ctx, EVENT_TYPE_LBM, 0);
     } else {
-        SID_PAL_LOG_WARNING("Location event callback not set");
+        SID_PAL_LOG_WARNING("Radio not initialized");
     }
 }
 
@@ -174,31 +178,23 @@ sid_error_t sid_pal_common_location_init() {
         SID_PAL_LOG_INFO("common initialization for wifi/gnss already complete.");
         return SID_ERROR_NONE;
     }
-    // Status/Version check and smtc modem run configuration for testing only
-    lr11xx_system_version_t ver = {0};
 
     halo_drv_semtech_ctx_t *drv_ctx = lr11xx_get_drv_ctx();
 
     if(!drv_ctx->ver.hw) {
         sid_error_t err;
-        SID_PAL_LOG_ERROR("lr1110 not init. initializing for location");
         if ((err = sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &rx_packet)) != RADIO_ERROR_NONE) {
             SID_PAL_LOG_ERROR("%d = sid_pal_radio_init", err);
             return err;
         }
+        sid_pal_radio_sleep(UINT32_MAX);
         location_state.radio_init_on_loc = true;
-    }
-
-    if( lr11xx_system_get_version(drv_ctx, &ver) != LR11XX_STATUS_OK ) {
-        SID_PAL_LOG_INFO( "lr11xx_system_get_version fail" );
-    } else {
-        SID_PAL_LOG_INFO("get system version HW 0x%.2X FW 0x%.4X", ver.hw, ver.fw);
     }
 
     grp_token = (uint8_t)((rand() % 30) + 2);
 
     smtc_board_initialise_and_get_ralf();
-    smtc_modem_init(&modem_event_callback, true);
+    smtc_modem_init(&modem_event_callback, false);
 
     location_state.is_init = true;
     return SID_ERROR_NONE;
@@ -287,15 +283,18 @@ sid_error_t sid_pal_gnss_get_scan_payload(struct sid_pal_gnss_payload *gnss_scan
     uint8_t scan_idx = location_state.gnss_scan_done_data.nb_scans_valid;
     uint8_t nav_size;
 
+    // Process scans in reverse order (for TLV formatting) while also collecting raw data
     while(scan_idx > 0) {
         scan_idx--;
         nav_size = location_state.gnss_scan_done_data.scans[scan_idx].nav_size;
 
+        // Check if formatted payload would exceed max size
         if((gnss_scan_group->size + NAV3_TLV_HEADER_SIZE + nav_size) > GNSS_MAX_PAYLOAD_SIZE) {
             SID_PAL_LOG_INFO("GNSS payload is too large. %u", gnss_scan_group->size + NAV3_TLV_HEADER_SIZE + nav_size);
             return SID_ERROR_GENERIC;
         }
 
+        // Build formatted payload with Semtech TLV structure
         // Semtech TLV Tag
         gnss_scan_group->payload_data[gnss_scan_group->size] = SEMTECH_GNSS_NG_TAG;
         gnss_scan_group->size++;
@@ -308,8 +307,13 @@ sid_error_t sid_pal_gnss_get_scan_payload(struct sid_pal_gnss_payload *gnss_scan
         update_gnss_ng_header((gnss_scan_group->payload_data + gnss_scan_group->size), (scan_idx == 0));
         gnss_scan_group->size++;
 
-        memcpy(&gnss_scan_group->payload_data[gnss_scan_group->size], location_state.gnss_scan_done_data.scans[scan_idx].nav, nav_size);
+        // NAV data
+        memcpy(&gnss_scan_group->payload_data[gnss_scan_group->size],
+               location_state.gnss_scan_done_data.scans[scan_idx].nav, nav_size);
         gnss_scan_group->size += nav_size;
+
+        // LR1110 already sending out raw data, raw data should not be in used
+        gnss_scan_group->raw_data_size = 0;
     }
 
     return SID_ERROR_NONE;
@@ -352,16 +356,17 @@ sid_error_t sid_pal_wifi_cancel_scan() {
 }
 
 sid_error_t sid_pal_wifi_get_scan_payload(struct sid_pal_wifi_payload *wifi_scan_payload) {
-    uint8_t ap_idx = location_state.wifi_scan_done_data.nbr_results;
-    if(ap_idx < 1) {
+    wifi_scan_payload->nbr_results = location_state.wifi_scan_done_data.nbr_results;
+
+    if (wifi_scan_payload->nbr_results == 0) {
         return SID_ERROR_INSUFFICIENT_RESULTS;
     }
-    for(uint8_t i = 0; i < location_state.wifi_scan_done_data.nbr_results; i++) {
+
+    for (uint8_t i = 0; i < wifi_scan_payload->nbr_results; i++) {
         wifi_scan_payload->results[i].rssi = location_state.wifi_scan_done_data.results[i].rssi;
         memcpy(&(wifi_scan_payload->results[i].mac), location_state.wifi_scan_done_data.results[i].mac_address, SID_WIFI_MAC_ADDRESS_LENGTH);
     }
 
-    wifi_scan_payload->nbr_results = location_state.wifi_scan_done_data.nbr_results;
     return SID_ERROR_NONE;
 }
 // END OF WIFI PAL IMPLEMENTATION

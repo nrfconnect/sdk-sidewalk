@@ -335,6 +335,7 @@ uint32_t sid_pal_radio_lora_cad_duration( uint8_t symbol, const sid_pal_radio_lo
 uint32_t sid_pal_radio_lora_time_on_air( const sid_pal_radio_lora_modulation_params_t* mod_params,
                                          const sid_pal_radio_lora_packet_params_t* packet_params, uint8_t packet_len )
 {
+    halo_drv_semtech_ctx_t* drv = lr11xx_get_drv_ctx();
     lr11xx_radio_pkt_params_lora_t lora_packet_params;
     lr11xx_radio_mod_params_lora_t lora_mod_params;
 
@@ -342,7 +343,8 @@ uint32_t sid_pal_radio_lora_time_on_air( const sid_pal_radio_lora_modulation_par
     radio_to_lr11xx_lora_packet_params( &lora_packet_params, packet_params );
     lora_packet_params.pld_len_in_bytes = packet_len;
 
-    return lr11xx_radio_get_lora_time_on_air_in_ms( &lora_packet_params, &lora_mod_params );
+    drv->time_on_air = lr11xx_radio_get_lora_time_on_air_in_ms( &lora_packet_params, &lora_mod_params );
+    return drv->time_on_air;
 }
 
 /**

@@ -23,9 +23,9 @@ extern "C" {
 
 #define SID_SDK_MINOR_VERSION 19
 
-#define SID_SDK_PATCH_VERSION 4
+#define SID_SDK_PATCH_VERSION 5
 
-#define SID_SDK_BUILD_VERSION 20
+#define SID_SDK_BUILD_VERSION 45
 
 #ifdef __cplusplus
 } /* extern "C" */

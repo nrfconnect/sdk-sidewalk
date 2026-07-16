@@ -489,6 +489,7 @@ int32_t sid_pal_radio_set_fsk_packet_params( const sid_pal_radio_fsk_packet_para
 uint32_t sid_pal_radio_fsk_time_on_air( const sid_pal_radio_fsk_modulation_params_t* mod_params,
                                         const sid_pal_radio_fsk_packet_params_t* packet_params, uint8_t packetLen )
 {
+    halo_drv_semtech_ctx_t* drv = lr11xx_get_drv_ctx();
     if( mod_params == NULL || packet_params == NULL )
     {
         return 0;
@@ -502,7 +503,8 @@ uint32_t sid_pal_radio_fsk_time_on_air( const sid_pal_radio_fsk_modulation_param
     fsk_pp.pld_len_in_bytes = packetLen;
     radio_pp_to_lr11xx_pp( &fsk_pp, packet_params );
 
-    return lr11xx_radio_get_gfsk_time_on_air_in_ms( &fsk_pp, &fsk_mp );
+    drv->time_on_air = lr11xx_radio_get_gfsk_time_on_air_in_ms( &fsk_pp, &fsk_mp );
+    return drv->time_on_air;
 }
 
 uint32_t sid_pal_radio_fsk_get_fsk_number_of_symbols( const sid_pal_radio_fsk_modulation_params_t* mod_params,

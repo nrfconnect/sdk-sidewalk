@@ -93,8 +93,8 @@ typedef int32_t (*radio_sx126x_get_mfg_trim_val_t)(uint16_t *trim);
 // DIO3 out voltage to supply antenna switch power.
 typedef int32_t (*radio_sx126x_get_dio3_cfg_t)(uint8_t radio_state);
 
-// Band select logical control to support RF TRX band switch.
-typedef int32_t (*radio_sx126x_band_select_logical_cfg_t)(bool tx_en);
+// RF switching logic control to support RF TRX switching.
+typedef int32_t (*radio_sx126x_rf_switch_logical_cfg_t)(bool rf_en, bool tx_en);
 
 typedef struct {
     uint8_t id;
@@ -104,7 +104,7 @@ typedef struct {
     const radio_sx126x_get_pa_cfg_t pa_cfg_callback;
     const radio_sx126x_get_mfg_trim_val_t trim_cap_val_callback;
     const radio_sx126x_get_dio3_cfg_t dio3_cfg_callback;
-    const radio_sx126x_band_select_logical_cfg_t band_sel_cfg_callback;
+    const radio_sx126x_rf_switch_logical_cfg_t rf_switch_cfg_callback;
     const struct sid_pal_serial_bus_factory *bus_factory;
 
     uint32_t gpio_power;
