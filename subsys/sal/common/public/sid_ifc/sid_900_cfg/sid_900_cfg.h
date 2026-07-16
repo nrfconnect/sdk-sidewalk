@@ -16,6 +16,7 @@
 #define SID_900_CFG_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /// @cond sid_ifc_ep_en
 
@@ -39,10 +40,13 @@ enum sid_device_profile_id {
     /** Device Profile ID for Asynchronous Network */
     SID_LINK3_PROFILE_A = 0x80,
     SID_LINK3_PROFILE_B = 0x81,
+    SID_LINK3_PROFILE_C = 0x82,
     SID_LINK3_PROFILE_D = 0x83,
     SID_LINK3_PROFILE_LAST,
 };
-#define IS_LINK3_PROFILE_ID(X) ((X == SID_LINK3_PROFILE_A) || (X == SID_LINK3_PROFILE_B) || (X == SID_LINK3_PROFILE_D))
+#define IS_LINK3_PROFILE_ID(X)                                                              \
+    ((X == SID_LINK3_PROFILE_A) || (X == SID_LINK3_PROFILE_B) || (X == SID_LINK3_PROFILE_C) \
+     || (X == SID_LINK3_PROFILE_D))
 #define IS_LINK2_PROFILE_ID(X) ((X == SID_LINK2_PROFILE_1) || (X == SID_LINK2_PROFILE_2))
 
 
@@ -63,7 +67,7 @@ enum sid_rx_window_count {
     SID_RX_WINDOW_CNT_PROFILE_A_MAX = 60,
 
     /** Used to indicate device is in continuous RX mode */
-    SID_RX_WINDOW_CONTINUOUS = 0xFFFF,
+    SID_RX_WINDOW_CONTINUOUS = 0xFF,
 };
 
 /**
@@ -94,6 +98,8 @@ enum sid_link2_rx_window_separation_ms {
  * Describes the frequency of RX windows opened by the device (in ms) in asynchronous mode
  */
 enum sid_link3_rx_window_separation_ms {
+    /** Used to indicate device opens continuous RX window */
+    SID_LINK3_RX_WINDOW_SEPARATION_CONTINUOUS = 0,
     /** Used to indicate device opens a RX window every 5000 ms */
     SID_LINK3_RX_WINDOW_SEPARATION_3 = 5000
 };
@@ -352,6 +358,13 @@ enum sid_sub_ghz_ctl_cmd {
 
 struct sid_sub_ghz_user_control {
     enum sid_sub_ghz_ctl_cmd sub_ghz_ctl_cmd;
+};
+
+/**
+ * Describes the LINK3 transmit power control config
+ */
+struct sid_link_type_3_tpc_config {
+    bool enabled;
 };
 
 /** @} */

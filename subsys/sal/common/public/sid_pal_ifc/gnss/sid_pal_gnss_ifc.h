@@ -60,6 +60,8 @@ struct sid_pal_gnss_config {
 struct sid_pal_gnss_payload {
     size_t size;
     uint8_t payload_data[GNSS_MAX_PAYLOAD_SIZE];
+    uint8_t raw_data[GNSS_MAX_PAYLOAD_SIZE];
+    size_t raw_data_size;
 };
 
 /**

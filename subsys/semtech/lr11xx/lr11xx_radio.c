@@ -251,7 +251,7 @@ int32_t sid_pal_radio_set_modem_mode( sid_pal_radio_modem_mode_t mode )
     }
 }
 
-static int32_t start_rx_timeout_sim(uint32_t timeout)
+static int32_t start_timeout_sim(uint32_t timeout, timeout_sim_t kind)
 {
   sid_error_t serr;
   struct sid_timespec saved;
@@ -265,10 +265,10 @@ static int32_t start_rx_timeout_sim(uint32_t timeout)
   saved.tv_nsec = first_shot.tv_nsec;
   sid_time_add(&first_shot, &tm2); /* Add tm1 and tm2, set result in tm1 */
   if ((serr = sid_pal_timer_arm(&lr_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &first_shot, NULL)) == SID_ERROR_NONE) {
-    drv_ctx.rx_timeout_sim = true;
+    drv_ctx.timeout_sim = kind;
     return RADIO_ERROR_NONE;
   } else {
-    SL_SID_LOG_APP_ERROR("fake rx timeout %lu fail %d", timeout, serr);
+    SL_SID_LOG_APP_ERROR("fake timeout %lu fail %d", timeout, serr);
     SL_SID_LOG_APP_ERROR("saved %u %u", saved.tv_sec, saved.tv_nsec);
     SL_SID_LOG_APP_ERROR("first_shot %u %u", first_shot.tv_sec, first_shot.tv_nsec);
     return RADIO_ERROR_IO_ERROR;  // RADIO_ERROR_GENERIC
@@ -282,11 +282,11 @@ int32_t sid_pal_radio_irq_process( void )
     lr11xx_system_irq_mask_t irq_status;
     int32_t                  err = RADIO_ERROR_NONE;
 
-    if( drv_ctx.rx_timeout_sim )
+    if( drv_ctx.timeout_sim == TIMEOUT_SIM_RX )
     {
-        drv_ctx.rx_timeout_sim = false;
+        drv_ctx.timeout_sim = TIMEOUT_SIM_OFF;
         if (drv_ctx.deferred_timeout != 0) {
-          start_rx_timeout_sim(drv_ctx.deferred_timeout);
+          start_timeout_sim(drv_ctx.deferred_timeout, TIMEOUT_SIM_RX);
           drv_ctx.deferred_timeout = 0;
         }
         radio_event            = SID_PAL_RADIO_EVENT_RX_TIMEOUT;
@@ -305,7 +305,11 @@ int32_t sid_pal_radio_irq_process( void )
             drv_ctx.report_radio_event( radio_event );
         } else
             SL_SID_LOG_APP_INFO("### fake rx timeout, no event ###");
-    }
+    } else if( drv_ctx.timeout_sim == TIMEOUT_SIM_TX ) {
+        drv_ctx.timeout_sim = TIMEOUT_SIM_OFF;
+        radio_event = SID_PAL_RADIO_EVENT_TX_DONE;
+        drv_ctx.report_radio_event( radio_event );
+	}
 
 	if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
 		/* should only occur at simulated rx timeout */
@@ -675,7 +679,6 @@ int32_t sid_pal_radio_set_tx_power( int8_t power )
 {
     int32_t err = RADIO_ERROR_NONE;
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-      SL_SID_LOG_APP_WARNING("drop set_tx_power");
       return RADIO_ERROR_NONE;
     }
 
@@ -920,8 +923,7 @@ int32_t sid_pal_radio_set_tx_payload( const uint8_t* buffer, uint8_t size )
         return RADIO_ERROR_INVALID_PARAMS;
     }
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-      SL_SID_LOG_APP_WARNING("drop set_tx_payload");
-      return RADIO_ERROR_BUSY;
+      return RADIO_ERROR_NONE;
     }
 
     if( lr11xx_regmem_write_buffer8( &drv_ctx, buffer, size ) != LR11XX_STATUS_OK )
@@ -937,9 +939,16 @@ int32_t sid_pal_radio_start_tx( uint32_t timeout )
 
     sid_pal_enter_critical_region();
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-      SL_SID_LOG_APP_WARNING("drop start_tx");
-      err = RADIO_ERROR_BUSY;
-      goto tx_start_finished;
+        if (sid_pal_timer_is_armed(&lr_timer)) {
+            err = RADIO_ERROR_BUSY;
+            goto tx_start_finished;
+        }
+        if ((err = start_timeout_sim(drv_ctx.time_on_air, TIMEOUT_SIM_TX)) != RADIO_ERROR_NONE) {
+            err = RADIO_ERROR_BUSY;
+            goto tx_start_finished;
+        }
+        err = RADIO_ERROR_NONE;
+        goto tx_start_finished;
     }
 
     if( drv_ctx.config->gpios.led_tx != HALO_GPIO_NOT_CONNECTED )
@@ -1038,7 +1047,7 @@ int32_t sid_pal_radio_start_rx( uint32_t timeout )
         err = RADIO_ERROR_HARDWARE_ERROR;
         goto rx_start_end;
       }
-      if ((err = start_rx_timeout_sim(timeout)) != RADIO_ERROR_NONE)
+      if ((err = start_timeout_sim(timeout, TIMEOUT_SIM_RX)) != RADIO_ERROR_NONE)
         goto rx_start_end;
       err = RADIO_ERROR_NONE;
       goto rx_start_end;
@@ -1820,11 +1829,7 @@ int sid_pal_radio_hold_scan()
     if( sid_pal_gpio_read( drv_ctx.config->gpios.int1, &pinState ) == SID_ERROR_NONE ) {
 		if (pinState) {
 			SL_SID_LOG_APP_WARNING(BYEL "hold scan: int1 high"COLOR_RESET);
-			SL_SID_LOG_APP_INFO("Clearing irq");
-			if (radio_clear_irq_status_all()) {
-				SL_SID_LOG_APP_ERROR(BYEL "Failed to clear IRQ"COLOR_RESET);
-				return -1;
-			}
+			return -1;
 		}
 	} else {
 		SL_SID_LOG_APP_ERROR("hold scan: gpio read fail");
@@ -2193,7 +2198,6 @@ int32_t radio_disable_irq( const halo_drv_semtech_ctx_t* drv )
 static int32_t sid_pal_radio_set_modem_to_lora_mode( void )
 {
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-      SL_SID_LOG_APP_WARNING("drop to_lora");
       return RADIO_ERROR_NONE;
     }
     if( lr11xx_radio_set_pkt_type( &drv_ctx, LR11XX_RADIO_PKT_TYPE_LORA ) != LR11XX_STATUS_OK )
@@ -2258,12 +2262,12 @@ static void lr_timer_cb( void* arg, sid_pal_timer_t* owner )
     {
         if( !pinState )
         {
-            drv_ctx.rx_timeout_sim = true;  // no interrupt asserted from radio, generate fake rx timeout
+            drv_ctx.timeout_sim = TIMEOUT_SIM_RX;  // no interrupt asserted from radio, generate fake rx timeout
         }
         else
         {
             // else if radio is generating an interrupt, it will be handled normally
-            drv_ctx.rx_timeout_sim = false;
+            drv_ctx.timeout_sim = TIMEOUT_SIM_OFF;
         }
     }
     else

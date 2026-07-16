@@ -64,10 +64,11 @@ enum sid_location_effort_mode {
  * Event types of the sid location library
  */
 enum sid_location_status {
-    SID_LOCATION_LVL1_READY,         // To be used with timesync connections
-    SID_LOCATION_LVL1_UNAVAILABLE,   // To be used with timesync connections
-    SID_LOCATION_SEND_DONE,
-    SID_LOCATION_SCAN_DONE
+    SID_LOCATION_LVL1_READY,           // To be used with timesync connections
+    SID_LOCATION_LVL1_UNAVAILABLE,     // To be used with timesync connections
+    SID_LOCATION_SEND_ONLY_DONE,       // Send-only operation completed
+    SID_LOCATION_SCAN_ONLY_DONE,       // Scan-only operation completed
+    SID_LOCATION_SCAN_AND_SEND_DONE,   // Scan-and-send operation completed
 };
 
 enum sid_location_run_type {
@@ -95,6 +96,8 @@ struct sid_location_result {
     enum sid_link_type link;
     uint8_t payload[SID_LOCATION_MAX_PAYLOAD_SIZE];
     size_t size;
+    uint8_t raw_gnss_data[SID_LOCATION_MAX_PAYLOAD_SIZE];
+    size_t raw_gnss_data_size;
 };
 
 /**
@@ -143,6 +146,7 @@ struct sid_location_config {
     bool manage_effort;
     struct sid_location_stepdown_timeouts stepdowns;
     struct sid_location_fragmentation_retries fragmentation;
+    bool auto_link_pause_resume;
 };
 
 /**
@@ -201,6 +205,7 @@ sid_error_t sid_location_set_max_mode(struct sid_handle *handle, enum sid_locati
  * @returns the current sid location effort mode.
  **/
 enum sid_location_effort_mode sid_location_get_effort_mode(struct sid_handle *handle);
+
 /**
  * API to update the GNSS almanac
  *

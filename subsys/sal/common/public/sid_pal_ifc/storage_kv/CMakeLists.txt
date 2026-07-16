@@ -22,8 +22,8 @@ target_include_directories(sid_pal_storage_kv_ifc
 
 target_sources(sid_pal_storage_kv_ifc
   INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/sid_pal_storage_kv_ifc.h
-    ${CMAKE_CURRENT_LIST_DIR}/sid_pal_storage_kv_internal_group_ids.h
+    sid_pal_storage_kv_ifc.h
+    sid_pal_storage_kv_internal_group_ids.h
 )
 
 target_link_libraries(sid_pal_storage_kv_ifc

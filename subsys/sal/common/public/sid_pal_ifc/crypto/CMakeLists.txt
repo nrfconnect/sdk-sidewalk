@@ -22,7 +22,7 @@ target_include_directories(sid_pal_crypto_ifc
 
 target_sources(sid_pal_crypto_ifc
   INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/sid_pal_crypto_ifc.h
+    sid_pal_crypto_ifc.h
 )
 
 target_link_libraries(sid_pal_crypto_ifc
