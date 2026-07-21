@@ -62,3 +62,4 @@ compliance.xml
 
 tools/provision/*.hex
 tools/provision/*.bin
+tools/provision/certificate.json
