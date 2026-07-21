@@ -83,6 +83,18 @@ KRKNWK-21159: Crash in ``sid_location_run`` due to invalid context in Wi-Fi call
 
   **Affected platforms:** The nRF52840 SoC and the nRF54L15 SoC with the LR1110 shield
 
+KRKNWK-22208: Bluetooth LE advertising fails after Sidewalk deinit and reinit cycle
+
+  After a full Sidewalk Bluetooth LE deinitialization and reinitialization cycle, advertising may fail to restart.
+  When a Bluetooth LE connection is established, the Bluetooth stack stops advertising, but the internal advertising state may remain stale.
+  On the next ``sid_start()`` call, ``sid_ble_advert_update()`` might call the Bluetooth HCI API with an invalid advertising set.
+  This results in an ``Advertising failed to update (err -22)`` error and causes ``sid_start()`` to return ``SID_ERROR_GENERIC``.
+
+  **Affected platforms:** All platforms.
+
+  **Workaround:** Reset the device after ``sid deinit`` and before calling ``sid init`` again. 
+  Alternatively, avoid the deinit and reinit cycle unless you perform a full device reset.
+
 List of known issues for v1.1.0
 *******************************
 
