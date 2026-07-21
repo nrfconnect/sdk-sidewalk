@@ -11,9 +11,12 @@
 
 #ifdef CONFIG_DT_HAS_SEMTECH_LR1110_ENABLED
 #define SHIELD_NAME "Semtech lr1110"
-#elif defined(CONFIG_DT_HAS_SEMTECH_SX1262_ENABLED) |                                              \
+#elif defined(CONFIG_DT_HAS_SEMTECH_SX1262_ENABLED) ||                                              \
 	defined(CONFIG_DT_HAS_SEMTECH_SX1262_NEW_ENABLED)
 #define SHIELD_NAME "Semtech sx1262"
+#elif defined(CONFIG_DT_HAS_NORDIC_NRF7002_SPI_ENABLED) ||                                        \
+	defined(CONFIG_DT_HAS_NORDIC_NRF7002_QSPI_ENABLED)
+#define SHIELD_NAME "nRF7002 EB-II"
 #endif
 
 #ifndef SHIELD_NAME
