@@ -3,13 +3,19 @@ name: Build and publish Docker image
 on:
 
   workflow_dispatch:
+    inputs:
+      nrf_version:
+        description: 'NCS revision (default: from west.yml)'
+        required: false
+        type: string
 
   push:
     branches:
       - main
     paths:
       - '.github/docker/**'
-      - '.github/workflow/on_docker_change.yml'
+      - '.github/workflows/on_docker_change.yml'
+      - 'west.yml'
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
@@ -30,12 +36,34 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get revision of nrf to use
+        id: revision
+        run: |
+          REF_NAME="${{ github.event.inputs.nrf_version }}"
+          if [ -z "$REF_NAME" ]; then
+            REF_NAME=$(yq '.manifest.projects | map(select(.name == "nrf"))[0].revision' west.yml)
+          fi
+          echo "REF_NAME=$REF_NAME" >> $GITHUB_OUTPUT
+          echo "Ref name: $REF_NAME"
+
+      - name: Resolve toolchain bundle ID
+        id: toolchain
+        run: |
+          REF="${{ steps.revision.outputs.REF_NAME }}"
+          git init /tmp/nrf
+          git -C /tmp/nrf remote add origin https://github.com/nrfconnect/sdk-nrf
+          git -C /tmp/nrf fetch --depth 1 origin "${REF}"
+          git -C /tmp/nrf checkout FETCH_HEAD
+          echo "bundle_id=$(/tmp/nrf/scripts/print_toolchain_checksum.sh)" >> $GITHUB_OUTPUT
+          echo "Toolchain bundle: $(/tmp/nrf/scripts/print_toolchain_checksum.sh)"
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -50,20 +78,17 @@ jobs:
             type=semver,pattern={{major}}
             type=sha
 
-      - name: Get revision of nrf to use
-        id: revision
-        run: |
-          REF_NAME=$(yq '.manifest.projects | map(select(.name == "nrf"))[0].revision' west.yml)
-          echo "REF_NAME=$REF_NAME" >> $GITHUB_OUTPUT
-          echo "Ref name: $REF_NAME"
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: .github/docker/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.toolchain.outputs.bundle_id }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args:
+          build-args: |
             NRF_VERSION=${{ steps.revision.outputs.REF_NAME }}
+            TOOLCHAIN_BUNDLE_ID=${{ steps.toolchain.outputs.bundle_id }}
