@@ -7,11 +7,9 @@
 /{
 	aliases {
 		state-notifier-connected = &led0;
-		/* led1 is repurposed as SPI-CS by the nrf7002eb2 Wi-Fi shield */
 		state-notifier-registered = &led2;
 		state-notifier-working = &led3;
 	};
-
 };
 
 &cpuapp_rram {
