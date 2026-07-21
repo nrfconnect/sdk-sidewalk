@@ -5,7 +5,6 @@
  */
 
 #include <sid_pal_wifi_ifc.h>
-#include <sid_pal_gnss_ifc.h>
 #include <sid_error.h>
 
 #include <string.h>
@@ -229,58 +228,3 @@ sid_error_t sid_pal_wifi_get_scan_payload(struct sid_pal_wifi_payload *wifi_scan
 		wifi_scan_result->nbr_results);
 	return SID_ERROR_NONE;
 }
-
-/* ---------------------------------------------------------------------------
- * GNSS PAL - not available on this platform.
- *
- * These stubs are required because, when this PAL replaces the
- * sx126x_location stub, the Sidewalk library still references the full GNSS
- * PAL surface. All functions report NOSUPPORT so the GNSS method degrades
- * gracefully.
- *
- * When SIDEWALK_SUBGHZ_RADIO_LR1110 is selected the LR1110 provides the real
- * GNSS PAL, so these stubs are compiled out to avoid duplicate sid_pal_gnss_*
- * symbols (the nRF70 keeps providing the Wi-Fi PAL alongside it).
- * ------------------------------------------------------------------------- */
-#if !defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
-
-sid_error_t sid_pal_gnss_init(struct sid_pal_gnss_config *config)
-{
-	ARG_UNUSED(config);
-	return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_gnss_process_event(uint8_t event_id)
-{
-	ARG_UNUSED(event_id);
-	return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_gnss_schedule_scan(uint32_t scan_delay_s)
-{
-	ARG_UNUSED(scan_delay_s);
-	return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_gnss_cancel_scan(void)
-{
-	return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_gnss_get_scan_payload(struct sid_pal_gnss_payload *gnss_scan_group)
-{
-	ARG_UNUSED(gnss_scan_group);
-	return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_gnss_alm_demod_start(void)
-{
-	return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_gnss_deinit(void)
-{
-	return SID_ERROR_NOSUPPORT;
-}
-
-#endif /* !CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
