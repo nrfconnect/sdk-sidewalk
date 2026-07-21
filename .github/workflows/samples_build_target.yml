@@ -26,7 +26,7 @@ jobs:
       options: --cpus 2
     defaults:
       run:
-        shell: nrfutil toolchain-manager launch --install-dir /root/ncs bash -- {0}
+        shell: bash -- {0}
 
     steps:
       - name: get_max_subset
@@ -43,11 +43,17 @@ jobs:
           fetch-depth: 0
           path: sidewalk
 
+      - name: Setup NCS toolchain (pre-baked)
+        uses: ./sidewalk/.github/actions/setup-ncs-toolchain
+
       - name: update NRF
         run: |
           rm -rf .west;
           west init -l sidewalk --mf west.yml &&
           west update -n -o=--depth=1 --path-cache /workdir/
+
+      - name: Setup NCS toolchain (from manifest)
+        uses: ./sidewalk/.github/actions/setup-ncs-toolchain
 
       - name: Install Python dependencies
         run: |

@@ -1,0 +1,35 @@
+name: Setup NCS toolchain
+description: >
+  Make the NCS toolchain matching west.yml active for bash steps via BASH_ENV.
+  Call once after checkout (uses the pre-baked toolchain so west is available)
+  and once after 'west update' (installs the toolchain the manifest requires).
+
+runs:
+  using: composite
+  steps:
+    - name: Setup NCS toolchain
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        # sdk-manager is installed in the image; BASH_ENV would hide it.
+        export NRFUTIL_HOME=/usr/local/share/nrfutil
+        NCS_INSTALL_DIR=/root/ncs
+
+        nrfutil install sdk-manager
+
+        if [ -x nrf/scripts/print_toolchain_checksum.sh ]; then
+          BUNDLE_ID=$(nrf/scripts/print_toolchain_checksum.sh)
+          if [ ! -d "${NCS_INSTALL_DIR}/toolchains/${BUNDLE_ID}" ]; then
+            nrfutil sdk-manager toolchain install \
+              --toolchain-bundle-id "${BUNDLE_ID}" --install-dir "${NCS_INSTALL_DIR}"
+          fi
+        else
+          BUNDLE_ID=$(basename "$(find "${NCS_INSTALL_DIR}/toolchains" -mindepth 1 -maxdepth 1 -type d | head -1)")
+        fi
+        echo "Using toolchain bundle ${BUNDLE_ID}"
+
+        nrfutil sdk-manager toolchain env \
+          --toolchain-bundle-id "${BUNDLE_ID}" --install-dir "${NCS_INSTALL_DIR}" \
+          --as-script sh > /opt/toolchain-env.sh
+        echo "BASH_ENV=/opt/toolchain-env.sh" >> "${GITHUB_ENV}"
