@@ -9,6 +9,12 @@ add_library(sid_pal_radio_lr11xx_location_impl STATIC
 	smtc_modem_impl.c
 )
 
+if(NOT CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
+	target_sources(sid_pal_radio_lr11xx_location_impl PRIVATE
+		sid_pal_wifi_lr1110_impl.c
+	)
+endif()
+
 target_include_directories(sid_pal_radio_lr11xx_location_impl PRIVATE
 	${SEMTECH_COMMON_INCLUDES}
 	${LR11XX_COMMON_INCLUDES}

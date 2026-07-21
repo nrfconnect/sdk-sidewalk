@@ -30,26 +30,17 @@
 #include <sid_time_ops.h>
 #include <sid_clock_ifc.h>
 
+#include "lr1110_location_priv.h"
+
 #define LBM_STACK_ID 0
 #define NAV3_TLV_HEADER_SIZE 3
 #define SEMTECH_GNSS_NG_TAG 0x53
 
 enum LOCATION_EVENT_TYPE {
-    EVENT_TYPE_LBM,
+	EVENT_TYPE_LBM,
 };
 
-struct lr11xx_location_configuration {
-    struct sid_pal_gnss_config gnss_cfg;
-    struct sid_pal_wifi_config wifi_cfg;
-    bool is_init;
-    bool is_busy;
-    lr11xx_gnss_wifi_config_t *init_config;
-    smtc_modem_gnss_event_data_scan_done_t gnss_scan_done_data;
-    smtc_modem_wifi_event_data_scan_done_t wifi_scan_done_data;
-    bool radio_init_on_loc;
-};
-
-static struct lr11xx_location_configuration location_state = {0};
+struct lr11xx_location_configuration location_state;
 static uint8_t grp_token = 0;
 
 void rotate_scan_grp_token() {
@@ -227,15 +218,8 @@ sid_error_t sid_pal_gnss_init(struct sid_pal_gnss_config *config) {
 
 sid_error_t sid_pal_gnss_process_event(uint8_t event_id)
 {
-    return sid_pal_common_process_event();
+	return sid_pal_common_process_event();
 }
-
-#if !defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
-sid_error_t sid_pal_wifi_process_event(uint8_t event_id)
-{
-    return sid_pal_common_process_event();
-}
-#endif /* !CONFIG_SIDEWALK_WIFI_LOCATION_NRF70 */
 
 sid_error_t sid_pal_gnss_alm_demod_start() {
     smtc_modem_almanac_demodulation_start(LBM_STACK_ID);
@@ -316,61 +300,3 @@ sid_error_t sid_pal_gnss_get_scan_payload(struct sid_pal_gnss_payload *gnss_scan
 
     return SID_ERROR_NONE;
 }
-
-// END OF GNSS SPECIFIC PAL IMPLEMENTATION
-
-// WIFI SPECIFIC PAL IMPLEMENTATION
-//
-// When SIDEWALK_WIFI_LOCATION_NRF70 is enabled the nRF70 provides the Wi-Fi PAL
-// (it takes priority), so the LR1110 Wi-Fi entry points are compiled out here to
-// avoid duplicate sid_pal_wifi_* symbols. The LR1110 still provides GNSS.
-#if !defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
-
-sid_error_t sid_pal_wifi_init(struct sid_pal_wifi_config *config) {
-    location_state.wifi_cfg = *config;
-    return sid_pal_common_location_init();
-}
-
-sid_error_t sid_pal_wifi_deinit(){
-    sid_pal_common_location_deinit();
-    return SID_ERROR_NONE;
-}
-
-sid_error_t sid_pal_wifi_schedule_scan(uint32_t scan_delay_s) {
-    if(location_state.is_busy) {
-        SID_PAL_LOG_INFO("Location modem is busy, cannot schedule scan");
-        return SID_ERROR_BUSY;
-    }
-
-    if(!location_state.is_init) {
-        SID_PAL_LOG_INFO("PAL is uninitialized");
-        return SID_ERROR_UNINITIALIZED;
-    }
-
-    location_state.is_busy = true;
-    smtc_modem_wifi_scan(LBM_STACK_ID, scan_delay_s);
-    sid_pal_common_process_event();
-
-    return SID_ERROR_NONE;
-}
-
-sid_error_t sid_pal_wifi_cancel_scan() {
-    return SID_ERROR_NOSUPPORT;
-}
-
-sid_error_t sid_pal_wifi_get_scan_payload(struct sid_pal_wifi_payload *wifi_scan_payload) {
-    uint8_t ap_idx = location_state.wifi_scan_done_data.nbr_results;
-    if(ap_idx < 1) {
-        return SID_ERROR_INSUFFICIENT_RESULTS;
-    }
-    for(uint8_t i = 0; i < location_state.wifi_scan_done_data.nbr_results; i++) {
-        wifi_scan_payload->results[i].rssi = location_state.wifi_scan_done_data.results[i].rssi;
-        memcpy(&(wifi_scan_payload->results[i].mac), location_state.wifi_scan_done_data.results[i].mac_address, SID_WIFI_MAC_ADDRESS_LENGTH);
-    }
-
-    wifi_scan_payload->nbr_results = location_state.wifi_scan_done_data.nbr_results;
-    return SID_ERROR_NONE;
-}
-
-#endif /* !CONFIG_SIDEWALK_WIFI_LOCATION_NRF70 */
-// END OF WIFI PAL IMPLEMENTATION
