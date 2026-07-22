@@ -21,6 +21,7 @@ manifest:
           - hal_nordic
           - mbedtls
           - mcuboot
+          - nrf_wifi
           - nrfxlib
           - oberon-psa-crypto
           - qcbor

@@ -1,0 +1,65 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+config SIDEWALK_WIFI_LOCATION_NRF70
+	bool "nRF70 Wi-Fi location PAL"
+	default y if SHIELD_NRF7002EB2
+	select NET_MGMT
+	select NET_MGMT_EVENT
+	select NET_MGMT_EVENT_INFO
+	select WIFI
+	select NETWORKING
+	select WIFI_NRF70
+	help
+	  Wi-Fi PAL for Sidewalk location using nRF70 net_mgmt scan.
+
+if SIDEWALK_WIFI_LOCATION_NRF70
+
+choice NRF70_OPER_MODES
+	default NRF70_SCAN_ONLY
+endchoice
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TIMEOUT_MS
+	int "nRF70 Wi-Fi scan timeout (ms)"
+	default 20000
+	range 1000 60000
+	help
+	  Backstop timeout for a single nRF70 Wi-Fi scan.
+
+choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_FILTER
+	prompt "nRF70 Wi-Fi location scan band filter"
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ if SHIELD_NRF7002EB2
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ
+	help
+	  Select which Wi-Fi frequency bands the nRF70 location scan covers.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ
+	bool "2.4 GHz only"
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ
+	bool "2.4 and 5 GHz"
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_ALL
+	bool "All regulatory bands (2.4/5/6 GHz)"
+
+endchoice
+
+choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TYPE
+	prompt "nRF70 Wi-Fi location scan type"
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE if SHIELD_NRF7002EB2
+	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE
+	help
+	  Scan type hint passed to the nRF70 driver.
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE
+	bool "Active"
+
+config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE
+	bool "Passive"
+
+endchoice
+
+endif # SIDEWALK_WIFI_LOCATION_NRF70

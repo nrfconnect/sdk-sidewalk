@@ -6,6 +6,7 @@
 
 add_subdirectory(sal)
 
+
 if (CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
     add_subdirectory(app_utils)
     add_subdirectory(semtech)
@@ -14,5 +15,8 @@ if (CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
         target_link_libraries(sid_pal_mfg_store_impl PUBLIC app_utils)
     endif()
 endif()
+
+add_subdirectory_ifdef(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70 nrf70_location)
+
 
 add_subdirectory_ifdef(CONFIG_SIDEWALK_DEMO_PARSER demo)

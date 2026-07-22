@@ -233,6 +233,8 @@ config SIDEWALK_USE_PREBUILT_LIBRARIES
 		Building from sources requires additional dependencies,
 		not released with nRF Connect SDK.
 
+rsource "subsys/nrf70_location/Kconfig"
+
 rsource "Kconfig.dependencies"
 rsource "utils/Kconfig"
 rsource "boards/shields/*/Kconfig.shield"
