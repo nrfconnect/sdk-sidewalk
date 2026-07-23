@@ -25,6 +25,7 @@ TESTCASE_ROOT=""
 RUN_BUILD=false
 RUN_UT=false
 RUN_ON_HW=false
+RUN_COVERAGE=false
 USERDEV_CONF_FILE="$CURRENT_DIR/../TargetTestsDevConf/user_devconf.yml"
 TWISTER_TAGS=""
 TWISTER_PLATFORM=""
@@ -34,7 +35,7 @@ LCOV_EXCLUDE=('/**/twister-out/*' '/**/mbedtls/*' '/**/test/cmock/*' '/**/zephyr
 usage () {
   echo ""
   echo "Twister test case runner"
-    echo "Usage: [-s SIDEWALK_SDK_DIR] [-t TESTCASE_ROOT] [-b] [-u] [-f USERDEV_CONF_FILE] [-a TAG] [-p PLATFORM]"
+    echo "Usage: [-s SIDEWALK_SDK_DIR] [-t TESTCASE_ROOT] [-b] [-u] [-c] [-f USERDEV_CONF_FILE] [-a TAG] [-p PLATFORM]"
     echo ""
 }
 
@@ -44,6 +45,7 @@ descr () {
     echo "    -t  Overwrite testcase-root to use. If not passed, testcase-root=SIDEWALK_SDK_DIR"
     echo "    -b build without running any test. Use testcase-root SIDEWALK_SDK_DIR/samples"
     echo "    -u run unit tests on native_sim. Use testcase-root SIDEWALK_SDK_DIR/tests/unit_tests"
+    echo "    -c enable code coverage when running unit tests (-u). Requires lcov and genhtml"
     echo "    -f run unit tests functional on nRF HW. Use testcase-root SIDEWALK_SDK_DIR/tests/functional"
     echo "    -a run build or tests only for entries with selected tag. It can be passed multiple times, ones per tag. e.g. -a Sidewalk -a Sidewalk_cli"
     echo "    -p run build or tests only for selected platforms. It can be passed multiple times, e.g. -p nrf54l15dk/nrf54l15/cpuapp"
@@ -51,7 +53,7 @@ descr () {
 }
 
 # Parse opts
-while getopts "s::t::f::a::p::ubh" opt
+while getopts "s::t::f::a::p::ubch" opt
 do
     case $opt in
         s)
@@ -76,6 +78,9 @@ do
             ;;
         u)
             RUN_UT=true
+            ;;
+        c)
+            RUN_COVERAGE=true
             ;;
         b)
             RUN_BUILD=true
@@ -138,13 +143,19 @@ function run_ut ()
         echo "[INFO]: Run unit tests not executed"
         return 0
     fi
-    run_twister --platform native_sim --platform unit_testing --coverage --coverage-tool lcov --enable-ubsan --enable-lsan --enable-asan -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
+    local twister_args="--platform native_sim --platform unit_testing --enable-ubsan --enable-lsan --enable-asan"
+    if [ "${RUN_COVERAGE}" = true ]; then
+        twister_args="${twister_args} --coverage --coverage-tool lcov"
+    fi
+    run_twister ${twister_args} -T $(get_testcase_root $(realpath ${SIDEWALK_SDK_DIR}/tests/unit_tests))
     status=$?
-    echo "[INFO]: Remove files from coverage that are not under test and regenerate html report"
-    lcov -q --remove "${CURRENT_DIR}/twister-out/coverage.info" "${LCOV_EXCLUDE[@]}" -o "${CURRENT_DIR}/twister-out/new_coverage.info"
-    mv "${CURRENT_DIR}/twister-out/new_coverage.info" "${CURRENT_DIR}/twister-out/coverage.info"
-    rm -rf "${CURRENT_DIR}/twister-out/coverage"
-    genhtml "${CURRENT_DIR}/twister-out/coverage.info" -o "${CURRENT_DIR}/twister-out/coverage" -q --ignore-errors source --branch-coverage --highlight --legend
+    if [ "${RUN_COVERAGE}" = true ]; then
+        echo "[INFO]: Remove files from coverage that are not under test and regenerate html report"
+        lcov -q --remove "${CURRENT_DIR}/twister-out/coverage.info" "${LCOV_EXCLUDE[@]}" -o "${CURRENT_DIR}/twister-out/new_coverage.info"
+        mv "${CURRENT_DIR}/twister-out/new_coverage.info" "${CURRENT_DIR}/twister-out/coverage.info"
+        rm -rf "${CURRENT_DIR}/twister-out/coverage"
+        genhtml "${CURRENT_DIR}/twister-out/coverage.info" -o "${CURRENT_DIR}/twister-out/coverage" -q --ignore-errors source --branch-coverage --highlight --legend
+    fi
     mv "${CURRENT_DIR}/twister-out" "${CURRENT_DIR}/twister-out-posix"
     return $status
 }
