@@ -17,7 +17,13 @@ Changelog
 
 * Added:
 
-  * Software-based MCUboot downgrade protection (``CONFIG_MCUBOOT_DOWNGRADE_PREVENTION``), used together with overwrite-only upgrade mode.
+  * Software-based downgrade protection in MCUboot (``CONFIG_MCUBOOT_DOWNGRADE_PREVENTION``), used together with overwrite-only upgrade mode.
+  * Runtime self-locking of the MCUboot flash area (``CONFIG_FPROTECT``) to make the bootloader immutable.
+    An immutable first-stage bootloader is an essential component of the secure boot chain.
+
+    .. note::
+       On the nRF54L Series platforms, enabling this feature required disabling write protection for the ``mfg_storage`` partition, due to the limited number of configurable protected regions.
+       If you lock the bootloader with an alternative method, such as the ``UICR.BOOTCONF`` register, set the Kconfig option ``CONFIG_FPROTECT`` to ``y`` to restore write protection for the ``mfg_storage`` partition.
 
 * Updated:
 
