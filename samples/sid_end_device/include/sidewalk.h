@@ -48,11 +48,11 @@ void sidewalk_start(sidewalk_ctx_t *context);
 
 int sidewalk_event_send(event_handler_t event, void *ctx, ctx_free free);
 
-#ifdef CONFIG_SIDEWALK_LINK_MASK_BLE
+#ifdef CONFIG_SID_END_DEVICE_LINK_MASK_BLE
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)
-#elif CONFIG_SIDEWALK_LINK_MASK_FSK
+#elif CONFIG_SID_END_DEVICE_LINK_MASK_FSK
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_2)
-#elif CONFIG_SIDEWALK_LINK_MASK_LORA
+#elif CONFIG_SID_END_DEVICE_LINK_MASK_LORA
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_3)
 #else
 #define DEFAULT_LM (uint32_t)(SID_LINK_TYPE_1)

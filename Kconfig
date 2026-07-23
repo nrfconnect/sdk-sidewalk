@@ -49,19 +49,22 @@ config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 endif # SIDEWALK_SUBGHZ_SUPPORT
 
 choice SIDEWALK_LINK_MASK
-	prompt "Physical link type"
-	default SIDEWALK_LINK_MASK_BLE
+	prompt "Physical link type [DEPRECATED]"
+	optional
 	help
-	  Choose the default physical link type for Sidewalk connection.
+	  Deprecated. Use SID_END_DEVICE_LINK_MASK in the sid_end_device sample instead.
 
 config SIDEWALK_LINK_MASK_BLE
-	bool "Bluetooth Low Energy link"
+	bool "Bluetooth Low Energy link [DEPRECATED]"
+	select DEPRECATED
 
 config SIDEWALK_LINK_MASK_FSK
-	bool "Sub-GHz link for FSK"
+	bool "Sub-GHz link for FSK [DEPRECATED]"
+	select DEPRECATED
 
 config SIDEWALK_LINK_MASK_LORA
-	bool "Sub-GHz link for LORA"
+	bool "Sub-GHz link for LORA [DEPRECATED]"
+	select DEPRECATED
 
 endchoice # SIDEWALK_LINK_MASK
 
