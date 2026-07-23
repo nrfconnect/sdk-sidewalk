@@ -14,6 +14,12 @@ choice MCUBOOT_MODE
 	default MCUBOOT_MODE_OVERWRITE_ONLY
 endchoice
 
+config MCUBOOT_SIGNATURE_USING_KMU
+	default y
+
+config MCUBOOT_GENERATE_DEFAULT_KEY_FILE
+	default y
+
 config DFU_MULTI_IMAGE_PACKAGE_BUILD
 	default y
 
