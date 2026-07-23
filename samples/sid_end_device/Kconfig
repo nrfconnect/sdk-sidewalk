@@ -81,6 +81,26 @@ config SID_END_DEVICE_PERSISTENT_LINK_MASK
 	  but defaults after a factory reset.
 	  This could affect the flash lifespan.
 
+choice SID_END_DEVICE_LINK_MASK
+	prompt "Physical link type"
+	default SID_END_DEVICE_LINK_MASK_FSK if SIDEWALK_LINK_MASK_FSK
+	default SID_END_DEVICE_LINK_MASK_LORA if SIDEWALK_LINK_MASK_LORA
+	default SID_END_DEVICE_LINK_MASK_BLE if SIDEWALK_LINK_MASK_BLE
+	default SID_END_DEVICE_LINK_MASK_BLE
+	help
+	  Choose the default physical link type for Sidewalk connection.
+
+config SID_END_DEVICE_LINK_MASK_BLE
+	bool "Bluetooth Low Energy link"
+
+config SID_END_DEVICE_LINK_MASK_FSK
+	bool "Sub-GHz link for FSK"
+
+config SID_END_DEVICE_LINK_MASK_LORA
+	bool "Sub-GHz link for LORA"
+
+endchoice # SID_END_DEVICE_LINK_MASK
+
 config SID_END_DEVICE_EVENT_HEAP_SIZE
 	int "Heap for Sidewalk event contexts"
 	default 2048

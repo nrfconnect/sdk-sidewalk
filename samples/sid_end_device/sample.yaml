@@ -210,7 +210,7 @@ tests:
     extra_args: FILE_SUFFIX=release
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
-      - CONFIG_SIDEWALK_LINK_MASK_BLE=y
+      - CONFIG_SID_END_DEVICE_LINK_MASK_BLE=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.ble"
     tags:
       - helloPower
@@ -221,7 +221,7 @@ tests:
       - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
-      - CONFIG_SIDEWALK_LINK_MASK_FSK=y
+      - CONFIG_SID_END_DEVICE_LINK_MASK_FSK=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.fsk"
     tags:
       - helloPower
@@ -233,7 +233,7 @@ tests:
       - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_STATE_NOTIFIER=n
-      - CONFIG_SIDEWALK_LINK_MASK_LORA=y
+      - CONFIG_SID_END_DEVICE_LINK_MASK_LORA=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.lora"
     tags:
       - helloPower
