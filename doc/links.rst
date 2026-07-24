@@ -22,7 +22,6 @@
 .. _NCS testing applications: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/test_and_optimize.html
 .. _Installing the nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/installation/install_ncs.html
 .. _Trusted storage: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/libraries/security/trusted_storage.html
-.. _Hardware flash write protection: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/libraries/security/bootloader/fprotect.html
 .. _West: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/develop/west/index.html
 .. _Zephyr's Hello World: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/samples/hello_world/README.html
 .. _nRF Connect SDK software maturity levels documentation: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/releases_and_maturity/software_maturity.html
