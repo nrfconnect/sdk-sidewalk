@@ -92,7 +92,7 @@ jobs:
             echo "publish2 main ${VERSION} ${ARCHIVE}" > "${MONITOR}"
           fi
 
-          pushd "doc/build/html"
+          pushd "doc/_build/html"
           zip -rq "${ARCHIVE}" .
           mv "${ARCHIVE}" "$PUBLISH"
           popd

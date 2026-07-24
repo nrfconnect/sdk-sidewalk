@@ -6,4 +6,4 @@ source ./venv/bin/activate
 
 pip install -r $(pwd)/requirements-doc.txt
 
-sphinx-build -M html . build
+make html
