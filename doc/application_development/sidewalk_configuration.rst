@@ -3,11 +3,17 @@
 Sidewalk configuration
 ######################
 
+.. contents::
+   :local:
+   :depth: 2
+
 This page describes the most important Kconfig options for configuring Sidewalk features.
-Sample-specific options, such as application variant selection and automatic start behavior, are documented in the :ref:`sidewalk_end_device` sample variants.
+For sample-specific options, such as variant selection and automatic start behavior, see :ref:`sidewalk_end_device`.
 
 Core protocol support
 *********************
+
+The following Kconfig options enable the Sidewalk stack and related product features such as firmware update, manufacturing data support, and on-device certification.
 
 * ``CONFIG_SIDEWALK`` - Enables Amazon Sidewalk support.
 
@@ -23,15 +29,19 @@ Core protocol support
 Physical link selection
 ***********************
 
+Sidewalk end devices can connect over Bluetooth LE only, or over Bluetooth LE together with sub-GHz links (LoRa and FSK).
+Use the following option to include link types in the build.
+
 * ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` - Enables Sidewalk libraries with Bluetooth LE, LoRa, and FSK support.
   Disabling this option results in using Sidewalk libraries with Bluetooth LE support only.
   While this results in a smaller memory footprint for the application, it also limits its functionality, as connectivity over LoRa or FSK is not available.
-  
+
   .. note::
-     This option is enabled by default when an enabled LoRa trasceiver is enabled with the devicetree chosen property ``zephyr,lora-transceiver``.
+     This option is enabled by default when a LoRa transceiver is enabled with the devicetree chosen property ``zephyr,lora-transceiver``.
 
 Secure storage
 **************
 
-Use ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` to enable secure storage for persistent Sidewalk keys.
-For recommended persistent key storage settings, see :ref:`secure_storage`.
+Persistent Sidewalk keys can be stored in PSA trusted storage instead of the manufacturing partition.
+Use the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option to enable the feature. 
+For storage backend selection and recommended settings, see :ref:`secure_storage`.

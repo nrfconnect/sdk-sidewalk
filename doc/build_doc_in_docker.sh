@@ -9,7 +9,7 @@
 # Script to build documentation in python3.10 docker (no need to install anything except docker which is able to run without sudo)
 # The scripts pulls official python docker image, starts container and inside container
 # installs required Python packages (from requirements-doc.txt) and execute sphinx-build tool.
-# HTML documentation is generated to build/html folder
+# HTML documentation is generated to _build/html folder
 
 # How to install docker on Ubuntu:
 # 1. https://docs.docker.com/engine/install/ubuntu:
@@ -33,6 +33,6 @@ if [ $# -eq 0 ]; then
 elif [ $# -eq 1 ]; then
     cd /work
     pip install -r requirements-doc.txt
-    sphinx-build -M html . build
-    chown -R $USER_ID:$GRP_ID build
+    sphinx-build -M html . _build
+    chown -R $USER_ID:$GRP_ID _build
 fi
