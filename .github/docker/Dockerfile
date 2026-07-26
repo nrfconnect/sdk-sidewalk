@@ -2,16 +2,11 @@ FROM ubuntu:24.04
 LABEL org.opencontainers.image.source="https://github.com/nrfconnect/sdk-sidewalk"
 ARG DEBIAN_FRONTEND=noninteractive
 
-ARG tools_version_major=10
-ARG tools_version_minor=24
-ARG tools_version_patch=2
+ARG JLINK_VERSION=924a
 
 ARG NRF_VERSION=main
 ARG TOOLCHAIN_BUNDLE_ID
 ARG NCS_INSTALL_DIR=/root/ncs
-
-ARG command_line_tools_name=nrf-command-line-tools_${tools_version_major}.${tools_version_minor}.${tools_version_patch}_amd64.deb
-ARG command_line_tools_url=https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/desktop-software/nrf-command-line-tools/sw/versions-${tools_version_major}-x-x/${tools_version_major}-${tools_version_minor}-${tools_version_patch}/${command_line_tools_name}
 
 RUN apt-get update; apt-get install --no-install-recommends -y wget curl libusb-1.0-0 \
   clangd ssh nano bash-completion gpg ruby lcov screen libffi-dev libfftw3-dev python3-venv \
@@ -28,14 +23,14 @@ RUN <<EOT
     nrfutil install completion
 EOT
 
-RUN wget ${command_line_tools_url}
-RUN dpkg -i ${command_line_tools_name}
-
 RUN <<EOT
     echo '#!/bin/bash\necho not running udevadm "$@"' > /usr/bin/udevadm
     chmod +x /usr/bin/udevadm
-    JLink_to_install=`ls /opt/nrf-command-line-tools/share | grep JLink_Linux`
-    apt install -y /opt/nrf-command-line-tools/share/$JLink_to_install --fix-broken
+    JLINK_DEB=JLink_Linux_V${JLINK_VERSION}_x86_64.deb
+    wget --post-data="accept_license_agreement=accepted&submit=Download+software" \
+        -O ${JLINK_DEB} https://www.segger.com/downloads/jlink/${JLINK_DEB}
+    apt install -y ./${JLINK_DEB} --fix-broken
+    rm -f ${JLINK_DEB}
 EOT
 
 RUN <<EOT
