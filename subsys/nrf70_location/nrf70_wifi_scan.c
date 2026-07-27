@@ -34,13 +34,36 @@ static atomic_t scan_done = ATOMIC_INIT(0);
 
 static struct net_if *wifi_iface(void)
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	/* If there is no Wi-Fi interface at all, there is no point in falling
+	 * back to the default interface: it cannot serve a Wi-Fi scan. */
+	return net_if_get_first_wifi();
+}
 
-	return iface ? iface : net_if_get_default();
+/* Find an already-stored AP with the same BSSID, if any. The driver can (and
+ * in practice does) report the same AP more than once per scan, e.g. once per
+ * channel/probe response seen. */
+static struct nrf70_wifi_scan_ap *scan_result_find(const uint8_t *mac, uint8_t mac_len)
+{
+	struct nrf70_wifi_scan_ap *r = scan_ctx.results;
+	uint8_t len = MIN(mac_len, (uint8_t)WIFI_MAC_ADDR_LEN);
+
+	if (len < WIFI_MAC_ADDR_LEN) {
+		return NULL;
+	}
+
+	for (size_t i = 0; i < scan_ctx.stored; i++) {
+		if (memcmp(r[i].mac, mac, WIFI_MAC_ADDR_LEN) == 0) {
+			return &r[i];
+		}
+	}
+
+	return NULL;
 }
 
 /* Insert an AP into the results array, keeping it sorted by descending RSSI and
- * capped at max_results (weakest dropped). */
+ * capped at max_results (weakest dropped). Duplicate BSSIDs (the driver may
+ * report the same AP more than once per scan) are de-duplicated in place,
+ * keeping the strongest RSSI seen for that AP. */
 static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
 {
 	struct nrf70_wifi_scan_ap *r = scan_ctx.results;
@@ -48,6 +71,25 @@ static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
 	size_t pos;
 
 	if (!r || max == 0) {
+		return;
+	}
+
+	struct nrf70_wifi_scan_ap *dup = scan_result_find(mac, mac_len);
+
+	if (dup) {
+		if (rssi <= dup->rssi) {
+			return;
+		}
+		/* Update in place, then let it bubble up to its sorted
+		 * position instead of treating it as a fresh entry. */
+		pos = dup - r;
+		dup->rssi = rssi;
+		for (; pos > 0 && r[pos - 1].rssi < r[pos].rssi; pos--) {
+			struct nrf70_wifi_scan_ap tmp = r[pos];
+
+			r[pos] = r[pos - 1];
+			r[pos - 1] = tmp;
+		}
 		return;
 	}
 
@@ -65,8 +107,7 @@ static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
 
 	memset(&r[pos], 0, sizeof(r[pos]));
 	r[pos].rssi = rssi;
-	r[pos].mac_len = MIN(mac_len, (uint8_t)WIFI_MAC_ADDR_LEN);
-	memcpy(r[pos].mac, mac, r[pos].mac_len);
+	memcpy(r[pos].mac, mac, MIN(mac_len, (uint8_t)WIFI_MAC_ADDR_LEN));
 }
 
 static void scan_result_handle(struct net_mgmt_event_callback *cb)

@@ -21,11 +21,17 @@ extern "C" {
  * Only the fields the Sidewalk Wi-Fi PAL payload actually carries (BSSID and
  * signal strength) are kept; SSID/channel/security are intentionally dropped to
  * keep the collection buffer small.
+ *
+ * This intentionally does not reuse struct sid_pal_wifi_ap: that struct
+ * stores RSSI as uint8_t (the raw dBm value reinterpreted as unsigned, per
+ * the PAL payload contract), which is the wrong type to sort/compare by
+ * signal strength here (it does not compare correctly for an RSSI of 0 dBm
+ * or above). rssi is kept as a real signed dBm value and only converted at
+ * the PAL boundary, in sid_pal_wifi_nrf70_impl.c.
  */
 struct nrf70_wifi_scan_ap {
 	int8_t rssi;
 	uint8_t mac[WIFI_MAC_ADDR_LEN];
-	uint8_t mac_len;
 };
 
 /**

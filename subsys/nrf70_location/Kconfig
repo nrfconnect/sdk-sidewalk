@@ -38,10 +38,16 @@ endchoice
 
 config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TIMEOUT_MS
 	int "nRF70 Wi-Fi scan timeout (ms)"
-	default 20000
-	range 1000 60000
+	default 35000
+	range 1000 90000
 	help
-	  Backstop timeout for a single nRF70 Wi-Fi scan.
+	  Backstop timeout for a single nRF70 Wi-Fi scan: only used if the
+	  net_mgmt scan-done event is never delivered. Keep this comfortably
+	  above (CONFIG_WIFI_NRF70_SCAN_TIMEOUT_S * 1000): the nRF70 driver
+	  has its own scan timeout, and this backstop firing first would
+	  report a failed scan to Sidewalk while the driver is still
+	  finishing the previous one, which then also delays the earliest
+	  possible next scan.
 
 # nRF7002 is dual-band (2.4/5 GHz); nRF7000/nRF7001 are 2.4 GHz only. There is
 # currently no Kconfig capability symbol distinguishing the variants, so the
