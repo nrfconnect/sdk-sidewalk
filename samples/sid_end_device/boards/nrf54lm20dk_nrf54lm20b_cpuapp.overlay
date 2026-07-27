@@ -17,7 +17,7 @@
 	status = "disabled";
 };
 
-/* Disable SPI NOR flash - not needed for BLE-only */
+/* Disable SPI NOR flash - not needed for Sidewalk samples */
 &spi00 {
 	status = "disabled";
 };

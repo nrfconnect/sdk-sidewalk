@@ -31,6 +31,18 @@ You can also build the sample with specific configurations:
 
             west build -b nrf54l15dk/nrf54l15/cpuapp --shield nrf54l15dk_arduino_adapter --shield semtech_sx1262mb2cas
 
+      .. tab:: nrf54lm20dk/nrf54lm20a/cpuapp
+
+         .. code-block:: console
+
+            west build -b nrf54lm20dk/nrf54lm20a/cpuapp --shield nrf_sidewalk_eb
+
+      .. tab:: nrf54lm20dk/nrf54lm20b/cpuapp
+
+         .. code-block:: console
+
+            west build -b nrf54lm20dk/nrf54lm20b/cpuapp --shield nrf_sidewalk_eb
+
 * For sub-GHz (LoRa and FSK) operation and location scanning over WiFi and GNSS, use the ``lr1110mb1lcks`` shield.
 
    .. tabs::

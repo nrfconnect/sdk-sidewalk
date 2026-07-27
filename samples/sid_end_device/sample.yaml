@@ -45,6 +45,21 @@ tests:
       - hello
       - lr1110
 
+  sample.sidewalk.hello.nrf_sidewalk_eb:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-hello.conf"
+      - SHIELD="nrf_sidewalk_eb"
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_FILE_TRANSFER=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
+    tags:
+      - hello
+      - lr1110
+
   sample.sidewalk.hello.release.sx1262:
     extra_args:
       - FILE_SUFFIX=release
@@ -63,6 +78,21 @@ tests:
       - OVERLAY_CONFIG="overlay-hello.conf"
       - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
 
+    extra_configs:
+      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.release"
+    tags:
+      - hello
+      - lr1110
+
+  sample.sidewalk.hello.release.nrf_sidewalk_eb:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+      - OVERLAY_CONFIG="overlay-hello.conf"
+      - SHIELD="nrf_sidewalk_eb"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello.release"
@@ -238,6 +268,36 @@ tests:
     tags:
       - helloPower
       - sx1262
+
+  sample.sidewalk.helloPower.fsk.release.nrf_sidewalk_eb:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+      - SHIELD="nrf_sidewalk_eb"
+    extra_configs:
+      - CONFIG_STATE_NOTIFIER=n
+      - CONFIG_SID_END_DEVICE_LINK_MASK_FSK=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.fsk"
+    tags:
+      - helloPower
+      - lr1110
+
+  sample.sidewalk.helloPower.lora.release.nrf_sidewalk_eb:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+      - SHIELD="nrf_sidewalk_eb"
+    extra_configs:
+      - CONFIG_STATE_NOTIFIER=n
+      - CONFIG_SID_END_DEVICE_LINK_MASK_LORA=y
+      - CONFIG_SIDEWALK_APPLICATION_NAME="helloPower.release.lora"
+    tags:
+      - helloPower
+      - lr1110
 
   sample.sidewalk.helloPower.ble_only.release:
     platform_allow:

@@ -113,6 +113,11 @@ Several on-board DK resources share pins with the LR1110 and are unavailable whi
 * Do not enable **UART20** hardware flow control. 
   RTS and CTS are routed to P1.06 and P1.07, which are used for SPI MOSI and MISO.
 
+nRF54LM20 DK
+============
+
+Connect the shield to the **P17 (EXP)** expansion board header.
+
 Programming
 ***********
 
