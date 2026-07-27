@@ -70,11 +70,11 @@ You can configure trusted storage to store keys in one of the following location
 Recommended configuration
 *************************
 
-For new products that store Sidewalk keys in the KMU, keep the following options enabled.
-They are enabled by default on supported platforms:
+For new products, use PSA trusted storage to store Sidewalk keys.
+This is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option.
 
-* ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=y``
-* ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU=y``
+On the supported nRF54L Series platforms, use the KMU as the storage backend.
+This is enabled by default with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option.
 
 If you use the KMU for other purposes and the default Sidewalk KMU slot range overlaps with other product keys, including MCUboot verification keys, configure the start slot with the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START`` Kconfig option to avoid conflicts.
 See :ref:`bootloader_configuration` for MCUboot key slot requirements.
@@ -85,6 +85,6 @@ See :ref:`bootloader_configuration` for MCUboot key slot requirements.
    Changing the key storage configuration (for example, enabling or disabling the KMU option) changes where the keys are saved and which PSA key IDs are used, so existing keys might not be found.
    Refer to the :ref:`release_notes_migration_guides` for more details.
 
-.. note:: 
+.. note::
 
    Once the identity keys have been moved from the manufacturing (MFG) storage partition to trusted storage, you cannot read them back in plaintext and restore the manufacturing storage partition to its original state.

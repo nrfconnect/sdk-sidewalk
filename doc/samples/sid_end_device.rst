@@ -25,6 +25,10 @@ This sample supports the following development kits:
      - PCA
      - Board name
      - Build target
+   * - `nRF52840 DK <nrf52840 Product Page_>`_
+     - PCA10056
+     - `nrf52840dk`_
+     - ``nrf52840dk/nrf52840``
    * - `nRF54L15 DK <nRF54L15 Product Page_>`_
      - PCA10156
      - `nrf54l15dk`_

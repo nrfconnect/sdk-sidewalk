@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
+
 config SIDEWALK_BUILD
 	default y
 
@@ -24,6 +25,7 @@ config SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU
 	bool "Store persistent Sidewalk keys in nRF54L KMU"
+	depends on CRACEN_LIB_KMU
 	default y
 
 config SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU_SLOT_START

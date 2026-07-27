@@ -15,10 +15,10 @@ choice MCUBOOT_MODE
 endchoice
 
 config MCUBOOT_SIGNATURE_USING_KMU
-	default y
+	default y if SOC_SERIES_NRF54L
 
 config MCUBOOT_GENERATE_DEFAULT_KEY_FILE
-	default y
+	default y if SOC_SERIES_NRF54L
 
 config DFU_MULTI_IMAGE_PACKAGE_BUILD
 	default y

@@ -13,7 +13,7 @@ Keeping RSA MCUboot signatures
 ******************************
 
 Earlier add-on releases forced the RSA signature type (``SB_CONFIG_BOOT_SIGNATURE_TYPE_RSA``) for MCUboot across all platforms.
-This release removes that override and uses the nRF Connect SDK default (ED25519 on the nRF54L Series platforms).
+This release removes that override and uses the nRF Connect SDK defaults (ED25519 on nRF54L Series platforms, ECDSA with P-256 curve on nRF52 Series platforms).
 
 If your product was based on a previous add-on version, you must keep using RSA for signing application images to stay compatible with MCUboot on already-deployed devices.
 To force RSA signature type in your application, add the following to your application's :file:`Kconfig.sysbuild` file:
@@ -30,13 +30,14 @@ Perform a pristine build of the application after adding this override.
    A device running MCUboot configured for RSA will not boot ED25519-signed images until MCUboot is updated and re-flashed with a matching configuration.
 
 .. note::
-   Use ED25519 for new designs on nRF54L Series platforms because of its shorter verification time and smaller key size.
+   For new designs, use the NCS default signature type: ED25519 on nRF54L Series platforms, ECDSA with P-256 curve on nRF52 Series platforms.
 
 Persistent Sidewalk keys in KMU
 *******************************
 
 Persistent Sidewalk cryptographic keys are now stored in the Key Management Unit (KMU) by default on supported nRF54L Series platforms.
 Use the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU`` Kconfig option to control this feature.
+This option is not available on nRF52 Series platforms, which continue to use the default settings-based PSA trusted storage backend.
 
 If you update devices that already have keys stored by an earlier firmware version, set ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU=n`` to keep the keys accessible.
 Switching a provisioned product from the PSA trusted storage to KMU changes both the storage location and the PSA key IDs, so Sidewalk cannot find the existing keys.
@@ -54,7 +55,6 @@ Removed platform support
 
 The upcoming release no longer supports the following development kits:
 
-* nRF52840 DK (``nrf52840dk/nrf52840``)
 * nRF5340 DK (``nrf5340dk/nrf5340/cpuapp``)
 * Thingy:53 (``thingy53/nrf5340/cpuapp``)
 

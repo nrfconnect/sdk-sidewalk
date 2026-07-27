@@ -175,7 +175,11 @@ endif()
 
 if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK_SPI_BUS)
 	zephyr_library_named(sid_pal_serial_bus_impl)
-	target_sources(sid_pal_serial_bus_impl PRIVATE sid_pal_serial_bus_spi.c)
+	if(CONFIG_SIDEWALK_SPI_BUS_NRFX)
+		target_sources(sid_pal_serial_bus_impl PRIVATE sid_pal_serial_bus_nrfx_spi.c)
+	else()
+		target_sources(sid_pal_serial_bus_impl PRIVATE sid_pal_serial_bus_spi.c)
+	endif()
 	target_include_directories(sid_pal_serial_bus_impl PRIVATE
 		${SID_PAL_INCLUDE}
 		${CMAKE_CURRENT_SOURCE_DIR}/../../../app_utils/config/include
