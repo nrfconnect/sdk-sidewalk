@@ -12,6 +12,7 @@ For additional Amazon resources, refer to the following list:
 * `API reference`_
 * `Sidewalk mobile SDK developer guide`_
 * `Manufacturing provisioning`_
+* `nRF52 Production Programming`_
 * `Registering and testing your Sidewalk endpoint`_
 * `AWS terms of use`_
 * `Sidewalk terms of use`_

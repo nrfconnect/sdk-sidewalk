@@ -43,5 +43,5 @@ Secure storage
 **************
 
 Persistent Sidewalk keys can be stored in PSA trusted storage instead of the manufacturing partition.
-Use the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option to enable the feature. 
+Use the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE`` Kconfig option to enable the feature.
 For storage backend selection and recommended settings, see :ref:`secure_storage`.

@@ -31,14 +31,14 @@ Changelog
   * Flash layout for the ``nrf54l15dk/nrf54l15/cpuapp/ns`` board target, by completing the migration from Partition Manager to devicetree overlays.
   * MCUboot signature type to follow the recommended defaults in the nRF Connect SDK.
     On the nRF54L Series platforms, the bootloader now uses ED25519 instead of RSA.
+    On the nRF52 Series platforms, the bootloader now uses ECDSA with P-256 curve instead of RSA.
     This reduces MCUboot boot time compared to RSA-based verification.
   * MCUboot configuration to align with NCS recommendations: picolibc and link-time optimization (LTO).
-  * Persistent Sidewalk key storage to use Key Management Unit (KMU) by default.
+  * Persistent Sidewalk key storage to use Key Management Unit (KMU) by default on nRF54L Series platforms.
     Set the Kconfig option ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE_KMU=n`` to keep the default settings-based PSA trusted storage backend.
 
 * Removed:
 
-  * Support for the nRF52 Series (including the nRF52840 DK).
   * Support for the nRF53 Series (including the nRF5340 DK and Thingy:53).
 
 * Fixed:

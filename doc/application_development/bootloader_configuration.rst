@@ -37,13 +37,17 @@ Configuring the signature algorithm
 ===================================
 
 MCUboot supports multiple signature algorithms for application image verification.
-Prefer the Ed25519 signature type for new Sidewalk products.
-Enable it with the sysbuild Kconfig option ``SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519=y``.
+Prefer the following signature algorithm, depending on the platform:
 
-Storing public keys in the Key Management Unit
-==============================================
+* On the nRF54L Series platforms, prefer the ED25519 algorithm.
+  Enable it with the sysbuild Kconfig option ``SB_CONFIG_BOOT_SIGNATURE_TYPE_ED25519=y``.
+* On the nRF52 Series platforms, prefer the ECDSA algorithm with the P-256 curve.
+  Enable it with the sysbuild Kconfig option ``SB_CONFIG_BOOT_SIGNATURE_TYPE_ECDSA_P256=y``.
 
-Prefer storing verification public keys in the Key Management Unit (KMU) rather than embedding them in the bootloader image.
+Storing public keys in the Key Management Unit (nRF54L Series platforms)
+========================================================================
+
+On nRF54L Series platforms, prefer storing verification public keys in the Key Management Unit (KMU) rather than embedding them in the bootloader image.
 This approach supports the key revocation policy and keeps the active verification key out of the bootloader binary.
 
 If you also store Sidewalk keys in the KMU, see :ref:`secure_storage` and ensure bootloader and application key slots do not overlap.

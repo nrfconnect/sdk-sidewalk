@@ -3,9 +3,12 @@
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
 .. _nRF Connect SDK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/index.html
+.. _nrf52840 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/config_and_build/board_support/board_names.html
 .. _nRF54L15 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/app_dev/board_names.html
+.. _Getting started with nRF52 Series: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/gsg_guides/nrf52_gs.html
 .. _Getting started with nRF54L Series: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/gsg_guides.html
 .. _nRF Connect SDK Getting started: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/installation.html
+.. _nrf52840dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf52840dk/doc/index.html
 .. _nrf54l15dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54l15dk/doc/index.html
 .. _nRF54LV10 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
 .. _nRF54LM20 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
@@ -100,6 +103,7 @@
 .. _API Reference: https://docs.aws.amazon.com/iot/latest/developerguide/sidewalk-aws-api-reference.html
 .. _Sidewalk Mobile SDK Developer Guide: https://docs.sidewalk.amazon/mobile-sdk
 .. _Manufacturing Provisioning: https://docs.sidewalk.amazon/manufacturing/
+.. _nRF52 Production Programming: https://docs.nordicsemi.com/bundle/nwp_027/page/WP/nwp_027/intro.html
 .. _Registering and testing your Sidewalk endpoint: https://docs.sidewalk.amazon/provisioning/iot-sidewalk-register-endpoint.html
 .. _AWS Terms of Use: https://aws.amazon.com/service-terms/
 .. _Sidewalk Terms of Use: https://docs.sidewalk.amazon/sidewalk-terms-and-agreements/
