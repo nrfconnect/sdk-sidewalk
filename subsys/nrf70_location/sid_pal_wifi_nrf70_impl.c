@@ -145,7 +145,11 @@ sid_error_t sid_pal_wifi_process_event(uint8_t event_id)
 
 	if (ret == 0) {
 		/* Woken but scan not done yet: only act if the backstop timeout
-		 * has elapsed, otherwise wait for the real completion wake. */
+		 * has elapsed, otherwise wait for the real completion wake.
+		 * No need to re-arm another delayed event here: the backstop
+		 * requested once in start_scan_now() is independent of this
+		 * call and still pending, so it will fire on its own even if
+		 * this particular wake was spurious. */
 		if (k_uptime_get() >= scan_deadline) {
 			LOG_ERR("nRF70 Wi-Fi scan timed out");
 			nrf70_wifi_scan_abort();
@@ -201,9 +205,12 @@ sid_error_t sid_pal_wifi_cancel_scan(void)
 {
 	/* Best-effort cancel. A scan that has not started yet (a deferred scan
 	 * still waiting for its delay to elapse) is cancelled cleanly. A scan
-	 * already running in the driver cannot be stopped in hardware (Zephyr
-	 * has no scan-cancel request); we just detach the listener so its
-	 * eventual completion is ignored and the PAL is freed for a new scan. */
+	 * already issued to the driver cannot be stopped in hardware (Zephyr
+	 * has no scan-cancel request), so it keeps running in the background;
+	 * nrf70_wifi_scan_abort() deregisters our net_mgmt callback for it, so
+	 * its eventual (stale) completion event is simply not delivered to us
+	 * and cannot be misattributed to a later scan. The PAL is immediately
+	 * freed for a new scan request once this returns. */
 	if (scan_busy) {
 		nrf70_wifi_scan_abort();
 		scan_busy = false;
