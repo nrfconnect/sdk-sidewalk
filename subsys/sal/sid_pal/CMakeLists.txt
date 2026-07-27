@@ -19,3 +19,7 @@ target_link_libraries(sidewalk_pal INTERFACE
 if(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X OR CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
 	target_link_libraries(sidewalk_pal INTERFACE sidewalk_radio)
 endif()
+
+if(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
+	target_link_libraries(sidewalk_pal INTERFACE sid_pal_wifi_nrf70_impl)
+endif()
