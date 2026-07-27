@@ -56,6 +56,11 @@ static struct sid_location_config cfg = {
 #ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
 	.sid_location_type_mask = SID_LOCATION_METHOD_ALL,
 	.max_effort = SID_LOCATION_EFFORT_L4,
+#elif defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70)
+	/* Let managed effort progress past BLE (L1) into the nRF70 Wi-Fi scan
+	 * (L3) instead of stopping at the L1 default below. */
+	.sid_location_type_mask = SID_LOCATION_METHOD_BLE_GATEWAY | SID_LOCATION_METHOD_WIFI,
+	.max_effort = SID_LOCATION_EFFORT_L3,
 #else
 	.sid_location_type_mask = SID_LOCATION_METHOD_BLE_GATEWAY,
 	.max_effort = SID_LOCATION_EFFORT_L1,
