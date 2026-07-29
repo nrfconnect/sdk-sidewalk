@@ -6,6 +6,14 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
+# The nrf7002eb2 shield reuses the led1 pin and deletes the led1 node, so the
+# state-notifier-time-sync alias declared by the board overlays has to be
+# dropped. EXTRA_DTC_OVERLAY_FILE is applied last and /delete-property/ does not
+# reference the removed &led1 label, so this works for every board.
+if("${SHIELD}" MATCHES "nrf7002eb2")
+    list(APPEND EXTRA_DTC_OVERLAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/shields/nrf7002eb2.overlay)
+endif()
+
 # Zephyr CMake project
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_sid_end_device)

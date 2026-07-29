@@ -32,13 +32,6 @@ static struct {
 
 static atomic_t scan_done = ATOMIC_INIT(0);
 
-static struct net_if *wifi_iface(void)
-{
-	/* If there is no Wi-Fi interface at all, there is no point in falling
-	 * back to the default interface: it cannot serve a Wi-Fi scan. */
-	return net_if_get_first_wifi();
-}
-
 /* Find an already-stored AP with the same BSSID, if any. The driver can (and
  * in practice does) report the same AP more than once per scan, e.g. once per
  * channel/probe response seen. */
@@ -64,7 +57,7 @@ static struct nrf70_wifi_scan_ap *scan_result_find(const uint8_t *mac, uint8_t m
  * capped at max_results (weakest dropped). Duplicate BSSIDs (the driver may
  * report the same AP more than once per scan) are de-duplicated in place,
  * keeping the strongest RSSI seen for that AP. */
-static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
+static void scan_result_insert(int8_t rssi, const uint8_t *mac)
 {
 	struct nrf70_wifi_scan_ap *r = scan_ctx.results;
 	size_t max = scan_ctx.max_results;
@@ -74,7 +67,7 @@ static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
 		return;
 	}
 
-	struct nrf70_wifi_scan_ap *dup = scan_result_find(mac, mac_len);
+	struct nrf70_wifi_scan_ap *dup = scan_result_find(mac);
 
 	if (dup) {
 		if (rssi <= dup->rssi) {
@@ -107,7 +100,7 @@ static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
 
 	memset(&r[pos], 0, sizeof(r[pos]));
 	r[pos].rssi = rssi;
-	memcpy(r[pos].mac, mac, MIN(mac_len, (uint8_t)WIFI_MAC_ADDR_LEN));
+	memcpy(r[pos].mac, mac, WIFI_MAC_ADDR_LEN);
 }
 
 static void scan_result_handle(struct net_mgmt_event_callback *cb)
@@ -150,7 +143,7 @@ static void scan_mgmt_event_handler(struct net_mgmt_event_callback *cb, uint64_t
 int nrf70_wifi_scan_start(struct nrf70_wifi_scan_ap *results, size_t max_results,
 			  nrf70_wifi_scan_done_cb_t on_done)
 {
-	struct net_if *iface = wifi_iface();
+	struct net_if *iface = net_if_get_first_wifi();
 	int ret;
 
 	if (!results || max_results == 0) {
