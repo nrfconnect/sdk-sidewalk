@@ -47,6 +47,8 @@ tests:
       - lr1110
 
   sample.sidewalk.hello.nrf_sidewalk_eb:
+    platform_exclude:
+      - nrf52840dk/nrf52840
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
       - nrf54lm20dk/nrf54lm20b/cpuapp
@@ -87,6 +89,8 @@ tests:
       - lr1110
 
   sample.sidewalk.hello.release.nrf_sidewalk_eb:
+    platform_exclude:
+      - nrf52840dk/nrf52840
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
       - nrf54lm20dk/nrf54lm20b/cpuapp
@@ -272,6 +276,8 @@ tests:
       - sx1262
 
   sample.sidewalk.helloPower.fsk.release.nrf_sidewalk_eb:
+    platform_exclude:
+      - nrf52840dk/nrf52840
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
       - nrf54lm20dk/nrf54lm20b/cpuapp
@@ -287,6 +293,8 @@ tests:
       - lr1110
 
   sample.sidewalk.helloPower.lora.release.nrf_sidewalk_eb:
+    platform_exclude:
+      - nrf52840dk/nrf52840
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
       - nrf54lm20dk/nrf54lm20b/cpuapp
