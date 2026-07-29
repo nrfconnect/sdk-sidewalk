@@ -7,12 +7,7 @@
 /{
 	aliases {
 		state-notifier-connected = &led0;
-		/* No state-notifier-time-sync alias on this board: the
-		 * nrf7002eb2 shield deletes the led1 node (its pin is reused
-		 * for the nRF7002 module). Devicetree is processed before
-		 * Kconfig, so this file (also included by the mcuboot
-		 * sysbuild image overlay) cannot conditionally re-add the
-		 * alias based on whether that shield is selected. */
+		state-notifier-time-sync = &led1;
 		state-notifier-registered = &led2;
 		state-notifier-working = &led3;
 	};

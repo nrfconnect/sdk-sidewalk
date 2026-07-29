@@ -203,20 +203,7 @@ sid_error_t sid_pal_wifi_schedule_scan(uint32_t scan_delay_s)
 
 sid_error_t sid_pal_wifi_cancel_scan(void)
 {
-	/* Best-effort cancel. A scan that has not started yet (a deferred scan
-	 * still waiting for its delay to elapse) is cancelled cleanly. A scan
-	 * already issued to the driver cannot be stopped in hardware (Zephyr
-	 * has no scan-cancel request), so it keeps running in the background;
-	 * nrf70_wifi_scan_abort() deregisters our net_mgmt callback for it, so
-	 * its eventual (stale) completion event is simply not delivered to us
-	 * and cannot be misattributed to a later scan. The PAL is immediately
-	 * freed for a new scan request once this returns. */
-	if (scan_busy) {
-		nrf70_wifi_scan_abort();
-		scan_busy = false;
-		scan_started = false;
-	}
-	return SID_ERROR_NONE;
+	return SID_ERROR_NOSUPPORT;
 }
 
 sid_error_t sid_pal_wifi_get_scan_payload(struct sid_pal_wifi_payload *wifi_scan_result)

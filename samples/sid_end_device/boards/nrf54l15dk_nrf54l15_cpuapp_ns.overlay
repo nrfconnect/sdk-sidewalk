@@ -7,8 +7,7 @@
  /{
 	aliases {
 		state-notifier-connected = &led0;
-		/* No state-notifier-time-sync alias on this board: see the
-		 * comment in nrf54l15dk_nrf54l15_cpuapp.overlay. */
+		state-notifier-time-sync = &led1;
 		state-notifier-registered = &led2;
 		state-notifier-working = &led3;
 	};

@@ -1,0 +1,14 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* Applied only when the nrf7002eb2 shield is used, see CMakeLists.txt.
+ */
+
+/ {
+	aliases {
+		/delete-property/ state-notifier-time-sync;
+	};
+};
