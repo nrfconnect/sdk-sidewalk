@@ -192,14 +192,14 @@ tests:
       - cli
       - lr1110
 
-  sample.sidewalk.dut.nrf7002eb2:
+  sample.sidewalk.dut.ble_only.nrf7002eb2:
     platform_exclude:
       - nrf54l15dk/nrf54l15/cpuapp/ns
     extra_args:
       - OVERLAY_CONFIG="overlay-dut.conf"
-      - SHIELD=nrf7002eb2
+      - SHIELD=nrf7002eb2_nrf7000
     extra_configs:
-      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.nrf7002"
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.nrf7000"
     tags:
       - cli
       - nrf70
