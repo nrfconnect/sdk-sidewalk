@@ -14,3 +14,14 @@ if(SB_CONFIG_BOARD_NRF54L15DK_NRF54L15_CPUAPP_NS)
     FORCE
   )
 endif()
+
+# The nrf7002eb2 shield repurposes the led1 pin as its SPI-CS line and deletes
+# the node on nRF54L15, so the state-notifier alias pointing at it has to go.
+if(SB_CONFIG_BOARD_NRF54L15DK_NRF54L15_CPUAPP OR SB_CONFIG_BOARD_NRF54L15DK_NRF54L15_CPUAPP_NS)
+  foreach(image sid_end_device mcuboot)
+    if("${SHIELD};${${image}_SHIELD}" MATCHES "nrf7002eb2")
+      sysbuild_cache_set(VAR ${image}_EXTRA_DTC_OVERLAY_FILE APPEND
+                         ${CMAKE_CURRENT_LIST_DIR}/shields/nrf7002eb2_nrf54l15dk.overlay)
+    endif()
+  endforeach()
+endif()
