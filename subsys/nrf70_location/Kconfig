@@ -6,10 +6,7 @@
 
 config SIDEWALK_WIFI_LOCATION_NRF70
 	bool "nRF70 Wi-Fi location PAL"
-	default y if SHIELD_NRF7002EB2
-	# The nRF70 Wi-Fi PAL is fully self-contained and never touches the
-	# LR1110 port. LR1110 already provides its own Wi-Fi/GNSS PAL, so the
-	# two are kept mutually exclusive instead of coexisting.
+	default y if SHIELD_NRF7002EB2 || SHIELD_NRF7002EB2_NRF7001 || SHIELD_NRF7002EB2_NRF7000 || SHIELD_NRF7002EB2_COEX
 	depends on !SIDEWALK_SUBGHZ_RADIO_LR1110
 	select NET_MGMT
 	select NET_MGMT_EVENT
@@ -34,43 +31,6 @@ config SIDEWALK_WIFI_LOCATION_NRF70_GNSS_STUB
 
 choice NRF70_OPER_MODES
 	default NRF70_SCAN_ONLY
-endchoice
-
-config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TIMEOUT_MS
-	int "nRF70 Wi-Fi scan timeout (ms)"
-	default 35000
-	range 1000 90000
-	help
-	  Backstop timeout for a single nRF70 Wi-Fi scan: only used if the
-	  net_mgmt scan-done event is never delivered. Keep this comfortably
-	  above (CONFIG_WIFI_NRF70_SCAN_TIMEOUT_S * 1000): the nRF70 driver
-	  has its own scan timeout, and this backstop firing first would
-	  report a failed scan to Sidewalk while the driver is still
-	  finishing the previous one, which then also delays the earliest
-	  possible next scan.
-
-# nRF7002 is dual-band (2.4/5 GHz); nRF7000/nRF7001 are 2.4 GHz only. There is
-# currently no Kconfig capability symbol distinguishing the variants, so the
-# default below is keyed off the only nRF70 shield this integration supports
-# today (nrf7002eb2). A future single-band shield/board should add its own
-# `default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ if <that shield/SoC>`
-# line here instead of changing the fallback.
-choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_FILTER
-	prompt "nRF70 Wi-Fi location scan band filter"
-	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ if SHIELD_NRF7002EB2
-	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ
-	help
-	  Select which Wi-Fi frequency bands the nRF70 location scan covers.
-
-config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ
-	bool "2.4 GHz only"
-
-config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ
-	bool "2.4 and 5 GHz"
-
-config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_ALL
-	bool "All regulatory bands (2.4/5/6 GHz)"
-
 endchoice
 
 choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TYPE

@@ -16,23 +16,14 @@
 
 LOG_MODULE_REGISTER(sid_pal_wifi_nrf70, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#define WIFI_SCAN_TIMEOUT_MS CONFIG_SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TIMEOUT_MS
-
 static struct sid_pal_wifi_config wifi_config;
-
-/* Access points kept for the last/ongoing scan, capped at the payload size. */
 static struct nrf70_wifi_scan_ap scan_aps[SID_WIFI_MAX_RESULTS];
-
-/* Results of the last completed scan, consumed by get_scan_payload(). */
 static struct sid_pal_wifi_payload last_payload;
 
 static bool scan_busy;    /* a scan request is in progress (delayed or running) */
 static bool scan_started; /* the net_mgmt scan has actually been issued */
-static int64_t scan_deadline;
 
-/* Ask the library to call sid_pal_wifi_process_event() after delay_ms.
- * Safe to call from any thread: on_wifi_event posts to the Sidewalk event
- * queue. */
+/* Safe to call from any thread. */
 static void request_process_event(uint32_t delay_ms)
 {
 	if (wifi_config.on_wifi_event) {
@@ -40,14 +31,12 @@ static void request_process_event(uint32_t delay_ms)
 	}
 }
 
-/* Scanner completion callback - runs on the net_mgmt event thread. */
+/* Runs on the net_mgmt event thread. */
 static void scan_done_wake(void)
 {
 	request_process_event(0);
 }
 
-/* Issue the net_mgmt scan and arm the backstop timeout. Runs on the library
- * thread (schedule_scan or, for a delayed scan, process_event). */
 static sid_error_t start_scan_now(void)
 {
 	int ret = nrf70_wifi_scan_start(scan_aps, ARRAY_SIZE(scan_aps), scan_done_wake);
@@ -58,10 +47,7 @@ static sid_error_t start_scan_now(void)
 	}
 
 	scan_started = true;
-	scan_deadline = k_uptime_get() + WIFI_SCAN_TIMEOUT_MS;
 
-	/* Backstop only: real completion is signalled by scan_done_wake(). */
-	request_process_event(WIFI_SCAN_TIMEOUT_MS);
 	return SID_ERROR_NONE;
 }
 
@@ -74,8 +60,7 @@ static void finish_scan(size_t stored, int status)
 	} else if (stored == 0) {
 		LOG_WRN("nRF70 Wi-Fi scan found no access points");
 	} else {
-		/* scan_aps is already sorted by descending RSSI and capped at
-		 * SID_WIFI_MAX_RESULTS by the scanner. */
+		/* Already sorted by descending RSSI and capped by the scanner. */
 		uint8_t n = (uint8_t)MIN(stored, (size_t)SID_WIFI_MAX_RESULTS);
 
 		for (uint8_t i = 0; i < n; i++) {
@@ -96,10 +81,6 @@ static void finish_scan(size_t stored, int status)
 	}
 }
 
-/* ---------------------------------------------------------------------------
- * Wi-Fi PAL
- * ------------------------------------------------------------------------- */
-
 sid_error_t sid_pal_wifi_init(struct sid_pal_wifi_config *config)
 {
 	if (!config) {
@@ -114,7 +95,7 @@ sid_error_t sid_pal_wifi_init(struct sid_pal_wifi_config *config)
 
 sid_error_t sid_pal_wifi_deinit(void)
 {
-	nrf70_wifi_scan_abort();
+	nrf70_wifi_scan_release();
 	scan_busy = false;
 	scan_started = false;
 	memset(&wifi_config, 0, sizeof(wifi_config));
@@ -130,7 +111,7 @@ sid_error_t sid_pal_wifi_process_event(uint8_t event_id)
 	}
 
 	if (!scan_started) {
-		/* The requested scan delay has elapsed; start the scan now. */
+		/* The requested scan delay has elapsed. */
 		if (start_scan_now() != SID_ERROR_NONE) {
 			finish_scan(0, -EIO);
 		}
@@ -144,17 +125,7 @@ sid_error_t sid_pal_wifi_process_event(uint8_t event_id)
 	int ret = nrf70_wifi_scan_get_result(&stored, &total, &status);
 
 	if (ret == 0) {
-		/* Woken but scan not done yet: only act if the backstop timeout
-		 * has elapsed, otherwise wait for the real completion wake.
-		 * No need to re-arm another delayed event here: the backstop
-		 * requested once in start_scan_now() is independent of this
-		 * call and still pending, so it will fire on its own even if
-		 * this particular wake was spurious. */
-		if (k_uptime_get() >= scan_deadline) {
-			LOG_ERR("nRF70 Wi-Fi scan timed out");
-			nrf70_wifi_scan_abort();
-			finish_scan(0, -ETIMEDOUT);
-		}
+		/* Not done yet; wait for the scan-done event. */
 		return SID_ERROR_NONE;
 	}
 
@@ -192,8 +163,7 @@ sid_error_t sid_pal_wifi_schedule_scan(uint32_t scan_delay_s)
 		}
 		LOG_INF("nRF70 Wi-Fi PAL: scan scheduled");
 	} else {
-		/* Defer the scan: ask the library to call process_event() after
-		 * the requested delay, where start_scan_now() will run. */
+		/* process_event() runs start_scan_now() once the delay has elapsed. */
 		LOG_INF("nRF70 Wi-Fi PAL: scan scheduled in %u s", scan_delay_s);
 		request_process_event(scan_delay_s * 1000U);
 	}
