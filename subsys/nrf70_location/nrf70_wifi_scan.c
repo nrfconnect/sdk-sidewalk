@@ -32,17 +32,10 @@ static struct {
 
 static atomic_t scan_done = ATOMIC_INIT(0);
 
-/* Find an already-stored AP with the same BSSID, if any. The driver can (and
- * in practice does) report the same AP more than once per scan, e.g. once per
- * channel/probe response seen. */
-static struct nrf70_wifi_scan_ap *scan_result_find(const uint8_t *mac, uint8_t mac_len)
+/* Find an already-stored AP with the same BSSID, if any. */
+static struct nrf70_wifi_scan_ap *scan_result_find(const uint8_t *mac)
 {
 	struct nrf70_wifi_scan_ap *r = scan_ctx.results;
-	uint8_t len = MIN(mac_len, (uint8_t)WIFI_MAC_ADDR_LEN);
-
-	if (len < WIFI_MAC_ADDR_LEN) {
-		return NULL;
-	}
 
 	for (size_t i = 0; i < scan_ctx.stored; i++) {
 		if (memcmp(r[i].mac, mac, WIFI_MAC_ADDR_LEN) == 0) {
@@ -53,11 +46,8 @@ static struct nrf70_wifi_scan_ap *scan_result_find(const uint8_t *mac, uint8_t m
 	return NULL;
 }
 
-/* Insert an AP into the results array, keeping it sorted by descending RSSI and
- * capped at max_results (weakest dropped). Duplicate BSSIDs (the driver may
- * report the same AP more than once per scan) are de-duplicated in place,
- * keeping the strongest RSSI seen for that AP. */
-static void scan_result_insert(int8_t rssi, const uint8_t *mac)
+/* Insert an AP into the results array. */
+static void scan_result_insert(int8_t rssi, const uint8_t *mac, uint8_t mac_len)
 {
 	struct nrf70_wifi_scan_ap *r = scan_ctx.results;
 	size_t max = scan_ctx.max_results;
@@ -67,14 +57,20 @@ static void scan_result_insert(int8_t rssi, const uint8_t *mac)
 		return;
 	}
 
+	/* The BSSID is the only identifier we report to Sidewalk, so drop any
+	 * entry the driver did not fill with a complete MAC address. */
+	if (mac_len != WIFI_MAC_ADDR_LEN) {
+		LOG_WRN("Skipping scan result with unexpected MAC length %u", mac_len);
+		return;
+	}
+
 	struct nrf70_wifi_scan_ap *dup = scan_result_find(mac);
 
 	if (dup) {
 		if (rssi <= dup->rssi) {
 			return;
 		}
-		/* Update in place, then let it bubble up to its sorted
-		 * position instead of treating it as a fresh entry. */
+		/* Update in place, then let it bubble up to its sorted */
 		pos = dup - r;
 		dup->rssi = rssi;
 		for (; pos > 0 && r[pos - 1].rssi < r[pos].rssi; pos--) {
@@ -174,16 +170,11 @@ int nrf70_wifi_scan_start(struct nrf70_wifi_scan_ap *results, size_t max_results
 #elif defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE)
 		.scan_type = WIFI_SCAN_TYPE_PASSIVE,
 #endif
-#if defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4GHZ)
-		.bands = BIT(WIFI_FREQ_BAND_2_4_GHZ),
-#elif defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70_SCAN_BAND_2_4_AND_5_GHZ)
-		.bands = BIT(WIFI_FREQ_BAND_2_4_GHZ) | BIT(WIFI_FREQ_BAND_5_GHZ),
-#endif
 	};
 
 	ret = net_mgmt(NET_REQUEST_WIFI_SCAN, iface, &params, sizeof(params));
 	if (ret) {
-		nrf70_wifi_scan_abort();
+		nrf70_wifi_scan_release();
 		return ret;
 	}
 
@@ -215,12 +206,10 @@ int nrf70_wifi_scan_get_result(size_t *stored, size_t *total, int *status)
 	return 1;
 }
 
-void nrf70_wifi_scan_abort(void)
+void nrf70_wifi_scan_release(void)
 {
 	/* Zephyr's Wi-Fi mgmt API has no scan-cancel request, so a scan already
-	 * running in the driver cannot be stopped; it will run to completion in
-	 * the background. All we can do is stop listening for its results and
-	 * release the collection context. */
+	 * running in the driver cannot be stopped; only stop listening to it. */
 	if (cb_registered) {
 		net_mgmt_del_event_callback(&scan_cb);
 		cb_registered = false;
