@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-/* Applied only when the nrf7002eb2 shield is used, see CMakeLists.txt.
+/* Applied only for the nrf7002eb2 shield on nRF54L15 DK, see sysbuild.cmake.
+ *
+ * There the shield deletes the led1 node, because its pin becomes the SPI-CS.
  */
 
 / {

@@ -6,11 +6,6 @@
 
 cmake_minimum_required(VERSION 3.20.0)
 
-# The nrf7002eb2 shield repurposes the led1 pin as SPI-CS on nRF54L15.
-if("${SHIELD}" MATCHES "nrf7002eb2" AND "${BOARD}" MATCHES "nrf54l15dk")
-    list(APPEND EXTRA_DTC_OVERLAY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/shields/nrf7002eb2.overlay)
-endif()
-
 # Zephyr CMake project
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(sidewalk_sid_end_device)
