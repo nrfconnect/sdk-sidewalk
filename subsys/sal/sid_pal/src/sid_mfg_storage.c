@@ -42,8 +42,7 @@ static int sid_mfg_storage_secure_read(uint16_t *p_value, uint8_t *buffer, uint1
 #ifndef DEV_ID_REG
 #if defined(NRF52840_XXAA) || defined(NRF52833_XXAA) || defined(NRF52832_XXAA)
 #define DEV_ID_REG (uint32_t)(NRF_FICR->DEVICEID[0])
-#elif defined(NRF54L15_XXAA) || defined(NRF54L10_XXAA) || defined(NRF54LV10A_XXAA) ||                \
-	defined(NRF54LM20A_XXAA)
+#elif defined(CONFIG_SOC_SERIES_NRF54L)
 #define DEV_ID_REG (uint32_t)(NRF_FICR->INFO.DEVICEID[0])
 #else
 #error "Unknown Device ID register."
