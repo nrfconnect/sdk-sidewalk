@@ -15,6 +15,6 @@ if (CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
     endif()
 endif()
 
-add_subdirectory_ifdef(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70 nrf70_location)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_NRF7X_LOCATION nrf70_location)
 
 add_subdirectory_ifdef(CONFIG_SIDEWALK_DEMO_PARSER demo)

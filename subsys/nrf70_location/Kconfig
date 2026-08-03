@@ -4,10 +4,10 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-config SIDEWALK_WIFI_LOCATION_NRF70
+config SIDEWALK_NRF7X_LOCATION
 	bool "nRF70 Wi-Fi location PAL"
 	default y if SHIELD_NRF7002EB2 || SHIELD_NRF7002EB2_NRF7001 || SHIELD_NRF7002EB2_NRF7000 || SHIELD_NRF7002EB2_COEX
-	depends on !SIDEWALK_SUBGHZ_RADIO_LR1110
+	depends on !SIDEWALK_LR1110_LOCATION
 	select NET_MGMT
 	select NET_MGMT_EVENT
 	select NET_MGMT_EVENT_INFO
@@ -15,39 +15,30 @@ config SIDEWALK_WIFI_LOCATION_NRF70
 	select NETWORKING
 	select WIFI_NRF70
 	help
-	  Wi-Fi PAL for Sidewalk location using nRF70 net_mgmt scan.
+	  Wi-Fi PAL for Sidewalk location using nRF70 net_mgmt scan. GNSS is left
+	  to the weak NOSUPPORT defaults, because the nRF70 does not provide it.
 
-if SIDEWALK_WIFI_LOCATION_NRF70
-
-config SIDEWALK_WIFI_LOCATION_NRF70_GNSS_STUB
-	bool "nRF70 Wi-Fi location PAL provides a GNSS NOSUPPORT stub"
-	default y
-	help
-	  The nRF70 Wi-Fi PAL is always paired with a sub-GHz radio that has no
-	  GNSS support of its own (SX126X, or no sub-GHz radio at all), so it
-	  also provides the GNSS PAL as a NOSUPPORT stub. Kept as a separate
-	  option (instead of inferring it from the absence of LR1110) so a
-	  future sub-GHz radio that does provide GNSS can disable it here.
+if SIDEWALK_NRF7X_LOCATION
 
 choice NRF70_OPER_MODES
 	default NRF70_SCAN_ONLY
 endchoice
 
-choice SIDEWALK_WIFI_LOCATION_NRF70_SCAN_TYPE
+choice SIDEWALK_NRF7X_LOCATION_SCAN_TYPE
 	prompt "nRF70 Wi-Fi location scan type"
-	default SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE
+	default SIDEWALK_NRF7X_LOCATION_SCAN_ACTIVE
 	help
 	  Scan type hint passed to the nRF70 driver. Active scanning is used by
 	  default even though it draws more power than passive scanning,
 	  because it resolves APs markedly faster; boards with a dedicated
 	  power-consumption profile can switch to passive independently.
 
-config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE
+config SIDEWALK_NRF7X_LOCATION_SCAN_ACTIVE
 	bool "Active"
 
-config SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE
+config SIDEWALK_NRF7X_LOCATION_SCAN_PASSIVE
 	bool "Passive"
 
 endchoice
 
-endif # SIDEWALK_WIFI_LOCATION_NRF70
+endif # SIDEWALK_NRF7X_LOCATION
