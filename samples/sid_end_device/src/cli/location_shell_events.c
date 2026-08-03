@@ -47,7 +47,6 @@ void location_callback(const struct sid_location_result *const result, void *con
 	LOG_INF("loc effort mode: %d", result->mode);
 	LOG_INF("loc link type: %d", result->link);
 	if (result->mode == SID_LOCATION_EFFORT_L3 || result->mode == SID_LOCATION_EFFORT_L4) {
-		LOG_INF("loc payload:");
 		LOG_HEXDUMP_INF(result->payload, result->size, "loc payload");
 	}
 }
