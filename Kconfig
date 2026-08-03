@@ -39,6 +39,13 @@ config SIDEWALK_SUBGHZ_RADIO_LR1110
 
 endchoice # SIDEWALK_SUBGHZ_RADIO
 
+config SIDEWALK_LR1110_LOCATION
+	bool
+	default y if SIDEWALK_SUBGHZ_RADIO_LR1110
+	help
+	  Location PAL backed by the LR1110 transceiver, providing both GNSS and
+	  Wi-Fi scanning.
+
 config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	hex "value for trim cap used by subGHz radio"
 	range 0x0 0xFFFF

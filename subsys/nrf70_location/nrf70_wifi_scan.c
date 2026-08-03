@@ -165,9 +165,9 @@ int nrf70_wifi_scan_start(struct nrf70_wifi_scan_ap *results, size_t max_results
 	cb_registered = true;
 
 	struct wifi_scan_params params = {
-#if defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70_SCAN_ACTIVE)
+#if defined(CONFIG_SIDEWALK_NRF7X_LOCATION_SCAN_ACTIVE)
 		.scan_type = WIFI_SCAN_TYPE_ACTIVE,
-#elif defined(CONFIG_SIDEWALK_WIFI_LOCATION_NRF70_SCAN_PASSIVE)
+#elif defined(CONFIG_SIDEWALK_NRF7X_LOCATION_SCAN_PASSIVE)
 		.scan_type = WIFI_SCAN_TYPE_PASSIVE,
 #endif
 	};

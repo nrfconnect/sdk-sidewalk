@@ -173,7 +173,7 @@ if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK_DELAY)
 	target_link_libraries(sid_pal_delay_impl PRIVATE sid_pal_delay_ifc)
 endif()
 
-if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK_SPI_BUS)
+if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK_SPI_BUS AND NOT DEFINED ENV{SIDEWALK_TEST_SX126X_STUB})
 	zephyr_library_named(sid_pal_serial_bus_impl)
 	if(CONFIG_SIDEWALK_SPI_BUS_NRFX)
 		target_sources(sid_pal_serial_bus_impl PRIVATE sid_pal_serial_bus_nrfx_spi.c)
@@ -244,6 +244,23 @@ if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_DEPRECATED_SIDEWALK_P
 		sid_pal_mfg_store_ifc
 		sid_pal_temperature_ifc
 	)
+endif()
+
+# NOSUPPORT defaults for the location entry points, which the Sidewalk library
+# references unconditionally. Each set is compiled only when nothing implements
+# it, so exactly one definition of each symbol exists in any configuration.
+if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED)
+	if(NOT CONFIG_SIDEWALK_NRF7X_LOCATION AND NOT CONFIG_SIDEWALK_LR1110_LOCATION)
+		zephyr_library_named(sid_pal_location_wifi_impl)
+		target_sources(sid_pal_location_wifi_impl PRIVATE sid_location_wifi.c)
+		target_link_libraries(sid_pal_location_wifi_impl PRIVATE sid_pal_wifi_ifc)
+	endif()
+
+	if(NOT CONFIG_SIDEWALK_LR1110_LOCATION)
+		zephyr_library_named(sid_pal_location_gnss_impl)
+		target_sources(sid_pal_location_gnss_impl PRIVATE sid_location_gnss.c)
+		target_link_libraries(sid_pal_location_gnss_impl PRIVATE sid_pal_gnss_ifc)
+	endif()
 endif()
 
 # zephyr_library_named() leaves ZEPHYR_CURRENT_LIBRARY set; later bare
