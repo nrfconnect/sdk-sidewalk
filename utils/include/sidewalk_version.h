@@ -15,7 +15,11 @@
 	defined(CONFIG_DT_HAS_SEMTECH_SX1262_NEW_ENABLED)
 #define SHIELD_NAME "Semtech sx1262"
 #elif defined(CONFIG_DT_HAS_NORDIC_NRF7002_SPI_ENABLED) ||                                         \
-	defined(CONFIG_DT_HAS_NORDIC_NRF7002_QSPI_ENABLED)
+	defined(CONFIG_DT_HAS_NORDIC_NRF7002_QSPI_ENABLED) ||                                       \
+	defined(CONFIG_DT_HAS_NORDIC_NRF7001_SPI_ENABLED) ||                                        \
+	defined(CONFIG_DT_HAS_NORDIC_NRF7001_QSPI_ENABLED) ||                                       \
+	defined(CONFIG_DT_HAS_NORDIC_NRF7000_SPI_ENABLED) ||                                        \
+	defined(CONFIG_DT_HAS_NORDIC_NRF7000_QSPI_ENABLED)
 #define SHIELD_NAME "nRF7002 EB-II"
 #endif
 
