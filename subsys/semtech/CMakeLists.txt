@@ -69,7 +69,7 @@ target_compile_definitions(smtc_lbm INTERFACE
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X sx126x)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr11xx)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr1110)
-add_subdirectory_ifdef(CONFIG_SIDEWALK_LR1110_LOCATION lr1110_location)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_LOCATION lr1110_location)
 
 add_library(sidewalk_radio INTERFACE)
 

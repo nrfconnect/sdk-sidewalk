@@ -104,7 +104,11 @@ sid_error_t sid_pal_wifi_deinit(void)
 
 sid_error_t sid_pal_wifi_process_event(uint8_t event_id)
 {
-	ARG_UNUSED(event_id);
+	/* SID_PAL_WIFI_INTERNAL is the only event this PAL asks to be woken with. */
+	if (event_id != SID_PAL_WIFI_INTERNAL) {
+		LOG_DBG("nRF70 Wi-Fi PAL: ignoring event %u", event_id);
+		return SID_ERROR_NONE;
+	}
 
 	if (!scan_busy) {
 		return SID_ERROR_NONE;

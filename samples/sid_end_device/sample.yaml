@@ -194,6 +194,8 @@ tests:
 
   sample.sidewalk.dut.ble_only.nrf7002eb2:
     platform_exclude:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l10/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
     extra_args:
       - OVERLAY_CONFIG="overlay-dut.conf"

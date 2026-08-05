@@ -39,9 +39,10 @@ config SIDEWALK_SUBGHZ_RADIO_LR1110
 
 endchoice # SIDEWALK_SUBGHZ_RADIO
 
-config SIDEWALK_LR1110_LOCATION
+config SIDEWALK_SUBGHZ_RADIO_LR1110_LOCATION
 	bool
-	default y if SIDEWALK_SUBGHZ_RADIO_LR1110
+	default y
+	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
 	help
 	  Location PAL backed by the LR1110 transceiver, providing both GNSS and
 	  Wi-Fi scanning.
