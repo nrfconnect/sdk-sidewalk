@@ -1,0 +1,29 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* This overlay gives build coverage for the Wi-Fi location back end together
+ * with a sub-GHz radio. It cannot be wired up on the DK, because the nRF7002
+ * EB-II already occupies the UART20 pins (P1.04 and P1.05). Adapt the overlay
+ * to the actual wiring before using the combination on hardware.
+ */
+
+/ {
+	chosen {
+		zephyr,console = &uart20;
+		zephyr,shell-uart = &uart20;
+		zephyr,uart-mcumgr = &uart20;
+		zephyr,bt-mon-uart = &uart20;
+		zephyr,bt-c2h-uart = &uart20;
+	};
+};
+
+&uart20 {
+	status = "okay";
+};
+
+&uart30 {
+	status = "disabled";
+};
