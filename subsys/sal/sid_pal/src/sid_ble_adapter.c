@@ -57,6 +57,7 @@ static sid_error_t ble_adapter_user_config(sid_ble_user_config_t *cfg);
 static void ble_adapter_received_data_result(sid_error_t result);
 static void ble_adapter_notify_ama_state(bool is_active);
 static sid_error_t ble_adapter_get_mac_addr(uint8_t *addr);
+static sid_error_t ble_adapter_get_advertiser_addr(uint8_t *addr);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
@@ -75,6 +76,7 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.deinit = ble_adapter_deinit,
 	.notify_ama_state = ble_adapter_notify_ama_state,
 	.get_mac_addr = ble_adapter_get_mac_addr,
+	.get_advertiser_addr = ble_adapter_get_advertiser_addr,
 };
 
 static void read_conn_rssi(uint16_t handle, int8_t *rssi)
@@ -522,6 +524,25 @@ static sid_error_t ble_adapter_get_mac_addr(uint8_t *addr)
 	}
 
 	memcpy(addr, addrs[BT_ID_SIDEWALK].a.val, BLE_ADDR_MAX_LEN);
+	return SID_ERROR_NONE;
+}
+
+static sid_error_t ble_adapter_get_advertiser_addr(uint8_t *addr)
+{
+	if (!addr) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+
+	int err = sid_ble_advert_get_addr(addr);
+
+	if (err == -EINVAL) {
+		return SID_ERROR_INVALID_ARGS;
+	}
+	if (err) {
+		LOG_ERR("get_advertiser_addr failed (err %d)", err);
+		return SID_ERROR_GENERIC;
+	}
+
 	return SID_ERROR_NONE;
 }
 

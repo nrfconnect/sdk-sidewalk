@@ -86,4 +86,13 @@ int sid_ble_advert_params_set(sid_ble_advert_params_t *params);
  */
 int sid_ble_advert_params_get(sid_ble_advert_params_t *params);
 
+/**
+ * @brief Get the BLE address currently used by the local advertiser.
+ *
+ * @param addr buffer to receive the 6-byte advertiser address.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int sid_ble_advert_get_addr(uint8_t *addr);
+
 #endif /* NRF_BLE_ADVERT_H */
