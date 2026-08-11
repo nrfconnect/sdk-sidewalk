@@ -7,6 +7,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
 #include <sid_ble_advert.h>
+#include <sid_ble_config_ifc.h>
 #include <sid_ble_uuid.h>
 
 #include <bt_app_callbacks.h>
@@ -350,5 +351,32 @@ int sid_ble_advert_deinit(void)
 	}
 	atomic_set(&adv_state, BLE_ADV_DISABLE);
 
+	return 0;
+}
+
+int sid_ble_advert_get_addr(uint8_t *addr)
+{
+	if (!addr) {
+		return -EINVAL;
+	}
+
+	if (adv_set != NULL) {
+		struct bt_le_ext_adv_info info;
+		int err = bt_le_ext_adv_get_info(adv_set, &info);
+
+		if (err == 0 && info.addr != NULL) {
+			memcpy(addr, info.addr->a.val, BLE_ADDR_MAX_LEN);
+			return 0;
+		}
+	}
+
+	struct bt_le_oob oob;
+	int err = bt_le_oob_get_local(BT_ID_SIDEWALK, &oob);
+
+	if (err) {
+		return err;
+	}
+
+	memcpy(addr, oob.addr.a.val, BLE_ADDR_MAX_LEN);
 	return 0;
 }
