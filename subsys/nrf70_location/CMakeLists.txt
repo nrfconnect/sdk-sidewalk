@@ -13,3 +13,5 @@ target_link_libraries(sid_pal_wifi_nrf70_impl PUBLIC
 	sid_pal_wifi_ifc
 	zephyr_interface
 )
+
+add_dependencies(sid_pal_wifi_nrf70_impl zephyr_generated_headers)
