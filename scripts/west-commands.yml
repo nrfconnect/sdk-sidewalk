@@ -1,0 +1,6 @@
+west-commands:
+  - file: scripts/west_commands/sid.py
+    commands:
+      - name: sid
+        class: Sid
+        help: Sidewalk utility commands
