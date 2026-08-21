@@ -13,27 +13,44 @@
 
 #include <zephyr/kernel.h>
 
-static atomic_t count = ATOMIC_INIT(0);
-static unsigned int key = 0;
+#ifdef CONFIG_THREAD_LOCAL_STORAGE
+#define SID_PAL_TLS Z_THREAD_LOCAL
+#else
+#define SID_PAL_TLS
+#endif
+
+/* The kernel saves and restores BASEPRI per thread across a context switch, so
+ * the nesting depth and the saved key have to be per-thread as well.
+ * Otherwise, if thread A blocked inside the critical region, and let thread B
+ * increase the nesting from 1 to 2, thread A could exit the critical region
+ * without restoring the mask, which would leave interrupts masked permanently.
+
+ * Architectures without thread local storage, including ARCH_POSIX used for
+ * unit tests, keep the shared state and stay exposed to that.
+ */
+static SID_PAL_TLS uint32_t nesting;
+static SID_PAL_TLS unsigned int key;
 
 void sid_pal_enter_critical_region()
 {
-	const unsigned int prev_val = atomic_add(&count, 1);
+	const unsigned int local_key = irq_lock();
 
-	if (prev_val == 0) {
-		key = irq_lock();
+	if (nesting++ == 0U) {
+		key = local_key;
 	}
 
-	assert(prev_val <= CONFIG_SIDEWALK_CRITICAL_REGION_RE_ENTRY_MAX);
+	assert(nesting <= CONFIG_SIDEWALK_CRITICAL_REGION_RE_ENTRY_MAX);
 }
 
 void sid_pal_exit_critical_region()
 {
-	const unsigned int prev_val = atomic_sub(&count, 1);
+	assert(nesting > 0U);
 
-	assert(prev_val > 0);
+	if (nesting == 0U) {
+		return;
+	}
 
-	if (prev_val == 1) {
+	if (--nesting == 0U) {
 		irq_unlock(key);
 	}
 }
