@@ -20,8 +20,8 @@
 project = 'nRF Connect SDK - Amazon Sidewalk'
 copyright = '2026, Nordic Semiconductor'
 author = 'Nordic Semiconductor'
-release = '1.2.99'
-version = '1.2.99'
+release = '1.3.0'
+version = '1.3.0'
 
 # -- General configuration ---------------------------------------------------
 

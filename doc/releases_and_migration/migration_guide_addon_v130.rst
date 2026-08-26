@@ -1,13 +1,49 @@
-.. _migration_guide_addon_changelog:
+.. _migration_guide_addon_v130:
 
-Migration guide for Amazon Sidewalk Add-On v1.2.99
-##################################################
+Migration guide for Amazon Sidewalk Add-On v1.3.0
+#################################################
 
 .. contents::
    :local:
    :depth: 2
 
-.. _migration_changelog_mcuboot_rsa:
+This guide assists you in migrating from Amazon Sidewalk Add-On v1.2.0 to v1.3.0.
+
+Overview
+********
+
+Amazon Sidewalk Add-On v1.3.0 upgrades the nRF Connect SDK to v3.4.0, aligns MCUboot configuration with NCS security recommendations, and moves persistent Sidewalk key storage to Key Management Unit (KMU) on nRF54L Series platforms.
+
+Refer to the :ref:`release_notes_addon_v130` for more details.
+
+Migration steps
+***************
+
+#. Navigate to the Amazon Sidewalk Add-on repository (the :file:`sidewalk` directory in your west workspace).
+
+#. Update the Add-on repository to the release tag ``v1.3.0-add-on`` from the `sdk-sidewalk`_ GitHub repository.
+
+   The commands below assume a Git remote named ``ncs`` that points to `sdk-sidewalk`_.
+   If your remote uses a different name, substitute it for ``ncs``.
+
+   .. code-block:: console
+
+      git fetch ncs
+      git checkout v1.3.0-add-on
+
+#. From your west workspace root (the parent directory of :file:`sidewalk`), update the nRF Connect SDK and other west manifest projects:
+
+   .. code-block:: console
+
+      west update
+
+#. Perform a clean build:
+
+   .. code-block:: console
+
+      west build -p -b <board_target> <sidewalk_application>
+
+.. _migration_130_mcuboot_rsa:
 
 Keeping RSA MCUboot signatures
 ******************************
@@ -29,8 +65,7 @@ Perform a pristine build of the application after adding this override.
 .. note::
    A device running MCUboot configured for RSA will not boot ED25519-signed images until MCUboot is updated and re-flashed with a matching configuration.
 
-.. note::
-   For new designs, use the NCS default signature type: ED25519 on nRF54L Series platforms, ECDSA with P-256 curve on nRF52 Series platforms.
+.. _migration_130_kmu:
 
 Persistent Sidewalk keys in KMU
 *******************************
@@ -50,27 +85,31 @@ Sidewalk starts at the slot defined by the ``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STOR
 * Two slots for the manufacturing secp256r1 private key.
 * One slot each for the WAN master, app key, and device-to-device AES keys.
 
+.. _migration_130_removed_platforms:
+
 Removed platform support
 ************************
 
-The upcoming release no longer supports the following development kits:
+Amazon Sidewalk Add-On v1.3.0 no longer supports the following development kits:
 
 * nRF5340 DK (``nrf5340dk/nrf5340/cpuapp``)
 * Thingy:53 (``thingy53/nrf5340/cpuapp``)
 
-If your product uses one of these platforms, continue using the last add-on release that supports it.
+If your product uses one of these platforms, continue using the Sidewalk Add-On version earlier than v1.3.0.
 
 Troubleshooting
 ***************
 
-#. If you encounter unexpected linker errors or boot issues, perform a pristine build:
+When encountering issues, check the following:
 
-   .. code-block:: console
+* For linker error or boot issues, perform a pristine build:
 
-      west build -p -b <board_target> <your_application>
+  .. code-block:: console
 
-#. Ensure all dependencies are up to date:
+     west build -p -b <board_target> <your_application>
 
-   .. code-block:: console
+* For other issues, ensure all dependencies are up to date:
 
-      west update
+  .. code-block:: console
+
+     west update
