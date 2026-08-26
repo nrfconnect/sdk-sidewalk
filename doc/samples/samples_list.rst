@@ -18,22 +18,49 @@ It demonstrates end-to-end Sidewalk functionality and can be built with differen
 
 The following table summarizes the supported variants, development kits, and build configuration for this sample only:
 
-+-----------------------------------+------------------------------------------+-------------------------------------------+---------------------------------------------------------------------------+-----------------------------------------------+---------------------------+
-| Sample variant                    | Description                              | Development kit                           | Additional hardware                                                       | Bootloader (in release and debug configs)     | Application overlays      |
-+===================================+==========================================+===========================================+===========================================================================+===============================================+===========================+
-| :ref:`variant_sidewalk_hello`     | Sample application showing communication | * `nRF54L15 DK`_                          | * External flash (included in the DK) except `nRF54L15 DK`_               | * MCUboot - DFU partition in external flash   | * ``overlay-hello.conf``  |
-|                                   | over Sidewalk network.                   | * nRF54L10 emulating on `nRF54L15 DK`_    | * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)                 | * Application partition size = 956 kB         |                           |
-|                                   |                                          | * `nRF54LV10 DK`_                         |                                                                           |                                               |                           |
-|                                   |                                          | * `nRF54LM20 DK`_                         | * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)  |                                               |                           |
-+-----------------------------------+------------------------------------------+-------------------------------------------+---------------------------------------------------------------------------+-----------------------------------------------+---------------------------+
-| :ref:`variant_sensor_monitoring`  | Demo application of Sidewalk protocol    | * `nRF54L15 DK`_                          | * External flash (included in the DK) except `nRF54L15 DK`_               | * MCUboot - DFU partition in external flash   | * ``overlay-demo.conf``   |
-|                                   | with temperature sensor monitoring.      | * nRF54L10 emulating on `nRF54L15 DK`_    | * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)                 | * Application partition size = 956 kB         |                           |
-+-----------------------------------+------------------------------------------+-------------------------------------------+---------------------------------------------------------------------------+-----------------------------------------------+---------------------------+
-| :ref:`variant_sidewalk_dut`       | Device under test generic application    | * `nRF54L15 DK`_                          | * External flash (included in the DK) except `nRF54L15 DK`_               | * MCUboot - DFU partition in external flash   | * ``overlay-dut.conf``    |
-|                                   | with CLI enabled.                        | * nRF54L10 emulating on `nRF54L15 DK`_    | * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)                 | * Application partition size = 956 kB         |                           |
-|                                   |                                          | * `nRF54LV10 DK`_                         |                                                                           |                                               |                           |
-|                                   |                                          | * `nRF54LM20 DK`_                         | * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)  |                                               |                           |
-+-----------------------------------+------------------------------------------+-------------------------------------------+---------------------------------------------------------------------------+-----------------------------------------------+---------------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 14 18 16 28 22 12
+
+   * - Sample variant
+     - Description
+     - Development kit
+     - Additional hardware
+     - Bootloader (in release and debug configs)
+     - Application overlays
+   * - :ref:`variant_sidewalk_hello`
+     - Sample application showing communication over Sidewalk network.
+     - * `nRF52840 DK`_
+       * `nRF54L15 DK`_
+       * nRF54L10 emulated on `nRF54L15 DK`_
+       * `nRF54LV10 DK`_
+       * `nRF54LM20 DK`_
+     - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+       * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
+       * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)
+     - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - ``overlay-hello.conf``
+   * - :ref:`variant_sensor_monitoring`
+     - Demo application of Sidewalk protocol with temperature sensor monitoring.
+     - * `nRF52840 DK`_
+       * `nRF54L15 DK`_
+       * nRF54L10 emulated on `nRF54L15 DK`_
+     - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+       * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
+     - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - ``overlay-demo.conf``
+   * - :ref:`variant_sidewalk_dut`
+     - Device under test generic application with CLI enabled.
+     - * `nRF52840 DK`_
+       * `nRF54L15 DK`_
+       * nRF54L10 emulated on `nRF54L15 DK`_
+       * `nRF54LV10 DK`_
+       * `nRF54LM20 DK`_
+     - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+       * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
+       * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)
+     - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - ``overlay-dut.conf``
 
 For variant-specific build, test, and configuration details, see :ref:`sidewalk_end_device`.
 
