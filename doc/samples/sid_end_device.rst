@@ -52,15 +52,15 @@ To run the sample in the Bluetooth LE link mode, you only need the development k
 However, if you want to run the sample with LoRa or FSK configuration, you also need the LoRa radio module.
 The supported modules are as follows:
 
-+------------+---------------+------------+
-| Radio chip | Board name    | Interface  |
-+============+===============+============+
-| `SX1262`_  | SX126xMB2xAS  | SPI @ 8Mhz |
-+------------+---------------+------------+
-| `LR1110`_  | LR1110MB1LCKS | SPI @ 8Mhz |
-+------------+---------------+------------+
-| `LR1110`_  | :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` | SPI @ 8Mhz |
-+------------+---------------+------------+
++--------------+---------------------------------------------+-------------+
+| Radio chip   | Board name                                  | Interface   |
++==============+=============================================+=============+
+| `SX1262`_    | SX126xMB2xAS                                | SPI @ 8MHz  |
++--------------+---------------------------------------------+-------------+
+| `LR1110`_    | LR1110MB1LCKS                               | SPI @ 8MHz  |
++--------------+---------------------------------------------+-------------+
+| `LR1110`_    | :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>`    | SPI @ 8MHz  |
++--------------+---------------------------------------------+-------------+
 
 .. note::
    To use sub-GHz radio, the Semtech shield must be connected to the development kit header, and the antenna must be connected to the radio module.
