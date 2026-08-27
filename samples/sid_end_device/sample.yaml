@@ -257,17 +257,6 @@ tests:
       - cli
       - BLE
 
-  sample.sidewalk.dut.no_secure:
-    extra_args:
-      - OVERLAY_CONFIG="overlay-dut.conf"
-      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
-    extra_configs:
-      - CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE=n
-      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.no_secure"
-    tags:
-      - cli
-      - no_secure
-
   sample.sidewalk.helloPower.ble.release:
     platform_allow:
       - nrf54lv10dk/nrf54lv10a/cpuapp
