@@ -21,6 +21,7 @@ jobs:
       pull-requests: write
       contents: read
       checks: write
+      actions: read
 
     steps:
       - name: Checkout
@@ -30,13 +31,25 @@ jobs:
         uses: dawidd6/action-download-artifact@v6
         with:
           run_id: ${{github.event.workflow_run.id}}
+          name: sample-artifacts-meta
           path: current
+
+      - name: Get PR number
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{github.event.workflow_run.id}}
+          name: PR_number
+          path: current/PR_number
 
       - name: Get artifacts from PR base
         uses: dawidd6/action-download-artifact@v6
         with:
           commit: ${{github.event.workflow_run.event.pull_request.base.sha}}
           workflow: on-commit.yml
+          workflow_conclusion: success
+          name: sample-artifacts-meta
+          search_artifacts: true
+          check_artifacts: true
           path: old
 
       - name: Unpack PR number
@@ -48,11 +61,11 @@ jobs:
       - name: Generage memory diff
         run: |
           shopt -s extglob
-          pr_reports=$(ls current/sample-artifacts-meta/subsets/*/twister.json)
+          pr_reports=$(ls current/subsets/*/twister.json)
           python3 scripts/ci/combine_twister_reports.py $pr_reports new.json
           cat new.json
 
-          base_reports=$(ls old/sample-artifacts-meta/subsets/*/twister.json)
+          base_reports=$(ls old/subsets/*/twister.json)
           python3 scripts/ci/combine_twister_reports.py $base_reports old.json
           cat old.json
 

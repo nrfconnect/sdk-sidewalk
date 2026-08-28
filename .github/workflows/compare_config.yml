@@ -29,6 +29,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v6
         with:
           run_id: ${{inputs.current_run_id}}
+          name: sample-artifacts-meta
           path: current
 
       - name: Get artifacts from base
@@ -37,6 +38,10 @@ jobs:
         with:
           commit: ${{inputs.base_commit_sha}}
           workflow: on-commit.yml
+          workflow_conclusion: success
+          name: sample-artifacts-meta
+          search_artifacts: true
+          check_artifacts: true
           path: old
 
       - name: Get artifacts from base
@@ -44,34 +49,43 @@ jobs:
         uses: dawidd6/action-download-artifact@v6
         with:
           workflow: on-commit.yml
+          workflow_conclusion: success
+          name: sample-artifacts-meta
+          search_artifacts: true
+          check_artifacts: true
           path: old
 
       - name: Generate .config diff
         shell: bash {0}
         id: config_diff
         run: |
-          cd current
-          configs=$(find . -name .config)
-          cd ..
+          configs=$(find current -name .config)
           echo "\`\`\`" >> config_diff.md
           for cfg in ${configs}
           do
-            echo "compare ${cfg}"
+            rel_cfg="${cfg#current/}"
+            old_cfg="old/${rel_cfg}"
+            if [ ! -f "${old_cfg}" ]; then
+              echo "Skipping ${rel_cfg} - no baseline .config"
+              continue
+            fi
 
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" old/${cfg} > tmp_old.1
+            echo "compare ${rel_cfg}"
+
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" "${old_cfg}" > tmp_old.1
             grep -v "#"  tmp_old.1 > tmp_old.2
             sort tmp_old.2 > tmp_old.3
-            tr -s '\n' < tmp_old.3 > old/${cfg}
+            tr -s '\n' < tmp_old.3 > tmp_old.4
 
-            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" current/${cfg} > tmp_current.1
+            grep -v "CONFIG_MCUBOOT_IMGTOOL_SIGN_VERSION" "${cfg}" > tmp_current.1
             grep -v "#"  tmp_current.1 > tmp_current.2
             sort tmp_current.2 > tmp_current.3
-            tr -s '\n' < tmp_current.3 > current/${cfg}
+            tr -s '\n' < tmp_current.3 > tmp_current.4
 
             rm -rf tmp_*
 
-            printf "\n%s\n%-62s| %s\n" "${cfg}" "old" "new" > cfg_diff.md
-            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new old/${cfg} current/${cfg} >> cfg_diff.md
+            printf "\n%s\n%-62s| %s\n" "${rel_cfg}" "old" "new" > cfg_diff.md
+            diff --text --report-identical-files --suppress-common-lines --side-by-side --label old --label new tmp_old.4 tmp_current.4 >> cfg_diff.md
             if [ $? -eq 1 ]; then cat cfg_diff.md >> config_diff.md; fi
           done
           echo "\`\`\`" >> config_diff.md
