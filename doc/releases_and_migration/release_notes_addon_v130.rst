@@ -30,6 +30,7 @@ Changelog
     The shield enables the LoRa and FSK link types.
   * :ref:`lr11xx_firmware_update` sample for updating Semtech LR1110 transceiver firmware.
   * :ref:`application_development` documentation section.
+  * ``west sid provision`` command for generating the ``mfg_storage`` partition contents and flashing it to a connected board.
 
 * Updated:
 
