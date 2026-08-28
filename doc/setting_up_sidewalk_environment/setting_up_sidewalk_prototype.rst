@@ -13,15 +13,50 @@ In this flow, you will provision devices individually, allowing you to learn mor
 Onboarding
 **********
 
-To correctly set up your Sidewalk device, first you have to onboard it.
-To onboard your device, you need to have a Sidewalk account and a Sidewalk device.
+Before your device can join the Sidewalk network, you must register it in the AWS IoT console and download the credentials it needs to authenticate.
+Ensure you have an AWS account.
 Complete the `Onboarding your Sidewalk devices`_ steps described in the Amazon Sidewalk documentation.
 As a result, you will have a device JSON file named :file:`certificate.json`, or two JSON files named :file:`wireless_device.json` and :file:`device_profile.json`.
 
 Provisioning
 ************
 
-The tools required for provisioning are located in the repository (`sdk-nrf`_ and `sdk-sidewalk`_) under the :file:`sidewalk/tools/provision` path.
+The credentials you downloaded from the AWS IoT console must now be written to the manufacturing data partition (``mfg_storage``) on the device, which is what allows it to join the Sidewalk network.
+Do this with the ``west sid provision`` command, which handles a connected board in a single step.
+You can also run the individual steps manually.
+
+Provisioning with west command
+==============================
+
+The ``west sid provision`` command automates the following steps:
+
+#. Reads the ``mfg_storage`` partition address from the application build output.
+#. Generates a manufacturing HEX file by calling the :file:`provision.py` script from the :file:`sidewalk/tools/provision` directory of the Sidewalk Add-On repository (`sdk-sidewalk`_).
+   For details on the script and the manufacturing data format, see `Provision your Sidewalk endpoint and flash the binary image`_.
+#. Flashes the generated HEX file to the connected board using `nRF Util`_.
+
+To provision your device:
+
+#. Run ``west sid provision`` with the Sidewalk application build directory and your onboarded device JSON files as arguments.
+
+   * If you are using the combined device JSON file obtained from the AWS IoT console, pass it with ``-C``/``--certificate-json``:
+
+     .. code-block:: console
+
+        west sid provision -d *build_directory* -C certificate.json
+
+   * If you are using separate device JSON files obtained as responses from the GetDeviceProfile and GetWirelessDevice API operations, pass both with ``-W``/``--wireless-device-json`` and ``-D``/``--device-profile-json``:
+
+     .. code-block:: console
+
+        west sid provision -d *build_directory* -W wireless_device.json -D device_profile.json
+
+   If multiple boards are connected, the command prompts you to select the target device.
+
+Provisioning with manual steps
+==============================
+
+The :file:`provision.py` script required for provisioning is located in the :file:`sidewalk/tools/provision` directory of the Sidewalk Add-On repository (`sdk-sidewalk`_).
 
 .. note::
    You can use the ``--output_hex`` parameter to specify a custom name for the output hex file.
@@ -56,10 +91,6 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
             nrfjprog --sectorerase --program nordic_aws_nrf52840.hex --reset
 
-         * If you reflashed the :file:`nordic_aws_nrf52840.hex` file on an already working device, you need to deregister the previously flashed device.
-           To do this, perform a factory reset by long pressing **Button 1**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf52840.hex`) in the Sidewalk network.
-
    .. group-tab:: nRF54L10
 
       1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
@@ -88,10 +119,6 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
             nrfutil device program --x-family nrf54l --options chip_erase_mode=ERASE_RANGES_TOUCHED_BY_FIRMWARE,reset=RESET_PIN,verify=VERIFY_READ --traits jlink --firmware nordic_aws_nrf54l10.hex
 
-         * If you reflashed the :file:`nordic_aws_nrf54l10.hex` file on an already working device, you need to deregister the previously flashed device.
-           To do this, perform a factory reset by long pressing **Button 0**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf54l10.hex`) in the Sidewalk network.
-
    .. group-tab:: nRF54LV10 DK
 
       1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
@@ -119,10 +146,6 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
          .. code-block:: console
 
             nrfutil device program --x-family nrf54l --options chip_erase_mode=ERASE_RANGES_TOUCHED_BY_FIRMWARE,reset=RESET_PIN,verify=VERIFY_READ --traits jlink --firmware nordic_aws_nrf54lv10.hex
-
-         * If you reflashed the :file:`nordic_aws_nrf54lv10.hex` file on an already working device, you need to deregister the previously flashed device.
-           To do this, perform a factory reset by long pressing **Button 0**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf54lv10.hex`) in the Sidewalk network.
 
    .. group-tab:: nRF54L15
 
@@ -154,10 +177,6 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
             nrfutil device program --x-family nrf54l --options chip_erase_mode=ERASE_RANGES_TOUCHED_BY_FIRMWARE,reset=RESET_PIN,verify=VERIFY_READ --traits jlink --firmware nordic_aws_nrf54l15.hex
 
-         * If you reflashed the :file:`nordic_aws_nrf54l15.hex` file on an already working device, you need to deregister the previously flashed device.
-           To do this, perform a factory reset by long pressing **Button 0**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf54l15.hex`) in the Sidewalk network.
-
    .. group-tab:: nRF54LM20
 
       1. Follow the `Provision your Sidewalk endpoint and flash the binary image`_ documentation.
@@ -187,9 +206,22 @@ The tools required for provisioning are located in the repository (`sdk-nrf`_ an
 
             nrfutil device program --x-family nrf54l --options chip_erase_mode=ERASE_RANGES_TOUCHED_BY_FIRMWARE,reset=RESET_PIN,verify=VERIFY_READ --traits jlink --firmware nordic_aws_nrf54lm20.hex
 
-         * If you reflashed the :file:`nordic_aws_nrf54lm20.hex` file on an already working device, you need to deregister the previously flashed device.
-           To do this, perform a factory reset by long pressing **Button 0**.
-           This will allow you to register a new product (new :file:`nordic_aws_nrf54lm20.hex`) in the Sidewalk network.
+Device factory reset
+====================
+
+If you reprovision a device already operating, deregister the previously flashed device credentials by performing a factory reset:
+
+.. tabs::
+
+   .. group-tab:: nRF52 DKs
+
+      Long press **Button 1**.
+
+   .. group-tab:: nRF54L Series DKs
+
+      Long press **Button 0**.
+
+This allows you to register the device in the Sidewalk network with the newly provisioned credentials.
 
 Add MQTT to destination
 ***********************
