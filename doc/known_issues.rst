@@ -77,6 +77,20 @@ KRKNWK-20857: Location modem stays busy when scan operation overlaps with deinit
   **Workaround:** If the location modem stays busy, and cannot perform the scan, restart the device.
     Ensure the location service deinit is triggered when there is no ongoing scan.
 
+KRKNWK-22410: Registration and deregistration over FSK is not verified against the certification tests
+
+  Registration and deregistration of the device over the FSK transport is not verified against the ``FSK/EP/CONN/REG/BV/02`` and ``FSK/EP/CONN/REG/BV/03`` certification test signatures.
+  An earlier occurrence of this failure mode, where the end node never registered over FSK, was caused by a chip select timing delay in the Zephyr SPI driver that made the device miss the FSK receive windows.
+  It was fixed by using the nrfx SPI driver directly, but the fix is not confirmed against the current test signatures.
+
+  **Affected platforms:** All platforms using the LR1110 or SX1262 shield.
+
+KRKNWK-22411: Uplink and downlink exchange during UUID rotation is not verified for FSK and LoRa
+
+  Exchanging uplink and downlink messages while a UUID rotation is in progress is not verified against the ``FSK/EP/SEC/UUID/BV/03`` and ``LORA/EP/SEC/UUID/BV/03`` certification test signatures.
+
+  **Affected platforms:** All platforms using the LR1110 or SX1262 shield.
+
 List of known issues for v1.2.0
 *******************************
 
