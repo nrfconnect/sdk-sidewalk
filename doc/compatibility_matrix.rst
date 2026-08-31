@@ -26,7 +26,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF54LM20A <nRF54LM20A Product Page_>`_
        * `nRF54LM20B <nRF54LM20B Product Page_>`_
      - --
-     - Compliant [1]_
+     - In Progress
    * - v1.2.0
      - v3.3.0
      - v1.19
