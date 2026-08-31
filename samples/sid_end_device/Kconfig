@@ -107,7 +107,7 @@ config SID_END_DEVICE_EVENT_HEAP_SIZE
 
 config SIDEWALK_FILE_TRANSFER
 	select EXPERIMENTAL
-	bool "Sidewalk file transfer"
+	bool "Sidewalk file transfer [EXPERIMENTAL]"
 	help
 	  Add support for Sidewalk Bulk Data Transfer (SBDT)
 	  in application.
