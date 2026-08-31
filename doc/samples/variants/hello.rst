@@ -21,6 +21,12 @@ The sample variant supports the following Kconfig options:
 User Interface
 **************
 
+.. note::
+   This sample variant is not supported on the `nRF54L15 DK`_ with the :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` shield.
+   The shield uses the pins of **Button 0**, **Button 1**, **Button 2**, **LED 1**, and **LED 3**, which makes the user interface described in this section unavailable.
+   To run this sample variant over LoRa or FSK, use either the shield with the `nRF54LM20 DK`_, or a Semtech shield with the `nRF54L15 DK`_.
+   For the pin assignment and usage requirements of the shield, see :ref:`nrf_sidewalk_eb`.
+
 .. tabs::
 
    .. group-tab:: nRF54 DKs
