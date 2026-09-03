@@ -34,10 +34,8 @@ KRKNWK-20891: Multilink downlinks are sent over an incorrect transport
   **Failing Test Cases:**
 
   - ``MULTI/EP/CONN/DL/BV/01``: Endpoint is able to receive a downlink packet using BLE.
-  - ``MULTI/EP/CONN/DL/BV/02``: Endpoint is able to receive a downlink packet using LoRa.
-  - ``MULTI/EP/CONN/DL/BV/03``: Endpoint is able to receive a downlink packet using LoRa, while BLE connection with Gateway is established.
 
-  **Affected platforms:** All platforms with LoRa or FSK support.
+  **Affected platforms:** All platforms with LoRa support.
 
 KRKNWK-22012: Switching power profiles fails on the LR1110
 
@@ -88,18 +86,7 @@ KRKNWK-22410: Registration and deregistration over FSK is not verified against t
   - ``FSK/EP/CONN/REG/BV/02``: Endpoint can be deregistered from Sidewalk network.
   - ``FSK/EP/CONN/REG/BV/03``: An unregistered Endpoint successfully completes Sidewalk device registration with use of FFN.
 
-  **Affected platforms:** All platforms with LoRa or FSK support.
-
-KRKNWK-22411: Uplink and downlink exchange during UUID rotation is not verified for FSK and LoRa
-
-  Exchanging uplink and downlink messages while a UUID rotation is in progress is not verified against the current certification test signatures.
-
-  **Failing Test Cases:**
-
-  - ``FSK/EP/SEC/UUID/BV/03``: Endpoint can exchange UL/DL during UUID rotation.
-  - ``LORA/EP/SEC/UUID/BV/03``: Endpoint can exchange UL/DL during UUID rotation.
-
-  **Affected platforms:** All platforms with LoRa or FSK support.
+  **Affected platforms:** All platforms with FSK support using `nRF_sidewalk_eb`.
 
 List of known issues for v1.2.0
 *******************************
