@@ -18,7 +18,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
      - Amazon qualification status
    * - v1.3.0
      - v3.4.0
-     - v1.19
+     - v1.19.4
      - * `nRF52840 <nrf52840 Product Page_>`_
        * `nRF54L15 <nRF54L15 Product Page_>`_
        * `nRF54L10 <nRF54L10 Product Page_>`_
@@ -26,7 +26,7 @@ The following table demonstrates the compatibility between the nRF Connect SDK a
        * `nRF54LM20A <nRF54LM20A Product Page_>`_
        * `nRF54LM20B <nRF54LM20B Product Page_>`_
      - --
-     - In Progress
+     - Compliant [1]_
    * - v1.2.0
      - v3.3.0
      - v1.19
