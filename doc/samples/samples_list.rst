@@ -59,6 +59,7 @@ The following table summarizes the supported variants, development kits, and bui
      - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
        * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
        * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)
+       * `nRF7002 EB II`_ on `nRF54L15 DK`_ and `nRF54LM20 DK`_ (Wi-Fi location)
      - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
      - ``overlay-dut.conf``
 

@@ -32,7 +32,10 @@ These methods are supported on two available link types:
 .. note::
    FSK with Wi-Fi and GNSS scanning enabled is not currently supported.
 
-Wi-Fi and GNSS scanning use the Semtech LoRa Basics Modem middleware to manage and perform scans on the device.
+GNSS scanning uses the Semtech LoRa Basics Modem middleware to manage and perform scans on the device, and requires the LR1110 radio.
+Wi-Fi scanning can use either the LR1110 with the same middleware, or an nRF70 Series Wi-Fi companion IC.
+The two implementations are mutually exclusive, so only one of them can be enabled in a build.
+For more information about the nRF70 Series-based Wi-Fi location, see :ref:`location_services_nrf70`.
 
 .. list-table:: Hardware and Library Requirements for Location Methods
    :header-rows: 1
@@ -43,9 +46,12 @@ Wi-Fi and GNSS scanning use the Semtech LoRa Basics Modem middleware to manage a
    * - BLE Location
      - nRF chip
      - BLE only, or LoRa/FSK
-   * - Wi-Fi Location
+   * - Wi-Fi Location (LR1110)
      - nRF chip and LR1110 radio
      - LoRa and FSK
+   * - Wi-Fi Location (nRF70 Series)
+     - nRF chip and nRF70 Series Wi-Fi companion IC
+     - BLE only, or LoRa/FSK
    * - GNSS Location
      - nRF chip and LR1110 radio
      - LoRa and FSK
@@ -53,6 +59,7 @@ Wi-Fi and GNSS scanning use the Semtech LoRa Basics Modem middleware to manage a
 .. note::
    Semtech SX1262 radio does not support Wi-Fi and GNSS scans.
    However, you can still use Bluetooth LE location features while using the SX1262 for LoRa and FSK communication.
+   To add Wi-Fi-based location, use an nRF70 Series Wi-Fi companion IC.
 
 Location Levels
 ===============
@@ -100,6 +107,24 @@ At this level, the device uses satellite data for location.
 * Description - The device collects and sends GNSS (satellite) data.
   At least four satellites must be detected for a valid scan.
 
+.. _location_services_nrf70:
+
+Wi-Fi location using the nRF70 Series
+*************************************
+
+As an alternative to the LR1110-based Wi-Fi scan, Wi-Fi location can be resolved using an nRF70 Series Wi-Fi companion IC.
+The nRF70 Series does not provide GNSS, so the GNSS location level remains unavailable in such a build.
+
+* Support is enabled automatically through the ``CONFIG_SIDEWALK_NRF7X_LOCATION`` Kconfig option when building with an nRF7002 EB II shield.
+  See :ref:`sid_end_device_wifi_location_hw` for the supported shield variants.
+* The nRF70 Series-based location is mutually exclusive with the LR1110-based location.
+  It is unavailable when the LR1110 is selected as the sub-GHz radio, which is also the case for the :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>`.
+* The companion IC runs in the scan-only mode of the nRF70 driver (the ``CONFIG_NRF70_SCAN_ONLY`` Kconfig option, enabled by default for this feature), which provides Wi-Fi scanning without Wi-Fi connectivity.
+* The Wi-Fi scan type can be selected with the ``SIDEWALK_NRF7X_LOCATION_SCAN_TYPE`` Kconfig choice:
+
+  * ``CONFIG_SIDEWALK_NRF7X_LOCATION_SCAN_ACTIVE`` (default) - Resolves access points faster, at the cost of higher power consumption.
+  * ``CONFIG_SIDEWALK_NRF7X_LOCATION_SCAN_PASSIVE`` - Lower power consumption, but slower access point discovery.
+
 Testing
 *******
 
@@ -114,8 +139,9 @@ Location service is supported in Sidewalk libraries in the following range:
 * Sidewalk Sub-GHz library (LoRa and FSK) supports all location methods.
   However to build with radio and pal componets for WiFi and GNSS scanning, ``CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110`` must be enabled.
   This config is enabled automatically when sample is build with ``semtech_lr11xxmb1xxs`` shield.
+  Alternatively, the Wi-Fi scanning alone can be provided by an nRF70 Series companion IC, as described in :ref:`location_services_nrf70`.
 
-* Sidewalk Bluetooth LE only library supports only network location method over Bluetooth LE.
+* Sidewalk Bluetooth LE only library supports the network location method over Bluetooth LE, and the Wi-Fi location method when an nRF70 Series companion IC is used.
 
 Writing custom application
 **************************

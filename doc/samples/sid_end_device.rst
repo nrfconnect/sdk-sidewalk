@@ -66,6 +66,50 @@ The supported modules are as follows:
    To use sub-GHz radio, the Semtech shield must be connected to the development kit header, and the antenna must be connected to the radio module.
    For the exact pin assignment, refer to the :ref:`setting_up_hardware_semtech_pinout` section.
 
+.. _sid_end_device_wifi_location_hw:
+
+Wi-Fi location hardware
+=======================
+
+To use Wi-Fi-based location scanning without the LR1110 radio, you can attach the `nRF7002 EB II`_ shield, which hosts an nRF70 Series Wi-Fi companion IC.
+The shield is supported on the nRF54L15 DK and the nRF54LM20 DK.
+The following shield variants are supported:
+
+* ``nrf7002eb2`` -- Uses the `nRF7002 <nRF7002 Product Page_>`_ IC.
+* ``nrf7002eb2_nrf7001`` -- Uses the `nRF7001 <nRF7001 Product Page_>`_ IC.
+* ``nrf7002eb2_nrf7000`` -- Uses the `nRF7000 <nRF7000 Product Page_>`_ IC.
+* ``nrf7002eb2_coex`` -- Adds the short-range radio coexistence pins.
+  This variant only extends one of the preceding variants, so you must provide both shields when building.
+
+Add the selected shield variant with the ``--shield`` option when building the sample, for example:
+
+.. code-block:: console
+
+   $ west build -b nrf54l15dk/nrf54l15/cpuapp --shield nrf7002eb2
+
+To add the coexistence pins, pass both shields as a semicolon-separated list:
+
+.. code-block:: console
+
+   $ west build -b nrf54l15dk/nrf54l15/cpuapp --shield "nrf7002eb2;nrf7002eb2_coex"
+
+.. note::
+   The nRF70 Series driver requires Wi-Fi firmware binary blobs that are not distributed with the repository, and are not fetched by the ``west update`` command.
+   Run the ``west blobs fetch nrf_wifi`` command before the first build, and repeat it after every update of the nRF Connect SDK.
+
+The nRF70 Series companion IC runs in the scan-only mode of the nRF70 driver (``CONFIG_NRF70_SCAN_ONLY``, enabled by default for this feature), so it provides Wi-Fi scanning for location purposes only, and no Wi-Fi connectivity.
+Enabling the Wi-Fi driver also increases the RAM and flash requirements of the application.
+
+For more information about how Wi-Fi location works, see :ref:`location_services`.
+
+The shield introduces the following limitations:
+
+* On both development kits, the shield conflicts with the second virtual serial port (VCOM1) on the UART20 pins, so the shield overlay disables UART20 and moves the console, shell, MCUmgr, and Bluetooth monitor to UART30.
+  Use the first virtual serial port (VCOM0) when you run the sample, and disable VCOM1 in the `Board Configurator`_ application.
+* On the nRF54L15 DK, **LED 1** shares a pin with the shield SPI chip select, and is unavailable while the shield is connected.
+  The ``state-notifier-time-sync`` alias is removed in such a build, so LED 1 no longer indicates the time synchronization state.
+* On the nRF54LM20 DK, **Button 3** shares a pin with the shield, and is unavailable while the shield is connected.
+
 Overview
 ********
 
