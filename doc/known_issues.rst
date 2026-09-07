@@ -26,17 +26,6 @@ A known issue can list one or more of the following entries:
 List of known issues for v1.3.0
 *******************************
 
-KRKNWK-20891: Multilink downlinks are sent over an incorrect transport
-
-  When multilink is configured (for example, Bluetooth LE and LoRa), downlink messages sent from the cloud are always received over LoRa, regardless of the transport used for the corresponding uplink.
-  The expected behavior is that the downlink uses the same transport as the uplink.
-
-  **Failing Test Cases:**
-
-  - ``MULTI/EP/CONN/DL/BV/01``: Endpoint is able to receive a downlink packet using BLE.
-
-  **Affected platforms:** All platforms with LoRa support.
-
 KRKNWK-22012: Switching power profiles fails on the LR1110
 
   On FSK builds, switching power profiles (``sid option -lp_set 0x02 630``) might return ``SID_ERROR_INVALID_ARGS`` (-11).
@@ -77,16 +66,6 @@ KRKNWK-20857: Location modem stays busy when scan operation overlaps with deinit
   **Workaround:** If the location modem stays busy, and cannot perform the scan, restart the device.
     Ensure the location service deinit is triggered when there is no ongoing scan.
 
-KRKNWK-22410: Registration and deregistration over FSK is not verified against the certification tests
-
-  Registration and deregistration of the device over the FSK transport is not verified against the current certification test signatures.
-
-  **Failing Test Cases:**
-
-  - ``FSK/EP/CONN/REG/BV/02``: Endpoint can be deregistered from Sidewalk network.
-  - ``FSK/EP/CONN/REG/BV/03``: An unregistered Endpoint successfully completes Sidewalk device registration with use of FFN.
-
-  **Affected platforms:** All platforms with FSK support using `nRF_sidewalk_eb`.
 
 List of known issues for v1.2.0
 *******************************
