@@ -26,7 +26,6 @@
 #include <app_subGHz_config.h>
 
 #define REGION_US915
-#define RADIO_REGION RADIO_REGION_NA
 
 #define RADIO_LR11XX_MAX_TX_POWER 22
 #define RADIO_LR11XX_MIN_TX_POWER -9
@@ -162,7 +161,6 @@ static radio_lr11xx_device_config_t radio_lr11xx_cfg = {
             .ctrl = DT_PROP_OR(LORA_DT, tcxo_wakeup_time, 0) > 0 ?
                 LR11XX_TCXO_CTRL_DIO3 : LR11XX_TCXO_CTRL_NONE,
             .tune = DT_PROP_OR(LORA_DT, tcxo_voltage, LR11XX_SYSTEM_TCXO_CTRL_1_8V),
-            // Convert ms to 30.25 us ticks (1 ms = 33.06 ticks)
             .timeout = DT_PROP_OR(LORA_DT, tcxo_wakeup_time, 0),
         },
 
