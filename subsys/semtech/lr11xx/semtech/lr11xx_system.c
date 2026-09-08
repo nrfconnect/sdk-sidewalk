@@ -41,6 +41,20 @@
 
 #include "lr11xx_system.h"
 #include "lr11xx_hal.h"
+#include "halo_lr11xx_radio.h"
+#include "sl_sidewalk_log_app.h"
+
+static bool sid_sleep_request;
+
+void lr11xx_system_sleep_request_begin( void )
+{
+    sid_sleep_request = true;
+}
+
+void lr11xx_system_sleep_request_end( void )
+{
+    sid_sleep_request = false;
+}
 
 /*
  * -----------------------------------------------------------------------------
@@ -439,6 +453,28 @@ lr11xx_status_t lr11xx_system_set_sleep( const void* context, const lr11xx_syste
         ( uint8_t ) ( sleep_time >> 8 ),
         ( uint8_t ) ( sleep_time >> 0 ),
     };
+
+    if( !sid_sleep_request )
+    {
+        const halo_drv_semtech_ctx_t* drv_ctx = lr11xx_get_drv_ctx( );
+
+        if( drv_ctx != NULL && drv_ctx->radio_state != SID_PAL_RADIO_SCAN )
+        {
+            if( drv_ctx->radio_state != SID_PAL_RADIO_SLEEP )
+            {
+                /* Dropping the request leaves the chip somewhere other than sleep.
+                 * Either sid_pal_radio_release_scan() failed to park it, or LBM is
+                 * driving the radio while Sidewalk is actively using it. */
+                SL_SID_LOG_APP_ERROR( "drop LBM set_sleep, radio not parked, state %u",
+                                      drv_ctx->radio_state );
+            }
+            /* Report success even though nothing is sent to the chip: the LBM radio
+             * planner wraps ral_set_sleep() in a panic-on-failure check
+             * (rp_callback in radio_planner.c), so any other return value kills
+             * the modem. */
+            return LR11XX_STATUS_OK;
+        }
+    }
 
     return ( lr11xx_status_t ) lr11xx_hal_write( context, cbuffer, LR11XX_SYSTEM_SET_SLEEP_CMD_LENGTH, 0, 0 );
 }
