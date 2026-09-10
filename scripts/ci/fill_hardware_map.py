@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 
 """Script to generate hardware map used by twister based on userdev_conf file or connected DKs."""
+import json
 import subprocess
 
 import yaml
@@ -66,7 +67,7 @@ def main(hardware_map_path: str, userdev_conf_path: str):
         hardware_map = yaml.safe_load(hw_file)
     to_remove = []
     for hw_entry in hardware_map:
-        hw_entry["runner"] = "nrfjprog"
+        hw_entry["runner"] = "nrfutil"
         hw_entry["connected"] = True
         segger = hw_entry["id"].lstrip("0")
         matched_pcas = []
@@ -77,20 +78,28 @@ def main(hardware_map_path: str, userdev_conf_path: str):
                 if str(ud_entry.get("segger")) == segger and "pca" in ud_entry
             ]
         else:
-            # Read out device family
-            if segger.startswith("10508"):
-                device_version_cmd = [
-                    "nrfjprog", "--deviceversion", "--snr", segger, "--family", "nrf54h"]
-            else:
-                device_version_cmd = ["nrfjprog",
-                                      "--deviceversion", "--snr", segger]
-            out = subprocess.run(device_version_cmd, capture_output=True)
-            family_string = out.stdout.decode("utf-8").split("_")[0]
+            # Read out device family via nrfutil (nrfjprog/nRF Command Line Tools are archived
+            # since NCS v3.0.0 and unreliable when other nrfutil/J-Link processes hold the probe)
+            out = subprocess.run(
+                ["nrfutil", "device", "device-info",
+                 "--serial-number", segger, "--json"],
+                capture_output=True)
+            device_name = None
+            if out.returncode == 0:
+                try:
+                    for line in out.stdout.decode("utf-8").splitlines():
+                        event = json.loads(line)
+                        if event.get("type") == "task_end":
+                            device_name = event["data"]["data"]["deviceInfo"]["jlink"]["deviceName"]
+                            break
+                except (json.JSONDecodeError, KeyError):
+                    device_name = None
+            family_string = device_name.upper() if device_name else ""
             logging.info(
                 f"{segger=}, {family_string=}, out={out.stdout.decode('utf-8')}")
             matched_pcas = (
                 [family_to_pca[family_string]
-                 ] if out.returncode == 0 and family_string in family_to_pca else []
+                 ] if family_string in family_to_pca else []
             )
         if matched_pcas:
             # recover DK
