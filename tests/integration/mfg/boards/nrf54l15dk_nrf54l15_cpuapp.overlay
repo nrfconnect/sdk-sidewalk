@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
- &cpuapp_rram {
+#include <samples/sid_end_device/state_notifier_aliases.dtsi>
+
+&cpuapp_rram {
 	reg = <0x0 DT_SIZE_K(1524)>;
 };
 
@@ -18,45 +20,4 @@
 	/delete-property/ hw-flow-control;
 };
 
-/delete-node/ &boot_partition;
-/delete-node/ &slot0_partition;
-/delete-node/ &slot1_partition;
-/delete-node/ &storage_partition;
-
-&cpuapp_rram {
-	partitions {
-		ranges;
-		#address-cells = <1>;
-		#size-cells = <1>;
-
-		boot_partition: partition@0 {
-			compatible = "zephyr,mapped-partition";
-			label = "mcuboot";
-			reg = <0x0 DT_SIZE_K(48)>;
-		};
-
-		slot0_partition: partition@c000 {
-			compatible = "zephyr,mapped-partition";
-			label = "image-0";
-			reg = <0xc000 DT_SIZE_K(732)>;
-		};
-
-		slot1_partition: partition@c3000 {
-			compatible = "zephyr,mapped-partition";
-			label = "image-1";
-			reg = <0xc3000 DT_SIZE_K(732)>;
-		};
-
-		storage_partition: partition@17a000 {
-			compatible = "zephyr,mapped-partition";
-			label = "storage";
-			reg = <0x17a000 DT_SIZE_K(8)>;
-		};
-
-		mfg_storage: partition@17c000 {
-			compatible = "zephyr,mapped-partition";
-			label = "mfg_storage";
-			reg = <0x17c000 DT_SIZE_K(4)>;
-		};
-	};
-};
+#include <samples/nrf54l15dk_nrf54l15_cpuapp_partitions.dtsi>
