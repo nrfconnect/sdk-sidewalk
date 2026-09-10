@@ -14,6 +14,7 @@
 .. _nRF54LM20 DK: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
 .. _nrf54lv10dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lv10dk/doc/index.html
 .. _nrf54lm20dk: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/nordic/nrf54lm20dk/doc/index.html
+.. _nRF7002 EB II: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/zephyr/boards/shields/nrf7002eb2/doc/index.html
 .. _Building and programming an application: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/config_and_build/programming.html
 .. _Testing and debugging an application: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/test_and_optimize.html
 .. _Bootloader and DFU solutions for NCS: https://docs.nordicsemi.com/bundle/ncs-3.4.0/page/nrf/config_and_build/bootloaders/index.html
@@ -48,6 +49,9 @@
 .. _nRF54LV10A Product Page: https://www.nordicsemi.com/Products/nRF54LV10A
 .. _nRF54LM20A Product Page: https://www.nordicsemi.com/Products/nRF54LM20A
 .. _nRF54LM20B Product Page: https://www.nordicsemi.com/Products/nRF54LM20B
+.. _nRF7000 Product Page: https://www.nordicsemi.com/Products/nRF7000
+.. _nRF7001 Product Page: https://www.nordicsemi.com/Products/nRF7001
+.. _nRF7002 Product Page: https://www.nordicsemi.com/Products/nRF7002
 
 .. github.com
 

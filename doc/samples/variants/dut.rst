@@ -173,7 +173,8 @@ Testing Location Services
          <inf> location_shell_events: loc link type: 1
          <inf> location_shell_events: location_event_send mode: 1, returned 0
 
-   #. For Wi-Fi and GNSS location, ensure that the required LR1110 radio hardware is connected.
+   #. For GNSS location, ensure that the LR1110 radio hardware is connected.
+      For Wi-Fi location, use either the LR1110 radio or an nRF70 Series Wi-Fi companion IC, as described in :ref:`location_services`.
 
       .. note::
 
