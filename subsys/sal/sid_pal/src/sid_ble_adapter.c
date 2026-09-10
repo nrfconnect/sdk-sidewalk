@@ -572,6 +572,7 @@ static sid_error_t ble_adapter_disconnect(void)
 static sid_error_t ble_adapter_deinit(void)
 {
 	LOG_DBG("Sidewalk -> BLE");
+	sid_ble_conn_disconnect();
 	sid_ble_conn_deinit();
 	sid_ble_advert_deinit();
 	bt_id_delete(BT_ID_SIDEWALK);
