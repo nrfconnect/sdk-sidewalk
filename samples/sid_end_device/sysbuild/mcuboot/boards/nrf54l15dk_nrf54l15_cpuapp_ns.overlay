@@ -4,14 +4,9 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
- /{
-	aliases {
-		state-notifier-connected = &led0;
-		state-notifier-time-sync = &led1;
-		state-notifier-registered = &led2;
-		state-notifier-working = &led3;
-	};
+#include <samples/sid_end_device/state_notifier_aliases.dtsi>
 
+/ {
 	chosen {
 		zephyr,code-partition = &boot_partition;
 	};
