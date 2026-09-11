@@ -146,8 +146,10 @@
 	"This API can be exercised only when the link is started otherwise, an error code is returned\n"                                                                   \
 	"At bootup time the API returns an error code prior to obtaining GCS.\n"                                                                                           \
 	"-lp_set 1 - for SID_LINK2_PROFILE_1\n"                                                                                                                            \
-	"-lp_set 2 <rx_int> - for SID_LINK2_PROFILE_2 with optional rx_int parameter\n"                                                                                    \
+	"-lp_set 2 <rx_int> <beacon_int> <rx_dur> - for SID_LINK2_PROFILE_2 with optional rx_int, beacon_int and rx_dur parameters\n"                                      \
 	"<rx_int> Specifies DL interval between rx opportunities in units of ms. The value must be a multiple of 63ms. When ommitted the default value of 63ms is used.\n" \
+	"<beacon_int> (uint8) beacon interval in units of 10080ms, valid values are [1, 2, 3]. Requires <rx_int> to be specified. When omitted the value is left at 0.\n"  \
+	"<rx_dur> (uint32) RX window open duration in seconds. Requires <rx_int> and <beacon_int> to be specified. When omitted the value is left at 0.\n"                 \
 	"-lp_set 0x80 <rxwc> - for SID_LINK3_PROFILE_A, where <rxwc> is the rx_window count parameter\n"                                                                   \
 	"-lp_set 0x81 <rxwc> - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter\n"                                                                   \
 	"-lp_set 0x83 <rxwc> - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter\n"                                                                   \
@@ -235,7 +237,7 @@
 #define CMD_SID_SET_OPTION_C_ARG_REQUIRED 3
 #define CMD_SID_SET_OPTION_C_ARG_OPTIONAL 2
 #define CMD_SID_SET_OPTION_LP_SET_ARG_REQUIRED 2
-#define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 1
+#define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 3
 #define CMD_SID_OPTION_GSI_ARG_REQUIRED 1
 #define CMD_SID_OPTION_GSI_ARG_OPTIONAL 0
 #define CMD_SID_OPTION_BLE_CFG_DESCRIPTION                                                         \

@@ -224,6 +224,19 @@ static int sid_option_get_window_separation_ms(uint32_t value,
 	}
 }
 
+static int sid_option_get_beacon_interval_unit(uint32_t value, uint8_t *out)
+{
+	switch (value) {
+	case SID_LINK2_BEACON_INTERVAL_UNIT_1:
+	case SID_LINK2_BEACON_INTERVAL_UNIT_2:
+	case SID_LINK2_BEACON_INTERVAL_UNIT_3:
+		*out = (uint8_t)value;
+		return 0;
+	default:
+		return -EINVAL;
+	}
+}
+
 static int cmd_sid_option_handle_set_link3_profile(const char *value,
 						   struct sid_device_profile *out_profile)
 {
@@ -740,9 +753,10 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 
 		dev_cfg.unicast_params.unicast_window_interval.sync_rx_interval_ms =
 			SID_LINK2_RX_WINDOW_SEPARATION_1;
-		if (argc == 3) {
+		if (argc >= 3) {
 			window_separation_ms_raw = strtol(argv[2], &end, 0);
-			if (sid_option_get_window_separation_ms(
+			if (end == argv[2] ||
+			    sid_option_get_window_separation_ms(
 				    window_separation_ms_raw,
 				    &dev_cfg.unicast_params.unicast_window_interval
 					     .sync_rx_interval_ms) != 0) {
@@ -758,6 +772,33 @@ int cmd_sid_option_lp_set(const struct shell *shell, int32_t argc, const char **
 					SID_LINK2_RX_WINDOW_SEPARATION_7);
 				return -EINVAL;
 			}
+		}
+		if (argc >= 4) {
+			long beacon_interval_unit_raw = strtol(argv[3], &end, 0);
+
+			if (end == argv[3] ||
+			    sid_option_get_beacon_interval_unit(
+				    beacon_interval_unit_raw,
+				    &dev_cfg.unicast_params.beacon_interval_unit) != 0) {
+				shell_error(
+					shell,
+					"Invalid beacon interval unit value: [%s]\n valid values are [%d, %d, %d]",
+					argv[3], SID_LINK2_BEACON_INTERVAL_UNIT_1,
+					SID_LINK2_BEACON_INTERVAL_UNIT_2,
+					SID_LINK2_BEACON_INTERVAL_UNIT_3);
+				return -EINVAL;
+			}
+		}
+		if (argc == 5) {
+			long rx_duration_sec_raw = strtol(argv[4], &end, 0);
+
+			if (end == argv[4] || rx_duration_sec_raw < 0) {
+				shell_error(shell, "Invalid argument [%s], must be value >= 0",
+					    argv[4]);
+				return -EINVAL;
+			}
+			dev_cfg.unicast_params.l2_rx_duration_sec =
+				(uint32_t)rx_duration_sec_raw;
 		}
 		dev_cfg.unicast_params.rx_window_count = SID_RX_WINDOW_CNT_INFINITE;
 	} break;
