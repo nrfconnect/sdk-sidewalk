@@ -1721,6 +1721,63 @@ PARAMETRIZED_TEST(
 		.len = sizeof(struct sid_device_profile) })
 
 PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_lp_set_2_630_1_6, test_sid_set_option_lp_set,
+	(struct test_sid_set_option_params){
+		.argc = 5,
+		.argv = (const char *[]){ "-lp_set", "2", "630", "1", "6" },
+		.return_code = 0,
+		.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+		.data =
+			&(struct sid_device_profile){
+				.unicast_params = { .device_profile_id = 2,
+						    .rx_window_count = 0,
+						    .beacon_interval_unit = 1,
+						    .unicast_window_interval.sync_rx_interval_ms =
+							    SID_LINK2_RX_WINDOW_SEPARATION_3,
+						    .wakeup_type = SID_TX_AND_RX_WAKEUP,
+						    .l2_rx_duration_sec = 6 } },
+		.len = sizeof(struct sid_device_profile) })
+
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_lp_set_2_630_2, test_sid_set_option_lp_set,
+	(struct test_sid_set_option_params){
+		.argc = 4,
+		.argv = (const char *[]){ "-lp_set", "2", "630", "2" },
+		.return_code = 0,
+		.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+		.data =
+			&(struct sid_device_profile){
+				.unicast_params = { .device_profile_id = 2,
+						    .rx_window_count = 0,
+						    .beacon_interval_unit = 2,
+						    .unicast_window_interval.sync_rx_interval_ms =
+							    SID_LINK2_RX_WINDOW_SEPARATION_3,
+						    .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+		.len = sizeof(struct sid_device_profile) })
+
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_lp_set_2_630_invalid_beacon_interval,
+	test_sid_set_option_lp_set,
+	(struct test_sid_set_option_params){
+		.argc = 4,
+		.argv = (const char *[]){ "-lp_set", "2", "630", "4" },
+		.return_code = -EINVAL,
+		.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+		.data = NULL,
+		.len = 0 })
+
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_lp_set_2_630_1_invalid_rx_duration,
+	test_sid_set_option_lp_set,
+	(struct test_sid_set_option_params){
+		.argc = 5,
+		.argv = (const char *[]){ "-lp_set", "2", "630", "1", "-1" },
+		.return_code = -EINVAL,
+		.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+		.data = NULL,
+		.len = 0 })
+
+PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_set_option_lp_set_128_0, test_sid_set_option_lp_set,
 	(struct test_sid_set_option_params){
 		.argc = 3,
