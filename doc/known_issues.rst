@@ -26,19 +26,19 @@ A known issue can list one or more of the following entries:
 List of known issues for v1.3.0
 *******************************
 
-KRKNWK-22012: Switching power profiles fails on the LR1110
+KRKNWK-22012: Switching power profiles fails on FSK builds when using shell commands
 
   On FSK builds, switching power profiles (``sid option -lp_set 0x02 630``) might return ``SID_ERROR_INVALID_ARGS`` (-11).
   In such cases, the device does not become ready again within the expected time.
-  On LoRa builds, switching profiles might leave the device unable to recover the ready state, or leave the link down.
 
   **Failing Test Cases:**
 
   - ``FSK/EP/PWR/OPT/BV/01``: Verify RX duration can be adjusted.
-  - ``LORA/EP/CONN/LP/BV/01``: Endpoint can select Profile A and complete Join procedure.
-  - ``LORA/EP/CONN/LP/BV/02``: Endpoint can select Profile B and complete Join procedure.
 
-  **Affected platforms:** All platforms with LoRa or FSK support.
+  **Affected platforms:** All platforms with FSK support.
+
+  **Workaround:** Call the equivalent ``sid_option()`` API directly.
+  The issue is caused by command parser in the DUT sample application CLI, not the Sidewalk stack.
 
 KRKNWK-20371: SBDT multi-image DFU does not resume after a reset
 
