@@ -13,6 +13,118 @@ jobs:
       current_run_id: ${{github.event.workflow_run.id}}
       base_commit_sha: ${{github.event.workflow_run.event.pull_request.base.sha}}
 
+  check_memory_requirement_doc:
+    # Warns on the PR when doc/includes/memory_requirement.txt no longer
+    # matches the PR's own sample builds. Reuses the Twister artifacts the
+    # sample build matrix already produced, instead of building again -
+    # see scripts/ci/generate_memory_requirement.py --no-build.
+    runs-on: ubuntu-24.04
+    permissions:
+      issues: write
+      pull-requests: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: sidewalk
+
+      - name: Get PR number
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{github.event.workflow_run.id}}
+          name: PR_number
+          path: PR_number
+
+      - name: Unpack PR number
+        id: get-pr-number
+        run: |
+          pr_number="$(cat PR_number/PR_number)"
+          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+
+      - name: Get PR sample metadata artifacts
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{github.event.workflow_run.id}}
+          name: sample-artifacts-meta
+          path: .
+
+      - name: Get PR sample build artifacts
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          run_id: ${{github.event.workflow_run.id}}
+          name: sample-artifacts-build
+          path: .
+
+      - name: Fetch zephyr sources
+        # Only the Twister size calculator (zephyr/scripts/pylib/twister) is
+        # needed, not a full toolchain - this job never builds anything.
+        run: |
+          python3 -m pip install west
+          rm -rf .west
+          west init -l sidewalk --mf west.yml
+          west update zephyr -n -o=--depth=1
+
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install -r zephyr/scripts/requirements-base.txt \
+            -r sidewalk/scripts/ci/requirements.txt
+
+      - name: Check doc/includes/memory_requirement.txt freshness
+        id: check
+        run: |
+          if [ ! -d twister-out ]; then
+            echo "No reusable Twister artifacts (samples build likely skipped or"
+            echo "save_images=false), skipping the freshness check."
+            echo "stale=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if ! python3 sidewalk/scripts/ci/generate_memory_requirement.py \
+              --outdir twister-out --no-build --dry-run > generated.txt 2> generate.log; then
+            echo "Could not regenerate the memory requirement doc from this PR's"
+            echo "build artifacts, skipping the freshness check:"
+            cat generate.log
+            echo "stale=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if diff -u sidewalk/doc/includes/memory_requirement.txt generated.txt > memory_requirement.diff; then
+            echo "stale=false" >> $GITHUB_OUTPUT
+          else
+            echo "stale=true" >> $GITHUB_OUTPUT
+            cat memory_requirement.diff
+          fi
+
+      - name: Find comment
+        if: steps.check.outputs.stale == 'true'
+        uses: peter-evans/find-comment@v3
+        id: fc
+        with:
+          issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: "<!-- memory_requirement_doc_stale -->"
+
+      - name: Warn that the doc is stale
+        if: steps.check.outputs.stale == 'true'
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ steps.get-pr-number.outputs.pr_number }}
+          edit-mode: replace
+          body: |
+            <!-- memory_requirement_doc_stale -->
+            ⚠️ `doc/includes/memory_requirement.txt` no longer matches the memory
+            footprint of this PR's own sample builds. Regenerate it with:
+
+            ```
+            ./sidewalk/scripts/ci/generate_memory_requirement.py
+            ```
+
+            This is a warning only - it does not fail the build.
+
   create_PR_comment:
     needs: [compare_configuration]
     runs-on: ubuntu-24.04
