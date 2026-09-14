@@ -17,11 +17,6 @@
 	status = "okay";
 };
 
-// TODO: re-enable HWFC once it's fixed
-&uart20 {
-	/delete-property/ hw-flow-control;
-};
-
 /delete-node/ &boot_partition;
 /delete-node/ &slot0_partition;
 /delete-node/ &slot1_partition;
