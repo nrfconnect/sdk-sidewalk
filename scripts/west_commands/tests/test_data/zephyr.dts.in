@@ -1,0 +1,29 @@
+/dts-v1/;
+
+/ {
+	soc {
+		rram_controller: rram-controller@5004b000 {
+			cpuapp_rram: rram@0 {
+				partitions {
+					compatible = "fixed-partitions";
+					#address-cells = < 0x1 >;
+					#size-cells = < 0x1 >;
+
+					/* node '/soc/rram-controller@5004b000/rram@0/partitions/partition@17a000' */
+					storage_partition: partition@17a000 {
+						compatible = "zephyr,mapped-partition";
+						label = "storage";
+						reg = < 0x17a000 0x2000 >;
+					};
+
+					/* node '/soc/rram-controller@5004b000/rram@0/partitions/partition@@ADDR@' */
+					mfg_storage: partition@@ADDR@ {
+						compatible = "zephyr,mapped-partition";
+						label = "mfg_storage";       /* in boards/board.overlay:84 */
+						reg = < 0x@ADDR@ @SIZE@ >;
+					};
+				};
+			};
+		};
+	};
+};

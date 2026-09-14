@@ -144,3 +144,33 @@ To run the integration test, complete the following steps based on the environme
 
             Make sure your board is connected to the computer.
             Test output will be displayed on the UART console.
+
+West command testing
+====================
+
+The ``west`` extension commands provided by the add-on are tested on the host, without an nRF development board.
+The tests are located in the :file:`sidewalk/scripts/west_commands/tests` directory and use the ``unittest`` framework, with the mocked build output, device JSON files and tools in the :file:`test_data` subdirectory.
+
+In CI, they run whenever a west command or the provisioning tooling changes.
+
+For example, the tests of the :ref:`west sid provision <setting_up_sidewalk_prototype>` command create a build directory with the ``mfg_storage`` partition, and verify that the generated manufacturing HEX file starts at the partition address and contains the provisioning data from the device JSON file.
+
+The tests replace `nRF Util`_ with a stub, so that no nRF development board is needed.
+Each test prepends a directory holding an executable named ``nrfutil`` to the ``PATH`` of the tested command, which makes the command call the stub instead of the real tool.
+The stub is the :file:`test_data/nrfutil.py` script, which reports a connected J-Link device instead of listing the real ones, and keeps a copy of the HEX file instead of programming it.
+
+To run the tests, complete the following steps:
+
+#. Install the Python dependencies by running the following command:
+
+   .. code-block:: bash
+
+      pip install west -r sidewalk/tools/provision/requirements.txt
+
+   You can skip this step if the nRF Connect SDK Python environment is already active, as it provides both ``west`` and the script dependencies.
+
+#. Run the tests from the workspace directory by running the following command:
+
+   .. code-block:: bash
+
+      python3 -m unittest discover --start-directory sidewalk/scripts/west_commands/tests
