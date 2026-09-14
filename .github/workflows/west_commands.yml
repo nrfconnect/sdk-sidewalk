@@ -1,0 +1,51 @@
+name: West commands
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'scripts/west-commands.yml'
+      - 'scripts/west_commands/**'
+      - 'tools/provision/**'
+      - '.github/workflows/west_commands.yml'
+
+  pull_request:
+    paths:
+      - 'scripts/west-commands.yml'
+      - 'scripts/west_commands/**'
+      - 'tools/provision/**'
+      - '.github/workflows/west_commands.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  west_commands_tests:
+    name: Run west command tests on x86
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: tools/provision/requirements.txt
+
+      # The tests run the west command and the provisioning script directly, so
+      # only west itself and the script dependencies are needed - no toolchain,
+      # no west workspace and no nRF device.
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install west -r tools/provision/requirements.txt
+
+      - name: Run west command tests
+        run: |
+          python3 -m unittest discover --start-directory scripts/west_commands/tests --verbose
