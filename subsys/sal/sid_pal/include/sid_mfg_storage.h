@@ -18,7 +18,7 @@
  * the flush fails, so that it can be retried.
  *
  * @return 0 on success, -ERRNO on error, or SID_ERROR_NOSUPPORT when built
- *         without CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC.
+ *         without CONFIG_SIDEWALK_MFG_ALLOW_WRITE.
  */
 int32_t sid_mfg_storage_flush(void);
 
