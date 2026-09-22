@@ -96,7 +96,7 @@ static sid_error_t get_error(psa_status_t psa_erc, const char *func_name)
 	sid_error_t sid_erc = SID_ERROR_NONE;
 
 	if (PSA_SUCCESS != psa_erc) {
-		LOG_ERR("PSA Error code: %d in %s", psa_erc, func_name);
+		LOG_INF("PSA status value: %d in %s", psa_erc, func_name);
 	}
 
 	switch (psa_erc) {
@@ -304,7 +304,7 @@ static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t
 							(PSA_SUCCESS == status) ? "success." :
 										  "failed!",
 							out_len, mac_len);
-					} else {
+					} else { /* SID_PAL_CRYPTO_DECRYPT */
 						status = psa_aead_verify(op, params->out + out_len,
 									 params->out_size - out_len,
 									 &out_len, params->mac,
@@ -313,6 +313,9 @@ static psa_status_t aead_execute(psa_aead_operation_t *op, sid_pal_aead_params_t
 							(PSA_SUCCESS == status) ? "success." :
 										  "failed!",
 							out_len);
+						if(PSA_ERROR_INVALID_SIGNATURE == status && SID_PAL_AEAD_GCM_128 == params->algo) {
+							LOG_INF("verification failed; possible nonce time skew");
+						}
 					}
 				}
 			}
