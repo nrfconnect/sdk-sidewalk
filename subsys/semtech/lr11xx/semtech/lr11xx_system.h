@@ -415,6 +415,18 @@ lr11xx_status_t lr11xx_system_set_sleep( const void* context, const lr11xx_syste
                                          const uint32_t sleep_time );
 
 /*!
+ * @brief Mark the following lr11xx_system_set_sleep() call as originating from the
+ * Sidewalk stack. Requests that arrive without this marker while the radio is not in
+ * scan mode come from the LBM radio planner and are dropped.
+ */
+void lr11xx_system_sleep_request_begin( void );
+
+/*!
+ * @brief End the window opened by lr11xx_system_sleep_request_begin().
+ */
+void lr11xx_system_sleep_request_end( void );
+
+/*!
  * @brief Set the device into the requested Standby mode
  *
  * @param [in] context Chip implementation context
