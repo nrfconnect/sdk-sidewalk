@@ -29,6 +29,9 @@
 #include <tlv/tlv.h>
 #include <tlv/tlv_storage_impl.h>
 #include <sid_mfg_hex_parsers.h>
+#include <sid_mfg_storage.h>
+#include <sid_hal_memory_ifc.h>
+#include <errno.h>
 
 LOG_MODULE_REGISTER(sid_mfg, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -54,6 +57,71 @@ static int sid_mfg_storage_secure_read(uint16_t *p_value, uint8_t *buffer, uint1
 static const struct device *flash_dev;
 static uint32_t sid_mfg_version = INVALID_VERSION;
 tlv_ctx tlv_flash;
+
+#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+static uint8_t *mfg_stage;
+static tlv_ctx tlv_stage;
+
+static uint32_t mfg_store_size(void)
+{
+	return tlv_flash.end_offset - tlv_flash.start_offset;
+}
+
+static void mfg_stage_close(void)
+{
+	if (mfg_stage) {
+		sid_hal_free(mfg_stage);
+		mfg_stage = NULL;
+	}
+	memset(&tlv_stage, 0x0, sizeof(tlv_stage));
+}
+
+static int mfg_stage_open(void)
+{
+	if (mfg_stage) {
+		return 0;
+	}
+
+	if (!flash_dev || tlv_flash.end_offset <= tlv_flash.start_offset) {
+		return -EINVAL;
+	}
+
+	const uint32_t size = mfg_store_size();
+
+	mfg_stage = sid_hal_malloc(size);
+	if (!mfg_stage) {
+		LOG_ERR("Failed to allocate %u bytes to stage mfg data", size);
+		return -ENOMEM;
+	}
+
+	int err = flash_read(flash_dev, tlv_flash.start_offset, mfg_stage, size);
+	if (err) {
+		LOG_ERR("Failed to read mfg data errno %d", err);
+		mfg_stage_close();
+		return err;
+	}
+
+	tlv_stage = (tlv_ctx){ .storage_impl = { .write = tlv_storage_ram_write,
+						 .read = tlv_storage_ram_read,
+						 .ctx = (void *)mfg_stage },
+			       .start_offset = 0,
+			       .end_offset = size,
+			       .tlv_storage_start_marker_size =
+				       tlv_flash.tlv_storage_start_marker_size };
+
+	return 0;
+}
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+
+static tlv_ctx *mfg_store_ctx(void)
+{
+#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+	if (mfg_stage) {
+		return &tlv_stage;
+	}
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+	return &tlv_flash;
+}
 
 void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 {
@@ -177,23 +245,36 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 
 void sid_pal_mfg_store_deinit(void)
 {
+#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+	if (mfg_stage) {
+		LOG_WRN("Discarding mfg data that was never flushed");
+	}
+	mfg_stage_close();
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
 	memset(&tlv_flash, 0x0, sizeof(tlv_flash));
 }
 
 int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t length)
 {
+#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+	int err = mfg_stage_open();
+	if (err) {
+		return err;
+	}
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+
 	if (value == SID_PAL_MFG_STORE_VERSION) {
 		if (length != SID_PAL_MFG_STORE_VERSION_SIZE) {
 			return -EINVAL;
 		}
 		struct mfg_header mfg_header = { .magic_string = MFG_HEADER_MAGIC };
 		memcpy(mfg_header.raw_version, buffer, SID_PAL_MFG_STORE_VERSION_SIZE);
-		return tlv_write_start_marker(&tlv_flash, (uint8_t *)&mfg_header,
+		return tlv_write_start_marker(mfg_store_ctx(), (uint8_t *)&mfg_header,
 					      sizeof(struct mfg_header));
 	}
 
 #if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
-	return tlv_write(&tlv_flash, value, buffer, length);
+	return tlv_write(mfg_store_ctx(), value, buffer, length);
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
 #endif
@@ -213,7 +294,7 @@ void sid_pal_mfg_store_read(uint16_t value, uint8_t *buffer, uint16_t length)
 		       SID_PAL_MFG_STORE_VERSION_SIZE);
 		return;
 	}
-	int ret = tlv_read(&tlv_flash, value, buffer, length);
+	int ret = tlv_read(mfg_store_ctx(), value, buffer, length);
 	if (ret != 0) {
 		LOG_ERR("Failed to read tlv type %d with errno %d", value, ret);
 	}
@@ -223,7 +304,7 @@ uint16_t sid_pal_mfg_store_get_length_for_value(uint16_t value)
 {
 	tlv_header header = {};
 
-	int ret = tlv_lookup(&tlv_flash, value, &header);
+	int ret = tlv_lookup(mfg_store_ctx(), value, &header);
 	if (ret != 0) {
 		LOG_ERR("Failed to find value %d in MFG storage errno: %d", value, ret);
 		return 0;
@@ -234,9 +315,50 @@ uint16_t sid_pal_mfg_store_get_length_for_value(uint16_t value)
 int32_t sid_pal_mfg_store_erase(void)
 {
 #if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+	mfg_stage_close();
+
 	const size_t mfg_size = tlv_flash.end_offset - tlv_flash.start_offset;
 	return tlv_flash.storage_impl.erase(tlv_flash.storage_impl.ctx, tlv_flash.start_offset,
 					    mfg_size);
+#else
+	return (int32_t)SID_ERROR_NOSUPPORT;
+#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+}
+
+int32_t sid_mfg_storage_flush(void)
+{
+#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+	if (!mfg_stage) {
+		return 0;
+	}
+
+	const uint32_t size = mfg_store_size();
+
+	int err = flash_write(flash_dev, tlv_flash.start_offset, mfg_stage, size);
+	if (err) {
+		LOG_ERR("Failed to write mfg data errno %d", err);
+		return err;
+	}
+
+	for (uint32_t offset = 0; offset < size; offset += FLASH_MEM_CHUNK) {
+		uint8_t stored[FLASH_MEM_CHUNK];
+		const uint32_t chunk = MIN(sizeof(stored), size - offset);
+
+		err = flash_read(flash_dev, tlv_flash.start_offset + offset, stored, chunk);
+		if (err) {
+			LOG_ERR("Failed to read back mfg data errno %d", err);
+			return err;
+		}
+
+		if (memcmp(&mfg_stage[offset], stored, chunk) != 0) {
+			LOG_ERR("Mfg data mismatch at offset %u", offset);
+			return -EIO;
+		}
+	}
+
+	mfg_stage_close();
+
+	return 0;
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
 #endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
@@ -306,7 +428,7 @@ bool sid_pal_mfg_store_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE])
 
 bool sid_pal_mfg_store_serial_num_get(uint8_t serial_num[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE])
 {
-	int ret = tlv_read(&tlv_flash, SID_PAL_MFG_STORE_SERIAL_NUM, serial_num,
+	int ret = tlv_read(mfg_store_ctx(), SID_PAL_MFG_STORE_SERIAL_NUM, serial_num,
 			   SID_PAL_MFG_STORE_SERIAL_NUM_SIZE);
 	return ret == 0;
 }

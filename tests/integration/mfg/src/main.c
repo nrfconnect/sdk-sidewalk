@@ -7,6 +7,7 @@
 #include <zephyr/ztest.h>
 
 #include <sid_pal_mfg_store_ifc.h>
+#include <sid_mfg_storage.h>
 #include <sid_error.h>
 #include <zephyr/devicetree.h>
 
@@ -18,8 +19,8 @@
 
 ZTEST(mfg, test_mfg_storage_read_write)
 {
-	uint8_t write_data[SID_PAL_MFG_STORE_DEVID_SIZE] = { 1, 2, 3, 4, 5 };
-	uint8_t read_data[SID_PAL_MFG_STORE_DEVID_SIZE] = { 0 };
+	uint8_t write_data[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE] = { 1, 2, 3, 4, 5 };
+	uint8_t read_data[SID_PAL_MFG_STORE_SERIAL_NUM_SIZE] = { 0 };
 
 	sid_pal_mfg_store_region_t mfg_store_region = {
 		.addr_start = (uintptr_t)DT_REG_ADDR(MFG_STORAGE_NODE),
@@ -29,11 +30,15 @@ ZTEST(mfg, test_mfg_storage_read_write)
 	};
 	sid_pal_mfg_store_init(mfg_store_region);
 
-	/* TODO: verify whether SERIAL_NUM write + DEVID read is intentional test semantics */
+	zassert_ok(sid_pal_mfg_store_erase(), "Failed to erase mfg storage");
+
 	zassert_equal(SID_ERROR_NONE, sid_pal_mfg_store_write(SID_PAL_MFG_STORE_SERIAL_NUM,
 							      write_data, sizeof(write_data)));
 
-	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVID, read_data, sizeof(read_data));
+	zassert_ok(sid_mfg_storage_flush(), "Failed to flush staged mfg data");
+
+	zassert_true(sid_pal_mfg_store_serial_num_get(read_data),
+		     "Failed to read serial number back from mfg storage");
 	zassert_mem_equal(write_data, read_data, sizeof(write_data),
 			  "Read data does not match written data");
 
