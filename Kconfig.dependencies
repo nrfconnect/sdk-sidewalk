@@ -198,12 +198,15 @@ config SIDEWALK_MFG_STORAGE
 	  Sidewalk manufacturing storage module
 	  Supports: tlv parser, secure key storage and memory protection
 
-config SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+config SIDEWALK_MFG_ALLOW_WRITE
 	bool
 	default SIDEWALK_ON_DEV_CERT
 	depends on SIDEWALK_MFG_STORAGE || DEPRECATED_SIDEWALK_MFG_STORAGE
 	help
-	  Enable mfg storage diagnostic functionalities
+	  Allow the application to write to and erase the manufacturing partition
+	  at runtime. Required by on-device certification. When enabled, the
+	  manufacturing partition is left writable, so it is not covered by
+	  FPROTECT.
 
 config SIDEWALK_STORAGE
 	bool

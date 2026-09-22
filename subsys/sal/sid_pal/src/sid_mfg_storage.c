@@ -58,7 +58,7 @@ static const struct device *flash_dev;
 static uint32_t sid_mfg_version = INVALID_VERSION;
 tlv_ctx tlv_flash;
 
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 static uint8_t *mfg_stage;
 static tlv_ctx tlv_stage;
 
@@ -111,15 +111,15 @@ static int mfg_stage_open(void)
 
 	return 0;
 }
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 
 static tlv_ctx *mfg_store_ctx(void)
 {
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	if (mfg_stage) {
 		return &tlv_stage;
 	}
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 	return &tlv_flash;
 }
 
@@ -223,7 +223,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 		sid_mfg_version = SID_PAL_MFG_STORE_TLV_VERSION;
 	}
 
-#if defined(CONFIG_FPROTECT) && !defined(CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC)
+#if defined(CONFIG_FPROTECT) && !defined(CONFIG_SIDEWALK_MFG_ALLOW_WRITE)
 #if USE_PARTITION_MANAGER
 	err = fprotect_area(PM_MFG_STORAGE_ADDRESS, PM_MFG_STORAGE_SIZE);
 #else
@@ -232,7 +232,7 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 	if (err) {
 		LOG_ERR("Flash protect failed %d", err);
 	}
-#endif // CONFIG_FPROTECT AND NOT CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#endif // CONFIG_FPROTECT AND NOT CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 
 	uint8_t smsn_buffer[SID_SMSN_SIZE] = { 0 };
 	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_SMSN, smsn_buffer, SID_SMSN_SIZE);
@@ -245,23 +245,23 @@ void sid_pal_mfg_store_init(sid_pal_mfg_store_region_t mfg_store_region)
 
 void sid_pal_mfg_store_deinit(void)
 {
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	if (mfg_stage) {
 		LOG_WRN("Discarding mfg data that was never flushed");
 	}
 	mfg_stage_close();
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 	memset(&tlv_flash, 0x0, sizeof(tlv_flash));
 }
 
 int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t length)
 {
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	int err = mfg_stage_open();
 	if (err) {
 		return err;
 	}
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 
 	if (value == SID_PAL_MFG_STORE_VERSION) {
 		if (length != SID_PAL_MFG_STORE_VERSION_SIZE) {
@@ -273,7 +273,7 @@ int32_t sid_pal_mfg_store_write(uint16_t value, const uint8_t *buffer, uint16_t 
 					      sizeof(struct mfg_header));
 	}
 
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	return tlv_write(mfg_store_ctx(), value, buffer, length);
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
@@ -314,7 +314,7 @@ uint16_t sid_pal_mfg_store_get_length_for_value(uint16_t value)
 
 int32_t sid_pal_mfg_store_erase(void)
 {
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	mfg_stage_close();
 
 	const size_t mfg_size = tlv_flash.end_offset - tlv_flash.start_offset;
@@ -322,12 +322,12 @@ int32_t sid_pal_mfg_store_erase(void)
 					    mfg_size);
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 }
 
 int32_t sid_mfg_storage_flush(void)
 {
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	if (!mfg_stage) {
 		return 0;
 	}
@@ -361,12 +361,12 @@ int32_t sid_mfg_storage_flush(void)
 	return 0;
 #else
 	return (int32_t)SID_ERROR_NOSUPPORT;
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 }
 
 bool sid_pal_mfg_store_is_empty(void)
 {
-#if CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC
+#if CONFIG_SIDEWALK_MFG_ALLOW_WRITE
 	// read header, if failed to read magic, it is empty
 
 	uint8_t empty_flash_mem[FLASH_MEM_CHUNK];
@@ -402,7 +402,7 @@ bool sid_pal_mfg_store_is_empty(void)
 #else
 	LOG_WRN("The sid_pal_mfg_store_is_empty function is not enabled.");
 	return false;
-#endif /* CONFIG_SIDEWALK_MFG_STORAGE_DIAGNOSTIC */
+#endif /* CONFIG_SIDEWALK_MFG_ALLOW_WRITE */
 }
 
 bool sid_pal_mfg_store_is_tlv_support(void)
