@@ -32,6 +32,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/logging/log.h>
 #include <sid_mfg_hex_parsers.h>
+#include <sid_mfg_storage.h>
 
 LOG_MODULE_REGISTER(sid_dev_cert, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -777,6 +778,13 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 	};
 	status = write_to_mfg_store(MFG_FLAGS_TYPE_ID, (uint8_t *)&flags, sizeof(flags));
 	if (!status) {
+		ret = SID_ERROR_STORAGE_WRITE_FAIL;
+		goto exit;
+	}
+
+	result = sid_mfg_storage_flush();
+	if (result) {
+		LOG_ERR("MFG flush failed [%d]", result);
 		ret = SID_ERROR_STORAGE_WRITE_FAIL;
 		goto exit;
 	}
