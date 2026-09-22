@@ -26,6 +26,17 @@ A known issue can list one or more of the following entries:
 List of known issues for v1.3.0
 *******************************
 
+KRKNWK-22489: On-device certification cannot store the manufacturing page
+
+  The ``cert store`` command of the on-device certification CLI (``CONFIG_SIDEWALK_ON_DEV_CERT``) returns ``SID_ERROR_NOSUPPORT`` (-6) and the generated credentials are not stored.
+  The manufacturing storage writes each TLV entry with a 4-byte alignment, while the RRAM write block size is 16 bytes, so the flash driver rejects the write.
+
+  **Failing Test Cases:**
+
+  - None.
+
+  **Affected platforms:** All nRF54L Series platforms.
+
 KRKNWK-22012: Switching power profiles fails on FSK builds when using shell commands
 
   On FSK builds, switching power profiles (``sid option -lp_set 0x02 630``) might return ``SID_ERROR_INVALID_ARGS`` (-11).
