@@ -4,27 +4,15 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
- /{
-	aliases {
-		state-notifier-connected = &led0;
-		state-notifier-time-sync = &led1;
-		state-notifier-registered = &led2;
-		state-notifier-working = &led3;
-	};
+#include <state_notifier_aliases.dtsi>
 
+/ {
 	chosen {
 		zephyr,code-partition = &boot_partition;
 	};
 };
 
-&cpuapp_rram {
-	reg = <0x0 DT_SIZE_K(1524)>;
-};
-
-&cpuapp_sram {
-	reg = <0x20000000 DT_SIZE_K(256)>;
-	ranges = <0x0 0x20000000  0x40000>;
-};
+#include <nrf54l15_cpuapp_memory.dtsi>
 
 /delete-node/ &boot_partition;
 /delete-node/ &slot0_partition;

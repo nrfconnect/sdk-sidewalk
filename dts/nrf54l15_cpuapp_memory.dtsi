@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* Sidewalk does not use the cpuflpr core, so assign the whole RRAM and SRAM
+ * to cpuapp.
+ */
+
+&cpuapp_rram {
+	reg = <0x0 DT_SIZE_K(1524)>;
+};
+
+&cpuapp_sram {
+	reg = <0x20000000 DT_SIZE_K(256)>;
+	ranges = <0x0 0x20000000 DT_SIZE_K(256)>;
+};
