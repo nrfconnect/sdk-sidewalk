@@ -4,6 +4,4 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include <state_notifier_aliases.dtsi>
-
 #include <nrf54lm20_cpuapp_partitions.dtsi>
