@@ -6,8 +6,6 @@
 
 #include <state_notifier_aliases.dtsi>
 
-#include <nrf54l15_cpuapp_memory.dtsi>
-
 &sram0_s {
 	reg = <0x0 0x13000>;
 	ranges = <0x0 0x0 0x13000>;
@@ -35,7 +33,6 @@
 &spi20 {
 	status = "disabled";
 };
-
 
 // Change IRQ ids to handle button interrupts.
 

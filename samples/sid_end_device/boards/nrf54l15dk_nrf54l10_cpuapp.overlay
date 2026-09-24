@@ -6,8 +6,6 @@
 
 #include <state_notifier_aliases.dtsi>
 
-#include <nrf54l10_cpuapp_memory.dtsi>
-
 &adc {
 	status = "disabled";
 };

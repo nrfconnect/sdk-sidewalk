@@ -10,8 +10,6 @@
 	};
 };
 
-#include <nrf54l15_cpuapp_memory.dtsi>
-
 /delete-node/ &boot_partition;
 /delete-node/ &slot0_partition;
 /delete-node/ &slot1_partition;
@@ -89,7 +87,6 @@
 &spi20 {
 	status = "disabled";
 };
-
 
 // Change IRQ ids to handle button interrupts.
 

@@ -6,6 +6,4 @@
 
 #include <state_notifier_aliases.dtsi>
 
-#include <nrf54l15_cpuapp_memory.dtsi>
-
 #include <nrf54l15_cpuapp_partitions.dtsi>
