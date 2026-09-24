@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include <nrf54l10_cpuapp_memory.dtsi>
-
 &mx25r64 {
 	status = "okay";
 };

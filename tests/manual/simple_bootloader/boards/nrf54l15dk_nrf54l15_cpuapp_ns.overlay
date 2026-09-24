@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
-#include <nrf54l15_cpuapp_memory.dtsi>
-
 &sram0_s {
 	reg = <0x0 0x13000>;
 	ranges = <0x0 0x0 0x13000>;
