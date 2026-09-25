@@ -31,7 +31,7 @@ Provisioning with west command
 The ``west sid provision`` command automates the following steps:
 
 #. Reads the ``mfg_storage`` partition address from the application build output.
-#. Generates a manufacturing HEX file by calling the :file:`provision.py` script from the :file:`sidewalk/tools/provision` directory of the Sidewalk Add-On repository (`sdk-sidewalk`_).
+#. Generates a manufacturing HEX file by calling the :file:`provision.py` script from the :file:`sidewalk/tools/provision` directory of the Sidewalk Add-On repository (`ncs-sidewalk`_).
    For details on the script and the manufacturing data format, see `Provision your Sidewalk endpoint and flash the binary image`_.
 #. Flashes the generated HEX file to the connected board using `nRF Util`_.
 
@@ -56,7 +56,7 @@ To provision your device:
 Provisioning with manual steps
 ==============================
 
-The :file:`provision.py` script required for provisioning is located in the :file:`sidewalk/tools/provision` directory of the Sidewalk Add-On repository (`sdk-sidewalk`_).
+The :file:`provision.py` script required for provisioning is located in the :file:`sidewalk/tools/provision` directory of the Sidewalk Add-On repository (`ncs-sidewalk`_).
 
 .. note::
    You can use the ``--output_hex`` parameter to specify a custom name for the output hex file.

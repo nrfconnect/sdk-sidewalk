@@ -36,7 +36,7 @@ jobs:
   validate_compliance_with_zephyr:
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      image: ghcr.io/nrfconnect/ncs-sidewalk:main
       options: --cpus 2
     defaults:
       run:
