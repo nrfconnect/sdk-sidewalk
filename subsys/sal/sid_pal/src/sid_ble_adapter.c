@@ -308,6 +308,19 @@ static sid_error_t ble_adapter_set_adv_data(uint8_t *data, uint8_t length)
 static sid_error_t ble_adapter_start_advertisement(void)
 {
 	LOG_DBG("Sidewalk -> BLE");
+
+	const sid_ble_conn_data_t *params = sid_ble_conn_data_get();
+
+	if (!params) {
+		LOG_ERR("Connection module not initialized");
+		return SID_ERROR_GENERIC;
+	}
+
+	if (params->conn) {
+		LOG_ERR("Previous connection still active");
+		return SID_ERROR_INVALID_STATE;
+	}
+
 	int err = sid_ble_advert_start();
 
 	if (err) {

@@ -99,6 +99,10 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t conn_err)
 	}
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
+	if (conn_data.conn) {
+		LOG_ERR("Connection reference exists - overwrite");
+		bt_conn_unref(conn_data.conn);
+	}
 	conn_data.conn = bt_conn_ref(conn);
 
 	sid_ble_adapter_conn_connected((const uint8_t *)conn_data.addr);
@@ -123,12 +127,12 @@ static void ble_disconnect_cb(struct bt_conn *conn, uint8_t reason)
 		LOG_WRN("Connection param get failed (err=%d)", err);
 	}
 
-	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_data.addr);
-
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
 	bt_conn_unref(conn_data.conn);
 	conn_data.conn = NULL;
 	k_mutex_unlock(&bt_conn_mutex);
+
+	sid_ble_adapter_conn_disconnected((const uint8_t *)conn_data.addr);
 
 	LOG_INF("BT Disconnected Reason: 0x%x = %s", reason, HCI_err_to_str(reason));
 }
