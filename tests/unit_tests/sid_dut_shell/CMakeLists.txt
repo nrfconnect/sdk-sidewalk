@@ -20,7 +20,6 @@ target_sources(testbinary PRIVATE
 	${SIDEWALK_BASE}/samples/sid_end_device/src/cli/app_shell.c
 	${ZEPHYR_BASE}/lib/utils/hex.c
 	mock/sidewalk_version.c
-	mock/stub_ep_cfg_metrics.c
 )
 
 add_definitions(--include ztest.h)
