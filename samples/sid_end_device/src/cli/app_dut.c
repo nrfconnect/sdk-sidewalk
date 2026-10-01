@@ -10,6 +10,7 @@
 #include <sidewalk.h>
 #include <sid_900_cfg.h>
 #include <sid_hal_memory_ifc.h>
+
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <app_mfg_config.h>
@@ -18,6 +19,58 @@
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 #include <json_printer/sidTypes2str.h>
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
+
+static void dut_log_ble_user_config(sid_error_t e, struct sid_ble_user_config *res)
+{
+	if (e != SID_ERROR_NONE || res == NULL) {
+		LOG_INF("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
+		return;
+	}
+
+	switch (res->cfg_type) {
+	case SID_BLE_USER_CFG_ADV:
+		LOG_INF("sid_option returned %d (%s); BLE adv, fast_int %d(%dms), fast_to %d(%dms), slow_int %d(%dms), slow_to %d(%dms)",
+			e, SID_ERROR_T_STR(e), res->adv_param.fast_interval,
+			(int)(res->adv_param.fast_interval * 625 / 1000),
+			res->adv_param.fast_timeout, (int)(res->adv_param.fast_timeout * 10),
+			res->adv_param.slow_interval,
+			(int)(res->adv_param.slow_interval * 625 / 1000),
+			res->adv_param.slow_timeout, (int)(res->adv_param.slow_timeout * 10));
+		break;
+	case SID_BLE_USER_CFG_CONN:
+		LOG_INF("sid_option returned %d (%s); BLE conn, min_int: %d(%dms), max_int %d(%dms), sl %d, timeout %d(%dms)",
+			e, SID_ERROR_T_STR(e), res->conn_param.min_conn_interval,
+			(int)(res->conn_param.min_conn_interval * 1250 / 1000),
+			res->conn_param.max_conn_interval,
+			(int)(res->conn_param.max_conn_interval * 1250 / 1000),
+			res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,
+			(int)(res->conn_param.conn_sup_timeout * 10));
+		break;
+	case SID_BLE_USER_CFG_ADV_AND_CONN:
+		LOG_INF("sid_option returned %d (%s); BLE adv, fast_int %d(%dms), fast_to %d(%dms), slow_int %d(%dms), slow_to %d(%dms)",
+			e, SID_ERROR_T_STR(e), res->adv_param.fast_interval,
+			(int)(res->adv_param.fast_interval * 625 / 1000),
+			res->adv_param.fast_timeout, (int)(res->adv_param.fast_timeout * 10),
+			res->adv_param.slow_interval,
+			(int)(res->adv_param.slow_interval * 625 / 1000),
+			res->adv_param.slow_timeout, (int)(res->adv_param.slow_timeout * 10));
+		LOG_INF("sid_option returned %d (%s); BLE conn, min_int: %d(%dms), max_int %d(%dms), sl %d, timeout %d(%dms)",
+			e, SID_ERROR_T_STR(e), res->conn_param.min_conn_interval,
+			(int)(res->conn_param.min_conn_interval * 1250 / 1000),
+			res->conn_param.max_conn_interval,
+			(int)(res->conn_param.max_conn_interval * 1250 / 1000),
+			res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,
+			(int)(res->conn_param.conn_sup_timeout * 10));
+		break;
+	case SID_BLE_USER_CFG_INACTIVITY_TIMEOUT:
+		LOG_INF("sid_option returned %d (%s); BLE inactivity timeout %ds", e,
+			SID_ERROR_T_STR(e), res->inactivity_timeout);
+		break;
+	default:
+		LOG_INF("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
+		break;
+	}
+}
 
 static uint32_t dut_ctx_get_uint32(void *ctx)
 {
@@ -174,19 +227,39 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 		if (IS_LINK2_PROFILE_ID(dev_cfg.unicast_params.device_profile_id) ||
 		    IS_LINK3_PROFILE_ID(dev_cfg.unicast_params.device_profile_id)) {
 			if (dev_cfg.unicast_params.device_profile_id == SID_LINK2_PROFILE_2) {
-				LOG_INF("sid_option returned %d (%s); Link_profile ID: %d Wndw_cnt: %d Rx_Int = %d",
+				LOG_INF("sid_option returned %d (%s); Link_profile ID: %d Wndw_cnt: %d Rx_Int = %d Bcn_Int = %d Rx_duration = %ds",
 					e, SID_ERROR_T_STR(e),
 					dev_cfg.unicast_params.device_profile_id,
 					dev_cfg.unicast_params.rx_window_count,
 					dev_cfg.unicast_params.unicast_window_interval
-						.sync_rx_interval_ms);
-			} else {
-				LOG_INF("sid_option returned %d (%s); Link_profile ID: %d Wndw_cnt: %d",
+						.sync_rx_interval_ms,
+					dev_cfg.unicast_params.beacon_interval_unit,
+					dev_cfg.unicast_params.l2_rx_duration_sec);
+			} else if (dev_cfg.unicast_params.device_profile_id == SID_LINK2_PROFILE_1) {
+				LOG_INF("sid_option returned %d (%s); Link_profile ID: %d Wndw_cnt: %d Bcn_Int = %d",
 					e, SID_ERROR_T_STR(e),
 					dev_cfg.unicast_params.device_profile_id,
-					dev_cfg.unicast_params.rx_window_count);
+					dev_cfg.unicast_params.rx_window_count,
+					dev_cfg.unicast_params.beacon_interval_unit);
+			} else {
+				LOG_INF("sid_option returned %d (%s); Link_profile ID: %d Wndw_cnt: %d Low_Latency = %d",
+					e, SID_ERROR_T_STR(e),
+					dev_cfg.unicast_params.device_profile_id,
+					dev_cfg.unicast_params.rx_window_count,
+					dev_cfg.profile_misc_config.link3_misc_config.low_latency);
 			}
 		}
+	} break;
+	case SID_OPTION_BLE_CONNECTION_POLICY: {
+		sid_ble_connection_policy_t policy = { .is_set = false };
+		sid_error_t e = sid_option(sid->handle, opt, &policy, sizeof(policy));
+
+		if (e != SID_ERROR_NONE) {
+			LOG_INF("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
+			break;
+		}
+		LOG_INF("sid_option returned %d (%s); BLE conn policy %d", e, SID_ERROR_T_STR(e),
+			policy.conn_policy);
 	} break;
 	case SID_OPTION_BLE_USER_CONFIG: {
 		struct sid_ble_user_config cfg = { .is_set = false };
@@ -197,57 +270,8 @@ void dut_event_get_option(sidewalk_ctx_t *sid, void *ctx)
 			buf_len = p_option->data_len;
 		}
 		sid_error_t e = sid_option(sid->handle, opt, buf, buf_len);
-		if (e) {
-			LOG_ERR("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
-			break;
-		}
-		struct sid_ble_user_config *res = (struct sid_ble_user_config *)buf;
-		switch (res->cfg_type) {
-		case SID_BLE_USER_CFG_ADV: {
-			uint32_t fi = (uint32_t)res->adv_param.fast_interval * 625U;
-			uint32_t si = (uint32_t)res->adv_param.slow_interval * 625U;
-			LOG_INF("BLE adv, fast_int %d(%u.%03ums), fast_to %d(%dms), slow_int %d(%u.%03ums), slow_to %d(%dms)",
-				res->adv_param.fast_interval, fi / 1000U, fi % 1000U,
-				res->adv_param.fast_timeout,
-				(int)(res->adv_param.fast_timeout * 10),
-				res->adv_param.slow_interval, si / 1000U, si % 1000U,
-				res->adv_param.slow_timeout,
-				(int)(res->adv_param.slow_timeout * 10));
-			break;
-		}
-		case SID_BLE_USER_CFG_CONN: {
-			uint32_t mi = (uint32_t)res->conn_param.min_conn_interval * 1250U;
-			uint32_t ma = (uint32_t)res->conn_param.max_conn_interval * 1250U;
-			LOG_INF("BLE conn, min_int %d(%u.%03ums), max_int %d(%u.%03ums), sl %d, timeout %d(%dms)",
-				res->conn_param.min_conn_interval, mi / 1000U, mi % 1000U,
-				res->conn_param.max_conn_interval, ma / 1000U, ma % 1000U,
-				res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,
-				(int)(res->conn_param.conn_sup_timeout * 10));
-			break;
-		}
-		case SID_BLE_USER_CFG_ADV_AND_CONN: {
-			uint32_t fi = (uint32_t)res->adv_param.fast_interval * 625U;
-			uint32_t si = (uint32_t)res->adv_param.slow_interval * 625U;
-			uint32_t mi = (uint32_t)res->conn_param.min_conn_interval * 1250U;
-			uint32_t ma = (uint32_t)res->conn_param.max_conn_interval * 1250U;
-			LOG_INF("BLE adv and conn, fast_int %d(%u.%03ums), fast_to %d(%dms), slow_int %d(%u.%03ums), slow_to %d(%dms), min_int %d(%u.%03ums), max_int %d(%u.%03ums), sl %d, timeout %d(%dms)",
-				res->adv_param.fast_interval, fi / 1000U, fi % 1000U,
-				res->adv_param.fast_timeout,
-				(int)(res->adv_param.fast_timeout * 10),
-				res->adv_param.slow_interval, si / 1000U, si % 1000U,
-				res->adv_param.slow_timeout,
-				(int)(res->adv_param.slow_timeout * 10),
-				res->conn_param.min_conn_interval, mi / 1000U, mi % 1000U,
-				res->conn_param.max_conn_interval, ma / 1000U, ma % 1000U,
-				res->conn_param.slave_latency, res->conn_param.conn_sup_timeout,
-				(int)(res->conn_param.conn_sup_timeout * 10));
-			break;
-		}
-		case SID_BLE_USER_CFG_INACTIVITY_TIMEOUT:
-			LOG_INF("BLE inactivity timeout %d(%dms)", res->inactivity_timeout,
-				(int)(res->inactivity_timeout * 10));
-			break;
-		}
+
+		dut_log_ble_user_config(e, (struct sid_ble_user_config *)buf);
 	} break;
 	default:
 		LOG_INF("sid_option %d not supported", opt);
@@ -265,7 +289,12 @@ void dut_event_set_option(sidewalk_ctx_t *sid, void *ctx)
 
 	sid_error_t e =
 		sid_option(sid->handle, p_option->option, p_option->data, p_option->data_len);
-	LOG_INF("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
+
+	if (p_option->option == SID_OPTION_BLE_USER_CONFIG && p_option->data != NULL) {
+		dut_log_ble_user_config(e, (struct sid_ble_user_config *)p_option->data);
+	} else {
+		LOG_INF("sid_option returned %d (%s)", e, SID_ERROR_T_STR(e));
+	}
 }
 void dut_event_set_dest_id(sidewalk_ctx_t *sid, void *ctx)
 {
