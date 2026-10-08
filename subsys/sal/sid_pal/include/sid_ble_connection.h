@@ -9,6 +9,8 @@
 
 #include <zephyr/bluetooth/conn.h>
 
+#include <stdbool.h>
+
 /**
  * @brief Struct with bluetooth connection paramters.
  */
@@ -40,6 +42,16 @@ void sid_ble_conn_deinit(void);
  * @return connection data as defined in @ref sid_ble_conn_data_t.
  */
 const sid_ble_conn_data_t *sid_ble_conn_data_get(void);
+
+/**
+ * @brief Check whether a BLE connection is currently established.
+ *
+ * The connection state is read under the connection mutex.
+ *
+ * @retval true  A connection is established.
+ * @retval false No connection is established.
+ */
+bool sid_ble_conn_is_connected(void);
 
 /**
  * @brief Request LE connection parameter update.

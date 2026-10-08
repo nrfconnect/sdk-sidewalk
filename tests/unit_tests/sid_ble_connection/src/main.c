@@ -474,4 +474,67 @@ ZTEST(sid_ble_connection, test_13_sid_ble_conn_param_update)
 	bt_conn_le_param_update_fake.return_val = -EINVAL;
 	zassert_equal(sid_ble_conn_param_update(&param_in), ESUCCESS);
 	zassert_equal(bt_conn_le_param_update_fake.call_count, 2);
+
+	sid_bt_conn_cb->disconnected(&test_conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+}
+
+ZTEST(sid_ble_connection, test_14_sid_ble_conn_is_connected)
+{
+	uint8_t test_reason = BT_HCI_ERR_UNKNOWN_LMP_PDU;
+	struct bt_conn test_conn = { .dummy = 0xDC };
+	const bt_addr_le_t test_addr = {
+		.type = BT_ADDR_LE_RANDOM,
+		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
+	};
+
+	bt_conn_get_dst_fake.return_val = &test_addr;
+	bt_conn_ref_fake.return_val = &test_conn;
+	int (*custom_fakes[])(const struct bt_conn *, struct bt_conn_info *) = {
+		bt_conn_get_info_fake1, bt_conn_get_info_fake1, bt_conn_get_info_fake1
+	};
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 3);
+
+	sid_ble_conn_deinit();
+	sid_ble_conn_init();
+
+	zassert_false(sid_ble_conn_is_connected());
+
+	sid_bt_conn_cb->connected(&test_conn, BT_HCI_ERR_SUCCESS);
+	zassert_true(sid_ble_conn_is_connected());
+
+	sid_bt_conn_cb->disconnected(&test_conn, test_reason);
+	zassert_false(sid_ble_conn_is_connected());
+}
+
+ZTEST(sid_ble_connection, test_15_sid_ble_connect_cb_overwrites_stale_connection)
+{
+	struct bt_conn stale_conn = { .dummy = 0xAA };
+	struct bt_conn new_conn = { .dummy = 0xBB };
+	const sid_ble_conn_data_t *params = NULL;
+	const bt_addr_le_t test_addr = {
+		.type = BT_ADDR_LE_RANDOM,
+		.a = { { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 } },
+	};
+	struct bt_conn *ref_returns[] = { &stale_conn, &new_conn };
+
+	bt_conn_get_dst_fake.return_val = &test_addr;
+	SET_RETURN_SEQ(bt_conn_ref, ref_returns, 2);
+	int (*custom_fakes[])(const struct bt_conn *,
+			      struct bt_conn_info *) = { bt_conn_get_info_fake1,
+							 bt_conn_get_info_fake1 };
+	SET_CUSTOM_FAKE_SEQ(bt_conn_get_info, custom_fakes, 2);
+
+	sid_ble_conn_deinit();
+	sid_ble_conn_init();
+
+	sid_bt_conn_cb->connected(&stale_conn, BT_HCI_ERR_SUCCESS);
+	zassert_equal(bt_conn_unref_fake.call_count, 0);
+
+	sid_bt_conn_cb->connected(&new_conn, BT_HCI_ERR_SUCCESS);
+	zassert_equal(bt_conn_unref_fake.call_count, 1);
+	zassert_equal(bt_conn_unref_fake.arg0_val, &stale_conn);
+
+	params = sid_ble_conn_data_get();
+	zassert_equal(params->conn, &new_conn);
+	zassert_true(sid_ble_conn_is_connected());
 }

@@ -99,14 +99,17 @@ static void ble_connect_cb(struct bt_conn *conn, uint8_t conn_err)
 	}
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
-	if (conn_data.conn) {
-		LOG_ERR("Connection reference exists - overwrite");
-		bt_conn_unref(conn_data.conn);
-	}
+	struct bt_conn *prev_conn = conn_data.conn;
+
 	conn_data.conn = bt_conn_ref(conn);
+	k_mutex_unlock(&bt_conn_mutex);
+
+	if (prev_conn) {
+		LOG_ERR("Connection reference exists - overwrite");
+		bt_conn_unref(prev_conn);
+	}
 
 	sid_ble_adapter_conn_connected((const uint8_t *)conn_data.addr);
-	k_mutex_unlock(&bt_conn_mutex);
 
 	err = bt_conn_le_param_update(conn, &conn_params_next);
 	if (err) {
@@ -212,15 +215,24 @@ void sid_ble_conn_init(void)
 	}
 }
 
+bool sid_ble_conn_is_connected(void)
+{
+	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
+	bool connected = (conn_data.conn != NULL);
+
+	k_mutex_unlock(&bt_conn_mutex);
+
+	return connected;
+}
+
 int sid_ble_conn_disconnect(void)
 {
-	if (!conn_data.conn) {
-		return -ENOENT;
-	}
+	int err = -ENOENT;
 
 	k_mutex_lock(&bt_conn_mutex, K_FOREVER);
-	int err = bt_conn_disconnect(conn_data.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
-
+	if (conn_data.conn) {
+		err = bt_conn_disconnect(conn_data.conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
+	}
 	k_mutex_unlock(&bt_conn_mutex);
 
 	return err;
