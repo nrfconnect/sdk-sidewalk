@@ -309,14 +309,12 @@ static sid_error_t ble_adapter_start_advertisement(void)
 {
 	LOG_DBG("Sidewalk -> BLE");
 
-	const sid_ble_conn_data_t *params = sid_ble_conn_data_get();
-
-	if (!params) {
+	if (!sid_ble_conn_data_get()) {
 		LOG_ERR("Connection module not initialized");
 		return SID_ERROR_GENERIC;
 	}
 
-	if (params->conn) {
+	if (sid_ble_conn_is_connected()) {
 		LOG_ERR("Previous connection still active");
 		return SID_ERROR_INVALID_STATE;
 	}
