@@ -25,6 +25,18 @@
 	};
 };
 
+&spi22_default {
+	group1 {
+		/delete-property/ bias-pull-down;
+	};
+};
+
+&spi22_sleep {
+	group1 {
+		/delete-property/ bias-pull-down;
+	};
+};
+
 &nordic_expansion_spi {
 	status = "okay";
 	cs-gpios = <&nordic_expansion_header 10 GPIO_ACTIVE_LOW>;

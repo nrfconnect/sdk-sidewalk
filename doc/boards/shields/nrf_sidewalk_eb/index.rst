@@ -118,6 +118,20 @@ nRF54LM20 DK
 
 Connect the shield to the **P17 (EXP)** expansion board header.
 
+Sleep current
+*************
+
+Hardware revision v0.2.0 has sleep current elevated to several hundred uA (measured on the VDD_EXT pin) due to the level shifters.
+
+The following modifications can further reduce sleep current:
+
+* **IRQ (DIO9):** Remove the forced pull-down in ``radio_lr11xx_platform_init()`` in :file:`subsys/semtech/lr11xx/lr11xx_radio.c` and ``GPIO_PULL_DOWN`` from ``event-gpios``.
+  This reduces the current by several tens of uA.
+* **GNSS LNA:** Move the 0 Ohm resistor from R5 to R4 to power the LNA from LR1110 DIO8.
+  Remove ``gnss-lna-gpios`` and add ``LR11XX_DIO8`` to ``rf-sw-enable`` and ``rf-sw-gnss-mode``, preserving the existing DIO settings.
+  This reduces the current by several hundred uA.
+  GNSS operation with this modification has not been verified.
+
 Programming
 ***********
 
