@@ -48,7 +48,11 @@ if(CONFIG_SID_END_DEVICE_CLI)
     target_sources(app PRIVATE
         src/cli/app_dut.c
         src/cli/app_shell.c
+        src/cli/ep_cfg_print.c
+        src/cli/print_shell.c
+        src/cli/metrics_shell.c
     )
+    target_link_libraries(app PRIVATE sid_clock_ifc)
     target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER_SHELL app PRIVATE
         src/cli/sbdt_shell.c
         src/cli/sbdt_shell_events.c

@@ -145,15 +145,13 @@
 	"This API requires the device having network time (GCS) and returns an error code otherwise.\n"                                                                    \
 	"This API can be exercised only when the link is started otherwise, an error code is returned\n"                                                                   \
 	"At bootup time the API returns an error code prior to obtaining GCS.\n"                                                                                           \
-	"-lp_set 1 - for SID_LINK2_PROFILE_1\n"                                                                                                                            \
-	"-lp_set 2 <rx_int> <beacon_int> <rx_dur> - for SID_LINK2_PROFILE_2 with optional rx_int, beacon_int and rx_dur parameters\n"                                      \
-	"<rx_int> Specifies DL interval between rx opportunities in units of ms. The value must be a multiple of 63ms. When ommitted the default value of 63ms is used.\n" \
-	"<beacon_int> (uint8) beacon interval in units of 10080ms, valid values are [1, 2, 3]. Requires <rx_int> to be specified. When omitted the value is left at 0.\n"  \
-	"<rx_dur> (uint32) RX window open duration in seconds. Requires <rx_int> and <beacon_int> to be specified. When omitted the value is left at 0.\n"                 \
-	"-lp_set 0x80 <rxwc> - for SID_LINK3_PROFILE_A, where <rxwc> is the rx_window count parameter\n"                                                                   \
-	"-lp_set 0x81 <rxwc> - for SID_LINK3_PROFILE_B, where <rxwc> is the rx_window count parameter\n"                                                                   \
-	"-lp_set 0x83 <rxwc> - for SID_LINK3_PROFILE_D, where <rxwc> is the rx_window count parameter\n"                                                                   \
-	"<rxwc> - (uint8) rx window count. 0 represents infinite windows\n"
+	"-lp_set 1 [<beacon_int>] - for SID_LINK2_PROFILE_1; optional beacon_interval_unit [1, 2, 3], default 1\n"                                                        \
+	"-lp_set 2 [<rx_int>] [<beacon_int>] [<rx_dur>] - for SID_LINK2_PROFILE_2; defaults rx_int=63ms, beacon_int=1, rx_dur=infinite\n"                                \
+	"-lp_set 0x80 <rxwc> [<low_lat>] - SID_LINK3_PROFILE_A; optional low_lat 0|1\n"                                                                                    \
+	"-lp_set 0x81 <rxwc> [<low_lat>] - SID_LINK3_PROFILE_B\n"                                                                                                          \
+	"-lp_set 0x82 [<low_lat>] - SID_LINK3_PROFILE_C (continuous RX)\n"                                                                                                 \
+	"-lp_set 0x83 <rxwc> [<low_lat>] - SID_LINK3_PROFILE_D\n"                                                                                                          \
+	"<rxwc> - rx window count; 0 is infinite windows\n"
 
 #define CMD_SID_OPTION_GSI_DESCRIPTION                                                             \
 	"\n"                                                                                       \
@@ -196,15 +194,6 @@
 
 #define CMD_SID_SDK_CONFIG_DESCRIPTION "Print sid sdk config"
 
-#define CMD_SID_EP_CFG_DESCRIPTION "Print endpoint configuration"
-
-#define CMD_SID_PRINT_METRICS_DESCRIPTION                                                          \
-	"<category>\n"                                                                             \
-	"print metrics on logging interface."
-#define CMD_SID_CLEAR_METRICS_DESCRIPTION                                                          \
-	"<category>\n"                                                                             \
-	"clear metrics."
-
 #define CMD_NORDIC_DFU_ARG_REQUIRED 1
 #define CMD_NORDIC_DFU_ARG_OPTIONAL 0
 
@@ -240,8 +229,25 @@
 #define CMD_SID_SET_OPTION_LP_SET_ARG_OPTIONAL 3
 #define CMD_SID_OPTION_GSI_ARG_REQUIRED 1
 #define CMD_SID_OPTION_GSI_ARG_OPTIONAL 0
+#define CMD_SID_OPTION_BLE_CON_DESCRIPTION                                                           \
+	"<0|1> [policy] [llc_policy]\n"                                                            \
+	"BLE connection policy (SID_OPTION_BLE_CONNECTION_POLICY).\n"                              \
+	"0 get; 1 set with policy 0=Default, 1=LongLived, 2=OptimalAdv.\n"                         \
+	"Optional llc_policy (0=power, 1=latency) when policy is 1."
+#define CMD_SID_OPTION_BLE_CON_ARG_REQUIRED 2
+#define CMD_SID_OPTION_BLE_CON_ARG_OPTIONAL 2
+#define CMD_SID_OPTION_SUB_GHZ_CTL_DESCRIPTION                                                     \
+	"<cmd>\n"                                                                                  \
+	"Sub-GHz user control (SID_OPTION_SUB_GHZ_USER_CONTROL).\n"                                \
+	"<cmd> 1 = RX terminate request."
+#define CMD_SID_OPTION_SUB_GHZ_CTL_ARG_REQUIRED 2
+#define CMD_SID_OPTION_SUB_GHZ_CTL_ARG_OPTIONAL 0
 #define CMD_SID_OPTION_BLE_CFG_DESCRIPTION                                                         \
-	"set | get - BLE user config (SID_OPTION_BLE_USER_CONFIG)."
+	"set | get | <0|1> <cfg_type> [params...]\n"                                               \
+	"BLE user config (SID_OPTION_BLE_USER_CONFIG).\n"                                           \
+	"Use set/get or 0=get / 1=set with the same cfg_type and params as set."
+#define CMD_SID_OPTION_BLE_CFG_ARG_REQUIRED 2
+#define CMD_SID_OPTION_BLE_CFG_ARG_OPTIONAL 9
 #define CMD_SID_OPTION_BLE_CFG_SET_DESCRIPTION                                                     \
 	"set <cfg_type> [params...]\n"                                                             \
 	"<cfg_type> 0=ADV, 1=CONN, 2=ADV_AND_CONN, 3=INACTIVITY_TIMEOUT.\n"                        \
@@ -274,14 +280,6 @@
 #define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_REQUIRED 1
 #define CMD_SID_SDK_CONFIG_DESCRIPTION_ARG_OPTIONAL 0
 
-#define CMD_SID_EP_CFG_DESCRIPTION_ARG_REQUIRED 1
-#define CMD_SID_EP_CFG_DESCRIPTION_ARG_OPTIONAL 0
-
-#define CMD_SID_PRINT_METRICS_DESCRIPTION_ARG_REQUIRED 2
-#define CMD_SID_PRINT_METRICS_DESCRIPTION_ARG_OPTIONAL 0
-#define CMD_SID_CLEAR_METRICS_DESCRIPTION_ARG_REQUIRED 2
-#define CMD_SID_CLEAR_METRICS_DESCRIPTION_ARG_OPTIONAL 0
-
 int cmd_nordic_dfu(const struct shell *shell, int32_t argc, const char **argv);
 
 int cmd_sid_init(const struct shell *shell, int32_t argc, const char **argv);
@@ -307,6 +305,9 @@ int cmd_sid_option_c(const struct shell *shell, int32_t argc, const char **argv)
 int cmd_sid_option_ml(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_gc(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_sid_id(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_ble_con(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_sub_ghz_ctl(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_sid_option_ble_cfg(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_ble_cfg_set(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_option_ble_cfg_get(const struct shell *shell, int32_t argc, const char **argv);
 
@@ -318,11 +319,6 @@ int cmd_sid_set_send_link(const struct shell *shell, int32_t argc, const char **
 int cmd_sid_set_rsp_id(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_sdk_version(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_sdk_config(const struct shell *shell, int32_t argc, const char **argv);
-
-int cmd_sid_ep_cfg(const struct shell *shell, int32_t argc, const char **argv);
-
-int cmd_sid_print_metrics(const struct shell *shell, int32_t argc, const char **argv);
-int cmd_sid_clear_metrics(const struct shell *shell, int32_t argc, const char **argv);
 
 #ifdef CONFIG_SIDEWALK_TRACE_HEAP
 int cmd_sid_print_heap_stats(const struct shell *shell, int32_t argc, const char **argv);

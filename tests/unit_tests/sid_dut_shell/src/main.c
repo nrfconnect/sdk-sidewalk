@@ -1565,7 +1565,7 @@ PARAMETRIZED_TEST(sid_dut_shell_api, test_sid_set_option_gd, test_sid_set_option
 			  .len = sizeof(gd) })
 
 PARAMETRIZED_TEST(
-	sid_dut_shell_api, test_sid_set_option_lp_set_1, test_sid_set_option_lp_set,
+	sid_dut_shell_api, test_sid_set_option_lp_set_1_default_beacon, test_sid_set_option_lp_set,
 	(struct test_sid_set_option_params){
 		.argc = 2,
 		.argv = (const char *[]){ "-lp_set", "1" },
@@ -1574,21 +1574,41 @@ PARAMETRIZED_TEST(
 		.data =
 			&(struct sid_device_profile){
 				.unicast_params = { .device_profile_id = 1,
-						    .rx_window_count = 0,
+						    .rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+						    .beacon_interval_unit =
+							    SID_LINK2_BEACON_INTERVAL_UNIT_1,
+						    .wakeup_type = SID_TX_AND_RX_WAKEUP } },
+		.len = sizeof(struct sid_device_profile) })
+
+PARAMETRIZED_TEST(
+	sid_dut_shell_api, test_sid_set_option_lp_set_1, test_sid_set_option_lp_set,
+	(struct test_sid_set_option_params){
+		.argc = 3,
+		.argv = (const char *[]){ "-lp_set", "1", "1" },
+		.return_code = 0,
+		.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
+		.data =
+			&(struct sid_device_profile){
+				.unicast_params = { .device_profile_id = 1,
+						    .rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+						    .beacon_interval_unit =
+							    SID_LINK2_BEACON_INTERVAL_UNIT_1,
 						    .wakeup_type = SID_TX_AND_RX_WAKEUP } },
 		.len = sizeof(struct sid_device_profile) })
 
 PARAMETRIZED_TEST(
 	sid_dut_shell_api, test_sid_set_option_lp_set_0x01, test_sid_set_option_lp_set,
 	(struct test_sid_set_option_params){
-		.argc = 2,
-		.argv = (const char *[]){ "-lp_set", "0x01" },
+		.argc = 3,
+		.argv = (const char *[]){ "-lp_set", "0x01", "2" },
 		.return_code = 0,
 		.option = SID_OPTION_900MHZ_SET_DEVICE_PROFILE,
 		.data =
 			&(struct sid_device_profile){
 				.unicast_params = { .device_profile_id = 1,
-						    .rx_window_count = 0,
+						    .rx_window_count = SID_RX_WINDOW_CNT_INFINITE,
+						    .beacon_interval_unit =
+							    SID_LINK2_BEACON_INTERVAL_UNIT_2,
 						    .wakeup_type = SID_TX_AND_RX_WAKEUP } },
 		.len = sizeof(struct sid_device_profile) })
 
