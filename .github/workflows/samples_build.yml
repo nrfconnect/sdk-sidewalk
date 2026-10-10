@@ -16,7 +16,7 @@ jobs:
   discover_targets:
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      image: ghcr.io/nrfconnect/ncs-sidewalk:main
       options: --cpus 2 --privileged
     outputs:
       total_platforms_json: ${{ steps.subsets.outputs.total_platforms_json }}

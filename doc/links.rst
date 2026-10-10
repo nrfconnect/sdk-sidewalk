@@ -1,4 +1,4 @@
-.. This file contains all links referenced in sdk-sidewalk documentation.
+.. This file contains all links referenced in ncs-sidewalk documentation.
 
 .. ncs links (all links need to be updated manually **right before** the targeted release)
 
@@ -55,10 +55,10 @@
 
 .. github.com
 
-.. _Amazon license: https://raw.githubusercontent.com/nrfconnect/sdk-sidewalk/main/LICENSE.txt
+.. _Amazon license: https://raw.githubusercontent.com/nrfconnect/ncs-sidewalk/main/LICENSE.txt
 .. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
-.. _sdk-sidewalk repository: https://github.com/nrfconnect/sdk-sidewalk
-.. _sdk-sidewalk: https://github.com/nrfconnect/sdk-sidewalk
+.. _ncs-sidewalk repository: https://github.com/nrfconnect/ncs-sidewalk
+.. _ncs-sidewalk: https://github.com/nrfconnect/ncs-sidewalk
 .. _Install virtual environment: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#1-install-virtual-environment
 .. _sdk-nrf: https://github.com/nrfconnect/sdk-nrf
 .. _LR11xx firmware images repository: https://github.com/Lora-net/radio_firmware_images

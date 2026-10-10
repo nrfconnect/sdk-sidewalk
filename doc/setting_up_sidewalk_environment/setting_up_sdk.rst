@@ -57,7 +57,7 @@ The compatible nRF Connect SDK version is specified in the :file:`west.yml` file
 
                   .. code-block:: console
 
-                     west init -m https://github.com/nrfconnect/sdk-sidewalk
+                     west init -m https://github.com/nrfconnect/ncs-sidewalk
 
             .. tab:: Manual cloning and initialization
 

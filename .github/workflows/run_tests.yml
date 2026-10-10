@@ -13,7 +13,7 @@ jobs:
     name: Run UT on x86
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/nrfconnect/sdk-sidewalk:main
+      image: ghcr.io/nrfconnect/ncs-sidewalk:main
       options: --cpus 2
     defaults:
       run:

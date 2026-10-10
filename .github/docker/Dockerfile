@@ -1,5 +1,5 @@
 FROM ubuntu:24.04
-LABEL org.opencontainers.image.source="https://github.com/nrfconnect/sdk-sidewalk"
+LABEL org.opencontainers.image.source="https://github.com/nrfconnect/ncs-sidewalk"
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG JLINK_VERSION=924a
