@@ -121,7 +121,7 @@ Connect the shield to the **P17 (EXP)** expansion board header.
 Sleep current
 *************
 
-On hardware revision v0.2.0, the level shifters raise the sleep current to several hundred µA, measured on the **VDD_EXT** pin.
+On hardware revisions up to v1.0.0, the level shifters raise the sleep current to several hundred µA, measured on the **VDD_EXT** pin.
 
 You can further reduce sleep current with the following modifications:
 
