@@ -121,16 +121,23 @@ Connect the shield to the **P17 (EXP)** expansion board header.
 Sleep current
 *************
 
-Hardware revision v0.2.0 has sleep current elevated to several hundred uA (measured on the VDD_EXT pin) due to the level shifters.
+On hardware revision v0.2.0, the level shifters raise the sleep current to several hundred µA, measured on the **VDD_EXT** pin.
 
-The following modifications can further reduce sleep current:
+You can further reduce sleep current with the following modifications:
 
-* **IRQ (DIO9):** Remove the forced pull-down in ``radio_lr11xx_platform_init()`` in :file:`subsys/semtech/lr11xx/lr11xx_radio.c` and ``GPIO_PULL_DOWN`` from ``event-gpios``.
-  This reduces the current by several tens of uA.
-* **GNSS LNA:** Move the 0 Ohm resistor from R5 to R4 to power the LNA from LR1110 DIO8.
-  Remove ``gnss-lna-gpios`` and add ``LR11XX_DIO8`` to ``rf-sw-enable`` and ``rf-sw-gnss-mode``, preserving the existing DIO settings.
-  This reduces the current by several hundred uA.
-  GNSS operation with this modification has not been verified.
+* IRQ (DIO9): Remove the forced pull-down in ``radio_lr11xx_platform_init()`` in :file:`subsys/semtech/lr11xx/lr11xx_radio.c` and ``GPIO_PULL_DOWN`` from ``event-gpios``.
+  This reduces the current by several tens of µA.
+* GNSS LNA: Power the LNA from the LR1110 DIO8 pin instead of a host GPIO.
+
+  1. Move the 0 Ω resistor from R5 to R4.
+  #. Remove ``gnss-lna-gpios``.
+  #. Add ``LR11XX_DIO8`` to ``rf-sw-enable`` and ``rf-sw-gnss-mode``, keeping the existing DIO settings.
+
+  This reduces the current by several hundred µA.
+
+  .. note::
+
+     GNSS operation with this modification has not been verified.
 
 Programming
 ***********
