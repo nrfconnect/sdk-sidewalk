@@ -93,5 +93,6 @@ target_link_libraries(sid_sdk_component_pal_ifc
 # internal libraries
 add_subdirectory(internal/sid_endian)
 add_subdirectory(internal/sid_clock_ifc)
+add_subdirectory(internal/sid_rng_ifc)
 
 add_subdirectory(ace)
