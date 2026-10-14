@@ -18,5 +18,6 @@ if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK_ON_DEV_CERT)
 		sid_pal_log_ifc
 		sid_pal_crypto_ifc
 		sid_pal_mfg_store_ifc
+		sid_rng_ifc
 	)
 endif()
