@@ -8,6 +8,10 @@
 #include <cli/location_shell_events.h>
 #include <sidewalk.h>
 #include <sid_location.h>
+#include <sid_sdk_config.h>
+#if SID_SDK_CONFIG_ENABLE_GNSS
+#include <sid_pal_gnss_ifc.h>
+#endif
 #include <sid_detect_unwanted_location_tracker.h>
 #include <zephyr/logging/log.h>
 #include <string.h>
@@ -245,6 +249,26 @@ void location_event_send(sidewalk_ctx_t *sid, void *ctx)
 	LOG_INF("location_event_send mode: %d, returned %d", mode, res);
 }
 
+void location_event_send_levels(sidewalk_ctx_t *sid, void *ctx)
+{
+	const struct location_send_levels_params *params = ctx;
+
+	if (!params) {
+		LOG_ERR("Invalid context!");
+		return;
+	}
+
+	struct sid_location_run_config config = { .type = SID_LOCATION_SCAN_AND_SEND,
+						  .num_levels = params->num_levels };
+
+	for (uint8_t i = 0; i < params->num_levels; i++) {
+		config.levels[i] = (enum sid_location_effort_mode)params->levels[i];
+	}
+
+	sid_error_t res = sid_location_run(sid->handle, &config, 0);
+	LOG_INF("location_event_send_levels levels: %u, returned %d", params->num_levels, res);
+}
+
 void location_event_send_buffer(sidewalk_ctx_t *sid, void *ctx)
 {
 	ARG_UNUSED(sid);
@@ -263,15 +287,15 @@ void location_event_send_buffer(sidewalk_ctx_t *sid, void *ctx)
 	/* The 2.0 API takes a typed payload instead of a raw buffer, so the test
 	 * pattern is handed over on the path matching the requested effort level.
 	 */
-	if (mode == SID_LOCATION_EFFORT_L3) {
+	if (mode == SID_LOCATION_EFFORT_L4) {
+		config.payload_type = SID_LOCATION_RESULT_GNSS;
+		config.payload.gnss.nav = test_buffer;
+		config.payload.gnss.nav_size = sizeof(test_buffer);
+	} else {
 		config.payload_type = SID_LOCATION_RESULT_WIFI;
 		config.payload.wifi.num_aps = LOCATION_TEST_PAYLOAD_SIZE / LOCATION_WIFI_AP_STRIDE;
 		config.payload.wifi.aps = test_buffer;
 		config.payload.wifi.aps_size = sizeof(test_buffer);
-	} else {
-		config.payload_type = SID_LOCATION_RESULT_GNSS;
-		config.payload.gnss.nav = test_buffer;
-		config.payload.gnss.nav_size = sizeof(test_buffer);
 	}
 
 	sid_error_t res = SID_ERROR_NOT_FOUND;
@@ -279,13 +303,41 @@ void location_event_send_buffer(sidewalk_ctx_t *sid, void *ctx)
 	LOG_INF("location_event_send_buffer mode: %d, returned %d", mode, res);
 }
 
+void location_event_send_pseudorange(sidewalk_ctx_t *sid, void *ctx)
+{
+	const struct location_send_pseudorange_params *params = ctx;
+
+	if (!params) {
+		LOG_ERR("Invalid context!");
+		return;
+	}
+
+	sid_error_t res = sid_location_send_pseudoranges_raw(sid->handle, params->data,
+							     params->size);
+	LOG_INF("location_event_send_pseudorange size: %zu, returned %d", params->size, res);
+}
+
+void location_event_manage_effort(sidewalk_ctx_t *sid, void *ctx)
+{
+	ARG_UNUSED(sid);
+
+	if (ctx) {
+		cfg.manage_effort = location_ctx_get_uint32(ctx) != 0;
+	}
+	LOG_INF("manage_effort: %s%s", cfg.manage_effort ? "true" : "false",
+		ctx ? " (applies on next location init)" : "");
+}
+
 void location_event_alm_start(sidewalk_ctx_t *sid, void *ctx)
 {
 	ARG_UNUSED(sid);
 	ARG_UNUSED(ctx);
 
-	sid_error_t res = SID_ERROR_NOT_FOUND;
-	// TODO: res = sid_pal_gnss_alm_demod_start();
+#if SID_SDK_CONFIG_ENABLE_GNSS
+	sid_error_t res = sid_pal_gnss_alm_demod_start();
+#else
+	sid_error_t res = SID_ERROR_NOSUPPORT;
+#endif
 	LOG_INF("location_event_alm_start returned %d", res);
 }
 
