@@ -5,9 +5,9 @@
 #
 
 if (CONFIG_SIDEWALK)
-    if(CONFIG_CPU_CORTEX_M4)
-        add_subdirectory(cortex-m4)
+    if(CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG)
+        add_subdirectory(debug)
     else()
-        add_subdirectory(cortex-m33)
+        add_subdirectory(release)
     endif()
 endif(CONFIG_SIDEWALK)

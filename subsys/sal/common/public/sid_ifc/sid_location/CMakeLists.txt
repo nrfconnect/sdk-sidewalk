@@ -1,5 +1,5 @@
 #
-# Copyright 2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2024-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,8 +22,12 @@ target_include_directories(sid_location_ifc
 
 target_sources(sid_location_ifc
   INTERFACE
-    sid_location.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_location.h>
+    $<INSTALL_INTERFACE:sid_location.h>
 )
+
+set_target_properties(sid_location_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_location.h")
 
 target_link_libraries(sid_location_ifc
   INTERFACE

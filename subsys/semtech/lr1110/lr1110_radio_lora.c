@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file supports radio HAL interface specific to LoRa
  */
@@ -180,59 +180,6 @@ int32_t radio_lora_process_rx_done(halo_drv_semtech_ctx_t *drv_ctx)
     } while(0);
 
     return err;
-}
-
-sid_pal_radio_data_rate_t
-sid_pal_radio_lora_mod_params_to_data_rate(const sid_pal_radio_lora_modulation_params_t *mod_params)
-{
-    if (SID_PAL_RADIO_LORA_SF7 == mod_params->spreading_factor
-        && SID_PAL_RADIO_LORA_BW_500KHZ == mod_params->bandwidth
-        && SID_PAL_RADIO_LORA_CODING_RATE_4_6 == mod_params->coding_rate) {
-        return SID_PAL_RADIO_DATA_RATE_22KBPS;
-    }
-    if (SID_PAL_RADIO_LORA_SF8 == mod_params->spreading_factor
-        && SID_PAL_RADIO_LORA_BW_500KHZ == mod_params->bandwidth
-        && SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI == mod_params->coding_rate) {
-        return SID_PAL_RADIO_DATA_RATE_12_5KBPS;
-    }
-    if (SID_PAL_RADIO_LORA_SF11 == mod_params->spreading_factor
-        && SID_PAL_RADIO_LORA_BW_500KHZ == mod_params->bandwidth
-        && ((SID_PAL_RADIO_LORA_CODING_RATE_4_5 == mod_params->coding_rate) || (SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI == mod_params->coding_rate))) {
-        return SID_PAL_RADIO_DATA_RATE_2KBPS;
-    }
-
-    return SID_PAL_RADIO_DATA_RATE_INVALID;
-}
-
-int32_t sid_pal_radio_lora_data_rate_to_mod_params(sid_pal_radio_lora_modulation_params_t *mod_params,
-                                           sid_pal_radio_data_rate_t data_rate, uint8_t li_enable)
-{
-
-    switch (data_rate) {
-    case SID_PAL_RADIO_DATA_RATE_22KBPS:
-        mod_params->spreading_factor = SID_PAL_RADIO_LORA_SF7;
-        mod_params->bandwidth = SID_PAL_RADIO_LORA_BW_500KHZ;
-        mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_6;
-        break;
-    case SID_PAL_RADIO_DATA_RATE_12_5KBPS:
-        mod_params->spreading_factor = SID_PAL_RADIO_LORA_SF8;
-        mod_params->bandwidth = SID_PAL_RADIO_LORA_BW_500KHZ;
-        mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI;
-        break;
-    case SID_PAL_RADIO_DATA_RATE_2KBPS:
-        mod_params->spreading_factor = SID_PAL_RADIO_LORA_SF11;
-        mod_params->bandwidth = SID_PAL_RADIO_LORA_BW_500KHZ;
-        if (li_enable) {
-            mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI;
-        } else {
-            mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_5;
-        }
-        break;
-    default:
-        return RADIO_ERROR_NOT_SUPPORTED;
-    }
-
-    return RADIO_ERROR_NONE;
 }
 
 int32_t sid_pal_radio_set_lora_sync_word(uint16_t sync_word)

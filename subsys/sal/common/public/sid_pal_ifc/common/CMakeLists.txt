@@ -1,5 +1,5 @@
 #
-# Copyright 2022-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2022-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,8 +22,12 @@ target_include_directories(sid_pal_common_ifc
 
 target_sources(sid_pal_common_ifc
   INTERFACE
-    sid_pal_common_ifc.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_pal_common_ifc.h>
+    $<INSTALL_INTERFACE:sid_pal_common_ifc.h>
 )
+
+set_target_properties(sid_pal_common_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_pal_common_ifc.h")
 
 target_link_libraries(sid_pal_common_ifc
   INTERFACE

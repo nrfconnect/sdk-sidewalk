@@ -1,5 +1,5 @@
 #
-# Copyright 2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2025-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -24,7 +24,10 @@ target_include_directories(sid_diag_log_cfg
 
 target_sources(sid_diag_log_cfg
   INTERFACE
-    sid_diag_log_cfg.h
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_diag_log_cfg.h>
+    $<INSTALL_INTERFACE:sid_diag_log_cfg.h>
 )
+
+set_target_properties(sid_diag_log_cfg PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_diag_log_cfg.h")
 
 install(TARGETS sid_diag_log_cfg OPTIONAL)

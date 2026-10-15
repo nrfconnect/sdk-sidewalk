@@ -1,6 +1,6 @@
 #ifndef SID_PAL_RADIO_MUTEX
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2019-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file supports radio HAL interface
  * This code was modified by Semtech
@@ -20,6 +20,7 @@
 #include "lr11xx_system.h"
 #include "lr11xx_regmem.h"
 #include "lr11xx_hal.h"
+#include "lr11xx_bootloader.h"
 #include "lr11xx_config.h"
 
 #include <sid_time_ops.h>
@@ -44,6 +45,12 @@
 
 #define UNUSED( x ) ( void ) ( x )
 
+/* Included after the local countof()/UNUSED() macros above so that sid_utils.h
+ * (pulled in transitively) resolves the collision via its #undef/#ifndef guards
+ * instead of triggering a -Werror redefinition. Provides
+ * SID_SDK_INTERNAL_CONFIG_ENABLE_LR11XX_FW_HASH_CHECK and VALID_LR11XX_FW_HASH_*. */
+#include <sid_sdk_internal_config.h>
+
 /*
  * -----------------------------------------------------------------------------
  * --- PRIVATE CONSTANTS -------------------------------------------------------
@@ -63,6 +70,7 @@
 #define LR11XX_RX_CONTINUOUS_VAL 0xFFFFFF
 #define INFINITE_TIME 0xFFFFFFFF
 #define LR11XX_MIN_CHANNEL_FREE_DELAY_US 1
+#define LR11XX_CCA_RX_ENTRY_SETTLE_US 100u
 #define LR11XX_NOISE_SAMPLE_SIZE 32
 
 /* Delay time to allow for any external PA/FEM turn ON/OFF */
@@ -664,6 +672,27 @@ int32_t sid_pal_radio_set_region( sid_pal_radio_region_code_t region )
     return err;
 }
 
+#if HALO_ENABLE_DIAGNOSTICS
+int32_t semtech_radio_set_pa_config( semtech_radio_pa_cfg_t* cfg )
+{
+    if( !cfg )
+    {
+        return RADIO_ERROR_INVALID_PARAMS;
+    }
+
+    drv_ctx.pa_cfg.pa_cfg.pa_duty_cycle = cfg->pa_duty_cycle;
+    drv_ctx.pa_cfg.pa_cfg.pa_hp_sel     = cfg->hp_max;
+    drv_ctx.pa_cfg.pa_cfg.pa_sel        = (lr11xx_radio_pa_selection_t)cfg->device_sel;
+    drv_ctx.pa_cfg.pa_cfg.pa_reg_supply = (lr11xx_radio_pa_reg_supply_t)cfg->pa_lut;
+    drv_ctx.pa_cfg.tx_power_in_dbm      = cfg->tx_power;
+    drv_ctx.pa_cfg.ramp_time            = (lr11xx_radio_ramp_time_t)cfg->ramp_time;
+    drv_ctx.pa_cfg.enable_ext_pa        = cfg->enable_ext_pa;
+
+    drv_ctx.pa_cfg_configured = true;
+    return RADIO_ERROR_NONE;
+}
+#endif
+
 int32_t get_radio_lr11xx_pa_config( radio_lr11xx_pa_cfg_t* cfg )
 {
     if( !cfg )
@@ -995,12 +1024,12 @@ int32_t sid_pal_radio_set_tx_continuous_wave( uint32_t freq, int8_t power )
 
     do
     {
-        if( ( err = sid_pal_radio_set_frequency( freq ) != RADIO_ERROR_NONE ) )
+        if( ( err = sid_pal_radio_set_frequency( freq ) ) != RADIO_ERROR_NONE )
         {
             break;
         }
 
-        if( ( err = sid_pal_radio_set_tx_power( power ) != RADIO_ERROR_NONE ) )
+        if( ( err = sid_pal_radio_set_tx_power( power ) ) != RADIO_ERROR_NONE )
         {
             break;
         }
@@ -1034,6 +1063,55 @@ int32_t sid_pal_radio_set_tx_continuous_wave( uint32_t freq, int8_t power )
     return err;
 }
 
+int32_t sid_pal_radio_set_tx_continuous_preamble( uint32_t freq, int8_t power )
+{
+    int32_t err;
+
+    if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
+      SL_SID_LOG_APP_WARNING("drop txcpbl");
+      return RADIO_ERROR_BUSY;
+    }
+
+    do
+    {
+        if( ( err = sid_pal_radio_set_frequency( freq ) ) != RADIO_ERROR_NONE )
+        {
+            break;
+        }
+
+        if( ( err = sid_pal_radio_set_tx_power( power ) ) != RADIO_ERROR_NONE )
+        {
+            break;
+        }
+
+        if( lr11xx_system_set_standby( &drv_ctx, LR11XX_SYSTEM_STANDBY_CFG_XOSC ) != LR11XX_STATUS_OK )
+        {
+            err = RADIO_ERROR_HARDWARE_ERROR;
+            break;
+        }
+
+        if( ( err = radio_lr11xx_set_radio_mode( true, true, drv_ctx.pa_cfg.enable_ext_pa ) ) != RADIO_ERROR_NONE )
+        {
+            break;
+        }
+
+        if( ( err = radio_clear_irq_status_all( ) ) != RADIO_ERROR_NONE )
+        {
+            break;
+        }
+
+        if( lr11xx_radio_set_tx_infinite_preamble( &drv_ctx ) != LR11XX_STATUS_OK )
+        {
+            err = RADIO_ERROR_HARDWARE_ERROR;
+            break;
+        }
+        sid_pal_enter_critical_region();
+        drv_ctx.radio_state = SID_PAL_RADIO_TX; // crit
+        sid_pal_exit_critical_region();
+    } while( 0 );
+
+    return err;
+}
 
 int32_t sid_pal_radio_start_rx( uint32_t timeout )
 {
@@ -1390,84 +1468,102 @@ int16_t sid_pal_radio_rssi( void )
     return rssi;
 }
 
-int32_t sid_pal_radio_is_channel_free( uint32_t freq, int16_t threshold, uint32_t delay_us, bool* is_channel_free )
+int32_t sid_pal_radio_is_channel_free(const struct sid_phy_multi_channel_data *scan_data, bool *is_channel_free)
 {
-    int32_t err, irq_err;
+    int32_t err = RADIO_ERROR_NONE, irq_err;
 
+    if (is_channel_free == NULL || scan_data == NULL || scan_data->freq == NULL || scan_data->scan_num == 0u) {
+        return RADIO_ERROR_INVALID_PARAMS;
+    }
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-      SL_SID_LOG_APP_WARNING("drop chfree");
-      return RADIO_ERROR_NONE;
+        SL_SID_LOG_APP_WARNING("drop chfree");
+        *is_channel_free = false;   // radio held for GNSS scan -> conservatively report busy
+        return RADIO_ERROR_NONE;
     }
     *is_channel_free = false;
 
-    if( ( err = radio_disable_irq( &drv_ctx ) ) != RADIO_ERROR_NONE )
-    {
-        goto ret;
-    }
-
-    if( ( irq_err = sid_pal_radio_standby( ) ) != RADIO_ERROR_NONE )
-    {
-        err = irq_err;
-    }
-
-    if( ( err = sid_pal_radio_set_frequency( freq ) ) != RADIO_ERROR_NONE )
-    {
-        goto ret;
-    }
-
-    if( ( err = sid_pal_radio_start_continuous_rx( ) != RADIO_ERROR_NONE ) )
-    {
-        goto enable_irq;
-    }
-
-    struct sid_timespec t_start, t_cur, t_threshold;
-    int16_t             rssi;
-
-    if( delay_us < LR11XX_MIN_CHANNEL_FREE_DELAY_US )
-    {
+    int16_t threshold = scan_data->threshold;
+    uint32_t delay_us = scan_data->delay_us; /* per-sub-band sense time */
+    if (delay_us < LR11XX_MIN_CHANNEL_FREE_DELAY_US) {
         delay_us = LR11XX_MIN_CHANNEL_FREE_DELAY_US;
     }
 
-    sid_us_to_timespec( delay_us, &t_threshold );
+    /* Enter RX once on the first sub-band (FS->RX + PLL lock + image cal happen here).
+       set_frequency requires STANDBY, so disable IRQ and force standby before it. */
+    if ((err = radio_disable_irq(&drv_ctx)) != RADIO_ERROR_NONE) {
+        goto ret;
+    }
 
-    if( sid_clock_now( SID_CLOCK_SOURCE_UPTIME, &t_start, NULL ) != SID_ERROR_NONE )
-    {
-        err = RADIO_ERROR_GENERIC;
+    if ((irq_err = sid_pal_radio_standby()) != RADIO_ERROR_NONE) {
+        err = irq_err;
+    }
+    if ((err = sid_pal_radio_set_frequency(scan_data->freq[0])) != RADIO_ERROR_NONE) {
         goto enable_irq;
     }
 
-    do
-    {
-        sid_pal_delay_us( LR11XX_MIN_CHANNEL_FREE_DELAY_US );
-        rssi = sid_pal_radio_rssi( );
-        if( sid_clock_now( SID_CLOCK_SOURCE_UPTIME, &t_cur, NULL ) != SID_ERROR_NONE )
-        {
+    if ((err = sid_pal_radio_start_continuous_rx()) != RADIO_ERROR_NONE) {
+        goto enable_irq;
+    }
+
+    /* Settle + discard one sample after the RX entry. Narrow filters settle slower; without this
+       the first RSSI read can return the floor instead of the true level. One discard is enough.
+       Sub-band hops stay in RX and do not need this. */
+    sid_pal_delay_us(LR11XX_CCA_RX_ENTRY_SETTLE_US);
+    (void)sid_pal_radio_rssi();
+
+    struct sid_timespec t_start, t_cur, t_threshold;
+    int16_t rssi;
+    bool busy = false;
+
+    sid_us_to_timespec(delay_us, &t_threshold);
+
+    for (uint8_t s = 0; s < scan_data->scan_num && !busy; s++) {
+        if (s > 0u) {
+            /* Hop to sub-band s by rewriting only the frequency register while staying IN RX
+               (sub-bands share one frequency band so no image cal is needed after the first
+               RX entry). This makes each hop a single SPI write instead of a standby/RX re-entry. */
+            if (lr11xx_radio_set_rf_freq(&drv_ctx, scan_data->freq[s]) != LR11XX_STATUS_OK) {
+                err = RADIO_ERROR_HARDWARE_ERROR;
+                goto enable_irq;
+            }
+            drv_ctx.radio_freq_hz = scan_data->freq[s];
+            sid_pal_delay_us(LR11XX_MIN_CHANNEL_FREE_DELAY_US); /* brief settle after retune */
+        }
+
+        if (sid_clock_now(SID_CLOCK_SOURCE_UPTIME, &t_start, NULL) != SID_ERROR_NONE) {
             err = RADIO_ERROR_GENERIC;
             goto enable_irq;
         }
-        sid_time_sub( &t_cur, &t_start );
-        if( rssi > threshold )
-        {
-            goto enable_irq;
-        }
-        // The minimum time needed in between measurements is about 300
-        // micro secs.
-    } while( sid_time_gt( &t_threshold, &t_cur ) );
 
-    *is_channel_free = true;
+        do {
+            sid_pal_delay_us(LR11XX_MIN_CHANNEL_FREE_DELAY_US);
+            rssi = sid_pal_radio_rssi();
+            if (sid_clock_now(SID_CLOCK_SOURCE_UPTIME, &t_cur, NULL) != SID_ERROR_NONE) {
+                err = RADIO_ERROR_GENERIC;
+                goto enable_irq;
+            }
+            sid_time_sub(&t_cur, &t_start);
+            if (rssi > threshold) {
+                busy = true; /* this sub-band is busy -> whole allocation busy */
+                break;
+            }
+            // The minimum time needed in between measurements is about 300
+            // micro secs.
+        } while (sid_time_gt(&t_threshold, &t_cur));
+    }
+
+    *is_channel_free = !busy;
 
 enable_irq:
 
-    if( ( irq_err = sid_pal_radio_standby( ) ) != RADIO_ERROR_NONE )
-    {
-        err = irq_err;
-    }
-
     // Do not update err on success of the function calls below
-    if( ( irq_err = radio_enable_irq( &drv_ctx ) ) != RADIO_ERROR_NONE )
-    {
+    if ((irq_err = radio_enable_irq(&drv_ctx)) != RADIO_ERROR_NONE) {
         err = irq_err;
         goto ret;
+    }
+
+    if ((irq_err = sid_pal_radio_standby()) != RADIO_ERROR_NONE) {
+        err = irq_err;
     }
 ret:
     return err;
@@ -1576,6 +1672,54 @@ int32_t sid_pal_radio_get_radio_state_transition_delays( sid_pal_radio_state_tra
     return RADIO_ERROR_NONE;
 }
 
+#if SID_SDK_INTERNAL_CONFIG_ENABLE_LR11XX_FW_HASH_CHECK
+#define LR1110_BL_GET_HASH_OC 0x8004
+#define LR1110_BL_GET_HASH_CMD_LENGTH 2
+#define LR1110_BL_HASH_LENGTH 0x10
+typedef uint8_t lr1110_bootloader_hash_t[LR1110_BL_HASH_LENGTH];
+
+static lr11xx_hal_status_t lr11xx_check_fw_hash(const void *context, lr1110_bootloader_hash_t hash)
+{
+    if (lr11xx_system_reboot(context, true) != LR11XX_STATUS_OK) {
+        SL_SID_LOG_APP_INFO("Enter bootloader fail!");
+        return LR11XX_HAL_STATUS_ERROR;
+    }
+    sid_pal_delay_us(500000);
+    lr11xx_hal_status_t status = LR11XX_HAL_STATUS_OK;
+    uint8_t cbuffer[LR1110_BL_GET_HASH_CMD_LENGTH];
+    cbuffer[0] = (uint8_t)(LR1110_BL_GET_HASH_OC >> 8);
+    cbuffer[1] = (uint8_t)(LR1110_BL_GET_HASH_OC >> 0);
+    if (lr11xx_hal_read(context, cbuffer, LR1110_BL_GET_HASH_CMD_LENGTH, hash, LR1110_BL_HASH_LENGTH)
+        != LR11XX_HAL_STATUS_OK) {
+        SL_SID_LOG_APP_INFO("LR1110 fw hash read fail!");
+        status = LR11XX_HAL_STATUS_ERROR;
+    } else {
+        for (int i = 0; i < 8; i++) {
+            if ((((VALID_LR11XX_FW_HASH_LOW >> (56 - i * 8)) & 0xFF) != hash[i])
+                || ((VALID_LR11XX_FW_HASH_HIGH >> (56 - i * 8)) & 0xFF) != hash[i + 8]) {
+                SL_SID_LOG_APP_INFO("Hash Expected : 0x%llx%llx, Hash Read : "
+                                    "0x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                                    VALID_LR11XX_FW_HASH_LOW, VALID_LR11XX_FW_HASH_HIGH, hash[0], hash[1], hash[2],
+                                    hash[3], hash[4], hash[5], hash[6], hash[7], hash[8], hash[9], hash[10], hash[11],
+                                    hash[12], hash[13], hash[14], hash[15]);
+                status = LR11XX_HAL_STATUS_ERROR;
+                break;
+            }
+        }
+    }
+
+    /* Always exit bootloader -- including on the read-fail / mismatch paths -- so a
+     * failed check never leaves the radio stuck in bootloader mode where later calls
+     * would fail with unrelated errors. */
+    if (lr11xx_bootloader_reboot(context, false) != LR11XX_STATUS_OK) {
+        SL_SID_LOG_APP_INFO("Exit bootloader fail!");
+        status = LR11XX_HAL_STATUS_ERROR;
+    }
+    sid_pal_delay_us(500000);
+    return status;
+}
+#endif
+
 int32_t sid_pal_radio_init( sid_pal_radio_event_notify_t notify, sid_pal_radio_irq_handler_t dio_irq_handler,
                             sid_pal_radio_rx_packet_t* rx_packet )
 {
@@ -1622,6 +1766,15 @@ int32_t sid_pal_radio_init( sid_pal_radio_event_notify_t notify, sid_pal_radio_i
         }
         drv_ctx.sleeping = false;   // the radio is in standby mode after hardware reset
 
+#if SID_SDK_INTERNAL_CONFIG_ENABLE_LR11XX_FW_HASH_CHECK
+        uint8_t hash_read[LR1110_BL_HASH_LENGTH] = {0};
+        if (lr11xx_check_fw_hash(&drv_ctx, hash_read) != LR11XX_HAL_STATUS_OK) {
+            SL_SID_LOG_APP_INFO("lr11xx_check_fw_hash fail");
+            err = RADIO_ERROR_HARDWARE_ERROR;
+            break;
+        }
+#endif
+
         if( lr11xx_system_get_version( &drv_ctx, &drv_ctx.ver ) != LR11XX_STATUS_OK )
         {
             SL_SID_LOG_APP_INFO( "lr11xx_system_get_version fail" );
@@ -1630,29 +1783,29 @@ int32_t sid_pal_radio_init( sid_pal_radio_event_notify_t notify, sid_pal_radio_i
         };
         SL_SID_LOG_APP_INFO( "LR11xx: VER HW 0x%.2X FW 0x%.4X type %u", drv_ctx.ver.hw, drv_ctx.ver.fw, drv_ctx.ver.type);
 
-		if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1110) {
-			if (drv_ctx.ver.fw < 0x0401) {
-				SL_SID_LOG_APP_ERROR("LR1110 firmware not up-to-date");
-				err = RADIO_ERROR_IO_ERROR;
-				break;
-			}
-		} else if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1120) {
-			if (drv_ctx.ver.fw < 0x0201) {
-				SL_SID_LOG_APP_ERROR("LR1120 firmware not up-to-date");
-				err = RADIO_ERROR_IO_ERROR;
-				break;
-			}
-		} else if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1121) {
-			if (drv_ctx.ver.fw < 0x0103) {
-				SL_SID_LOG_APP_ERROR("LR1121 firmware not up-to-date");
-				err = RADIO_ERROR_IO_ERROR;
-				break;
-			}
-		} else {
-			SL_SID_LOG_APP_ERROR("unknown use case %x", drv_ctx.ver.type);
-			err = RADIO_ERROR_IO_ERROR;
-			break;
-		}
+        if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1110) {
+            if (drv_ctx.ver.fw < 0x0401) {
+                SL_SID_LOG_APP_ERROR("LR1110 firmware not up-to-date");
+                err = RADIO_ERROR_FW_NOT_UP_TO_DATE;
+                break;
+            }
+        } else if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1120) {
+            if (drv_ctx.ver.fw < 0x0201) {
+                SL_SID_LOG_APP_ERROR("LR1120 firmware not up-to-date");
+                err = RADIO_ERROR_FW_NOT_UP_TO_DATE;
+                break;
+            }
+        } else if (drv_ctx.ver.type == LR11XX_SYSTEM_VERSION_TYPE_LR1121) {
+            if (drv_ctx.ver.fw < 0x0103) {
+                SL_SID_LOG_APP_ERROR("LR1121 firmware not up-to-date");
+                err = RADIO_ERROR_FW_NOT_UP_TO_DATE;
+                break;
+            }
+        } else {
+            SL_SID_LOG_APP_ERROR("unknown use case %x", drv_ctx.ver.type);
+            err = RADIO_ERROR_FW_TYPE_NOT_SUPPORTED;
+            break;
+        }
 
         if (drv_ctx.last.stat1 & 1) {
           /* does a radio using a TCXO always generate and HF_XOSC error */
@@ -1829,11 +1982,7 @@ int sid_pal_radio_hold_scan()
     if( sid_pal_gpio_read( drv_ctx.config->gpios.int1, &pinState ) == SID_ERROR_NONE ) {
 		if (pinState) {
 			SL_SID_LOG_APP_WARNING(BYEL "hold scan: int1 high"COLOR_RESET);
-            SL_SID_LOG_APP_INFO("Clearing irq");
-            if(radio_clear_irq_status_all()){
-                SL_SID_LOG_APP_ERROR(BYEL "Failed to clear IRQ");
-                return -1;
-            }
+			return -1;
 		}
 	} else {
 		SL_SID_LOG_APP_ERROR("hold scan: gpio read fail");

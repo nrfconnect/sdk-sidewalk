@@ -102,8 +102,6 @@ struct sid_on_dev_cert_info {
     const char *dsn;
     /** Advertised product ID */
     const char *apid;
-    /** Board ID (optional) */
-    const char *board_id;
 };
 
 /**
@@ -121,6 +119,7 @@ enum sid_on_dev_cert_print_fileds {
     SID_ODC_PRINT_APID = 1,
     SID_ODC_PRINT_APP_KEY,
     SID_ODC_PRINT_DTID,
+    SID_ODC_PRINT_SMSN,
 };
 
 /**

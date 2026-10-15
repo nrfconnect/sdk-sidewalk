@@ -212,6 +212,7 @@ sid_error_t sid_pal_common_location_deinit() {
     }
     // LBM/smtc modem does not provide a deinit
     location_state.is_init = false;
+    location_state.is_busy = false;
     return SID_ERROR_NONE;
 }
 
@@ -247,6 +248,8 @@ sid_error_t sid_pal_gnss_alm_demod_stop() {
 }
 
 sid_error_t sid_pal_gnss_deinit() {
+    // clear our config (undo what sid_pal_gnss_init set)
+    memset(&location_state.gnss_cfg, 0, sizeof(location_state.gnss_cfg));
     sid_pal_common_location_deinit();
     return SID_ERROR_NONE;
 }
@@ -329,6 +332,8 @@ sid_error_t sid_pal_wifi_init(struct sid_pal_wifi_config *config) {
 }
 
 sid_error_t sid_pal_wifi_deinit(){
+    // clear our config (undo what sid_pal_wifi_init set)
+    memset(&location_state.wifi_cfg, 0, sizeof(location_state.wifi_cfg));
     sid_pal_common_location_deinit();
     return SID_ERROR_NONE;
 }

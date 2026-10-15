@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2021-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -93,15 +93,21 @@ enum sid_link2_rx_window_separation_ms {
     X <= SID_LINK2_RX_WINDOW_SEPARATION_7 && X >= SID_LINK2_RX_WINDOW_SEPARATION_1 && \
     (X == SID_LINK2_RX_WINDOW_SEPARATION_1 || X % (SID_LINK2_RX_WINDOW_SEPARATION_2) == 0))
 
-
 /**
  * Describes the frequency of RX windows opened by the device (in ms) in asynchronous mode
+ * Supported intervals for SF8 & SF11 co-existence protocol: 500ms, 1000ms, 5000ms, 10000ms
  */
 enum sid_link3_rx_window_separation_ms {
     /** Used to indicate device opens continuous RX window */
     SID_LINK3_RX_WINDOW_SEPARATION_CONTINUOUS = 0,
+    /** Used to indicate device opens a RX window every 1000 ms (SF8 & SF11 co-existence) */
+    SID_LINK3_RX_WINDOW_SEPARATION_2 = 1000,
     /** Used to indicate device opens a RX window every 5000 ms */
-    SID_LINK3_RX_WINDOW_SEPARATION_3 = 5000
+    SID_LINK3_RX_WINDOW_SEPARATION_3 = 5000,
+    /** Used to indicate device opens a RX window every 10000 ms */
+    SID_LINK3_RX_WINDOW_SEPARATION_4 = 10000,
+    /** Used to indicate device opens a RX window every 500 ms (SF8 & SF11 co-existence) */
+    SID_LINK3_RX_WINDOW_SEPARATION_5 = 500
 };
 
 /**
@@ -145,6 +151,8 @@ struct sid_device_profile_unicast_params {
     enum sid_unicast_wakeup_type wakeup_type;
     /** Used to indicate the RX windows open duration of the device (in sec) in synchronous mode */
     uint32_t l2_rx_duration_sec;
+    /** Used to indicate the frequency of RX windows opened by the device (in ms) in MDR mode */
+    enum sid_link3_rx_window_separation_ms l3_mdr_rx_window_interval_ms;
 };
 
 /**
@@ -207,6 +215,7 @@ struct sid_link_type_2_registration_config {
 enum sid_dl_route_validity_time_mins {
     MIN_DL_ROUTE_VALIDITY_TIME_MINS = 1,
     DEF_DL_ROUTE_VALIDITY_TIME_MINS = 15,
+    DEF_DL_ROUTE_VALIDITY_TIME_MINS_FSK = 1080,
     MAX_DL_ROUTE_VALIDITY_TIME_MINS = 1440,
 };
 
@@ -217,6 +226,38 @@ enum sid_link3_profile_b_nw_sync_time_mins {
     MIN_LINK3_PROFILE_B_NW_SYNC_TIME_MINS = 1,
     DEF_LINK3_PROFILE_B_NW_SYNC_TIME_MINS = 5,
     MAX_LINK3_PROFILE_B_NW_SYNC_TIME_MINS = 240,
+    SID_NWSYNC_TIME_NOT_SET = 0,
+    MAX_FSK_KA_INTERVAL_MINS = 1440,
+};
+
+/**
+ * Describes the Link3 data rate requested by the application.
+ *
+ * MDR is honored only in regions that support it; otherwise the link runs at LDR.
+ */
+enum sid_link3_data_rate {
+    /** Low data rate */
+    SID_LINK3_DATA_RATE_LDR = 0,
+    /** Medium data rate */
+    SID_LINK3_DATA_RATE_MDR = 1,
+};
+
+#define SID_KA_PAYLOAD_MAX_SIZE 19
+
+/**
+ * Configuration for keep-alive payload on sub-GHz links (FSK / LoRa Profile B).
+ *
+ * Part of sid_sub_ghz_links_config. The buffer is owned by the application and read by the stack on
+ * every KA without being copied, so it must remain valid until sid_deinit() is called. The
+ * application may update the buffer, data or len at runtime; the next KA uses the new values.
+ *
+ * @note data set to NULL or len set to 0 sends KA frames with the default payload.
+ */
+struct sid_ka_payload_config {
+    /** Pointer to application-owned static buffer. NULL to use the default payload. */
+    const uint8_t *data;
+    /** Length of the payload in bytes (0 ~ SID_KA_PAYLOAD_MAX_SIZE). 0 to use the default payload. */
+    uint8_t len;
 };
 
 struct sid_sub_ghz_links_config {
@@ -231,11 +272,13 @@ struct sid_sub_ghz_links_config {
     /** DL route validity (1 ~ 1440 mins, default: 15 mins) */
     uint16_t link2_dlrv_time;
     uint16_t link3_dlrv_time;
-    /** link3 profile b NW sync time (1 ~ 240 mins, default: 5 mins) */
+    /** LoRa Profile B network-sync (KA) time in mins (1 ~ 240, default 5). LoRa-only. */
     uint8_t link3_b_nwsync_time;
     int8_t link2_max_tx_power_in_dbm;
     int8_t link3_max_tx_power_in_dbm;
     struct sid_link_type_2_registration_config registration_config;
+    enum sid_link3_data_rate link3_data_rate;
+    struct sid_ka_payload_config ka_payload;
 };
 
 /**

@@ -36,7 +36,7 @@ target_link_libraries(sid_pal_radio_sx126x_impl
     sid_pal_critical_region_ifc
     sid_pal_delay_ifc
     sid_pal_gpio_ifc
-    sid_utils
+    sid_utils_ifc
 )
 
 target_sources(sid_pal_radio_sx126x_impl

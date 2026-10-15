@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2022-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -86,6 +86,22 @@ extern "C" {
 #endif   // SID_SDK_CONFIG_ENABLE_LINK_TYPE_1_D2D
 
 /*
+ * @brief: Enable/Disable connectionless beacon data payload in BLE advertisements
+ */
+#ifndef SID_SDK_CONFIG_ENABLE_BEACON_DATA
+#define SID_SDK_CONFIG_ENABLE_BEACON_DATA 0
+#endif
+
+/*
+ * @brief: Enable/Disable cloud-initiated GPS-assisted location resolution.
+ * When enabled, the location library registers a handler for ephemeris downlinks
+ * and supports the GPS_ASSIST trigger type in location triggers.
+ */
+#ifndef SID_SDK_CONFIG_ENABLE_GPS_ASSIST
+#define SID_SDK_CONFIG_ENABLE_GPS_ASSIST 0
+#endif
+
+/*
  * @brief: Enable/Disable network coverage test
  */
 #ifndef SID_SDK_CONFIG_NETWORK_COVERAGE_TEST
@@ -116,9 +132,11 @@ extern "C" {
  * @brief: Configuration flag to set periodicity of registration
  * attempts over link type 2 (FSK)
  */
-#if defined(SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC) && \
-           ((SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC < SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_MIN_SEC) || \
-           (SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC > SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_MAX_SEC))
+#if defined(SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC)    \
+    && ((SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC        \
+         < SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_MIN_SEC) \
+        || (SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC     \
+            > SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_MAX_SEC))
 #undef SID_SDK_CONFIG_LINK_TYPE_2_REGISTRATION_PERIODICITY_SEC
 #endif
 
@@ -142,6 +160,14 @@ extern "C" {
 #if !SID_SDK_CONFIG_ENABLE_LINK_TYPE_2
 #undef SID_SDK_CONFIG_ENABLE_LINK_TYPE_2_REGISTRATION
 #define SID_SDK_CONFIG_ENABLE_LINK_TYPE_2_REGISTRATION 0
+#endif
+
+/*
+ * @brief: Enable/Disable BLE bonding support.
+ * When enabled, the BLE adapter exposes bond_control and fires bond_callback.
+ */
+#ifndef SID_SDK_CONFIG_ENABLE_BLE_BONDING
+#define SID_SDK_CONFIG_ENABLE_BLE_BONDING 0
 #endif
 
 /*
@@ -250,49 +276,6 @@ extern "C" {
 #define SID_SDK_CONFIG_ENABLE_BULK_DATA_TRANSFER 0
 #endif
 
-/**
- * Defines the max allowable output power in dBm allowed for each of the data rates
- * supported. The data rate mappings are as follows:
- *    ___________________________
- *   |Data Rates | Index in Table|
- *   |---------------------------|
- *   | 2 KBPS    |      0        |
- *   | 22 KBPS   |      1        |
- *   | 50 KBPS   |      2        |
- *   | 150 KBPS  |      3        |
- *   | 250 KBPS  |      4        |
- *   | 12.5 KBPS |      5        |
- *    ---------------------------
- */
-#ifndef SID_SDK_CONFIG_RF_POWER_MAX_TABLE
-#define SID_SDK_CONFIG_RF_POWER_MAX_TABLE \
-    {                                     \
-        20, 20, 20, 20, 20, 20            \
-    }
-#endif
-
-/**
- * Defines the output power in dBm allowed for each of the data rates
- * supported. The data rate mappings are as follows:
- *    ___________________________
- *   |Data Rates | Index in Table|
- *   |---------------------------|
- *   | 2 KBPS    |      0        |
- *   | 22 KBPS   |      1        |
- *   | 50 KBPS   |      2        |
- *   | 150 KBPS  |      3        |
- *   | 250 KBPS  |      4        |
- *   | 12.5 KBPS |      5        |
- *    ---------------------------
- */
-
-#ifndef SID_SDK_CONFIG_RF_POWER_TABLE
-#define SID_SDK_CONFIG_RF_POWER_TABLE \
-    {                                 \
-        20, 20, 20, 20, 20, 20        \
-    }
-#endif
-
 /*
  * @brief: Enable/Disable setup diagnostics
  */
@@ -319,6 +302,42 @@ extern "C" {
  */
 #ifndef SID_SDK_CONFIG_ENABLE_LOCATION
 #define SID_SDK_CONFIG_ENABLE_LOCATION 0
+#endif
+
+/*
+ * @brief: Enable/Disable the Sidewalk Location GNSS capability.
+ */
+#ifndef SID_SDK_CONFIG_ENABLE_GNSS
+#define SID_SDK_CONFIG_ENABLE_GNSS 0
+#endif
+
+/*
+ * @brief: Enable/Disable the Sidewalk Location WIFI capability.
+ */
+#ifndef SID_SDK_CONFIG_ENABLE_WIFI
+#define SID_SDK_CONFIG_ENABLE_WIFI 0
+#endif
+
+/*
+ * @brief: Enable/Disable Gateway Session Key (GSK) support.
+ */
+#ifndef SID_SDK_CONFIG_ENABLE_GSK
+#define SID_SDK_CONFIG_ENABLE_GSK 1
+#endif
+
+/*
+ * @brief: Endpoint security level advertised in the EP capability notification.
+ *         Encoded on the wire as 0 = HIGH, 1 = LOW, so that older firmware (which never sets the
+ *         bit) reports 0 = HIGH — the desired default.
+ *         Values: SID_SDK_CONFIG_SECURITY_LEVEL_HIGH (0) or SID_SDK_CONFIG_SECURITY_LEVEL_LOW (1).
+ *         Defaults to HIGH. A product may override this to LOW at build time, e.g.
+ *         -DSID_SDK_CONFIG_SECURITY_LEVEL=SID_SDK_CONFIG_SECURITY_LEVEL_LOW
+ */
+#define SID_SDK_CONFIG_SECURITY_LEVEL_HIGH 0
+#define SID_SDK_CONFIG_SECURITY_LEVEL_LOW 1
+
+#ifndef SID_SDK_CONFIG_SECURITY_LEVEL
+#define SID_SDK_CONFIG_SECURITY_LEVEL SID_SDK_CONFIG_SECURITY_LEVEL_HIGH
 #endif
 
 #ifdef __cplusplus

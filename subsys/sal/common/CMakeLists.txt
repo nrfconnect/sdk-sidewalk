@@ -90,8 +90,17 @@ target_link_libraries(sid_sdk_component_pal_ifc
     sid_pal_uptime_ifc
 )
 
-# internal libraries
-add_subdirectory(internal/sid_endian)
-add_subdirectory(internal/sid_clock_ifc)
+# sid_utility_ifc interface libraries
+add_subdirectory(sid_utility_ifc/ace)
+add_subdirectory(sid_utility_ifc/sid_clock_ifc)
+add_subdirectory(sid_utility_ifc/sid_endian)
+add_subdirectory(sid_utility_ifc/sid_event_queue_ifc)
+add_subdirectory(sid_utility_ifc/sid_list)
+add_subdirectory(sid_utility_ifc/sid_memory_pool)
+add_subdirectory(sid_utility_ifc/sid_utils)
 
+# internal libraries
+add_subdirectory(internal/sid_sdk_internal_config_ifc)
+
+# ace OSAL implementation (headers come from sid_utility_ifc/ace)
 add_subdirectory(ace)

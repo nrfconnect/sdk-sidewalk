@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright (c) 2019-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file supports radio HAL interface
  */
@@ -30,6 +30,10 @@
 
 #define SX126X_RX_CONTINUOUS_VAL           0xFFFFFF
 #define SX126X_MIN_CHANNEL_FREE_DELAY_US   1
+// Settle after the RX entry before the first CCA sample. Narrow FSK filters (down to ~117 kHz)
+// settle slower than the 467 kHz filter; ~100 us covers them so the first read is not the floor.
+#define SX126X_CCA_RX_ENTRY_SETTLE_US 100u
+
 #define SX126X_MIN_CHANNEL_NOISE_DELAY_US  30
 #define SX126X_NOISE_SAMPLE_SIZE           32
 
@@ -494,9 +498,6 @@ int32_t sid_pal_radio_irq_process(void)
                         case RADIO_FSK_RX_DONE_STATUS_BAD_CRC:
                             radio_event = SID_PAL_RADIO_EVENT_RX_ERROR;
                             break;
-                        default:
-                            // TODO WHAT here?
-                            break;
                     }
                 }
             }
@@ -629,7 +630,7 @@ int32_t sid_pal_radio_set_region(sid_pal_radio_region_code_t region)
 }
 
 #if HALO_ENABLE_DIAGNOSTICS
-int32_t semtech_radio_set_sx126x_pa_config(semtech_radio_pa_cfg_t *cfg)
+int32_t semtech_radio_set_pa_config(semtech_radio_pa_cfg_t *cfg)
 {
     if (!cfg) {
         return RADIO_ERROR_INVALID_PARAMS;
@@ -870,11 +871,11 @@ int32_t sid_pal_radio_set_tx_continuous_wave(uint32_t freq, int8_t power)
     int32_t err;
 
     do {
-        if ((err = sid_pal_radio_set_frequency(freq) != RADIO_ERROR_NONE)) {
+        if ((err = sid_pal_radio_set_frequency(freq)) != RADIO_ERROR_NONE) {
             break;
         }
 
-        if ((err = sid_pal_radio_set_tx_power(power) != RADIO_ERROR_NONE)) {
+        if ((err = sid_pal_radio_set_tx_power(power)) != RADIO_ERROR_NONE) {
             break;
         }
 
@@ -906,11 +907,11 @@ int32_t sid_pal_radio_set_tx_continuous_preamble(uint32_t freq, int8_t power)
     int32_t err;
 
     do {
-        if ((err = sid_pal_radio_set_frequency(freq) != RADIO_ERROR_NONE)) {
+        if ((err = sid_pal_radio_set_frequency(freq)) != RADIO_ERROR_NONE) {
             break;
         }
 
-        if ((err = sid_pal_radio_set_tx_power(power) != RADIO_ERROR_NONE)) {
+        if ((err = sid_pal_radio_set_tx_power(power)) != RADIO_ERROR_NONE) {
             break;
         }
 
@@ -1157,12 +1158,23 @@ int16_t sid_pal_radio_rssi(void)
 
 }
 
-int32_t sid_pal_radio_is_channel_free(uint32_t freq, int16_t threshold, uint32_t delay_us, bool *is_channel_free)
+int32_t sid_pal_radio_is_channel_free(const struct sid_phy_multi_channel_data *scan_data, bool *is_channel_free)
 {
-    int32_t err, irq_err;
+    int32_t err = RADIO_ERROR_NONE, irq_err;
+
+    if (is_channel_free == NULL || scan_data == NULL || scan_data->freq == NULL || scan_data->scan_num == 0u) {
+        return RADIO_ERROR_INVALID_PARAMS;
+    }
     *is_channel_free = false;
 
-    if ((err = sid_pal_radio_set_frequency(freq)) != RADIO_ERROR_NONE) {
+    int16_t threshold = scan_data->threshold;
+    uint32_t delay_us = scan_data->delay_us; /* per-sub-band sense time */
+    if (delay_us < SX126X_MIN_CHANNEL_FREE_DELAY_US) {
+        delay_us = SX126X_MIN_CHANNEL_FREE_DELAY_US;
+    }
+
+    /* Enter RX once on the first sub-band (FS->RX + PLL lock + image cal happen here). */
+    if ((err = sid_pal_radio_set_frequency(scan_data->freq[0])) != RADIO_ERROR_NONE) {
         goto ret;
     }
 
@@ -1170,42 +1182,60 @@ int32_t sid_pal_radio_is_channel_free(uint32_t freq, int16_t threshold, uint32_t
         goto ret;
     }
 
-    if ((err = sid_pal_radio_start_continuous_rx() != RADIO_ERROR_NONE)) {
+    if ((err = sid_pal_radio_start_continuous_rx()) != RADIO_ERROR_NONE) {
         goto enable_irq;
     }
+
+    /* Settle + discard one sample after the RX entry. Narrow FSK filters (e.g. 234 kHz for a JP
+       BW125 unit channel) take longer to settle than the 467 kHz filter; without this the first
+       RSSI read returns the floor (~-128 dBm) instead of the true level. One discard is enough
+       (the second read is already settled). Sub-band hops stay in RX and do not need this. */
+    sid_pal_delay_us(SX126X_CCA_RX_ENTRY_SETTLE_US);
+    (void)sid_pal_radio_rssi();
 
     struct sid_timespec t_start, t_cur, t_threshold;
     int16_t rssi;
-
-    if (delay_us < SX126X_MIN_CHANNEL_FREE_DELAY_US) {
-        delay_us = SX126X_MIN_CHANNEL_FREE_DELAY_US;
-    }
+    bool busy = false;
 
     sid_us_to_timespec(delay_us, &t_threshold);
 
-    if (sid_clock_now(SID_CLOCK_SOURCE_UPTIME, &t_start, NULL)
-              != SID_ERROR_NONE) {
-        err = RADIO_ERROR_GENERIC;
-        goto enable_irq;
-    }
+    for (uint8_t s = 0; s < scan_data->scan_num && !busy; s++) {
+        /* Hop to sub-band s by rewriting only the frequency register while staying IN RX
+           (sx126x supports SetRfFrequency in RX and auto-configures the IF; sub-bands share
+           one frequency band so no image cal is needed after the first RX entry). This makes
+           each hop a single SPI write (~µs) instead of a standby/RX re-entry. */
+        if (s > 0u) {
+            if (sx126x_set_rf_freq(&drv_ctx, scan_data->freq[s]) != SX126X_STATUS_OK) {
+                err = RADIO_ERROR_HARDWARE_ERROR;
+                goto enable_irq;
+            }
+            drv_ctx.radio_freq_hz = scan_data->freq[s];
+            sid_pal_delay_us(SX126X_MIN_CHANNEL_FREE_DELAY_US); /* brief settle after retune */
+        }
 
-    do {
-        sid_pal_delay_us(SX126X_MIN_CHANNEL_FREE_DELAY_US);
-        rssi = sid_pal_radio_rssi();
-        if (sid_clock_now(SID_CLOCK_SOURCE_UPTIME, &t_cur, NULL) !=
-            SID_ERROR_NONE) {
+        if (sid_clock_now(SID_CLOCK_SOURCE_UPTIME, &t_start, NULL) != SID_ERROR_NONE) {
             err = RADIO_ERROR_GENERIC;
             goto enable_irq;
         }
-        sid_time_sub(&t_cur, &t_start);
-        if (rssi > threshold) {
-            goto enable_irq;
-        }
-      // The minimum time needed in between measurements is about 300
-      // micro secs.
-    } while(sid_time_gt(&t_threshold, &t_cur));
 
-    *is_channel_free = true;
+        do {
+            sid_pal_delay_us(SX126X_MIN_CHANNEL_FREE_DELAY_US);
+            rssi = sid_pal_radio_rssi();
+            if (sid_clock_now(SID_CLOCK_SOURCE_UPTIME, &t_cur, NULL) != SID_ERROR_NONE) {
+                err = RADIO_ERROR_GENERIC;
+                goto enable_irq;
+            }
+            sid_time_sub(&t_cur, &t_start);
+            if (rssi > threshold) {
+                busy = true; /* this sub-band is busy -> whole allocation busy */
+                break;
+            }
+            // The minimum time needed in between measurements is about 300
+            // micro secs.
+        } while (sid_time_gt(&t_threshold, &t_cur));
+    }
+
+    *is_channel_free = !busy;
 
 enable_irq:
     // Do not update err on success of the function calls below

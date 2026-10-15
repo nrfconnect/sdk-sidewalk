@@ -1,5 +1,5 @@
 #
-# Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,8 +22,12 @@ target_include_directories(sid_900_cfg_ifc
 
 target_sources(sid_900_cfg_ifc
   INTERFACE
-    sid_900_cfg.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_900_cfg.h>
+    $<INSTALL_INTERFACE:sid_900_cfg.h>
 )
+
+set_target_properties(sid_900_cfg_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_900_cfg.h")
 
 target_link_libraries(sid_900_cfg_ifc
   INTERFACE

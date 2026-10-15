@@ -41,7 +41,9 @@ ED25519_PUB_SIZE: int = 32
 P256R1_PUB_SIZE: int = 64
 SIG_SIZE: int = 64
 
-SILABS_MFG_NVM3_KEY_BASE = 0xA9000 # see projects/sid/sal/silabs/sid_pal/include/nvm3_manager.h
+SILABS_MFG_NVM3_KEY_BASE = (
+    0xA9000  # see projects/sid/sal/silabs/sid_pal/include/nvm3_manager.h
+)
 
 # pylint: disable=C0114,C0115,C0116
 
@@ -74,12 +76,16 @@ def print_subprocess_results(result, subprocess_name="", withAssert=True):
     for line in result.stdout.decode().splitlines():
         print(line)
         if withAssert:
-            assert not check_error_in_line(line), f"Something went wrong after calling subprocess {subprocess_name}"
+            assert not check_error_in_line(line), (
+                f"Something went wrong after calling subprocess {subprocess_name}"
+            )
 
     for line in result.stderr.decode().splitlines():
         print(line, file=sys.stderr)
         if withAssert:
-            assert not check_error_in_line(line), f"Something went wrong after calling subprocess {subprocess_name}"
+            assert not check_error_in_line(line), (
+                f"Something went wrong after calling subprocess {subprocess_name}"
+            )
 
 
 class SidMfgValueId(Enum):
@@ -241,16 +247,22 @@ class SidCertMfgCertChain(object):
             return ((sn >> 16) & 0x7F) + 2
         return SERIAL_SIZE_WITHOUT_EXPANSION
 
-    def __init__(self, cert_buffer: bytes, priv: bytes, serial_expansion_supported: bool):
+    def __init__(
+        self, cert_buffer: bytes, priv: bytes, serial_expansion_supported: bool
+    ):
         self._cert_buffer = cert_buffer
         self.device_prk = binascii.unhexlify(priv)
-        assert len(self.device_prk) == PRK_SIZE, "Invalid {} private key size -{} Expected Size -{}".format(
-            self.chain_name, len(self.device_prk), PRK_SIZE
+        assert len(self.device_prk) == PRK_SIZE, (
+            "Invalid {} private key size -{} Expected Size -{}".format(
+                self.chain_name, len(self.device_prk), PRK_SIZE
+            )
         )
 
         def split_bytes(data, length):
             if len(data) < length:
-                raise ValueError("Cert chain of {} is shorter than expected".format(self.chain_name))
+                raise ValueError(
+                    "Cert chain of {} is shorter than expected".format(self.chain_name)
+                )
             return (data[:length], data[length:])
 
         ca_list = ["device", "dak", "product", "man", "sw", "root"]
@@ -260,7 +272,9 @@ class SidCertMfgCertChain(object):
                 serial_len = SMSN_SIZE
             else:
                 serial_len = (
-                    self.get_serial_length(data) if serial_expansion_supported else SERIAL_SIZE_WITHOUT_EXPANSION
+                    self.get_serial_length(data)
+                    if serial_expansion_supported
+                    else SERIAL_SIZE_WITHOUT_EXPANSION
                 )
             (serial, data) = split_bytes(data, serial_len)
             (pubk, data) = split_bytes(data, self.pubk_size)
@@ -271,7 +285,9 @@ class SidCertMfgCertChain(object):
         self.__dict__["smsn"] = self.__dict__["device_serial"]
 
         if len(data):
-            raise ValueError("Cert chain of {} is longer than expected".format(self.chain_name))
+            raise ValueError(
+                "Cert chain of {} is longer than expected".format(self.chain_name)
+            )
 
     def __repr__(self) -> str:
         repr_str = f"{self.__class__.__name__}\n"
@@ -285,7 +301,10 @@ class SidCertMfgP256R1Chain(SidCertMfgCertChain):
     chain_name = "P256R1"
 
     def __init__(
-        self: SidCertMfgP256R1Chain, cert_buffer: bytes, priv: bytes, serial_expansion_supported: bool = True
+        self: SidCertMfgP256R1Chain,
+        cert_buffer: bytes,
+        priv: bytes,
+        serial_expansion_supported: bool = True,
     ) -> None:
         # self._cert_buffer = cert_buffer
         _device_prk = bytearray(binascii.unhexlify(priv))
@@ -294,10 +313,14 @@ class SidCertMfgP256R1Chain(SidCertMfgCertChain):
         00, handle that case
         """
         if len(_device_prk) == PRK_SIZE + 1 and _device_prk[0] == 00:
-            print(f"P256R1 private key size is {PRK_SIZE+1}, truncate to {PRK_SIZE}")
+            print(f"P256R1 private key size is {PRK_SIZE + 1}, truncate to {PRK_SIZE}")
             del _device_prk[0]
 
-        super().__init__(cert_buffer, str(binascii.hexlify(_device_prk), "ascii"), serial_expansion_supported)
+        super().__init__(
+            cert_buffer,
+            str(binascii.hexlify(_device_prk), "ascii"),
+            serial_expansion_supported,
+        )
 
 
 class SidCertMfgED25519Chain(SidCertMfgCertChain):
@@ -311,8 +334,12 @@ class SidCertMfgCert:
         cert: bytes, priv: bytes, is_p256r1: bool, serial_expansion_supported: bool
     ) -> Union[SidCertMfgP256R1Chain, SidCertMfgED25519Chain]:
         if is_p256r1:
-            return SidCertMfgP256R1Chain(base64.b64decode(cert), priv, serial_expansion_supported)
-        return SidCertMfgED25519Chain(base64.b64decode(cert), priv, serial_expansion_supported)
+            return SidCertMfgP256R1Chain(
+                base64.b64decode(cert), priv, serial_expansion_supported
+            )
+        return SidCertMfgED25519Chain(
+            base64.b64decode(cert), priv, serial_expansion_supported
+        )
 
 
 class SidMfgObj:
@@ -339,8 +366,10 @@ class SidMfgObj:
         self._skip: bool = skip
 
         if info:
-            assert self._start < self._end, "Invalid {}  end offset: {} < start offset: {}".format(
-                self._name, self._end, self._start
+            assert self._start < self._end, (
+                "Invalid {}  end offset: {} < start offset: {}".format(
+                    self._name, self._end, self._start
+                )
             )
             byte_len = self.end - self.start
         else:
@@ -348,7 +377,9 @@ class SidMfgObj:
 
         self._encoded: bytes = bytes(bytearray())
         if isinstance(self._value, int):
-            self._encoded = (self._value).to_bytes(byte_len, byteorder="big" if is_network_order else "little")
+            self._encoded = (self._value).to_bytes(
+                byte_len, byteorder="big" if is_network_order else "little"
+            )
         elif isinstance(self._value, bytes):
             self._encoded = self._value
         elif isinstance(self._value, bytearray):
@@ -359,14 +390,20 @@ class SidMfgObj:
             try:
                 self._encoded = bytes(self._value)
             except TypeError as ex:
-                raise ValueError("{} Cannot convert value {} to bytes".format(self._name, self._value)) from ex
+                raise ValueError(
+                    "{} Cannot convert value {} to bytes".format(
+                        self._name, self._value
+                    )
+                ) from ex
 
         if len(self._encoded) < byte_len:
             self._encoded = self._encoded.ljust(byte_len, b"\x00")
 
         if len(self._encoded) != byte_len:
-            ex_str = "Field {} value {} len {} mismatch expected field value len {}".format(
-                self._name, self._value, len(self._encoded), byte_len
+            ex_str = (
+                "Field {} value {} len {} mismatch expected field value len {}".format(
+                    self._name, self._value, len(self._encoded), byte_len
+                )
             )
             raise ValueError(ex_str)
 
@@ -410,16 +447,25 @@ class SidMfgObj:
 
 
 class SidMfg:
-    FIXED_POSITION_FIELDS_IN_TLV = [SidMfgValueId.SID_PAL_MFG_STORE_MAGIC, SidMfgValueId.SID_PAL_MFG_STORE_VERSION]
+    FIXED_POSITION_FIELDS_IN_TLV = [
+        SidMfgValueId.SID_PAL_MFG_STORE_MAGIC,
+        SidMfgValueId.SID_PAL_MFG_STORE_VERSION,
+    ]
 
-    def __init__(self: SidMfg, app_pub: Union[None, bytes], config: Any, is_network_order: bool) -> None:
+    def __init__(
+        self: SidMfg, app_pub: Union[None, bytes], config: Any, is_network_order: bool
+    ) -> None:
         self._config = config
         self._app_pub: Optional[bytes] = app_pub
         self._apid: Optional[str] = None
         self._is_network_order: bool = is_network_order
         self._mfg_objs: List[SidMfgObj] = []
         self._word_size: int = 0 if not self._config else self._config.offset_size
-        self._tlv_enabled = self._config.tlv_enabled if self._config and hasattr(self._config, "tlv_enabled") else True
+        self._tlv_enabled = (
+            self._config.tlv_enabled
+            if self._config and hasattr(self._config, "tlv_enabled")
+            else True
+        )
 
     def __iter__(self: SidMfg) -> Iterator[SidMfgObj]:
         return iter(sorted(self._mfg_objs, key=lambda mfg_obj: mfg_obj.id_val))
@@ -432,11 +478,15 @@ class SidMfg:
         value += "\n"
         return value
 
-    def append(self: SidMfg, mfg_enum: SidMfgValueId, value: Any, can_skip: bool = False) -> None:
+    def append(
+        self: SidMfg, mfg_enum: SidMfgValueId, value: Any, can_skip: bool = False
+    ) -> None:
         try:
             offset_config = None
             word_size = 0
-            if self._config and (not self._tlv_enabled or mfg_enum in self.FIXED_POSITION_FIELDS_IN_TLV):
+            if self._config and (
+                not self._tlv_enabled or mfg_enum in self.FIXED_POSITION_FIELDS_IN_TLV
+            ):
                 offset_config = self._config.mfg_offsets[mfg_enum.name]
                 word_size = self._word_size
 
@@ -460,8 +510,14 @@ class SidMfg:
 
     @property
     def mfg_version(self):
-        mfg_version = PROVISION_MFG_STORE_TLV_VERSION if self._tlv_enabled else PROVISION_MFG_STORE_VERSION
-        return mfg_version.to_bytes(4, byteorder="big" if self._is_network_order else "little")
+        mfg_version = (
+            PROVISION_MFG_STORE_TLV_VERSION
+            if self._tlv_enabled
+            else PROVISION_MFG_STORE_VERSION
+        )
+        return mfg_version.to_bytes(
+            4, byteorder="big" if self._is_network_order else "little"
+        )
 
     @property
     def is_network_order(self):
@@ -478,7 +534,9 @@ class SidMfg:
 
 
 class SidMfgBBJson(SidMfg):
-    def __init__(self: SidMfgBBJson, bb_json: Any, config: Any, is_network_order: bool = True) -> None:
+    def __init__(
+        self: SidMfgBBJson, bb_json: Any, config: Any, is_network_order: bool = True
+    ) -> None:
         super().__init__(app_pub=None, config=config, is_network_order=is_network_order)
 
         _bb_json = AttrDict(bb_json)
@@ -592,7 +650,9 @@ class SidMfgAcsJson(SidMfg):
         config: Any,
         is_network_order: bool = True,
     ) -> None:
-        super().__init__(app_pub=app_pub, config=config, is_network_order=is_network_order)
+        super().__init__(
+            app_pub=app_pub, config=config, is_network_order=is_network_order
+        )
 
         _acs_json = AttrDict(acs_json)
         self._ed25519 = SidCertMfgCert.from_base64(
@@ -620,30 +680,44 @@ class SidMfgAcsJson(SidMfg):
             SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
             self._ed25519.device_prk,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_ED25519, self._ed25519.device_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_ED25519, self._ed25519.device_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
             self._ed25519.device_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1, self._p256r1.device_prk)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, self._p256r1.device_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1, self._p256r1.device_prk
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, self._p256r1.device_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
             self._p256r1.device_sig,
         )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_ED25519, self._ed25519.dak_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_ED25519, self._ed25519.dak_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE,
             self._ed25519.dak_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_ED25519_SERIAL, self._ed25519.dak_serial)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_P256R1, self._p256r1.dak_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_ED25519_SERIAL, self._ed25519.dak_serial
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_P256R1, self._p256r1.dak_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE,
             self._p256r1.dak_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_P256R1_SERIAL, self._p256r1.dak_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_P256R1_SERIAL, self._p256r1.dak_serial
+        )
 
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519,
@@ -657,7 +731,9 @@ class SidMfgAcsJson(SidMfg):
             SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL,
             self._ed25519.product_serial,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1, self._p256r1.product_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1, self._p256r1.product_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIGNATURE,
             self._p256r1.product_sig,
@@ -667,31 +743,51 @@ class SidMfgAcsJson(SidMfg):
             self._p256r1.product_serial,
         )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_ED25519, self._ed25519.man_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_ED25519, self._ed25519.man_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE,
             self._ed25519.man_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_ED25519_SERIAL, self._ed25519.man_serial)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_P256R1, self._p256r1.man_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_ED25519_SERIAL, self._ed25519.man_serial
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_P256R1, self._p256r1.man_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE,
             self._p256r1.man_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_P256R1_SERIAL, self._p256r1.man_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_P256R1_SERIAL, self._p256r1.man_serial
+        )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_ED25519, self._ed25519.sw_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_ED25519, self._ed25519.sw_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE,
             self._ed25519.sw_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_ED25519_SERIAL, self._ed25519.sw_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_ED25519_SERIAL, self._ed25519.sw_serial
+        )
         self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_P256R1, self._p256r1.sw_pub)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE, self._p256r1.sw_sig)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_P256R1_SERIAL, self._p256r1.sw_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE, self._p256r1.sw_sig
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_P256R1_SERIAL, self._p256r1.sw_serial
+        )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_ED25519, self._ed25519.root_pub)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_P256R1, self._p256r1.root_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_ED25519, self._ed25519.root_pub
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_P256R1, self._p256r1.root_pub
+        )
 
     @classmethod
     def from_args(cls, args, pa) -> SidMfgAcsJson:
@@ -737,27 +833,39 @@ class SidMfgAwsJson(SidMfg):
 
         if _aws_wireless_device_json and _aws_device_profile_json:
             self._ed25519 = SidCertMfgCert.from_base64(
-                get_value(_aws_wireless_device_json.Sidewalk.DeviceCertificates, "Ed25519"),
+                get_value(
+                    _aws_wireless_device_json.Sidewalk.DeviceCertificates, "Ed25519"
+                ),
                 get_value(_aws_wireless_device_json.Sidewalk.PrivateKeys, "Ed25519"),
                 is_p256r1=False,
                 serial_expansion_supported=self._tlv_enabled,
             )
             self._p256r1 = SidCertMfgCert.from_base64(
-                get_value(_aws_wireless_device_json.Sidewalk.DeviceCertificates, "P256r1"),
+                get_value(
+                    _aws_wireless_device_json.Sidewalk.DeviceCertificates, "P256r1"
+                ),
                 get_value(_aws_wireless_device_json.Sidewalk.PrivateKeys, "P256r1"),
                 is_p256r1=True,
                 serial_expansion_supported=self._tlv_enabled,
             )
 
-            _apid = self._get_apid_from_aws_device_profile_json(_aws_device_profile_json)
+            _apid = self._get_apid_from_aws_device_profile_json(
+                _aws_device_profile_json
+            )
             if _apid is None:
-                print(f"ApId or DeviceTypeId is not found in {_aws_device_profile_json._SidewalkFileName}")
+                print(
+                    f"ApId or DeviceTypeId is not found in {_aws_device_profile_json._SidewalkFileName}"
+                )
                 sys.exit(1)
             else:
                 self._apid = _apid
 
-            self._smsn = unhex(_aws_wireless_device_json.Sidewalk.SidewalkManufacturingSn)
-            self._app_pub = unhex(_aws_device_profile_json.Sidewalk.ApplicationServerPublicKey)
+            self._smsn = unhex(
+                _aws_wireless_device_json.Sidewalk.SidewalkManufacturingSn
+            )
+            self._app_pub = unhex(
+                _aws_device_profile_json.Sidewalk.ApplicationServerPublicKey
+            )
         elif _aws_certificate_json:
             self._ed25519 = SidCertMfgCert.from_base64(
                 _aws_certificate_json.eD25519,
@@ -780,9 +888,13 @@ class SidMfgAwsJson(SidMfg):
                 self._apid = _apid
             if self._apid is None and _deviceTypeId:
                 self._apid = _deviceTypeId[-4:]
-                print(f"deviceTypeId found in {_aws_certificate_json._SidewalkFileName}")
+                print(
+                    f"deviceTypeId found in {_aws_certificate_json._SidewalkFileName}"
+                )
             if self._apid is None:
-                print(f"apid or deviceTypeId not found in {_aws_certificate_json._SidewalkFileName}")
+                print(
+                    f"apid or deviceTypeId not found in {_aws_certificate_json._SidewalkFileName}"
+                )
                 sys.exit(1)
 
             self._smsn = unhex(_aws_certificate_json.metadata.smsn)
@@ -809,30 +921,44 @@ class SidMfgAwsJson(SidMfg):
             SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
             self._ed25519.device_prk,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_ED25519, self._ed25519.device_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_ED25519, self._ed25519.device_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
             self._ed25519.device_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1, self._p256r1.device_prk)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, self._p256r1.device_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1, self._p256r1.device_prk
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, self._p256r1.device_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
             self._p256r1.device_sig,
         )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_ED25519, self._ed25519.dak_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_ED25519, self._ed25519.dak_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_ED25519_SIGNATURE,
             self._ed25519.dak_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_ED25519_SERIAL, self._ed25519.dak_serial)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_P256R1, self._p256r1.dak_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_ED25519_SERIAL, self._ed25519.dak_serial
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_P256R1, self._p256r1.dak_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_DAK_PUB_P256R1_SIGNATURE,
             self._p256r1.dak_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_DAK_P256R1_SERIAL, self._p256r1.dak_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_DAK_P256R1_SERIAL, self._p256r1.dak_serial
+        )
 
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_ED25519,
@@ -846,7 +972,9 @@ class SidMfgAwsJson(SidMfg):
             SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_ED25519_SERIAL,
             self._ed25519.product_serial,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1, self._p256r1.product_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1, self._p256r1.product_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_PRODUCT_PUB_P256R1_SIGNATURE,
             self._p256r1.product_sig,
@@ -856,35 +984,57 @@ class SidMfgAwsJson(SidMfg):
             self._p256r1.product_serial,
         )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_ED25519, self._ed25519.man_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_ED25519, self._ed25519.man_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_ED25519_SIGNATURE,
             self._ed25519.man_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_ED25519_SERIAL, self._ed25519.man_serial)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_P256R1, self._p256r1.man_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_ED25519_SERIAL, self._ed25519.man_serial
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_P256R1, self._p256r1.man_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_MAN_PUB_P256R1_SIGNATURE,
             self._p256r1.man_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_MAN_P256R1_SERIAL, self._p256r1.man_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_MAN_P256R1_SERIAL, self._p256r1.man_serial
+        )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_ED25519, self._ed25519.sw_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_ED25519, self._ed25519.sw_pub
+        )
         self.append(
             SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_ED25519_SIGNATURE,
             self._ed25519.sw_sig,
         )
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_ED25519_SERIAL, self._ed25519.sw_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_ED25519_SERIAL, self._ed25519.sw_serial
+        )
         self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_P256R1, self._p256r1.sw_pub)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE, self._p256r1.sw_sig)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_SW_P256R1_SERIAL, self._p256r1.sw_serial)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_PUB_P256R1_SIGNATURE, self._p256r1.sw_sig
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_SW_P256R1_SERIAL, self._p256r1.sw_serial
+        )
 
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_ED25519, self._ed25519.root_pub)
-        self.append(SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_P256R1, self._p256r1.root_pub)
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_ED25519, self._ed25519.root_pub
+        )
+        self.append(
+            SidMfgValueId.SID_PAL_MFG_STORE_AMZN_PUB_P256R1, self._p256r1.root_pub
+        )
 
     def _get_apid_from_aws_device_profile_json(self, _aws_device_profile_json):
         def _get_device_type_id_from_dak(_aws_device_profile_json):
-            search_dak = _aws_device_profile_json.Sidewalk.get("DakCertificateMetadata", [])
+            search_dak = _aws_device_profile_json.Sidewalk.get(
+                "DakCertificateMetadata", []
+            )
             search_dak += _aws_device_profile_json.Sidewalk.get("DAKCertificate", [])
             for _ in search_dak:
                 _device_type_id = _.get("DeviceTypeId", None)
@@ -914,8 +1064,13 @@ class SidMfgAwsJson(SidMfg):
         ):
             pa.error("Provide both --wireless_device_json and --device_profile_json")
 
-        if not (args.wireless_device_json and args.device_profile_json) and not args.certificate_json:
-            pa.error("Provide either --wireless_device_json and --device_profile_json or --certificate_json")
+        if (
+            not (args.wireless_device_json and args.device_profile_json)
+            and not args.certificate_json
+        ):
+            pa.error(
+                "Provide either --wireless_device_json and --device_profile_json or --certificate_json"
+            )
 
         return SidMfgAwsJson(
             aws_wireless_device_json=args.wireless_device_json,
@@ -929,13 +1084,18 @@ class SidMfgOutBin:
     def __init__(self: SidMfgOutBin, file_name: str, config: Any) -> None:
         self._file_name = file_name
         self._config = config
-        self._tlv_enabled = config.tlv_enabled if config and hasattr(config, "tlv_enabled") else True
+        self._tlv_enabled = (
+            config.tlv_enabled if config and hasattr(config, "tlv_enabled") else True
+        )
         if self._tlv_enabled:
             self._tlv_region_start = (
-                config.mfg_offsets[SidMfgValueId.SID_PAL_MFG_STORE_VERSION.name]["end"] * config.offset_size
+                config.mfg_offsets[SidMfgValueId.SID_PAL_MFG_STORE_VERSION.name]["end"]
+                * config.offset_size
             )
             self._word_size = config.offset_size
-            assert not hasattr(config, "mfg_page_size"), "mfg_page_size is not applicable for TLV mfg page"
+            assert not hasattr(config, "mfg_page_size"), (
+                "mfg_page_size is not applicable for TLV mfg page"
+            )
         self._encoded = bytearray()
         self._resize_encoded()
 
@@ -948,11 +1108,17 @@ class SidMfgOutBin:
             _encoded_size = 0
 
         if len(self._encoded) < _encoded_size:
-            self._encoded.extend(bytearray(b"\xff") * (_encoded_size - len(self._encoded)))
+            self._encoded.extend(
+                bytearray(b"\xff") * (_encoded_size - len(self._encoded))
+            )
 
     def __enter__(self: SidMfgOutBin) -> SidMfgOutBin:
         path = Path(self._file_name)
-        self._file = open(self._file_name, "rb+") if path.is_file() else open(self._file_name, "wb+")
+        self._file = (
+            open(self._file_name, "rb+")
+            if path.is_file()
+            else open(self._file_name, "wb+")
+        )
         self._encoded = bytearray(self._file.read())
         self._resize_encoded()
         return self
@@ -971,7 +1137,9 @@ class SidMfgOutBin:
         while pos + 4 < len(self._encoded):
             byteorder = "big" if is_network_order else "little"
             record_len = int.from_bytes(self._encoded[pos + 2 : pos + 4], byteorder) + 4
-            record_len = (record_len + self._word_size - 1) // self._word_size * self._word_size
+            record_len = (
+                (record_len + self._word_size - 1) // self._word_size * self._word_size
+            )
             if int.from_bytes(self._encoded[pos : pos + 2], byteorder) == tag:
                 del self._encoded[pos : pos + record_len]
                 break
@@ -979,9 +1147,16 @@ class SidMfgOutBin:
 
     def make_tlv(self, tag, encoded_data, is_network_order):
         byteorder = "big" if is_network_order else "little"
-        tlv = tag.to_bytes(2, byteorder) + len(encoded_data).to_bytes(2, byteorder) + encoded_data
+        tlv = (
+            tag.to_bytes(2, byteorder)
+            + len(encoded_data).to_bytes(2, byteorder)
+            + encoded_data
+        )
         # Round to MFG's word_size boundary
-        tlv += b"\xff" * ((len(tlv) + self._word_size - 1) // self._word_size * self._word_size - len(tlv))
+        tlv += b"\xff" * (
+            (len(tlv) + self._word_size - 1) // self._word_size * self._word_size
+            - len(tlv)
+        )
         return tlv
 
     def write(self: SidMfgOutBin, sid_mfg: SidMfg) -> None:
@@ -989,7 +1164,9 @@ class SidMfgOutBin:
         for _ in sid_mfg:
             if self._tlv_enabled and not _.start and not _.end:
                 self.remove_value_with_tag(_.id_val, sid_mfg.is_network_order)
-                self._encoded += self.make_tlv(_.id_val, _.encoded, sid_mfg.is_network_order)
+                self._encoded += self.make_tlv(
+                    _.id_val, _.encoded, sid_mfg.is_network_order
+                )
                 encoded_len = len(self._encoded)
             else:
                 if encoded_len < _.end:
@@ -1010,6 +1187,101 @@ class SidMfgOutBin:
         return cls(
             config=AttrDict(vars(args).get("config", {})),
             file_name=args.output_bin,
+        )
+
+
+def encode_tlv_blob(sid_mfg: SidMfg) -> bytes:
+    """Build a flat, contiguous little-endian TLV manufacturing blob.
+
+    Each entry is ``[tag: uint16 LE][length: uint16 LE][value]`` written back to
+    back with no padding. This matches the raw TLV flash format the
+    Thunder/Sundew mfg store reads directly (see
+    sid_pal_mfg_store_thunder_impl.c: tlv_header_t + a linear scan that stops at
+    erased flash 0xFFFF). The header is always little-endian because the firmware
+    reads it as a native tlv_header_t {uint16 type; uint16 length}, regardless of
+    the input group's network-order setting for value payloads.
+    """
+    if sid_mfg is None:
+        raise Exception("mfg is not valid")
+    blob = bytearray()
+    for obj in sid_mfg:
+        if obj.skip:
+            continue
+        data = obj.encoded
+        blob += obj.id_val.to_bytes(2, "little")
+        blob += len(data).to_bytes(2, "little")
+        blob += data
+    return bytes(blob)
+
+
+class SidMfgOutTlvS37:
+    """Silabs .s37 manufacturing image in flat TLV format.
+
+    Wraps the flat TLV blob (see encode_tlv_blob) at the chip's mfg offset and
+    converts it to an .s37 with commander, so it can be flashed directly. Used
+    for the --tlv option on silabs, e.g. ``sid_provision.py silabs aws --tlv``.
+    """
+
+    def __init__(
+        self: SidMfgOutTlvS37,
+        file_name: str,
+        config: Any,
+        chip: SidChipAddr,
+        commander: Path,
+    ) -> None:
+        self._file_name = file_name
+        self._config = config
+        self._chip = chip
+        self._commander = commander
+        self._hex_file = f"tlv_{self._chip.name}.hex"
+
+    def __enter__(self: SidMfgOutTlvS37) -> SidMfgOutTlvS37:
+        return self
+
+    def __exit__(
+        self: SidMfgOutTlvS37, __type__: Any, __value__: Any, __traceback__: Any
+    ) -> None:
+        try:
+            os.remove(self._hex_file)
+        except OSError:
+            pass
+
+    @property
+    def file_name(self):
+        return self._file_name
+
+    def write(self: SidMfgOutTlvS37, sid_mfg: SidMfg) -> None:
+        blob = encode_tlv_blob(sid_mfg)
+
+        # Place the TLV blob at the chip's mfg offset and emit an intermediate hex.
+        h = IntelHex()
+        h.frombytes(blob, self._chip.offset_addr)
+        h.tofile(self._hex_file, "hex")
+
+        # Convert the hex to .s37 with commander.
+        convert_args = [
+            f"{self._commander}",
+            "convert",
+            f"{self._hex_file}",
+            "--outfile",
+            f"{self._file_name}",
+        ]
+        result = subprocess.run(
+            args=convert_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        print_subprocess_results(result, " ".join(convert_args))
+
+    @classmethod
+    def from_args(cls, arg_container: SidArgOutContainer, args: argparse.Namespace, pa):
+        chip = arg_container.platform.get_chip_from_name(args.chip)
+        if not chip:
+            pa.error(f"Specified chip {args.chip} unsupported!")
+            sys.exit(1)
+        return cls(
+            config=AttrDict(vars(args).get("config", {})),
+            file_name=args.output_tlv_s37,
+            chip=chip,
+            commander=args.commander_bin,
         )
 
 
@@ -1036,7 +1308,9 @@ class SidMfgOutNVM3:
             raise Exception("mfg is not valid")
         for obj in sid_mfg:
             if not obj.skip:
-                new_mfg_value_id = SidMfgValueId[obj.name].value + SILABS_MFG_NVM3_KEY_BASE
+                new_mfg_value_id = (
+                    SidMfgValueId[obj.name].value + SILABS_MFG_NVM3_KEY_BASE
+                )
                 self._objs.append(
                     "0x{:04x}:OBJ:{}".format(
                         new_mfg_value_id,
@@ -1074,11 +1348,15 @@ class SidMfgOutSLS37:
 
     def __enter__(self: SidMfgOutSLS37) -> SidMfgOutSLS37:
         args = [f"{self._commander}", "--version"]
-        result = subprocess.run(args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(
+            args=args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         print_subprocess_results(result, " ".join(args))
         return self
 
-    def __exit__(self: SidMfgOutSLS37, __type__: Any, __value__: Any, __traceback__: Any) -> None:
+    def __exit__(
+        self: SidMfgOutSLS37, __type__: Any, __value__: Any, __traceback__: Any
+    ) -> None:
         print("Removing intermediary files")
         try:
             os.remove(self._init_file)
@@ -1104,7 +1382,9 @@ class SidMfgOutSLS37:
             "--outfile",
             f"{self._init_file}",
         ]
-        result = subprocess.run(args=gen_init_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(
+            args=gen_init_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         print_subprocess_results(result, " ".join(gen_init_args))
 
         print(f"Creating manufacturing image for {self._chip.name}")
@@ -1118,7 +1398,9 @@ class SidMfgOutSLS37:
             "--outfile",
             f"{self._file_name}",
         ]
-        result = subprocess.run(args=gen_mfg_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(
+            args=gen_mfg_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         print_subprocess_results(result, " ".join(gen_mfg_args))
 
     @classmethod
@@ -1134,7 +1416,9 @@ class SidMfgOutSLS37:
             pa.error(f"{args.output_nvm3} has not be written")
 
         # Overload file name
-        if args.output_s37 == arg_container.arg.default(arg_container.platform, arg_container.input, arg_container.arg):
+        if args.output_s37 == arg_container.arg.default(
+            arg_container.platform, arg_container.input, arg_container.arg
+        ):
             file_name = f"{arg_container.platform.platform.name.lower()}_{arg_container.input.name}_{chip.name}{'_sv' if args.secure_vault else ''}.{arg_container.arg.ext}"
             args.output_s37 = str(Path.cwd() / Path(file_name))
 
@@ -1148,7 +1432,9 @@ class SidMfgOutSLS37:
 
 
 class SidMfgOutHex:
-    def __init__(self: SidMfgOutHex, file_name: str, config: Any, chip: SidChipAddr) -> None:
+    def __init__(
+        self: SidMfgOutHex, file_name: str, config: Any, chip: SidChipAddr
+    ) -> None:
         self._file_name = file_name
         self._config = config
         self._encoded = None
@@ -1158,7 +1444,9 @@ class SidMfgOutHex:
         self._file = open(self._file_name, "w+")
         return self
 
-    def __exit__(self: SidMfgOutHex, __type__: Any, __value__: Any, __traceback__: Any) -> None:
+    def __exit__(
+        self: SidMfgOutHex, __type__: Any, __value__: Any, __traceback__: Any
+    ) -> None:
         h = IntelHex()
         h.frombytes(self._encoded, self._chip.offset_addr)
         h.tofile(self._file, "hex")
@@ -1173,7 +1461,9 @@ class SidMfgOutHex:
         self._encoded = bin.get_output_bin()
 
     @classmethod
-    def from_args(cls, arg_container: SidArgOutContainer, args: argparse.Namespace, __pa__):
+    def from_args(
+        cls, arg_container: SidArgOutContainer, args: argparse.Namespace, __pa__
+    ):
         return cls(
             config=AttrDict(vars(args).get("config", {})),
             file_name=args.output_hex,
@@ -1181,29 +1471,41 @@ class SidMfgOutHex:
         )
 
 
-def get_default_config_file(platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument):
+def get_default_config_file(
+    platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument
+):
     if platform.config_file:
         _ = Path(__file__).parent / platform.config_file
         return str(_)
     return ""
 
 
-def get_default_output_file(platform: SidPlatformArgs, group: SidInputGroup, argument: SidArgument):
-    return Path.cwd() / Path(f"{platform.platform.name.lower()}_{group.name}_CHIP.{argument.ext}")
+def get_default_output_file(
+    platform: SidPlatformArgs, group: SidInputGroup, argument: SidArgument
+):
+    return Path.cwd() / Path(
+        f"{platform.platform.name.lower()}_{group.name}_CHIP.{argument.ext}"
+    )
 
 
-def is_platform_chip_required(platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument) -> bool:
+def is_platform_chip_required(
+    platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument
+) -> bool:
     return len(platform.chips) != 1
 
 
-def get_default_platform_chip(platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument) -> str:
+def get_default_platform_chip(
+    platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument
+) -> str:
     _ = [_ for _ in platform.chips if _.default]
     if _:
         return _[0].name
     return platform.chips[0].name if platform.chips else "None"
 
 
-def get_additional_addr_help(platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument) -> str:
+def get_additional_addr_help(
+    platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument
+) -> str:
     test = ""
     for _ in platform.chips:
         test += f"[{_.help_str}]"
@@ -1222,7 +1524,9 @@ def get_memory_value_choices(
     return sorted(list(set(_.mem for _ in platform.chips)))
 
 
-def get_default_memory_value(platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument) -> int:
+def get_default_memory_value(
+    platform: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument
+) -> int:
     _ = [_ for _ in platform.chips if _.default]
     if _:
         return _[0].mem
@@ -1258,10 +1562,14 @@ def valid_yaml_file(val: str) -> dict:
     return dict({})
 
 
-def valid_path_to_commander(__platform__: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument) -> str:
+def valid_path_to_commander(
+    __platform__: SidPlatformArgs, __group__: SidInputGroup, __argument__: SidArgument
+) -> str:
     commander_path = shutil.which("commander")
     if commander_path is None and sys.platform == "darwin":
-        likely_commander_path = Path("/Applications/Commander.app/Contents/MacOS/commander")
+        likely_commander_path = Path(
+            "/Applications/Commander.app/Contents/MacOS/commander"
+        )
         if os.access(likely_commander_path, os.X_OK):
             return str(likely_commander_path)
     return commander_path if commander_path else ""
@@ -1334,6 +1642,28 @@ OUTPUT_SL_S37_ARG = SidArgument(
     help="""Create Silabs s37 file from commander""",
 )
 
+TLV_FORMAT_ARG = SidArgument(
+    name="--tlv",
+    action="store_true",
+    help="""Emit the mfg image as a flat little-endian TLV blob
+            ([tag:u16][len:u16][value]...) for firmware that uses the raw TLV mfg
+            store (e.g. Thunder/Sundew), instead of the platform's default NVM3
+            output. On silabs the TLV blob is wrapped in an .s37 at the chip mfg
+            offset so it can be flashed directly with commander.""",
+)
+
+OUTPUT_TLV_S37_ARG = SidArgument(
+    name="--output_tlv_s37",
+    ext="tlv.s37",
+    intype=str,
+    required=False,
+    handle_class=SidMfgOutTlvS37,
+    default=get_default_output_file,
+    help="""Silabs .s37 mfg image in flat TLV format (produced when --tlv is set).
+            Default output name is <platform>_<group>_<chip>.tlv.s37 so it is
+            distinguishable from the NVM3 .s37.""",
+)
+
 SL_SECURE_VAULT_ARG = SidArgument(
     name="--secure-vault",
     action="store_true",
@@ -1385,7 +1715,9 @@ APP_SRV_PUB_KEY_ARG = SidArgument(
     help="App server public key in bin or hex form",
 )
 
-ACS_JSON_ARG = SidArgument(name="--json", intype=valid_json_file, required=True, help="ACS Console JSON file")
+ACS_JSON_ARG = SidArgument(
+    name="--json", intype=valid_json_file, required=True, help="ACS Console JSON file"
+)
 
 BB_JSON_ARG = SidArgument(
     name="--json",
@@ -1484,7 +1816,9 @@ ARG_GROUPS = [
         config_file=Path("config/ti/cc13x2_26x2/config.yaml"),
         chips=[
             SidChipAddr(name="P1", full_name="cc1352P1", offset_addr=0x56000),
-            SidChipAddr(name="P7", full_name="cc1352P7", offset_addr=0xAE000, default=True),
+            SidChipAddr(
+                name="P7", full_name="cc1352P7", offset_addr=0xAE000, default=True
+            ),
         ],
     ),
     SidPlatformArgs(
@@ -1498,14 +1832,28 @@ ARG_GROUPS = [
             COMMANDER_BIN_ARG,
             SL_SECURE_VAULT_ARG,
             PLATFORM_ADDRESS_ARG,
+            TLV_FORMAT_ARG,
         ],
-        output_args=[OUTPUT_SL_NVM3_ARG, OUTPUT_SL_S37_ARG],
+        output_args=[OUTPUT_SL_NVM3_ARG, OUTPUT_SL_S37_ARG, OUTPUT_TLV_S37_ARG],
         chips=[
-            SidChipAddr(name="xg21", full_name="EFR32MG21B020F1024IM32", offset_addr=0x000F8000),
-            SidChipAddr(name="xg24", full_name="EFR32MG24BA020F1536GM48", offset_addr=0x08178000, default=True),
-            SidChipAddr(name="xg28", full_name="EFR32ZG28B322F1024IM68", offset_addr=0x080F8000),
-            SidChipAddr(name="xg23", full_name="EFR32ZG23B020F512IM48", offset_addr=0x8078000),
-            SidChipAddr(name="xg25", full_name="EFR32FG25B222F1920IM56", offset_addr=0x081D8000),
+            SidChipAddr(
+                name="xg21", full_name="EFR32MG21B020F1024IM32", offset_addr=0x000F8000
+            ),
+            SidChipAddr(
+                name="xg24",
+                full_name="EFR32MG24BA020F1536GM48",
+                offset_addr=0x08178000,
+                default=True,
+            ),
+            SidChipAddr(
+                name="xg28", full_name="EFR32ZG28B322F1024IM68", offset_addr=0x080F8000
+            ),
+            SidChipAddr(
+                name="xg23", full_name="EFR32ZG23B020F512IM48", offset_addr=0x8078000
+            ),
+            SidChipAddr(
+                name="xg25", full_name="EFR32FG25B222F1920IM56", offset_addr=0x081D8000
+            ),
         ],
     ),
     SidPlatformArgs(
@@ -1539,7 +1887,9 @@ def main() -> None:
         platform_sub_parsers = platform_parser.add_subparsers()
 
         for _ in [_.platform.str_name for _ in ARG_GROUPS]:
-            p_parser = platform_sub_parsers.add_parser(_, help=f"Arguments for {_.capitalize()} Platform")
+            p_parser = platform_sub_parsers.add_parser(
+                _, help=f"Arguments for {_.capitalize()} Platform"
+            )
             p_parser.set_defaults(group=_)
 
         platform_arg = platform_parser.parse_args(sys.argv[1:2])
@@ -1557,7 +1907,6 @@ def main() -> None:
     )
     subparsers = parser.add_subparsers()
     for input_group in platform_group.input_groups:
-
         sub = subparsers.add_parser(input_group.name, help=input_group.help)
         sub.set_defaults(group=input_group.name)
 
@@ -1569,7 +1918,6 @@ def main() -> None:
         )
 
         for argument in arguments:
-
             default = (
                 argument.default(platform_group, input_group, argument)
                 if callable(argument.default)
@@ -1636,7 +1984,7 @@ def main() -> None:
         print(sid_mfg)
 
     # Create chip address
-    chip_addr = [_ for _ in platform_group.chips if args.chip == _.name ]
+    chip_addr = [_ for _ in platform_group.chips if args.chip == _.name]
     assert len(chip_addr) == 1
     chip_addr = chip_addr[0]
     addr = getattr(args, "addr", None)
@@ -1644,9 +1992,25 @@ def main() -> None:
         chip_addr.offset_addr = addr
     print(f"Using chip config : ({chip_addr.help_str})")
 
-    for _ in platform_group.output_args:
+    # --tlv is opt-in: when set, the flat TLV image (output_tlv_s37) is the ONLY
+    # output produced, so `<platform> <group> --tlv` yields just the TLV mfg
+    # image for firmware that uses the raw TLV mfg store. Without it, the
+    # platform's normal outputs are generated as before (the TLV output is
+    # skipped).
+    tlv_requested = getattr(args, "tlv", False)
+    if tlv_requested:
+        output_args = [
+            _ for _ in platform_group.output_args if _.arg_name == "output_tlv_s37"
+        ]
+    else:
+        output_args = [
+            _ for _ in platform_group.output_args if _.arg_name != "output_tlv_s37"
+        ]
 
-        arg_container = SidArgOutContainer(platform=platform_group, input=input_group, arg=_, chip=chip_addr)
+    for _ in output_args:
+        arg_container = SidArgOutContainer(
+            platform=platform_group, input=input_group, arg=_, chip=chip_addr
+        )
 
         # Overload the default name
         file_name = vars(args).get(_.arg_name)

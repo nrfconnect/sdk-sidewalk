@@ -1,5 +1,5 @@
 #
-# Copyright 2024-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2024-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,8 +22,12 @@ target_include_directories(sid_detect_unwanted_location_tracker_api_ifc
 
 target_sources(sid_detect_unwanted_location_tracker_api_ifc
   INTERFACE
-    sid_detect_unwanted_location_tracker.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_detect_unwanted_location_tracker.h>
+    $<INSTALL_INTERFACE:sid_detect_unwanted_location_tracker.h>
 )
+
+set_target_properties(sid_detect_unwanted_location_tracker_api_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_detect_unwanted_location_tracker.h")
 
 target_link_libraries(sid_detect_unwanted_location_tracker_api_ifc
   INTERFACE

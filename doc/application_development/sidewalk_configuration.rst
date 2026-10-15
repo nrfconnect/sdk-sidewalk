@@ -39,6 +39,30 @@ Use the following option to include link types in the build.
   .. note::
      This option is enabled by default when a LoRa transceiver is enabled with the devicetree chosen property ``zephyr,lora-transceiver``.
 
+Prebuilt library variant
+************************
+
+By default, the application links the prebuilt Sidewalk libraries.
+Use the following Kconfig options to configure which variant of these libraries is used.
+The variant selection is independent of the link type selection described in `Physical link selection`_.
+
+* ``CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES`` - Uses the prebuilt Sidewalk libraries.
+  This option is enabled by default.
+  The variant options below are available only when this option is enabled.
+
+* ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_RELEASE`` - Uses the release variant of the Sidewalk libraries.
+  The release libraries are optimized for size and do not include debug logs.
+  This is the default variant.
+
+* ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG`` - Uses the debug variant of the Sidewalk libraries.
+  The debug libraries include debug logs and additional diagnostics, which results in a significantly larger memory footprint.
+
+For example, to build with the debug libraries, add the following option to the build command:
+
+.. code-block:: console
+
+   west build -b nrf54l15dk/nrf54l15/cpuapp -- -DCONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
+
 Secure storage
 **************
 

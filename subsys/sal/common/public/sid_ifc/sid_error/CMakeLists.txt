@@ -1,5 +1,5 @@
 #
-# Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,6 +22,10 @@ target_include_directories(sid_error
 
 target_sources(sid_error
   INTERFACE
-    ${CMAKE_CURRENT_LIST_DIR}/sid_error.h
-    ${CMAKE_CURRENT_LIST_DIR}/sall_app_error.h
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_error.h>
+    $<INSTALL_INTERFACE:sid_error.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sall_app_error.h>
+    $<INSTALL_INTERFACE:sall_app_error.h>
 )
+
+set_target_properties(sid_error PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_error.h;${CMAKE_CURRENT_LIST_DIR}/sall_app_error.h")

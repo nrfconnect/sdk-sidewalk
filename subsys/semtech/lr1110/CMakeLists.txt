@@ -37,7 +37,8 @@ target_link_libraries(sid_pal_radio_lr1110_impl
     sid_pal_delay_ifc
     sid_pal_gpio_ifc
     sid_pal_log_ifc
-    sid_utils
+    sid_sdk_internal_config_ifc
+    sid_utils_ifc
 )
 
 target_sources(sid_pal_radio_lr1110_impl

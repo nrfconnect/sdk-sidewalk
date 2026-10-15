@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file supports radio HAL interface specific to LoRa
  */
@@ -86,6 +86,92 @@ static int32_t get_lora_crc_present_in_header(halo_drv_semtech_ctx_t *drv_ctx, s
     return RADIO_ERROR_NONE;
 }
 
+static sx126x_status_t set_side_sf(const void *drv_ctx, uint8_t side_sf, uint8_t side_sf_ldro)
+{
+    sx126x_reg_config22_t config22;
+    sx126x_reg_config23_t config23;
+    sx126x_reg_sidedet_ctl0_t ctrl0;
+    sx126x_reg_sidedet_ctl1_t ctrl1;
+    uint16_t freq_to_time_inv2;
+    uint8_t tmp, swap_main, main_sf, lora_cfg1, lora_cfg0;
+
+    sx126x_read_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL0, &ctrl0.value, 1);
+
+    if (side_sf == SID_PAL_RADIO_LORA_SF_INVALID) {
+        ctrl0.bits.enable = 0;
+        return sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL0, &ctrl0.value, 1);
+    }
+
+    // get main_sf
+    sx126x_read_register(drv_ctx, SX126X_REG_LORA_CONFIG0, &lora_cfg0, 1);
+    main_sf = lora_cfg0 & SX126X_REG_LORA_CONFIG_SF_MASK;
+    if (side_sf >= main_sf) {
+        /* side sf must be lower than main sf */
+        return SX126X_STATUS_ERROR;
+    }
+
+    sx126x_read_register(drv_ctx, SX126X_REG_LORA_CONFIG1, &lora_cfg1, 1);
+    swap_main = lora_cfg1 & SX126X_REG_LORA_CONFIG1_RXIQINV_MASK;
+
+    /* HALO-59086 - IRQ Polarity: See SX126X datasheet section 15.4 - Optimizing Inverted IQ Operation */
+    tmp = swap_main ? 9 : 13;
+    sx126x_write_register(drv_ctx, SX126X_REG_IRQ_POLARITY, &tmp, 1);
+
+    sx126x_read_register(drv_ctx, SX126X_REG_LR_SYNCWORD, &config22.value, 1);
+    sx126x_read_register(drv_ctx, SX126X_REG_LR_CONFIG23, &config23.value, 1);
+
+    tmp = config22.bits.frame_synch_peak1_pos;
+    sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_PEAK_POS1, &tmp, 1);
+    tmp = config23.bits.frame_synch_peak2_pos;
+    sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_PEAK_POS2, &tmp, 1);
+
+    ctrl0.bits.sf = side_sf;
+    ctrl0.bits.fine_synch_en = (side_sf < SID_PAL_RADIO_LORA_SF7);
+    /*
+     * HALO-59086 - PPM offset is only enabled when symbol period > 16.38ms (same as LDRO)
+     * Per SX126X datasheet: Keep OFF for faster SFs
+     */
+    ctrl0.bits.ppm_offset = side_sf_ldro;
+
+    ctrl0.bits.enable = 1;
+    sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL0, &ctrl0.value, 1);
+
+    freq_to_time_inv2 = swap_main ? 9 : 13;
+
+    /*
+     * HALO-59086 - Fine timing gain
+     * No equivalent fine_timing_gain exists for side detector - not applicable
+     */
+    sx126x_read_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL1, &ctrl1.value, 1);
+    ctrl1.bits.f_to_time_inv98 = (freq_to_time_inv2 >> 8);
+
+    /*
+     * HALO-59086 - Chirp invert configuration
+     */
+    ctrl1.bits.chirp_invert = 1;
+
+    /*
+     * HALO-59086 - Use same configuration as main detector
+     * Copy from config23.bits.detect_same_peaks_opt for consistency
+     */
+    ctrl1.bits.trig_same_peaks_nb = config23.bits.detect_same_peaks_opt;
+
+    sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL1, &ctrl1.value, 1);
+    tmp = freq_to_time_inv2 & 0xff;
+
+    sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL2, &tmp, 1);
+
+    /*
+     * HALO-59086 - Peak-to-noise threshold
+     * Value 58 is the characterized optimal value from Semtech testing
+     * Keep as constant - not user configurable
+     */
+    tmp = 58;
+    sx126x_write_register(drv_ctx, SX126X_REG_SIDE_DETECT_CTRL3, &tmp, 1);
+
+    return SX126X_STATUS_OK;
+}
+
 int32_t radio_lora_process_rx_done(halo_drv_semtech_ctx_t *drv_ctx)
 {
     int32_t err;
@@ -125,61 +211,13 @@ int32_t radio_lora_process_rx_done(halo_drv_semtech_ctx_t *drv_ctx)
             break;
         }
 
+        sx126x_reg_status2_t status2;
+        sx126x_read_register(drv_ctx, SX126X_REG_STATUS2, &status2.value, 1);
+        lora_rx_packet_status->side_detect = status2.bits.last_frame_side_detection;
+
     } while(0);
 
     return err;
-}
-
-sid_pal_radio_data_rate_t
-sid_pal_radio_lora_mod_params_to_data_rate(const sid_pal_radio_lora_modulation_params_t *mod_params)
-{
-    if (SID_PAL_RADIO_LORA_SF7 == mod_params->spreading_factor
-        && SID_PAL_RADIO_LORA_BW_500KHZ == mod_params->bandwidth
-        && SID_PAL_RADIO_LORA_CODING_RATE_4_6 == mod_params->coding_rate) {
-        return SID_PAL_RADIO_DATA_RATE_22KBPS;
-    }
-    if (SID_PAL_RADIO_LORA_SF8 == mod_params->spreading_factor
-        && SID_PAL_RADIO_LORA_BW_500KHZ == mod_params->bandwidth
-        && SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI == mod_params->coding_rate) {
-        return SID_PAL_RADIO_DATA_RATE_12_5KBPS;
-    }
-    if (SID_PAL_RADIO_LORA_SF11 == mod_params->spreading_factor
-        && SID_PAL_RADIO_LORA_BW_500KHZ == mod_params->bandwidth
-        && ((SID_PAL_RADIO_LORA_CODING_RATE_4_5 == mod_params->coding_rate) || (SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI == mod_params->coding_rate))) {
-        return SID_PAL_RADIO_DATA_RATE_2KBPS;
-    }
-
-    return SID_PAL_RADIO_DATA_RATE_INVALID;
-}
-
-int32_t sid_pal_radio_lora_data_rate_to_mod_params(sid_pal_radio_lora_modulation_params_t *mod_params,
-                                           sid_pal_radio_data_rate_t data_rate, uint8_t li_enable)
-{
-    switch (data_rate) {
-    case SID_PAL_RADIO_DATA_RATE_22KBPS:
-        mod_params->spreading_factor = SID_PAL_RADIO_LORA_SF7;
-        mod_params->bandwidth = SID_PAL_RADIO_LORA_BW_500KHZ;
-        mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_6;
-        break;
-    case SID_PAL_RADIO_DATA_RATE_12_5KBPS:
-        mod_params->spreading_factor = SID_PAL_RADIO_LORA_SF8;
-        mod_params->bandwidth = SID_PAL_RADIO_LORA_BW_500KHZ;
-        mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI;
-        break;
-    case SID_PAL_RADIO_DATA_RATE_2KBPS:
-        mod_params->spreading_factor = SID_PAL_RADIO_LORA_SF11;
-        mod_params->bandwidth = SID_PAL_RADIO_LORA_BW_500KHZ;
-        if(li_enable) {
-            mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_5_LI;
-        } else {
-            mod_params->coding_rate = SID_PAL_RADIO_LORA_CODING_RATE_4_5;
-        }
-        break;
-    default:
-        return RADIO_ERROR_NOT_SUPPORTED;
-    }
-
-    return RADIO_ERROR_NONE;
 }
 
 int32_t sid_pal_radio_set_lora_sync_word(uint16_t sync_word)
@@ -212,10 +250,17 @@ int32_t sid_pal_radio_set_lora_symbol_timeout(uint8_t num_of_symbols)
 int32_t sid_pal_radio_set_lora_modulation_params(const sid_pal_radio_lora_modulation_params_t *mod_params)
 {
     sx126x_mod_params_lora_t lora_mod_params;
+    const void *drv_ctx = sx126x_get_drv_ctx();
 
     radio_to_sx126x_lora_modulation_params(&lora_mod_params, mod_params);
 
-    if (sx126x_set_lora_mod_params(sx126x_get_drv_ctx(), &lora_mod_params) != SX126X_STATUS_OK) {
+    if (sx126x_set_lora_mod_params(drv_ctx, &lora_mod_params) != SX126X_STATUS_OK) {
+        return RADIO_ERROR_HARDWARE_ERROR;
+    }
+
+    if (set_side_sf(drv_ctx, mod_params->side_sf,
+                    lora_low_data_rate_optimize(mod_params->side_sf, mod_params->bandwidth))
+        != SX126X_STATUS_OK) {
         return RADIO_ERROR_HARDWARE_ERROR;
     }
 

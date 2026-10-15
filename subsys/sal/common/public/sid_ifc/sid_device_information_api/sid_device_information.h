@@ -32,6 +32,7 @@ enum sid_device_info_type {
     SID_DEVICE_INFO_TYPE_ENV = 1,            /**< Environment information type */
     SID_DEVICE_INFO_TYPE_BATTERY_LEVEL = 2,  /**< Battery Level type */
     SID_DEVICE_INFO_TYPE_OTA_BLOCK_SIZE = 3, /**< OTA block size type */
+    SID_DEVICE_INFO_TYPE_REGION = 4,         /**< Regulatory region type */
 };
 
 /**
@@ -44,14 +45,31 @@ enum sid_device_env {
 };
 
 /**
+ * @brief Device regulatory region enumeration
+ *
+ * One of four regulatory zones the device firmware distinguishes. Provisioned during device
+ * setup and persisted by the application so the device selects the correct frequency plan and
+ * regulatory parameters on radio bring-up.
+ */
+enum sid_device_region {
+    SID_DEVICE_REGION_UNSET = 0,         /**< Reserved / unset (SID_PAL_RADIO_RC_NONE) */
+    SID_DEVICE_REGION_NORTH_AMERICA = 1, /**< North America (US/CA/MX) */
+    SID_DEVICE_REGION_EUROPE = 2,        /**< Europe, incl. UK */
+    SID_DEVICE_REGION_JAPAN = 3,         /**< Japan */
+    SID_DEVICE_REGION_AUSTRALIA_NZ = 4,  /**< Australia / New Zealand */
+    SID_DEVICE_REGION_NOT_SUPPORT = 0xFF,
+};
+
+/**
  * @brief Dynamic device information structure
  */
 struct sid_device_dyn_info {
     enum sid_device_info_type type; /**< Type of device information */
     union {
-        enum sid_device_env env; /**< Device environment */
-        uint8_t battery_level;   /**< Battery level in % */
-        uint32_t ota_block_size; /**< OTA block size in bytes */
+        enum sid_device_env env;       /**< Device environment */
+        uint8_t battery_level;         /**< Battery level in % */
+        uint32_t ota_block_size;       /**< OTA block size in bytes */
+        enum sid_device_region region; /**< Regulatory region */
     };
 };
 
@@ -131,6 +149,19 @@ sid_error_t sid_device_information_init(const struct sid_device_info_config *con
  * @return SID_ERROR_NONE on success
  */
 sid_error_t sid_device_information_deinit(void);
+
+/**
+ * @brief Returns whether the configured region permits registration / radio bring-up.
+ *
+ * Called by the SDK from sid_start() to enforce the region safety gate: a device whose region is
+ * unset or set to an unsupported value (e.g. Japan, which is defined but not enabled) must not
+ * bring up its radios. Backward compatible -- returns true when the device information module is
+ * not initialized or the application does not report a region (legacy firmware without i18n
+ * support), so pre-region products are unaffected.
+ *
+ * @return true if registration / radio bring-up is allowed, false if it must be blocked.
+ */
+bool sid_device_information_is_region_registerable(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

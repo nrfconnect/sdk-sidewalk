@@ -36,7 +36,7 @@ extern "C" {
 
 enum {
     /** Max size of file descriptor field */
-    SID_BULK_DATA_TRANSFER_FILE_DESCRIPTOR_MAX_SIZE = 128,
+    SID_BULK_DATA_TRANSFER_FILE_DESCRIPTOR_MAX_SIZE = 200,
 };
 
 /**
