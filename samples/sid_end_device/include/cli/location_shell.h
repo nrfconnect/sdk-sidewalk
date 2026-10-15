@@ -52,19 +52,33 @@
 
 #define CMD_LOCATION_SEND_DESCRIPTION                                                                                                                \
 	"<LOCATION_LEVEL>\n"                                                                                                                         \
-	"Send a location uplink at the specified level 1-4. No level specified will use an automatic scaling mode, using lowest power mode first.\n" \
+	"Send a location uplink at the specified level 1-6. No level specified will use an automatic scaling mode, using lowest power mode first.\n" \
 	"1 - BLE Uplink using Sidewalk Network location\n"                                                                                           \
 	"2 - LoRa Triangulation (not supported)\n"                                                                                                   \
 	"3 - WiFi\n"                                                                                                                                 \
-	"4 - GNSS"
+	"4 - GNSS\n"                                                                                                                                 \
+	"5 - Reserved\n"                                                                                                                             \
+	"6 - GNSS with GPS assist"
 
 #define CMD_LOCATION_SCAN_DESCRIPTION                                                                                                                \
 	"<LOCATION_LEVEL>\n"                                                                                                                         \
-	"Scan a location uplink at the specified level 1-4. No level specified will use an automatic scaling mode, using lowest power mode first.\n" \
-	"1 - BLE Uplink using Sidewalk Network location\n"                                                                                           \
-	"2 - LoRa Triangulation (not supported)\n"                                                                                                   \
+	"Scan at the specified level 3-6 without uplinking data. No level specified will use an automatic scaling mode, using lowest power mode first.\n" \
 	"3 - WiFi\n"                                                                                                                                 \
 	"4 - GNSS"
+
+#define CMD_LOCATION_SEND_LEVELS_DESCRIPTION                                                       \
+	"<LEVEL> [<LEVEL> ...]\n"                                                                  \
+	"Send a location uplink trying the given effort levels (1-6) in order, up to 6 levels, " \
+	"escalating past unsupported or insufficient levels. Example: send_levels 3 4 6"
+
+#define CMD_LOCATION_SEND_PSEUDORANGE_DESCRIPTION                                                  \
+	"<HEX>\n"                                                                                  \
+	"Send a raw pseudorange payload (even-length hex string, up to 106 bytes) as is. "         \
+	"Requires location init and time sync."
+
+#define CMD_LOCATION_MANAGE_EFFORT_DESCRIPTION                                                     \
+	"[0|1]\n"                                                                                  \
+	"Show or set managed effort. Applies on the next location init."
 
 #define CMD_LOCATION_ALM_START_DESCRIPTION                                                         \
 	"Start the almanac demodulation service to update the GNSS almanac via satellite. The service cannot currently be stopped."
@@ -105,6 +119,18 @@
 #define CMD_LOCATION_SEND_BUF_ARG_REQUIRED 1
 #define CMD_LOCATION_SEND_BUF_ARG_OPTIONAL 1
 
+#define CMD_LOCATION_SEND_LEVELS_ARG_REQUIRED 2
+#define CMD_LOCATION_SEND_LEVELS_ARG_OPTIONAL 5
+
+#define CMD_LOCATION_SEND_PSEUDORANGE_ARG_REQUIRED 2
+#define CMD_LOCATION_SEND_PSEUDORANGE_ARG_OPTIONAL 0
+
+#define CMD_LOCATION_MANAGE_EFFORT_ARG_REQUIRED 1
+#define CMD_LOCATION_MANAGE_EFFORT_ARG_OPTIONAL 1
+
+#define CMD_LOCATION_SCAN_ARG_REQUIRED 1
+#define CMD_LOCATION_SCAN_ARG_OPTIONAL 1
+
 /* Function declarations */
 int cmd_dult_init(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_dult_deinit(const struct shell *shell, int32_t argc, const char **argv);
@@ -116,6 +142,9 @@ int cmd_location_deinit(const struct shell *shell, int32_t argc, const char **ar
 int cmd_location_send(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_location_scan(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_location_send_buf(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_location_send_levels(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_location_send_pseudorange(const struct shell *shell, int32_t argc, const char **argv);
+int cmd_location_manage_effort(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_location_alm_start(const struct shell *shell, int32_t argc, const char **argv);
 
 #endif /* LOCATION_SHELL_H */
