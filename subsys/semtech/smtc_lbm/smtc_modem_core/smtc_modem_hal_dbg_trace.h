@@ -142,7 +142,7 @@ extern "C" {
     #define SMTC_MODEM_HAL_TRACE_ARRAY( msg, array, len )                                           \
     do                                                                                              \
     {                                                                                               \
-        SMTC_MODEM_HAL_TRACE_PRINTF("%s - (%lu bytes):\n", msg, ( uint32_t )len );                  \
+        SMTC_MODEM_HAL_TRACE_PRINTF("%s - (%u bytes):\n", msg, ( uint32_t )len );                   \
         for( uint32_t i = 0; i < ( uint32_t )len; i++ )                                             \
         {                                                                                           \
             if( ( ( i % 16 ) == 0 ) && ( i > 0 ) )                                                  \
