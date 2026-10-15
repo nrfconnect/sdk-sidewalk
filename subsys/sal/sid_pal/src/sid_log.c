@@ -18,8 +18,6 @@
 
 LOG_MODULE_REGISTER(sidewalk, CONFIG_SIDEWALK_LOG_LEVEL);
 
-#define LOG_FLUSH_SLEEP_PERIOD K_MSEC(5)
-
 #define MSG_LENGTH_MAX (CONFIG_SIDEWALK_LOG_MSG_LENGTH_MAX)
 
 void sid_pal_log(sid_pal_log_severity_t severity, uint32_t num_args, const char *fmt, ...)
@@ -84,12 +82,7 @@ void sid_pal_hexdump(sid_pal_log_severity_t severity, const void *address, int l
 
 void sid_pal_log_flush(void)
 {
-#if defined(CONFIG_LOG) && !defined(CONFIG_LOG_MODE_MINIMAL)
-	/* Note: log_buffered_cnt is not supported in minimal log mode. */
-	while (log_buffered_cnt()) {
-		k_sleep(LOG_FLUSH_SLEEP_PERIOD);
-	}
-#endif
+	log_flush();
 }
 
 char const *sid_pal_log_push_str(char *string)
