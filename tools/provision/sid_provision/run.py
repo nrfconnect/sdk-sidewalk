@@ -1990,7 +1990,9 @@ def main() -> None:
     addr = getattr(args, "addr", None)
     if addr:
         chip_addr.offset_addr = addr
-    print(f"Using chip config : ({chip_addr.help_str})")
+        print(f"Using custom address : {hex(addr)}")
+    else:
+        print(f"Using chip config : ({chip_addr.help_str})")
 
     # --tlv is opt-in: when set, the flat TLV image (output_tlv_s37) is the ONLY
     # output produced, so `<platform> <group> --tlv` yields just the TLV mfg
