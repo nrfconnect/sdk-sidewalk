@@ -69,6 +69,8 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 		.platform_init_parameters.radio_cfg = get_radio_cfg(),
+		.platform_init_parameters.region = SID_PAL_RADIO_RC_NA,
+		.platform_init_parameters.sub_ghz_cfg = app_get_sub_ghz_config(),
 #ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
 		.platform_init_parameters.gnss_wifi_cfg =
 			(lr11xx_gnss_wifi_config_t *)get_location_cfg(),

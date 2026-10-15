@@ -35,6 +35,7 @@ extern "C" {
 
 #define RADIO_REGION_NA SID_PAL_RADIO_RC_NA
 #define RADIO_REGION_EU SID_PAL_RADIO_RC_EU
+#define RADIO_REGION_ANZ SID_PAL_RADIO_RC_ANZ
 #define RADIO_REGION_NONE SID_PAL_RADIO_RC_NONE
 
 typedef struct radio_lr11xx_pa_cfg

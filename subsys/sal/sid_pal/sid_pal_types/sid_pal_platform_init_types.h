@@ -15,13 +15,22 @@
 
 #ifndef SID_PAL_PLATFORM_INIT_TYPES_H
 #define SID_PAL_PLATFORM_INIT_TYPES_H
+#include <stdint.h>
 #ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
 #include <lr11xx_gnss_wifi_config.h>
 #endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 
+struct sid_sub_ghz_links_config;
+
 typedef struct {
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
     const void * radio_cfg;
+    /* Region code (sid_pal_radio_region_code_t), SID_PAL_RADIO_RC_NONE skips region setup */
+    uint8_t region;
+    /* ISO 3166-1 alpha-2 country code, can be NULL */
+    const char *iso_country;
+    /* Sub-GHz link config, link max TX power is updated for the selected region */
+    struct sid_sub_ghz_links_config *sub_ghz_cfg;
 #endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 #ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
 lr11xx_gnss_wifi_config_t *gnss_wifi_cfg;

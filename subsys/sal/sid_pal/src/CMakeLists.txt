@@ -196,6 +196,12 @@ if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK)
 	zephyr_library_named(sid_pal_common_impl)
 	target_sources(sid_pal_common_impl PRIVATE sid_common.c)
 	target_include_directories(sid_pal_common_impl PRIVATE ${SID_PAL_INCLUDE})
+	if(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+		target_link_libraries(sid_pal_common_impl PRIVATE
+			sid_900_cfg_ifc
+			sid_pal_radio_ifc
+		)
+	endif()
 	if(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X)
 		target_include_directories(sid_pal_common_impl PRIVATE
 			${CMAKE_CURRENT_SOURCE_DIR}/../../../semtech/include
