@@ -1,5 +1,5 @@
 #
-# Copyright 2022-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2022-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,5 +22,9 @@ target_include_directories(sid_sdk_config_ifc
 
 target_sources(sid_sdk_config_ifc
   INTERFACE
-    sid_sdk_config.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_sdk_config.h>
+    $<INSTALL_INTERFACE:sid_sdk_config.h>
 )
+
+set_target_properties(sid_sdk_config_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_sdk_config.h")

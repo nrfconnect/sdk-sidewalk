@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -45,10 +45,10 @@ enum { SID_PAL_MFG_STORE_INVALID_OFFSET = UINT32_MAX };
 /* Values available to all users of the manufacturing store.
  */
 typedef enum {
-    SID_PAL_MFG_STORE_DEVID = 1, // use sid_pal_mfg_store_dev_id_get
+    SID_PAL_MFG_STORE_DEVID = 1,   // use sid_pal_mfg_store_dev_id_get
     /* Version is stored in network order */
-    SID_PAL_MFG_STORE_VERSION = 2, // use sid_pal_mfg_store_get_version
-    SID_PAL_MFG_STORE_SERIAL_NUM = 3, // use sid_pal_mfg_store_dev_id_get
+    SID_PAL_MFG_STORE_VERSION = 2,      // use sid_pal_mfg_store_get_version
+    SID_PAL_MFG_STORE_SERIAL_NUM = 3,   // use sid_pal_mfg_store_dev_id_get
     SID_PAL_MFG_STORE_SMSN = 4,
     SID_PAL_MFG_STORE_APP_PUB_ED25519 = 5,
     SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519 = 6,
@@ -93,10 +93,23 @@ typedef enum {
      * Applications may use identifiers outside of that range.
      */
     SID_PAL_MFG_STORE_CORE_VALUE_MAX = 4000,
+    /*
+     * Registration credentials mirrored from the KV store into the MFG page so a
+     * factory-registered device keeps its registration across a KV-wiping reflash.
+     * See sid_mfg_credentials (commit()/recover()). 4001-4008 mirror the 8 KV
+     * records; the set is treated as complete only when all of them are present.
+     */
+    SID_PAL_MFG_STORE_WAN_MASTER_KEY = 4001,
+    SID_PAL_MFG_STORE_WAN_KEY_PARAMS = 4002,
+    SID_PAL_MFG_STORE_APP_MASTER_KEY = 4003,
+    SID_PAL_MFG_STORE_APP_KEY_PARAMS = 4004,
+    SID_PAL_MFG_STORE_TSYNC_COUNTER_SEED = 4005,
+    SID_PAL_MFG_STORE_TX_UUID_PARAMS = 4006,
+    SID_PAL_MFG_STORE_CONFIGURATION_COMPLETE = 4007,
+    SID_PAL_MFG_STORE_SIDEWALK_ID = 4008,
     /* The value 0x6FFF is reserved for internal use */
     SID_PAL_MFG_STORE_VALUE_MAX = 0x6FFE,
 } sid_pal_mfg_store_value_t;
-
 
 /* Value sizes in bytes */
 typedef enum {
@@ -139,8 +152,16 @@ typedef enum {
     SID_PAL_MFG_STORE_AMZN_PUB_P256R1_SIZE = 64,
     SID_PAL_MFG_STORE_APID_SIZE = 4,
     SID_PAL_MFG_STORE_DTID_SIZE = 14,
+    /* Sizes of the registration credentials mirrored by sid_mfg_credentials. */
+    SID_PAL_MFG_STORE_WAN_MASTER_KEY_SIZE = 16,
+    SID_PAL_MFG_STORE_WAN_KEY_PARAMS_SIZE = 6,
+    SID_PAL_MFG_STORE_APP_MASTER_KEY_SIZE = 16,
+    SID_PAL_MFG_STORE_APP_KEY_PARAMS_SIZE = 2,
+    SID_PAL_MFG_STORE_TSYNC_COUNTER_SEED_SIZE = 4,
+    SID_PAL_MFG_STORE_TX_UUID_PARAMS_SIZE = 2,
+    SID_PAL_MFG_STORE_CONFIGURATION_COMPLETE_SIZE = 1,
+    SID_PAL_MFG_STORE_SIDEWALK_ID_SIZE = 7,
 } sid_pal_mfg_store_value_size_t;
-
 
 #define SID_PAL_MFG_STORE_MAX_FLASH_WRITE_LEN 64
 

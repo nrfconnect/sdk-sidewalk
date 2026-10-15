@@ -1,5 +1,5 @@
 #
-# Copyright 2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2023-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,5 +22,9 @@ target_include_directories(sid_reset_info_types_ifc
 
 target_sources(sid_reset_info_types_ifc
   INTERFACE
-    sid_reset_info_types.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_reset_info_types.h>
+    $<INSTALL_INTERFACE:sid_reset_info_types.h>
 )
+
+set_target_properties(sid_reset_info_types_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_reset_info_types.h")

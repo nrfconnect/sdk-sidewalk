@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2024-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -19,6 +19,7 @@
 #include <stddef.h>
 #include <sid_error.h>
 #include <stdbool.h>
+#include <sid_event_queue_ifc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,6 +53,10 @@ enum sid_pal_gnss_events {
 struct sid_pal_gnss_config {
     void (*on_gnss_event)(void *ctx, enum sid_pal_gnss_events event, uint32_t delay_ms);
     void *ctx;
+    /* Optional application event queue. A PAL that runs the scan asynchronously
+     * (e.g. the direct LR1110 backend) uses this to schedule its deferred
+     * completion checks. May be NULL for PALs that scan synchronously. */
+    struct sid_event_queue *event_queue;
 };
 
 /**

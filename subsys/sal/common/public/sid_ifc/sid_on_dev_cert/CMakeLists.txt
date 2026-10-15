@@ -1,5 +1,5 @@
 #
-# Copyright 2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2023-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -24,8 +24,12 @@ target_include_directories(sid_on_dev_cert_ifc
 
 target_sources(sid_on_dev_cert_ifc
   INTERFACE
-  sid_on_dev_cert.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_on_dev_cert.h>
+    $<INSTALL_INTERFACE:sid_on_dev_cert.h>
 )
+
+set_target_properties(sid_on_dev_cert_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_on_dev_cert.h")
 
 target_link_libraries(sid_on_dev_cert_ifc
   INTERFACE

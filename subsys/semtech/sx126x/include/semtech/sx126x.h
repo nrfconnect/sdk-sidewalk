@@ -660,6 +660,56 @@ typedef enum sx126x_commands_size_e
     SX126X_SIZE_DUMMY_BYTE       = 1,
 } sx126x_commands_size_t;
 
+/**
+ * @brief Register bit field unions for side detection functionality
+ * These unions provide structured access to register bits while maintaining
+ * compatibility with byte-level register read/write operations
+ */
+typedef union {
+    struct {
+        uint8_t fine_timing_gain : 3;
+        uint8_t frame_synch_peak1_pos : 5;
+    } bits;
+    uint8_t value;
+} sx126x_reg_config22_t;   // at 0x740
+
+typedef union {
+    struct {
+        uint8_t detect_same_peaks_opt : 3;
+        uint8_t frame_synch_peak2_pos : 5;
+    } bits;
+    uint8_t value;
+} sx126x_reg_config23_t;   // at 0x741
+
+typedef union {
+    struct {
+        uint8_t last_frame_side_detection : 1;
+        uint8_t max_bin_pos_changed : 1;
+        uint8_t reserved : 6;
+    } bits;
+    uint8_t value;
+} sx126x_reg_status2_t;   // at 0x796
+
+typedef union {
+    struct {
+        uint8_t ppm_offset : 2;
+        uint8_t fine_synch_en : 1;
+        uint8_t sf : 4;
+        uint8_t enable : 1;
+    } bits;
+    uint8_t value;
+} sx126x_reg_sidedet_ctl0_t;   // at 0x797
+
+typedef union {
+    struct {
+        uint8_t f_to_time_inv98 : 2;
+        uint8_t trig_same_peaks_nb : 3;
+        uint8_t chirp_invert : 1;
+        uint8_t ppm_offset_hc : 2;
+    } bits;
+    uint8_t value;
+} sx126x_reg_sidedet_ctl1_t;   // at 0x798
+
 /*
  * -----------------------------------------------------------------------------
  * --- PUBLIC FUNCTIONS PROTOTYPES ---------------------------------------------

@@ -222,7 +222,7 @@ void smtc_modem_hal_crashlog_store( const uint8_t* crash_string, uint8_t crash_s
 void smtc_modem_hal_on_panic( uint8_t* func, uint32_t line, const char* fmt, ... )
 {
   uint8_t out_buff[255] = { 0 };
-  uint8_t out_len     = snprintf( ( char* ) out_buff, sizeof( out_buff ), "%s:%u ", func, line );
+  uint8_t out_len     = snprintf( ( char* ) out_buff, sizeof( out_buff ), "%s:%lu ", func, line );
 
   va_list args;
   va_start( args, fmt );
@@ -296,6 +296,9 @@ void smtc_modem_hal_print_trace(const char *fmt, ...)
           subsequent = false;
       }
   }
+#if SID_PLATFORM_NORDIC
+  SID_PAL_LOG_FLUSH();
+#endif
 }
 
 void smtc_modem_hal_disable_modem_irq(void)

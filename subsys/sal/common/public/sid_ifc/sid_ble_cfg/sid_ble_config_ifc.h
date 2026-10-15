@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -89,17 +89,17 @@ typedef struct sid_ble_cfg_adv_param {
     sid_ble_cfg_service_identifier_t type;
     bool fast_enabled;
     bool slow_enabled;
-    uint32_t fast_interval;         /* In units of 0.625 ms */
-    uint32_t fast_timeout;          /* In units of 10 ms    */
-    uint32_t slow_interval;         /* In units of 0.625 ms */
-    uint32_t slow_timeout;          /* In units of 10 ms    */
+    uint32_t fast_interval; /* In units of 0.625 ms */
+    uint32_t fast_timeout;  /* In units of 10 ms    */
+    uint32_t slow_interval; /* In units of 0.625 ms */
+    uint32_t slow_timeout;  /* In units of 10 ms    */
 } sid_ble_cfg_adv_param_t;
 
 typedef struct sid_ble_cfg_conn_param {
-    uint16_t min_conn_interval;     /* Minimum Connection Interval in 1.25 ms units */
-    uint16_t max_conn_interval;     /* Maximum Connection Interval in 1.25 ms units */
-    uint16_t slave_latency;         /* Slave Latency in number of connection events */
-    uint16_t conn_sup_timeout;      /* Connection Supervision Timeout in 10 ms units*/
+    uint16_t min_conn_interval; /* Minimum Connection Interval in 1.25 ms units */
+    uint16_t max_conn_interval; /* Maximum Connection Interval in 1.25 ms units */
+    uint16_t slave_latency;     /* Slave Latency in number of connection events */
+    uint16_t conn_sup_timeout;  /* Connection Supervision Timeout in 10 ms units*/
 } sid_ble_cfg_conn_param_t;
 
 enum sid_ble_user_config_type {
@@ -112,7 +112,7 @@ enum sid_ble_user_config_type {
 typedef struct sid_ble_user_config {
     sid_ble_cfg_adv_param_t adv_param;
     sid_ble_cfg_conn_param_t conn_param;
-    bool is_set;                                 /* True: Set Param, False: Get Param */
+    bool is_set; /* True: Set Param, False: Get Param */
     enum sid_ble_user_config_type cfg_type;
     uint32_t inactivity_timeout;
 } sid_ble_user_config_t;
@@ -164,6 +164,25 @@ typedef struct sid_ble_connection_policy {
     enum sid_ble_llc_optimization_policy llc_policy;
     enum sid_ble_conn_policy conn_policy;
 } sid_ble_connection_policy_t;
+
+/**
+ * BLE bonding trigger characteristic UUID (128-bit).
+ * The characteristic declaration is discoverable without pairing, but its
+ * VALUE is encryption-protected (read requires an encrypted link). Mobile
+ * platforms (iOS/Android) do not expose a direct "pair now" API — pairing is
+ * only initiated as a side effect of a GATT operation against an
+ * encryption-protected attribute. Reading this characteristic therefore forces
+ * the Security Manager to start pairing/bonding and raises the OS pairing
+ * dialog. The returned value is not meaningful (1 byte, always 0).
+ *
+ * Keep the encryption permission on the VALUE only, never on the declaration —
+ * otherwise the characteristic cannot be discovered without already being
+ * paired, defeating the trigger.
+ */
+#define SID_BLE_BOND_TRIGGER_UUID                                                                      \
+    {                                                                                                  \
+        0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6, 0x07, 0x18, 0x29, 0x3A, 0x4B, 0x5C, 0x6D, 0x7E, 0x8F, 0x90 \
+    }
 
 typedef struct sid_ble_config {
     const char *name;

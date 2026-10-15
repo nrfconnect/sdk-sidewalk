@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -52,6 +52,8 @@ enum sid_link_type {
     SID_LINK_TYPE_2 = 1 << 1,
     /** 900 MHz link for LORA */
     SID_LINK_TYPE_3 = 1 << 2,
+    /** Wired (serial/UART) link. */
+    SID_LINK_TYPE_8 = 1 << 7,
     /** Any Link Type */
     SID_LINK_TYPE_ANY = INT_MAX,
 };
@@ -67,6 +69,11 @@ enum sid_link_mode {
     SID_LINK_MODE_CLOUD = 1 << 0,
     /** Messages can be sent to mobile only, when a link type notfies support of this mode */
     SID_LINK_MODE_MOBILE = 1 << 1,
+    /** Status-only: the connected mobile peer is the bonded owner. Reported in
+     * sid_status_detail::supported_link_modes for the link carrying the bonded
+     * connection (BLE). Refinement of MOBILE (BONDED implies MOBILE). Must NOT be
+     * used as a send-mode selector. */
+    SID_LINK_MODE_BONDED = 1 << 2,
     /** Invalid mode */
     SID_LINK_MODE_INVALID = INT_MAX,
 };
@@ -206,6 +213,19 @@ enum sid_msg_desc_tx_additional_attributes {
     SID_MSG_DESC_TX_ADDITIONAL_ATTRIBUTES_LAST
 };
 
+/**
+ * Location resolution flags for tx messages.
+ * Can be OR'd together to request multiple resolution methods on the same uplink.
+ */
+enum sid_msg_desc_tx_location_flags {
+    /** No location resolution requested */
+    SID_TX_LOCATION_NONE = 0,
+    /** Resolve location from gateway metadata (BLE/FSK/LoRa link) */
+    SID_TX_LOCATION_LINK_RESOLVE = (1u << 0),
+    /** Request GPS-assisted resolution (cloud sends ephemeris, device responds with pseudoranges) */
+    SID_TX_LOCATION_GPS_ASSIST = (1u << 1),
+};
+
 /** Attributes applied to the message descriptor on tx */
 struct sid_msg_desc_tx_attributes {
     /** Whether this message requests an ack from the AWS IOT service */
@@ -220,6 +240,8 @@ struct sid_msg_desc_tx_attributes {
      * applicable if request_ack is set to false
      */
     uint16_t ttl_in_seconds;
+    /** Location resolution flags for this message */
+    uint8_t resolve_location;
 };
 
 /** Attributes with which the message is received */
@@ -365,8 +387,9 @@ struct sid_delayed_ack_config {
 struct sid_dlrv_config {
     /** time for the DL route validity in mins. Range: 1 ~ 1440 mins */
     uint16_t time;
-    /** time for the LoRa profile B NW sync time in mins. */
-    uint8_t nwsync_time;
+    /** KA / NW-sync interval in mins. LoRa Pb: 1~240. FSK: up to MAX_FSK_KA_INTERVAL_MINS.
+     *  0 = not set (use link default). uint16_t to hold FSK values > 255. */
+    uint16_t nwsync_time;
     /** indicates whether to get or set the dlrv time. false: Get, true: Set */
     bool is_set;
 };
@@ -461,6 +484,13 @@ enum sid_control_event_type {
     SID_CONTROL_EVENT_LINK2_GW_DISCOVERY_STATUS = 2,
     /** Event indicating change in DL route validity configuraiton */
     SID_CONTROL_EVENT_DL_ROUTE_VALIDITY_CONFIG_UPDATE = 3,
+    /** Event indicating a beacon was received on Link Type 2 (FSK) */
+    SID_CONTROL_EVENT_BEACON_RECEIVED = 4,
+    /** Event indicating a beacon was missed on Link Type 2 (FSK) */
+    SID_CONTROL_EVENT_BEACON_MISSED = 5,
+    /** Event indicating KA ACK received or timed out on a sub-GHz link.
+     *  event_data points to struct sid_ka_ack_status. */
+    SID_CONTROL_EVENT_KA_ACK_STATUS = 6,
     /** Delimiter to enum sid_control_event_type */
     SID_CONTROL_EVENT_LAST,
 };
@@ -493,6 +523,18 @@ struct sid_control_event_data {
     enum sid_control_event_type event_type;
     /** Object used to store data pertaining to the event */
     void *event_data;
+};
+
+/**
+ * Status of a keep-alive ACK for a specific sub-GHz link.
+ *
+ * Delivered via on_control_event_notify with event_type SID_CONTROL_EVENT_KA_ACK_STATUS.
+ */
+struct sid_ka_ack_status {
+    /** The link type on which the KA was sent */
+    enum sid_link_type link_type;
+    /** true if app-layer ACK was received, false on timeout */
+    bool ack_received;
 };
 
 /**
@@ -678,6 +720,12 @@ struct sid_config {
      *  Contains array of sync intervals in hours. If this is not provided, then default intervals will be used.
      */
     const struct sid_time_sync_config *time_sync_config;
+
+    /**
+     *  Gateway Session Key (GSK) configuration; see struct sid_gsk_config for the
+     *  individual tunables. If not provided (NULL), defaults are used.
+     */
+    const struct sid_gsk_config *gsk_config;
 };
 
 /**

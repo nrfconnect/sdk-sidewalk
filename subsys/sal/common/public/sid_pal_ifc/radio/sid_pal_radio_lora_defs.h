@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -33,6 +33,7 @@ extern "C" {
 
 
 // Spreading Factor
+#define SID_PAL_RADIO_LORA_SF_INVALID 0x0
 #define SID_PAL_RADIO_LORA_SF5 0x05
 #define SID_PAL_RADIO_LORA_SF6 0x06
 #define SID_PAL_RADIO_LORA_SF7 0x07
@@ -129,6 +130,7 @@ typedef struct sid_pal_radio_lora_modulation_params {
     uint8_t spreading_factor;
     uint8_t bandwidth;
     uint8_t coding_rate;
+    uint8_t side_sf;
 } sid_pal_radio_lora_modulation_params_t;
 
 /** Sidewalk phy lora packet parameters*/
@@ -146,6 +148,7 @@ typedef struct sid_pal_radio_lora_rx_packet_status {
     int8_t snr;
     int8_t signal_rssi;
     sid_pal_radio_lora_crc_present_t is_crc_present;
+    uint8_t side_detect;
 } sid_pal_radio_lora_rx_packet_status_t;
 
 /** Sidewalk phy lora cad parameters*/

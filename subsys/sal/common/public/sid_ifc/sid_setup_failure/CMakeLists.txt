@@ -1,5 +1,5 @@
 #
-# Copyright 2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2025-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -24,5 +24,9 @@ target_include_directories(sid_setup_failure
 
 target_sources(sid_setup_failure
   INTERFACE
-    sid_setup_failure.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_setup_failure.h>
+    $<INSTALL_INTERFACE:sid_setup_failure.h>
 )
+
+set_target_properties(sid_setup_failure PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_setup_failure.h")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2022-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -87,6 +87,20 @@ struct sid_pal_serial_bus_client {
 struct sid_pal_serial_bus_iface;
 
 /**
+ * Callback delivered by the backend as bytes arrive on the bus.
+ *
+ * Invoked from the backend's receive context (typically an ISR on UART
+ * backends). The callback MUST return quickly and MUST NOT call back into
+ * the bus interface -- copy the bytes into caller-owned storage and defer
+ * any real work. `data` is only valid for the duration of the call.
+ *
+ * @param[in] data     received bytes (never NULL when len > 0)
+ * @param[in] len      number of valid bytes in @p data
+ * @param[in] context  the context registered with set_rx_callback
+ */
+typedef void (*sid_pal_serial_bus_rx_cb_t)(const uint8_t *data, size_t len, void *context);
+
+/**
  * The set of callbacks the implementation supports.
  */
 struct sid_pal_serial_bus_iface {
@@ -120,6 +134,30 @@ struct sid_pal_serial_bus_iface {
                            uint8_t *rx,
                            size_t tx_size,
                            size_t rx_size);
+    /**
+     * Register an asynchronous RX callback.
+     *
+     * Backends that support push-style RX deliver received bytes to @p cb as
+     * they arrive, in place of the caller draining them via xfer_hd(). The
+     * callback runs in the backend's receive context (ISR on UART) -- see the
+     * sid_pal_serial_bus_rx_cb_t doc for what that implies.
+     *
+     * Pass @p cb == NULL to unregister and return the bus to polled RX (the
+     * next xfer_hd() will drain whatever the hardware has since accumulated).
+     *
+     * Optional: backends without an async RX path leave this slot NULL, and
+     * callers must check for that before registering.
+     *
+     * @param[in] iface   pointer to serial bus interface.
+     * @param[in] cb      callback to invoke on each received chunk, or NULL.
+     * @param[in] context caller cookie passed back to @p cb (may be NULL).
+     *
+     * @retval SID_ERROR_NONE       registered / unregistered successfully.
+     * @retval SID_ERROR_NOSUPPORT  backend has no async RX path.
+     */
+    sid_error_t (*set_rx_callback)(const struct sid_pal_serial_bus_iface *iface,
+                                   sid_pal_serial_bus_rx_cb_t cb,
+                                   void *context);
     /**
      * Callback to delete the serial bus interface.
      *

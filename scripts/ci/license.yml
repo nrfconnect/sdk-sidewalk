@@ -38,6 +38,20 @@ licenses:
   spdx: LicenseRef-Nordic-5-Clause
 
 # evaluate licenses from top to bottom
+- copyright_regexp: Copyright \(c\) (\d{4}|\d{4}-\d{4}), (\d{4}|\d{4}-\d{4})
+  file_regexp:
+  - sidewalk.*/subsys/sal/common/sid_utility_ifc/sid_list/freebsd/queue\.h$
+  search_license_txt:
+  - Redistribution and use in source and binary forms
+  spdx: BSD-3-Clause
+
+- copyright_regexp: Copyright \(c\) (\d{4}|\d{4}-\d{4}) Travis Geiselbrecht
+  file_regexp:
+  - sidewalk.*/subsys/sal/common/sid_utility_ifc/sid_list/lk/list\.h$
+  search_license_txt:
+  - Permission is hereby granted, free of charge
+  spdx: null
+
 - copyright_regexp: Copyright( \(c\) |\s+)(\d{4}|\d{4}-\d{4})\s+Amazon\.com, Inc\.
   file_regexp:
   - sidewalk.*/subsys/semtech/sx126x/sx126x_.*\.c$
@@ -69,6 +83,7 @@ licenses:
 - copyright_regexp: Copyright \(c\) (\d{4}|\d{4}-\d{4}), Troy D\. Hanson
   file_regexp:
   - sidewalk.*/subsys/sal/common/ace/include/ace/uthash\.h$
+  - sidewalk.*/subsys/sal/common/sid_utility_ifc/ace/ace/uthash\.h$
   search_license_txt:
   - Redistribution and use in source and binary forms
   spdx: null
@@ -85,6 +100,9 @@ licenses:
   file_regexp:
   - sidewalk.*/subsys/sal/common/ace(/.*)+(c|h)$
   - sidewalk.*/subsys/sal/common/ace/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/sid_utility_ifc/ace/.*CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/sid_utility_ifc/ace/ace/(?!uthash).*\.h$
+  - sidewalk.*/subsys/sal/common/sid_utility_ifc/[a-z_]+/CMakeLists.txt$
   - sidewalk.*/subsys/sal/common/internal(/.*)+(c|h)$
   - sidewalk.*/subsys/sal/common/internal/.*CMakeLists.txt$
   - sidewalk.*/subsys/sal/common/sid_base64/CMakeLists.txt$

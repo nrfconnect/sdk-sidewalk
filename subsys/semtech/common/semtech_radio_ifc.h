@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2021-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -49,14 +49,14 @@ int32_t semtech_radio_set_trim_cap_val(uint16_t trim);
  */
 uint16_t semtech_radio_get_trim_cap_val(void);
 
-/** @brief Set pa config
- *  API used to set a different pa config if the defaults set
+/** @brief Set PA config
+ *  API used to set a different PA config if the defaults set
  *  through target config has to be modified
  *
- *  @param  pa config
+ *  @param  cfg PA config
  *  @return On success RADIO_ERROR_NONE, on error a negative number is returned
  */
-int32_t semtech_radio_set_sx126x_pa_config(semtech_radio_pa_cfg_t *cfg);
+int32_t semtech_radio_set_pa_config(semtech_radio_pa_cfg_t *cfg);
 
 /** @brief Get current pa config
  *  This will copy the current pa config to passed parameter

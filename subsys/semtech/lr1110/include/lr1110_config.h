@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file is exposed to each procuct configuration to customize the driver behavior
  */
@@ -28,8 +28,16 @@ extern "C" {
 
 #define HALO_GPIO_NOT_CONNECTED                 128
 
+/* Extra radio state (beyond sid_pal_radio_ifc.h's 0..8) used while the LR1110
+ * is running a WiFi/GNSS passive scan. radio_irq() uses it to route the shared
+ * DIO1 interrupt to the scan-done callbacks instead of the normal radio path. */
+#ifndef SID_PAL_RADIO_SCAN
+#define SID_PAL_RADIO_SCAN 9
+#endif
+
 #define RADIO_REGION_NA SID_PAL_RADIO_RC_NA
 #define RADIO_REGION_EU SID_PAL_RADIO_RC_EU
+#define RADIO_REGION_ANZ SID_PAL_RADIO_RC_ANZ
 #define RADIO_REGION_NONE SID_PAL_RADIO_RC_NONE
 
 typedef struct radio_lr1110_pa_cfg {
@@ -95,12 +103,19 @@ typedef struct {
         void                                (*pre_hook)(void*arg);
         void                                (*post_hook)(void*arg);
         void                                *arg;
+        /* Called from radio_irq() on a DIO1 interrupt while the radio is in
+         * SID_PAL_RADIO_SCAN state, instead of the normal radio irq handler.
+         * Lets a WiFi scanner own scan-done without disabling the shared DIO1
+         * interrupt. NULL => fall back to the radio irq handler. */
+        void (*scan_done_cb)(void *arg);
     }                                       wifi_scan;
 
     struct {
         void                                (*pre_hook)(void*arg);
         void                                (*post_hook)(void*arg);
         void                                *arg;
+        /* GNSS scan-done callback; see wifi_scan.scan_done_cb. */
+        void (*scan_done_cb)(void *arg);
     }                                       gnss_scan;
 
     struct sid_pal_serial_bus_client        bus_selector;

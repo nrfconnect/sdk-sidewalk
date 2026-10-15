@@ -1,5 +1,5 @@
 #
-# Copyright 2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2025-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -24,7 +24,10 @@ target_include_directories(sid_time_sync_config
 
 target_sources(sid_time_sync_config
   INTERFACE
-    sid_time_sync_config.h
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_time_sync_config.h>
+    $<INSTALL_INTERFACE:sid_time_sync_config.h>
 )
+
+set_target_properties(sid_time_sync_config PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_time_sync_config.h")
 
 install(TARGETS sid_time_sync_config OPTIONAL)

@@ -55,5 +55,7 @@ target_link_libraries(sid_pal_radio_lr11xx_impl PUBLIC
 	sid_900_cfg_ifc
 	sid_time_ops
 	sid_clock_ifc
+	sid_sdk_internal_config_ifc
+	sid_utils_ifc
 	zephyr_interface
 )

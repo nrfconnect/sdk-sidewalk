@@ -37,7 +37,7 @@ LOG_MODULE_REGISTER(sid_dev_cert_shell, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define CERT_INIT_CMD "cert init"
 #define CERT_DEINIT_CMD "cert deinit"
-#define CERT_SMSN_CMD "cert smsn <device_type> <dsn> <apid> [<board_id>]"
+#define CERT_SMSN_CMD "cert smsn <device_type> <dsn> <apid>"
 #define CERT_CSR_CMD "cert csr <curve>"
 #define CERT_CHAIN_START_CMD "cert chain start <curve>"
 #define CERT_CHAIN_WRITE_CMD "cert chain write <base64string>"
@@ -147,8 +147,8 @@ static int sid_on_dev_cert_cli_deinit(const struct shell *shell, int32_t argc, c
 
 static int sid_on_dev_cert_cli_smsn(const struct shell *shell, int32_t argc, const char **argv)
 {
-	// command format: cert smsn <device_type> <dsn> <apid> [<board_id>]
-	if (argc >= 4 && argc <= 5) {
+	// command format: cert smsn <device_type> <dsn> <apid>
+	if (argc == 4) {
 		sid_error_t ret = SID_ERROR_NONE;
 		// Note on device-type. It gets transformed into "Amazon-id" which is <device-type>-PRODUCTION
 		char *dev_type_production =
@@ -165,7 +165,6 @@ static int sid_on_dev_cert_cli_smsn(const struct shell *shell, int32_t argc, con
 			.dev_type = dev_type_production,
 			.dsn = argv[2],
 			.apid = argv[3],
-			.board_id = argc == 5 ? argv[4] : NULL,
 		};
 
 		uint8_t smsn[SID_ODC_SMSN_SIZE];
@@ -457,7 +456,7 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 SHELL_STATIC_SUBCMD_SET_CREATE(
 	sub_services, SHELL_CMD_ARG(init, NULL, CERT_INIT_H, sid_on_dev_cert_cli_init_cmd, 1, 0),
 	SHELL_CMD_ARG(deinit, NULL, CERT_DEINIT_H, sid_on_dev_cert_cli_deinit, 1, 0),
-	SHELL_CMD_ARG(smsn, NULL, CERT_SMSN_H, sid_on_dev_cert_cli_smsn, 4, 1),
+	SHELL_CMD_ARG(smsn, NULL, CERT_SMSN_H, sid_on_dev_cert_cli_smsn, 4, 0),
 	SHELL_CMD_ARG(csr, NULL, CERT_CSR_H, sid_on_dev_cert_cli_csr, 2, 0),
 	SHELL_CMD_ARG(chain, &sub_chain, CERT_CHAIN_H, NULL, 1, 0),
 	SHELL_CMD_ARG(app_key, &sub_app_key, CERT_APPKEY_H, NULL, 1, 0),

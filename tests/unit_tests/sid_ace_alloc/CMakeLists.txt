@@ -21,7 +21,7 @@ target_sources(testbinary PRIVATE
 )
 
 target_include_directories(testbinary PRIVATE
-	${SIDEWALK_BASE}/subsys/sal/common/ace/include
-	${SIDEWALK_BASE}/subsys/sal/common/ace/include/ace
+	${SIDEWALK_BASE}/subsys/sal/common/sid_utility_ifc/ace
+	${SIDEWALK_BASE}/subsys/sal/common/sid_utility_ifc/ace/ace
 	${SIDEWALK_BASE}/subsys/app_utils/hal/include
 )

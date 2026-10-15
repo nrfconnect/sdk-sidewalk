@@ -1,5 +1,5 @@
 #
-# Copyright 2020-2024 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -15,11 +15,21 @@
 
 add_library(sid_ble_cfg_ifc INTERFACE)
 target_include_directories(sid_ble_cfg_ifc INTERFACE ${CMAKE_CURRENT_LIST_DIR})
-target_sources(sid_ble_cfg_ifc INTERFACE sid_ble_config_ifc.h)
+target_sources(sid_ble_cfg_ifc INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_ble_config_ifc.h>
+    $<INSTALL_INTERFACE:sid_ble_config_ifc.h>
+)
+
+set_target_properties(sid_ble_cfg_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_ble_config_ifc.h")
 
 add_library(sid_ble_link_cfg_ifc INTERFACE)
 target_include_directories(sid_ble_link_cfg_ifc INTERFACE ${CMAKE_CURRENT_LIST_DIR})
-target_sources(sid_ble_link_cfg_ifc INTERFACE sid_ble_link_config_ifc.h)
+target_sources(sid_ble_link_cfg_ifc INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_ble_link_config_ifc.h>
+    $<INSTALL_INTERFACE:sid_ble_link_config_ifc.h>
+)
+
+set_target_properties(sid_ble_link_cfg_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_ble_link_config_ifc.h")
 target_link_libraries(sid_ble_link_cfg_ifc
   INTERFACE
     sid_ble_cfg_ifc

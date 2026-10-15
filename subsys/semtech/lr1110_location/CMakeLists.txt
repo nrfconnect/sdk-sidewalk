@@ -43,15 +43,20 @@ target_link_libraries(sid_pal_radio_lr11xx_location_impl PUBLIC
 	sid_900_cfg_ifc
 	sid_time_ops
 	sid_clock_ifc
-	sid_utils
+	sid_utils_ifc
 	zephyr_interface
 )
 
 if(CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
-	if(CONFIG_CPU_CORTEX_M4)
-		set(_sid_lora_lib_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/cortex-m4/lora_fsk)
+	if(CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG)
+		set(_sid_lib_variant debug)
 	else()
-		set(_sid_lora_lib_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/cortex-m33/lora_fsk)
+		set(_sid_lib_variant release)
+	endif()
+	if(CONFIG_CPU_CORTEX_M4)
+		set(_sid_lora_lib_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/${_sid_lib_variant}/cortex-m4/lora_fsk)
+	else()
+		set(_sid_lora_lib_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../../lib/${_sid_lib_variant}/cortex-m33/lora_fsk)
 	endif()
 	target_link_libraries(sid_pal_radio_lr11xx_location_impl PRIVATE
 		${_sid_lora_lib_dir}/libsmtc_lbm.a

@@ -160,6 +160,7 @@ sx126x_hal_status_t sx126x_hal_reset(const void *ctx)
 sx126x_hal_status_t sx126x_hal_wakeup(const void *context)
 {
     const halo_drv_semtech_ctx_t *drv_ctx = (halo_drv_semtech_ctx_t *)context;
+    sx126x_hal_status_t status = SX126X_HAL_STATUS_ERROR;
 
     sid_pal_enter_critical_region();
 
@@ -168,7 +169,7 @@ sx126x_hal_status_t sx126x_hal_wakeup(const void *context)
 
     if (sid_pal_gpio_set_direction(drv_ctx->config->bus_selector.client_selector,
         SID_PAL_GPIO_DIRECTION_OUTPUT) != SID_ERROR_NONE) {
-        return SX126X_HAL_STATUS_ERROR;
+        goto out;
     }
 
 #ifndef BOARD_HAL_SPI_IAE_NSS_POLARITY
@@ -177,12 +178,12 @@ sx126x_hal_status_t sx126x_hal_wakeup(const void *context)
     if (sid_pal_gpio_write(drv_ctx->config->bus_selector.client_selector, BOARD_HAL_SPI_IAE_NSS_POLARITY)
 #endif
         != SID_ERROR_NONE) {
-        return SX126X_HAL_STATUS_ERROR;
+        goto out;
     }
 
     /* Wait for chip to be ready */
     if (sx126x_wait_on_busy() != RADIO_ERROR_NONE) {
-        return SX126X_HAL_STATUS_ERROR;
+        goto out;
     }
 
     /* pull up NSS pin again to allow transactions */
@@ -192,12 +193,14 @@ sx126x_hal_status_t sx126x_hal_wakeup(const void *context)
     if (sid_pal_gpio_write(drv_ctx->config->bus_selector.client_selector, !BOARD_HAL_SPI_IAE_NSS_POLARITY)
 #endif
         != SID_ERROR_NONE) {
-        return SX126X_HAL_STATUS_ERROR;
+        goto out;
     }
 
-    sid_pal_exit_critical_region();
+    status = SX126X_HAL_STATUS_OK;
 
-    return SX126X_HAL_STATUS_OK;
+out:
+    sid_pal_exit_critical_region();
+    return status;
 }
 
 sx126x_hal_status_t sx126x_hal_read(const void* context, const uint8_t* command, const uint16_t command_length,

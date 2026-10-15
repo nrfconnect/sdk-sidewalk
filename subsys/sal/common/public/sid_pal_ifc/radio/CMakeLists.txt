@@ -1,5 +1,5 @@
 #
-# Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All rights reserved.
+# Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
 #
 # AMAZON PROPRIETARY/CONFIDENTIAL
 #
@@ -22,10 +22,16 @@ target_include_directories(sid_pal_radio_ifc
 
 target_sources(sid_pal_radio_ifc
   INTERFACE
-    sid_pal_radio_ifc.h
-    sid_pal_radio_lora_defs.h
-    sid_pal_radio_fsk_defs.h
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_pal_radio_ifc.h>
+    $<INSTALL_INTERFACE:sid_pal_radio_ifc.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_pal_radio_lora_defs.h>
+    $<INSTALL_INTERFACE:sid_pal_radio_lora_defs.h>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_pal_radio_fsk_defs.h>
+    $<INSTALL_INTERFACE:sid_pal_radio_fsk_defs.h>
 )
+
+set_target_properties(sid_pal_radio_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_pal_radio_ifc.h;${CMAKE_CURRENT_LIST_DIR}/sid_pal_radio_lora_defs.h;${CMAKE_CURRENT_LIST_DIR}/sid_pal_radio_fsk_defs.h")
 
 target_link_libraries(sid_pal_radio_ifc
   INTERFACE

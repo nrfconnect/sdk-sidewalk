@@ -7,3 +7,14 @@ tests:
     integration_platforms:
       - nrf54l15dk/nrf54l15/cpuapp
     tags: Sidewalk
+
+  sidewalk.test.integration.pal_timer.debug_libs:
+    sysbuild: true
+    platform_allow:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+    extra_configs:
+      - CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
+    tags: Sidewalk

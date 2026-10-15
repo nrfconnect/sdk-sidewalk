@@ -283,6 +283,26 @@ config SIDEWALK_USE_PREBUILT_LIBRARIES
 		Building from sources requires additional dependencies,
 		not released with nRF Connect SDK.
 
+choice SIDEWALK_PREBUILT_LIBRARIES_VARIANT
+	prompt "Prebuilt Sidewalk libraries variant"
+	depends on SIDEWALK_USE_PREBUILT_LIBRARIES
+	default SIDEWALK_PREBUILT_LIBRARIES_RELEASE
+	help
+	  Choose the variant of the prebuilt Sidewalk libraries.
+
+config SIDEWALK_PREBUILT_LIBRARIES_RELEASE
+	bool "Release"
+	help
+	  Size-optimized Sidewalk libraries without debug logs.
+
+config SIDEWALK_PREBUILT_LIBRARIES_DEBUG
+	bool "Debug"
+	help
+	  Sidewalk libraries with debug logs and additional diagnostics.
+	  Results in a significantly larger memory footprint.
+
+endchoice # SIDEWALK_PREBUILT_LIBRARIES_VARIANT
+
 rsource "subsys/nrf70_location/Kconfig"
 
 rsource "Kconfig.dependencies"

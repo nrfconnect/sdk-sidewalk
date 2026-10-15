@@ -60,6 +60,9 @@ add_library(sid_base64 INTERFACE)
 target_include_directories(sid_base64 INTERFACE ${SID_COMMON_HEADERS_DIR})
 install(TARGETS sid_base64 OPTIONAL)
 
-add_library(sid_utils INTERFACE)
-target_include_directories(sid_utils INTERFACE ${SID_COMMON_HEADERS_DIR})
-install(TARGETS sid_utils OPTIONAL)
+# sid_utility_ifc/sid_clock_ifc expects the SDK target name sid_time_ops_ifc.
+# Map it onto the local sid_time_ops shim and keep the sid_error dependency the
+# clock interface header relies on.
+add_library(sid_time_ops_ifc INTERFACE)
+target_link_libraries(sid_time_ops_ifc INTERFACE sid_time_ops sid_error)
+install(TARGETS sid_time_ops_ifc OPTIONAL)

@@ -258,7 +258,6 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 	size_t dev_type_len = strlen(dev_info->dev_type);
 	size_t dsn_len = strlen(dev_info->dsn);
 	size_t apid_len = strlen(dev_info->apid);
-	size_t board_id_len = dev_info->board_id ? strlen(dev_info->board_id) : 0;
 
 	// Check input string length. Device Serial Number should be stored as a null terminated string.
 	if (((dsn_len + 1) > SID_PAL_MFG_STORE_SERIAL_NUM_SIZE) ||
@@ -267,8 +266,7 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 	}
 
 	uint8_t *m_buf = NULL;
-	m_buf = k_heap_alloc(&cert_heap, dev_type_len + dsn_len + apid_len + board_id_len,
-			     K_NO_WAIT);
+	m_buf = k_heap_alloc(&cert_heap, dev_type_len + dsn_len + apid_len, K_NO_WAIT);
 
 	if (!m_buf) {
 		return SID_ERROR_OOM;
@@ -276,7 +274,7 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 
 	/*
     * Generate SMSN:
-    *   SMSN = SHA256(DMS-DeviceType, [DSN|unique serial], Advertised-Product-ID, BoardID[optional])
+    *   SMSN = SHA256(DMS-DeviceType, [DSN|unique serial], Advertised-Product-ID)
     */
 	size_t idx = 0;
 	memcpy(m_buf, dev_info->dev_type, dev_type_len);
@@ -285,10 +283,6 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 	idx += dsn_len;
 	memcpy(&m_buf[idx], dev_info->apid, apid_len);
 	idx += apid_len;
-	if (dev_info->board_id) {
-		memcpy(&m_buf[idx], dev_info->board_id, board_id_len);
-		idx += board_id_len;
-	}
 
 	sid_pal_hash_params_t hash_params = { .algo = SID_PAL_HASH_SHA256,
 					      .data = m_buf,

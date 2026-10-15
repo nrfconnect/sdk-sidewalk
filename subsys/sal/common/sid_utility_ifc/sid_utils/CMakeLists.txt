@@ -1,0 +1,30 @@
+#
+# Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All rights reserved.
+#
+# AMAZON PROPRIETARY/CONFIDENTIAL
+#
+# You may not use this file except in compliance with the terms and conditions
+# set forth in the accompanying LICENSE.txt file. This file is a
+# Modifiable File, as defined in the accompanying LICENSE.txt file.
+#
+# THESE MATERIALS ARE PROVIDED ON AN "AS IS" BASIS. AMAZON SPECIFICALLY
+# DISCLAIMS, WITH RESPECT TO THESE MATERIALS, ALL WARRANTIES, EXPRESS,
+# IMPLIED, OR STATUTORY, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+#
+
+add_library(sid_utils_ifc INTERFACE)
+
+target_include_directories(sid_utils_ifc
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}
+)
+
+target_sources(sid_utils_ifc
+    INTERFACE
+
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/sid_utils.h>
+    $<INSTALL_INTERFACE:sid_utils.h>
+)
+
+set_target_properties(sid_utils_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_utils.h")

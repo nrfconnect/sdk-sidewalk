@@ -19,13 +19,13 @@
 extern "C" {
 #endif
 
-#define SID_SDK_MAJOR_VERSION 1
+#define SID_SDK_MAJOR_VERSION 2
 
-#define SID_SDK_MINOR_VERSION 19
+#define SID_SDK_MINOR_VERSION 0
 
-#define SID_SDK_PATCH_VERSION 5
+#define SID_SDK_PATCH_VERSION 0
 
-#define SID_SDK_BUILD_VERSION 45
+#define SID_SDK_BUILD_VERSION 60
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2019-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * This file is exposed to each procuct configuration to customize the driver behavior
  */
@@ -47,6 +47,7 @@ extern "C" {
 
 #define RADIO_REGION_NA SID_PAL_RADIO_RC_NA
 #define RADIO_REGION_EU SID_PAL_RADIO_RC_EU
+#define RADIO_REGION_ANZ SID_PAL_RADIO_RC_ANZ
 #define RADIO_REGION_NONE SID_PAL_RADIO_RC_NONE
 
 typedef enum {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2020-2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -39,19 +39,21 @@ extern "C" {
 #define SID_PAL_RADIO_RX_PAYLOAD_MAX_SIZE 255
 
 /** Radio Error Codes*/
-#define    RADIO_ERROR_NONE                0
-#define    RADIO_ERROR_NOT_SUPPORTED       -1  // Feature not supported
-#define    RADIO_ERROR_INVALID_PARAMS      -2  // parameters not valid
-#define    RADIO_ERROR_IO_ERROR            -3  // Bus errors
-#define    RADIO_ERROR_BUSY                -4  // Radio is busy and cannot process commands
-#define    RADIO_ERROR_NOMEM               -5  // target buffer has insufficient memory allocated
-#define    RADIO_ERROR_HARDWARE_ERROR      -6  // Radio not responding to power up, reset, change of state etc
-#define    RADIO_ERROR_INVALID_STATE       -7  // Operation not valid in current radio state
-#define    RADIO_ERROR_GENERIC             -8  // Errors reported by library calls
-#define    RADIO_ERROR_PKT_CHECK_DCR_LIMIT -9  // DCR check fail
-#define    RADIO_ERROR_PKT_CHECK_REG_LIMIT -10 // Regulatory check fail
-#define    RADIO_ERROR_VENDOR_FIRST        -64 // Add vendor error codes between -64 and -255
-#define    RADIO_ERROR_VENDOR_LAST         -255
+#define RADIO_ERROR_NONE 0
+#define RADIO_ERROR_NOT_SUPPORTED -1            // Feature not supported
+#define RADIO_ERROR_INVALID_PARAMS -2           // parameters not valid
+#define RADIO_ERROR_IO_ERROR -3                 // Bus errors
+#define RADIO_ERROR_BUSY -4                     // Radio is busy and cannot process commands
+#define RADIO_ERROR_NOMEM -5                    // target buffer has insufficient memory allocated
+#define RADIO_ERROR_HARDWARE_ERROR -6           // Radio not responding to power up, reset, change of state etc
+#define RADIO_ERROR_INVALID_STATE -7            // Operation not valid in current radio state
+#define RADIO_ERROR_GENERIC -8                  // Errors reported by library calls
+#define RADIO_ERROR_PKT_CHECK_DCR_LIMIT -9      // DCR check fail
+#define RADIO_ERROR_PKT_CHECK_REG_LIMIT -10     // Regulatory check fail
+#define RADIO_ERROR_FW_NOT_UP_TO_DATE -11       // Radio Firmware not up to date
+#define RADIO_ERROR_FW_TYPE_NOT_SUPPORTED -12   // Radio Firmware type not supported
+#define RADIO_ERROR_VENDOR_FIRST -64            // Add vendor error codes between -64 and -255
+#define RADIO_ERROR_VENDOR_LAST -255
 
 /** Sidewalk Phy Radio State*/
 #define    SID_PAL_RADIO_UNKNOWN              0
@@ -66,11 +68,12 @@ extern "C" {
 
 /** Sidewalk Phy Radio Region For Regional Config*/
 typedef enum {
-    SID_PAL_RADIO_RC_NONE = 0, // Region none
-    SID_PAL_RADIO_RC_NA = 1, // Region North America
-    SID_PAL_RADIO_RC_EU = 2, // Region EU
-    SID_PAL_RADIO_RC_JP = 3, // Region JP
-    SID_PAL_RADIO_RC_MAX // Region max
+    SID_PAL_RADIO_RC_NONE = 0,   // Region none
+    SID_PAL_RADIO_RC_NA = 1,     // Region North America
+    SID_PAL_RADIO_RC_EU = 2,     // Region EU
+    SID_PAL_RADIO_RC_JP = 3,     // Region JP
+    SID_PAL_RADIO_RC_ANZ = 4,    // Region ANZ
+    SID_PAL_RADIO_RC_MAX         // Region max
 } sid_pal_radio_region_code_t;
 
 /** Sidewalk Phy Radio Modem Mode*/
@@ -97,15 +100,17 @@ typedef enum {
 
 /** Sidewalk Phy Radio Data Rate*/
 typedef enum sid_pal_radio_data_rate {
-    SID_PAL_RADIO_DATA_RATE_INVALID   = 0,
-    SID_PAL_RADIO_DATA_RATE_2KBPS     = 1,
-    SID_PAL_RADIO_DATA_RATE_22KBPS    = 2,
-    SID_PAL_RADIO_DATA_RATE_50KBPS    = 3,
-    SID_PAL_RADIO_DATA_RATE_150KBPS   = 4,
-    SID_PAL_RADIO_DATA_RATE_250KBPS   = 5,
-    SID_PAL_RADIO_DATA_RATE_12_5KBPS  = 6,
-    SID_PAL_RADIO_DATA_RATE_CUSTOM   = 7,
-    SID_PAL_RADIO_DATA_RATE_MAX_NUM   = SID_PAL_RADIO_DATA_RATE_CUSTOM, // 0 is not a valid data rate
+    SID_PAL_RADIO_DATA_RATE_INVALID = 0,
+    SID_PAL_RADIO_DATA_RATE_2KBPS = 1,
+    SID_PAL_RADIO_DATA_RATE_22KBPS = 2,
+    SID_PAL_RADIO_DATA_RATE_50KBPS = 3,
+    SID_PAL_RADIO_DATA_RATE_150KBPS = 4,
+    SID_PAL_RADIO_DATA_RATE_250KBPS = 5,
+    SID_PAL_RADIO_DATA_RATE_1_76KBPS = 6,
+    SID_PAL_RADIO_DATA_RATE_5_47KBPS = 7,
+    SID_PAL_RADIO_DATA_RATE_12_5KBPS = 8,
+    SID_PAL_RADIO_DATA_RATE_CUSTOM = 9,
+    SID_PAL_RADIO_DATA_RATE_MAX_NUM = SID_PAL_RADIO_DATA_RATE_CUSTOM,   // 0 is not a valid data rate
 } sid_pal_radio_data_rate_t;
 
 typedef enum {
@@ -155,6 +160,7 @@ typedef struct sid_pal_radio_packet_cfg {
     uint16_t preamble_len;
     uint32_t symbol_timeout;
     bool crc_enabled;
+    bool side_sf_enabled;
 } sid_pal_radio_packet_cfg_t;
 
 /** Sidewalk Phy transmit packet configuration*/
@@ -165,6 +171,19 @@ typedef struct sid_pal_radio_tx_packet {
     uint8_t payload_len;
     uint32_t timeout;
 } sid_pal_radio_tx_packet_t;
+
+/** @brief Parameters for a multi-sub-band carrier-sense sweep.
+ *
+ *  Senses each of @p scan_num frequencies for @p delay_us (per sub-band). The radio enters RX once
+ *  and hops between sub-bands in RX (single frequency-register write per hop), so the whole sweep
+ *  pays the RX-entry / PLL-lock cost only once.
+ */
+struct sid_phy_multi_channel_data {
+    int16_t threshold;    /**< rssi threshold in dBm */
+    uint32_t delay_us;    /**< per-sub-band sense time in microseconds */
+    uint8_t scan_num;     /**< number of frequencies in @ref freq */
+    const uint32_t *freq; /**< array of scan_num frequencies in Hz */
+};
 
 /** Sidewalk radio state transition timings*/
 typedef struct sid_pal_radio_state_transition_timings {
@@ -426,23 +445,19 @@ sid_pal_radio_modem_mode_t sid_pal_radio_get_modem_mode(void);
  */
 int32_t sid_pal_radio_set_modem_mode(sid_pal_radio_modem_mode_t mode);
 
-/** @brief Check the channel noise level for a given rssi.
+/** @brief Determine whether a (multi-sub-band) channel allocation is free of interference.
  *
- *  The radio should sense the medium in the frequency specified by parameter freq for a period
- *  specified by delay_us, compute the rssi, and compare the computed rssi with the passed
- *  threshold specified by the parameter threshold.
- *  If the computed rssi is greater than threshold, the parameter is_channel_free
- *  is set to false otherwise it is set to true.
+ *  Senses each sub-band in @ref sid_phy_multi_channel_data in turn; the allocation is busy if
+ *  ANY sub-band's computed rssi exceeds the threshold (short-circuits on the first busy
+ *  sub-band). A single-channel CCA is expressed as a one-element sweep (@c scan_num = 1).
  *  If any of the above operations fail, appropriate error value will be returned.
  *
- *  @param[in]    freq frequency in Hz to measure noise level.
- *  @param[in]    threshold rssi threshold in dBm
- *  @param[in]    delay_us period in microseconds for radio to sense the medium
- *  @param[out]   is_channel_free boolean to store the result of the operation
+ *  @param[in]    scan_data  sweep parameters (threshold, per-sub-band delay, freq list)
+ *  @param[out]   is_channel_free  true only if every sub-band is below threshold
  *
  *  @retval  On success RADIO_ERROR_NONE, on error a negative number is returned
  */
-int32_t sid_pal_radio_is_channel_free(uint32_t freq, int16_t threshold, uint32_t delay_us, bool *is_channel_free);
+int32_t sid_pal_radio_is_channel_free(const struct sid_phy_multi_channel_data *scan_data, bool *is_channel_free);
 
 /** @brief Compute the noise sensed by radio at a particular frequency
  *
@@ -549,25 +564,6 @@ int32_t sid_pal_radio_set_lora_cad_params(const sid_pal_radio_lora_cad_params_t 
  *  @retval  On success RADIO_ERROR_NONE, on error a negative number is returned
  */
 int32_t sid_pal_radio_lora_start_cad(void);
-
-/** @brief convert LoRa modulation params to data rate.
- *
- *  @param[in]   mod_params pointer to LoRa modulation params.
- *
- *  @retval  data rate
- */
-sid_pal_radio_data_rate_t
-sid_pal_radio_lora_mod_params_to_data_rate(const sid_pal_radio_lora_modulation_params_t *mod_params);
-
-/** @brief Convert data rate to LoRa modulation parameters.
- *
- *  @param[out]   mod_params pointer to LoRa modulation params.
- *  @param[in]    data_rate.
- *  @param[in]    li_enable enable/disable long interleaver mode
- *  @retval  On success RADIO_ERROR_NONE, on error a negative number is returned
- */
-int32_t sid_pal_radio_lora_data_rate_to_mod_params(sid_pal_radio_lora_modulation_params_t *mod_params,
-                                           sid_pal_radio_data_rate_t data_rate, uint8_t li_enable);
 
 /** @brief Get time on air for a LoRa packet.
  *

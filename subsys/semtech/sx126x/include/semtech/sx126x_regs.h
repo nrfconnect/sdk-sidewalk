@@ -79,6 +79,8 @@
  */
 #define SX126X_REG_LR_SYNCWORD 0x0740
 
+#define SX126X_REG_LR_CONFIG23 0x0741
+
 /**
  * @brief The addresses of the register to fix spurs in 900Mhz bandedge freq
  */
@@ -205,8 +207,28 @@
  * @brief The address of the register holding the CRC configuration extracted from a received LoRa header
  */
 #define SX126X_REG_LR_HEADER_CRC 0x076B
-#define SX126X_REG_LR_HEADER_CRC_POS ( 4U )
-#define SX126X_REG_LR_HEADER_CRC_MASK ( 0x01UL << SX126X_REG_LR_HEADER_CRC_POS )
+#define SX126X_REG_LR_HEADER_CRC_POS (4U)
+#define SX126X_REG_LR_HEADER_CRC_MASK (0x01UL << SX126X_REG_LR_HEADER_CRC_POS)
+
+#define SX126X_REG_LORA_CONFIG0 0x703
+#define SX126X_REG_LORA_CONFIG_SF_POS (0U)
+#define SX126X_REG_LORA_CONFIG_SF_MASK (0x0FUL << SX126X_REG_LORA_CONFIG_SF_POS)
+
+#define SX126X_REG_LORA_CONFIG1 0x704
+#define SX126X_REG_LORA_CONFIG1_RXIQINV_POS (6U)
+#define SX126X_REG_LORA_CONFIG1_RXIQINV_MASK (0x01UL << SX126X_REG_LORA_CONFIG1_RXIQINV_POS)
+
+/**
+ * @brief Side detection control and status registers
+ * Used for advanced LoRa signal detection and analysis
+ */
+#define SX126X_REG_STATUS2 0x796
+#define SX126X_REG_SIDE_DETECT_CTRL0 0x797
+#define SX126X_REG_SIDE_DETECT_CTRL1 0x798
+#define SX126X_REG_SIDE_DETECT_CTRL2 0x799
+#define SX126X_REG_SIDE_DETECT_CTRL3 0x79a
+#define SX126X_REG_SIDE_DETECT_PEAK_POS1 0x7c8
+#define SX126X_REG_SIDE_DETECT_PEAK_POS2 0x7c9
 
 /*
  * -----------------------------------------------------------------------------

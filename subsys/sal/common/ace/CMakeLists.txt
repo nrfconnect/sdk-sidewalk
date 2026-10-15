@@ -20,23 +20,19 @@ target_compile_options(ace PRIVATE -Wno-unused-parameter)
 target_sources(ace
   PRIVATE
     osal_alloc.c
-  PUBLIC
-    include/ace/ace_config.h
-    include/ace/ace_log.h
-    include/ace/ace_modules.h
-    include/ace/ace_status.h
-    include/ace/osal_alloc.h
-    include/ace/uthash.h
 )
 
 target_include_directories(ace
-  PUBLIC
-    include
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../app_utils/hal/include
 )
 
-target_link_libraries(ace PRIVATE zephyr_interface)
+target_link_libraries(ace
+  PUBLIC
+    ace_ifc
+  PRIVATE
+    zephyr_interface
+)
 
 target_compile_definitions(ace
   PUBLIC
