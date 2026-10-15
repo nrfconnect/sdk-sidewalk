@@ -32,6 +32,56 @@ static void set_radio_config(const void *cfg)
 }
 #endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) && (defined(REGION_ALL) || defined(REGION_LITE))
+#include <sid_900_cfg.h>
+#include <sid_pal_radio_ifc.h>
+#include "sid_reg_priv.h"
+
+static void update_link_max_tx_power(struct sid_sub_ghz_links_config *sub_ghz_cfg, uint8_t region)
+{
+	sid_pal_radio_data_rate_t link3_data_rate = (region == SID_PAL_RADIO_RC_EU) ?
+							    SID_PAL_RADIO_DATA_RATE_1_76KBPS :
+							    SID_PAL_RADIO_DATA_RATE_2KBPS;
+	int8_t tx_power = 0;
+
+	if (!sub_ghz_cfg) {
+		return;
+	}
+	if (!sid_pal_radio_get_max_tx_power(SID_PAL_RADIO_DATA_RATE_50KBPS, &tx_power)) {
+		sub_ghz_cfg->link2_max_tx_power_in_dbm = tx_power;
+	}
+	if (!sid_pal_radio_get_max_tx_power(link3_data_rate, &tx_power)) {
+		sub_ghz_cfg->link3_max_tx_power_in_dbm = tx_power;
+	}
+}
+
+static sid_error_t region_init(const platform_specific_init_parameters_t *params)
+{
+	if (params->region == SID_PAL_RADIO_RC_NONE) {
+		LOG_WRN("Region not set, sub-GHz links unavailable");
+		return SID_ERROR_NONE;
+	}
+
+	/* Update region to regulatory framework */
+	sid_reg_set_region_ready(false);
+	if (sid_reg_set_regional_info(params->region, params->iso_country)) {
+		LOG_ERR("Region %d not supported", params->region);
+		return SID_ERROR_NOSUPPORT;
+	}
+	sid_reg_set_region_ready(true);
+
+	uint8_t region = sid_reg_get_regional_info()->region;
+
+	if (sid_pal_radio_set_region(region)) {
+		LOG_ERR("No radio parameters for region %d", region);
+		return SID_ERROR_UNINITIALIZED;
+	}
+	update_link_max_tx_power(params->sub_ghz_cfg, region);
+
+	return SID_ERROR_NONE;
+}
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT && (REGION_ALL || REGION_LITE) */
+
 sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platform_init_parameters)
 {
 	if (!platform_init_parameters) {
@@ -43,6 +93,13 @@ sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platf
 		return SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
 	set_radio_config(platform_init_parameters->radio_cfg);
+#if defined(REGION_ALL) || defined(REGION_LITE)
+	sid_error_t region_err = region_init(platform_init_parameters);
+
+	if (region_err) {
+		return region_err;
+	}
+#endif /* REGION_ALL || REGION_LITE */
 #endif /* defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
 #if defined(CONFIG_SIDEWALK_TEMPERATURE)

@@ -25,17 +25,16 @@
 
 #include <app_subGHz_config.h>
 
-#define REGION_US915
-
 #define RADIO_LR11XX_MAX_TX_POWER 22
 #define RADIO_LR11XX_MIN_TX_POWER -9
 
 #define RADIO_MAX_TX_POWER_NA 20
 #define RADIO_MAX_TX_POWER_EU 14
+#define RADIO_MAX_TX_POWER_ANZ 20
 
 #if defined(REGION_ALL)
 #define RADIO_REGION RADIO_REGION_NONE
-#elif defined(REGION_US915)
+#elif defined(REGION_LITE) || defined(REGION_US915)
 #define RADIO_REGION RADIO_REGION_NA
 #elif defined(REGION_EU868)
 #define RADIO_REGION RADIO_REGION_EU
@@ -130,18 +129,28 @@ static int32_t radio_lr11xx_pa_cfg(int8_t tx_power, radio_lr11xx_pa_cfg_t *pa_cf
 }
 
 static const radio_lr11xx_regional_param_t radio_lr11xx_regional_param[] = {
-#if defined(REGION_ALL) || defined(REGION_US915)
+#if defined(REGION_ALL) || defined(REGION_LITE) || defined(REGION_US915)
 	{ .param_region = RADIO_REGION_NA,
 	  .max_tx_power = { RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
+			    RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
 			    RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA },
-	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
+	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
 #endif
-#if defined(REGION_ALL) || defined(REGION_EU868)
+#if defined(REGION_ALL) || defined(REGION_LITE) || defined(REGION_EU868)
 	{ .param_region = RADIO_REGION_EU,
 	  .max_tx_power = { RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
+			    RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
 			    RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU },
-	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0 },
+	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
+#endif
+#if defined(REGION_ALL) || defined(REGION_ANZ915)
+	{ .param_region = RADIO_REGION_ANZ,
+	  .max_tx_power = { RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ,
+			    RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ,
+			    RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ },
+	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
 #endif
 };
