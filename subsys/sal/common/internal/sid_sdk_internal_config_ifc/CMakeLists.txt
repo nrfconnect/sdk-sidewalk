@@ -27,9 +27,11 @@ target_sources(sid_sdk_internal_config_ifc
     sid_sdk_internal_config.h
 )
 
+# sid_sdk_gw_config_ifc is intentionally omitted: sid_sdk_gw_config.h is only
+# pulled in for gateway builds (SID_GW_BUILD / GW_SUPPORT), which are not part
+# of this add-on.
 target_link_libraries(sid_sdk_internal_config_ifc
   INTERFACE
     sid_sdk_config_ifc
-    sid_sdk_gw_config_ifc
     sid_utils_ifc
 )
