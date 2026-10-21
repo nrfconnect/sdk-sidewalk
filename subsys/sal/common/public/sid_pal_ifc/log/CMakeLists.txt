@@ -29,8 +29,6 @@ target_sources(sid_pal_log_ifc
 
 set_target_properties(sid_pal_log_ifc PROPERTIES PUBLIC_HEADER "${CMAKE_CURRENT_LIST_DIR}/sid_pal_log_ifc.h")
 
-target_link_libraries(sid_pal_log_ifc
-    INTERFACE
-        sid_log_control
-)
-
+# sid_log_control is intentionally omitted: the SDK ships only the header-only
+# sid_log_control_ifc target, and sid_log_control_get_current_log_level() is
+# implemented by this add-on in subsys/sal/sid_pal/src/sid_log.c.
