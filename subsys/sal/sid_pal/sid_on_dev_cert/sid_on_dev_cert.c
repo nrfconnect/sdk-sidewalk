@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include <zephyr/kernel.h>
-#include <zephyr/sys/byteorder.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/logging/log.h>
 #include <sid_mfg_hex_parsers.h>
@@ -124,7 +123,7 @@ err_out:
 	goto out;
 }
 
-static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial)
+static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial, size_t available)
 {
 	/*
      * Certificate Serial Number format (standard 4-byte):
@@ -150,9 +149,20 @@ static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial)
      * Note: Standard 4-byte Certificate Serial Number is transmitted as little-endian byte sequence.
      * So, the Extended Certificate Serial Number must also have the first 4 bytes as little-endian.
      */
-	uint16_t head = sys_get_be16(serial);
-	if ((head & 0x3000) == 0x3000) {
-		return (head & 0x007f) + 4;
+	if (available < SID_ODC_CA_SERIAL_MIN_SIZE) {
+		LOG_ERR("CA Serial truncated [%d]", (int)available);
+		return 0;
+	}
+
+	if ((serial[3] & 0xF0) == 0xB0) {
+		// Type of certificate = 2 (Cloud), Certificate intermediate chain = 0b11 (extended certificate chain)
+		uint16_t length = (serial[2] & 0x7F) + 2; // get full serial length
+		if (length < SID_ODC_CA_SERIAL_MIN_SIZE || length > SID_ODC_CA_SERIAL_MAX_SIZE) {
+			LOG_ERR("CA Serial format error [%d][%d][%d][%d]", serial[0], serial[1],
+				serial[2], serial[3]);
+			return 0;
+		}
+		return length;
 	}
 
 	return SID_ODC_CA_SERIAL_MIN_SIZE;
@@ -472,7 +482,7 @@ sid_on_dev_cert_write_cert_chain(const struct sid_on_dev_cert_chain_params *chai
 		// Store ED25519 Sidewalk CAs in memory
 		for (int i = 0; i < CERT_MAX_NUM; i++) {
 			context->cert_ed25519[i].serial_length =
-				sid_on_dev_cert_get_ca_serial_length(pointer);
+				sid_on_dev_cert_get_ca_serial_length(pointer, pointer_end - pointer);
 			if (context->cert_ed25519[i].serial_length == 0) {
 				ret = SID_ERROR_INVALID_ARGS;
 				goto exit;
@@ -508,7 +518,7 @@ sid_on_dev_cert_write_cert_chain(const struct sid_on_dev_cert_chain_params *chai
 		// Store P256R1 Sidewalk CAs in memory
 		for (int i = 0; i < CERT_MAX_NUM; i++) {
 			context->cert_p256r1[i].serial_length =
-				sid_on_dev_cert_get_ca_serial_length(pointer);
+				sid_on_dev_cert_get_ca_serial_length(pointer, pointer_end - pointer);
 			if (context->cert_p256r1[i].serial_length == 0) {
 				ret = SID_ERROR_INVALID_ARGS;
 				goto exit;
