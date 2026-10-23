@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Amazon.com, Inc. or its affiliates. All rights reserved.
+ * Copyright 2023-2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  * AMAZON PROPRIETARY/CONFIDENTIAL
  *
@@ -16,19 +16,17 @@
 #include <stdint.h>
 #include <sid_on_dev_cert.h>
 #include <sid_endian.h>
-#include <sid_pal_log_ifc.h>
 #include <sid_pal_crypto_ifc.h>
 #include <sid_pal_mfg_store_ifc.h>
+#include <sid_rng.h>
 
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 #include <sid_crypto_keys.h>
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <zephyr/kernel.h>
-#include <zephyr/sys/byteorder.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/logging/log.h>
 #include <sid_mfg_hex_parsers.h>
@@ -37,13 +35,19 @@
 LOG_MODULE_REGISTER(sid_dev_cert, CONFIG_SIDEWALK_LOG_LEVEL);
 
 // Internal flags for tracking library state
-#define ODC_STATE_FLG_SMSN 0x01
-#define ODC_STATE_FLG_APP_KEY 0x02
-#define ODC_STATE_FLG_ED25519_CSR 0x04
-#define ODC_STATE_FLG_P256R1_CSR 0x08
-#define ODC_STATE_FLG_ED25519_CHAIN 0x10
-#define ODC_STATE_FLG_P256R1_CHAIN 0x20
-#define ODC_STATE_MSK_FULL_INIT 0x3F
+// clang-format off
+#define ODC_STATE_FLG_SMSN              0x01
+#define ODC_STATE_FLG_APP_KEY           0x02
+#define ODC_STATE_FLG_ED25519_CSR       0x04
+#define ODC_STATE_FLG_P256R1_CSR        0x08
+#define ODC_STATE_FLG_ED25519_CHAIN     0x10
+#define ODC_STATE_FLG_P256R1_CHAIN      0x20
+#define ODC_STATE_MSK_FULL_INIT         (ODC_STATE_FLG_SMSN | \
+                                        ODC_STATE_FLG_ED25519_CSR | \
+                                        ODC_STATE_FLG_P256R1_CSR | \
+                                        ODC_STATE_FLG_ED25519_CHAIN | \
+                                        ODC_STATE_FLG_P256R1_CHAIN)
+// clang-format on
 
 #define IS_STATE_FLG_SET(_FLAGS_) ((context->state & (_FLAGS_)) == (_FLAGS_))
 #define IS_STATE_FLG_UNSET(_FLAGS_) ((context->state & (_FLAGS_)) == 0)
@@ -64,7 +68,7 @@ struct sid_on_dev_cert_ca_ed25519 {
 	uint8_t pub_key[SID_ODC_ED25519_PUK_SIZE];
 	uint8_t signature[SID_ODC_SIGNATURE_SIZE];
 	uint16_t serial_length;
-	uint8_t serial[SID_ODC_CA_SERIAL_MAX_SIZE];
+	uint8_t *serial;
 };
 
 // Sidewalk Certificate Authority (CA) for P256r1 curve
@@ -72,13 +76,15 @@ struct sid_on_dev_cert_ca_p256r1 {
 	uint8_t pub_key[SID_ODC_P256R1_PUK_SIZE];
 	uint8_t signature[SID_ODC_SIGNATURE_SIZE];
 	uint16_t serial_length;
-	uint8_t serial[SID_ODC_CA_SERIAL_MAX_SIZE];
+	uint8_t *serial;
 };
 
 struct sid_on_dev_cert_context {
 	uint8_t state;
 	uint8_t smsn[SID_ODC_SMSN_SIZE];
 	uint8_t apid[SID_PAL_MFG_STORE_APID_SIZE];
+	uint8_t dtid[SID_PAL_MFG_STORE_DTID_SIZE];
+	uint8_t dtid_len;
 	uint8_t app_key[SID_ODC_ED25519_PUK_SIZE];
 	uint8_t device_ed25519_prk[SID_ODC_ED25519_PRK_SIZE];
 	uint8_t device_ed25519_puk[SID_ODC_ED25519_PUK_SIZE];
@@ -101,7 +107,6 @@ static bool write_to_mfg_store(uint16_t value, const uint8_t *const buffer, uint
 	}
 
 	read_buf = k_heap_alloc(&cert_heap, length, K_NO_WAIT);
-
 	if (!read_buf) {
 		result = -1;
 		goto err_out;
@@ -124,7 +129,7 @@ err_out:
 	goto out;
 }
 
-static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial)
+static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial, size_t available)
 {
 	/*
      * Certificate Serial Number format (standard 4-byte):
@@ -150,11 +155,24 @@ static uint16_t sid_on_dev_cert_get_ca_serial_length(const uint8_t *serial)
      * Note: Standard 4-byte Certificate Serial Number is transmitted as little-endian byte sequence.
      * So, the Extended Certificate Serial Number must also have the first 4 bytes as little-endian.
      */
-	uint16_t head = sys_get_be16(serial);
-	if ((head & 0x3000) == 0x3000) {
-		return (head & 0x007f) + 4;
+	if (available < SID_ODC_CA_SERIAL_MIN_SIZE) {
+		// Not enough data to even read the serial header
+		LOG_ERR("CA Serial truncated [%d]", (int)available);
+		return 0;
 	}
 
+	if ((serial[3] & 0xF0) == 0xB0) {
+		// Type of certificate = 2 (Cloud), Certificate intermediate chain = 0b11 (extended certificate chain)
+		uint16_t length = serial[2] & 0x7F;
+		length += 2; // get full serial length
+		if (length < SID_ODC_CA_SERIAL_MIN_SIZE || length > SID_ODC_CA_SERIAL_MAX_SIZE) {
+			LOG_ERR("CA Serial format error [%d][%d][%d][%d]", serial[0],
+					  serial[1], serial[2], serial[3]);
+			return 0;
+		} else {
+			return length;
+		}
+	}
 	return SID_ODC_CA_SERIAL_MIN_SIZE;
 }
 
@@ -198,25 +216,374 @@ static bool sid_on_dev_cert_p256r1_verify(const struct sid_on_dev_cert_ca_p256r1
 	return (sid_pal_crypto_ecc_dsa(&params) == SID_ERROR_NONE);
 }
 
+/**
+ * @brief  verify certs stored in context
+ *
+ * @param last_verify_cert argument defines max cert id to check.
+ *          Note:
+ *          In case certs is read from flash, AMZN cert contains only pub_key,
+ *          that is why 'last_verify_cert' should be set to CERT_AMZN.
+ *          In case writing Certificate Chain to the Device,
+ *          all the fields contain valid data and therefore should be verified.
+ *          That is why 'last_verify_cert' should be set to CERT_MAX_NUM.
+ * @return sid_error_t
+ */
+static sid_error_t sid_on_dev_cert_verify(enum sid_on_dev_cert_ca_id last_verify_cert)
+{
+	sid_error_t ret = SID_ERROR_NONE;
+	/*
+     * Certificate chain:  Device <-- DAK <-- PRODUCT <-- Manufacturer <-- Sidewalk <-- AMZN
+     * Each certificate signs and validates the next certificate in the chain.
+     * In this AMZN public key would verify Sidewalk signature. Sidewalk public key would verify Manufacturer signature.
+     * Manufacturer public key would verify PRODUCT and so on down to device
+     */
+
+	// Verify ED25519 and P256R1 Sidewalk Device Certificates
+	uint8_t hash[SID_ODC_SMSN_SIZE + SID_ODC_P256R1_PUK_SIZE];
+	sid_pal_dsa_params_t params = {
+		.mode = SID_PAL_CRYPTO_VERIFY,
+		.sig_size = SID_ODC_SIGNATURE_SIZE,
+	};
+
+	memcpy(hash, context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE);
+	memcpy(hash + SID_ODC_ED25519_PUK_SIZE, context->smsn, SID_ODC_SMSN_SIZE);
+
+	params.algo = SID_PAL_EDDSA_ED25519;
+	params.key = context->cert_ed25519[CERT_DAK].pub_key;
+	params.key_size = SID_ODC_ED25519_PUK_SIZE;
+	params.in = hash;
+	params.in_size = SID_ODC_ED25519_PUK_SIZE + SID_ODC_SMSN_SIZE;
+	params.signature = context->device_ed25519_sig;
+
+	if (sid_pal_crypto_ecc_dsa(&params) != SID_ERROR_NONE) {
+		LOG_ERR("Verify ED25519 Sidewalk Device Certificate failed");
+		ret = SID_ERROR_GENERIC;
+		goto exit;
+	}
+
+	memcpy(hash, context->device_p256r1_puk, SID_ODC_P256R1_PUK_SIZE);
+	memcpy(hash + SID_ODC_P256R1_PUK_SIZE, context->smsn, SID_ODC_SMSN_SIZE);
+
+	params.algo = SID_PAL_ECDSA_SECP256R1;
+	params.key = context->cert_p256r1[CERT_DAK].pub_key;
+	params.key_size = SID_ODC_P256R1_PUK_SIZE;
+	params.in = hash;
+	params.in_size = SID_ODC_P256R1_PUK_SIZE + SID_ODC_SMSN_SIZE;
+	params.signature = context->device_p256r1_sig;
+
+	if (sid_pal_crypto_ecc_dsa(&params) != SID_ERROR_NONE) {
+		LOG_ERR("Verify P256R1 Sidewalk Device Certificate failed");
+		ret = SID_ERROR_GENERIC;
+		goto exit;
+	}
+	// Verify ED25519 and P256R1 Sidewalk CAs
+	for (int i = 0; i < last_verify_cert; i++) {
+		// Note: Each certificate is signed with the key of the next certificate, except of self-signed Amazon Root CA
+		if (!sid_on_dev_cert_ed25519_verify(
+			    &context->cert_ed25519[i],
+			    context->cert_ed25519[(i == CERT_AMZN) ? i : (i + 1)].pub_key)) {
+			LOG_ERR("Verify ED25519 Sidewalk CA failed [%d]", i);
+			ret = SID_ERROR_GENERIC;
+			goto exit;
+		}
+		if (!sid_on_dev_cert_p256r1_verify(
+			    &context->cert_p256r1[i],
+			    context->cert_p256r1[(i == CERT_AMZN) ? i : (i + 1)].pub_key)) {
+			LOG_ERR("Verify P256R1 Sidewalk CA failed [%d]", i);
+			ret = SID_ERROR_GENERIC;
+			goto exit;
+		}
+	}
+exit:
+	return ret;
+}
+
+static bool sid_on_dev_cert_read_ed2219_certs_data(sid_pal_mfg_store_value_t *value,
+						   struct sid_on_dev_cert_ca_ed25519 *buffer)
+{
+	uint16_t mfg_value = (uint16_t)*value;
+	sid_pal_mfg_store_read(mfg_value++, buffer->pub_key, SID_ODC_ED25519_PUK_SIZE);
+	sid_pal_mfg_store_read(mfg_value++, buffer->signature, SID_ODC_SIGNATURE_SIZE);
+	buffer->serial_length = sid_pal_mfg_store_get_length_for_value(mfg_value);
+	if (!buffer->serial_length) {
+		goto ret_error;
+	}
+	if (buffer->serial != NULL) {
+		k_heap_free(&cert_heap, buffer->serial);
+	}
+	buffer->serial = k_heap_alloc(&cert_heap, buffer->serial_length, K_NO_WAIT);
+	if (buffer->serial == NULL) {
+		goto ret_error;
+	}
+	sid_pal_mfg_store_read(mfg_value++, buffer->serial, buffer->serial_length);
+	*value = (sid_pal_mfg_store_value_t)mfg_value;
+	return false;
+ret_error:
+	return true;
+}
+
+static bool sid_on_dev_cert_read_p256r1_certs_data(sid_pal_mfg_store_value_t *value,
+						   struct sid_on_dev_cert_ca_p256r1 *buffer)
+{
+	uint16_t mfg_value = (uint16_t)*value;
+	sid_pal_mfg_store_read(mfg_value++, buffer->pub_key, SID_ODC_P256R1_PUK_SIZE);
+	sid_pal_mfg_store_read(mfg_value++, buffer->signature, SID_ODC_SIGNATURE_SIZE);
+	buffer->serial_length = sid_pal_mfg_store_get_length_for_value(mfg_value);
+	if (!buffer->serial_length) {
+		goto ret_error;
+	}
+	if (buffer->serial != NULL) {
+		k_heap_free(&cert_heap, buffer->serial);
+	}
+	buffer->serial = k_heap_alloc(&cert_heap, buffer->serial_length, K_NO_WAIT);
+	if (buffer->serial == NULL) {
+		goto ret_error;
+	}
+	sid_pal_mfg_store_read(mfg_value++, buffer->serial, buffer->serial_length);
+	*value = (sid_pal_mfg_store_value_t)mfg_value;
+	return false;
+ret_error:
+	return true;
+}
+
+static void sid_on_dev_cert_free_allocated_mem_for_serials(void)
+{
+	for (enum sid_on_dev_cert_ca_id id = CERT_DAK; id < CERT_MAX_NUM; id++) {
+		if (context->cert_ed25519[id].serial != NULL) {
+			k_heap_free(&cert_heap, context->cert_ed25519[id].serial);
+			context->cert_ed25519[id].serial = NULL;
+		}
+		if (context->cert_p256r1[id].serial != NULL) {
+			k_heap_free(&cert_heap, context->cert_p256r1[id].serial);
+			context->cert_p256r1[id].serial = NULL;
+		}
+	}
+}
+
+// check each byte of the array is != 0xff && != 0x00
+static bool array_is_empty(const uint8_t *array, size_t arr_size)
+{
+	bool res_val = false;
+	size_t orig_arr_size = arr_size, zeros = 0, ffs = 0;
+
+	while (arr_size--) {
+		zeros += (*array == 0x00) ? 1 : 0;
+		ffs += (*array == UINT8_MAX) ? 1 : 0;
+		++array;
+	}
+	if ((zeros == orig_arr_size) || (ffs == orig_arr_size)) {
+		res_val = true;
+	}
+
+	return res_val;
+}
+
+static sid_error_t sign_verify_user_string(sid_pal_dsa_mode_t mode, sid_pal_ecc_algo_t algo,
+					   uint8_t *in_data, size_t data_size, uint8_t *signature)
+{
+	sid_pal_dsa_params_t dsa_params = {
+		.algo = algo,
+		.mode = mode,
+		.in = in_data,
+		.in_size = data_size,
+		.signature = signature,
+		.sig_size = SID_ODC_SIGNATURE_SIZE,
+	};
+
+	switch (algo) {
+	case SID_PAL_ECDSA_SECP256R1:
+		dsa_params.key = (mode == SID_PAL_CRYPTO_SIGN) ? context->device_p256r1_prk :
+								 context->device_p256r1_puk;
+		dsa_params.key_size = (mode == SID_PAL_CRYPTO_SIGN) ? SID_ODC_P256R1_PRK_SIZE :
+								      SID_ODC_P256R1_PUK_SIZE;
+		break;
+	case SID_PAL_EDDSA_ED25519:
+		dsa_params.key = (mode == SID_PAL_CRYPTO_SIGN) ? context->device_ed25519_prk :
+								 context->device_ed25519_puk;
+		dsa_params.key_size = (mode == SID_PAL_CRYPTO_SIGN) ? SID_ODC_ED25519_PRK_SIZE :
+								      SID_ODC_ED25519_PUK_SIZE;
+		break;
+	default:
+		return SID_ERROR_INVALID_ARGS;
+	}
+
+	return sid_pal_crypto_ecc_dsa(&dsa_params);
+}
+
+static sid_error_t sign_verify_key_pair(sid_pal_ecc_algo_t algo, uint8_t *in_data, size_t data_size,
+					uint8_t *signature)
+{
+	sid_error_t ret_val =
+		sign_verify_user_string(SID_PAL_CRYPTO_SIGN, algo, in_data, data_size, signature);
+
+	if (ret_val != SID_ERROR_NONE) {
+		LOG_ERR("Error user signature generation! Algo: %d", algo);
+		goto exit;
+	}
+
+	ret_val =
+		sign_verify_user_string(SID_PAL_CRYPTO_VERIFY, algo, in_data, data_size, signature);
+
+	if (ret_val != SID_ERROR_NONE) {
+		LOG_ERR("Error verification of user signature! Algo: %d", algo);
+		goto exit;
+	}
+exit:
+	return ret_val;
+}
+
+#define USER_STRING_SIZE UINT8_MAX
+static sid_error_t check_key_pairs(void)
+{
+	uint8_t random_string[USER_STRING_SIZE];
+	uint8_t sign_arr[SID_ODC_SIGNATURE_SIZE];
+	sid_error_t ret_val = SID_ERROR_NONE;
+
+	if ((ret_val = sid_rng_init()) != SID_ERROR_NONE) {
+		goto exit;
+	}
+
+	for (uint8_t i = 0; i < USER_STRING_SIZE; ++i) {
+		random_string[i] = (uint8_t)sid_rng_get_range_crypto_safe(UINT8_MAX + 1);
+	}
+
+	if ((ret_val = sign_verify_key_pair(SID_PAL_ECDSA_SECP256R1, random_string,
+					    USER_STRING_SIZE, sign_arr)) != SID_ERROR_NONE) {
+		goto exit;
+	}
+
+	if ((ret_val = sign_verify_key_pair(SID_PAL_EDDSA_ED25519, random_string, USER_STRING_SIZE,
+					    sign_arr)) != SID_ERROR_NONE) {
+		goto exit;
+	}
+	LOG_INF("Key pair was verified successfully.");
+
+exit:
+	return ret_val;
+}
+
+sid_error_t sid_on_dev_cert_status_check(void)
+{
+	sid_error_t ret_val = SID_ERROR_NONE;
+
+	if (!context) {
+		return SID_ERROR_UNINITIALIZED;
+	}
+	// read whole data from flash space and place it to context
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_APID, context->apid, SID_PAL_MFG_STORE_APID_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
+			       SID_ODC_ED25519_PUK_SIZE);
+
+	if (array_is_empty(context->apid, SID_PAL_MFG_STORE_APID_SIZE)) {
+		return SID_ERROR_PARAM_OUT_OF_RANGE;
+	}
+
+	size_t dtid_len = sid_pal_mfg_store_get_length_for_value(SID_PAL_MFG_STORE_DTID);
+	if (dtid_len == 0 || dtid_len > SID_PAL_MFG_STORE_DTID_SIZE) {
+		return SID_ERROR_PARAM_OUT_OF_RANGE;
+	}
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DTID, context->dtid, dtid_len);
+
+	// GW does not support app key, skip the check
+#if !defined(GW_SUPPORT) || !GW_SUPPORT
+	if (array_is_empty(context->app_key, SID_ODC_ED25519_PUK_SIZE)) {
+		return SID_ERROR_PARAM_OUT_OF_RANGE;
+	}
+#endif
+
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519, context->device_ed25519_prk,
+			       SID_ODC_ED25519_PRK_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519, context->device_ed25519_puk,
+			       SID_ODC_ED25519_PUK_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
+			       context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE);
+
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1, context->device_p256r1_prk,
+			       SID_ODC_P256R1_PRK_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, context->device_p256r1_puk,
+			       SID_ODC_P256R1_PUK_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
+			       context->device_p256r1_sig, SID_ODC_SIGNATURE_SIZE);
+
+	sid_pal_mfg_store_value_t mfg_storage_value = SID_PAL_MFG_STORE_DAK_PUB_ED25519;
+	for (enum sid_on_dev_cert_ca_id id = CERT_DAK; id < CERT_AMZN; id++) {
+		if (sid_on_dev_cert_read_ed2219_certs_data(&mfg_storage_value,
+							   &context->cert_ed25519[id]) ||
+		    sid_on_dev_cert_read_p256r1_certs_data(&mfg_storage_value,
+							   &context->cert_p256r1[id])) {
+			ret_val = SID_ERROR_STORAGE_READ_FAIL;
+			goto exit;
+		}
+	}
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_AMZN_PUB_ED25519,
+			       context->cert_ed25519[CERT_AMZN].pub_key, SID_ODC_ED25519_PUK_SIZE);
+	sid_pal_mfg_store_read(SID_PAL_MFG_STORE_AMZN_PUB_P256R1,
+			       context->cert_p256r1[CERT_AMZN].pub_key, SID_ODC_P256R1_PUK_SIZE);
+
+	ret_val = sid_on_dev_cert_verify(CERT_AMZN);
+	if (ret_val != SID_ERROR_NONE) {
+		goto exit;
+	}
+
+	if ((ret_val = check_key_pairs()) != SID_ERROR_NONE) {
+		goto exit;
+	}
+
+exit:
+	// despite errors clean-up context
+	sid_on_dev_cert_free_allocated_mem_for_serials();
+	memset(context, 0, sizeof(struct sid_on_dev_cert_context));
+	return ret_val;
+}
+
+sid_error_t sid_on_dev_cert_read_cert_values(enum sid_on_dev_cert_print_fileds info_num,
+					     uint8_t *data, size_t *data_size)
+{
+	uint16_t read_data_field = 0;
+
+	if (!data || !data_size) {
+		return SID_ERROR_NULL_POINTER;
+	}
+
+	switch (info_num) {
+	case SID_ODC_PRINT_APID:
+		read_data_field = SID_PAL_MFG_STORE_APID;
+		*data_size = SID_PAL_MFG_STORE_APID_SIZE;
+		break;
+	case SID_ODC_PRINT_APP_KEY:
+		read_data_field = SID_PAL_MFG_STORE_APP_PUB_ED25519;
+		*data_size = SID_ODC_ED25519_PUK_SIZE;
+		break;
+	case SID_ODC_PRINT_DTID:
+		read_data_field = SID_PAL_MFG_STORE_DTID;
+		*data_size = sid_pal_mfg_store_get_length_for_value(SID_PAL_MFG_STORE_DTID);
+		if (*data_size == 0 || *data_size > SID_PAL_MFG_STORE_DTID_SIZE) {
+			return SID_ERROR_PARAM_OUT_OF_RANGE;
+		}
+		break;
+	default:
+		// extra "data read fail" indicator;
+		*data_size = 0;
+		return SID_ERROR_INVALID_ARGS;
+	}
+	sid_pal_mfg_store_read(read_data_field, data, *data_size);
+	return SID_ERROR_NONE;
+}
+
 sid_error_t sid_on_dev_cert_init(void)
 {
 	if (!context) {
 		context =
 			k_heap_alloc(&cert_heap, sizeof(struct sid_on_dev_cert_context), K_NO_WAIT);
-
 		if (!context) {
 			return SID_ERROR_OOM;
 		}
+	} else {
+		sid_on_dev_cert_free_allocated_mem_for_serials();
 	}
 
-	memset(context, 0xFF, sizeof(struct sid_on_dev_cert_context));
-
-	for (int i = 0; i < CERT_MAX_NUM; i++) {
-		context->cert_ed25519[i].serial_length = 0;
-		context->cert_p256r1[i].serial_length = 0;
-	}
-
-	context->state = 0;
+	memset(context, 0, sizeof(struct sid_on_dev_cert_context));
 
 	return SID_ERROR_NONE;
 }
@@ -224,6 +591,7 @@ sid_error_t sid_on_dev_cert_init(void)
 void sid_on_dev_cert_deinit(void)
 {
 	if (context) {
+		sid_on_dev_cert_free_allocated_mem_for_serials();
 		k_heap_free(&cert_heap, context);
 		context = NULL;
 	}
@@ -248,26 +616,34 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 	size_t dev_type_len = strlen(dev_info->dev_type);
 	size_t dsn_len = strlen(dev_info->dsn);
 	size_t apid_len = strlen(dev_info->apid);
-	size_t board_id_len = dev_info->board_id ? strlen(dev_info->board_id) : 0;
+
+	// Check if suffix is present and calculate actual device type length
+	const char *suffix = "-PRODUCTION";
+	size_t suffix_len = strlen(suffix);
+	size_t actual_dev_type_len = dev_type_len;
+
+	if (dev_type_len >= suffix_len &&
+	    strcmp(dev_info->dev_type + dev_type_len - suffix_len, suffix) == 0) {
+		actual_dev_type_len = dev_type_len - suffix_len;
+	}
 
 	// Check input string length. Device Serial Number should be stored as a null terminated string.
 	if (((dsn_len + 1) > SID_PAL_MFG_STORE_SERIAL_NUM_SIZE) ||
-	    (apid_len != SID_PAL_MFG_STORE_APID_SIZE)) {
+	    (apid_len != SID_PAL_MFG_STORE_APID_SIZE) ||
+	    actual_dev_type_len > SID_PAL_MFG_STORE_DTID_SIZE) {
 		return SID_ERROR_INVALID_ARGS;
 	}
 
 	uint8_t *m_buf = NULL;
-	m_buf = k_heap_alloc(&cert_heap, dev_type_len + dsn_len + apid_len + board_id_len,
-			     K_NO_WAIT);
-
+	m_buf = k_heap_alloc(&cert_heap, dev_type_len + dsn_len + apid_len, K_NO_WAIT);
 	if (!m_buf) {
 		return SID_ERROR_OOM;
 	}
 
 	/*
-    * Generate SMSN:
-    *   SMSN = SHA256(DMS-DeviceType, [DSN|unique serial], Advertised-Product-ID, BoardID[optional])
-    */
+     * Generate SMSN:
+     *   SMSN = SHA256(DMS-DeviceType, [DSN|unique serial], Advertised-Product-ID)
+     */
 	size_t idx = 0;
 	memcpy(m_buf, dev_info->dev_type, dev_type_len);
 	idx += dev_type_len;
@@ -275,10 +651,6 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 	idx += dsn_len;
 	memcpy(&m_buf[idx], dev_info->apid, apid_len);
 	idx += apid_len;
-	if (dev_info->board_id) {
-		memcpy(&m_buf[idx], dev_info->board_id, board_id_len);
-		idx += board_id_len;
-	}
 
 	sid_pal_hash_params_t hash_params = { .algo = SID_PAL_HASH_SHA256,
 					      .data = m_buf,
@@ -289,6 +661,9 @@ sid_error_t sid_on_dev_cert_generate_smsn(const struct sid_on_dev_cert_info *dev
 	sid_error_t ret = sid_pal_crypto_hash(&hash_params);
 	if (ret == SID_ERROR_NONE) {
 		memcpy(context->apid, dev_info->apid, sizeof(context->apid));
+		// The DeviceType is stored without the '-PRODUCTION' suffix.
+		memcpy(context->dtid, dev_info->dev_type, actual_dev_type_len);
+		context->dtid_len = (uint8_t)actual_dev_type_len;
 		memcpy(context->smsn, smsn, SID_ODC_SMSN_SIZE);
 		context->state |= ODC_STATE_FLG_SMSN;
 	}
@@ -345,10 +720,9 @@ sid_error_t sid_on_dev_cert_generate_csr(enum sid_on_dev_cert_algo_type algo, ui
 	// Generate key pair
 #ifdef CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
 	ret = SID_ERROR_GENERIC;
-	psa_key_id_t key_id =
-		(algo == SID_ODC_CRYPT_ALGO_ED25519) ? SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID :
-		(algo == SID_ODC_CRYPT_ALGO_P256R1)  ? SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID :
-						       PSA_KEY_ID_NULL;
+	psa_key_id_t key_id = (algo == SID_ODC_CRYPT_ALGO_ED25519) ?
+				      SID_CRYPTO_MFG_ED25519_PRIV_KEY_ID :
+				      SID_CRYPTO_MFG_SECP_256R1_PRIV_KEY_ID;
 	int err = sid_crypto_keys_new_generate(key_id, key_params.puk, key_params.puk_size);
 	if (!err) {
 		err = sid_crypto_keys_buffer_set(key_id, key_params.prk, key_params.prk_size);
@@ -361,13 +735,13 @@ sid_error_t sid_on_dev_cert_generate_csr(enum sid_on_dev_cert_algo_type algo, ui
 #endif /* CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE */
 	if (ret == SID_ERROR_NONE) {
 		/*
-        * Signing the certificate CSR
-        * Message_to_sign = Public key || SMSN
-        * Then signing using the generates private key
-        * Signature = sign(Private Key, Message_to_sign)
-        * The returned CSR:
-        * CSR = Public Key || SMSN || Signature
-        */
+         * Signing the certificate CSR
+         * Message_to_sign = Public key || SMSN
+         * Then signing using the generates private key
+         * Signature = sign(Private Key, Message_to_sign)
+         * The returned CSR:
+         * CSR = Public Key || SMSN || Signature
+         */
 		size_t csr_out_size =
 			key_params.puk_size + SID_ODC_SMSN_SIZE + SID_ODC_SIGNATURE_SIZE;
 		if (csr_in_size < csr_out_size) {
@@ -472,9 +846,19 @@ sid_on_dev_cert_write_cert_chain(const struct sid_on_dev_cert_chain_params *chai
 		// Store ED25519 Sidewalk CAs in memory
 		for (int i = 0; i < CERT_MAX_NUM; i++) {
 			context->cert_ed25519[i].serial_length =
-				sid_on_dev_cert_get_ca_serial_length(pointer);
+				sid_on_dev_cert_get_ca_serial_length(pointer,
+								     pointer_end - pointer);
 			if (context->cert_ed25519[i].serial_length == 0) {
 				ret = SID_ERROR_INVALID_ARGS;
+				goto exit;
+			}
+			if (context->cert_ed25519[i].serial != NULL) {
+				k_heap_free(&cert_heap, context->cert_ed25519[i].serial);
+			}
+			context->cert_ed25519[i].serial = k_heap_alloc(
+				&cert_heap, context->cert_ed25519[i].serial_length, K_NO_WAIT);
+			if (context->cert_ed25519[i].serial == NULL) {
+				ret = SID_ERROR_OOM;
 				goto exit;
 			}
 			// check for memory overlap
@@ -508,9 +892,19 @@ sid_on_dev_cert_write_cert_chain(const struct sid_on_dev_cert_chain_params *chai
 		// Store P256R1 Sidewalk CAs in memory
 		for (int i = 0; i < CERT_MAX_NUM; i++) {
 			context->cert_p256r1[i].serial_length =
-				sid_on_dev_cert_get_ca_serial_length(pointer);
+				sid_on_dev_cert_get_ca_serial_length(pointer,
+								     pointer_end - pointer);
 			if (context->cert_p256r1[i].serial_length == 0) {
 				ret = SID_ERROR_INVALID_ARGS;
+				goto exit;
+			}
+			if (context->cert_p256r1[i].serial != NULL) {
+				k_heap_free(&cert_heap, context->cert_p256r1[i].serial);
+			}
+			context->cert_p256r1[i].serial = k_heap_alloc(
+				&cert_heap, context->cert_p256r1[i].serial_length, K_NO_WAIT);
+			if (context->cert_p256r1[i].serial == NULL) {
+				ret = SID_ERROR_OOM;
 				goto exit;
 			}
 			// check for memory overlap
@@ -562,120 +956,69 @@ sid_error_t sid_on_dev_cert_verify_and_store(void)
 		return SID_ERROR_UNINITIALIZED;
 	}
 
-	if (context->state != ODC_STATE_MSK_FULL_INIT) {
+	if (!IS_STATE_FLG_SET(ODC_STATE_MSK_FULL_INIT)) {
 		return SID_ERROR_INVALID_STATE;
 	}
-	int32_t result = 0;
-	bool status = false;
 
-	sid_error_t ret = SID_ERROR_NONE;
-
-	/*
-    * Certificate chain:  Device <-- DAK <-- PRODUCT <-- Manufacturer <-- Sidewalk <-- AMZN
-    * Each certificate signs and validates the next certificate in the chain.
-    * In this AMZN public key would verify Sidewalk signature. Sidewalk public key would verify Manufacturer signature.
-    * Manufacturer public key would verify PRODUCT and so on down to device
-    */
-
-	// Verify ED25519 and P256R1 Sidewalk Device Certificates
-	uint8_t hash[SID_ODC_SMSN_SIZE + SID_ODC_P256R1_PUK_SIZE];
-	sid_pal_dsa_params_t params = {
-		.mode = SID_PAL_CRYPTO_VERIFY,
-		.sig_size = SID_ODC_SIGNATURE_SIZE,
-	};
-
-	memcpy(hash, context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE);
-	memcpy(hash + SID_ODC_ED25519_PUK_SIZE, context->smsn, SID_ODC_SMSN_SIZE);
-
-	params.algo = SID_PAL_EDDSA_ED25519;
-	params.key = context->cert_ed25519[CERT_DAK].pub_key;
-	params.key_size = SID_ODC_ED25519_PUK_SIZE;
-	params.in = hash;
-	params.in_size = SID_ODC_ED25519_PUK_SIZE + SID_ODC_SMSN_SIZE;
-	params.signature = context->device_ed25519_sig;
-
-	if (sid_pal_crypto_ecc_dsa(&params) != SID_ERROR_NONE) {
-		LOG_ERR("Verify ED25519 Sidewalk Device Certificate failed");
-		ret = SID_ERROR_GENERIC;
+	sid_error_t ret = sid_on_dev_cert_verify(CERT_MAX_NUM);
+	if (ret != SID_ERROR_NONE) {
 		goto exit;
 	}
 
-	memcpy(hash, context->device_p256r1_puk, SID_ODC_P256R1_PUK_SIZE);
-	memcpy(hash + SID_ODC_P256R1_PUK_SIZE, context->smsn, SID_ODC_SMSN_SIZE);
-
-	params.algo = SID_PAL_ECDSA_SECP256R1;
-	params.key = context->cert_p256r1[CERT_DAK].pub_key;
-	params.key_size = SID_ODC_P256R1_PUK_SIZE;
-	params.in = hash;
-	params.in_size = SID_ODC_P256R1_PUK_SIZE + SID_ODC_SMSN_SIZE;
-	params.signature = context->device_p256r1_sig;
-
-	if (sid_pal_crypto_ecc_dsa(&params) != SID_ERROR_NONE) {
-		LOG_ERR("Verify P256R1 Sidewalk Device Certificate failed");
-		ret = SID_ERROR_GENERIC;
-		goto exit;
-	}
-
-	// Verify ED25519 and P256R1 Sidewalk CAs
-	for (int i = 0; i < CERT_MAX_NUM; i++) {
-		// Note: Each certificate is signed with the key of the next certificate, except of self-signed Amazon Root CA
-		if (!sid_on_dev_cert_ed25519_verify(
-			    &context->cert_ed25519[i],
-			    context->cert_ed25519[(i == CERT_AMZN) ? i : (i + 1)].pub_key)) {
-			LOG_ERR("Verify ED25519 Sidewalk CA failed [%d]", i);
-			ret = SID_ERROR_GENERIC;
-			goto exit;
-		}
-		if (!sid_on_dev_cert_p256r1_verify(
-			    &context->cert_p256r1[i],
-			    context->cert_p256r1[(i == CERT_AMZN) ? i : (i + 1)].pub_key)) {
-			LOG_ERR("Verify P256R1 Sidewalk CA failed [%d]", i);
-			ret = SID_ERROR_GENERIC;
-			goto exit;
-		}
-	}
-
-	result = sid_pal_mfg_store_erase();
+	int32_t result = sid_pal_mfg_store_erase();
 	if (result) {
 		LOG_ERR("MFG erase failed [%d]", result);
 		ret = SID_ERROR_STORAGE_ERASE_FAIL;
 		goto exit;
 	}
 
-	uint8_t mfg_version[SID_PAL_MFG_STORE_VERSION_SIZE] = { 0x00, 0x00, 0x00,
-								SID_PAL_MFG_STORE_TLV_VERSION };
+	/*
+     * First of all, we need to write the MFG version.
+     * This will determine the storage format: static offsets or TLV
+     */
+	uint32_t mfg_version;
 
-	result = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, mfg_version,
+	if (sid_pal_mfg_store_is_tlv_support()) {
+		mfg_version = sid_htonl(SID_PAL_MFG_STORE_TLV_VERSION);
+	} else {
+		mfg_version = sid_htonl(SID_PAL_MFG_STORE_FIXED_OFFSETS_VERSION);
+	}
+
+	result = sid_pal_mfg_store_write(SID_PAL_MFG_STORE_VERSION, (uint8_t *)&mfg_version,
 					 SID_PAL_MFG_STORE_VERSION_SIZE);
 
 	if (result) {
-		LOG_ERR("Failed to write mfg version");
+		LOG_ERR("MFG version %u is not supported", (unsigned int)sid_ntohl(mfg_version));
 		ret = SID_ERROR_NOSUPPORT;
 		goto exit;
 	}
 
-	status = write_to_mfg_store(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE) &&
-		 write_to_mfg_store(SID_PAL_MFG_STORE_APID, context->apid,
-				    SID_PAL_MFG_STORE_APID_SIZE) &&
-		 write_to_mfg_store(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
-				    SID_ODC_ED25519_PUK_SIZE) &&
+	bool status =
+		write_to_mfg_store(SID_PAL_MFG_STORE_SMSN, context->smsn, SID_ODC_SMSN_SIZE) &&
+		write_to_mfg_store(SID_PAL_MFG_STORE_APID, context->apid,
+				   SID_PAL_MFG_STORE_APID_SIZE) &&
+		write_to_mfg_store(SID_PAL_MFG_STORE_DTID, context->dtid, context->dtid_len)
 #if !CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
-				    context->device_ed25519_prk, SID_ODC_ED25519_PRK_SIZE) &&
+		&& write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_ED25519,
+				      context->device_ed25519_prk, SID_ODC_ED25519_PRK_SIZE)
 #endif
-		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,
-				    context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE) &&
-		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
-				    context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE) &&
+		&& write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519,
+				      context->device_ed25519_puk, SID_ODC_ED25519_PUK_SIZE) &&
+		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_ED25519_SIGNATURE,
+				   context->device_ed25519_sig, SID_ODC_SIGNATURE_SIZE)
 #if !CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE
-		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,
-				    context->device_p256r1_prk, SID_ODC_P256R1_PRK_SIZE) &&
+		&& write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PRIV_P256R1,
+				      context->device_p256r1_prk, SID_ODC_P256R1_PRK_SIZE)
 #endif
-		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1, context->device_p256r1_puk,
-				    SID_ODC_P256R1_PUK_SIZE) &&
-		 write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
-				    context->device_p256r1_sig, SID_ODC_SIGNATURE_SIZE);
+		&& write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1,
+				      context->device_p256r1_puk, SID_ODC_P256R1_PUK_SIZE) &&
+		write_to_mfg_store(SID_PAL_MFG_STORE_DEVICE_PUB_P256R1_SIGNATURE,
+				   context->device_p256r1_sig, SID_ODC_SIGNATURE_SIZE);
 
+	if (IS_STATE_FLG_SET(ODC_STATE_FLG_APP_KEY)) {
+		status &= write_to_mfg_store(SID_PAL_MFG_STORE_APP_PUB_ED25519, context->app_key,
+					     SID_ODC_ED25519_PUK_SIZE);
+	}
 	if (!status) {
 		ret = SID_ERROR_STORAGE_WRITE_FAIL;
 		goto exit;
