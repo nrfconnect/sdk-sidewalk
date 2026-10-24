@@ -33,7 +33,7 @@ For system testing and acceptance testing, you can use :ref:`Amazon Sidewalk sam
 * CLI - An application to test against the Amazon Sidewalk test specification.
 * Sensor monitoring - An example of a sensor device use case, with release configuration support.
 
-This document primarily addresses Unit and Integration testing provided in the `sdk-sidewalk repository`_.
+This document primarily addresses Unit and Integration testing provided in the `ncs-sidewalk repository`_.
 
 The following table provides a comparison of Unit and Integration testing in the Amazon Sidewalk SDK:
 

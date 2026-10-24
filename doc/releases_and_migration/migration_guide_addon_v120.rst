@@ -27,9 +27,9 @@ Migration steps
 
 #. Navigate to the Amazon Sidewalk Add-on repository (the :file:`sidewalk` directory in your west workspace).
 
-#. Update the Add-on repository to the release tag ``v1.2.0-add-on`` from the `sdk-sidewalk`_ GitHub repository.
+#. Update the Add-on repository to the release tag ``v1.2.0-add-on`` from the `ncs-sidewalk`_ GitHub repository.
 
-   The commands below assume a Git remote named ``ncs`` that points to `sdk-sidewalk`_.
+   The commands below assume a Git remote named ``ncs`` that points to `ncs-sidewalk`_.
    If your remote uses a different name, substitute it for ``ncs``.
 
    .. code-block:: console
