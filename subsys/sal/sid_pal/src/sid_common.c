@@ -32,7 +32,7 @@ static void set_radio_config(const void *cfg)
 }
 #endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 
-#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) && (defined(REGION_ALL) || defined(REGION_LITE))
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
 #include <sid_900_cfg.h>
 #include <sid_pal_radio_ifc.h>
 #include "sid_reg_priv.h"
@@ -80,7 +80,7 @@ static sid_error_t region_init(const platform_specific_init_parameters_t *params
 
 	return SID_ERROR_NONE;
 }
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT && (REGION_ALL || REGION_LITE) */
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
 
 sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platform_init_parameters)
 {
@@ -93,13 +93,11 @@ sid_error_t sid_pal_common_init(const platform_specific_init_parameters_t *platf
 		return SID_ERROR_INCOMPATIBLE_PARAMS;
 	}
 	set_radio_config(platform_init_parameters->radio_cfg);
-#if defined(REGION_ALL) || defined(REGION_LITE)
 	sid_error_t region_err = region_init(platform_init_parameters);
 
 	if (region_err) {
 		return region_err;
 	}
-#endif /* REGION_ALL || REGION_LITE */
 #endif /* defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT) */
 
 #if defined(CONFIG_SIDEWALK_TEMPERATURE)
