@@ -47,6 +47,22 @@ config SIDEWALK_SUBGHZ_RADIO_LR1110_LOCATION
 	  Location PAL backed by the LR1110 transceiver, providing both GNSS and
 	  Wi-Fi scanning.
 
+choice SIDEWALK_SUBGHZ_REGION
+	prompt "Sub-GHz region of the device"
+	default SIDEWALK_SUBGHZ_REGION_US915
+	help
+	  Region built into the sub-GHz radio configuration and passed to the
+	  Sidewalk platform initialization.
+	  Must match the region variant the Sidewalk libraries were built with.
+
+config SIDEWALK_SUBGHZ_REGION_US915
+	bool "US915"
+
+config SIDEWALK_SUBGHZ_REGION_EU868
+	bool "EU868"
+
+endchoice # SIDEWALK_SUBGHZ_REGION
+
 config SIDEWALK_SUBGHZ_TRIM_CAP_VAL
 	hex "value for trim cap used by subGHz radio"
 	range 0x0 0xFFFF

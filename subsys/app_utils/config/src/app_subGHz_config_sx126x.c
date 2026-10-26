@@ -31,9 +31,12 @@
 
 #define RADIO_MAX_TX_POWER_NA 20
 #define RADIO_MAX_TX_POWER_EU 14
-#define RADIO_MAX_TX_POWER_ANZ 20
 
+#if defined(CONFIG_SIDEWALK_SUBGHZ_REGION_EU868)
+#define RADIO_REGION RADIO_REGION_EU
+#else
 #define RADIO_REGION RADIO_REGION_NA
+#endif
 
 #define RADIO_SX1262_SPI_BUFFER_SIZE 255
 
@@ -95,7 +98,7 @@ static int32_t radio_sx1262_trim_val(uint16_t *trim_val)
 }
 
 const radio_sx126x_regional_param_t radio_sx126x_regional_param[] = {
-#if defined(REGION_ALL) || defined(REGION_LITE) || defined(REGION_US915)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_REGION_US915)
 	{ .param_region = RADIO_REGION_NA,
 	  .max_tx_power = { RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
 			    RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA, RADIO_MAX_TX_POWER_NA,
@@ -103,19 +106,11 @@ const radio_sx126x_regional_param_t radio_sx126x_regional_param[] = {
 	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
 #endif
-#if defined(REGION_ALL) || defined(REGION_LITE) || defined(REGION_EU868)
+#if defined(CONFIG_SIDEWALK_SUBGHZ_REGION_EU868)
 	{ .param_region = RADIO_REGION_EU,
 	  .max_tx_power = { RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
 			    RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU,
 			    RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU, RADIO_MAX_TX_POWER_EU },
-	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
-#endif
-#if defined(REGION_ALL) || defined(REGION_ANZ915)
-	{ .param_region = RADIO_REGION_ANZ,
-	  .max_tx_power = { RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ,
-			    RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ,
-			    RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ, RADIO_MAX_TX_POWER_ANZ },
 	  .cca_level_adjust = { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 	  .ant_dbi = RADIO_ANT_GAIN(2.15) },
 #endif
