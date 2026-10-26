@@ -2,7 +2,7 @@
 
    .. tab:: nRF54LM20 DK
 
-      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF54LM20 DK`_.
+      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>`.
       To determine the available space for user extension, it needs to be summarized against the allocated partition size and its layout.
 
       +-------------------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+
@@ -19,7 +19,7 @@
 
    .. tab:: nRF54L15 DK
 
-      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF54L15 DK`_.
+      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`.
       To determine the available space for user extension, it needs to be summarized against the allocated partition size and its layout.
 
       +-------------------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+
@@ -36,7 +36,7 @@
 
    .. tab:: nRF54L10 emulation on nRF54L15 DK
 
-      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample emulating the nRF54L10 SoC on the `nRF54L15 DK`_.
+      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample emulating the nRF54L10 SoC on the :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`.
       To determine the available space for user extension, it needs to be summarized against the allocated partition size and its layout.
 
       +-------------------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+
@@ -49,7 +49,7 @@
 
    .. tab:: nRF54LV10 DK
 
-      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF54LV10 DK`_.
+      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the :doc:`nRF54LV10 DK <nrf:boards/nordic/nrf54lv10dk/doc/index>`.
       To determine the available space for user extension, it needs to be summarized against the allocated partition size and its layout.
 
       +-------------------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+
@@ -62,7 +62,7 @@
 
    .. tab:: nRF52840 DK
 
-      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the `nRF52840 DK`_.
+      The following table lists the total memory requirements for the default variant of the :ref:`Sidewalk_End_device` sample running on the :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>`.
       To determine the available space for user extension, it needs to be summarized against the allocated partition size and its layout.
 
       +-------------------------------------------------------------------------------------------------------------------------+------------------+----------------------+-------------------+--------------------------+----------------+----------------+

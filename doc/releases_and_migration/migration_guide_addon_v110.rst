@@ -244,4 +244,4 @@ This section provides steps to help resolve common issues that may occur during 
 
 .. note::
 
-   For additional support, refer to the :ref:`known_issues` page or consult the Amazon Sidewalk documentation.
+   For additional support, refer to the `known issues page on the main branch`_ or consult the Amazon Sidewalk documentation.

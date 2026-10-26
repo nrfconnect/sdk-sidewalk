@@ -6,7 +6,7 @@ Release notes for Amazon Sidewalk Add-On v1.1.0
 This page tracks changes and updates as compared to the latest official release.
 For more information refer to the following section.
 
-For the list of potential issues, see the :ref:`known_issues` page.
+For the list of potential issues, see the `known issues page on the main branch`_.
 
 Changelog
 *********

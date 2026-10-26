@@ -4,7 +4,8 @@ Release notes
 #############
 
 The Amazon Sidewalk Add-On receives regular releases, introducing new components or fixes for the existing features.
-For details, refer the following release notes:
+
+Known issues for each release are listed on the `known issues page on the main branch`_.
 
 .. toctree::
    :maxdepth: 1
@@ -37,7 +38,7 @@ Software maturity
 *****************
 
 In the nRF Connect SDK, maturity levels are defined for each feature and component.
-For more information about definitions and other support, see the `nRF Connect SDK software maturity levels documentation`_.
+For more information about definitions and other support, see the :doc:`nRF Connect SDK software maturity levels documentation <nrf:releases_and_maturity/software_maturity>`.
 
 .. toctree::
    :maxdepth: 1

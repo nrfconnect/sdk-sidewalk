@@ -3,7 +3,7 @@
 Migration guide for moving to Sidewalk Add-on
 #############################################
 
-Starting with the v3.0.0 release of the `nRF Connect SDK`_, a new standalone :file:`west.yaml` setup has been introduced.
+Starting with the v3.0.0 release of the :doc:`nRF Connect SDK <nrf:index>`, a new standalone :file:`west.yaml` setup has been introduced.
 Follow this guide to migrate your Sidewalk development environment from using the nRF Connect SDK manifest setup.
 
 Overview
@@ -127,4 +127,4 @@ If you encounter build errors, ensure the following:
  * NCS environment is sourced correctly.
  * You are using the correct board target.
  * Your build environment is functioning correctly.
-   To do this, build the `Zephyr's Hello World`_ sample.
+   To do this, build the :doc:`Zephyr Hello World sample <zephyr:samples/hello_world/README>`.

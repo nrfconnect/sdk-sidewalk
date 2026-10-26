@@ -17,8 +17,8 @@ For the list of supported DKs per sample, see the :ref:`samples_list`.
 
 Depending on the device, refer to the getting started guide for setup instructions:
 
-* `Getting started with nRF52 Series`_
-* `Getting started with nRF54L Series`_
+* :ref:`Getting started with the nRF52 Series <nrf:ug_nrf52_gs>`
+* :doc:`Getting started with the nRF54L Series <nrf:gsg_guides>`
 
 Sub-GHz radio transceivers
 **************************

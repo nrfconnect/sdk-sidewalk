@@ -9,7 +9,7 @@ This sample can be found under :file:`samples/sid_end_device`.
    This step needs to be completed only once.
    You do not have to repeat it for every sample rebuild.
 
-For general instructions on building the sample, follow the steps in the `Building and programming an application`_ documentation.
+For general instructions on building the sample, follow the steps in the :doc:`Building and programming an application <nrf:app_dev/programming>` documentation.
 
 You can also build the sample with specific configurations:
 

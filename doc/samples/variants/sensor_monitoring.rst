@@ -86,7 +86,7 @@ Testing
    For the full installation guidelines and the application overview, refer to the `Amazon Sidewalk Sample IoT App`_ repository.
    Flash the Nordic device with the end device sensor monitoring application instead of the prebuilt HEX file provided in the cloud application repository.
 
-See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
+See :doc:`Testing and debugging an application <nrf:test_and_optimize>` for information on testing and debugging in the nRF Connect SDK.
 
 After successfully building the sample and flashing manufacturing data, the sample is ready to use.
 To refresh the logs, restart the program by pressing the :guilabel:`RESET` button on your development kit.

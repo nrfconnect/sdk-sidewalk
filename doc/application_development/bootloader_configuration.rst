@@ -14,11 +14,11 @@ Secure bootloader chain
 ************************
 
 A secure boot chain ensures that only authenticated firmware runs on the device.
-Implement one of the following layouts, as described in the `Secure bootloader chain`_ documentation:
+Implement one of the following layouts, as described in the :doc:`Secure bootloader chain <nrf:app_dev/bootloaders_dfu/mcuboot_nsib/bootloader>` documentation:
 
 * MCUboot only (immutable) - Use non-upgradable MCUboot as the immutable bootloader.
   Enable it with the sysbuild Kconfig option ``SB_CONFIG_BOOTLOADER_MCUBOOT=y``.
-* `nRF Secure Immutable Bootloader (NSIB)`_ followed by upgradable MCUboot - This layout allows both application updates and MCUboot updates while keeping an immutable root of trust.
+* :doc:`nRF Secure Immutable Bootloader (NSIB) <nrf:samples/bootloader/README>` followed by upgradable MCUboot - This layout allows both application updates and MCUboot updates while keeping an immutable root of trust.
   Enable it with the sysbuild Kconfig options ``SB_CONFIG_SECURE_BOOT_APPCORE=y`` and ``SB_CONFIG_BOOTLOADER_MCUBOOT=y``.
 
 In both layouts, ensure the immutable bootloader is locked from modification by applying one of the following methods:

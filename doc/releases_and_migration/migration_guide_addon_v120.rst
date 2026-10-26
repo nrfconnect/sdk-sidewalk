@@ -19,7 +19,7 @@ Key updates in this release include:
 * Including new board support for the nRF54LV10A, nRF54LM20A and nRF45LM20B SoCs in Bluetooth LE-only samples.
 * Updating the nRF Connect SDK from v3.0.0 to v3.3.0.
 * Migration of flash layout from :file:`pm_static*.yml` files to devicetree overlays for all supported boards except nrf5340 and non-secure variants (see :ref:`migration_120_partition_manager`).
-* On the nRF52 Series, changed the default AEAD key of `Trusted storage`_ (see :ref:`migration_120_trusted_storage_nrf52`).
+* On the nRF52 Series, changed the default AEAD key of :doc:`Trusted storage <nrf:libraries/security/trusted_storage>` (see :ref:`migration_120_trusted_storage_nrf52`).
 * On the nRF54L10 SoC, corrected application-core RRAM size and relocated the manufacturing storage partition (see :ref:`migration_120_mfg_storage_nrf54l10`).
 
 Migration steps
@@ -60,7 +60,7 @@ If your application uses Partition Manager configuration files (for example, :fi
 Amazon Sidewalk Add-on v1.2.0 moves flash layout from :file:`pm_static*.yml` files to devicetree overlays for supported boards.
 Custom board designs should update and validate the Sidewalk partition layout in board DTS overlays during migration.
 
-If you maintain a custom board with a :file:`pm_static*.yml` file, see the `Migrating partition configuration from Partition Manager to devicetree (DTS)`_ page in the NCS documentation.
+If you maintain a custom board with a :file:`pm_static*.yml` file, see the :doc:`Migrating partition configuration from Partition Manager to devicetree (DTS) <nrf:releases_and_maturity/migration/migration_partitions>` page in the NCS documentation.
 
 To confirm that migration succeeded, run a pristine build on your board:
 
@@ -73,18 +73,18 @@ To confirm that migration succeeded, run a pristine build on your board:
 Trusted storage on the nRF52 Series
 ***********************************
 
-With NCS v3.3.0, Amazon Sidewalk Add-on v1.2.0 changes the default `Trusted storage`_ AEAD key backend on the nRF52 Series from the ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_DERIVE_FROM_HUK`` to ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_HASH_UID`` Kconfig option.
+With NCS v3.3.0, Amazon Sidewalk Add-on v1.2.0 changes the default :doc:`Trusted storage <nrf:libraries/security/trusted_storage>` AEAD key backend on the nRF52 Series from the ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_DERIVE_FROM_HUK`` to ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_HASH_UID`` Kconfig option.
 This applies when Sidewalk PSA key storage is enabled (``CONFIG_SIDEWALK_CRYPTO_PSA_KEY_STORAGE``).
 
 Choose the backend based on whether devices already store Sidewalk keys in trusted storage:
 
 * Field firmware updates - Keep the ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_DERIVE_FROM_HUK`` Kconfig option enabled so that existing trusted storage entries remain readable.
-  The HUK partition contents do not matter for this backend unless you use the `nRF Secure Immutable Bootloader (NSIB)`_.
+  The HUK partition contents do not matter for this backend unless you use the :doc:`nRF Secure Immutable Bootloader (NSIB) <nrf:samples/bootloader/README>`.
 
 * New products and factory-fresh devices - You can either keep the new default (``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_HASH_UID``) or explicitly select the ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_DERIVE_FROM_HUK`` Kconfig option.
   The HUK-derived option can offer stronger key binding, but requires NSIB to load the HUK partition into the CryptoCell and adds a bootloader stage.
 
-For background on Sidewalk key storage, see the Secure Key Storage section in :ref:`sidewalk_end_device` and the `Trusted storage`_ documentation in the nRF Connect SDK.
+For background on Sidewalk key storage, see the Secure Key Storage section in :ref:`sidewalk_end_device` and the :doc:`Trusted storage <nrf:libraries/security/trusted_storage>` documentation in the nRF Connect SDK.
 
 .. warning::
    After Sidewalk keys are written to trusted storage, changing the ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_*`` Kconfig option or other trusted-storage crypto settings makes existing entries unreadable and can brick in-field devices.
@@ -132,4 +132,4 @@ Troubleshooting
 
 .. note::
 
-   For additional support, refer to the :ref:`known_issues` page or consult the Amazon Sidewalk documentation.
+   For additional support, refer to the `known issues page on the main branch`_ or consult the Amazon Sidewalk documentation.

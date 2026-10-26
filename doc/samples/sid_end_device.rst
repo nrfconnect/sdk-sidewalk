@@ -27,24 +27,24 @@ This sample supports the following development kits:
      - Build target
    * - `nRF52840 DK <nrf52840 Product Page_>`_
      - PCA10056
-     - `nrf52840dk`_
+     - :doc:`nrf52840dk <zephyr:boards/nordic/nrf52840dk/doc/index>`
      - ``nrf52840dk/nrf52840``
    * - `nRF54L15 DK <nRF54L15 Product Page_>`_
      - PCA10156
-     - `nrf54l15dk`_
+     - :doc:`nrf54l15dk <zephyr:boards/nordic/nrf54l15dk/doc/index>`
      - | ``nrf54l15dk/nrf54l15/cpuapp``
        | ``nrf54l15dk/nrf54l15/cpuapp/ns``
    * - `nRF54L10 (emulating on nRF54L15 DK) <nRF54L10 Product Page_>`_
      - PCA10156
-     - `nrf54l15dk`_
+     - :doc:`nrf54l15dk <zephyr:boards/nordic/nrf54l15dk/doc/index>`
      - ``nrf54l15dk/nrf54l10/cpuapp``
    * - `nRF54LV10 DK <nRF54LV10A Product Page_>`_
      - PCA10188
-     - `nrf54lv10dk`_
+     - :doc:`nrf54lv10dk <nrf:boards/nordic/nrf54lv10dk/doc/index>`
      - ``nrf54lv10dk/nrf54lv10a/cpuapp``
    * - `nRF54LM20 DK <nRF54LM20A Product Page_>`_
      - PCA10184
-     - `nrf54lm20dk`_
+     - :doc:`nrf54lm20dk <zephyr:boards/nordic/nrf54lm20dk/doc/index>`
      - | ``nrf54lm20dk/nrf54lm20a/cpuapp``
        | ``nrf54lm20dk/nrf54lm20b/cpuapp``
 
@@ -71,7 +71,7 @@ The supported modules are as follows:
 Wi-Fi location hardware
 =======================
 
-To use Wi-Fi-based location scanning without the LR1110 radio, you can attach the `nRF7002 EB II`_ shield, which hosts an nRF70 Series Wi-Fi companion IC.
+To use Wi-Fi-based location scanning without the LR1110 radio, you can attach the :doc:`nRF7002 EB II <zephyr:boards/shields/nrf7002eb2/doc/index>` shield, which hosts an nRF70 Series Wi-Fi companion IC.
 The shield is supported on the nRF54L15 DK and the nRF54LM20 DK.
 
 The companion IC runs in the scan-only mode of the nRF70 driver (``CONFIG_NRF70_SCAN_ONLY``, enabled by default for this feature).

@@ -26,7 +26,7 @@ For the list of supported devices, see `Amazon Sidewalk Gateways`_.
 Amazon Sidewalk for the nRF Connect SDK is based on two variants, one using Bluetooth® LE (more suited for home applications) and the other one using sub-GHz with the Semtech radio transceiver (for applications requiring longer range).
 The latter also expands to two options: Sidewalk over LoRa and Sidewalk over FSK (having a shorter range but with higher throughput compared to LoRa).
 
-Amazon Sidewalk products can be tested and developed using the Nordic Semiconductor's development kit together with the `nRF Connect SDK`_.
+Amazon Sidewalk products can be tested and developed using the Nordic Semiconductor's development kit together with the :doc:`nRF Connect SDK <nrf:index>`.
 For more details on the supported devices, see the :ref:`hardware_requirements` section.
 The software development kit allows to build software that is optimized for size and performance, especially when working with devices that have limited memory.
 The SDK integrates the latest version of the Amazon Sidewalk repository.
@@ -48,5 +48,4 @@ Browse the content by referring to the following pages:
    testing.rst
    compatibility_matrix.rst
    release_notes_and_migration.rst
-   known_issues.rst
    additional_resources.rst
