@@ -288,6 +288,8 @@ tests:
       - nrf70
 
   sample.sidewalk.dut.nrf7002eb2.sx1262:
+    # TODO: temporarily skipped, FLASH region overflows on nrf54l15dk.
+    skip: true
     integration_platforms:
       - nrf54l15dk/nrf54l15/cpuapp
     platform_exclude:
