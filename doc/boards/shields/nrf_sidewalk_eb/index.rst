@@ -121,23 +121,28 @@ Connect the shield to the **P17 (EXP)** expansion board header.
 Sleep current
 *************
 
-On hardware revisions up to v1.0.0, the level shifters raise the sleep current to several hundred µA, measured on the **VDD_EXT** pin.
+On hardware revisions v1.0.0 and earlier, the sleep current measured on the **VDD_EXT** pin is several hundred µA higher than expected.
+The TXS0102 level shifters have internal pull-up resistors.
+When a signal connected to a level shifter is held low during sleep, current flows through its pull-up.
 
-You can further reduce sleep current with the following modifications:
+The following signals contribute to the sleep current:
 
-* IRQ (DIO9): Remove the forced pull-down in ``radio_lr11xx_platform_init()`` in :file:`subsys/semtech/lr11xx/lr11xx_radio.c` and ``GPIO_PULL_DOWN`` from ``event-gpios``.
-  This reduces the current by several tens of µA.
-* GNSS LNA: Power the LNA from the LR1110 DIO8 pin instead of a host GPIO.
+.. list-table::
+   :header-rows: 1
+   :widths: 20 50 30
 
-  1. Move the 0 Ω resistor from R5 to R4.
-  #. Remove ``gnss-lna-gpios``.
-  #. Add ``LR11XX_DIO8`` to ``rf-sw-enable`` and ``rf-sw-gnss-mode``, keeping the existing DIO settings.
-
-  This reduces the current by several hundred µA.
-
-  .. note::
-
-     GNSS operation with this modification has not been verified.
+   * - Signal
+     - Why it is held low
+     - Additional current
+   * - GNSS LNA supply
+     - The LNA is supplied through resistor R5 from a host GPIO.
+       Driving the GPIO low turns off the LNA, but draws current through the pull-up.
+       Driving it high avoids this current, but keeps the LNA powered.
+     - Several hundred µA
+   * - IRQ (DIO9)
+     - The host pull-down on this line draws current through the pull-up.
+       The LR1110 can also weakly hold DIO9 low during sleep.
+     - Several tens of µA
 
 Programming
 ***********
