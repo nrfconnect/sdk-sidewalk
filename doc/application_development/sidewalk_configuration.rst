@@ -42,20 +42,19 @@ Use the following option to include link types in the build.
 Prebuilt library variant
 ************************
 
-By default, the application links the prebuilt Sidewalk libraries.
+By default, the application links prebuilt Sidewalk libraries, which are available in a release and a debug variant.
 Use the following Kconfig options to configure which variant of these libraries is used.
-The variant selection is independent of the link type selection described in `Physical link selection`_.
+The variant selection is independent of the link type selection described in `Physical link selection`_, so you can combine either variant with Bluetooth LE-only or sub-GHz builds.
 
 * ``CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES`` - Uses the prebuilt Sidewalk libraries.
   This option is enabled by default.
-  The variant options below are available only when this option is enabled.
+  The following variant options are available only when this option is enabled:
 
-* ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_RELEASE`` - Uses the release variant of the Sidewalk libraries.
-  The release libraries are optimized for size and do not include debug logs.
-  This is the default variant.
+  * ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_RELEASE`` - Uses the release variant of the Sidewalk libraries (default).
+    The release libraries are optimized for size and do not include debug logs.
 
-* ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG`` - Uses the debug variant of the Sidewalk libraries.
-  The debug libraries include debug logs and additional diagnostics, which results in a significantly larger memory footprint.
+  * ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG`` - Uses the debug variant of the Sidewalk libraries.
+    The debug libraries include debug logs and additional diagnostics, which results in a significantly larger memory footprint.
 
 For example, to build with the debug libraries, add the following option to the build command:
 
