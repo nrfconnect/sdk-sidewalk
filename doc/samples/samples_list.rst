@@ -30,37 +30,37 @@ The following table summarizes the supported variants, development kits, and bui
      - Application overlays
    * - :ref:`variant_sidewalk_hello`
      - Sample application showing communication over Sidewalk network.
-     - * `nRF52840 DK`_
-       * `nRF54L15 DK`_
-       * nRF54L10 emulated on `nRF54L15 DK`_
-       * `nRF54LV10 DK`_
-       * `nRF54LM20 DK`_
-     - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - * :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>`
+       * :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
+       * nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
+       * :doc:`nRF54LV10 DK <nrf:boards/nordic/nrf54lv10dk/doc/index>`
+       * :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>`
+     - * External flash (included in the DK) on :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>` and nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
        * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
-       * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)
-     - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+       * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>` (LoRa/FSK)
+     - MCUboot — DFU partition in external flash on :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>` and nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
      - ``overlay-hello.conf``
    * - :ref:`variant_sensor_monitoring`
      - Demo application of Sidewalk protocol with temperature sensor monitoring.
-     - * `nRF52840 DK`_
-       * `nRF54L15 DK`_
-       * nRF54L10 emulated on `nRF54L15 DK`_
-     - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - * :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>`
+       * :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
+       * nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
+     - * External flash (included in the DK) on :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>` and nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
        * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
-     - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - MCUboot — DFU partition in external flash on :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>` and nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
      - ``overlay-demo.conf``
    * - :ref:`variant_sidewalk_dut`
      - Device under test generic application with CLI enabled.
-     - * `nRF52840 DK`_
-       * `nRF54L15 DK`_
-       * nRF54L10 emulated on `nRF54L15 DK`_
-       * `nRF54LV10 DK`_
-       * `nRF54LM20 DK`_
-     - * External flash (included in the DK) on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+     - * :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>`
+       * :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
+       * nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
+       * :doc:`nRF54LV10 DK <nrf:boards/nordic/nrf54lv10dk/doc/index>`
+       * :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>`
+     - * External flash (included in the DK) on :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>` and nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
        * `Semtech SX1262MB2CAS`_ or LR1110MB1xxS (LoRa/FSK only)
-       * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on `nRF54LM20 DK`_ (LoRa/FSK)
-       * `nRF7002 EB II`_ on `nRF54L15 DK`_ and `nRF54LM20 DK`_ (Wi-Fi location)
-     - MCUboot — DFU partition in external flash on `nRF52840 DK`_ and nRF54L10 emulated on `nRF54L15 DK`_
+       * :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` on :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>` (LoRa/FSK)
+       * :doc:`nRF7002 EB II <zephyr:boards/shields/nrf7002eb2/doc/index>` on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>` and :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>` (Wi-Fi location)
+     - MCUboot — DFU partition in external flash on :doc:`nRF52840 DK <zephyr:boards/nordic/nrf52840dk/doc/index>` and nRF54L10 emulated on :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`
      - ``overlay-dut.conf``
 
 For variant-specific build, test, and configuration details, see :ref:`sidewalk_end_device`.

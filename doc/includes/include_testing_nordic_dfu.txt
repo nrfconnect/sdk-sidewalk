@@ -8,7 +8,7 @@ Complete the following steps to test the Device Firmware Update (DFU) on your de
    .. group-tab:: nRF52 DKs
 
       #. Enter the DFU mode by long pressing **Button 1** on your development kit.
-         This action sets the device to DFU mode, in which only the `Zephyr SMP Server`_ is running and Sidewalk is not operational.
+         This action sets the device to DFU mode, in which only the :doc:`Zephyr SMP server <zephyr:services/device_mgmt/ota>` is running and Sidewalk is not operational.
          When the application is in the DFU mode, all LEDs flash every 500 ms to signal that the application is waiting for a new image.
 
       #. To perform a firmware update, follow the Bluetooth testing steps from the `DevZone DFU guide`_.
@@ -24,7 +24,7 @@ Complete the following steps to test the Device Firmware Update (DFU) on your de
    .. group-tab:: nRF54 DKs
 
       #. Enter the DFU mode by long pressing **Button 0** on your development kit.
-         This action sets the device to DFU mode, in which only the `Zephyr SMP Server`_ is running and Sidewalk is not operational.
+         This action sets the device to DFU mode, in which only the :doc:`Zephyr SMP server <zephyr:services/device_mgmt/ota>` is running and Sidewalk is not operational.
          When the application is in the DFU mode, all LEDs flash every 500 ms to signal that the application is waiting for a new image.
 
       #. To perform a firmware update, follow the Bluetooth testing steps from the `DevZone DFU guide`_.

@@ -1,0 +1,65 @@
+/* Known issues release filter (aligned with sdk-edge-ai) */
+
+.known-issues-filter {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.known-issues-filter label {
+  font-weight: 700;
+}
+
+#known-issues-release {
+  display: inline-block;
+  font-weight: 700;
+  min-width: 9rem;
+  padding: 0.35rem 2rem 0.35rem 0.5rem;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+  border: 2px solid #999;
+  appearance: none;
+  background-color: #fff;
+  background-image: url("../images/dropdown.svg");
+  background-repeat: no-repeat;
+  background-position: right 0.7em top 50%;
+  background-size: 0.65em auto;
+}
+
+.known-issue-version {
+  border: 1px solid #e97c25;
+  color: #e97c25;
+  display: inline-block;
+  font-size: 0.8em;
+  margin-left: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.known-issue-wontfix {
+  border: 1px solid red;
+  color: red;
+  display: inline-block;
+  font-size: 0.8em;
+  margin-left: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+/*
+ * Issue titles: sphinx_ncs_theme styles non-.simple definition lists by default;
+ * short issues use dl.simple and need the same blue header (sdk-edge-ai custom.css).
+ */
+#known-issues dl[class*="v1-"] > dt,
+#known-issues dl[class*="v2-"] > dt,
+#known-issues dl[class*="v3-"] > dt {
+  display: table;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 6px 0;
+  font-size: 90%;
+  line-height: normal;
+  background: #e7f2fa;
+  color: #2980b9;
+  border-top: 3px solid #6ab0de;
+  padding: 6px;
+  position: relative;
+}

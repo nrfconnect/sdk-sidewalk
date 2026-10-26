@@ -6,7 +6,7 @@ Release notes for Amazon Sidewalk Add-On v1.0.0
 This page tracks changes and updates as compared to the latest official release.
 For more information refer to the following section.
 
-For the list of potential issues, see the :ref:`known_issues` page.
+For the list of potential issues, see the `known issues page on the main branch`_.
 
 Changelog
 *********
@@ -19,7 +19,7 @@ Starting with the nRF Connect SDK release v3.0.0, the Amazon Sidewalk protocol i
   * Latest integration of Amazon Sidewalk v1.18 libraries.
   * A new :ref:`migration_guide_addon_v010` page, detailing setup and migration instructions for Amazon Sidewalk add-on.
   * Disable option for the state notifier.
-  * New `Zephyr Memory Storage (ZMS)`_ back-end integration for `Settings subsystem`_ available in the release v3.0.0 of the nRF Connect SDK.
+  * New :doc:`Zephyr Memory Storage (ZMS) <zephyr:services/storage/zms/zms>` back-end integration for :doc:`Settings subsystem <zephyr:services/storage/settings/index>` available in the release v3.0.0 of the nRF Connect SDK.
 
     .. note::
       The new implementation of ZMS is not compatible with the previous version.

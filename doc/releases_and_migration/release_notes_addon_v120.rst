@@ -10,7 +10,7 @@ Release notes for Amazon Sidewalk Add-On v1.2.0
 This page tracks changes and updates as compared to the latest official release.
 For more information refer to the following section.
 
-For the list of potential issues, see the :ref:`known_issues` page.
+For the list of potential issues, see the `known issues page on the main branch`_.
 
 Changelog
 *********
@@ -28,8 +28,8 @@ This release introduces support for the nRF54LM20 and nRF54LV10 DKs for Sidewalk
   * The nRF Connect SDK from v3.0.0 to v3.3.0.
   * Flash layout, by moving :file:`pm_static*.yml` into DTS overlays (except for the nRF53 Series, and non-secure boards).
   * Cleaned up common Bluetooth LE device naming and configuration.
-  * On the nRF52 Series: the `Trusted storage`_ default key generation mechanism to ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_HASH_UID`` instead of ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_DERIVE_FROM_HUK``.
-    The HUK-based option was not fully functional and provided no meaningful security benefit without the `nRF Secure Immutable Bootloader (NSIB)`_.
+  * On the nRF52 Series: the :doc:`Trusted storage <nrf:libraries/security/trusted_storage>` default key generation mechanism to ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_HASH_UID`` instead of ``CONFIG_TRUSTED_STORAGE_BACKEND_AEAD_KEY_DERIVE_FROM_HUK``.
+    The HUK-based option was not fully functional and provided no meaningful security benefit without the :doc:`nRF Secure Immutable Bootloader (NSIB) <nrf:samples/bootloader/README>`.
     Products already deployed in the field must keep the previous key generation setting so that provisioned Sidewalk keys remain accessible; see the :ref:`migration_120_trusted_storage_nrf52` page.
 
 * Fixed:

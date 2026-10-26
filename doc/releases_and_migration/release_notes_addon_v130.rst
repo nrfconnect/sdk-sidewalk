@@ -10,7 +10,7 @@ Release notes for Amazon Sidewalk Add-On v1.3.0
 This page tracks changes and updates in Amazon Sidewalk Add-On v1.3.0 as compared to v1.2.0.
 For more information refer to the following section.
 
-For the list of potential issues, see the :ref:`known_issues` page.
+For the list of potential issues, see the `known issues page on the main branch`_.
 
 Changelog
 *********
@@ -28,7 +28,7 @@ Changelog
 
   * Support for the :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` shield on the nRF54L15 DK and nRF54LM20 DK.
     The shield enables the LoRa and FSK link types.
-  * Support for the `nRF7002 EB II`_ shield on the nRF54L15 DK and nRF54LM20 DK.
+  * Support for the :doc:`nRF7002 EB II <zephyr:boards/shields/nrf7002eb2/doc/index>` shield on the nRF54L15 DK and nRF54LM20 DK.
     The shield provides Wi-Fi location scanning with an nRF70 Series companion IC as an alternative to the LR1110 radio.
     For details, see the :ref:`location_services` page.
   * :ref:`lr11xx_firmware_update` sample for updating Semtech LR1110 transceiver firmware.

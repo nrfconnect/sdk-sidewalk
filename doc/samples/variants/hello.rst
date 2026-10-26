@@ -22,9 +22,9 @@ User Interface
 **************
 
 .. note::
-   This sample variant is not supported on the `nRF54L15 DK`_ with the :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` shield.
+   This sample variant is not supported on the :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>` with the :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` shield.
    The shield uses the pins of **Button 0**, **Button 1**, **Button 2**, **LED 1**, and **LED 3**, which makes the user interface described in this section unavailable.
-   To run this sample variant over LoRa or FSK, use either the shield with the `nRF54LM20 DK`_, or a Semtech shield with the `nRF54L15 DK`_.
+   To run this sample variant over LoRa or FSK, use either the shield with the :doc:`nRF54LM20 DK <zephyr:boards/nordic/nrf54lm20dk/doc/index>`, or a Semtech shield with the :doc:`nRF54L15 DK <zephyr:boards/nordic/nrf54l15dk/doc/index>`.
    For the pin assignment and usage requirements of the shield, see :ref:`nrf_sidewalk_eb`.
 
 .. tabs::
@@ -79,7 +79,7 @@ Building and running
 Testing
 =======
 
-See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
+See :doc:`Testing and debugging an application <nrf:test_and_optimize>` for information on testing and debugging in the nRF Connect SDK.
 
 After successfully building the sample and flashing manufacturing data, the sample is ready to use.
 To refresh the logs, restart the program by pressing the :guilabel:`RESET` button on your development kit.

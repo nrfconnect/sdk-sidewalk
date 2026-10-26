@@ -13,7 +13,7 @@ Install the nRF Connect SDK
 ***************************
 
 To work with the Sidewalk add-on, you need to install the nRF Connect SDK, including all its prerequisites and the nRF Connect SDK toolchain.
-Follow the `Installing the nRF Connect SDK`_ instructions, but instead of point 4. Get the nRF Connect SDK code, do :ref:`setting_up_sdk_sidewalk_repository` (described below).
+Follow the :doc:`Installing the nRF Connect SDK <nrf:installation/install_ncs>` instructions, but instead of point 4. Get the nRF Connect SDK code, do :ref:`setting_up_sdk_sidewalk_repository` (described below).
 
 
 .. _setting_up_sdk_sidewalk_repository:

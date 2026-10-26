@@ -14,7 +14,7 @@ Overview
 
 Amazon Sidewalk Add-On v1.3.0 upgrades the nRF Connect SDK to v3.4.0, aligns MCUboot configuration with NCS security recommendations, and moves persistent Sidewalk key storage to Key Management Unit (KMU) on nRF54L Series platforms.
 
-Refer to the :ref:`release_notes_addon_v130` for more details.
+Refer to the :ref:`sidewalk_release_notes_addon_v130` for more details.
 
 Migration steps
 ***************

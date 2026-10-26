@@ -25,11 +25,11 @@ This sample supports the following development kits:
      - Build target
    * - `nRF54L15 DK <nRF54L15 Product Page_>`_
      - PCA10156
-     - `nrf54l15dk`_
+     - :doc:`nrf54l15dk <zephyr:boards/nordic/nrf54l15dk/doc/index>`
      - ``nrf54l15dk/nrf54l15/cpuapp``
    * - `nRF54LM20 DK <nRF54LM20A Product Page_>`_
      - PCA10184
-     - `nrf54lm20dk`_
+     - :doc:`nrf54lm20dk <zephyr:boards/nordic/nrf54lm20dk/doc/index>`
      - | ``nrf54lm20dk/nrf54lm20a/cpuapp``
        | ``nrf54lm20dk/nrf54lm20b/cpuapp``
 
@@ -57,7 +57,7 @@ Building and running
 
 This sample can be found under :file:`samples/lr11xx_firmware_update`.
 
-For general instructions on building the sample, follow the steps in the `Building and programming an application`_ documentation.
+For general instructions on building the sample, follow the steps in the :doc:`Building and programming an application <nrf:app_dev/programming>` documentation.
 
 Build and flash the sample for your board and shield combination using the following commands.
 
@@ -102,7 +102,7 @@ nRF Sidewalk EB shield
 Testing
 =======
 
-See `Testing and debugging an application`_ for information on testing and debugging in the nRF Connect SDK.
+See :doc:`Testing and debugging an application <nrf:test_and_optimize>` for information on testing and debugging in the nRF Connect SDK.
 
 After building and flashing the sample, complete the following steps to verify the update:
 

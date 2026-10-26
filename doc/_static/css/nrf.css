@@ -97,12 +97,6 @@
   margin: 0px 5px;
 }
 
-#known-issues dl dt {
-  color: #000;
-  border-top: none;
-  background: transparent;
-}
-
 #versions-select {
   display: inline-block;
   font-weight: 700;
