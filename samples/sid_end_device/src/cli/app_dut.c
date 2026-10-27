@@ -18,7 +18,12 @@
 #include <sbdt/dfu_file_transfer.h>
 #endif /* CONFIG_SIDEWALK_FILE_TRANSFER_DFU */
 #include <json_printer/sidTypes2str.h>
+#ifdef CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE
+#include <cli/row_shell.h>
+#endif /* CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE */
 LOG_MODULE_REGISTER(sid_cli, CONFIG_SIDEWALK_LOG_LEVEL);
+
+static bool dut_sid_initialized;
 
 static void dut_log_ble_user_config(sid_error_t e, struct sid_ble_user_config *res)
 {
@@ -85,6 +90,12 @@ static uint32_t dut_ctx_get_uint32(void *ctx)
 void dut_event_init(sidewalk_ctx_t *sid, void *ctx)
 {
 	sid->config.link_mask = dut_ctx_get_uint32(ctx);
+#ifdef CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE
+	if (row_shell_is_active()) {
+		LOG_ERR("Registration over Wire is active, run register finalize first");
+		return;
+	}
+#endif /* CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE */
 	if (app_mfg_cfg_is_empty()) {
 		LOG_ERR("The mfg.hex version mismatch");
 		LOG_ERR("Check if the file has been generated and flashed properly");
@@ -97,6 +108,7 @@ void dut_event_init(sidewalk_ctx_t *sid, void *ctx)
 	if (e != SID_ERROR_NONE) {
 		return;
 	}
+	dut_sid_initialized = true;
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 	app_file_transfer_demo_init(sid->handle);
 #endif
@@ -111,6 +123,9 @@ void dut_event_deinit(sidewalk_ctx_t *sid, void *ctx)
 #endif
 	sid_error_t e = sid_deinit(sid->handle);
 	LOG_INF("sid_deinit returned %d (%s)", (int)e, SID_ERROR_T_STR(e));
+	if (e == SID_ERROR_NONE) {
+		dut_sid_initialized = false;
+	}
 }
 void dut_event_start(sidewalk_ctx_t *sid, void *ctx)
 {
@@ -308,4 +323,9 @@ void dut_event_conn_req(sidewalk_ctx_t *sid, void *ctx)
 	bool conn_req = (event_req == 1U);
 	sid_error_t e = sid_ble_bcn_connection_request(sid->handle, conn_req);
 	LOG_INF("sid_conn_request returned %d (%s)", e, SID_ERROR_T_STR(e));
+}
+
+bool dut_sid_is_initialized(void)
+{
+	return dut_sid_initialized;
 }

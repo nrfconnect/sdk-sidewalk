@@ -24,4 +24,16 @@ if(CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
 			sid_on_dev_cert_impl
 		)
 	endif()
+
+	if(CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE)
+		target_link_libraries(sidewalk INTERFACE
+			sid_serial_registration_ifc
+			sid_mfg_credentials_ifc
+			sid_state_lite_ifc
+		)
+	endif()
+
+	if(CONFIG_SIDEWALK_MFG_CREDENTIALS_RECOVER)
+		target_link_libraries(sidewalk INTERFACE sid_mfg_credentials_ifc)
+	endif()
 endif()

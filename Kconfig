@@ -208,6 +208,62 @@ config SIDEWALK_ON_DEV_CERT
 	bool "Sidewalk on device certification"
 	depends on SHELL
 
+DT_CHOSEN_SIDEWALK_ROW_UART := zephyr,shell-uart
+
+menuconfig SIDEWALK_REGISTRATION_OVER_WIRE
+	bool "Sidewalk Registration over Wire [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	depends on SIDEWALK_ON_DEV_CERT
+	depends on !SHELL_BACKEND_SERIAL
+	depends on SERIAL
+	depends on $(dt_chosen_enabled,$(DT_CHOSEN_SIDEWALK_ROW_UART))
+	select UART_INTERRUPT_DRIVEN
+	select RING_BUFFER
+	select SIDEWALK_MFG_ALLOW_WRITE
+	help
+	  Enables factory registration of the device over a wired connection
+	  (Registration over Wire, ROW). A dedicated shell backend owns the UART
+	  of the zephyr,shell-uart chosen node. The UART carries the shell, the logs
+	  and the 0xAA-framed Sidewalk registration messages.
+	  Use only in the factory diagnostic firmware.
+
+if SIDEWALK_REGISTRATION_OVER_WIRE
+
+config SIDEWALK_ROW_CONSOLE_RING_SIZE
+	int "Size of the shell console receive buffer"
+	default 256
+	help
+	  Size of the buffer for the console text received on the UART, in bytes.
+
+config SIDEWALK_ROW_POLL_INTERVAL_MS
+	int "Registration processing interval in milliseconds"
+	range 1 1000
+	default 5
+	help
+	  Interval of the Sidewalk serial registration processing while
+	  the registration is active.
+
+config SIDEWALK_ROW_SHELL_LOG_QUEUE_SIZE
+	int "Shell log message queue size"
+	default 512
+
+config SIDEWALK_ROW_SHELL_LOG_QUEUE_TIMEOUT
+	int "Shell log message queue timeout in milliseconds"
+	default 100
+
+endif # SIDEWALK_REGISTRATION_OVER_WIRE
+
+config SIDEWALK_MFG_CREDENTIALS_RECOVER
+	bool "Restore the registration credentials from the MFG page at boot [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	depends on SIDEWALK_USE_PREBUILT_LIBRARIES
+	depends on SIDEWALK_MFG_STORAGE
+	help
+	  Copies the registration credentials committed to the manufacturing page
+	  by Registration over Wire back into the KV store at boot, before Sidewalk
+	  is initialized. Does nothing if the KV store already holds them.
+	  Enable in the production firmware of factory-registered devices.
+
 config DEPRECATED_SIDEWALK_MFG_STORAGE
 	bool "Previous implementation of manufacturing module [DEPRECATED]"
 	imply FLASH

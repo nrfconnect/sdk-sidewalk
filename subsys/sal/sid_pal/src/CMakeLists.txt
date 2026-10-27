@@ -269,6 +269,16 @@ if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED)
 	endif()
 endif()
 
+if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE)
+	zephyr_library_named(sid_row_uart_impl)
+	target_sources(sid_row_uart_impl PRIVATE
+		sid_row_demux.c
+		sid_row_uart.c
+	)
+	target_include_directories(sid_row_uart_impl PRIVATE ${SID_PAL_INCLUDE})
+	target_link_libraries(sid_row_uart_impl PRIVATE sid_serial_registration_ifc)
+endif()
+
 # zephyr_library_named() leaves ZEPHYR_CURRENT_LIBRARY set; later bare
 # zephyr_library_sources() calls (e.g. in other modules) would attach to the
 # wrong target if this is not cleared.

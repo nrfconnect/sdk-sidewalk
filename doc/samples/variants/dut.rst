@@ -283,3 +283,25 @@ Testing Location Services
       }
 
    If you cannot see the coordinates message, refer to the :ref:`location_services_troubleshooting`.
+
+Testing Registration over Wire
+==============================
+
+To run the factory diagnostic firmware with :ref:`registration_over_wire`, build the DUT variant with the ROW overlay:
+
+.. code-block:: console
+
+   $ west build -b nrf54l15dk/nrf54l15/cpuapp -- -DOVERLAY_CONFIG="overlay-dut.conf;overlay-row.conf"
+
+After flashing, run the ``register`` command to list the registration commands:
+
+.. code-block:: console
+
+   uart:~$ register
+   register - Serial device registration commands
+   Subcommands:
+     start        : Start serial device registration
+     get_state    : Print the device registration state
+     commit_keys  : Persist registration credentials from KV into the MFG page
+     finalize     : Finalize registration: tear down the registration stack and
+   wired link

@@ -251,6 +251,30 @@ tests:
       - cli
       - sx1262
 
+  sample.sidewalk.dut.row.sx1262:
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+    extra_args:
+      - OVERLAY_CONFIG="overlay-dut.conf;overlay-row.conf"
+      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
+    extra_configs:
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.row"
+    tags:
+      - cli
+      - row
+      - sx1262
+
+  sample.sidewalk.dut.row.ble_only:
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+    extra_args: OVERLAY_CONFIG="overlay-dut.conf;overlay-row.conf"
+    extra_configs:
+      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.row.ble_only"
+    tags:
+      - cli
+      - row
+      - BLE
+
   sample.sidewalk.dut.lr1110:
     integration_platforms:
       - nrf54l15dk/nrf54l15/cpuapp
