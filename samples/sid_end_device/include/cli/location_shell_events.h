@@ -24,12 +24,6 @@ struct location_send_pseudorange_params {
 	size_t size;
 };
 
-/* DULT Event Handlers */
-void dult_event_init(sidewalk_ctx_t *sid, void *ctx);
-void dult_event_deinit(sidewalk_ctx_t *sid, void *ctx);
-void dult_event_config(sidewalk_ctx_t *sid, void *ctx);
-void dult_event_set(sidewalk_ctx_t *sid, void *ctx);
-
 /* Location Event Handlers */
 void location_event_init(sidewalk_ctx_t *sid, void *ctx);
 void location_event_deinit(sidewalk_ctx_t *sid, void *ctx);
@@ -39,6 +33,5 @@ void location_event_send_levels(sidewalk_ctx_t *sid, void *ctx);
 void location_event_send_buffer(sidewalk_ctx_t *sid, void *ctx);
 void location_event_send_pseudorange(sidewalk_ctx_t *sid, void *ctx);
 void location_event_manage_effort(sidewalk_ctx_t *sid, void *ctx);
-void location_event_alm_start(sidewalk_ctx_t *sid, void *ctx);
 
 #endif /* LOCATION_SHELL_EVENTS_H */
