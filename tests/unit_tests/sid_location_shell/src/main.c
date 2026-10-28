@@ -41,7 +41,7 @@ static void assert_nothing_sent(void)
 	zassert_equal(0, sidewalk_event_send_fake.call_count);
 }
 
-ZTEST(sid_location_shell, test_init_deinit_alm_start)
+ZTEST(sid_location_shell, test_init_deinit)
 {
 	const char *argv[] = { "cmd" };
 
@@ -51,10 +51,7 @@ ZTEST(sid_location_shell, test_init_deinit_alm_start)
 
 	zassert_equal(0, run_cmd(cmd_location_deinit, 1, argv));
 	zassert_equal(location_event_deinit, sidewalk_event_send_fake.arg0_val);
-
-	zassert_equal(0, run_cmd(cmd_location_alm_start, 1, argv));
-	zassert_equal(location_event_alm_start, sidewalk_event_send_fake.arg0_val);
-	zassert_equal(3, sidewalk_event_send_fake.call_count);
+	zassert_equal(2, sidewalk_event_send_fake.call_count);
 }
 
 ZTEST(sid_location_shell, test_init_too_many_args)
@@ -69,6 +66,8 @@ struct level_params {
 	int (*cmd)(const struct shell *, int32_t, const char **);
 	event_handler_t event;
 	int min_level;
+	int max_level;
+	bool allow_default;
 };
 
 static void test_level_cmd(const struct level_params *p)
@@ -76,10 +75,16 @@ static void test_level_cmd(const struct level_params *p)
 	const char *argv[2] = { "cmd", NULL };
 	char level[4];
 
-	/* No argument: default effort. */
-	zassert_equal(0, run_cmd(p->cmd, 1, argv));
-	zassert_equal(SID_LOCATION_EFFORT_DEFAULT, *(uint32_t *)sidewalk_event_send_fake.arg1_val);
-	assert_event_sent(p->event);
+	/* No argument: default effort, unless the command requires a level. */
+	if (p->allow_default) {
+		zassert_equal(0, run_cmd(p->cmd, 1, argv));
+		zassert_equal(SID_LOCATION_EFFORT_DEFAULT,
+			      *(uint32_t *)sidewalk_event_send_fake.arg1_val);
+		assert_event_sent(p->event);
+	} else {
+		zassert_equal(-EINVAL, run_cmd(p->cmd, 1, argv));
+		assert_nothing_sent();
+	}
 
 	for (int l = SID_LOCATION_EFFORT_L1; l <= SID_LOCATION_EFFORT_L6; l++) {
 		RESET_FAKE(sidewalk_event_send);
@@ -87,7 +92,7 @@ static void test_level_cmd(const struct level_params *p)
 		snprintf(level, sizeof(level), "%d", l);
 		argv[1] = level;
 
-		if (l < p->min_level) {
+		if (l < p->min_level || l > p->max_level) {
 			zassert_equal(-EINVAL, run_cmd(p->cmd, 2, argv), "level %d", l);
 			assert_nothing_sent();
 			continue;
@@ -114,19 +119,22 @@ static void test_level_cmd(const struct level_params *p)
 ZTEST(sid_location_shell, test_send_levels_range)
 {
 	test_level_cmd(&(struct level_params){ cmd_location_send, location_event_send,
-					       SID_LOCATION_EFFORT_L1 });
+					       SID_LOCATION_EFFORT_L1, SID_LOCATION_EFFORT_L6,
+					       true });
 }
 
 ZTEST(sid_location_shell, test_scan_levels_range)
 {
 	test_level_cmd(&(struct level_params){ cmd_location_scan, location_event_scan,
-					       SID_LOCATION_EFFORT_L3 });
+					       SID_LOCATION_EFFORT_L3, SID_LOCATION_EFFORT_L4,
+					       true });
 }
 
 ZTEST(sid_location_shell, test_send_buf_levels_range)
 {
 	test_level_cmd(&(struct level_params){ cmd_location_send_buf, location_event_send_buffer,
-					       SID_LOCATION_EFFORT_L3 });
+					       SID_LOCATION_EFFORT_L3, SID_LOCATION_EFFORT_L4,
+					       false });
 }
 
 ZTEST(sid_location_shell, test_level_cmd_alloc_fail)

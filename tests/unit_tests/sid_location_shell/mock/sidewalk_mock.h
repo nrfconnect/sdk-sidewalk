@@ -16,10 +16,6 @@ FAKE_VALUE_FUNC(void *, sid_hal_malloc, size_t);
 FAKE_VOID_FUNC(sid_hal_free, void *);
 FAKE_VALUE_FUNC(int, sidewalk_event_send, event_handler_t, void *, ctx_free);
 
-FAKE_VOID_FUNC(dult_event_init, sidewalk_ctx_t *, void *);
-FAKE_VOID_FUNC(dult_event_deinit, sidewalk_ctx_t *, void *);
-FAKE_VOID_FUNC(dult_event_config, sidewalk_ctx_t *, void *);
-FAKE_VOID_FUNC(dult_event_set, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(location_event_init, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(location_event_deinit, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(location_event_send, sidewalk_ctx_t *, void *);
@@ -28,7 +24,6 @@ FAKE_VOID_FUNC(location_event_scan, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(location_event_send_buffer, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(location_event_send_pseudorange, sidewalk_ctx_t *, void *);
 FAKE_VOID_FUNC(location_event_manage_effort, sidewalk_ctx_t *, void *);
-FAKE_VOID_FUNC(location_event_alm_start, sidewalk_ctx_t *, void *);
 
 #define SIDEWALK_FAKES_LIST(FAKE)                                                                  \
 	FAKE(sid_hal_malloc)                                                                       \
