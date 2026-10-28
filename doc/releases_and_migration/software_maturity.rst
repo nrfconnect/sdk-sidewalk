@@ -3,6 +3,9 @@
 Software maturity levels
 ########################
 
+This page summarizes the software maturity of Amazon Sidewalk add-on support on Nordic Semiconductor devices and for individual Sidewalk features.
+For maturity level definitions, see the :doc:`nRF Connect SDK software maturity levels documentation <nrf:releases_and_maturity/software_maturity>`.
+
 .. contents::
    :local:
    :depth: 2
