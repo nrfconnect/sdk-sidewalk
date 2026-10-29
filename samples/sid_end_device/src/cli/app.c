@@ -4,112 +4,25 @@
  * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
  */
 
+#include <string.h>
+
 #include <app.h>
 #include <sidewalk.h>
 #include <app_ble_config.h>
 #include <app_subGHz_config.h>
-#include <sid_hal_reset_ifc.h>
-#include <sid_hal_memory_ifc.h>
+#include <sid_qa.h>
+#include <sid_config_cli.h>
 #include <zephyr/kernel.h>
-#include <json_printer/sidTypes2Json.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/sys/reboot.h>
 
 #include <bt_app_callbacks.h>
+#include <cli/app_shell.h>
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+#include <cli/nordic_dfu_shell.h>
+#endif
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
-
-static uint32_t persistent_link_mask;
-
-static void on_sidewalk_event(bool in_isr, void *context)
-{
-	int err = sidewalk_event_send(sidewalk_event_process, NULL, NULL);
-	if (err) {
-		LOG_ERR("Send event err %d", err);
-	};
-}
-
-static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
-				     void *context)
-{
-	LOG_HEXDUMP_INF((uint8_t *)msg->data, msg->size, "Message received success");
-	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
-		"on_msg_received", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 1))))));
-}
-
-static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
-{
-	LOG_INF("Message send success");
-	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
-		"on_msg_sent", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
-}
-
-static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
-				   void *context)
-{
-	LOG_ERR("Message send err %d", (int)error);
-	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
-		"on_send_error",
-		JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
-				     JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0)))))));
-}
-
-static void on_sidewalk_factory_reset(void *context)
-{
-	ARG_UNUSED(context);
-	LOG_INF("sid_set_factory_reset success");
-}
-
-static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
-{
-	int err = 0;
-	uint32_t new_link_mask = status->detail.link_status_mask;
-	struct sid_status *new_status = sid_hal_malloc(sizeof(struct sid_status));
-	if (!new_status) {
-		LOG_ERR("Failed to allocate memory for new status value");
-	} else {
-		memcpy(new_status, status, sizeof(struct sid_status));
-	}
-	sidewalk_event_send(sidewalk_event_new_status, new_status, sid_hal_free);
-
-	switch (status->state) {
-	case SID_STATE_READY:
-	case SID_STATE_SECURE_CHANNEL_READY:
-		LOG_INF("Status changed: ready");
-		break;
-	case SID_STATE_NOT_READY:
-		LOG_INF("Status changed: not ready");
-		break;
-	case SID_STATE_ERROR:
-		LOG_INF("Status not changed: error");
-		break;
-	}
-
-	if (err) {
-		LOG_ERR("Send event err %d", err);
-	}
-
-	LOG_INF("Device %sregistered, Time Sync %s, Link status: {BLE: %s, FSK: %s, LoRa: %s}",
-		(SID_STATUS_REGISTERED == status->detail.registration_status) ? "Is " : "Un",
-		(SID_STATUS_TIME_SYNCED == status->detail.time_sync_status) ? "Success" : "Fail",
-		(new_link_mask & SID_LINK_TYPE_1) ? "Up" : "Down",
-		(new_link_mask & SID_LINK_TYPE_2) ? "Up" : "Down",
-		(new_link_mask & SID_LINK_TYPE_3) ? "Up" : "Down");
-
-	for (int i = 0; i < SID_LINK_TYPE_MAX_IDX; i++) {
-		enum sid_link_mode mode =
-			(enum sid_link_mode)status->detail.supported_link_modes[i];
-
-		if (mode) {
-			LOG_INF("Link mode on %s = {Cloud: %s, Mobile: %s}",
-				(SID_LINK_TYPE_1_IDX == i) ? "BLE" :
-				(SID_LINK_TYPE_2_IDX == i) ? "FSK" :
-				(SID_LINK_TYPE_3_IDX == i) ? "LoRa" :
-							     "unknow",
-				(mode & SID_LINK_MODE_CLOUD) ? "True" : "False",
-				(mode & SID_LINK_MODE_MOBILE) ? "True" : "False");
-		}
-	}
-}
 
 static bool gatt_authorize(struct bt_conn *conn, const struct bt_gatt_attr *attr)
 {
@@ -141,28 +54,71 @@ static const struct bt_gatt_authorization_cb gatt_authorization_callbacks = {
 	.write_authorize = gatt_authorize,
 };
 
-#define MAX_TIME_SYNC_INTERVALS 10
+static void qa_reboot(void)
+{
+	sys_reboot(SYS_REBOOT_WARM);
+}
 
-static uint16_t default_sync_intervals_h[MAX_TIME_SYNC_INTERVALS] = { 2, 4, 8,
-								      12 }; // default GCS intervals
-static struct sid_time_sync_config default_time_sync_config = {
-	.adaptive_sync_intervals_h = default_sync_intervals_h,
-	.num_intervals = sizeof(default_sync_intervals_h) / sizeof(default_sync_intervals_h[0]),
-};
+static void qa_set_sub_ghz_cfg(struct sid_sub_ghz_links_config *sub_ghz_cfg)
+{
+#if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+	if (sub_ghz_cfg != NULL) {
+		memcpy(app_get_sub_ghz_config(), sub_ghz_cfg, sizeof(*sub_ghz_cfg));
+	}
+#else
+	ARG_UNUSED(sub_ghz_cfg);
+#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
+}
+
+static void app_event_qa_process(sidewalk_ctx_t *sid, void *ctx)
+{
+	static struct sid_qa_callbacks qa_callbacks = {
+		.reboot_cmd = qa_reboot,
+		.set_sub_ghz_cfg = qa_set_sub_ghz_cfg,
+	};
+
+	sid_error_t err;
+	int ret;
+
+	ARG_UNUSED(ctx);
+
+	sid_qa_set_config(&sid->config, app_shell_qa_ifc());
+
+	err = sid_qa_init(&qa_callbacks);
+	if (err != SID_ERROR_NONE) {
+		LOG_ERR("Sidewalk QA init err %d", (int)err);
+		return;
+	}
+
+	err = sid_config_cli_init();
+	if (err != SID_ERROR_NONE) {
+		LOG_ERR("Sidewalk config CLI init err %d", (int)err);
+		return;
+	}
+
+#if defined(CONFIG_SIDEWALK_DFU_SERVICE_BLE)
+	ret = nordic_dfu_shell_init();
+	if (ret) {
+		LOG_ERR("Nordic DFU shell init err %d", ret);
+		return;
+	}
+#endif /* CONFIG_SIDEWALK_DFU_SERVICE_BLE */
+
+	ret = app_shell_init();
+	if (ret) {
+		LOG_ERR("Shell init err %d", ret);
+		return;
+	}
+
+	/* From now on the Sidewalk thread is owned by the Sidewalk QA library. */
+	while (true) {
+		sid_qa_process(QA_PROC_WAIT);
+	}
+}
 
 void app_start(void)
 {
 	static sidewalk_ctx_t sid_ctx = { 0 };
-
-	static struct sid_event_callbacks event_callbacks = {
-		.context = &sid_ctx,
-		.on_event = on_sidewalk_event,
-		.on_msg_received = on_sidewalk_msg_received,
-		.on_msg_sent = on_sidewalk_msg_sent,
-		.on_send_error = on_sidewalk_send_error,
-		.on_status_changed = on_sidewalk_status_changed,
-		.on_factory_reset = on_sidewalk_factory_reset,
-	};
 
 	struct sid_end_device_characteristics dev_ch = {
 		.type = SID_END_DEVICE_TYPE_STATIC,
@@ -171,13 +127,9 @@ void app_start(void)
 	};
 
 	sid_ctx.config = (struct sid_config){
-		.link_mask = persistent_link_mask,
 		.dev_ch = dev_ch,
-		.callbacks = &event_callbacks,
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
-		.log_config = NULL,
-		.time_sync_config = &default_time_sync_config,
 	};
 
 	int err = bt_gatt_authorization_cb_register(&gatt_authorization_callbacks);
@@ -188,6 +140,7 @@ void app_start(void)
 
 	sidewalk_start(&sid_ctx);
 	sidewalk_event_send(sidewalk_event_platform_init, NULL, NULL);
+	sidewalk_event_send(app_event_qa_process, NULL, NULL);
 
 #if CONFIG_SID_END_DEVICE_CLI_ALIVE_MARKER
 	while (true) {

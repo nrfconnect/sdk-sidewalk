@@ -46,24 +46,18 @@ endif()
 
 if(CONFIG_SID_END_DEVICE_CLI)
     target_sources(app PRIVATE
-        src/cli/app_dut.c
         src/cli/app_shell.c
-        src/cli/ep_cfg_print.c
-        src/cli/print_shell.c
-        src/cli/metrics_shell.c
     )
-    target_link_libraries(app PRIVATE sid_clock_ifc)
-    target_sources_ifdef(CONFIG_SIDEWALK_FILE_TRANSFER_SHELL app PRIVATE
-        src/cli/sbdt_shell.c
-        src/cli/sbdt_shell_events.c
-        src/cli/sbdt_shell_file_transfer.c
+    target_link_libraries(app PRIVATE sid_cli_ifc)
+    if(NOT CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
+        target_sources(app PRIVATE src/cli/sid_utils_compat.c)
+        target_link_libraries(app PRIVATE sid_utils_ifc)
+    endif()
+    target_sources_ifdef(CONFIG_SIDEWALK_DFU_SERVICE_BLE app PRIVATE
+        src/cli/nordic_dfu_shell.c
     )
     target_sources_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT app PRIVATE 
         src/cli/sid_on_dev_cert_cli.c
-    )
-    target_sources_ifdef(CONFIG_SIDEWALK_LOCATION_SHELL app PRIVATE
-        src/cli/location_shell.c
-        src/cli/location_shell_events.c
     )
 endif()
 

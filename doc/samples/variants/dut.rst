@@ -22,11 +22,16 @@ Testing
 
 #. After successfully building and flashing, the sample is ready to use.
    You should see the command-line prompt ``uart:~$``.
-   Rub ``sid help`` to get the list of supported Sidewalk commands.
+   Run ``sid ?`` to get the list of supported Sidewalk commands.
 
    .. code-block:: console
 
-       uart:~$ sid help
+       uart:~$ sid ?
+
+   .. note::
+
+      The Sidewalk commands are implemented by the Sidewalk SDK command-line interface.
+      Command results (``CMD: ERR: <value> ...``) and Sidewalk events (``EVENT SID ...``) are only printed when the application is built with the ``CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG`` Kconfig option.
 
 #. Initialize Sidewalk in the desired transport mode:
 
@@ -47,7 +52,7 @@ Testing
          uart:~$ sid init 7
 
       Use ``2`` for FSK, ``4`` for Bluetooth LE and LoRa, and ``7`` for all transports.
-      For more available options see ``sid help``.
+      For more available options see ``sid init ?``.
 
 #. Start the Sidewalk stack
 
@@ -55,11 +60,11 @@ Testing
 
       uart:~$ sid start
 
-#. Wait for Sidewalk to be ready
+#. Wait for Sidewalk to be ready (``State: 0``)
 
    .. code-block:: console
 
-      <inf> app: Status changed: ready
+      EVENT SID STATUS: State: 0, Reg: 0, Time: 0, Link_Mask: 1
 
 #. Send message to cloud.
 
@@ -73,7 +78,8 @@ Testing
       .. code-block:: console
 
          uart:~$ sid send test_message
-         <inf> app: Message send success
+         CMD: ERR: 0 TYPE: 0 ID: 4
+         EVENT SID SEND STATUS: SID ERR: 0, TYPE: 0, ID: 4
 
    You should see the message data in the base64 format:
 
@@ -95,13 +101,13 @@ Testing
       }
 
    You can use ``last_status`` to check if your device is connected to the cloud.
-   At least one ``Link status`` must be ``Up``.
+   ``Link_Mask`` must not be ``0``.
 
    .. code-block:: console
 
       uart:~$ sid last_status
-      <inf> sid_cli: Device Is registered, Time Sync Success, Link status: {BLE: Up, FSK: Down, LoRa: Down}
-      <inf> sid_cli: Link mode on BLE = {Cloud: True, Mobile: False}
+      EVENT SID STATUS: State: 0, Reg: 0, Time: 0, Link_Mask: 1
+      EVENT SID STATUS LINKS: LoRa: 0, FSK: 0, BLE: 1
 
    .. _variant_sidewalk_dut_testing_conn_req:
 
@@ -109,15 +115,11 @@ Testing
 
       .. code-block:: console
 
-         <inf> app: Status changed: not ready
-         <inf> app: Device Is registered, Time Sync Success, Link status: {BLE: Down, FSK: Down, LoRa: Down}
+         EVENT SID STATUS: State: 1, Reg: 0, Time: 0, Link_Mask: 0
          uart:~$ sid conn_req 1
-         <inf> sid_cli: sid_conn_request returned 0 (SID_ERROR_NONE)
          <inf> sid_ble_conn: BT Connected
-         <inf> app: Status changed: ready
-         <inf> app: Device Is registered, Time Sync Success, Link status: {BLE: Up, FSK: Down, LoRa: Down}
+         EVENT SID STATUS: State: 0, Reg: 0, Time: 0, Link_Mask: 1
          uart:~$ sid send test_message
-         <inf> app: Message send success
 
 #. Receive message from cloud.
 
@@ -140,13 +142,8 @@ Testing Location Services
    .. code-block:: console
 
       uart:~$ location init
-      <inf> location_shell_events: location_event_init returned 0
-      <inf> location_shell_events: loc send result: 0
-      <inf> location_shell_events: loc effort mode: 0
-      <inf> location_shell_events: loc link type: 0
 
    You should see a log message with a success status.
-   It may take a few seconds to get location stats (effort mode, link type).
 
 #. Send the location depending on the protocol used:
 
@@ -156,22 +153,16 @@ Testing Location Services
       .. code-block:: console
 
          uart:~$ sid last_status
-         <inf> sid_cli: Device Is registered, Time Sync Success, Link status: {BLE: Down, FSK: Down, LoRa: Down}
+         EVENT SID STATUS: State: 1, Reg: 0, Time: 0, Link_Mask: 0
          uart:~$ sid conn_req 1
-         <inf> sid_cli: sid_conn_request returned 0 (SID_ERROR_NONE)
          <inf> sid_ble_conn: BT Connected
-         <inf> app: Status changed: ready
-         <inf> app: Device Is registered, Time Sync Success, Link status: {BLE: Up, FSK: Down, LoRa: Down}
+         EVENT SID STATUS: State: 0, Reg: 0, Time: 0, Link_Mask: 1
 
       Send location to cloud based on the current Bluetooth LE connection.
 
       .. code-block:: console
 
          uart:~$ location send 1
-         <inf> location_shell_events: loc send result: 0
-         <inf> location_shell_events: loc effort mode: 1
-         <inf> location_shell_events: loc link type: 1
-         <inf> location_shell_events: location_event_send mode: 1, returned 0
 
    #. For GNSS location, ensure that the LR1110 radio hardware is connected.
       For Wi-Fi location, use either the LR1110 radio or an nRF70 Series Wi-Fi companion IC, as described in :ref:`location_services`.
@@ -191,7 +182,6 @@ Testing Location Services
          <inf> sidewalk: RP: Task #3 enqueue with #11 priority
          <inf> sidewalk: Enqueued RP task for Wi-Fi scan (hook_id #3)
          <inf> sidewalk: mw_wifi_scan_service_on_update
-         <inf> location_shell_events: location_event_send mode: 3, returned 0
          <inf> sidewalk: sid_pal_hold
          <inf> sidewalk: INFO: Wi-Fi task launch at 2394270
          <inf> sidewalk:
@@ -244,14 +234,6 @@ Testing Location Services
          <inf> sidewalk: mw_wifi_send_add_task: no scan to be sent
          <inf> sidewalk: Event Received: SMTC_MODEM_EVENT_WIFI_TERMINATED
          <inf> sidewalk: Calling _app_event_lbm_wifi
-         <inf> location_shell_events: loc send result: 0
-         <inf> location_shell_events: loc effort mode: 3
-         <inf> location_shell_events: loc link type: 1
-         <inf> location_shell_events: loc payload:
-         <inf> location_shell_events: loc payload
-                           da 11 aa 22 bb 33 dd be  a0 b0 c0 d0 e0 f0 af ab
-                           00 cd 11 ef 22 01 23 45  67 89 ab 63 a5 aa bb cc
-                           00 11 22
          <inf> sidewalk: _app_event_lbm_wifi completed
          <inf> sidewalk: rp_hook_callback task WIFI state RP_TASK_STATE_FINISHED
          <inf> sidewalk: sid_pal_release
