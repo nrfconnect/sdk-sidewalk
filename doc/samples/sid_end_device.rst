@@ -246,6 +246,7 @@ Testing application scenarios differ depending on the selected Sidewalk configur
 * ``overlay-demo`` -- Use this configuration to run the Sensor monitoring variant.
 * ``overlay-dut`` -- Use this configuration to run the Device under test (DUT) variant.
   The overlay enables CLI and disables sample automation.
+* ``overlay-row`` -- Use this configuration on top of ``overlay-dut`` to run the factory diagnostic firmware with :ref:`registration_over_wire`.
 
 You can build an end device application with the selected overlay by running the following command in the project directory:
 

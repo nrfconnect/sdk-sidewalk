@@ -13,3 +13,4 @@ Ensure you have set up the development environment and run the :ref:`sidewalk_en
    application_development/sidewalk_configuration.rst
    application_development/secure_storage.rst
    application_development/bootloader_configuration.rst
+   application_development/registration_over_wire.rst
