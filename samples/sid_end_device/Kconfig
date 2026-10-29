@@ -39,10 +39,14 @@ endif #SID_END_DEVICE_SENSOR_MONITORING
 
 config SID_END_DEVICE_CLI
 	bool "Sidewalk CLI (DUT)"
+	depends on SID_END_DEVICE_DUT
+	default y
 	imply SHELL
+	imply CRC
 	help
 	  Enables Sidewalk command line interface.
-	  The interface commands are compatible with former dut sample.
+	  The shell commands are forwarded to the Amazon Sidewalk SDK CLI
+	  and executed on the Sidewalk thread.
 
 if SID_END_DEVICE_CLI
 
@@ -137,14 +141,6 @@ config SIDEWALK_FILE_TRANSFER_DFU
 	    Save received data to flash. Expect CBOR manifest.
 	    Automatically reset device after file transfer.
 
-config SIDEWALK_FILE_TRANSFER_SHELL
-	bool "SBDT cli backend for file transfer"
-	imply SHELL
-	help
-	    Use shell commands to control file transfer.
-	    This implementation does not save received data,
-	    but allows user to control the sbdt behaviour from shell.
-
 endchoice
 
 config SBDT_MAX_PARALLEL_TRANSFERS
@@ -152,13 +148,6 @@ config SBDT_MAX_PARALLEL_TRANSFERS
 	default 3
 
 endif # SIDEWALK_FILE_TRANSFER
-
-config SIDEWALK_LOCATION_SHELL
-	bool "Sidewalk Location CLI"
-	depends on SID_END_DEVICE_CLI
-	help
-	    Enables Sidewalk location and dult command line interface.
-	    Provides commands for location services and unwanted location tracking.
 
 if SIDEWALK_CRYPTO
 
