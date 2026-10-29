@@ -135,14 +135,10 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 static void on_sidewalk_factory_reset(void *context)
 {
 	ARG_UNUSED(context);
-#ifndef CONFIG_SID_END_DEVICE_CLI
 	LOG_INF("Factory reset notification received from sid api");
 	if (sid_hal_reset(SID_HAL_RESET_NORMAL)) {
 		LOG_WRN("Cannot reboot");
 	}
-#else
-	LOG_INF("sid_set_factory_reset success");
-#endif
 }
 
 static void on_sidewalk_status_changed(const struct sid_status *status, void *context)

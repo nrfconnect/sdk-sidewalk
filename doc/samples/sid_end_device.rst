@@ -233,7 +233,7 @@ The DFU over SMP is enabled by default.
 
 The following configuration arguments are available during the build process for configuring DFU:
 
-* To enable support for the downlink file transfer over Bluetooth LE, use the ``-DCONFIG_SIDEWALK_FILE_TRANSFER=y`` build flag.
+* To enable support for the downlink file transfer over Bluetooth LE, use the ``-DCONFIG_SIDEWALK_FILE_TRANSFER_DFU=y`` build flag.
 
 Selecting a sample variant
 **************************

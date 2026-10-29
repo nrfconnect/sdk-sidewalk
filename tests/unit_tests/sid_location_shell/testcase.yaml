@@ -1,5 +1,0 @@
-tests:
-  sidewalk.test.unit.sid_location_shell:
-    sysbuild: false
-    tags: Sidewalk
-    type: unit

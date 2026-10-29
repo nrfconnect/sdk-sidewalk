@@ -104,3 +104,22 @@ add_subdirectory(internal/sid_sdk_internal_config_ifc)
 
 # ace OSAL implementation (headers come from sid_utility_ifc/ace)
 add_subdirectory(ace)
+
+# Amazon SDK CLI interface library (QA and config CLI commands)
+add_library(sid_cli_ifc INTERFACE)
+
+target_include_directories(sid_cli_ifc
+  INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/sid_asd_cli/include
+    ${CMAKE_CURRENT_LIST_DIR}/sid_config_cli/include
+    ${CMAKE_CURRENT_LIST_DIR}/sid_qa/include/public
+)
+
+target_link_libraries(sid_cli_ifc
+  INTERFACE
+    ace_ifc
+    sid_api_ifc
+    sid_device_information_api_ifc
+    sid_error
+    sid_pal_log_ifc
+)

@@ -39,18 +39,22 @@ endif #SID_END_DEVICE_SENSOR_MONITORING
 
 config SID_END_DEVICE_CLI
 	bool "Sidewalk CLI (DUT)"
+	depends on SID_END_DEVICE_DUT
+	default y
 	imply SHELL
+	imply CRC
 	help
 	  Enables Sidewalk command line interface.
-	  The interface commands are compatible with former dut sample.
+	  The shell commands are forwarded to the Amazon Sidewalk SDK CLI
+	  and executed on the Sidewalk thread.
 
 if SID_END_DEVICE_CLI
 
 config SHELL_CMD_BUFF_SIZE
-	default 1024
+	default 768
 
 config SHELL_STACK_SIZE
-	default 8192
+	default 4096
 
 config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 	default 128
@@ -58,11 +62,30 @@ config SHELL_BACKEND_SERIAL_TX_RING_BUFFER_SIZE
 config SHELL_BACKEND_SERIAL_RX_RING_BUFFER_SIZE
 	default 1024
 
+# The shell thread does not print log messages while waiting for a command to complete,
+# so the queue must hold all messages logged by a command.
+config SHELL_BACKEND_SERIAL_LOG_MESSAGE_QUEUE_SIZE
+	default 8192
+
 config SID_END_DEVICE_CLI_ALIVE_MARKER
 	bool "Alive marker"
 	help
 	    Enable alive marker that periodically prints "alive" message to log.
 	    Useful to verify that application is running and not stuck.
+
+config SID_END_DEVICE_CLI_CMD_TIMEOUT
+	int "Sidewalk CLI command timeout [s]"
+	default 60
+	help
+	    Maximum time to wait for the Sidewalk thread to execute a shell command.
+	    The time spent in the power measurement mode is not counted.
+	    If the command does not complete in time, a kernel oops is triggered.
+	    Set to 0 to wait forever.
+
+# Sidewalk CLI command results and events are only printed by the debug libraries
+choice SIDEWALK_PREBUILT_LIBRARIES_VARIANT
+	default SIDEWALK_PREBUILT_LIBRARIES_DEBUG
+endchoice
 
 endif # SID_END_DEVICE_CLI
 
@@ -106,13 +129,35 @@ config SID_END_DEVICE_EVENT_HEAP_SIZE
 	default 2048
 
 config SIDEWALK_FILE_TRANSFER
-	select EXPERIMENTAL
-	bool "Sidewalk file transfer [EXPERIMENTAL]"
+	bool "Sidewalk file transfer [DEPRECATED]"
+	select DEPRECATED
 	help
-	  Add support for Sidewalk Bulk Data Transfer (SBDT)
-	  in application.
+	  This option is deprecated. Use SIDEWALK_FILE_TRANSFER_DFU instead.
 
-if SIDEWALK_FILE_TRANSFER
+config SIDEWALK_FILE_TRANSFER_SHELL
+	bool "SBDT cli backend for file transfer [DEPRECATED]"
+	depends on SIDEWALK_FILE_TRANSFER
+	select DEPRECATED
+	help
+	  This option is deprecated and has no effect.
+	  The Sidewalk Bulk Data Transfer (SBDT) commands are provided by the
+	  Sidewalk QA library when SID_END_DEVICE_CLI is enabled.
+
+config SIDEWALK_FILE_TRANSFER_DFU
+	bool "Sidewalk file transfer and DFU [EXPERIMENTAL]"
+	select EXPERIMENTAL
+	imply SIDEWALK_DFU_IMG_UTILS
+	imply DFU_MULTI_IMAGE
+	imply DFU_TARGET
+	imply DFU_TARGET_MCUBOOT
+	imply STREAM_FLASH
+	imply STREAM_FLASH_ERASE
+	help
+	    Add support for Sidewalk Bulk Data Transfer (SBDT) in application.
+	    Save received data to flash. Expect CBOR manifest.
+	    Automatically reset device after file transfer.
+
+if SIDEWALK_FILE_TRANSFER_DFU
 
 config SIDEWALK_FILE_TRANSFER_HEAP_SIZE
 	int "Sidewalk file transfer heap size"
@@ -121,44 +166,20 @@ config SIDEWALK_FILE_TRANSFER_HEAP_SIZE
 	    Heap size in bytes to be allocated
 	    for Sidewalk Bulk Data Transfer (SBDT).
 
-choice SIDEWALK_FILE_TRANSFER_IMPL
-	prompt "Select which implementation of SBDT to use"
-	default SIDEWALK_FILE_TRANSFER_DFU
-
-config SIDEWALK_FILE_TRANSFER_DFU
-	bool "Sidewalk file transfer and dfu"
-	imply SIDEWALK_DFU_IMG_UTILS
-	imply DFU_MULTI_IMAGE
-	imply DFU_TARGET
-	imply DFU_TARGET_MCUBOOT
-	imply STREAM_FLASH
-	imply STREAM_FLASH_ERASE
-	help
-	    Save received data to flash. Expect CBOR manifest.
-	    Automatically reset device after file transfer.
-
-config SIDEWALK_FILE_TRANSFER_SHELL
-	bool "SBDT cli backend for file transfer"
-	imply SHELL
-	help
-	    Use shell commands to control file transfer.
-	    This implementation does not save received data,
-	    but allows user to control the sbdt behaviour from shell.
-
-endchoice
-
 config SBDT_MAX_PARALLEL_TRANSFERS
 	int "maximum number of sbdt parallel transfers"
 	default 3
 
-endif # SIDEWALK_FILE_TRANSFER
+endif # SIDEWALK_FILE_TRANSFER_DFU
 
 config SIDEWALK_LOCATION_SHELL
-	bool "Sidewalk Location CLI"
+	bool "Sidewalk Location CLI [DEPRECATED]"
 	depends on SID_END_DEVICE_CLI
+	select DEPRECATED
 	help
-	    Enables Sidewalk location and dult command line interface.
-	    Provides commands for location services and unwanted location tracking.
+	  This option is deprecated and has no effect.
+	  The Sidewalk location and DULT commands are provided by the Sidewalk CLI
+	  when SID_END_DEVICE_CLI is enabled.
 
 if SIDEWALK_CRYPTO
 
