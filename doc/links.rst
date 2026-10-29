@@ -25,6 +25,8 @@
 .. _nRF7000 Product Page: https://www.nordicsemi.com/Products/nRF7000
 .. _nRF7001 Product Page: https://www.nordicsemi.com/Products/nRF7001
 .. _nRF7002 Product Page: https://www.nordicsemi.com/Products/nRF7002
+.. _DevZone: https://devzone.nordicsemi.com/
+.. _Nordic Semiconductor sales: https://www.nordicsemi.com/About-us/Contact-Us#Sales_related_questions
 
 .. github.com
 
@@ -62,7 +64,15 @@
 .. _AWS: https://aws.amazon.com/
 .. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html
 .. _Introducing AWS IoT Core Device Location Integration with Amazon Sidewalk: https://aws.amazon.com/blogs/aws/introducing-aws-iot-core-device-location-integration-with-amazon-sidewalk/
-.. _Amazon Sidewalk Location Library Developer Guide: https://docs.sidewalk.amazon/assets/pdf/Amazon_Sidewalk_Location_Library_Developer_Guide-1.0-rev-A.pdf
+.. _Amazon Sidewalk Location Library Developer Guide: https://docs.sidewalk.amazon/app-notes/location-library/
+.. _Amazon Sidewalk Location Resolution: https://docs.sidewalk.amazon/app-notes/location-library/location-resolution/
+.. _Amazon Sidewalk MCU SDK Migration Guide: https://docs.sidewalk.amazon/sid-api-dg/sidewalk-mcu-sdk-migration-guide.html
+.. _Amazon Sidewalk Registration over Wire Application Note: https://docs.sidewalk.amazon/app-notes/registration-over-wire/
+.. _Amazon Sidewalk Gateway Session Key (GSK) Application Note: https://docs.sidewalk.amazon/app-notes/gateway-session-key/
+.. _Amazon Sidewalk Gateway Discovery and Selection Application Note: https://docs.sidewalk.amazon/app-notes/gateway-discovery-selection/
+.. _Amazon Sidewalk Internationalization Application Note: https://docs.sidewalk.amazon/app-notes/internationalization/
+.. _Testing Sidewalk outside of the United States: https://docs.sidewalk.amazon/getting-started/testing-sidewalk-outside-of-the-united-states.html
+.. _Set up an Amazon Echo as a Sidewalk gateway in a non-U.S. location: https://docs.sidewalk.amazon/getting-started/setup-an-amazon-echo-as-a-sidewalk-gateway-in-a-non-us-location.html
 
 
 .. Other links and additional resources

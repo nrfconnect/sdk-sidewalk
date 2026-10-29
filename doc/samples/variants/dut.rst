@@ -173,6 +173,34 @@ Testing Location Services
          <inf> location_shell_events: loc link type: 1
          <inf> location_shell_events: location_event_send mode: 1, returned 0
 
+   #. For the FSK gateway location, initialize Sidewalk with the FSK link (for example, ``sid init 2``), start it, and wait until ``sid last_status`` reports ``FSK: Up``.
+      Then, send the location using level ``2``:
+
+      .. code-block:: console
+
+         uart:~$ location send 2
+         <inf> location_shell_events: location_event_send mode: 2, returned 0
+
+   #. For the LoRa multilateration (trilateration), initialize Sidewalk with the LoRa link (for example, ``sid init 3`` or ``sid init 4``) and start it.
+      Then, send the location using level ``5``:
+
+      .. code-block:: console
+
+         uart:~$ location send 5
+         <inf> location_shell_events: location_event_send mode: 5, returned 0
+
+      The location is resolved only if the uplink is received by at least three Sidewalk gateways.
+      For more information, see :ref:`location_services_lora_mlat`.
+
+   #. To try several location levels in a specific order, use the ``send_levels`` command with up to six levels.
+      The library tries the levels in the given order and moves to the next one if a level is not available or does not return a result.
+      For example, to try the LoRa multilateration first and fall back to the Bluetooth LE location:
+
+      .. code-block:: console
+
+         uart:~$ location send_levels 5 1
+         <inf> location_shell_events: location_event_send_levels levels: 2, returned 0
+
    #. For GNSS location, ensure that the LR1110 radio hardware is connected.
       For Wi-Fi location, use either the LR1110 radio or an nRF70 Series Wi-Fi companion IC, as described in :ref:`location_services`.
 
