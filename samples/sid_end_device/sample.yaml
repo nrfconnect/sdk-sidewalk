@@ -22,7 +22,7 @@ tests:
       - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
-      - CONFIG_SIDEWALK_FILE_TRANSFER=y
+      - CONFIG_SIDEWALK_FILE_TRANSFER_DFU=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
     tags:
       - hello
@@ -37,7 +37,7 @@ tests:
       - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
-      - CONFIG_SIDEWALK_FILE_TRANSFER=y
+      - CONFIG_SIDEWALK_FILE_TRANSFER_DFU=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
     harness: console
     harness_config:
@@ -64,7 +64,7 @@ tests:
       - SHIELD="nrf_sidewalk_eb"
     extra_configs:
       - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
-      - CONFIG_SIDEWALK_FILE_TRANSFER=y
+      - CONFIG_SIDEWALK_FILE_TRANSFER_DFU=y
       - CONFIG_SIDEWALK_APPLICATION_NAME="hello"
     tags:
       - hello
@@ -282,39 +282,6 @@ tests:
       - Sidewalk
       - cli
       - lr1110
-
-  sample.sidewalk.dut.nrf_sidewalk_eb.debug_libs:
-    integration_platforms:
-      - nrf54lm20dk/nrf54lm20a/cpuapp
-    platform_exclude:
-      - nrf52840dk/nrf52840
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-    platform_allow:
-      - nrf54lm20dk/nrf54lm20a/cpuapp
-      - nrf54lm20dk/nrf54lm20b/cpuapp
-    extra_args:
-      - OVERLAY_CONFIG="overlay-dut.conf"
-      - SHIELD="nrf_sidewalk_eb"
-    extra_configs:
-      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.debug_libs"
-      - CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
-    tags:
-      - cli
-      - lr1110
-
-  sample.sidewalk.dut.ble_only.debug_libs:
-    integration_platforms:
-      - nrf54lm20dk/nrf54lm20a/cpuapp
-    platform_allow:
-      - nrf54lm20dk/nrf54lm20a/cpuapp
-      - nrf54lm20dk/nrf54lm20b/cpuapp
-    extra_args: OVERLAY_CONFIG="overlay-dut.conf"
-    extra_configs:
-      - CONFIG_SIDEWALK_APPLICATION_NAME="dut.ble_only.debug_libs"
-      - CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
-    tags:
-      - cli
-      - BLE
 
   sample.sidewalk.dut.ble_only:
     integration_platforms:

@@ -9,7 +9,7 @@
      For more details, see the :ref:`variant_sidewalk_dut` page.
 
 * ``CONFIG_SID_END_DEVICE_CLI`` -- Enables Sidewalk CLI.
-  To see the list of available commands, flash the sample and type ``sid help``.
+  To see the list of available commands, flash the sample and type ``sid ?``.
 
 * ``CONFIG_SID_END_DEVICE_AUTO_START`` -- Enables an automatic Sidewalk initialization and start.
 
