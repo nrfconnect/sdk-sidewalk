@@ -39,6 +39,38 @@ Use the following option to include link types in the build.
   .. note::
      This option is enabled by default when a LoRa transceiver is enabled with the devicetree chosen property ``zephyr,lora-transceiver``.
 
+.. _sidewalk_configuration_subghz_region:
+
+Sub-GHz region
+**************
+
+The region determines the sub-GHz radio parameters of the device: the frequency band, data rates, maximum transmit power and channel access rules.
+It does not affect Bluetooth LE.
+Use the ``SIDEWALK_SUBGHZ_REGION`` Kconfig choice to select the region built into the sub-GHz radio configuration and passed to the Sidewalk platform initialization:
+
+* ``CONFIG_SIDEWALK_SUBGHZ_REGION_US915`` - Selects the North America region (915 MHz band).
+  This is the default option.
+
+* ``CONFIG_SIDEWALK_SUBGHZ_REGION_EU868`` - Selects the Europe region (868 MHz band).
+  In this region, the maximum transmit power is lower, the transmission airtime is limited (duty cycle on LoRa, listen-before-talk on FSK), and LoRa always uses the low data rate (LDR).
+  Size the application traffic against the European limits.
+
+For example, to build the application for the Europe region, add the following option to the build command:
+
+.. code-block:: console
+
+   west build -b nrf54l15dk/nrf54l15/cpuapp -- -DCONFIG_SIDEWALK_SUBGHZ_REGION_EU868=y
+
+If you call ``sid_platform_init()`` from your own application, set the ``platform_init_parameters.region`` field of ``platform_parameters_t`` to the selected region.
+If the region is not set, the Sidewalk v2.0 libraries cannot initialize the LoRa and FSK links.
+
+The region selected at build time is not reported to the Sidewalk cloud.
+For the region reporting mechanism, region-dependent link budget and airtime limits, and the countries supported in each region, see the `Amazon Sidewalk Internationalization Application Note`_.
+
+.. note::
+   Selecting a region configures the radio parameters, but it does not certify the device for that market.
+   You are responsible for the RF design supporting the selected band and for the regulatory certification in each country where you sell or operate the device.
+
 Prebuilt library variant
 ************************
 

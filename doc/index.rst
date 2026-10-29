@@ -18,10 +18,7 @@ Amazon Sidewalk is a shared network designed to provide a stable and reliable co
 Ring and Echo device can act as a gateway, meaning they can share a portion of internet bandwidth providing the connection and services to Sidewalk end devices.
 For the list of supported devices, see `Amazon Sidewalk Gateways`_.
 
-.. note::
-   Amazon Sidewalk is available only in the United States of America.
-   To an extent, any Sidewalk gateway functionality might be used outside of the U.S., however, it should be used only for the Amazon Sidewalk endpoint development purposes.
-   In addition, we recommend that you consult with your local regulatory bodies, and check if the gateway is allowed to operate its radio in your locale, as U.S. license-free band devices, only for development.
+.. include:: includes/include_sidewalk_availability.txt
 
 Amazon Sidewalk for the nRF Connect SDK is based on two variants, one using Bluetooth® LE (more suited for home applications) and the other one using sub-GHz with the Semtech radio transceiver (for applications requiring longer range).
 The latter also expands to two options: Sidewalk over LoRa and Sidewalk over FSK (having a shorter range but with higher throughput compared to LoRa).
