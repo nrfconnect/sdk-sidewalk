@@ -63,6 +63,11 @@
 .. _Setting up a Sidewalk gateway: https://docs.sidewalk.amazon/getting-started/sidewalk-onboard-prereq-gateway.html
 .. _Introducing AWS IoT Core Device Location Integration with Amazon Sidewalk: https://aws.amazon.com/blogs/aws/introducing-aws-iot-core-device-location-integration-with-amazon-sidewalk/
 .. _Amazon Sidewalk Location Library Developer Guide: https://docs.sidewalk.amazon/assets/pdf/Amazon_Sidewalk_Location_Library_Developer_Guide-1.0-rev-A.pdf
+.. _Amazon Sidewalk MCU SDK Migration Guide: https://docs.sidewalk.amazon/sid-api-dg/sidewalk-mcu-sdk-migration-guide.html
+.. _Amazon Sidewalk Registration over Wire Application Note: https://docs.sidewalk.amazon/app-notes/registration-over-wire/
+.. _Amazon Sidewalk Gateway Session Key (GSK) Application Note: https://docs.sidewalk.amazon/app-notes/gateway-session-key/
+.. _Amazon Sidewalk Gateway Discovery and Selection Application Note: https://docs.sidewalk.amazon/app-notes/gateway-discovery-selection/
+.. _Amazon Sidewalk Internationalization Application Note: https://docs.sidewalk.amazon/app-notes/internationalization/
 
 
 .. Other links and additional resources
