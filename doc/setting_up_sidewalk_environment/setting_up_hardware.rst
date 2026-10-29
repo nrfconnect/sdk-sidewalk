@@ -233,3 +233,14 @@ See the official Amazon Sidewalk documentation on `Setting up a Sidewalk gateway
 .. note::
    If you have multiple Echo devices registered under a single Amazon account, only one of those devices will be able to operate as an FSK gateway even if other devices have the same capability.
    If you need to operate multiple FSK gateways, we recommend setting them up under separate Amazon accounts.
+
+A gateway selects its sub-GHz region automatically, based on its IP-based location, and you cannot change it.
+An end device can communicate over LoRa and FSK only with gateways operating in the same region, so build the end device for the region in which you test it (see :ref:`sidewalk_configuration_subghz_region`).
+For details, see the `Amazon Sidewalk Internationalization Application Note`_.
+
+Some Amazon Sidewalk SDK v2.0 features depend on the network side.
+For example, the end device establishes a Gateway Session Key (GSK) only when the Amazon Sidewalk network enables it for the link.
+Otherwise, the device runs in non-GSK mode and the traffic is carried as in earlier Sidewalk versions.
+For details, see the `Amazon Sidewalk Gateway Session Key (GSK) Application Note`_.
+
+To test Amazon Sidewalk outside of the supported countries, see the note on the :ref:`sidewalk_requirements` page.

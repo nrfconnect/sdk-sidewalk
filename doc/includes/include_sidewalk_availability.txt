@@ -1,0 +1,10 @@
+.. note::
+   The Amazon Sidewalk network is available only in the countries where Amazon enables the Sidewalk gateway functionality on its Echo and Ring devices.
+   This applies to all Sidewalk link types: Bluetooth LE, FSK, and LoRa.
+   With the Amazon Sidewalk SDK v2.0, the supported countries include North America and a subset of European countries.
+   For the current list, see the Supported Countries section in `Set up an Amazon Echo as a Sidewalk gateway in a non-U.S. location`_.
+
+   Outside of the supported countries, Sidewalk gateways do not provide the Sidewalk connectivity.
+   For the end device development and testing, Amazon describes the required gateway setup in `Testing Sidewalk outside of the United States`_ and `Set up an Amazon Echo as a Sidewalk gateway in a non-U.S. location`_.
+
+   If you want to test Amazon Sidewalk outside of the supported countries, contact your regional `Nordic Semiconductor sales`_ representative or open a private ticket on `DevZone`_.
