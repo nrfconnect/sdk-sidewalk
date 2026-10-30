@@ -58,6 +58,7 @@ static void ble_adapter_received_data_result(sid_error_t result);
 static void ble_adapter_notify_ama_state(bool is_active);
 static sid_error_t ble_adapter_get_mac_addr(uint8_t *addr);
 static sid_error_t ble_adapter_get_advertiser_addr(uint8_t *addr);
+static sid_error_t ble_adapter_bond_control(enum sid_pal_ble_bond_cmd cmd, void *data, size_t size);
 
 static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.init = ble_adapter_init,
@@ -77,6 +78,7 @@ static struct sid_pal_ble_adapter_interface ble_ifc = {
 	.notify_ama_state = ble_adapter_notify_ama_state,
 	.get_mac_addr = ble_adapter_get_mac_addr,
 	.get_advertiser_addr = ble_adapter_get_advertiser_addr,
+	.bond_control = ble_adapter_bond_control,
 };
 
 static void read_conn_rssi(uint16_t handle, int8_t *rssi)
@@ -544,6 +546,16 @@ static sid_error_t ble_adapter_get_advertiser_addr(uint8_t *addr)
 	}
 
 	return SID_ERROR_NONE;
+}
+
+static sid_error_t ble_adapter_bond_control(enum sid_pal_ble_bond_cmd cmd, void *data, size_t size)
+{
+	ARG_UNUSED(data);
+	ARG_UNUSED(size);
+
+	LOG_DBG("Sidewalk -> BLE, bond cmd %d not supported", cmd);
+
+	return SID_ERROR_NOSUPPORT;
 }
 
 static sid_error_t ble_adapter_set_callback(const sid_pal_ble_adapter_callbacks_t *cb)
