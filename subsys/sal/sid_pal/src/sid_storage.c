@@ -133,6 +133,13 @@ sid_error_t sid_pal_storage_kv_init()
 	return SID_ERROR_NONE;
 }
 
+sid_error_t sid_pal_storage_kv_deinit(void)
+{
+	LOG_DBG("Deinitialized KV storage");
+
+	return SID_ERROR_NONE;
+}
+
 sid_error_t sid_pal_storage_kv_record_get(uint16_t group, uint16_t key, void *p_data, uint32_t len)
 {
 	if (!p_data) {
