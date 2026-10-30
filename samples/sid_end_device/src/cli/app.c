@@ -178,6 +178,7 @@ void app_start(void)
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 		.log_config = NULL,
 		.time_sync_config = &default_time_sync_config,
+		.gsk_config = NULL,
 	};
 
 	int err = bt_gatt_authorization_cb_register(&gatt_authorization_callbacks);
