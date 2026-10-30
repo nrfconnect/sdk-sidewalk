@@ -578,6 +578,10 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			cli_cfg.rsp_msg_id = (uint16_t)data_raw;
 			continue;
 		}
+		if (strcmp("-loc", argv[opt]) == 0) {
+			desc.msg_desc_attr.tx_attr.resolve_location = SID_TX_LOCATION_LINK_RESOLVE;
+			continue;
+		}
 		if (strcmp("-a", argv[opt]) == 0) {
 			if (opt + 3 > argc) {
 				shell_error(shell, "-a need 3 positional arguments");

@@ -42,7 +42,7 @@
 	"link value is optional, it can take the same values as for sid init command. If link value is not present the one set with sid init will be used to call sid_stop api."
 
 #define CMD_SID_SEND_DESCRIPTION                                                                                                                                                                     \
-	"-t <tv> -d <dv> -l <lm> -i <id> -o <low> -a <ack> <retry> <ttl> -r <data>\n"                                                                                                                \
+	"-t <tv> -d <dv> -l <lm> -i <id> -o <low> -a <ack> <retry> <ttl> -loc -r <data>\n"                                                                                                           \
 	"send data over the SID_LINK_TYPE selected, calls the sid_put_msg()API.\n"                                                                                                                   \
 	"Data field must always be placed at the end of command patametrs. If -r parameter is not preset data filed is treated as ascii. Example usage:\n"                                           \
 	"    - sid send TEST\n"                                                                                                                                                                      \
@@ -75,7 +75,8 @@
 	"		1 - enable ACK\n"                                                                                                                                                                         \
 	"		0 - disable ACK\n"                                                                                                                                                                        \
 	"	<retry> - number of retry. 0 ~ 255\n"                                                                                                                                                      \
-	"	<ttl> - total seconds the stack holds the message in its queue. 0 ~ 65535"
+	"	<ttl> - total seconds the stack holds the message in its queue. 0 ~ 65535\n"                                                                                                               \
+	"	- loc - attach a location request (NW data format 6) to the message."
 
 #define CMD_SID_FACTORY_RESET_DESCRIPTION                                                          \
 	"\n"                                                                                       \
@@ -206,7 +207,7 @@
 #define CMD_SID_STOP_ARG_REQUIRED 1
 #define CMD_SID_STOP_ARG_OPTIONAL 1
 #define CMD_SID_SEND_ARG_REQUIRED 2
-#define CMD_SID_SEND_ARG_OPTIONAL 13
+#define CMD_SID_SEND_ARG_OPTIONAL 14
 #define CMD_SID_FACTORY_RESET_ARG_REQUIRED 1
 #define CMD_SID_FACTORY_RESET_ARG_OPTIONAL 0
 #define CMD_SID_GET_MTU_ARG_REQUIRED 2
