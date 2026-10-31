@@ -112,7 +112,8 @@ TARGETS: tuple[Target, ...] = (
     Target(
         board="nrf54lm20dk/nrf54lm20a/cpuapp",
         tab="nRF54LM20 DK",
-        description="running on the `nRF54LM20 DK`_",
+        description="running on the :doc:`nRF54LM20 DK "
+                    "<zephyr:boards/nordic/nrf54lm20dk/doc/index>`",
         rows=(
             Row(BLE_DEBUG, "sample.sidewalk.hello.ble_only"),
             Row(BLE_RELEASE, "sample.sidewalk.hello.ble_only.release"),
@@ -125,7 +126,8 @@ TARGETS: tuple[Target, ...] = (
     Target(
         board="nrf54l15dk/nrf54l15/cpuapp",
         tab="nRF54L15 DK",
-        description="running on the `nRF54L15 DK`_",
+        description="running on the :doc:`nRF54L15 DK "
+                    "<zephyr:boards/nordic/nrf54l15dk/doc/index>`",
         rows=(
             Row(BLE_DEBUG, "sample.sidewalk.hello.ble_only"),
             Row(BLE_RELEASE, "sample.sidewalk.hello.ble_only.release"),
@@ -136,7 +138,8 @@ TARGETS: tuple[Target, ...] = (
     Target(
         board="nrf54l15dk/nrf54l10/cpuapp",
         tab="nRF54L10 emulation on nRF54L15 DK",
-        description="emulating the nRF54L10 SoC on the `nRF54L15 DK`_",
+        description="emulating the nRF54L10 SoC on the :doc:`nRF54L15 DK "
+                    "<zephyr:boards/nordic/nrf54l15dk/doc/index>`",
         rows=(
             Row(BLE_DEBUG, "sample.sidewalk.hello.ble_only"),
             Row(BLE_RELEASE, "sample.sidewalk.hello.ble_only.release"),
@@ -145,7 +148,8 @@ TARGETS: tuple[Target, ...] = (
     Target(
         board="nrf54lv10dk/nrf54lv10a/cpuapp",
         tab="nRF54LV10 DK",
-        description="running on the `nRF54LV10 DK`_",
+        description="running on the :doc:`nRF54LV10 DK "
+                    "<nrf:boards/nordic/nrf54lv10dk/doc/index>`",
         rows=(
             Row(BLE_DEBUG, "sample.sidewalk.hello.ble_only"),
             Row(BLE_RELEASE, "sample.sidewalk.hello.ble_only.release"),
@@ -154,7 +158,8 @@ TARGETS: tuple[Target, ...] = (
     Target(
         board="nrf52840dk/nrf52840",
         tab="nRF52840 DK",
-        description="running on the `nRF52840 DK`_",
+        description="running on the :doc:`nRF52840 DK "
+                    "<zephyr:boards/nordic/nrf52840dk/doc/index>`",
         rows=(
             Row(BLE_DEBUG, "sample.sidewalk.hello.ble_only"),
             Row(BLE_RELEASE, "sample.sidewalk.hello.ble_only.release"),
