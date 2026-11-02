@@ -22,7 +22,7 @@ Testing
 
 #. After successfully building and flashing, the sample is ready to use.
    You should see the command-line prompt ``uart:~$``.
-   Rub ``sid help`` to get the list of supported Sidewalk commands.
+   Run ``sid help`` to get the list of supported Sidewalk commands.
 
    .. code-block:: console
 
@@ -173,33 +173,39 @@ Testing Location Services
          <inf> location_shell_events: loc link type: 1
          <inf> location_shell_events: location_event_send mode: 1, returned 0
 
-   #. For the FSK gateway location, initialize Sidewalk with the FSK link (for example, ``sid init 2``), start it, and wait until ``sid last_status`` reports ``FSK: Up``.
-      Then, send the location using level ``2``:
+   #. For FSK gateway location (level L2), re-initialize Sidewalk for FSK only (``sid init 2``), run ``sid start``, and run ``location init`` again.
+      Wait until ``sid last_status`` reports ``FSK: Up``.
+      Then send location level ``2``:
 
       .. code-block:: console
 
          uart:~$ location send 2
          <inf> location_shell_events: location_event_send mode: 2, returned 0
 
-   #. For the LoRa multilateration (trilateration), initialize Sidewalk with the LoRa link (for example, ``sid init 3`` or ``sid init 4``) and start it.
-      Then, send the location using level ``5``:
+      See :ref:`location_services` for level definitions.
+
+   #. For LoRa multilateration (level L5), re-initialize Sidewalk with a LoRa-capable link mask (``sid init 3`` for LoRa only, or ``sid init 4`` for Bluetooth LE and LoRa), run ``sid start``, and run ``location init`` again.
+      Wait until ``sid last_status`` reports ``LoRa: Up``.
+      Then send location level ``5``:
 
       .. code-block:: console
 
          uart:~$ location send 5
          <inf> location_shell_events: location_event_send mode: 5, returned 0
 
-      The location is resolved only if the uplink is received by at least three Sidewalk gateways.
+      Amazon Sidewalk resolves the location only if at least three gateways receive the LoRa uplink.
       For more information, see :ref:`location_services_lora_mlat`.
 
-   #. To try several location levels in a specific order, use the ``send_levels`` command with up to six levels.
-      The library tries the levels in the given order and moves to the next one if a level is not available or does not return a result.
-      For example, to try the LoRa multilateration first and fall back to the Bluetooth LE location:
+   #. To try up to six location levels in a specific order, use ``location send_levels``.
+      The library tries each level in order and continues to the next if a level is unavailable or does not return a result.
+      For example, with Bluetooth LE and LoRa enabled (``sid init 4``), try LoRa multilateration first and fall back to Bluetooth LE gateway location:
 
       .. code-block:: console
 
          uart:~$ location send_levels 5 1
          <inf> location_shell_events: location_event_send_levels levels: 2, returned 0
+
+      In the log line above, ``levels: 2`` is the number of levels in the command (not the level value).
 
    #. For GNSS location, ensure that the LR1110 radio hardware is connected.
       For Wi-Fi location, use either the LR1110 radio or an nRF70 Series Wi-Fi companion IC, as described in :ref:`location_services`.
