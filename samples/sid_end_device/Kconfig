@@ -211,6 +211,4 @@ config LOG_BACKEND_RTT
 	default n
 endif #SHELL
 
-
-
 source "Kconfig.zephyr"

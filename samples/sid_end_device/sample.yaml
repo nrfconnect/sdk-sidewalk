@@ -28,40 +28,6 @@ tests:
       - hello
       - sx1262
 
-  sample.sidewalk.hello.sx1262.debug_libs:
-    integration_platforms:
-      - nrf54l15dk/nrf54l15/cpuapp
-    platform_exclude:
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-    extra_args:
-      - OVERLAY_CONFIG="overlay-hello.conf"
-      - SHIELD="simple_arduino_adapter;semtech_sx1262mb2cas"
-    extra_configs:
-      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
-      - CONFIG_SIDEWALK_FILE_TRANSFER=y
-      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.debug_libs"
-      - CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
-    tags:
-      - hello
-      - sx1262
-
-  sample.sidewalk.hello.lr1110.debug_libs:
-    integration_platforms:
-      - nrf54l15dk/nrf54l15/cpuapp
-    platform_exclude:
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-    extra_args:
-      - OVERLAY_CONFIG="overlay-hello.conf"
-      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
-    extra_configs:
-      - CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK=y
-      - CONFIG_SIDEWALK_FILE_TRANSFER=y
-      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.debug_libs"
-      - CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
-    tags:
-      - hello
-      - lr1110
-
   sample.sidewalk.hello.lr1110:
     integration_platforms:
       - nrf54l15dk/nrf54l15/cpuapp
@@ -170,21 +136,6 @@ tests:
       type: multi_line
       regex:
         - ".*Booting Sidewalk.*"
-    tags:
-      - hello
-      - BLE
-
-  sample.sidewalk.hello.ble_only.debug_libs:
-    integration_platforms:
-      - nrf54l15dk/nrf54l15/cpuapp
-    platform_exclude:
-      - nrf54l15dk/nrf54l15/cpuapp/ns
-    platform_allow:
-      - nrf52840dk/nrf52840
-      - nrf54l15dk/nrf54l15/cpuapp
-    extra_configs:
-      - CONFIG_SIDEWALK_APPLICATION_NAME="hello.ble_only.debug_libs"
-      - CONFIG_SIDEWALK_PREBUILT_LIBRARIES_DEBUG=y
     tags:
       - hello
       - BLE
@@ -337,9 +288,7 @@ tests:
       - nrf54lm20dk/nrf54lm20a/cpuapp
     platform_exclude:
       - nrf52840dk/nrf52840
-      - nrf54l15dk/nrf54l15/cpuapp
       - nrf54l15dk/nrf54l15/cpuapp/ns
-      - nrf54l15dk/nrf54l10/cpuapp
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
       - nrf54lm20dk/nrf54lm20b/cpuapp
@@ -356,8 +305,6 @@ tests:
   sample.sidewalk.dut.ble_only.debug_libs:
     integration_platforms:
       - nrf54lm20dk/nrf54lm20a/cpuapp
-    platform_exclude:
-      - nrf54l15dk/nrf54l15/cpuapp/ns
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp
       - nrf54lm20dk/nrf54lm20b/cpuapp
