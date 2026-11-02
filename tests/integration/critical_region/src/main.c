@@ -23,9 +23,15 @@
 #define TEST_IRQ_FLAGS (0)
 
 static volatile bool irq_fired;
+static volatile bool irq_enters_critical_region;
 
 static void irq_cb(const void *arg)
 {
+	if (irq_enters_critical_region) {
+		sid_pal_enter_critical_region();
+		sid_pal_exit_critical_region();
+	}
+
 	irq_fired = true;
 }
 
@@ -54,6 +60,37 @@ ZTEST(sid_pal_suite, test_critical_region_with_timer)
 
 	soc_irq_trigger(TEST_IRQ);
 	zassert_true(irq_fired, "IRQ should fire after critical region");
+}
+
+ZTEST(sid_pal_suite, test_critical_region_in_isr_preempting_holder)
+{
+	bool irq_fired_on_top_of_holder;
+	bool irq_fired_after_isr_left_critical_region;
+
+	sid_pal_enter_critical_region();
+
+	/* On Cortex-M, arch_swap() unmasks interrupts before the thread blocking
+	 * in the critical region is switched out, so an ISR can preempt it while
+	 * it is still inside the region.
+	 */
+	irq_unlock(0);
+
+	irq_enters_critical_region = true;
+	irq_fired = false;
+	soc_irq_trigger(TEST_IRQ);
+	irq_fired_on_top_of_holder = irq_fired;
+	irq_enters_critical_region = false;
+
+	irq_fired = false;
+	soc_irq_trigger(TEST_IRQ);
+	irq_fired_after_isr_left_critical_region = irq_fired;
+
+	(void)irq_lock();
+	sid_pal_exit_critical_region();
+
+	zassert_true(irq_fired_on_top_of_holder, "IRQ should fire while holder is unmasked");
+	zassert_true(irq_fired_after_isr_left_critical_region,
+		     "ISR should restore the interrupt mask when leaving the critical region");
 }
 
 #ifdef CONFIG_THREAD_LOCAL_STORAGE
