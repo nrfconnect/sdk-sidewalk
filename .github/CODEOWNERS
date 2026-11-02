@@ -1,2 +1,13 @@
-# Default code owners for the entire repository
-* @nrfconnect/ncs-sidewalk
+# CODEOWNERS for automatic review requests in GitHub.
+#
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+#
+# When multiple patterns match a changed file, the last matching pattern
+# determines who is requested as code owner.
+
+# Default owners for the repository
+*                                       @nrfconnect/ncs-sidewalk
+
+# Add-on documentation tree 
+/doc/                                   @annwoj
+**/*.rst                                @annwoj

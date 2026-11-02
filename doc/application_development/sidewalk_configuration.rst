@@ -44,28 +44,30 @@ Use the following option to include link types in the build.
 Sub-GHz region
 **************
 
-The region determines the sub-GHz radio parameters of the device: the frequency band, data rates, maximum transmit power and channel access rules.
+When ``CONFIG_SIDEWALK_SUBGHZ_SUPPORT`` is enabled, the region determines the sub-GHz radio parameters of the device: the frequency band, data rates, maximum transmit power, and channel access rules.
 It does not affect Bluetooth LE.
-Use the ``SIDEWALK_SUBGHZ_REGION`` Kconfig choice to select the region built into the sub-GHz radio configuration and passed to the Sidewalk platform initialization:
 
-* ``CONFIG_SIDEWALK_SUBGHZ_REGION_US915`` - Selects the North America region (915 MHz band).
+Use the ``SIDEWALK_SUBGHZ_REGION`` Kconfig choice to select the region built into the sub-GHz radio configuration and passed to Sidewalk platform initialization:
+
+* ``CONFIG_SIDEWALK_SUBGHZ_REGION_US915`` — North America (915 MHz band).
   This is the default option.
 
-* ``CONFIG_SIDEWALK_SUBGHZ_REGION_EU868`` - Selects the Europe region (868 MHz band).
-  In this region, the maximum transmit power is lower, the transmission airtime is limited (duty cycle on LoRa, listen-before-talk on FSK), and LoRa always uses the low data rate (LDR).
-  Size the application traffic against the European limits.
+* ``CONFIG_SIDEWALK_SUBGHZ_REGION_EU868`` — Europe (868 MHz band).
+  Maximum transmit power is lower, transmission airtime is limited (duty cycle on LoRa, listen-before-talk on FSK), and LoRa always uses the low data rate (LDR).
+  Design uplink traffic and keep-alive intervals for these limits.
 
-For example, to build the application for the Europe region, add the following option to the build command:
+For example, to build for Europe, add the following option to the build command:
 
 .. code-block:: console
 
    west build -b nrf54l15dk/nrf54l15/cpuapp -- -DCONFIG_SIDEWALK_SUBGHZ_REGION_EU868=y
 
-If you call ``sid_platform_init()`` from your own application, set the ``platform_init_parameters.region`` field of ``platform_parameters_t`` to the selected region.
-If the region is not set, the Sidewalk v2.0 libraries cannot initialize the LoRa and FSK links.
+The :ref:`sidewalk_end_device` sample sets ``platform_parameters_t.platform_init_parameters.region`` from this Kconfig choice when it calls the ``sid_platform_init()`` function.
+If you call the ``sid_platform_init()`` function from your own application, set the ``platform_init_parameters.region`` field to ``SID_PAL_RADIO_RC_NA`` or ``SID_PAL_RADIO_RC_EU``, matching the Kconfig choice.
+If the region is ``SID_PAL_RADIO_RC_NONE``, the Sidewalk v2.0 libraries do not initialize LoRa and FSK links.
 
-The Kconfig choice also selects the regional radio parameters (the radio region and the regional parameter table with the maximum transmit power) in the sub-GHz radio configuration, in the :file:`subsys/app_utils/config/src/app_subGHz_config_sx126x.c` and :file:`subsys/app_utils/config/src/app_subGHz_config_lr11xx.c` files.
-If your application uses its own radio configuration, set the same region there as in ``platform_init_parameters.region``.
+The Kconfig choice also selects regional radio parameters (radio region and maximum transmit power table) in the :file:`subsys/app_utils/config/src/app_subGHz_config_sx126x.c` and :file:`subsys/app_utils/config/src/app_subGHz_config_lr11xx.c` files.
+If your application uses a custom radio configuration, use the same region there as in the ``platform_init_parameters.region`` field.
 
 The region selected at build time is not reported to the Sidewalk cloud.
 For the region reporting mechanism, region-dependent link budget and airtime limits, and the countries supported in each region, see the `Amazon Sidewalk Internationalization Application Note`_.
