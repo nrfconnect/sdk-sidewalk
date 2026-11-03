@@ -34,6 +34,10 @@ licenses:
   - sidewalk.*/subsys/semtech/lr11xx/CMakeLists.txt$
   - sidewalk.*/subsys/semtech/lr1110_location/CMakeLists.txt$
   - sidewalk.*/subsys/sal/common/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/internal/sid_mfg_credentials_ifc/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/internal/sid_state_lite_ifc/CMakeLists.txt$
+  - sidewalk.*/subsys/sal/common/internal/sid_state_lite_ifc/sid_state_lite.h$
+  - sidewalk.*/subsys/sal/common/public/sid_ifc/sid_serial_registration/CMakeLists.txt$
   search_license_txt: null
   spdx: LicenseRef-Nordic-5-Clause
 
