@@ -26,6 +26,9 @@
 #ifdef CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK
 #include <settings_utils.h>
 #endif /* CONFIG_SID_END_DEVICE_PERSISTENT_LINK_MASK */
+#ifdef CONFIG_SIDEWALK_FACTORY_REGISTRATION_RESTORE
+#include <sid_mfg_credentials.h>
+#endif /* CONFIG_SIDEWALK_FACTORY_REGISTRATION_RESTORE */
 
 #ifdef CONFIG_SIDEWALK_FILE_TRANSFER_DFU
 #include <sbdt/dfu_file_transfer.h>
@@ -97,6 +100,14 @@ void sidewalk_event_platform_init(sidewalk_ctx_t *sid, void *ctx)
 		LOG_ERR("SIZE: 0x%08x", APP_MFG_CFG_FLASH_SIZE);
 		return;
 	}
+
+#ifdef CONFIG_SIDEWALK_FACTORY_REGISTRATION_RESTORE
+	/* Restore a factory registration before the first sid_init(). */
+	e = sid_mfg_credentials_recover();
+	if (e) {
+		LOG_ERR("Factory registration restore err %d (%s)", (int)e, SID_ERROR_T_STR(e));
+	}
+#endif /* CONFIG_SIDEWALK_FACTORY_REGISTRATION_RESTORE */
 
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 	int32_t err = sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &radio_rx_packet);

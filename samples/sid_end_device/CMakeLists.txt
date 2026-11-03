@@ -54,6 +54,9 @@ if(CONFIG_SID_END_DEVICE_CLI)
     target_sources_ifdef(CONFIG_SIDEWALK_ON_DEV_CERT app PRIVATE 
         src/cli/sid_on_dev_cert_cli.c
     )
+    target_sources_ifdef(CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE app PRIVATE
+        src/cli/row_shell.c
+    )
 endif()
 
 if(CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)
