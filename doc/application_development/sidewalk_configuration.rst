@@ -26,6 +26,10 @@ The following Kconfig options enable the Sidewalk stack and related product feat
 
 * ``CONFIG_SIDEWALK_ON_DEV_CERT`` - Enables the on-device certification shell.
 
+* ``CONFIG_SIDEWALK_REGISTRATION_OVER_WIRE`` - Enables the Registration over Wire shell commands (experimental).
+
+* ``CONFIG_SIDEWALK_FACTORY_REGISTRATION_RESTORE`` - Restores the factory registration from the manufacturing storage at boot (experimental).
+
 Physical link selection
 ***********************
 

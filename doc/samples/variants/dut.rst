@@ -299,3 +299,19 @@ Testing Location Services
       }
 
    If you cannot see the coordinates message, refer to the :ref:`location_services_troubleshooting`.
+
+Testing Registration over Wire
+==============================
+
+Registration over Wire (ROW) is an :ref:`experimental <nrf:software_maturity>` feature.
+Build the DUT variant of the sample with the ROW overlay:
+
+.. code-block:: console
+
+   $ west build -b nrf54l15dk/nrf54l15/cpuapp -- -DOVERLAY_CONFIG="overlay-dut.conf;overlay-row.conf"
+
+The ``register`` command provides the ``start``, ``get_state``, ``commit_keys`` and ``finalize`` subcommands, which are used by the Amazon Sidewalk manufacturing tool.
+Each subcommand replies with a ``{REGISTRATION ...}`` line.
+The Registration over Wire stack runs independently of the Sidewalk stack, and the sample does not check that only one of them is in use.
+Run ``register start`` only when the Sidewalk stack is not initialized, that is, before ``sid init`` or after ``sid deinit``.
+Do not run the ``sid`` commands between ``register start`` and ``register finalize``.
