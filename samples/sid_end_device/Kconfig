@@ -82,6 +82,11 @@ config SID_END_DEVICE_CLI_CMD_TIMEOUT
 	    If the command does not complete in time, a kernel oops is triggered.
 	    Set to 0 to wait forever.
 
+# Sidewalk CLI command results and events are printed as single log messages
+# up to 250 characters long
+config SIDEWALK_LOG_MSG_LENGTH_MAX
+	default 256
+
 # Sidewalk CLI command results and events are only printed by the debug libraries
 choice SIDEWALK_PREBUILT_LIBRARIES_VARIANT
 	default SIDEWALK_PREBUILT_LIBRARIES_DEBUG
