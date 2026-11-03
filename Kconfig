@@ -47,6 +47,14 @@ config SIDEWALK_SUBGHZ_RADIO_LR1110_LOCATION
 	  Location PAL backed by the LR1110 transceiver, providing both GNSS and
 	  Wi-Fi scanning.
 
+config SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP
+	bool "Mask the LR1110 INT1 interrupt while the radio sleeps"
+	default y if SHIELD_NRF_SIDEWALK_EB
+	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
+	help
+	  Ignore spurious interrupts on boards where INT1 is pulled up while
+	  the LR1110 sleeps.
+
 choice SIDEWALK_SUBGHZ_REGION
 	prompt "Sub-GHz region of the device"
 	default SIDEWALK_SUBGHZ_REGION_US915
