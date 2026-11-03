@@ -17,6 +17,7 @@ add_subdirectory(public/sid_ifc/sid_on_dev_cert)
 add_subdirectory(public/sid_ifc/sid_reset_info)
 add_subdirectory(public/sid_ifc/sid_sdk_config)
 add_subdirectory(public/sid_ifc/sid_sdk_version)
+add_subdirectory(public/sid_ifc/sid_serial_registration)
 add_subdirectory(public/sid_ifc/sid_setup_failure)
 add_subdirectory(public/sid_ifc/sid_location)
 add_subdirectory(public/sid_ifc/sid_device_information_api)
@@ -41,6 +42,7 @@ target_link_libraries(sid_sdk_component_ifc
     sid_reset_info_types_ifc
     sid_sdk_config_ifc
     sid_sdk_version_ifc
+    sid_serial_registration_ifc
     sid_setup_failure
     sid_time_sync_config
     sid_time_types
@@ -101,6 +103,8 @@ add_subdirectory(sid_utility_ifc/sid_utils)
 
 # internal libraries
 add_subdirectory(internal/sid_sdk_internal_config_ifc)
+add_subdirectory(internal/sid_mfg_credentials_ifc)
+add_subdirectory(internal/sid_state_lite_ifc)
 
 # ace OSAL implementation (headers come from sid_utility_ifc/ace)
 add_subdirectory(ace)

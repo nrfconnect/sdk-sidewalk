@@ -19,7 +19,7 @@ function(sidewalk_add_ifc_targets sidewalk_base binary_dir)
 		sid_detect_unwanted_location_tracker_api sid_device_capabilities
 		sid_device_information_api sid_diag_log_cfg sid_error sid_location
 		sid_on_dev_cert sid_reset_info sid_sdk_config
-		sid_sdk_version sid_setup_failure sid_time_sync_config
+		sid_sdk_version sid_serial_registration sid_setup_failure sid_time_sync_config
 	)
 	foreach(module ${SID_IFC_MODULES})
 		add_subdirectory(${SAL_COMMON}/public/sid_ifc/${module} ${BIN}/sid_ifc_${module})
@@ -40,7 +40,8 @@ function(sidewalk_add_ifc_targets sidewalk_base binary_dir)
 		sid_detect_unwanted_location_tracker_api_ifc sid_device_capabilities_ifc
 		sid_device_information_api_ifc sid_diag_log_cfg sid_error sid_location_ifc
 		sid_on_dev_cert_ifc sid_reset_info_types_ifc
-		sid_sdk_config_ifc sid_sdk_version_ifc sid_setup_failure sid_time_sync_config
+		sid_sdk_config_ifc sid_sdk_version_ifc sid_serial_registration_ifc
+		sid_setup_failure sid_time_sync_config
 		sid_time_types
 	)
 
