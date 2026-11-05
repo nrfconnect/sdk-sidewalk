@@ -6,7 +6,7 @@ Known issues
 ############
 
 .. known-issues-filter::
-   :default: 1.3.0
+   :default: 2.0.0
 
 Known issues listed on this page are tagged with the add-on release they apply to.
 Use the release filter above to view issues for a specific release.
@@ -38,6 +38,43 @@ A known issue can list one or more of the following entries:
    Tag each issue with ``.. rst-class:: vX-X-X`` (use a hyphen instead of a dot in the version).
    To mark an issue as won't fix, add the ``wontfix`` class.
 
+.. rst-class:: v2-0-0
+
+KRKNWK-22725: ``sid_location_init()`` rejects ``max_effort`` values above L4
+  The Sidewalk SDK caps ``max_effort`` at L4 (or lower depending on enabled hardware).
+  If you set ``sid_location_type_mask`` to ``SID_LOCATION_METHOD_ALL`` and ``max_effort`` to ``SID_LOCATION_EFFORT_L5``, ``sid_location_init()`` returns ``SID_ERROR_INVALID_ARGS``.
+  As a result, managed effort cannot escalate to L5 (LoRa multilateration).
+
+  **Affected platforms:** All platforms with location support.
+
+  **Workaround:** When the LoRa link is available, request L5 explicitly, for example, using ``location send 5``.
+  The ``max_effort`` setting only limits automatic escalation when no effort level is specified.
+  It does not block explicit L5 requests.
+
+.. rst-class:: v2-0-0
+
+KRKNWK-22714: ``sid_location_init()`` succeeds when location is already initialized
+  If you call ``sid_location_init()`` a second time, it returns ``SID_ERROR_NONE``, even if the first call failed or the location library is already initialized.
+  However, the second call does not apply new settings, such as ``manage_effort``, so the library continues to use the previous configuration.
+
+  **Affected platforms:** All platforms with location support.
+
+  **Workaround:** To apply new settings, call ``location deinit`` before you initialize location again.
+  If initialization fails, deinitialize location or reset the device before you try again.
+
+.. rst-class:: v2-0-0
+
+KRKNWK-22709: Calling ``sid_stop()`` during a location scan leaves the location modem busy
+  If you call ``sid_stop()`` while a Wi-Fi or GNSS location scan is in progress, the location modem can remain busy until the device is reset.
+  While the modem is busy, new scan requests return success but do not run, and ``location deinit`` and ``sid deinit`` return ``SID_ERROR_BUSY``.
+
+  **Affected platforms:** All platforms with LoRa or FSK support and Wi-Fi or GNSS location (for example, LR1110-based shields).
+
+  **Workaround:** Do not call ``sid_stop()`` or ``sid_deinit()`` when there is an ongoing location scan.
+  Either wait for the scan to finish, or call ``location deinit`` first.
+  In this release, ``location deinit`` waits for the scan to complete before returning.
+  If the modem remains busy, reset the device.
+
 .. rst-class:: v1-3-0
 
 KRKNWK-22489: On-device certification cannot store the manufacturing page
@@ -65,7 +102,7 @@ KRKNWK-22012: Switching power profiles fails on FSK builds when using shell comm
   **Workaround:** Call the equivalent ``sid_option()`` API directly.
   The issue is caused by command parser in the DUT sample application CLI, not the Sidewalk stack.
 
-.. rst-class:: v1-3-0
+.. rst-class:: v1-3-0 v2-0-0
 
 KRKNWK-20371: SBDT multi-image DFU does not resume after a reset
   If the device resets while a multi-image DFU (SBDT) transfer is in progress, the transfer does not resume and starts from the beginning.
