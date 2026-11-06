@@ -207,6 +207,7 @@ Testing
 
 The Sidewalk location feature is implemented in the DUT application.
 For testing instructions, see :ref:`variant_sidewalk_dut_test_location`.
+For ``location`` shell command syntax, see :ref:`variant_sidewalk_dut_commands_location`.
 
 Sidewalk libraries
 ==================
