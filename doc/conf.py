@@ -34,8 +34,8 @@ NCS_VERSION, NCS_VERSION_NUMBER = _get_ncs_version()
 project = "nRF Connect SDK - Amazon Sidewalk"
 copyright = "2026, Nordic Semiconductor"
 author = "Nordic Semiconductor"
-release = "1.3.99"
-version = "1.3.99"
+release = "2.0.0"
+version = "2.0.0"
 
 # -- General configuration ---------------------------------------------------
 
