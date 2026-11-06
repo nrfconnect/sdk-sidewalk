@@ -75,6 +75,17 @@ KRKNWK-22709: Calling ``sid_stop()`` during a location scan leaves the location 
   In this release, ``location deinit`` waits for the scan to complete before returning.
   If the modem remains busy, reset the device.
 
+.. rst-class:: v1-3-0 v2-0-0
+
+KRKNWK-22693: LR11xx idle current remains high after a Wi-Fi or GNSS location scan
+  When a Wi-Fi or GNSS location scan finishes, the LoRa Basics Modem planner puts the LR11xx into sleep mode.
+  However, ``sid_pal_radio_release_scan()`` then restores the Sidewalk radio configuration, which wakes the LR11xx.
+  The LR11xx then stays in standby mode until the next radio operation, which increases idle current by about 1 mA.
+
+  **Affected platforms:** nRF52840 and nRF54L Series devices with an LR11xx radio, such as LR1110-based shields.
+
+  **Workaround:** Apply the fix from `sdk-sidewalk pull request 850`_, or put the LR11xx back into sleep mode after each Wi-Fi or GNSS scan.
+
 .. rst-class:: v1-3-0
 
 KRKNWK-22489: On-device certification cannot store the manufacturing page
