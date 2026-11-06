@@ -34,6 +34,7 @@
 .. _Amazon Sidewalk Sample IoT App: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app
 .. _sdk-sidewalk repository: https://github.com/nrfconnect/sdk-sidewalk
 .. _sdk-sidewalk: https://github.com/nrfconnect/sdk-sidewalk
+.. _sdk-sidewalk pull request 850: https://github.com/nrfconnect/sdk-sidewalk/pull/850
 .. _Install virtual environment: https://github.com/aws-samples/aws-iot-core-for-amazon-sidewalk-sample-app#1-install-virtual-environment
 .. _sdk-nrf: https://github.com/nrfconnect/sdk-nrf
 .. _LR11xx firmware images repository: https://github.com/Lora-net/radio_firmware_images
