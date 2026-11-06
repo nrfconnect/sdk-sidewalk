@@ -1976,6 +1976,8 @@ void lr11xx_restore_transceiver()
 volatile uint8_t testcnt;
 #endif /* CONFIG_RADIO_LOCK_TEST */
 
+static uint8_t state_before_scan = SID_PAL_RADIO_UNKNOWN;
+
 int sid_pal_radio_hold_scan()
 {
 	uint8_t pinState;
@@ -2004,6 +2006,7 @@ int sid_pal_radio_hold_scan()
      SL_SID_LOG_APP_WARNING(BYEL "hold scan: radio in use"COLOR_RESET);
      return -1;
   }
+  state_before_scan = drv_ctx.radio_state;
   drv_ctx.radio_state = SID_PAL_RADIO_SCAN;
   sid_pal_exit_critical_region();
 #ifdef CONFIG_RADIO_LOCK_TEST
@@ -2040,6 +2043,11 @@ void sid_pal_radio_release_scan()
 	SL_SID_LOG_APP_INFO("sid_pal_release");
 #endif /* CONFIG_RADIO_LOCK_TEST */
 	sid_pal_exit_critical_region();
+
+	if (state_before_scan == SID_PAL_RADIO_SLEEP && sid_pal_radio_sleep(0) != RADIO_ERROR_NONE) {
+		SL_SID_LOG_APP_ERROR("release scan: sleep fail");
+	}
+	state_before_scan = SID_PAL_RADIO_UNKNOWN;
 }
 
 void sid_pal_radio_gnss_prescan()
