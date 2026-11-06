@@ -2045,8 +2045,11 @@ void sid_pal_radio_release_scan()
 void sid_pal_radio_gnss_prescan()
 {
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-        lr11xx_status_t status = lr11xx_system_set_tcxo_mode(&drv_ctx, drv_ctx.config->tcxo_config.tune,
-            us_to_rtc_ticks(GNSS_TXCO_DELAY_US));
+        lr11xx_status_t status = lr11xx_system_set_standby(&drv_ctx, LR11XX_SYSTEM_STANDBY_CFG_RC);
+        if (status == LR11XX_STATUS_OK) {
+            status = lr11xx_system_set_tcxo_mode(&drv_ctx, drv_ctx.config->tcxo_config.tune,
+                us_to_rtc_ticks(GNSS_TXCO_DELAY_US));
+        }
         if (status != LR11XX_STATUS_OK) {
           SL_SID_LOG_APP_ERROR("set tcxo fail");
         } else
@@ -2062,8 +2065,11 @@ void sid_pal_radio_gnss_prescan()
 void sid_pal_radio_gnss_postscan()
 {
     if (drv_ctx.radio_state == SID_PAL_RADIO_SCAN) {
-        lr11xx_status_t status = lr11xx_system_set_tcxo_mode(&drv_ctx, drv_ctx.config->tcxo_config.tune,
-            drv_ctx.config->tcxo_config.timeout);
+        lr11xx_status_t status = lr11xx_system_set_standby(&drv_ctx, LR11XX_SYSTEM_STANDBY_CFG_RC);
+        if (status == LR11XX_STATUS_OK) {
+            status = lr11xx_system_set_tcxo_mode(&drv_ctx, drv_ctx.config->tcxo_config.tune,
+                drv_ctx.config->tcxo_config.timeout);
+        }
         if (status != LR11XX_STATUS_OK) {
           SL_SID_LOG_APP_ERROR("restore tcxo fail");
         } else
