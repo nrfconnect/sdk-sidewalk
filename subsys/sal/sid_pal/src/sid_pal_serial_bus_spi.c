@@ -5,7 +5,10 @@
  */
 
 #include <zephyr/device.h>
+#include <zephyr/kernel.h>
 #include <zephyr/pm/device.h>
+#include <zephyr/pm/device_runtime.h>
+#include <zephyr/sys/atomic.h>
 #include <zephyr/drivers/spi.h>
 #include <zephyr/devicetree.h>
 
@@ -22,6 +25,64 @@ LOG_MODULE_REGISTER(sid_spi_bus, CONFIG_SPI_BUS_LOG_LEVEL);
 	(uint16_t)(SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_MASTER | SPI_FULL_DUPLEX)
 
 static const struct spi_dt_spec bus_serial_spec = SPI_DT_SPEC_GET(LORA_DT_NODE, SPI_OPTIONS);
+
+#if defined(CONFIG_SIDEWALK_SPI_BUS_IDLE_SUSPEND_DELAY_MS) &&                                      \
+	(CONFIG_SIDEWALK_SPI_BUS_IDLE_SUSPEND_DELAY_MS > 0)
+/*
+ * The nRF SPIM runtime PM is ISR safe, so pm_device_runtime_put_async() ignores its delay.
+ * Hold one reference while the bus is busy and drop it from a delayed work instead.
+ *
+ * k_work_cancel_delayable() cannot tell a cancelled release from one that already ran,
+ * so bus_pm_held records whether the reference is currently taken.
+ */
+static atomic_t bus_pm_held;
+
+static void bus_idle_work_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+
+	if (atomic_cas(&bus_pm_held, 1, 0)) {
+		int err = pm_device_runtime_put(bus_serial_spec.bus);
+
+		if (err < 0) {
+			LOG_ERR("spi pm put err %d", err);
+		}
+	}
+}
+
+static K_WORK_DELAYABLE_DEFINE(bus_idle_work, bus_idle_work_handler);
+
+static int bus_pm_hold(void)
+{
+	struct k_work_sync sync;
+	int err = 0;
+
+	(void)k_work_cancel_delayable_sync(&bus_idle_work, &sync);
+
+	if (atomic_cas(&bus_pm_held, 0, 1)) {
+		err = pm_device_runtime_get(bus_serial_spec.bus);
+		if (err < 0) {
+			atomic_clear(&bus_pm_held);
+		}
+	}
+
+	return err;
+}
+
+static void bus_pm_release_later(void)
+{
+	(void)k_work_reschedule(&bus_idle_work, K_MSEC(CONFIG_SIDEWALK_SPI_BUS_IDLE_SUSPEND_DELAY_MS));
+}
+#else
+static int bus_pm_hold(void)
+{
+	return 0;
+}
+
+static void bus_pm_release_later(void)
+{
+}
+#endif /* CONFIG_SIDEWALK_SPI_BUS_IDLE_SUSPEND_DELAY_MS */
 
 static sid_error_t zephyr_spi_bus_xfer(const struct sid_pal_serial_bus_iface *iface,
 				       const struct sid_pal_serial_bus_client *client, uint8_t *tx,
@@ -64,8 +125,16 @@ static sid_error_t zephyr_spi_bus_xfer(const struct sid_pal_serial_bus_iface *if
 
 	struct spi_buf_set rx_set = { .buffers = rx_buff, .count = 1 };
 
-	int err = spi_transceive_dt(&bus_serial_spec, ((tx) ? &tx_set : NULL),
-				    ((rx) ? &rx_set : NULL));
+	int err = bus_pm_hold();
+
+	if (err < 0) {
+		LOG_ERR("spi pm get err %d", err);
+		return SID_ERROR_GENERIC;
+	}
+
+	err = spi_transceive_dt(&bus_serial_spec, ((tx) ? &tx_set : NULL), ((rx) ? &rx_set : NULL));
+
+	bus_pm_release_later();
 
 	if (err < 0) {
 		LOG_ERR("spi xfer err %d", err);

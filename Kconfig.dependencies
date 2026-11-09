@@ -314,6 +314,16 @@ config SIDEWALK_SPI_BUS
 	help
 	  SPI bus interface for sidewalk
 
+config SIDEWALK_SPI_BUS_IDLE_SUSPEND_DELAY_MS
+	int "Delay before suspending the SPI bus when idle [ms]"
+	depends on SIDEWALK_SPI_BUS && PM_DEVICE_RUNTIME
+	default 10
+	range 0 10000
+	help
+	  Keep the SPI bus device active until no transfer has been made for
+	  this time, so that bursts of radio commands do not pay the runtime
+	  PM resume cost on every transfer. 0 suspends after every transfer.
+
 config SPI_NRFX_RAM_BUFFER_SIZE
 	default 0 if SIDEWALK_SUBGHZ_SUPPORT
 
