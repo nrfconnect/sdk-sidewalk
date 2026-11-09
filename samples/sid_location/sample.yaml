@@ -1,0 +1,44 @@
+sample:
+  name: Sidewalk location sample
+  description: Periodic Amazon Sidewalk location with BLE, Wi-Fi and GNSS methods
+
+common:
+  sysbuild: true
+  build_only: true
+  tags:
+    - Sidewalk
+    - location
+
+tests:
+  sample.sidewalk.location.tag:
+    platform_allow:
+      - nrf54l15tag/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf54l15tag/nrf54l15/cpuapp
+
+  sample.sidewalk.location.tag.release:
+    platform_allow:
+      - nrf54l15tag/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf54l15tag/nrf54l15/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+
+  sample.sidewalk.location.nrf_sidewalk_eb:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - SHIELD=nrf_sidewalk_eb
+
+  sample.sidewalk.location.nrf_sidewalk_eb.release:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - SHIELD=nrf_sidewalk_eb
+      - FILE_SUFFIX=release

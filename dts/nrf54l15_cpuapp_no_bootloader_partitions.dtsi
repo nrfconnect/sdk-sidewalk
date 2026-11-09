@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* The application starts at 0x0 (no MCUboot). Storage and mfg_storage keep
+ * the addresses used by the other Sidewalk samples.
+ */
+
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&cpuapp_rram {
+	partitions {
+		ranges;
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		slot0_partition: partition@0 {
+			compatible = "zephyr,mapped-partition";
+			label = "image-0";
+			reg = <0x0 DT_SIZE_K(1512)>;
+		};
+
+		storage_partition: partition@17a000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x17a000 DT_SIZE_K(8)>;
+		};
+
+		mfg_storage: partition@17c000 {
+			compatible = "zephyr,mapped-partition";
+			label = "mfg_storage";
+			reg = <0x17c000 DT_SIZE_K(4)>;
+		};
+	};
+};
