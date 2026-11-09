@@ -12,6 +12,7 @@ Known issues for each release are listed on the `known issues page on the main b
    :glob:
    :caption: Release notes:
 
+   releases_and_migration/changelog.rst
    releases_and_migration/release_notes_addon_v200.rst
    releases_and_migration/release_notes_addon_v130.rst
    releases_and_migration/release_notes_addon_v120.rst

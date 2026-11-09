@@ -45,4 +45,5 @@ Browse the content by referring to the following pages:
    testing.rst
    compatibility_matrix.rst
    release_notes_and_migration.rst
+   known_issues.rst
    additional_resources.rst
