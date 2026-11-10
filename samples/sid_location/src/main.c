@@ -7,10 +7,12 @@
 #include <app_ble_config.h>
 #include <app_mfg_config.h>
 #include <app_subGHz_config.h>
+#include <bt_app_callbacks.h>
 #include <json_printer/sidTypes2str.h>
 #include <sid_api.h>
 #include <sid_location.h>
 #include <sid_pal_common_ifc.h>
+#include <sidewalk_dfu/nordic_dfu.h>
 #include <sidewalk_version.h>
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
 #include <sid_pal_radio_ifc.h>
@@ -19,9 +21,10 @@
 #include <app_location_lr11xx_config.h>
 #endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 
-#include <dk_buttons_and_leds.h>
+#include <buttons.h>
 #include <stdio.h>
 #include <string.h>
+#include <zephyr/bluetooth/conn.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
@@ -58,6 +61,7 @@ enum app_event {
 	APP_EVENT_BUTTON_L3,
 	APP_EVENT_BUTTON_L4,
 	APP_EVENT_BUTTON_MSG,
+	APP_EVENT_BUTTON_DFU,
 	APP_EVENT_LOCATION_RESULT,
 };
 
@@ -67,6 +71,7 @@ enum app_state {
 	APP_STATE_CONNECTING,
 	APP_STATE_IDLE,
 	APP_STATE_LOCATING,
+	APP_STATE_DFU,
 };
 
 struct app_ctx {
@@ -138,21 +143,9 @@ static void led_blink(enum app_led led)
 	(void)k_work_reschedule(&leds_off_work, K_MSEC(LED_BLINK_MS));
 }
 
-static void on_buttons_changed(uint32_t button_state, uint32_t has_changed)
+static void on_button(uint32_t event)
 {
-	static const enum app_event button_events[] = {
-		APP_EVENT_BUTTON_L1,
-		APP_EVENT_BUTTON_L3,
-		APP_EVENT_BUTTON_L4,
-		APP_EVENT_BUTTON_MSG,
-	};
-	uint32_t pressed = button_state & has_changed;
-
-	for (size_t i = 0; i < ARRAY_SIZE(button_events); i++) {
-		if (pressed & BIT(i)) {
-			app_event_post(button_events[i]);
-		}
-	}
+	app_event_post(event);
 }
 
 static int ui_init(void)
@@ -163,7 +156,14 @@ static int ui_init(void)
 			return -EIO;
 		}
 	}
-	return dk_buttons_init(on_buttons_changed);
+
+	(void)button_set_action_short_press(DK_BTN1, on_button, APP_EVENT_BUTTON_L1);
+	(void)button_set_action_long_press(DK_BTN1, on_button, APP_EVENT_BUTTON_DFU);
+	(void)button_set_action(DK_BTN2, on_button, APP_EVENT_BUTTON_L3);
+	(void)button_set_action(DK_BTN3, on_button, APP_EVENT_BUTTON_L4);
+	(void)button_set_action(DK_BTN4, on_button, APP_EVENT_BUTTON_MSG);
+
+	return buttons_init();
 }
 
 static void on_sidewalk_event(bool in_isr, void *context)
@@ -345,6 +345,18 @@ static void location_msg_send(void)
 	LOG_INF("\"%s\" with location resolution queued", text);
 }
 
+static void dfu_start(void)
+{
+	int err = nordic_dfu_ble_start();
+
+	if (err) {
+		LOG_ERR("DFU start err %d", err);
+		led_blink(APP_LED_ERROR);
+		return;
+	}
+	smf_set_state(SMF_CTX(&app), &app_states[APP_STATE_DFU]);
+}
+
 static enum smf_state_result connecting_run(void *o)
 {
 	ARG_UNUSED(o);
@@ -386,6 +398,9 @@ static enum smf_state_result idle_run(void *o)
 		break;
 	case APP_EVENT_BUTTON_MSG:
 		location_msg_send();
+		break;
+	case APP_EVENT_BUTTON_DFU:
+		dfu_start();
 		break;
 	case APP_EVENT_LOCATION_RESULT:
 		if (app.result.status == SID_LOCATION_RESOLVE_MSG_SENT) {
@@ -440,10 +455,39 @@ static enum smf_state_result locating_run(void *o)
 	return SMF_EVENT_HANDLED;
 }
 
+static enum smf_state_result dfu_run(void *o)
+{
+	ARG_UNUSED(o);
+
+	switch (app.event) {
+	case APP_EVENT_BUTTON_DFU:
+		(void)nordic_dfu_ble_stop();
+		smf_set_state(SMF_CTX(&app), &app_states[APP_STATE_IDLE]);
+		break;
+	case APP_EVENT_CYCLE:
+		/* The DFU mode ends by itself when no upload starts in time */
+		if (!nordic_dfu_is_in_dfu()) {
+			smf_set_state(SMF_CTX(&app), &app_states[APP_STATE_IDLE]);
+		}
+		break;
+	default:
+		break;
+	}
+
+	return SMF_EVENT_HANDLED;
+}
+
+static void dfu_exit(void *o)
+{
+	ARG_UNUSED(o);
+	leds_off(NULL);
+}
+
 static const struct smf_state app_states[] = {
 	[APP_STATE_CONNECTING] = SMF_CREATE_STATE(NULL, connecting_run, NULL, NULL, NULL),
 	[APP_STATE_IDLE] = SMF_CREATE_STATE(NULL, idle_run, NULL, NULL, NULL),
 	[APP_STATE_LOCATING] = SMF_CREATE_STATE(NULL, locating_run, NULL, NULL, NULL),
+	[APP_STATE_DFU] = SMF_CREATE_STATE(NULL, dfu_run, dfu_exit, NULL, NULL),
 };
 
 #ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
@@ -502,6 +546,28 @@ static int platform_init(void)
 	return 0;
 }
 
+/* The Sidewalk and SMP services are always registered, each identity may use only its own */
+static bool gatt_authorize(struct bt_conn *conn, const struct bt_gatt_attr *attr)
+{
+	struct bt_conn_info info;
+
+	if (bt_conn_get_info(conn, &info)) {
+		return false;
+	}
+	if (info.id == BT_ID_SIDEWALK) {
+		return !sid_ble_bt_attr_is_SMP(attr);
+	}
+	if (info.id == BT_ID_SMP_DFU) {
+		return !sid_ble_bt_attr_is_SIDEWALK(attr);
+	}
+	return true;
+}
+
+static const struct bt_gatt_authorization_cb gatt_authorization = {
+	.read_authorize = gatt_authorize,
+	.write_authorize = gatt_authorize,
+};
+
 static int sidewalk_start(void)
 {
 	static struct sid_event_callbacks callbacks = {
@@ -523,6 +589,11 @@ static int sidewalk_start(void)
 		.link_config = app_get_ble_config(),
 		.sub_ghz_link_config = app_get_sub_ghz_config(),
 	};
+
+	if (bt_gatt_authorization_cb_register(&gatt_authorization)) {
+		LOG_ERR("GATT authorization register failed");
+		return -EIO;
+	}
 
 	sid_error_t err = sid_init(&config, &app.handle);
 
