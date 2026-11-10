@@ -31,7 +31,8 @@ The sample supports the following development kits:
      - :doc:`nrf54lm20dk <zephyr:boards/nordic/nrf54lm20dk/doc/index>`
      - | ``nrf54lm20dk/nrf54lm20a/cpuapp``
        | ``nrf54lm20dk/nrf54lm20b/cpuapp``
-     - :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` (``nrf_sidewalk_eb``)
+     - | --
+       | :ref:`nRF Sidewalk EB <nrf_sidewalk_eb>` (``nrf_sidewalk_eb``)
 
 The location methods and Sidewalk links depend on the hardware:
 
@@ -41,7 +42,8 @@ The location methods and Sidewalk links depend on the hardware:
    * - Hardware platforms
      - Location levels
      - Sidewalk links
-   * - nRF54L15 TAG
+   * - | nRF54L15 TAG
+       | nRF54LM20 DK
      - Bluetooth LE (L1)
      - Bluetooth LE
    * - nRF54LM20 DK with the nRF Sidewalk EB
@@ -85,7 +87,7 @@ Location runs
 
 Every :ref:`CONFIG_SID_LOCATION_INTERVAL_S <CONFIG_SID_LOCATION_INTERVAL_S>` seconds, the application calls ``sid_location_run()`` with the levels from the ``levels`` array in :file:`src/main.c`:
 
-* nRF54L15 TAG -- L1.
+* nRF54L15 TAG and nRF54LM20 DK -- L1.
 * nRF54LM20 DK with the nRF Sidewalk EB -- L1, L3, and L4.
 
 The Location Library tries the levels in order and stops at the first level that sends a result.
@@ -111,7 +113,7 @@ Power consumption
 
 The release configuration disables logs, the console, and the UART.
 
-On the nRF54LM20 DK, LoRa uses the asynchronous profile, and the LR1110 sleeps between scans.
+With the nRF Sidewalk EB, LoRa uses the asynchronous profile, and the LR1110 sleeps between scans.
 The level shifters of the nRF Sidewalk EB add several hundred µA, see :ref:`nrf_sidewalk_eb`.
 
 Between runs, Bluetooth LE advertising is the main load.
@@ -147,9 +149,11 @@ nRF54LM20 DK
 
 **LED 1**:
    Blinks when the position is sent with Wi-Fi.
+   Used only with the nRF Sidewalk EB.
 
 **LED 2**:
    Blinks when the position is sent with GNSS.
+   Used only with the nRF Sidewalk EB.
 
 **LED 3**:
    Blinks when a location run or a message fails.
@@ -224,11 +228,27 @@ Build the sample in the sample directory with the following commands:
 
    .. tab:: nrf54lm20dk/nrf54lm20a/cpuapp
 
+      Bluetooth LE only:
+
+      .. code-block:: console
+
+         west build -b nrf54lm20dk/nrf54lm20a/cpuapp
+
+      With the nRF Sidewalk EB:
+
       .. code-block:: console
 
          west build -b nrf54lm20dk/nrf54lm20a/cpuapp --shield nrf_sidewalk_eb
 
    .. tab:: nrf54lm20dk/nrf54lm20b/cpuapp
+
+      Bluetooth LE only:
+
+      .. code-block:: console
+
+         west build -b nrf54lm20dk/nrf54lm20b/cpuapp
+
+      With the nRF Sidewalk EB:
 
       .. code-block:: console
 

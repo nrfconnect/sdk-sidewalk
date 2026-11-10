@@ -24,6 +24,22 @@ tests:
     extra_args:
       - FILE_SUFFIX=release
 
+  sample.sidewalk.location.nrf54lm20dk:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+
+  sample.sidewalk.location.nrf54lm20dk.release:
+    platform_allow:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+
   sample.sidewalk.location.nrf_sidewalk_eb:
     platform_allow:
       - nrf54lm20dk/nrf54lm20a/cpuapp

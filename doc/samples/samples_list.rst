@@ -8,7 +8,7 @@ In the Sidewalk repository, all samples are placed in the :file:`samples` direct
 The repository includes the following samples:
 
 * :ref:`sidewalk_end_device` — The main Sidewalk application, available in several variants.
-* :ref:`sidewalk_location` — Periodic and on-demand location over Sidewalk for the nRF54L15 TAG and the nRF54LM20 DK with the nRF Sidewalk EB.
+* :ref:`sidewalk_location` — Periodic and on-demand location over Sidewalk for the nRF54L15 TAG and the nRF54LM20 DK.
 * :ref:`lr11xx_firmware_update` — A utility sample for updating Semtech LR1110 transceiver firmware before running sub-GHz Sidewalk applications.
 
 Sidewalk end device
