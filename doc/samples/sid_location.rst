@@ -205,9 +205,13 @@ The sample provides the following configuration files in the sample directory:
      - :file:`prj_release.conf`
      - Release version of the application, without logs, console, serial, and asserts.
 
-The :file:`boards` directory contains the LED aliases (``loc-led-ble``, ``loc-led-wifi``, ``loc-led-gnss``, ``loc-led-error``) and the flash partitions.
-The sample has no bootloader, so the application starts at address ``0x0``.
-The ``storage`` and ``mfg_storage`` partitions use the same addresses as in the :ref:`sidewalk_end_device` sample.
+The :file:`boards` directory contains the LED aliases (``loc-led-ble``, ``loc-led-wifi``, ``loc-led-gnss``, ``loc-led-error``).
+The overlays include the Sidewalk flash partitions from the :file:`dts` directory, the same as in the :ref:`sidewalk_end_device` sample.
+
+The sample uses the MCUboot bootloader in the overwrite-only mode, with the default MCUboot configuration of the nRF Connect SDK.
+The :file:`sysbuild.conf` file enables MCUboot and stores its verification key in the Key Management Unit (KMU).
+The :file:`sysbuild.cmake` file applies the board overlay also to MCUboot, so both images use the same flash partitions.
+For details, see :ref:`bootloader_configuration`.
 
 Building and running
 ********************
@@ -264,12 +268,16 @@ If your workspace uses the standalone Sidewalk manifest, add ``segger`` to the `
 Programming and provisioning
 ============================
 
-Program the application and write the device credentials to the ``mfg_storage`` partition:
+Program MCUboot and the application, and write the device credentials to the ``mfg_storage`` partition:
 
 .. code-block:: console
 
-   west flash
+   west flash --erase
    west sid provision -C certificate.json
+
+The ``--erase`` option is required for the first programming, because ``west flash`` writes the MCUboot verification key to the KMU only with this option.
+The erase also deletes the manufacturing data, so run ``west sid provision`` after it.
+To update the application on a device that is already programmed, use ``west flash`` without ``--erase``.
 
 For details on provisioning, see :ref:`setting_up_sidewalk_prototype`.
 
@@ -279,6 +287,7 @@ Before programming, check that ``nrfutil device device-info`` reports ``nRF54L15
 
 .. caution::
    The ``west flash --erase`` command and a full chip erase delete the manufacturing data and the Sidewalk registration.
+   After an erase, provision the device again.
 
 Testing
 =======
