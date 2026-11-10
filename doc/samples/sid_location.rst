@@ -9,7 +9,7 @@ Sidewalk location
 
 The sample demonstrates how to report the position of an end device with the Sidewalk Location Library.
 It supports Bluetooth® LE, Wi-Fi, and GNSS location.
-It also sends messages with location resolution.
+It also sends messages with location resolution, and supports the Device Firmware Update (DFU) over Bluetooth LE.
 
 Requirements
 ************
@@ -67,7 +67,7 @@ Between events, the device is in System ON sleep.
 
 .. code-block:: none
 
-   boot ──► Connecting ──► Locating ◄──► Idle
+   boot ──► Connecting ──► Locating ◄──► Idle ◄──► DFU
 
 The sample uses the following states:
 
@@ -81,6 +81,10 @@ Locating
 
 Idle
    The application waits for the next location run or a button press.
+
+DFU
+   The SMP server waits for a new application image.
+   Sidewalk keeps running, but the application does not start location runs.
 
 Location runs
 =============
@@ -111,6 +115,18 @@ On the nRF54LM20 DK, **Button 3** sends ``Message <counter>`` over Bluetooth LE 
 The message descriptor sets ``resolve_location`` to ``SID_TX_LOCATION_LINK_RESOLVE``, so the cloud resolves the device position from the gateway that receives the message.
 The Location Library reports ``SID_LOCATION_RESOLVE_MSG_SENT`` or ``SID_LOCATION_RESOLVE_MSG_TIMEOUT`` in the ``on_update`` callback.
 
+Device Firmware Update
+======================
+
+A long press of **Button 0**, or of the button on the nRF54L15 TAG, in the Idle state starts the :doc:`Zephyr SMP server <zephyr:services/device_mgmt/ota>` over Bluetooth LE, and the application goes to the DFU state.
+The SMP server advertises as ``Nordic``, with its own Bluetooth LE identity.
+The GATT authorization callbacks let a Sidewalk connection use only the Sidewalk services, and an SMP connection only the SMP service.
+
+A phone uploads the new application image to the secondary slot.
+After the upload, the device restarts, and MCUboot copies the image to the primary slot.
+
+The DFU state ends with another long press of **Button 0**, or when no upload starts within 5 minutes.
+
 Power consumption
 =================
 
@@ -128,11 +144,15 @@ User interface
 After each location run or message, one LED blinks to show the result.
 The buttons are ignored during a location run.
 
+In the DFU state, all LEDs of the nRF54LM20 DK, or the blue LED of the nRF54L15 TAG, flash every 500 ms.
+When the upload starts, the LEDs change the pattern to show the upload in progress.
+
 nRF54L15 TAG
 ============
 
 Button (P0.00):
-   Starts a Bluetooth LE location run (L1).
+   Starts a Bluetooth LE location run (L1) when released.
+   A long press (2 seconds) starts or stops the DFU state.
 
 Blue LED:
    Blinks when the position is sent with Bluetooth LE.
@@ -145,7 +165,8 @@ nRF54LM20 DK
 ============
 
 **Button 0**:
-   Starts a Bluetooth LE location run (L1).
+   Starts a Bluetooth LE location run (L1) when released.
+   A long press (2 seconds) starts or stops the DFU state.
 
 **Button 1**:
    Starts a Wi-Fi location run (L3).
@@ -226,6 +247,9 @@ The sample uses the MCUboot bootloader in the overwrite-only mode, with the defa
 The :file:`sysbuild.conf` file enables MCUboot and stores its verification key in the Key Management Unit (KMU).
 The :file:`sysbuild.cmake` file applies the board overlay also to MCUboot, so both images use the same flash partitions.
 For details, see :ref:`bootloader_configuration`.
+
+The SMP server comes from the Sidewalk DFU library, which the ``CONFIG_SIDEWALK`` Kconfig option enables by default with the ``CONFIG_SIDEWALK_DFU`` Kconfig option.
+The build creates the :file:`dfu_application.zip` file with the signed application image in the build directory.
 
 Building and running
 ********************
@@ -323,6 +347,21 @@ After programming and provisioning the device, complete the following steps to t
 #. On the nRF54LM20 DK, press **Button 3** to send a message with location resolution.
    **LED 0** blinks when the message is sent.
 
+Testing Device Firmware Update
+------------------------------
+
+Complete the following steps to update the application from a phone:
+
+1. Build the new version of the application and copy the :file:`dfu_application.zip` file from the build directory to the phone.
+#. Wait until the device is in the Idle state, for example after the first location run.
+#. Enter the DFU state with a long press of **Button 0**, or of the button on the nRF54L15 TAG.
+   The LEDs flash every 500 ms.
+#. Upload the :file:`dfu_application.zip` file to the ``Nordic`` device, following the Bluetooth testing steps from the `DevZone DFU guide`_.
+   When the upload starts, the LEDs change the pattern.
+#. After the upload, the device restarts with the new application.
+
+To exit the DFU state without an update, long press **Button 0** again.
+
 Sample output
 =============
 
@@ -359,11 +398,13 @@ This sample uses the following Sidewalk libraries:
 
 * Sidewalk API (:file:`sid_api.h`)
 * Sidewalk Location Library (:file:`sid_location.h`)
+* Sidewalk DFU library (:file:`sidewalk_dfu/nordic_dfu.h`)
 
 It uses the following nRF Connect SDK library:
 
 * :doc:`DK Buttons and LEDs <nrf:libraries/others/dk_buttons_and_leds>`
 
-It uses the following Zephyr subsystem:
+It uses the following Zephyr subsystems:
 
 * :doc:`State Machine Framework <zephyr:services/smf/index>`
+* :doc:`Device Management <zephyr:services/device_mgmt/ota>`
