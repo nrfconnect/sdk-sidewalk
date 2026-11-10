@@ -7,7 +7,7 @@ Sidewalk location
    :local:
    :depth: 2
 
-The Sidewalk location sample demonstrates how to report the position of an end device to AWS IoT Core for Amazon Sidewalk with the Sidewalk Location Library.
+The Sidewalk location sample demonstrates how to report the position of an end device over Amazon Sidewalk with the Sidewalk Location Library.
 The device starts a location run at a fixed interval, beginning with Bluetooth® LE gateway location and, on devices with the LR1110 radio, falling back to Wi-Fi and GNSS location.
 A button press sends a message for which the cloud resolves the device position.
 
@@ -48,13 +48,12 @@ The location methods and Sidewalk links depend on the hardware:
      - Bluetooth LE (L1), Wi-Fi (L3), GNSS (L4)
      - Bluetooth LE, LoRa
 
-The sample does not use FSK gateway location (L2), LoRa multilateration (L5), or GPS assistance (L6).
 For details on the location levels, see :ref:`location_services` and the `Amazon Sidewalk Location Library Developer Guide`_.
 
 You also need the following:
 
 * A Sidewalk gateway, for example an `Echo 4th Gen`_.
-* An AWS account with AWS IoT Core for Amazon Sidewalk.
+* A Sidewalk device created in AWS IoT Core for Amazon Sidewalk with positioning enabled, see :ref:`setting_up_sidewalk_prototype`.
 * For the nRF54L15 TAG, an nRF54L DK to program the TAG through the **DEBUG OUT** connector, and a CR2032 coin cell or an external 3.3 V supply.
   See :doc:`nrf54l15tag <zephyr:boards/nordic/nrf54l15tag/doc/index>`.
 
@@ -110,7 +109,6 @@ The Location Library reports ``SID_LOCATION_RESOLVE_MSG_SENT`` or ``SID_LOCATION
 Power consumption
 =================
 
-The sample does not use System OFF, because each wake-up would need Sidewalk initialization and time sync.
 The release configuration disables logs, the console, and the UART.
 
 On the nRF54LM20 DK, LoRa uses the asynchronous profile, and the LR1110 sleeps between scans.
@@ -243,37 +241,6 @@ To get the logs of the debug build over RTT, add the ``rtt-console`` snippet wit
 The snippet needs the SEGGER module.
 If your workspace uses the standalone Sidewalk manifest, add ``segger`` to the ``name-allowlist`` in the :file:`west.yml` file, or pass the module path with ``-DEXTRA_ZEPHYR_MODULES``.
 
-Setting up AWS
-==============
-
-Complete the following steps once for each AWS account:
-
-1. Create a destination and its IAM role, see :file:`tools/location_demo/README.md`.
-#. Create a Sidewalk device profile.
-
-For each device, complete the following steps in the AWS IoT console:
-
-1. Go to :guilabel:`Manage` > :guilabel:`LPWAN devices` > :guilabel:`Devices` and add a Sidewalk device with the device profile and the destination.
-#. Set :guilabel:`Positioning` to :guilabel:`Enabled` and select the same destination.
-#. Download the device JSON file (:file:`certificate.json`).
-
-.. caution::
-   The device JSON file contains the device keys.
-   Do not commit it to a repository.
-
-You can also create the device with the `AWS CLI`_:
-
-.. code-block:: console
-
-   aws iotwireless create-wireless-device --type Sidewalk --name <device name> \
-       --destination-name <destination name> --positioning Enabled \
-       --sidewalk '{"DeviceProfileId": "<profile id>", "Positioning": {"DestinationName": "<destination name>"}}'
-   aws iotwireless get-wireless-device --identifier-type WirelessDeviceId \
-       --identifier <device id> > wireless_device.json
-   aws iotwireless get-device-profile --id <profile id> > device_profile.json
-
-In this case, pass the :file:`wireless_device.json` and :file:`device_profile.json` files to ``west sid provision`` with the ``-W`` and ``-D`` options.
-
 Programming and provisioning
 ============================
 
@@ -308,15 +275,8 @@ After programming and provisioning the device, complete the following steps to t
 
 #. Wait until the device is registered and time synced, and the first location run ends.
    An LED blinks to show the result.
-#. Read the last position of the device:
-
-   .. code-block:: console
-
-      aws iotwireless get-resource-position --resource-type WirelessDevice --resource-identifier <device id>
-
-   You can also view the positions on a map with the viewer in :file:`tools/location_demo`.
 #. Press the button to send a message with location resolution.
-   The message and the resolved position arrive at the destination of the device.
+   An LED blinks when the message is sent.
 
 Sample output
 =============
@@ -346,20 +306,6 @@ No location run starts after programming
 Every location run fails
    Bluetooth LE location needs a gateway in range.
    Wi-Fi location needs visible access points, and GNSS location needs open sky.
-   Check that positioning is enabled for the device in AWS.
-
-No positions arrive at the destination
-   Subscribe to the destination topic in the `AWS IoT MQTT client`_.
-   Check that the device uses the destination for positioning.
-
-Limitations
-***********
-
-The sample has the following limitations:
-
-* The sample does not support firmware updates over the air.
-* The LED shows the location method reported by the Location Library, not the position accuracy.
-* The Bluetooth LE advertising interval cannot be changed at runtime, because ``SID_OPTION_BLE_USER_CONFIG`` is not supported, see :ref:`known_issues`.
 
 Dependencies
 ************
@@ -376,9 +322,3 @@ It uses the following nRF Connect SDK library:
 It uses the following Zephyr subsystem:
 
 * :doc:`State Machine Framework <zephyr:services/smf/index>`
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Subpages:
-
-   sid_location_demo_card.rst
