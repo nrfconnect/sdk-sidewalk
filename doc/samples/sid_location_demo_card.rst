@@ -1,61 +1,89 @@
 .. _sidewalk_location_demo_card:
 
-Sidewalk location demo card
-###########################
+Sidewalk location demo
+######################
 
-One-page guide for the :ref:`sidewalk_location` customer demo.
+.. contents::
+   :local:
+   :depth: 2
 
-What it shows
-*************
+This page describes how to present the :ref:`sidewalk_location` sample to customers.
+
+Overview
+********
+
+The demo shows the following features:
 
 * The device gets its position over Amazon Sidewalk, without a SIM card, Wi-Fi credentials, or a phone.
-* Every minute, the device sends its position through a Sidewalk gateway, for example an Echo device.
+* The device sends its position through a Sidewalk gateway, for example an Echo device, every minute.
 * The nRF54LM20 DK with the nRF Sidewalk EB adds Wi-Fi and GNSS location, and the LoRa link.
 * Between positions, the device sleeps.
 
-What you need
-*************
+Requirements
+************
 
-* A provisioned nRF54L15 TAG or nRF54LM20 DK with the nRF Sidewalk EB.
-* A Sidewalk gateway with Sidewalk enabled, in a country where Sidewalk is available.
-* A laptop with the viewer from :file:`tools/location_demo` and an AWS SSO login.
+The demo requires the following:
 
-Before the meeting
+* An nRF54L15 TAG or an nRF54LM20 DK with the nRF Sidewalk EB, programmed and provisioned as described in :ref:`sidewalk_location`.
+* A Sidewalk gateway with Sidewalk enabled.
+* A computer with the viewer from :file:`tools/location_demo` and AWS credentials for the demo account.
+
+Preparing the demo
 ******************
 
-1. Run ``aws sso login --profile sidewalk-demo``.
-2. Run ``python3 viewer.py --profile sidewalk-demo`` and open ``http://127.0.0.1:8000``.
-3. Power on the devices near the gateway and wait for the first position on the map.
+Before the meeting, complete the following steps:
+
+1. Log in to AWS:
+
+   .. code-block:: console
+
+      aws sso login --profile <profile>
+
+#. Start the viewer and open ``http://127.0.0.1:8000`` in a browser:
+
+   .. code-block:: console
+
+      python3 viewer.py --profile <profile>
+
+#. Power on the devices near the gateway and wait for the first position on the map.
 
 Running the demo
 ****************
 
+Complete the following steps:
+
 1. Show the last position of each device on the map.
-2. Explain the periodic location: the device tries Bluetooth LE first, and Wi-Fi and GNSS only when needed.
-   The LED shows the method: blue or **LED 0** for Bluetooth LE, **LED 1** for Wi-Fi, **LED 2** for GNSS.
+#. Explain the periodic location.
+   The device tries Bluetooth LE first, and Wi-Fi and GNSS only when Bluetooth LE location fails.
+   The LED shows the method: blue or **LED 0** for Bluetooth LE, **LED 1** for Wi-Fi, and **LED 2** for GNSS.
    GNSS needs open sky.
-3. Press the TAG button or **Button 0** on the DK.
+#. Press the button on the TAG or **Button 0** on the DK.
    The device sends a message, and the cloud resolves its position from the gateway.
    On the map, this position has a black outline, and its popup shows the message.
 
-Key messages
-************
+Key points
+**********
 
-* Sidewalk is a free, shared network of Amazon devices that customers already own.
+* Sidewalk is a shared network of Amazon devices that customers already own, with no connectivity fee.
 * The device is provisioned once and needs no pairing or app on site.
 * Bluetooth LE location uses the least energy.
-* Nordic provides the SoC, the Sidewalk Add-on for the nRF Connect SDK, and this sample.
+* Nordic Semiconductor provides the SoC, the Amazon Sidewalk Add-on for the nRF Connect SDK, and this sample.
 
 Troubleshooting
 ***************
 
-* One red blink at power-on: the device is not provisioned.
-* No new positions: check that the gateway has Sidewalk enabled.
-* The map does not load: run ``aws sso login`` again and restart the viewer.
+The red LED or **LED 3** blinks once at power-on
+   The device is not provisioned.
+
+No new positions appear on the map
+   Check that the gateway has Sidewalk enabled.
+
+The map does not load
+   Log in to AWS again and restart the viewer.
 
 Privacy and security
 ********************
 
-* The map runs only on the laptop.
-* The viewer has read-only access to the demo devices.
+* The viewer runs only on the local computer.
+* With the read-only demo policy from :file:`tools/location_demo`, the viewer can read only the positions of the demo devices.
 * OpenStreetMap receives the map tile requests, but no device data.
