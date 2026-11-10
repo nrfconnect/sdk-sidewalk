@@ -23,15 +23,16 @@ config SID_LOCATION_WIFI
 	default y
 	help
 	  Scan Wi-Fi access points with the LR1110 when Bluetooth LE location
-	  fails.
+	  fails, or when Button 1 is pressed.
 
 config SID_LOCATION_GNSS
 	bool "GNSS location (L4)"
 	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
 	default y
 	help
-	  Scan GNSS satellites with the LR1110 when the previous levels fail.
-	  The GNSS scan uses the most power of all levels.
+	  Scan GNSS satellites with the LR1110 when the previous levels fail,
+	  or when Button 2 is pressed. The GNSS scan uses the most power of
+	  all levels.
 
 endmenu
 

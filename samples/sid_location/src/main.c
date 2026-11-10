@@ -54,7 +54,10 @@ enum app_event {
 	APP_EVENT_SID_PROCESS,
 	APP_EVENT_SID_STATUS,
 	APP_EVENT_CYCLE,
-	APP_EVENT_BUTTON,
+	APP_EVENT_BUTTON_L1,
+	APP_EVENT_BUTTON_L3,
+	APP_EVENT_BUTTON_L4,
+	APP_EVENT_BUTTON_MSG,
 	APP_EVENT_LOCATION_RESULT,
 };
 
@@ -72,6 +75,8 @@ struct app_ctx {
 	struct sid_handle *handle;
 	struct sid_status status;
 	struct sid_location_result result;
+	size_t run_first;
+	size_t run_last;
 	bool run_pending;
 };
 
@@ -135,8 +140,18 @@ static void led_blink(enum app_led led)
 
 static void on_buttons_changed(uint32_t button_state, uint32_t has_changed)
 {
-	if (button_state & has_changed & DK_BTN1_MSK) {
-		app_event_post(APP_EVENT_BUTTON);
+	static const enum app_event button_events[] = {
+		APP_EVENT_BUTTON_L1,
+		APP_EVENT_BUTTON_L3,
+		APP_EVENT_BUTTON_L4,
+		APP_EVENT_BUTTON_MSG,
+	};
+	uint32_t pressed = button_state & has_changed;
+
+	for (size_t i = 0; i < ARRAY_SIZE(button_events); i++) {
+		if (pressed & BIT(i)) {
+			app_event_post(button_events[i]);
+		}
 	}
 }
 
@@ -254,7 +269,7 @@ static void location_run(size_t first)
 {
 	struct sid_location_run_config config = {
 		.type = SID_LOCATION_SCAN_AND_SEND,
-		.num_levels = ARRAY_SIZE(levels) - first,
+		.num_levels = app.run_last - first + 1,
 	};
 
 	memcpy(config.levels, &levels[first], config.num_levels * sizeof(levels[0]));
@@ -272,16 +287,36 @@ static void location_run(size_t first)
 	smf_set_state(SMF_CTX(&app), &app_states[APP_STATE_LOCATING]);
 }
 
-static void location_start(void)
+static void location_start(size_t first, size_t last)
 {
+	app.run_first = first;
+	app.run_last = last;
+
 	/* L1 sends nothing that would trigger auto connect, so it needs the link up */
-	app.run_pending = !(app.status.detail.link_status_mask & SID_LINK_TYPE_1);
+	app.run_pending = levels[first] == SID_LOCATION_EFFORT_L1 &&
+			  !(app.status.detail.link_status_mask & SID_LINK_TYPE_1);
 	if (app.run_pending) {
 		LOG_INF("Location run waits for a Bluetooth LE connection");
 		(void)sid_ble_bcn_connection_request(app.handle, true);
 		return;
 	}
-	location_run(0);
+	location_run(first);
+}
+
+static void location_start_all(void)
+{
+	location_start(0, ARRAY_SIZE(levels) - 1);
+}
+
+static void location_start_level(enum sid_location_effort_mode mode)
+{
+	size_t i = level_index(mode);
+
+	if (i == ARRAY_SIZE(levels)) {
+		LOG_INF("L%d is not enabled", mode);
+		return;
+	}
+	location_start(i, i);
 }
 
 static void location_msg_send(void)
@@ -328,7 +363,7 @@ static enum smf_state_result connecting_run(void *o)
 	smf_set_state(SMF_CTX(&app), &app_states[APP_STATE_IDLE]);
 	k_timer_start(&cycle_timer, K_SECONDS(CONFIG_SID_LOCATION_INTERVAL_S),
 		      K_SECONDS(CONFIG_SID_LOCATION_INTERVAL_S));
-	location_start();
+	location_start_all();
 	return SMF_EVENT_HANDLED;
 }
 
@@ -338,9 +373,18 @@ static enum smf_state_result idle_run(void *o)
 
 	switch (app.event) {
 	case APP_EVENT_CYCLE:
-		location_start();
+		location_start_all();
 		break;
-	case APP_EVENT_BUTTON:
+	case APP_EVENT_BUTTON_L1:
+		location_start_level(SID_LOCATION_EFFORT_L1);
+		break;
+	case APP_EVENT_BUTTON_L3:
+		location_start_level(SID_LOCATION_EFFORT_L3);
+		break;
+	case APP_EVENT_BUTTON_L4:
+		location_start_level(SID_LOCATION_EFFORT_L4);
+		break;
+	case APP_EVENT_BUTTON_MSG:
 		location_msg_send();
 		break;
 	case APP_EVENT_LOCATION_RESULT:
@@ -352,7 +396,7 @@ static enum smf_state_result idle_run(void *o)
 		break;
 	case APP_EVENT_SID_STATUS:
 		if (app.run_pending && (app.status.detail.link_status_mask & SID_LINK_TYPE_1)) {
-			location_start();
+			location_start(app.run_first, app.run_last);
 		}
 		break;
 	default:
@@ -382,7 +426,7 @@ static enum smf_state_result locating_run(void *o)
 			break;
 		}
 		/* The library does not move on after a failed uplink */
-		if (next < ARRAY_SIZE(levels)) {
+		if (next <= app.run_last) {
 			location_run(next);
 			break;
 		}

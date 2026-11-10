@@ -7,9 +7,9 @@ Sidewalk location
    :local:
    :depth: 2
 
-The Sidewalk location sample demonstrates how to report the position of an end device over Amazon Sidewalk with the Sidewalk Location Library.
-The device starts a location run at a fixed interval, beginning with Bluetooth® LE gateway location and, on devices with the LR1110 radio, falling back to Wi-Fi and GNSS location.
-A button press sends a message for which the cloud resolves the device position.
+The sample demonstrates how to report the position of an end device with the Sidewalk Location Library.
+It supports Bluetooth® LE, Wi-Fi, and GNSS location.
+It also sends messages with location resolution.
 
 Requirements
 ************
@@ -101,10 +101,13 @@ If the Bluetooth LE link is down, the application requests a connection with ``s
 The first run after boot can start with Wi-Fi, because L1 is not available until the gateway reports location support.
 A Wi-Fi run succeeds when the scan result is sent, even if the cloud cannot resolve the position, so the library does not try GNSS.
 
+A button press starts a run with only the level of that button, see `User interface`_.
+If the level fails, the application does not try the other levels.
+
 Location with a message
 =======================
 
-A button press sends ``Message <counter>`` over Bluetooth LE with ``sid_put_msg()``.
+On the nRF54LM20 DK, **Button 3** sends ``Message <counter>`` over Bluetooth LE with ``sid_put_msg()``.
 The message descriptor sets ``resolve_location`` to ``SID_TX_LOCATION_LINK_RESOLVE``, so the cloud resolves the device position from the gateway that receives the message.
 The Location Library reports ``SID_LOCATION_RESOLVE_MSG_SENT`` or ``SID_LOCATION_RESOLVE_MSG_TIMEOUT`` in the ``on_update`` callback.
 
@@ -123,25 +126,36 @@ User interface
 **************
 
 After each location run or message, one LED blinks to show the result.
-The button is ignored during a location run.
+The buttons are ignored during a location run.
 
 nRF54L15 TAG
 ============
 
 Button (P0.00):
-   Sends a message with location resolution.
+   Starts a Bluetooth LE location run (L1).
 
 Blue LED:
-   Blinks when the position is sent with Bluetooth LE, or when the message is sent.
+   Blinks when the position is sent with Bluetooth LE.
 
 Red LED:
-   Blinks when a location run or a message fails.
+   Blinks when a location run fails.
    One blink at boot means that the device has no manufacturing data.
 
 nRF54LM20 DK
 ============
 
 **Button 0**:
+   Starts a Bluetooth LE location run (L1).
+
+**Button 1**:
+   Starts a Wi-Fi location run (L3).
+   Used only with the nRF Sidewalk EB.
+
+**Button 2**:
+   Starts a GNSS location run (L4).
+   Used only with the nRF Sidewalk EB.
+
+**Button 3**:
    Sends a message with location resolution.
 
 **LED 0**:
@@ -304,8 +318,10 @@ After programming and provisioning the device, complete the following steps to t
 
 #. Wait until the device is registered and time synced, and the first location run ends.
    An LED blinks to show the result.
-#. Press the button to send a message with location resolution.
-   An LED blinks when the message is sent.
+#. Press a button to start a location run with the level of that button.
+   An LED blinks to show the result.
+#. On the nRF54LM20 DK, press **Button 3** to send a message with location resolution.
+   **LED 0** blinks when the message is sent.
 
 Sample output
 =============
