@@ -69,8 +69,8 @@ KRKNWK-22709: Calling ``sid_stop()`` during a location scan leaves the location 
   **Affected platforms:** All platforms with LoRa or FSK support and Wi-Fi or GNSS location (for example, LR1110-based shields).
 
   **Workaround:** Do not call ``sid_stop()`` or ``sid_deinit()`` when there is an ongoing location scan.
-  Either wait for the scan to finish, or call ``location deinit`` first.
-  In this release, ``location deinit`` waits for the scan to complete before returning.
+  Wait for the scan to finish first.
+  While a scan is in progress, ``location deinit`` returns ``SID_ERROR_BUSY`` and does not wait for the scan to complete.
   If the modem remains busy, reset the device.
 
 .. rst-class:: v1-3-0 v2-0-0
