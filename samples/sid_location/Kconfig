@@ -1,0 +1,42 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+mainmenu "Sidewalk location sample"
+
+menu "Sidewalk location sample"
+
+config SID_LOCATION_INTERVAL_S
+	int "Location run interval [s]"
+	range 10 86400
+	default 60
+	help
+	  Time between location runs. A run tries Bluetooth LE (L1) first,
+	  then Wi-Fi (L3) and GNSS (L4) if they are enabled, and stops at the
+	  first level that succeeds.
+
+config SID_LOCATION_WIFI
+	bool "Wi-Fi location (L3)"
+	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
+	default y
+	help
+	  Scan Wi-Fi access points with the LR1110 when Bluetooth LE location
+	  fails, or when Button 1 is pressed.
+
+config SID_LOCATION_GNSS
+	bool "GNSS location (L4)"
+	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
+	default y
+	help
+	  Scan GNSS satellites with the LR1110 when the previous levels fail,
+	  or when Button 2 is pressed. The GNSS scan uses the most power of
+	  all levels.
+
+endmenu
+
+config SIDEWALK_APPLICATION_NAME
+	default "location"
+
+source "Kconfig.zephyr"
