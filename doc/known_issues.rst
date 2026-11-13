@@ -73,6 +73,16 @@ KRKNWK-22709: Calling ``sid_stop()`` during a location scan leaves the location 
   In this release, ``location deinit`` waits for the scan to complete before returning.
   If the modem remains busy, reset the device.
 
+.. rst-class:: v2-0-0
+
+KRKNWK-22705: ``sid_location_run()`` returns success when a scan is already in progress
+  If you call ``sid_location_run()`` while a Wi-Fi or GNSS location scan is in progress, it returns ``SID_ERROR_NONE``.
+  However, the new request is not executed and no result callback follows.
+
+  **Affected platforms:** All platforms with Wi-Fi or GNSS location on an LR11xx radio (for example, LR1110-based shields).
+
+  **Workaround:** Wait for the location scan result before you call ``sid_location_run()`` again.
+
 .. rst-class:: v1-3-0 v2-0-0
 
 KRKNWK-22693: LR11xx idle current remains high after a Wi-Fi or GNSS location scan
