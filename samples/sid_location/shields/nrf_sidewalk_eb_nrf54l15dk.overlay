@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+/* LED 1 and LED 3 share pins with the LR1110 SPI NSS and BUSY lines */
+/ {
+	aliases {
+		loc-led-wifi = &led2;
+		loc-led-gnss = &led2;
+		loc-led-error = &sidewalk_eb_led;
+		/delete-property/ led1;
+		/delete-property/ led3;
+	};
+};
+
+/delete-node/ &led1;
+/delete-node/ &led3;

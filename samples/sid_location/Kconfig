@@ -13,26 +13,9 @@ config SID_LOCATION_INTERVAL_S
 	range 10 86400
 	default 60
 	help
-	  Time between location runs. A run tries Bluetooth LE (L1) first,
-	  then Wi-Fi (L3) and GNSS (L4) if they are enabled, and stops at the
-	  first level that succeeds.
-
-config SID_LOCATION_WIFI
-	bool "Wi-Fi location (L3)"
-	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
-	default y
-	help
-	  Scan Wi-Fi access points with the LR1110 when Bluetooth LE location
-	  fails, or when Button 1 is pressed.
-
-config SID_LOCATION_GNSS
-	bool "GNSS location (L4)"
-	depends on SIDEWALK_SUBGHZ_RADIO_LR1110
-	default y
-	help
-	  Scan GNSS satellites with the LR1110 when the previous levels fail,
-	  or when Button 2 is pressed. The GNSS scan uses the most power of
-	  all levels.
+	  Time from the end of the last location run, or from the last
+	  message, to the next automatic location run. The Location Library
+	  selects the level of each automatic run.
 
 endmenu
 
