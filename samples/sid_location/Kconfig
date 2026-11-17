@@ -14,8 +14,7 @@ config SID_LOCATION_INTERVAL_S
 	default 60
 	help
 	  Time from the end of the last location run, or from the last
-	  message, to the next automatic location run. The Location Library
-	  selects the level of each automatic run.
+	  message, to the next automatic location run.
 
 endmenu
 

@@ -67,20 +67,18 @@ The device in AWS IoT Core for Amazon Sidewalk must have positioning enabled, se
 Overview
 ********
 
-The application runs a :doc:`Zephyr State Machine Framework <zephyr:services/smf/index>` state machine in the Sidewalk thread, which also calls ``sid_process()``.
+The application runs a :doc:`Zephyr State Machine Framework <zephyr:services/smf/index>` state machine in the Sidewalk thread.
 It waits until the device is registered and time synced, then starts location runs.
-Between events, the device is in System ON sleep.
 
 Location runs
 =============
 
-The automatic runs use the managed effort of the Location Library.
-The library selects the level of each run, up to L1 without the LR1110, or up to L4 with the LR1110.
+The automatic runs use the managed effort of the Location Library, which selects the level of each run.
 The next automatic run starts :ref:`CONFIG_SID_LOCATION_INTERVAL_S <CONFIG_SID_LOCATION_INTERVAL_S>` seconds after the last run or the last message.
 The first run starts when the gateway reports location support, or one interval after the time sync.
 
 An L1 run needs the Bluetooth LE link.
-If the link is down, the application requests a connection with ``sid_ble_bcn_connection_request()`` and starts the run when the link is up, or after 30 seconds.
+If the link is down, the application requests a connection and starts the run when the link is up, or after 30 seconds.
 
 The Wi-Fi and GNSS buttons start a run with only that level, see `User interface`_.
 
@@ -93,9 +91,7 @@ The cloud resolves the device position from the gateway that receives the messag
 Device Firmware Update
 ======================
 
-A long press of the DFU button stops Sidewalk and starts the :doc:`Zephyr SMP server <zephyr:services/device_mgmt/ota>` over Bluetooth LE.
-The SMP server advertises as ``Nordic``.
-A phone uploads the new application image, the device restarts, and MCUboot copies the image to the primary slot.
+A long press (2 seconds) of the DFU button stops Sidewalk and starts the :doc:`Zephyr SMP server <zephyr:services/device_mgmt/ota>` over Bluetooth LE, advertising as ``Nordic``.
 The DFU state ends with another long press, or when no upload starts within 5 minutes.
 Then, Sidewalk starts again.
 
@@ -103,6 +99,7 @@ User interface
 **************
 
 After each location run or message, one LED blinks to show the result.
+The error LED blinks once at boot when the device has no manufacturing data.
 During a location run, only the message button works.
 In the DFU state, the LEDs flash, and change the pattern when the upload starts.
 
@@ -111,21 +108,20 @@ nRF54L15 TAG
 
 Button:
    Sends a message with location resolution.
-   A long press (2 seconds) starts or stops the DFU state.
+   A long press starts or stops the DFU state.
 
 Blue LED:
    Blinks when the position or the message is sent with Bluetooth LE.
 
 Red LED:
    Blinks when a location run or a message fails.
-   One blink at boot means that the device has no manufacturing data.
 
 nRF52840 DK, nRF54L15 DK, and nRF54LM20 DK
 ==========================================
 
 **Button 0**:
    Starts an automatic location run.
-   A long press (2 seconds) starts or stops the DFU state.
+   A long press starts or stops the DFU state.
 
 **Button 1**:
    Sends a message with location resolution.
@@ -147,7 +143,6 @@ nRF52840 DK, nRF54L15 DK, and nRF54LM20 DK
 
 **LED 3**:
    Blinks when a location run or a message fails.
-   One blink at boot means that the device has no manufacturing data.
 
 nRF54L15 DK with the nRF Sidewalk EB
 ====================================
@@ -156,7 +151,7 @@ The shield uses the pins of **Button 0**, **Button 1**, **Button 2**, **LED 1**,
 
 **Button 3**:
    Sends a message with location resolution.
-   A long press (2 seconds) starts or stops the DFU state.
+   A long press starts or stops the DFU state.
 
 **LED 0**:
    Blinks when the position or the message is sent with Bluetooth LE.
@@ -166,7 +161,6 @@ The shield uses the pins of **Button 0**, **Button 1**, **Button 2**, **LED 1**,
 
 LED of the nRF Sidewalk EB:
    Blinks when a location run or a message fails.
-   One blink at boot means that the device has no manufacturing data.
 
 Configuration
 *************
@@ -181,7 +175,7 @@ Check and configure the following Kconfig option:
 .. _CONFIG_SID_LOCATION_INTERVAL_S:
 
 CONFIG_SID_LOCATION_INTERVAL_S - Location run interval
-   Sets the time from the last location run or message to the next automatic run, in seconds.
+   Sets the interval of the automatic location runs, in seconds.
    The default value is ``60``.
 
 Configuration files
@@ -190,15 +184,12 @@ Configuration files
 The sample provides the following configuration files in the sample directory:
 
 * :file:`prj.conf` -- Debug build, with logs.
-* :file:`prj_release.conf` -- Release build, without logs, console, and serial.
-  Use it with ``FILE_SUFFIX=release``.
+* :file:`prj_release.conf` -- Release build, without logs.
 * :file:`boards` -- LED aliases and Sidewalk flash partitions.
   On the nRF52840 DK, the secondary slot is in the external flash.
-  On the nRF54L15 TAG, the debug build sends the logs over RTT.
 * :file:`shields` -- LED aliases for the nRF54L15 DK with the nRF Sidewalk EB.
 * :file:`Kconfig.sysbuild` and :file:`sysbuild` -- MCUboot in the overwrite-only mode.
   On the nRF54L Series devices, the verification key is in the Key Management Unit (KMU).
-  The MCUboot configuration is the same as in the :ref:`sidewalk_end_device` sample.
 
 Building and running
 ********************
@@ -258,11 +249,10 @@ Program MCUboot and the application, and write the device credentials:
    west flash --erase
    west sid provision -C certificate.json
 
-On the nRF54L Series devices, the ``--erase`` option is required for the first programming, because ``west flash`` writes the MCUboot verification key to the KMU only with this option.
-The erase also deletes the manufacturing data, so provision the device again after it.
-For details, see :ref:`setting_up_sidewalk_prototype`.
+On the nRF54L Series devices, the first programming needs ``--erase``, because ``west flash`` writes the MCUboot verification key to the KMU only with this option.
+The erase also deletes the manufacturing data, so provision the device after it.
 
-To program the nRF54L15 TAG, connect it to the **DEBUG OUT** connector of an nRF54L DK and power it, see :doc:`nrf54l15tag <zephyr:boards/nordic/nrf54l15tag/doc/index>`.
+To program the nRF54L15 TAG, see :doc:`nrf54l15tag <zephyr:boards/nordic/nrf54l15tag/doc/index>`.
 
 Testing
 =======
