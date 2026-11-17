@@ -288,7 +288,7 @@ int nordic_dfu_ble_stop(void)
 	adv = NULL;
 
 	err = sid_ble_bt_disable();
-	if (err) {
+	if (err < 0) {
 		LOG_ERR("Bluetooth disable failed (err %d %s)", err, strerror(err));
 		return err;
 	}
@@ -297,6 +297,7 @@ int nordic_dfu_ble_stop(void)
 
 	k_timer_stop(&led_timer);
 	k_timer_stop(&exit_timer);
+	dk_set_leds(DK_NO_LEDS_MSK);
 #if defined(CONFIG_STATE_NOTIFIER)
 	application_state_dfu(&global_state_notifier, false);
 #endif
