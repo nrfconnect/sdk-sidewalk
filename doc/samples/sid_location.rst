@@ -23,6 +23,11 @@ The sample supports the following development kits:
      - Board name
      - Build target
      - Shield
+   * - `nRF52840 DK <nrf52840 Product Page_>`_
+     - :doc:`nrf52840dk <zephyr:boards/nordic/nrf52840dk/doc/index>`
+     - ``nrf52840dk/nrf52840``
+     - | --
+       | LR1110MB1LCKS (``simple_arduino_adapter`` and ``semtech_lr1110mb1xxs``)
    * - nRF54L15 TAG
      - :doc:`nrf54l15tag <zephyr:boards/nordic/nrf54l15tag/doc/index>`
      - ``nrf54l15tag/nrf54l15/cpuapp``
@@ -50,7 +55,7 @@ The location levels and Sidewalk links depend on the hardware:
    * - nRF SoC only
      - Bluetooth LE (L1)
      - Bluetooth LE
-   * - nRF SoC with the LR1110 (nRF Sidewalk EB)
+   * - nRF SoC with the LR1110 (nRF Sidewalk EB or LR1110MB1LCKS)
      - Bluetooth LE (L1), Wi-Fi (L3), GNSS (L4)
      - Bluetooth LE, LoRa
 
@@ -115,8 +120,8 @@ Red LED:
    Blinks when a location run or a message fails.
    One blink at boot means that the device has no manufacturing data.
 
-nRF54L15 DK and nRF54LM20 DK
-============================
+nRF52840 DK, nRF54L15 DK, and nRF54LM20 DK
+==========================================
 
 **Button 0**:
    Starts an automatic location run.
@@ -126,10 +131,10 @@ nRF54L15 DK and nRF54LM20 DK
    Sends a message with location resolution.
 
 **Button 2**:
-   Starts a Wi-Fi location run (L3), with the nRF Sidewalk EB only.
+   Starts a Wi-Fi location run (L3), with the LR1110 only.
 
 **Button 3**:
-   Starts a GNSS location run (L4), with the nRF Sidewalk EB only.
+   Starts a GNSS location run (L4), with the LR1110 only.
 
 **LED 0**:
    Blinks when the position or the message is sent with Bluetooth LE.
@@ -188,9 +193,11 @@ The sample provides the following configuration files in the sample directory:
 * :file:`prj_release.conf` -- Release build, without logs, console, and serial.
   Use it with ``FILE_SUFFIX=release``.
 * :file:`boards` -- LED aliases and Sidewalk flash partitions.
+  On the nRF52840 DK, the secondary slot is in the external flash.
   On the nRF54L15 TAG, the debug build sends the logs over RTT.
 * :file:`shields` -- LED aliases for the nRF54L15 DK with the nRF Sidewalk EB.
-* :file:`sysbuild.conf` and :file:`sysbuild` -- MCUboot in the overwrite-only mode, with the verification key in the Key Management Unit (KMU).
+* :file:`Kconfig.sysbuild` and :file:`sysbuild` -- MCUboot in the overwrite-only mode.
+  On the nRF54L Series devices, the verification key is in the Key Management Unit (KMU).
   The MCUboot configuration is the same as in the :ref:`sidewalk_end_device` sample.
 
 Building and running
@@ -203,6 +210,13 @@ For general instructions on building the sample, follow the steps in the :doc:`B
 Build the sample in the sample directory with the following commands:
 
 .. tabs::
+
+   .. tab:: nrf52840dk/nrf52840
+
+      .. code-block:: console
+
+         west build -b nrf52840dk/nrf52840
+         west build -b nrf52840dk/nrf52840 --shield simple_arduino_adapter --shield semtech_lr1110mb1xxs
 
    .. tab:: nrf54l15tag/nrf54l15/cpuapp
 
@@ -244,7 +258,7 @@ Program MCUboot and the application, and write the device credentials:
    west flash --erase
    west sid provision -C certificate.json
 
-The ``--erase`` option is required for the first programming, because ``west flash`` writes the MCUboot verification key to the KMU only with this option.
+On the nRF54L Series devices, the ``--erase`` option is required for the first programming, because ``west flash`` writes the MCUboot verification key to the KMU only with this option.
 The erase also deletes the manufacturing data, so provision the device again after it.
 For details, see :ref:`setting_up_sidewalk_prototype`.
 
