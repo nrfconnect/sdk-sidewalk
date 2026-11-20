@@ -1,0 +1,44 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+mainmenu "Sidewalk location sample"
+
+menu "Sidewalk location sample"
+
+config SID_LOCATION_INTERVAL_S
+	int "Location run interval [s]"
+	range 10 86400
+	default 60
+	help
+	  Time from the end of the last location run, or from the last
+	  message, to the next automatic location run.
+
+endmenu
+
+config SIDEWALK_APPLICATION_NAME
+	default "location"
+
+if SIDEWALK_CRYPTO
+
+choice CC3XX_LOCK_VARIANT
+	default CC3XX_ATOMIC_LOCK if SOC_NRF52840
+endchoice
+
+config PSA_USE_CC3XX_KEY_AGREEMENT_DRIVER
+	default n if SOC_NRF52840
+
+config PSA_USE_CC3XX_ASYMMETRIC_SIGNATURE_DRIVER
+	default n if SOC_NRF52840
+
+config PSA_USE_CC3XX_ASYMMETRIC_ENCRYPTION_DRIVER
+	default n if SOC_NRF52840
+
+config PSA_USE_CC3XX_KEY_MANAGEMENT_DRIVER
+	default n if SOC_NRF52840
+
+endif # SIDEWALK_CRYPTO
+
+source "Kconfig.zephyr"

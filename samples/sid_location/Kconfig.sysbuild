@@ -1,0 +1,28 @@
+#
+# Copyright (c) 2026 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+choice BOOTLOADER
+	default BOOTLOADER_MCUBOOT
+endchoice
+
+if BOOTLOADER_MCUBOOT
+
+choice MCUBOOT_MODE
+	default MCUBOOT_MODE_OVERWRITE_ONLY
+endchoice
+
+config MCUBOOT_SIGNATURE_USING_KMU
+	default y if SOC_SERIES_NRF54L
+
+config MCUBOOT_GENERATE_DEFAULT_KEY_FILE
+	default y if SOC_SERIES_NRF54L
+
+config MERGED_HEX_FILES
+	default y
+
+endif # BOOTLOADER_MCUBOOT
+
+source "${ZEPHYR_BASE}/share/sysbuild/Kconfig"

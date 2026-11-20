@@ -1,0 +1,43 @@
+/*
+ * Copyright (c) 2026 Nordic Semiconductor ASA
+ *
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ */
+
+#include <zephyr/dt-bindings/pinctrl/nrf-pinctrl.h>
+
+/ {
+	aliases {
+		loc-led-ble = &led0;
+		loc-led-wifi = &led1;
+		loc-led-gnss = &led2;
+		loc-led-error = &led3;
+	};
+};
+
+/* simple_arduino_adapter borrows spi3_default, which has the H0H1 drive */
+&pinctrl {
+	spi2_arduino_default: spi2_arduino_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+				<NRF_PSEL(SPIM_MOSI, 1, 13)>,
+				<NRF_PSEL(SPIM_MISO, 1, 14)>;
+		};
+	};
+
+	spi2_arduino_sleep: spi2_arduino_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 15)>,
+				<NRF_PSEL(SPIM_MOSI, 1, 13)>,
+				<NRF_PSEL(SPIM_MISO, 1, 14)>;
+			low-power-enable;
+		};
+	};
+};
+
+&spi2 {
+	pinctrl-0 = <&spi2_arduino_default>;
+	pinctrl-1 = <&spi2_arduino_sleep>;
+};
+
+#include <nrf52840_partitions.dtsi>
