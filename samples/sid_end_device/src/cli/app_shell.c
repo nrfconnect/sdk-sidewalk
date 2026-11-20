@@ -11,6 +11,8 @@
 
 #include <string.h>
 #include <sys/errno.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/shell/shell.h>
 #include <zephyr/sys/util.h>
 
@@ -29,6 +31,8 @@
 #endif
 
 #include <cli/sbdt_shell_events.h>
+
+LOG_MODULE_REGISTER(app_shell, CONFIG_SIDEWALK_LOG_LEVEL);
 
 #define CLI_CMD_OPT_LINK_BLE 1
 #define CLI_CMD_OPT_LINK_FSK 2
@@ -446,6 +450,153 @@ static void free_sid_send_event_ctx(void *ctx)
 	sid_hal_free(send);
 }
 
+enum cli_flood_mode {
+	CLI_FLOOD_STOP = 0,
+	CLI_FLOOD_CONTINUOUS = 1,
+	CLI_FLOOD_ON_MSG_SENT = 2,
+};
+
+typedef struct {
+	sidewalk_msg_t send;
+	enum cli_flood_mode mode;
+	uint32_t count;
+	uint32_t delay_s;
+} cli_flood_start_t;
+
+/* Accessed only from the Sidewalk thread. */
+static struct {
+	enum cli_flood_mode mode;
+	uint32_t remaining;
+	uint32_t sent;
+	uint32_t delay_s;
+	struct sid_msg msg;
+	struct sid_msg_desc desc;
+} flood;
+
+static void flood_retry_work_handler(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(flood_retry_work, flood_retry_work_handler);
+
+static void free_flood_start_event_ctx(void *ctx)
+{
+	cli_flood_start_t *start = (cli_flood_start_t *)ctx;
+
+	if (start == NULL) {
+		return;
+	}
+	if (start->send.msg.data) {
+		sid_hal_free(start->send.msg.data);
+	}
+	sid_hal_free(start);
+}
+
+static void flood_stop(void)
+{
+	if (flood.mode == CLI_FLOOD_STOP) {
+		return;
+	}
+	k_work_cancel_delayable(&flood_retry_work);
+	LOG_INF("flood stopped, %u messages queued, %u not sent", flood.sent, flood.remaining);
+	sid_hal_free(flood.msg.data);
+	flood.msg.data = NULL;
+	flood.mode = CLI_FLOOD_STOP;
+}
+
+static void flood_event_next(sidewalk_ctx_t *sid, void *ctx);
+
+static void flood_schedule_next(void)
+{
+	if (sidewalk_event_send(flood_event_next, NULL, NULL)) {
+		LOG_ERR("flood: failed to schedule next message");
+		flood_stop();
+	}
+}
+
+static void flood_retry_work_handler(struct k_work *work)
+{
+	ARG_UNUSED(work);
+	if (sidewalk_event_send(flood_event_next, NULL, NULL)) {
+		LOG_ERR("flood: failed to schedule retry");
+	}
+}
+
+static void flood_event_next(sidewalk_ctx_t *sid, void *ctx)
+{
+	ARG_UNUSED(ctx);
+
+	if (flood.mode == CLI_FLOOD_STOP || flood.remaining == 0) {
+		return;
+	}
+	if (sid == NULL || sid->handle == NULL) {
+		LOG_ERR("flood: sidewalk not started");
+		flood_stop();
+		return;
+	}
+
+	struct sid_msg_desc desc = flood.desc;
+	sid_error_t e = sid_put_msg(sid->handle, &flood.msg, &desc);
+
+	switch (e) {
+	case SID_ERROR_NONE:
+		flood.sent++;
+		flood.remaining--;
+		LOG_DBG("flood: message %u queued (id: %u)", flood.sent, desc.id);
+		if (flood.remaining == 0) {
+			flood_stop();
+		} else if (flood.mode == CLI_FLOOD_CONTINUOUS) {
+			flood_schedule_next();
+		}
+		break;
+	case SID_ERROR_OOM:
+	case SID_ERROR_TRY_AGAIN:
+	case SID_ERROR_BUSY:
+		LOG_WRN("flood: message %u rejected (%d), retry in %u s", flood.sent + 1, (int)e,
+			flood.delay_s);
+		k_work_reschedule(&flood_retry_work, K_SECONDS(flood.delay_s));
+		break;
+	default:
+		LOG_ERR("flood: sid_put_msg err %d", (int)e);
+		flood_stop();
+		break;
+	}
+}
+
+static void flood_event_start(sidewalk_ctx_t *sid, void *ctx)
+{
+	cli_flood_start_t *start = (cli_flood_start_t *)ctx;
+
+	flood_stop();
+	if (start == NULL || start->mode == CLI_FLOOD_STOP) {
+		return;
+	}
+
+	flood.mode = start->mode;
+	flood.remaining = start->count;
+	flood.sent = 0;
+	flood.delay_s = start->delay_s;
+	flood.msg = start->send.msg;
+	flood.desc = start->send.desc;
+	/* Ownership of the payload moves to the flood state. */
+	start->send.msg.data = NULL;
+
+	LOG_INF("flood started, mode %d, %u messages", flood.mode, flood.remaining);
+	flood_event_next(sid, NULL);
+}
+
+void cli_flood_on_msg_sent(void)
+{
+	if (flood.mode == CLI_FLOOD_ON_MSG_SENT && flood.remaining > 0) {
+		flood_schedule_next();
+	}
+}
+
+void cli_flood_on_send_error(sid_error_t error)
+{
+	if (flood.mode == CLI_FLOOD_ON_MSG_SENT && flood.remaining > 0) {
+		LOG_WRN("flood: message failed (%d), continuing", (int)error);
+		flood_schedule_next();
+	}
+}
+
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 {
 	CHECK_ARGUMENT_COUNT(argc, CMD_SID_SEND_ARG_REQUIRED, CMD_SID_SEND_ARG_OPTIONAL);
@@ -456,8 +607,54 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 		.link_type = cli_cfg.send_link_type,
 		.link_mode = SID_LINK_MODE_CLOUD,
 	};
+	bool flood_requested = false;
+	enum cli_flood_mode flood_mode = CLI_FLOOD_STOP;
+	uint32_t flood_count = 0;
+	uint32_t flood_delay_s = 0;
 
 	for (int opt = 1; opt < argc; opt++) {
+		if (strcmp("-f", argv[opt]) == 0) {
+			if (opt + 3 >= argc) {
+				shell_error(shell, "-f need 3 positional arguments");
+				sid_hal_free(msg.data);
+				return -EINVAL;
+			}
+
+			const char *mode = argv[++opt];
+			const char *count = argv[++opt];
+			const char *delay = argv[++opt];
+			char *end = NULL;
+			long mode_val = strtol(mode, &end, 0);
+
+			if (!IN_RANGE(mode_val, CLI_FLOOD_STOP, CLI_FLOOD_ON_MSG_SENT) || end == mode) {
+				shell_error(shell, "Invalid flood mode [%s], must be value <0, 2>", mode);
+				sid_hal_free(msg.data);
+				return -EINVAL;
+			}
+
+			long count_val = strtol(count, &end, 0);
+
+			if (!IN_RANGE(count_val, 0, INT32_MAX) || end == count) {
+				shell_error(shell, "Invalid flood period [%s]", count);
+				sid_hal_free(msg.data);
+				return -EINVAL;
+			}
+
+			long delay_val = strtol(delay, &end, 0);
+
+			if (!IN_RANGE(delay_val, 0, UINT16_MAX) || end == delay) {
+				shell_error(shell, "Invalid flood delay [%s], must be value <0, %x>", delay,
+					    (unsigned int)UINT16_MAX);
+				sid_hal_free(msg.data);
+				return -EINVAL;
+			}
+
+			flood_requested = true;
+			flood_mode = (enum cli_flood_mode)mode_val;
+			flood_count = (uint32_t)count_val;
+			flood_delay_s = (uint32_t)delay_val;
+			continue;
+		}
 		if (strcmp("-t", argv[opt]) == 0) {
 			opt++;
 			if (opt >= argc) {
@@ -622,6 +819,14 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 		desc.id = cli_cfg.rsp_msg_id;
 	}
 
+	if (flood_requested && (flood_mode == CLI_FLOOD_STOP || flood_count == 0)) {
+		sid_hal_free(msg.data);
+		if (sidewalk_event_send(flood_event_start, NULL, NULL)) {
+			return -ENOMSG;
+		}
+		return 0;
+	}
+
 	if (!msg.data) {
 		msg.size = strlen(argv[argc - 1]);
 		msg.data = sid_hal_malloc(msg.size);
@@ -629,6 +834,27 @@ int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv)
 			return -ENOMEM;
 		}
 		memcpy(msg.data, argv[argc - 1], msg.size);
+	}
+
+	if (flood_requested) {
+		cli_flood_start_t *start = sid_hal_malloc(sizeof(cli_flood_start_t));
+
+		if (!start) {
+			sid_hal_free(msg.data);
+			return -ENOMEM;
+		}
+		memset(start, 0x0, sizeof(*start));
+		start->send.msg = msg;
+		start->send.desc = desc;
+		start->mode = flood_mode;
+		start->count = flood_count;
+		start->delay_s = flood_delay_s;
+
+		if (sidewalk_event_send(flood_event_start, start, free_flood_start_event_ctx)) {
+			free_flood_start_event_ctx(start);
+			return -ENOMSG;
+		}
+		return 0;
 	}
 
 	sidewalk_msg_t *send = sid_hal_malloc(sizeof(sidewalk_msg_t));

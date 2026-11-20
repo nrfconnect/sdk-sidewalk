@@ -15,6 +15,7 @@
 #include <zephyr/logging/log.h>
 
 #include <bt_app_callbacks.h>
+#include <cli/app_shell.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_SIDEWALK_LOG_LEVEL);
 
@@ -41,6 +42,7 @@ static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *cont
 	LOG_INF("Message send success");
 	printk(JSON_NEW_LINE(JSON_OBJ(JSON_NAME(
 		"on_msg_sent", JSON_OBJ(JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0))))));
+	cli_flood_on_msg_sent();
 }
 
 static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
@@ -51,6 +53,7 @@ static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc 
 		"on_send_error",
 		JSON_OBJ(JSON_LIST_2(JSON_VAL_sid_error_t("error", error),
 				     JSON_VAL_sid_msg_desc("sid_msg_desc", msg_desc, 0)))))));
+	cli_flood_on_send_error(error);
 }
 
 static void on_sidewalk_factory_reset(void *context)

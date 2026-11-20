@@ -75,7 +75,13 @@
 	"		1 - enable ACK\n"                                                                                                                                                                         \
 	"		0 - disable ACK\n"                                                                                                                                                                        \
 	"	<retry> - number of retry. 0 ~ 255\n"                                                                                                                                                      \
-	"	<ttl> - total seconds the stack holds the message in its queue. 0 ~ 65535"
+	"	<ttl> - total seconds the stack holds the message in its queue. 0 ~ 65535\n"                                                                                                               \
+	"- f configure parameters for flood messages: -f <flood_msg> <flood_period> <delay_sec>\n"                                                                                                   \
+	"	<flood_msg> - 0: stop flood, 1: continuous flood without waiting for on_msg_sent,\n"                                                                                                       \
+	"	              2: back to back uplinks, next message sent after on_msg_sent/on_send_error\n"                                                                                                \
+	"	<flood_period> - number of messages to send\n"                                                                                                                                             \
+	"	<delay_sec> - delay before retrying a message rejected with OOM\n"                                                                                                                        \
+	"	e.g. sid send -r 0123 -f 1 50 2"
 
 #define CMD_SID_FACTORY_RESET_DESCRIPTION                                                          \
 	"\n"                                                                                       \
@@ -206,7 +212,7 @@
 #define CMD_SID_STOP_ARG_REQUIRED 1
 #define CMD_SID_STOP_ARG_OPTIONAL 1
 #define CMD_SID_SEND_ARG_REQUIRED 2
-#define CMD_SID_SEND_ARG_OPTIONAL 13
+#define CMD_SID_SEND_ARG_OPTIONAL 17
 #define CMD_SID_FACTORY_RESET_ARG_REQUIRED 1
 #define CMD_SID_FACTORY_RESET_ARG_OPTIONAL 0
 #define CMD_SID_GET_MTU_ARG_REQUIRED 2
@@ -287,6 +293,10 @@ int cmd_sid_deinit(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_start(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_stop(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_send(const struct shell *shell, int32_t argc, const char **argv);
+
+/* Flood hooks, must be called from the Sidewalk event callbacks. */
+void cli_flood_on_msg_sent(void);
+void cli_flood_on_send_error(sid_error_t error);
 int cmd_sid_factory_reset(const struct shell *shell, int32_t argc, const char **argv);
 int cmd_sid_get_mtu(const struct shell *shell, int32_t argc, const char **argv);
 
