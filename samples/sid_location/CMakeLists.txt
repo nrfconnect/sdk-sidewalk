@@ -14,6 +14,7 @@ target_include_directories(app PRIVATE include)
 target_sources(app PRIVATE
 	src/main.c
 	src/app.c
+	src/sidewalk.c
 )
 
 if(CONFIG_SIDEWALK_USE_PREBUILT_LIBRARIES)

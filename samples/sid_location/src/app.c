@@ -5,57 +5,17 @@
  */
 
 #include <app.h>
-#include <app_ble_config.h>
-#include <app_mfg_config.h>
-#include <app_subGHz_config.h>
-#include <bt_app_callbacks.h>
-#include <json_printer/sidTypes2str.h>
-#include <sid_api.h>
-#include <sid_hal_reset_ifc.h>
-#include <sid_location.h>
-#include <sid_pal_common_ifc.h>
+#include <sidewalk.h>
 #include <sidewalk_dfu/nordic_dfu.h>
-#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-#include <sid_pal_radio_ifc.h>
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
-#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
-#include <app_location_lr11xx_config.h>
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 
 #include <buttons.h>
-#include <stdio.h>
-#include <zephyr/bluetooth/conn.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/pm/device_runtime.h>
 #include <zephyr/smf.h>
 
 LOG_MODULE_REGISTER(sid_location_app, CONFIG_SIDEWALK_LOG_LEVEL);
-
-#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-#define APP_LINK_MASK (SID_LINK_TYPE_1 | SID_LINK_TYPE_3)
-#else
-#define APP_LINK_MASK (SID_LINK_TYPE_1)
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
-
-#ifdef CONFIG_SIDEWALK_SUBGHZ_REGION_EU868
-#define APP_SUBGHZ_REGION SID_PAL_RADIO_RC_EU
-#else
-#define APP_SUBGHZ_REGION SID_PAL_RADIO_RC_NA
-#endif /* CONFIG_SIDEWALK_SUBGHZ_REGION_EU868 */
-
-#define APP_BLE_CONNECT_TIMEOUT_S 30
-
-#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
-#define APP_LOCATION_METHODS                                                                       \
-	(SID_LOCATION_METHOD_GATEWAY | SID_LOCATION_METHOD_WIFI | SID_LOCATION_METHOD_GNSS)
-#define APP_LOCATION_MAX_EFFORT SID_LOCATION_EFFORT_L4
-#define APP_LOCATION_AUTO_MODE	SID_LOCATION_EFFORT_DEFAULT
-#else
-#define APP_LOCATION_METHODS	SID_LOCATION_METHOD_GATEWAY
-#define APP_LOCATION_MAX_EFFORT SID_LOCATION_EFFORT_L1
-#define APP_LOCATION_AUTO_MODE	SID_LOCATION_EFFORT_L1
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
 
 enum app_event {
 	APP_EVENT_SID_PROCESS,
@@ -83,7 +43,6 @@ enum app_state {
 struct app_ctx {
 	struct smf_ctx smf;
 	enum app_event event;
-	struct sid_handle *handle;
 	struct sid_status status;
 	struct sid_location_result result;
 	bool run_pending;
@@ -196,61 +155,19 @@ static int ui_init(void)
 	return buttons_init();
 }
 
-static void on_sidewalk_event(bool in_isr, void *context)
+static void on_sidewalk_process(void)
 {
-	ARG_UNUSED(in_isr);
-	ARG_UNUSED(context);
 	app_event_post(APP_EVENT_SID_PROCESS);
 }
 
-static void on_sidewalk_status_changed(const struct sid_status *status, void *context)
+static void on_sidewalk_status(const struct sid_status *status)
 {
-	ARG_UNUSED(context);
-
 	app.status = *status;
-	LOG_INF("Sidewalk state %d, registered %d, time synced %d, links 0x%x", status->state,
-		status->detail.registration_status == SID_STATUS_REGISTERED,
-		status->detail.time_sync_status == SID_STATUS_TIME_SYNCED,
-		status->detail.link_status_mask);
 	app_event_post(APP_EVENT_SID_STATUS);
 }
 
-static void on_sidewalk_msg_received(const struct sid_msg_desc *msg_desc, const struct sid_msg *msg,
-				     void *context)
+static void on_location_result(const struct sid_location_result *result)
 {
-	ARG_UNUSED(msg_desc);
-	ARG_UNUSED(msg);
-	ARG_UNUSED(context);
-}
-
-static void on_sidewalk_msg_sent(const struct sid_msg_desc *msg_desc, void *context)
-{
-	ARG_UNUSED(msg_desc);
-	ARG_UNUSED(context);
-}
-
-static void on_sidewalk_send_error(sid_error_t error, const struct sid_msg_desc *msg_desc,
-				   void *context)
-{
-	ARG_UNUSED(msg_desc);
-	ARG_UNUSED(context);
-	LOG_WRN("Send error %d (%s)", (int)error, SID_ERROR_T_STR(error));
-}
-
-static void on_sidewalk_factory_reset(void *context)
-{
-	ARG_UNUSED(context);
-
-	LOG_INF("Factory reset done, rebooting");
-	if (sid_hal_reset(SID_HAL_RESET_NORMAL)) {
-		LOG_WRN("Cannot reboot");
-	}
-}
-
-static void on_location_update(const struct sid_location_result *const result, void *context)
-{
-	ARG_UNUSED(context);
-
 	app.result = *result;
 	app_event_post(APP_EVENT_LOCATION_RESULT);
 }
@@ -269,33 +186,9 @@ static enum app_led effort_to_led(enum sid_location_effort_mode mode)
 	}
 }
 
-static int location_init(void)
+static void location_run_started(int err)
 {
-	struct sid_location_config config = {
-		.sid_location_type_mask = APP_LOCATION_METHODS,
-		.max_effort = APP_LOCATION_MAX_EFFORT,
-		.manage_effort = true,
-		.callbacks = {
-			.on_update = on_location_update,
-		},
-		.auto_link_pause_resume = IS_ENABLED(CONFIG_SIDEWALK_SUBGHZ_SUPPORT),
-	};
-
-	sid_error_t err = sid_location_init(app.handle, &config);
-
 	if (err) {
-		LOG_ERR("Location init err %d (%s)", (int)err, SID_ERROR_T_STR(err));
-		return -EIO;
-	}
-	return 0;
-}
-
-static void location_run(struct sid_location_run_config *config)
-{
-	sid_error_t err = sid_location_run(app.handle, config, 0);
-
-	if (err) {
-		LOG_ERR("Location run err %d (%s)", (int)err, SID_ERROR_T_STR(err));
 		led_blink(APP_LED_ERROR);
 		cycle_restart();
 		return;
@@ -303,29 +196,23 @@ static void location_run(struct sid_location_run_config *config)
 
 	app.run_pending = false;
 	k_timer_stop(&ble_timer);
-	LOG_INF("Location run started at L%d", sid_location_get_effort_mode(app.handle));
 	smf_set_state(SMF_CTX(&app), &app_states[APP_STATE_LOCATING]);
 }
 
 static void location_run_auto(void)
 {
-	struct sid_location_run_config config = {
-		.mode = APP_LOCATION_AUTO_MODE,
-		.type = SID_LOCATION_SCAN_AND_SEND,
-	};
-
-	location_run(&config);
+	location_run_started(sidewalk_location_run_auto());
 }
 
 static void location_start_auto(void)
 {
 	/* L1 sends nothing that would trigger auto connect, so it needs the link up */
-	if (sid_location_get_effort_mode(app.handle) == SID_LOCATION_EFFORT_L1 &&
+	if (sidewalk_location_effort() == SID_LOCATION_EFFORT_L1 &&
 	    !(app.status.detail.link_status_mask & SID_LINK_TYPE_1)) {
 		LOG_INF("Location run waits for a Bluetooth LE connection");
 		app.run_pending = true;
-		(void)sid_ble_bcn_connection_request(app.handle, true);
-		k_timer_start(&ble_timer, K_SECONDS(APP_BLE_CONNECT_TIMEOUT_S), K_NO_WAIT);
+		sidewalk_ble_connect_request();
+		k_timer_start(&ble_timer, K_SECONDS(SIDEWALK_BLE_CONNECT_TIMEOUT_S), K_NO_WAIT);
 		return;
 	}
 	location_run_auto();
@@ -343,42 +230,21 @@ static void location_ble_timeout(void)
 
 static void location_run_level(enum sid_location_effort_mode mode)
 {
-	struct sid_location_run_config config = {
-		.type = SID_LOCATION_SCAN_AND_SEND,
-		.levels = {mode},
-		.num_levels = 1,
-	};
+	int err = sidewalk_location_run_level(mode);
 
-	if (!IS_ENABLED(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)) {
+	if (err == -ENOTSUP) {
 		LOG_INF("L%d is not available", mode);
 		return;
 	}
-	location_run(&config);
+	location_run_started(err);
 }
 
 static void location_msg_send(void)
 {
-	static unsigned int counter;
-	char text[24];
-	struct sid_msg msg = {
-		.data = text,
-		.size = snprintf(text, sizeof(text), "Message %u", ++counter),
-	};
-	struct sid_msg_desc desc = {
-		.type = SID_MSG_TYPE_NOTIFY,
-		.link_type = SID_LINK_TYPE_1,
-		.link_mode = SID_LINK_MODE_CLOUD,
-		.msg_desc_attr.tx_attr.resolve_location = SID_TX_LOCATION_LINK_RESOLVE,
-	};
-
-	sid_error_t err = sid_put_msg(app.handle, &msg, &desc);
-
-	if (err) {
-		LOG_ERR("Message err %d (%s)", (int)err, SID_ERROR_T_STR(err));
+	if (sidewalk_location_msg_send()) {
 		led_blink(APP_LED_ERROR);
 		return;
 	}
-	LOG_INF("\"%s\" with location resolution queued", text);
 	cycle_restart();
 }
 
@@ -393,10 +259,7 @@ static void location_msg_result(void)
 
 static void dfu_start(void)
 {
-	sid_error_t sid_err = sid_stop(app.handle, APP_LINK_MASK);
-
-	if (sid_err) {
-		LOG_ERR("Sidewalk stop err %d (%s)", (int)sid_err, SID_ERROR_T_STR(sid_err));
+	if (sidewalk_stop()) {
 		led_blink(APP_LED_ERROR);
 		return;
 	}
@@ -406,7 +269,7 @@ static void dfu_start(void)
 	if (err) {
 		LOG_ERR("DFU start err %d", err);
 		led_blink(APP_LED_ERROR);
-		(void)sid_start(app.handle, APP_LINK_MASK);
+		(void)sidewalk_start();
 		return;
 	}
 	app.run_pending = false;
@@ -426,7 +289,7 @@ static enum smf_state_result connecting_run(void *o)
 		return SMF_EVENT_HANDLED;
 	}
 
-	if (location_init()) {
+	if (sidewalk_location_init()) {
 		led_blink(APP_LED_ERROR);
 		return SMF_EVENT_HANDLED;
 	}
@@ -546,10 +409,7 @@ static void dfu_exit(void *o)
 	(void)k_work_cancel_delayable(&dfu_check_work);
 	(void)k_work_reschedule(&leds_off_work, K_NO_WAIT);
 
-	sid_error_t err = sid_start(app.handle, APP_LINK_MASK);
-
-	if (err) {
-		LOG_ERR("Sidewalk start err %d (%s)", (int)err, SID_ERROR_T_STR(err));
+	if (sidewalk_start()) {
 		led_blink(APP_LED_ERROR);
 	}
 	cycle_restart();
@@ -562,145 +422,19 @@ static const struct smf_state app_states[] = {
 	[APP_STATE_DFU] = SMF_CREATE_STATE(NULL, dfu_run, dfu_exit, NULL, NULL),
 };
 
-#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-static sid_pal_radio_rx_packet_t radio_rx_packet;
-
-static void radio_event_notifier(sid_pal_radio_events_t event)
-{
-	ARG_UNUSED(event);
-}
-
-static void radio_irq_handler(void)
-{
-}
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
-
-static int platform_init(void)
-{
-	platform_parameters_t platform_parameters = {
-		.mfg_store_region.addr_start = APP_MFG_CFG_FLASH_START,
-		.mfg_store_region.addr_end = APP_MFG_CFG_FLASH_END,
-#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-		.platform_init_parameters.radio_cfg = get_radio_cfg(),
-		.platform_init_parameters.region = APP_SUBGHZ_REGION,
-		.platform_init_parameters.sub_ghz_cfg = app_get_sub_ghz_config(),
-#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110
-		.platform_init_parameters.gnss_wifi_cfg =
-			(lr11xx_gnss_wifi_config_t *)get_location_cfg(),
-#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 */
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
-	};
-
-	sid_error_t err = sid_platform_init(&platform_parameters);
-
-	if (err) {
-		LOG_ERR("Sidewalk platform init err %d (%s)", (int)err, SID_ERROR_T_STR(err));
-		return -EIO;
-	}
-
-	if (app_mfg_cfg_is_empty()) {
-		LOG_ERR("No manufacturing data at 0x%08x, provision the device",
-			APP_MFG_CFG_FLASH_START);
-		return -ENODATA;
-	}
-
-#ifdef CONFIG_SIDEWALK_SUBGHZ_SUPPORT
-	int32_t radio_err =
-		sid_pal_radio_init(radio_event_notifier, radio_irq_handler, &radio_rx_packet);
-
-	if (radio_err) {
-		LOG_ERR("Radio init err %d", radio_err);
-		return -EIO;
-	}
-	(void)sid_pal_radio_sleep(0);
-#endif /* CONFIG_SIDEWALK_SUBGHZ_SUPPORT */
-
-	return 0;
-}
-
-/* The Sidewalk and SMP services are always registered, each identity may use only its own */
-static bool gatt_authorize(struct bt_conn *conn, const struct bt_gatt_attr *attr)
-{
-	struct bt_conn_info info;
-
-	if (bt_conn_get_info(conn, &info)) {
-		return false;
-	}
-	if (info.id == BT_ID_SIDEWALK) {
-		return !sid_ble_bt_attr_is_SMP(attr);
-	}
-	if (info.id == BT_ID_SMP_DFU) {
-		return !sid_ble_bt_attr_is_SIDEWALK(attr);
-	}
-	return true;
-}
-
-static const struct bt_gatt_authorization_cb gatt_authorization = {
-	.read_authorize = gatt_authorize,
-	.write_authorize = gatt_authorize,
-};
-
-static int sidewalk_start(void)
-{
-	static struct sid_event_callbacks callbacks = {
-		.on_event = on_sidewalk_event,
-		.on_msg_received = on_sidewalk_msg_received,
-		.on_msg_sent = on_sidewalk_msg_sent,
-		.on_send_error = on_sidewalk_send_error,
-		.on_status_changed = on_sidewalk_status_changed,
-		.on_factory_reset = on_sidewalk_factory_reset,
-	};
-	struct sid_config config = {
-		.link_mask = APP_LINK_MASK,
-		.dev_ch = {
-			.type = SID_END_DEVICE_TYPE_STATIC,
-			.power_type = SID_END_DEVICE_POWERED_BY_BATTERY_AND_LINE_POWER,
-			.qualification_id = 0x0001,
-		},
-		.callbacks = &callbacks,
-		.link_config = app_get_ble_config(),
-		.sub_ghz_link_config = app_get_sub_ghz_config(),
-	};
-
-	if (bt_gatt_authorization_cb_register(&gatt_authorization)) {
-		LOG_ERR("GATT authorization register failed");
-		return -EIO;
-	}
-
-	sid_error_t err = sid_init(&config, &app.handle);
-
-	if (err) {
-		LOG_ERR("Sidewalk init err %d (%s)", (int)err, SID_ERROR_T_STR(err));
-		return -EIO;
-	}
-	err = sid_start(app.handle, APP_LINK_MASK);
-	if (err) {
-		LOG_ERR("Sidewalk start err %d (%s)", (int)err, SID_ERROR_T_STR(err));
-		return -EIO;
-	}
-
-	enum sid_link_connection_policy policy = SID_LINK_CONNECTION_POLICY_AUTO_CONNECT;
-	struct sid_link_auto_connect_params params = {
-		.link_type = SID_LINK_TYPE_1,
-		.enable = true,
-		.connection_attempt_timeout_seconds = APP_BLE_CONNECT_TIMEOUT_S,
-	};
-
-	(void)sid_option(app.handle, SID_OPTION_SET_LINK_CONNECTION_POLICY, &policy,
-			 sizeof(policy));
-	(void)sid_option(app.handle, SID_OPTION_SET_LINK_POLICY_AUTO_CONNECT_PARAMS, &params,
-			 sizeof(params));
-
-	return 0;
-}
-
 static void sidewalk_thread_entry(void *p1, void *p2, void *p3)
 {
 	ARG_UNUSED(p1);
 	ARG_UNUSED(p2);
 	ARG_UNUSED(p3);
 
-	if (platform_init() || sidewalk_start()) {
+	static const struct sidewalk_callbacks callbacks = {
+		.on_process = on_sidewalk_process,
+		.on_status = on_sidewalk_status,
+		.on_location = on_location_result,
+	};
+
+	if (sidewalk_init(&callbacks)) {
 		led_blink(APP_LED_ERROR);
 		return;
 	}
@@ -712,7 +446,7 @@ static void sidewalk_thread_entry(void *p1, void *p2, void *p3)
 		k_msgq_get(&app_msgq, &app.event, K_FOREVER);
 
 		if (app.event == APP_EVENT_SID_PROCESS) {
-			(void)sid_process(app.handle);
+			sidewalk_process();
 			continue;
 		}
 		smf_run_state(SMF_CTX(&app));
@@ -724,6 +458,10 @@ static K_THREAD_STACK_DEFINE(sidewalk_thread_stack, CONFIG_SIDEWALK_THREAD_STACK
 
 void app_start(void)
 {
+#if defined(CONFIG_UART_CONSOLE)
+	(void)pm_device_runtime_disable(DEVICE_DT_GET(DT_CHOSEN(zephyr_console)));
+#endif
+
 	if (ui_init()) {
 		LOG_ERR("UI init failed");
 	}
