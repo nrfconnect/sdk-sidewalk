@@ -32,6 +32,23 @@ enum storage_kv_protocol_keys {
 	STORAGE_KV_SIDEWALK_ID = 43,
 };
 
+#define SID_ADDRESS_SIZE_MAX 7
+
+enum sid_address_type {
+	SID_LL_ATYPE_CLOUD = 0,
+	SID_LL_ATYPE_DEVICE = 1,
+	SID_LL_ATYPE_HNDL = 2,
+	SID_LL_ATYPE_GROUP = 3,
+	SID_LL_ATYPE_UNDEFINED = 4
+};
+
+struct sid_address {
+	uint8_t type;
+	uint8_t addr[SID_ADDRESS_SIZE_MAX];
+};
+
+struct sid_address sid_address_get_local(void);
+
 #define SID_SEC_DEV_ID_SZ 5
 
 typedef enum {
@@ -44,6 +61,7 @@ typedef struct {
 	size_t id_size;
 	sid_sec_tx_uuid_type_t type;
 	size_t tx_uuid_size;
+	const uint32_t *ext_reference;
 } sid_sec_tx_uuid_params_t;
 
 sid_error_t sid_sec_get_tx_uuid(sid_sec_tx_uuid_params_t *params, uint8_t *tx_uuid, uint32_t *reference,
@@ -64,6 +82,19 @@ static void bytes_to_hex_str(char *out, size_t out_len, const uint8_t *data, siz
 	out[data_len * 2] = '\0';
 }
 
+static bool local_dev_id_get(uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE])
+{
+	/* The local address is resolved by the Sidewalk stack, so it is valid only after sid_init(). */
+	struct sid_address local = sid_address_get_local();
+
+	if (local.type != SID_LL_ATYPE_DEVICE) {
+		return false;
+	}
+
+	memcpy(dev_id, local.addr, SID_PAL_MFG_STORE_DEVID_SIZE);
+	return true;
+}
+
 static void print_mfg_vals(const struct shell *shell)
 {
 	uint8_t pr_buf[32];
@@ -73,9 +104,11 @@ static void print_mfg_vals(const struct shell *shell)
 
 	uint8_t dev_id[SID_PAL_MFG_STORE_DEVID_SIZE] = {};
 
-	if (sid_pal_mfg_store_dev_id_get(dev_id)) {
+	if (local_dev_id_get(dev_id)) {
 		bytes_to_hex_str(pr_buf, sizeof(pr_buf), dev_id, SID_PAL_MFG_STORE_DEVID_SIZE);
 		shell_info(shell, "DEVID: 0x%s", pr_buf);
+	} else {
+		shell_warn(shell, "DEVID: not available, run 'sid init' first");
 	}
 
 	uint8_t smsn[32] = {};
@@ -147,6 +180,7 @@ int cmd_print_txid(const struct shell *shell, int32_t argc, const char **argv)
 		.dev_id = dev_id,
 		.id_size = SID_PAL_MFG_STORE_DEVID_SIZE,
 		.tx_uuid_size = SID_PAL_MFG_STORE_DEVID_SIZE,
+		.ext_reference = NULL,
 	};
 
 	ret = sid_sec_get_tx_uuid(&txid_params, tx_id, NULL, NULL);
