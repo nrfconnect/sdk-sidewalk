@@ -15,6 +15,7 @@
 
 #include <sid_api.h>
 #include <sid_hal_memory_ifc.h>
+#include <sid_location.h>
 
 #include <cli/location_shell.h>
 #include <cli/location_shell_events.h>
@@ -543,7 +544,7 @@ int cmd_location_send(const struct shell *shell, int32_t argc, const char **argv
 {
 	CHECK_ARGUMENT_COUNT(argc, CMD_LOCATION_SEND_ARG_REQUIRED, CMD_LOCATION_SEND_ARG_OPTIONAL);
 
-	uint32_t location_level = 0; /* Default to automatic mode */
+	uint32_t location_level = SID_LOCATION_EFFORT_DEFAULT;
 
 	if (argc == 2) {
 		char *end = NULL;
@@ -565,7 +566,7 @@ int cmd_location_scan(const struct shell *shell, int32_t argc, const char **argv
 {
 	CHECK_ARGUMENT_COUNT(argc, CMD_LOCATION_SEND_ARG_REQUIRED, CMD_LOCATION_SEND_ARG_OPTIONAL);
 
-	uint32_t location_level = 0; /* Default to automatic mode */
+	uint32_t location_level = SID_LOCATION_EFFORT_DEFAULT;
 
 	if (argc == 2) {
 		char *end = NULL;
@@ -588,7 +589,7 @@ int cmd_location_send_buf(const struct shell *shell, int32_t argc, const char **
 	CHECK_ARGUMENT_COUNT(argc, CMD_LOCATION_SEND_BUF_ARG_REQUIRED,
 			     CMD_LOCATION_SEND_BUF_ARG_OPTIONAL);
 
-	uint32_t location_level = 0; /* Default to automatic mode */
+	uint32_t location_level = SID_LOCATION_EFFORT_DEFAULT;
 
 	if (argc == 2) {
 		char *end = NULL;
