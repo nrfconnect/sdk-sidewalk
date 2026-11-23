@@ -75,9 +75,9 @@ KRKNWK-22709: Calling ``sid_stop()`` during a location scan leaves the location 
 
 .. rst-class:: v2-0-0
 
-KRKNWK-22705: ``sid_location_run()`` returns success when a scan is already in progress
-  If you call ``sid_location_run()`` while a Wi-Fi or GNSS location scan is in progress, it returns ``SID_ERROR_NONE``.
-  However, the new request is not executed and no result callback follows.
+KRKNWK-22705: ``sid_location_run()`` returns ``SID_ERROR_NONE`` when a scan is already in progress
+  If you call ``sid_location_run()`` while a Wi-Fi or GNSS location scan is already running, it returns ``SID_ERROR_NONE``.
+  The new request does not start, the in-progress scan is unchanged, and no additional result callback is delivered for the second call.
 
   **Affected platforms:** All platforms with Wi-Fi or GNSS location on an LR11xx radio (for example, LR1110-based shields).
 
