@@ -16,6 +16,12 @@ set(LR11XX_COMMON_INCLUDES
 	${CMAKE_CURRENT_SOURCE_DIR}/lr11xx
 )
 
+set(LR20XX_COMMON_INCLUDES
+	${CMAKE_CURRENT_SOURCE_DIR}/lr20xx
+	${CMAKE_CURRENT_SOURCE_DIR}/lr20xx/semtech/inc
+	${CMAKE_CURRENT_SOURCE_DIR}/lr20xx/ral
+)
+
 set(SMTC_LBM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/smtc_lbm)
 set(LBM_PORT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lbm_port)
 
@@ -70,6 +76,7 @@ add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_SX126X sx126x)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr11xx)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110 lr1110)
 add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_LOCATION lr1110_location)
+add_subdirectory_ifdef(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR2021 lr20xx)
 
 add_library(sidewalk_radio INTERFACE)
 
@@ -92,6 +99,18 @@ if(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
 		"-Wl,--start-group"
 		sid_pal_radio_lr11xx_impl
 		sid_pal_radio_lr11xx_location_impl
+		"-Wl,--end-group"
+	)
+endif()
+
+if(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR2021)
+	target_compile_definitions(sidewalk_radio INTERFACE
+		LR20XX
+		REGION_US_915
+	)
+	target_link_libraries(sidewalk_radio INTERFACE
+		"-Wl,--start-group"
+		sid_pal_radio_lr20xx_impl
 		"-Wl,--end-group"
 	)
 endif()

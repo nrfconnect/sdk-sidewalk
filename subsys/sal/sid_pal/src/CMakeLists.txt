@@ -219,6 +219,20 @@ if(NOT CONFIG_SIDEWALK_PAL_ZEPHYR_LIBS_DISABLED AND CONFIG_SIDEWALK)
 			${CMAKE_CURRENT_SOURCE_DIR}/../../../semtech/lr1110_location/include
 		)
 	endif()
+	if(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR2021)
+		target_include_directories(sid_pal_common_impl PRIVATE
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../semtech/include
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../semtech/lr20xx
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../semtech/lr20xx/semtech/inc
+			${CMAKE_CURRENT_SOURCE_DIR}/../../../semtech/lr20xx/ral
+		)
+		target_link_libraries(sid_pal_common_impl PRIVATE
+			semtech_radio_ifc
+			sid_pal_radio_ifc
+			sid_pal_serial_bus_ifc
+			sid_time_types
+		)
+	endif()
 	target_link_libraries(sid_pal_common_impl PRIVATE
 		sid_pal_common_ifc
 		sid_error
