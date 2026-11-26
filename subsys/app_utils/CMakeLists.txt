@@ -26,6 +26,11 @@ if(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)
 			${APP_UTILS_CONFIG_DIR}/src/app_location_config_lr11xx.c
 		)
 	endif()
+	if(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR2021)
+		list(APPEND APP_UTILS_SOURCES
+			${APP_UTILS_CONFIG_DIR}/src/app_subGHz_config_lr20xx.c
+		)
+	endif()
 else()
 	list(APPEND APP_UTILS_SOURCES ${APP_UTILS_CONFIG_DIR}/src/app_subGHz_config_empty.c)
 endif()
@@ -74,6 +79,22 @@ if(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110)
 	)
 	target_link_libraries(app_utils PUBLIC
 		smtc_lbm
+		semtech_radio_ifc
+		sid_pal_serial_bus_ifc
+		sid_pal_radio_ifc
+		sid_pal_gpio_ifc
+	)
+endif()
+
+if(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR2021)
+	target_include_directories(app_utils PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/../sal/sid_pal/sid_pal_types
+		${CMAKE_CURRENT_SOURCE_DIR}/../semtech/include
+		${CMAKE_CURRENT_SOURCE_DIR}/../semtech/lr20xx
+		${CMAKE_CURRENT_SOURCE_DIR}/../semtech/lr20xx/semtech/inc
+		${CMAKE_CURRENT_SOURCE_DIR}/../semtech/lr20xx/ral
+	)
+	target_link_libraries(app_utils PUBLIC
 		semtech_radio_ifc
 		sid_pal_serial_bus_ifc
 		sid_pal_radio_ifc
