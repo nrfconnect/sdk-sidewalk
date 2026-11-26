@@ -452,6 +452,10 @@ enum sid_option {
     SID_OPTION_SUB_GHZ_USER_CONTROL = 20,
     /** Option to set transmit power control config for LoRa */
     SID_OPTION_LINK_TYPE_3_TRANSMIT_POWER_CONTROL_CONFIG = 21,
+    /** Option to set the connectionless BLE beacon configuration. Value is of type struct sid_ble_beacon_config */
+    SID_OPTION_SET_BLE_BEACON_CONFIG = 22,
+    /** Option to get the connectionless BLE beacon configuration. Value is of type struct sid_ble_beacon_config */
+    SID_OPTION_GET_BLE_BEACON_CONFIG = 23,
     /** Delimiter to enum sid_option */
     SID_OPTION_LAST,
 };

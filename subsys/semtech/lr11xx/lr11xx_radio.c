@@ -276,7 +276,7 @@ static int32_t start_timeout_sim(uint32_t timeout, timeout_sim_t kind)
     drv_ctx.timeout_sim = kind;
     return RADIO_ERROR_NONE;
   } else {
-    SL_SID_LOG_APP_ERROR("fake timeout %u fail %d", timeout, serr);
+    SL_SID_LOG_APP_ERROR("fake timeout %lu fail %d", timeout, serr);
     SL_SID_LOG_APP_ERROR("saved %u %u", saved.tv_sec, saved.tv_nsec);
     SL_SID_LOG_APP_ERROR("first_shot %u %u", first_shot.tv_sec, first_shot.tv_nsec);
     return RADIO_ERROR_IO_ERROR;  // RADIO_ERROR_GENERIC
@@ -1200,7 +1200,7 @@ int32_t sid_pal_radio_start_rx( uint32_t timeout )
             if( ( err = sid_pal_timer_arm( &lr_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &first_shot, NULL ) ) !=
                 SID_ERROR_NONE )
             {
-                SL_SID_LOG_APP_ERROR( "_arm_timer sid_pal_timer_arm fail %u", timeout );
+                SL_SID_LOG_APP_ERROR( "_arm_timer sid_pal_timer_arm fail %ld", timeout );
                 break;
             }
         }
@@ -1314,7 +1314,7 @@ int32_t sid_pal_radio_start_carrier_sense(const sid_pal_radio_fsk_cad_params_t *
             if( ( err = sid_pal_timer_arm( &lr_timer, SID_PAL_TIMER_PRIO_CLASS_PRECISE, &first_shot, NULL ) ) !=
                 SID_ERROR_NONE )
             {
-                SL_SID_LOG_APP_ERROR( "_arm_timer sid_pal_timer_arm fail %u", cad_params->fsk_cs_duration_us);
+                SL_SID_LOG_APP_ERROR( "_arm_timer sid_pal_timer_arm fail %ld", cad_params->fsk_cs_duration_us);
                 break;
             }
         }
@@ -1748,13 +1748,13 @@ int32_t sid_pal_radio_init( sid_pal_radio_event_notify_t notify, sid_pal_radio_i
 
         if( ( err = radio_lr11xx_platform_init( ) ) != RADIO_ERROR_NONE )
         {
-            SL_SID_LOG_APP_INFO( "%d = radio_lr11xx_platform_init() fail", err );
+            SL_SID_LOG_APP_INFO( "%ld = radio_lr11xx_platform_init() fail", err );
             break;
         }
 
         if( ( err = radio_lr11xx_set_radio_mode( false, false, false ) ) != RADIO_ERROR_NONE )
         {
-            SL_SID_LOG_APP_INFO( "%d = radio_lr11xx_set_radio_mode() fail", err );
+            SL_SID_LOG_APP_INFO( "%ld = radio_lr11xx_set_radio_mode() fail", err );
             break;
         }
 
@@ -1966,7 +1966,7 @@ void lr11xx_restore_transceiver()
   }
 
   if ((err = radio_enable_irq(&drv_ctx)) != RADIO_ERROR_NONE) {
-    SL_SID_LOG_APP_ERROR("%d = radio_enable_irq", err);
+    SL_SID_LOG_APP_ERROR("%ld = radio_enable_irq", err);
   }
 }
 
@@ -1976,19 +1976,13 @@ void lr11xx_restore_transceiver()
 volatile uint8_t testcnt;
 #endif /* CONFIG_RADIO_LOCK_TEST */
 
-static uint8_t state_before_scan = SID_PAL_RADIO_UNKNOWN;
-
 int sid_pal_radio_hold_scan()
 {
 	uint8_t pinState;
     if( sid_pal_gpio_read( drv_ctx.config->gpios.int1, &pinState ) == SID_ERROR_NONE ) {
 		if (pinState) {
 			SL_SID_LOG_APP_WARNING(BYEL "hold scan: int1 high"COLOR_RESET);
-            SL_SID_LOG_APP_INFO("Clearing irq");
-            if(radio_clear_irq_status_all()){
-                SL_SID_LOG_APP_ERROR(BYEL "Failed to clear IRQ");
-                return -1;
-            }
+			return -1;
 		}
 	} else {
 		SL_SID_LOG_APP_ERROR("hold scan: gpio read fail");
@@ -2006,7 +2000,6 @@ int sid_pal_radio_hold_scan()
      SL_SID_LOG_APP_WARNING(BYEL "hold scan: radio in use"COLOR_RESET);
      return -1;
   }
-  state_before_scan = drv_ctx.radio_state;
   drv_ctx.radio_state = SID_PAL_RADIO_SCAN;
   sid_pal_exit_critical_region();
 #ifdef CONFIG_RADIO_LOCK_TEST
@@ -2043,11 +2036,6 @@ void sid_pal_radio_release_scan()
 	SL_SID_LOG_APP_INFO("sid_pal_release");
 #endif /* CONFIG_RADIO_LOCK_TEST */
 	sid_pal_exit_critical_region();
-
-	if (state_before_scan == SID_PAL_RADIO_SLEEP && sid_pal_radio_sleep(0) != RADIO_ERROR_NONE) {
-		SL_SID_LOG_APP_ERROR("release scan: sleep fail");
-	}
-	state_before_scan = SID_PAL_RADIO_UNKNOWN;
 }
 
 void sid_pal_radio_gnss_prescan()
