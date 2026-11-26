@@ -266,6 +266,13 @@ lr11xx_hal_status_t lr11xx_hal_wakeup( const void* context )
 
     drv_ctx->sleeping = false;
 
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP
+    if( drv_ctx->radio_state != SID_PAL_RADIO_SLEEP || !drv_ctx->config->mitigations.irq_noise_during_sleep )
+    {
+        set_radio_int( drv_ctx, true );
+    }
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP */
+
     return LR11XX_HAL_STATUS_OK;
 }
 
@@ -413,10 +420,24 @@ static lr11xx_hal_status_t lr11xx_hal_rdwr( const halo_drv_semtech_ctx_t* contex
         memcpy( &buff[command_length], data, data_length );
     }
 
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP
+    const bool set_sleep = ( command[0] == 0x01 ) && ( command[1] == 0x1B );
+    if( set_sleep )
+    {
+        set_radio_int( drv_ctx, false );
+    }
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP */
+
     int err = drv_ctx->bus_iface->xfer( drv_ctx->bus_iface, &drv_ctx->config->bus_selector, buff, buff, size );
     if( err != SID_ERROR_NONE )
     {
         SL_SID_LOG_APP_ERROR( "rdwr write xfer fail" );
+#ifdef CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP
+        if( set_sleep )
+        {
+            set_radio_int( drv_ctx, true );
+        }
+#endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO_LR1110_MASK_INT1_IN_SLEEP */
         return LR11XX_HAL_STATUS_ERROR;
     }
 
