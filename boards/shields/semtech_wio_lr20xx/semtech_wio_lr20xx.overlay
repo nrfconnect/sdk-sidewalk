@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2026 Seeed Technology Co., Ltd.
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ *
+ * Semtech Wio LR20xx shield (non-TCXO / external XTAL variant).
+ */
+
+#include "semtech_wio_lr20xx_common.dtsi"
+
+&lora_semtech_lr2021 {
+	compatible = "semtech,lr2021";
+};
