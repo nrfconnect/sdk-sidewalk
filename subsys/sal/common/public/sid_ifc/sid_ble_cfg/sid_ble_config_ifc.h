@@ -165,6 +165,31 @@ typedef struct sid_ble_connection_policy {
     enum sid_ble_conn_policy conn_policy;
 } sid_ble_connection_policy_t;
 
+/** Beacon data payload size in bytes; a payload is exactly this long */
+#define SID_BLE_BEACON_DATA_MAX_SIZE 6
+
+/**
+ * Connectionless BLE beacon configuration, the value of SID_OPTION_SET_BLE_BEACON_CONFIG and
+ * SID_OPTION_GET_BLE_BEACON_CONFIG. The beacon is advertised while the device is registered and
+ * time synced. A configuration with is_data_send, location and response_requested all false
+ * switches the beacon off.
+ */
+struct sid_ble_beacon_config {
+    /** true: Location Beacon, the cloud resolves and reports the device location.
+     *  false: Normal beacon, the payload is delivered without a location event. */
+    bool location;
+    /** Request a downlink reply to the beacon. Only for devices that can receive. */
+    bool response_requested;
+    /** Sequence number update period in seconds, 1 to 7200 (2 hours).
+     *  0: the sequence number advances only when the configuration changes.
+     *  Only a beacon with a payload or in Location Beacon mode carries a sequence number;
+     *  for any other beacon the period is stored and not used. */
+    uint32_t seq_update_period_s;
+    /** true: data is sent, encrypted, all SID_BLE_BEACON_DATA_MAX_SIZE bytes. false: no payload. */
+    bool is_data_send;
+    uint8_t data[SID_BLE_BEACON_DATA_MAX_SIZE];
+};
+
 /**
  * BLE bonding trigger characteristic UUID (128-bit).
  * The characteristic declaration is discoverable without pairing, but its
