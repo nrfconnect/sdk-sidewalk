@@ -11,7 +11,9 @@ from pathlib import Path
 # -- Path setup --------------------------------------------------------------
 
 SIDEWALK_BASE = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(Path(__file__).resolve().parent / "_extensions"))
+DOC_BASE = Path(__file__).resolve().parent
+sys.path.insert(0, str(DOC_BASE / "_extensions"))
+sys.path.insert(0, str(DOC_BASE / "_utils"))
 
 
 def _get_ncs_version() -> tuple[str, str]:
@@ -93,3 +95,9 @@ html_theme_options = {
 html_show_sphinx = False
 
 html_extra_path = ["versions.json"]
+
+
+def setup(app):
+    from kapa import add_kapa_search
+
+    add_kapa_search(app)

@@ -59,7 +59,12 @@ jobs:
       - name: Build
         working-directory: ncs/sidewalk/doc
         run: |
-          make html
+          SPHINXOPTS=""
+          # Enable Kapa on published main and on PR doc previews (github.ref is not refs/heads/main for PRs).
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]] || [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            SPHINXOPTS="-t kapa"
+          fi
+          make html SPHINXOPTS="$SPHINXOPTS"
 
       - name: Check version
         run: |
