@@ -1,0 +1,107 @@
+sample:
+  name: Sidewalk location sample
+  description: Periodic Amazon Sidewalk location with BLE, Wi-Fi and GNSS methods
+
+common:
+  sysbuild: true
+  build_only: true
+  tags:
+    - Sidewalk
+    - location
+
+tests:
+  sample.sidewalk.location.tag:
+    platform_allow:
+      - nrf54l15tag/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf54l15tag/nrf54l15/cpuapp
+
+  sample.sidewalk.location.tag.release:
+    platform_allow:
+      - nrf54l15tag/nrf54l15/cpuapp
+    integration_platforms:
+      - nrf54l15tag/nrf54l15/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+
+  sample.sidewalk.location.ble_only:
+    build_only: false
+    platform_allow:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    harness: console
+    harness_config:
+      type: multi_line
+      regex:
+        - ".*Booting Sidewalk location.*"
+
+  sample.sidewalk.location.ble_only.release:
+    platform_allow:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf52840dk/nrf52840
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - FILE_SUFFIX=release
+
+  sample.sidewalk.location.lr1110:
+    build_only: false
+    platform_allow:
+      - nrf52840dk/nrf52840
+    integration_platforms:
+      - nrf52840dk/nrf52840
+    extra_args:
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+    harness: console
+    harness_config:
+      type: multi_line
+      regex:
+        - ".*Booting Sidewalk location.*"
+
+  sample.sidewalk.location.lr1110.release:
+    platform_allow:
+      - nrf52840dk/nrf52840
+    integration_platforms:
+      - nrf52840dk/nrf52840
+    extra_args:
+      - SHIELD="simple_arduino_adapter;semtech_lr1110mb1xxs"
+      - FILE_SUFFIX=release
+
+  sample.sidewalk.location.nrf_sidewalk_eb:
+    build_only: false
+    platform_allow:
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - SHIELD=nrf_sidewalk_eb
+    harness: console
+    harness_config:
+      type: multi_line
+      regex:
+        - ".*Booting Sidewalk location.*"
+
+  sample.sidewalk.location.nrf_sidewalk_eb.release:
+    platform_allow:
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+      - nrf54lm20dk/nrf54lm20b/cpuapp
+    integration_platforms:
+      - nrf54l15dk/nrf54l15/cpuapp
+      - nrf54lm20dk/nrf54lm20a/cpuapp
+    extra_args:
+      - SHIELD=nrf_sidewalk_eb
+      - FILE_SUFFIX=release
