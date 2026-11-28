@@ -30,6 +30,12 @@ static void set_radio_config(const void *cfg)
 {
 	set_radio_lr11xx_device_config((const radio_lr11xx_device_config_t *)cfg);
 }
+#elif defined(CONFIG_SIDEWALK_SUBGHZ_RADIO_LR2021)
+#include <lr20xx_config.h>
+static void set_radio_config(const void *cfg)
+{
+	set_radio_lr20xx_device_config((const radio_lr20xx_device_config_t *)cfg);
+}
 #endif /* CONFIG_SIDEWALK_SUBGHZ_RADIO */
 
 #if defined(CONFIG_SIDEWALK_SUBGHZ_SUPPORT)

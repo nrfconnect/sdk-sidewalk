@@ -1,0 +1,60 @@
+# Copyright (c) 2026 Seeed Technology Co., Ltd.
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+
+description: Semtech LR2021 (LoRa Plus) Sub-GHz radio
+
+compatible: "semtech,lr2021"
+
+include: spi-device.yaml
+
+# The LR2021 module has no RF switch, so the rf-sw-* properties of the lr11xx
+# bindings are intentionally absent. The HF clock reference is selected by
+# tcxo-wakeup-time: 0 selects the external XTAL (non-TCXO module), a non-zero
+# value selects the TCXO reference (tcxo-voltage, stabilization delay in ms).
+# PA power tables and RSSI calibration values are board-measured and optional.
+properties:
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: GPIO connected to NRESET (active-low).
+
+  busy-gpios:
+    type: phandle-array
+    required: true
+    description: GPIO connected to BUSY DIO (active-high).
+
+  event-gpios:
+    type: phandle-array
+    required: true
+    description: GPIO connected to the IRQ/event DIO.
+
+  reg-mode:
+    type: int
+    required: true
+    enum: [0, 2]
+    description: Regulator mode. See LR20XX_REG_MODE_* in dt-bindings/lora_lbm/lr20xx.h.
+
+  lf-clk:
+    type: int
+    required: true
+    enum: [0, 2]
+    description: Low-frequency clock source. See LR20XX_LFCLK_* in dt-bindings/lora_lbm/lr20xx.h.
+
+  tcxo-voltage:
+    type: int
+    required: true
+    description: |
+      TCXO supply voltage. See LR20XX_SYSTEM_TCXO_CTRL_* in dt-bindings/lora_lbm/lr20xx.h.
+      Ignored when tcxo-wakeup-time = 0 (XTAL mode).
+
+  tcxo-wakeup-time:
+    type: int
+    required: true
+    description: |
+      TCXO stabilization time in milliseconds. Set to 0 to DISABLE TCXO and use
+      an external XTAL (the LR2021 non-TCXO variant). >0 selects the TCXO variant
+      and programs lr20xx_system_set_tcxo_mode() with this startup delay.
+
+  tx-power-offset:
+    type: int
+    description: Optional board TX power offset in dB.

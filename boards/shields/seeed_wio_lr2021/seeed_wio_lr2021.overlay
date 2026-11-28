@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2026 Seeed Technology Co., Ltd.
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ *
+ * Seeed Wio LR2021 shield (TCXO variant).
+ */
+
+#include "seeed_wio_lr2021_common.dtsi"
+
+&lora_semtech_lr2021 {
+	compatible = "semtech,lr2021";
+};

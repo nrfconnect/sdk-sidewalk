@@ -1,0 +1,5 @@
+# Copyright (c) 2026 Seeed Technology Co., Ltd.
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+
+config SHIELD_SEMTECH_WIO_LR20XX
+	def_bool $(shields_list_contains,semtech_wio_lr20xx)

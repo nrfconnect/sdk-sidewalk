@@ -1,0 +1,54 @@
+/*
+ * Copyright (c) 2026 Seeed Technology Co., Ltd.
+ * SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+ *
+ * Common devicetree fragment for the Semtech Wio LR20xx shield (Xiao
+ * form-factor). This is the non-TCXO variant: tcxo-wakeup-time = 0 disables
+ * the TCXO reference path so the radio uses an external XTAL for its HF
+ * clock. tcxo-voltage is ignored in this mode (left at 0).
+ *
+ * Pin map mirrors the Seeed Wio LR2021 shield:
+ *   D0 = radio IRQ/event, D1 = BUSY, D2 = NRESET, D3 = SPI CS.
+ *
+ * The node label must stay lora_semtech_lr2021: the Sidewalk LR2021
+ * configuration looks the radio up via DT_NODELABEL() in
+ * app_subGHz_config_lr20xx.c (same convention as the lr11xx config).
+ */
+
+#include <zephyr/dt-bindings/lora_lbm/lr20xx.h>
+
+/ {
+	chosen {
+		zephyr,lora-transceiver = &lora_semtech_lr2021;
+	};
+
+	aliases {
+		lora-transceiver = &lora_semtech_lr2021;
+	};
+};
+
+&xiao_spi {
+	status = "okay";
+	cs-gpios = <&xiao_d 3 GPIO_ACTIVE_LOW>;
+
+	lora_semtech_lr2021: lora@0 {
+		reg = <0>;
+		spi-max-frequency = <DT_FREQ_M(8)>;
+
+		/* Board-specific offset */
+		tx-power-offset = <0>;
+
+		reset-gpios = <&xiao_d 2 GPIO_ACTIVE_LOW>;                  /* D2 */
+		busy-gpios = <&xiao_d 1 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>; /* D1 */
+		event-gpios = <&xiao_d 0 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>;/* D0 */
+
+		reg-mode = <LR20XX_REG_MODE_DCDC>;
+
+		lf-clk = <LR20XX_LFCLK_RC>;
+
+		/* Non-TCXO variant: external XTAL for the HF reference. tcxo-voltage
+		 * is ignored when tcxo-wakeup-time = 0. */
+		tcxo-voltage = <0>;
+		tcxo-wakeup-time = <0>;
+	};
+};
