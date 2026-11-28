@@ -18,6 +18,7 @@
 
 #include "sid_pal_radio_ifc.h"
 #include "sid_pal_delay_ifc.h"
+#include "sid_pal_critical_region_ifc.h"
 
 #include "halo_lr11xx_radio.h"
 #include "lr11xx_radio.h"
@@ -237,12 +238,14 @@ lr11xx_hal_status_t lr11xx_hal_wakeup( const void* context )
       }
     }
 
+    sid_pal_enter_critical_region();
     bool success = drv_ctx->config->bus_selector.client_selector_cb
                        ? drv_ctx->config->bus_selector.client_selector_cb(
                              &drv_ctx->config->bus_selector, SID_PAL_SERIAL_BUS_CLIENT_SELECT,
                              drv_ctx->config->bus_selector.client_selector_context)
                        : sid_pal_gpio_write(drv_ctx->config->bus_selector.client_selector, 0) == SID_ERROR_NONE;
     if (!success) {
+        sid_pal_exit_critical_region();
         return LR11XX_HAL_STATUS_ERROR;
     }
 
@@ -254,6 +257,7 @@ lr11xx_hal_status_t lr11xx_hal_wakeup( const void* context )
                         &drv_ctx->config->bus_selector, SID_PAL_SERIAL_BUS_CLIENT_DESELECT,
                         drv_ctx->config->bus_selector.client_selector_context)
                   : sid_pal_gpio_write(drv_ctx->config->bus_selector.client_selector, 1) == SID_ERROR_NONE;
+    sid_pal_exit_critical_region();
     if (!success) {
         return LR11XX_HAL_STATUS_ERROR;
     }
