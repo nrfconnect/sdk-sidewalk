@@ -5,9 +5,4 @@
  */
 
 #include "../../../boards/nrf54lm20dk_nrf54lm20b_cpuapp.overlay"
-
-/ {
-	chosen {
-		zephyr,code-partition = &boot_partition;
-	};
-};
+#include <mcuboot_boot_partition.dtsi>

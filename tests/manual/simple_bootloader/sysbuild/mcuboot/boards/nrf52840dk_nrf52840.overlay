@@ -5,9 +5,4 @@
  */
 
 #include "../../../boards/nrf52840dk_nrf52840.overlay"
-
-/ {
-	chosen {
-		zephyr,code-partition = &boot_partition;
-	};
-};
+#include <mcuboot_boot_partition.dtsi>

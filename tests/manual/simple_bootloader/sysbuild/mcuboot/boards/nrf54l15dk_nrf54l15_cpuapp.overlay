@@ -5,12 +5,7 @@
  */
 
 #include "../../../boards/nrf54l15dk_nrf54l15_cpuapp.overlay"
-
-/ {
-	chosen {
-		zephyr,code-partition = &boot_partition;
-	};
-};
+#include <mcuboot_boot_partition.dtsi>
 
 &spi00 {
 	status = "disabled";
